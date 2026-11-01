@@ -10,7 +10,6 @@ import { readConfirmed } from './calcConfirmation';
 import { cleanGoal, cleanTeamList, GOAL_KEY, investorProfile, TEAM_LIST_KEY, TEAM_ROLES } from './myPlan';
 import { proGuideByKey } from './proGuide';
 import { countyName } from './regions';
-import { taxAtPrice } from './stateCosts';
 import { ROADMAP, STEP_STATUS_LABEL } from './roadmap';
 import { cleanDealSteps, DEAL_STEPS_KEY } from './roadmapDeals';
 
@@ -36,8 +35,7 @@ export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCa
   const raw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
   if (!raw) return null;
   const typed = readConfirmed(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
-  const v0 = withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, typed);
-  const v = { ...v0, propertyTaxYear: taxAtPrice(v0, d.state, d.county, typed, RENT_DEFAULTS.value, RENT_DEFAULTS.propertyTaxYear) };
+  const v = withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, typed);
   if (!(v.atPrice > 0)) return null;
   const a = rentAtPrice(v, v.atPrice, offer);
   return { price: v.atPrice, monthly: a.cashFlow / 12, cashOnCash: a.cashOnCash, target: v.targetCocPct, cashIn: a.cashIn, exampleValue: refiOnExampleValue(v, offer, typed), refiValue: v.value, cashNeeded: !offer && a.loan > 0 ? a.allIn : a.cashIn, cashLimit: v.cashAvailable > 0 ? v.cashAvailable : 0, refi: !offer && a.loan > 0 };

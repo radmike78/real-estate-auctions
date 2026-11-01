@@ -75,7 +75,7 @@ function stepEvidence(id: string): string | null {
   }
   if (id === 'c-buybox') {
     const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);
-    return b.strategy === LIEN_STRATEGY && b.cashMax > 0 ? 'Your buy box shows Lien certificates and the cash you’ll tie up.' : null;
+    return b.strategy === LIEN_STRATEGY && b.cashMax > 0 && b.notes.trim() ? 'Your buy box shows Lien certificates, the cash you’ll tie up and your limits in its notes.' : null;
   }
   if (id === 'practice') {
     const c = caseFor(getMyState());
@@ -137,22 +137,11 @@ function GoalField() {
     <label className="field roadmap-goal">
       <span>Your goal, in one sentence</span>
       <textarea rows={2} maxLength={400} value={g} onChange={(e) => change(e.target.value)} onBlur={(e) => {
-        // Moving on within this step (Tab to its "Done"): leave the ticking to that button, so the step doesn't move
-        // away from under the keyboard. Leaving the step ticks it as before.
+        // Moving on within this step (Tab to its "Done" or its status buttons): those buttons decide, so the step
+        // doesn't move away from under the keyboard. Leaving the step straight from the box ticks it as before.
         const here = e.currentTarget.closest('.roadmap-next, .roadmap-step');
-        const value = e.target.value;
-        if (here && e.relatedTarget instanceof Node && here.contains(e.relatedTarget)) {
-          // Tick it once focus leaves the step without "Done" (Tab on past it, or a click elsewhere).
-          const left = (ev: Event) => {
-            const to = (ev as FocusEvent).relatedTarget;
-            if (to instanceof Node && here.contains(to)) return;
-            here.removeEventListener('focusout', left);
-            settleAfterPress(value);
-          };
-          here.addEventListener('focusout', left);
-          return;
-        }
-        settleAfterPress(value);
+        if (here && e.relatedTarget instanceof Node && here.contains(e.relatedTarget)) return;
+        settleAfterPress(e.target.value);
       }} placeholder="e.g. A rental I’ll hold 10 years, where the rent covers the costs. About 6 hours a week." />
       {!g.trim() && fromDecide && <button type="button" className="linkish" onClick={() => { change(fromDecide); settle(fromDecide); }}>Start from my Decide answers: “{fromDecide}”</button>}
     </label>
@@ -519,13 +508,10 @@ function PriceFromCash({ cash }: { cash: number }) {
   const [savedNote, setSavedNote] = useState('');
   const useCash = () => {
     const b = read(BUYBOX_KEY, { ...EMPTY_BUY_BOX, state: getMyState() ?? '' }, cleanBuyBox);
-    // A price this worksheet set earlier from a loan (it saved its loan assumptions with it) no longer applies.
-    const loanPrice = !!b.priceAssumptions;
-    const { priceAssumptions: _a, ...rest } = b;
-    write(BUYBOX_KEY, { ...(loanPrice ? { ...rest, priceMax: 0 } : b), cashMax: Math.round(cash) });
+    // Only the cash limit changes. A price limit already there stays (it may be yours): say when it's more than the cash.
+    write(BUYBOX_KEY, { ...b, cashMax: Math.round(cash) });
     window.dispatchEvent(new CustomEvent(PLAN_EVENT));
-    setSavedNote(`Saved: a ${fmtMoney(Math.round(cash))} cash limit in your buy box${loanPrice ? ', and the earlier loan-based price limit was cleared' : ''}.`);
-    showBuyBox();
+    setSavedNote(`Saved: a ${fmtMoney(Math.round(cash))} cash limit in your buy box.${b.priceMax > cash ? ` Its price limit is still ${fmtMoney(b.priceMax)}, more than this cash: lower it if you’re paying cash.` : ''}`);
   };
   if (payingCash) return (
     <div className="price-from-cash">
@@ -564,7 +550,7 @@ function PriceFromCash({ cash }: { cash: number }) {
           // The area's own property tax rate, so the estimate can match it (Texas rates are often 2% or more alone).
           const area = getMyArea();
           const line = area?.county ? countyTaxLine(area.state, area.county) : null;
-          return line ? <p className="muted small">Property tax alone, {line.short.replace(/\.$/, '')}; add insurance to it for this estimate.</p> : null;
+          return line ? <p className="muted small">Property tax alone, {line.short.replace(/\.$/, '')}; add insurance to it for this estimate.{area && (area.state === 'NV' || area.state === 'AZ') ? ' That rate is on the county’s value, which is often below the price, so using it here errs on the high side.' : ''}</p> : null;
         })()}
         <p className="muted small">These are starting estimates, not loan requirements or an affordability decision. Down payment, interest rate and money kept in reserve depend on the loan and your situation. Confirm financing with your lender, and costs with the relevant providers.</p>
       </details>

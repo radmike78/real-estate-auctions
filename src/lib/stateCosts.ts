@@ -53,18 +53,6 @@ export function rentalStartFor(state: StateCode, value: number, county?: string)
 const OF_SHORT: Record<StateTaxRates['of'], string> = { price: 'price', market: 'value', fcv: 'full cash value', taxable: 'taxable value' };
 const pctWord = (n: number) => `${n.toLocaleString('en-US', { maximumFractionDigits: 2 })}%`;
 
-/**
- * A rental's property tax at your price: once you've entered a price, a tax that's still one of our starting figures
- * (the county's or the state's rate on the example value, or the flat example) becomes the county's rate on your price.
- * A tax you typed is yours and stays.
- */
-export function taxAtPrice(v: { propertyTaxYear: number; atPrice: number }, state: StateCode, county: string | undefined, typed: ReadonlySet<string>, exampleValue: number, flatExample: number): number {
-  const c = countyTaxRate(state, county);
-  if (!c || typed.has('propertyTaxYear') || !(v.atPrice > 0)) return v.propertyTaxYear;
-  const starts = new Set([rentalStartFor(state, exampleValue, county).propertyTaxYear, rentalStartFor(state, exampleValue).propertyTaxYear, flatExample]);
-  if (!starts.has(v.propertyTaxYear)) return v.propertyTaxYear;
-  return Math.round((v.atPrice * c.pct) / 100 / 50) * 50;
-}
 
 /**
  * Where the starting property tax comes from: a short line (the county's published rate and year) and the detail
@@ -79,7 +67,7 @@ export function countyTaxLine(state: StateCode, county?: string): { short: strin
   const range = c.low !== null && c.high !== null ? ` Inside the county it runs about ${pctWord(c.low)} to ${pctWord(c.high)}, depending on the city, school district and special districts at the address.` : ' The rate at a given address can differ from the county’s average.';
   return {
     short: `${place}: about ${pctWord(c.pct)} of ${OF_SHORT[s.of]} a year (${s.year} rental rate).`,
-    detail: `Once you enter your price, the starting tax here follows it at this rate; use the county’s figure for your property when you have it. For a first estimate, multiply your ${s.of === 'price' ? 'price' : 'price or value'} by ${pctWord(c.pct)}. That rate is ${s.how}, from the ${s.source}.${range}`,
+    detail: `The starting figure here is this rate on the calculator’s example value; once you enter your price, the hint works out the rate on it for you to enter. Use the county’s figure for your property when you have it. For a first estimate, multiply your ${s.of === 'price' ? 'price' : 'price or value'} by ${pctWord(c.pct)}. That rate is ${s.how}, from the ${s.source}.${range}`,
   };
 }
 

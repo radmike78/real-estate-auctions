@@ -145,14 +145,15 @@ export const ROADMAP: RoadmapStep[] = [
     outcome: 'Notes comparing two counties’ lien sales, the one you chose and why.',
     steps: ['For each county, read the treasurer’s sale page: when the sale is, how it’s run (online or in person) and how bidding works.', 'Note how many parcels are offered and what kinds (vacant land, homes, commercial).', 'Note how payment works, the deadlines and any fees.', 'Record sources, dates and open questions in your buy-box notes.'],
     doneWhen: 'You compared two counties’ sales and recorded why you chose one, with sources and open questions.',
+    skip: 'Your state sells these certificates in only one county (in Nevada, SID lien certificates are a Clark County sale): read that county’s sale page instead, and mark this “Doesn’t apply to me”.',
     action: 'Your county’s lien sale page', href: '#/find-deals',
   },
   {
     id: 'c-buybox', phase: 2, path: LIEN, title: 'Write your lien limits',
     text: 'Set your limits before the sale, so a list of parcels can’t talk you into tying up more than you meant to.',
     outcome: 'Saved limits: the cash you’ll tie up in certificates, the most per certificate, the longest wait you’ll accept and the parcels you’ll skip.',
-    steps: ['Choose Lien certificates as your strategy in the buy box below and enter the cash you’ll tie up.', 'Write the most you’ll pay for one certificate and the longest you’re willing to wait to be paid.', 'Add the parcels you’ll skip no matter the rate (for example, land you’d never want to own if the lien isn’t paid).'],
-    doneWhen: 'Your buy box shows Lien certificates, the cash you’ll tie up and the parcels you’ll skip.',
+    steps: ['Choose Lien certificates as your strategy in the buy box below and enter the cash you’ll tie up.', 'In the buy box notes, write the most you’ll pay for one certificate and the longest you’re willing to wait to be paid.', 'In the notes too, list the parcels you’ll skip no matter the rate (for example, land you’d never want to own if the lien isn’t paid).'],
+    doneWhen: 'Your buy box shows Lien certificates and the cash you’ll tie up, with your other limits in its notes.',
     action: 'Fill in your buy box', href: '#/toolkit/buy-box',
   },
   {

@@ -215,10 +215,11 @@ export default function DealsPage() {
                         const n = dealNumbers(d);
                         // The same check as Keep and rent: the cash it needs against My plan's, unless a limit was entered there.
                         const planCash = investorProfile().investable;
-                        const short = !!n && !(n.cashLimit > 0) && planCash > 0 && n.cashNeeded > planCash;
+                        const limit = n && n.cashLimit > 0 ? n.cashLimit : planCash;
+                        const short = !!n && limit > 0 && n.cashNeeded > limit;
                         return n ? (
-                          <p className={short || (!n.exampleValue && (n.monthly <= 0 || (n.cashOnCash !== null && n.cashOnCash < n.target / 100))) ? 'deal-urgent' : undefined}>
-                            At your price, {fmtMoney(n.price)}: {n.monthly < 0 ? `loses ${fmtMoney(Math.round(-n.monthly))}` : `${fmtMoney(Math.round(n.monthly))} cash flow`} a month{n.exampleValue ? ` (${refiValueWords(n.refiValue)})` : n.refi ? ' after the refinance' : ''} · {n.exampleValue ? 'enter the value after repairs to see the return' : n.cashOnCash === null ? 'all your cash back' : `${(n.cashOnCash * 100).toFixed(1)}% a year on ${fmtMoney(Math.round(n.cashIn))} of your cash`} (target {n.target}%){short ? ` · needs about ${fmtMoney(Math.round(n.cashNeeded))} of your cash (My plan: ${fmtMoney(Math.round(planCash))})` : ''}
+                          <p className={short || (!(n.exampleValue && n.refiValue > 0) && (n.monthly <= 0 || (n.cashOnCash !== null && n.cashOnCash < n.target / 100))) ? 'deal-urgent' : undefined}>
+                            At your price, {fmtMoney(n.price)}: {n.monthly < 0 ? `loses ${fmtMoney(Math.round(-n.monthly))}` : `${fmtMoney(Math.round(n.monthly))} cash flow`} a month{n.exampleValue ? ` (${refiValueWords(n.refiValue)})` : n.refi ? ' after the refinance' : ''} · {n.exampleValue && n.refiValue > 0 ? 'enter the value after repairs to see the return' : n.cashOnCash === null ? 'all your cash back' : `${(n.cashOnCash * 100).toFixed(1)}% a year on ${fmtMoney(Math.round(n.cashIn))} of your cash`} (target {n.target}%){short ? ` · needs about ${fmtMoney(Math.round(n.cashNeeded))} of your cash (${n.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}
                           </p>
                         ) : d.plan === 'rent' ? <p className="muted">No numbers yet: open it and enter the price you’d pay under Keep and rent.</p> : <OtherNumbers d={d} />;
                       })()}

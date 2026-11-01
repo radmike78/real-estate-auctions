@@ -16,7 +16,7 @@ const visibleFields = <T,>(groups: CalcGroup<T>[], v: T) => groups.flatMap((g) =
 /** Set by the county (transfer tax) or not a number you choose: never listed as an example. */
 const NOT_EXAMPLES = new Set(['transferTaxPer500', 'buyerPremiumPct', 'atPrice']);
 import { investorProfile } from '../lib/myPlan';
-import { propertyTaxHint, rentalStartFor, taxAtPrice, transferTaxFor } from '../lib/stateCosts';
+import { countyTaxRate, propertyTaxHint, rentalStartFor, transferTaxFor } from '../lib/stateCosts';
 
 /** The purchase-cost fields worded for the deal's state and county, starting at its transfer tax. */
 /** `countyTax`: the starting property tax follows the county (a deal's calculator), so the hint names the county. */
@@ -262,6 +262,9 @@ const OFTEN_FORGOTTEN = [
 /** Stress tests, the deal in plain words, and a checklist of easy-to-forget costs. */
 /** The rental at a price you type: every step from rent to cash flow, with its assumptions. */
 function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false }: { v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string; /** The refinance is still on our example value. */ exampleValue?: boolean }) {
+  // The refinance on our example value: its return isn't this property's. Blank: no refinance counted, the rest is real.
+  const exampleRefi = exampleValue && v.value > 0;
+  const blankRefi = exampleValue && !(v.value > 0);
   // Your cash limit: the cash entered here, else My plan's investable cash (an auction rental starts with no limit).
   const planCash = investorProfile().investable;
   const cashLimit = v.cashAvailable > 0 ? v.cashAvailable : planCash;
@@ -282,9 +285,10 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false }
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
       </label>
       {price > 0 && (
-        <p className={`calc-verdict${exampleValue ? '' : a.cashFlow > 0 && (coc === null || coc >= target) ? ' good' : ' bad'}`} role="status">
-          <strong>{exampleValue ? `Not this property’s return yet: ${v.value > 0 ? `the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value` : 'no refinance is counted, because the value after repairs is blank'}. Enter the value after repairs to see the loan and your return; your target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
-          {exampleValue ? null : a.cashFlow <= 0
+        <p className={`calc-verdict${exampleRefi ? '' : a.cashFlow > 0 && (coc === null || coc >= target) ? ' good' : ' bad'}`} role="status">
+          <strong>{exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; your target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
+          {blankRefi && 'No refinance is counted yet: enter the value after repairs to include it. '}
+          {exampleRefi ? null : a.cashFlow <= 0
             ? `It loses about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month after every cost. Investigate whether the price, the costs or your plan should change, or walk away.`
             : coc !== null && coc < target
               ? `Cash flow is positive (about ${fmtMoney(Math.round(a.cashFlow / 12))} a month), but it misses your goal. Investigate whether the price, the costs or the goal should change.`
@@ -398,7 +402,7 @@ function StrComparison({ v }: { v: RentInputs }) {
 }
 
 /** For longer holds: keep it some years, then sell. The yearly return on your cash (IRR) and the equity multiple. */
-function HoldAndSell({ v, onPrice, target = 0 }: { v: RentInputs; onPrice: boolean; /** The target (walk-away) price, used only when there's no price and no value. */ target?: number }) {
+function HoldAndSell({ v, onPrice, target = 0, exampleValue = false }: { v: RentInputs; onPrice: boolean; /** The target (walk-away) price, used only when there's no price and no value. */ target?: number; /** The value is still our example (not typed). */ exampleValue?: boolean }) {
   const [h, setH] = useState<HoldSellInputs>(HOLD_SELL_DEFAULTS);
   // The price you'd actually pay; without one, the property's value (not the walk-away price, which would count buying
   // below value as a gain you haven't made). With neither, the target price; with none of them, no result.
@@ -415,7 +419,7 @@ function HoldAndSell({ v, onPrice, target = 0 }: { v: RentInputs; onPrice: boole
   return (
     <details className="deal-lab hold-sell">
       <summary><span className="summary-h4">If you keep it and sell later</span></summary>
-      <p className="small muted">{at > 0 && (v.atPrice > 0 ? <>At {atWhat}, {fmtMoney(at)}. </> : v.value > 0 ? <>Figured as if you paid {v.value === RENT_DEFAULTS.value ? 'our example value' : 'the value entered'}, {fmtMoney(at)}, because you haven’t entered your price; enter it above to see this at your price. </> : <>At {atWhat}, {fmtMoney(at)}. </>)}Rent and costs grow together; the loan payment stays the same. Before income tax: depreciation you took is taxed when you sell (see <a href="#/learn/taxes">Taxes from purchase to sale</a>).</p>
+      <p className="small muted">{at > 0 && (v.atPrice > 0 ? <>At {atWhat}, {fmtMoney(at)}. </> : v.value > 0 ? <>Figured as if you paid {exampleValue ? 'our example value' : 'the value entered'}, {fmtMoney(at)}, because you haven’t entered your price; enter it above to see this at your price. </> : <>At {atWhat}, {fmtMoney(at)}. </>)}Rent and costs grow together; the loan payment stays the same. Before income tax: depreciation you took is taxed when you sell (see <a href="#/learn/taxes">Taxes from purchase to sale</a>).</p>
       <div className="row">{field('years', 'Years you keep it', 'years')}{field('appreciationPct', 'Value growth a year', '%')}{field('rentGrowthPct', 'Rent growth a year', '%')}{field('sellingCostPct', 'Selling costs', '% of price')}</div>
       {!r ? (
         <p>Enter your price or the appraised value to see a hold-and-sell result.</p>
@@ -486,16 +490,22 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   // guide to a Nevada one), except figures the property itself supplied (`start`) and numbers you typed (useSaved).
   const stateForce: Partial<RentInputs> = regional ? Object.fromEntries(Object.entries(stateStart).filter(([k]) => !(k in start))) : {};
   const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500, ...stateForce } : {}, regional ? `${rt.per500}|${region.state}` : '{}');
-  const v0 = offer ? { ...withoutOldValueExample(saved, true, typedKeys), buyerPremiumPct: 0 } : saved;
-  // A starting tax follows your price once you enter it (the county's rate on it); a tax you typed stays.
-  const taxed = regional ? taxAtPrice(v0, region.state, region.county, typedKeys, start.value ?? RENT_DEFAULTS.value, RENT_DEFAULTS.propertyTaxYear) : v0.propertyTaxYear;
-  const v = taxed === v0.propertyTaxYear ? v0 : { ...v0, propertyTaxYear: taxed };
+  const v = offer ? { ...withoutOldValueExample(saved, true, typedKeys), buyerPremiumPct: 0 } : saved;
   const r = rentMaxBid(v, offer);
   const exampleValue = refiOnExampleValue(v, offer, typedKeys);
   const n = rentNoi(v);
-  const groups = offer ? forOffer(rt.groups) : rt.groups;
+  // Once you've entered your price, the tax hint works out the county's rate on it, for you to enter: the box itself
+  // never changes on its own (so the walk-away price doesn't move as you try prices).
+  // (It also covers a box that still holds another county's starting figure.)
+  const rate = regional && !typedKeys.has('propertyTaxYear') ? countyTaxRate(region.state, region.county) : null;
+  const taxBase = v.atPrice > 0 ? v.atPrice : (start.value ?? RENT_DEFAULTS.value);
+  const taxHere = rate ? Math.round((taxBase * rate.pct) / 100 / 50) * 50 : 0;
+  const withTaxHint = (gs: CalcGroup<RentInputs>[]) => (rate && taxHere !== v.propertyTaxYear
+    ? gs.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} At ${v.atPrice > 0 ? `your ${fmtMoney(v.atPrice)} ${offer ? 'offer' : 'bid'}` : `a ${fmtMoney(taxBase)} price`}: about ${fmtMoney(taxHere)}.`.trim() } : f)) }))
+    : gs);
+  const groups = withTaxHint(offer ? forOffer(rt.groups) : rt.groups);
   // Numbers from your plan or the property (`start`) aren't our examples.
-  const still = exampleLabels(visibleFields(groups, v), v, { ...examples, propertyTaxYear: taxed === v0.propertyTaxYear ? examples.propertyTaxYear : taxed }, typedKeys, new Set([...NOT_EXAMPLES, ...Object.keys(start)]));
+  const still = exampleLabels(visibleFields(groups, v), v, examples, typedKeys, new Set([...NOT_EXAMPLES, ...Object.keys(start)]));
   const basics = new Set<keyof RentInputs>(['monthlyRent', 'propertyTaxYear', 'insuranceYear', 'repairs', 'loanPct', 'ratePct']);
   const basicFields = groups.flatMap((g) => g.fields).filter((f) => basics.has(f.k));
   const moreGroups = groups.map((g) => ({ ...g, fields: g.fields.filter((f) => !basics.has(f.k)) }));
@@ -522,7 +532,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         {/* No price to figure them at yet (no offer, no walk-away price, no value): ask for one instead of showing $0. */}
         {at.price > 0 ? <CashCushion v={v} price={at.price} at={at.label} onPrice={offer} /> : null}
         {at.price > 0 ? <RentDealLab v={v} at={at} onPrice={offer} /> : <p className="calc-note small">Enter {offer ? 'your offer (the asking price)' : 'your bid'} to see the cash cushion, the stress test and how a lender sees this rent at that price.</p>}
-        <HoldAndSell v={v} onPrice={offer} target={r.maxBid} />
+        <HoldAndSell v={v} onPrice={offer} target={r.maxBid} exampleValue={v.value === RENT_DEFAULTS.value && !typedKeys.has('value')} />
         {at.price > 0 ? <LenderView v={v} at={at} onPrice={offer} /> : null}
         <StrComparison v={v} />
       </div>
