@@ -509,10 +509,12 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
     });
   }
 
+  const [summaryFailed, setSummaryFailed] = useState(false);
   useEffect(() => {
     if (!me || me === 'loading') return;
     const qs = `?from=${range.from}&to=${range.to}`;
-    api<Summary>(`/api/pro/metrics${qs}`).then(setSummary).catch(() => setSummary(null));
+    setSummaryFailed(false);
+    api<Summary>(`/api/pro/metrics${qs}`).then(setSummary).catch(() => { setSummary(null); setSummaryFailed(true); });
     api<{ leads: Lead[] }>(`/api/pro/leads${qs}`).then((r) => setLeads(r.leads)).catch(() => setLeads([]));
   }, [me, range.from, range.to]);
 
@@ -570,6 +572,7 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
         <span className="small muted">{fmtDate(range.from)} – {fmtDate(range.to)}</span>
       </div>
 
+      {t && summaryFailed && <OwlNote>Your results couldn’t load just now. Your ad is still running. Try again in a few minutes, or choose another date range.</OwlNote>}
       {t && summary && (
         <>
           <section className="kpis" aria-label="Results">

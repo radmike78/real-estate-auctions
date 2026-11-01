@@ -93,7 +93,9 @@ export function planNow(now = new Date()): PlanNow {
   // doesn't turn the plan into that property's buying steps.
   // Unless you chose that property in My plan: then it's the one you're working on.
   const picked = !!deal && rawDealChoice() === `analyzed:${deal.id}`;
-  const paperPractice = researching && !picked && ['paper', 'c-paper'].includes(roadmapNextStep()?.id ?? '');
+  // Until the roadmap reaches the property's own steps (paper practice, finding a sale), a researching analysis is
+  // practice, not the property you're buying.
+  const paperPractice = researching && !picked && ['paper', 'c-paper', 'find', 'a-find', 'c-sale'].includes(roadmapNextStep()?.id ?? '');
   const guidedLearning = !picked && ((getMode() === 'guided' && !practicePart2Done() && researching) || paperPractice);
   if (deal && !guidedLearning) {
     const stage = stageOf(deal);
@@ -143,6 +145,6 @@ export function planNow(now = new Date()): PlanNow {
     goal,
     source: 'roadmap',
     context: 'Roadmap · every step done',
-    task: { key: 'next-deal', label: 'Find your next property', produces: 'a new candidate saved in Analyze, starting at Researching', href: '#/find-deals', support: [{ label: 'Analyze a deal', href: '#/analyze' }], done: false, text: 'Find your next property.' },
+    task: { key: 'next-deal', label: planPath() === 'certificate' ? 'Find your next lien sale' : 'Find your next property', produces: 'a new candidate saved in Analyze, starting at Researching', href: '#/find-deals', support: [{ label: 'Analyze a deal', href: '#/analyze' }], done: false, text: 'Find your next property.' },
   };
 }

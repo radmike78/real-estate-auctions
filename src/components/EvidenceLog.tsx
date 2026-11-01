@@ -101,7 +101,7 @@ function useReloadOnSave(dealId: string, setLog: (l: Log) => void) {
 }
 
 /** The decision on its own, where the deal packet asks for it; the same choice as the log's, kept in sync. */
-export function DecisionGate({ dealId }: { dealId: string }) {
+export function DecisionGate({ dealId, onPass }: { dealId: string; /** Offered after choosing Pass: move the property to Passed. */ onPass?: () => void }) {
   const [log, setLog] = useState<Log>(() => loadLog(dealId));
   useReloadOnSave(dealId, setLog);
   const choose = (gate: Log['gate']) => { const next = { ...loadLog(dealId), gate }; saveLog(dealId, next); setLog(next); };
@@ -114,6 +114,7 @@ export function DecisionGate({ dealId }: { dealId: string }) {
           <span><strong>{g.label}</strong> <span className="muted">{g.when}</span></span>
         </label>
       ))}
+      {log.gate === 'pass' && onPass && <p><button type="button" className="btn btn-secondary" onClick={onPass}>Move it to Passed</button> <span className="muted small">My plan then stops asking for research on it.</span></p>}
     </fieldset>
   );
 }

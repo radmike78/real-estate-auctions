@@ -1,4 +1,4 @@
-import { stepContext } from '../lib/planNext';
+import { roadmapNextStep, stepContext } from '../lib/planNext';
 import NumInput from './NumInput';
 import { syncRoadmapCredits } from '../lib/journey';
 import { useAccount } from '../lib/account';
@@ -261,6 +261,7 @@ export function FirstDealRoadmap() {
     setPath(k);
     save(ROADMAP_PATH_KEY, k);
   };
+  const learnerNext = deal && planNow().source === 'roadmap' ? roadmapNextStep() : null;
   return (
     <section id="roadmap" aria-labelledby="roadmap-head">
       <h2 id="roadmap-head">Your investing roadmap</h2>
@@ -328,8 +329,15 @@ export function FirstDealRoadmap() {
             <StepBody s={next} status={stateOf(next)} setStatus={(v) => setStatus(next, v)} deal={deal} />
           </div>
         </div>
+      ) : deal && learnerNext ? (
+        // Practice analyses saved, but the plan is still on your own task (paper practice, finding a sale): show it here.
+        <div className="roadmap-next" id="roadmap-next">
+          <p className="roadmap-next-label">Next task · {stepContext(learnerNext)}</p>
+          <h3>{learnerNext.title}</h3>
+          <StepBody s={learnerNext} status={stateOf(learnerNext)} setStatus={(v) => setStatus(learnerNext, v)} />
+        </div>
       ) : (
-        <p className="next-step" role="status">Use the task details below to record each milestone; contract tasks may run at the same time.</p>
+        <p className="next-step" role="status">Use the task details below to record each milestone{stage === 'contract' ? '; contract tasks may run at the same time' : ''}.</p>
       )}
       <h3 className="roadmap-all-head">All tasks</h3>
       {phases.map((ph) => {

@@ -37,4 +37,5 @@ if (typeof document !== 'undefined') {
   const closeNotes = (keep?: Element | null) => document.querySelectorAll('details.calc-more[open]').forEach((d) => { if (d !== keep) d.removeAttribute('open'); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeNotes(); });
   document.addEventListener('pointerdown', (e) => closeNotes((e.target as Element | null)?.closest?.('details.calc-more')));
+  document.addEventListener('focusin', (e) => closeNotes((e.target as Element | null)?.closest?.('details.calc-more')));
 }

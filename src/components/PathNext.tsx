@@ -17,7 +17,8 @@ export default function PathNext({ step }: { step: StepKey }) {
       if (step !== 'analyze') return null; // you're on it, and only Analyze ticks a property's task by itself
       return <nav className="path-next" aria-label="Next step"><span className="muted">You’re on your next step: {plan.task.label}. It’s marked done once you’ve entered it here.</span></nav>;
     }
-    if (here && page(plan.task.support[0]?.href) === here) {
+    // Practice is rehearsal: a real task that links to it ("Register and bid") still happens at the real sale.
+    if (here && step !== 'practice' && page(plan.task.support[0]?.href) === here) {
       return (
         <nav className="path-next" aria-label="Next step">
           <span className="muted">You’re on your next step: {plan.task.label}. When you have {plan.task.produces}, mark it done in My plan.</span>
