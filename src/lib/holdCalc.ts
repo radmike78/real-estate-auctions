@@ -596,3 +596,13 @@ export function refiOnExampleValue(v: RentInputs, offer: boolean, typed: Readonl
 
 /** How a refinance with no real value after repairs is figured, in words (for refiOnExampleValue's case). */
 export const refiValueWords = (value: number) => (value > 0 ? `the loan is on our example value after repairs` : 'no refinance is counted until you enter the value after repairs');
+
+/**
+ * A listed home's "cash you can put in" starts from My plan's investable cash. Until you type your own figure there, it
+ * follows My plan (so changing My plan updates the deal everywhere); a figure you typed stays yours.
+ */
+export function withPlanCash<T extends { cashAvailable: number }>(v: T, offer: boolean, typed: ReadonlySet<string>, planCash: number): T {
+  if (!offer || typed.has('cashAvailable')) return v;
+  const cash = planCash > 0 ? Math.round(planCash) : 0;
+  return v.cashAvailable === cash ? v : { ...v, cashAvailable: cash };
+}

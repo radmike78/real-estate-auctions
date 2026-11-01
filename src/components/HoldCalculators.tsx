@@ -4,7 +4,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState } from 'react';
 import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
 import type { BidInputs } from '../lib/bidCalc';
-import { COMMERCIAL_DEFAULTS, commercialAtPrice, commercialLines, lenderView, STR_DEFAULTS, strCompare, type StrInputs, HOLD_SELL_DEFAULTS, SELLER_FINANCE_DEFAULTS, sellerFinance, type SellerFinanceInputs, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs, withoutOldValueExample, refiOnExampleValue } from '../lib/holdCalc';
+import { COMMERCIAL_DEFAULTS, commercialAtPrice, commercialLines, lenderView, STR_DEFAULTS, strCompare, type StrInputs, HOLD_SELL_DEFAULTS, SELLER_FINANCE_DEFAULTS, sellerFinance, type SellerFinanceInputs, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs, withoutOldValueExample, refiOnExampleValue, withPlanCash } from '../lib/holdCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
@@ -132,7 +132,7 @@ function buyGroup<T extends BuyInputs>(repairsLabel = 'Repairs'): CalcGroup<T> {
  */
 function forOffer<T>(groups: CalcGroup<T>[]): CalcGroup<T>[] {
   const relabel: Record<string, { label?: string; hint?: string; more?: string }> = {
-    cashAvailable: { label: 'Your investable cash for this deal (all in)', hint: 'Down payment, closing costs and repairs. 0 for no limit.', more: 'Starts at your investable cash from My plan: subtract the reserves your lender wants you to keep. Your walk-away price never needs more cash than this.' },
+    cashAvailable: { label: 'Your investable cash for this deal (all in)', hint: 'Down payment, closing costs and repairs. 0 for no limit.', more: 'Follows your investable cash in My plan until you type your own figure here: subtract the reserves your lender wants you to keep. Your walk-away price never needs more cash than this.' },
     transferTaxPer500: { hint: 'Your contract says who pays. Enter 0 if the seller pays it.' },
     survivingLiens: { label: 'Liens you’d have to pay', hint: 'Usually paid off at closing. Check the title report.' },
     titleLegal: { label: 'Closing costs: title, escrow, recording', hint: 'Lender fees go in “Loan costs” below.', more: 'Your Loan Estimate or the lender’s term sheet and the escrow officer’s estimate have the real figures. Together with lender fees, closing costs often run 2–4% of the price.' },
@@ -261,7 +261,7 @@ const OFTEN_FORGOTTEN = [
 
 /** Stress tests, the deal in plain words, and a checklist of easy-to-forget costs. */
 /** The rental at a price you type: every step from rent to cash flow, with its assumptions. */
-function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false }: { v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string; /** The refinance is still on our example value. */ exampleValue?: boolean }) {
+function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, cashTyped = false }: { v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string; /** The refinance is still on our example value. */ exampleValue?: boolean; /** The cash limit is one you typed (else it follows My plan). */ cashTyped?: boolean }) {
   // You plan to live in one unit (Decide: a home loan and live in it): a loss is your own housing cost, not a failed deal.
   const livingThere = onPrice && !!investorProfile().ownerOccupant;
   // The refinance on our example value: its return isn't this property's. Blank: no refinance counted, the rest is real.
@@ -270,7 +270,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false }
   // Your cash limit: the cash entered here, else My plan's investable cash (an auction rental starts with no limit).
   const planCash = investorProfile().investable;
   const cashLimit = v.cashAvailable > 0 ? v.cashAvailable : planCash;
-  const limitWords = v.cashAvailable > 0 ? `the ${fmtMoney(v.cashAvailable)} you can put in` : `the ${fmtMoney(Math.round(planCash))} of investable cash in My plan`;
+  const limitWords = v.cashAvailable > 0 && cashTyped ? `the ${fmtMoney(v.cashAvailable)} you can put in` : `the ${fmtMoney(Math.round(cashLimit))} of investable cash in My plan`;
   const walkAway = Number.isFinite(start) && start > 0 ? Math.round(start) : 0;
   // The price you'd actually pay is saved with the deal; the walk-away price is only used when you choose it.
   const price = v.atPrice;
@@ -305,7 +305,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false }
       )}
       {price > 0 && cashShort && <p className="small"><button type="button" className="linkish" onClick={(e) => { const f = e.currentTarget.closest('.calc')?.querySelector<HTMLInputElement>('input[id$="-cashAvailable"]'); if (!f) return; for (let d = f.closest('details'); d; d = d.parentElement?.closest('details') ?? null) d.open = true; f.scrollIntoView({ block: 'center' }); f.focus({ preventScroll: true }); }}>Enter your cash</button></p>}
       {price === 0 && <p className="muted small">Enter the price you’d pay (the asking price, or your offer) to see your numbers at that price.</p>}
-      {walkAway > 0 && price !== walkAway && <button type="button" className="linkish" onClick={() => setPrice(walkAway)}>Use the walk-away price ({fmtMoney(walkAway)})</button>}
+      {walkAway > 0 && price !== walkAway && !livingThere && <button type="button" className="linkish" onClick={() => setPrice(walkAway)}>Use the walk-away price ({fmtMoney(walkAway)})</button>}
       {price > 0 && (<>
       <table className="deal-stress waterfall">
         <caption className="sr-only">Monthly income and costs at this price</caption>
@@ -499,7 +499,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   // guide to a Nevada one), except figures the property itself supplied (`start`) and numbers you typed (useSaved).
   const stateForce: Partial<RentInputs> = regional ? Object.fromEntries(Object.entries(stateStart).filter(([k]) => !(k in start))) : {};
   const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500, ...stateForce } : {}, regional ? `${rt.per500}|${region.state}` : '{}');
-  const v = offer ? { ...withoutOldValueExample(saved, true, typedKeys), buyerPremiumPct: 0 } : saved;
+  const v = offer ? { ...withPlanCash(withoutOldValueExample(saved, true, typedKeys), true, typedKeys, investorProfile().investable), buyerPremiumPct: 0 } : saved;
   const r = rentMaxBid(v, offer);
   const exampleValue = refiOnExampleValue(v, offer, typedKeys);
   const n = rentNoi(v);
@@ -512,7 +512,11 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const withTaxHint = (gs: CalcGroup<RentInputs>[]) => (rate && taxHere !== v.propertyTaxYear
     ? gs.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} At ${v.atPrice > 0 ? `your ${fmtMoney(v.atPrice)} ${offer ? 'offer' : 'bid'}` : `a ${fmtMoney(taxBase)} price`}: about ${fmtMoney(taxHere)}.`.trim() } : f)) }))
     : gs);
-  const groups = withTaxHint(offer ? forOffer(rt.groups) : rt.groups);
+  const groups0 = withTaxHint(offer ? forOffer(rt.groups) : rt.groups);
+  // Living there: that's a rental's rate; a home you live in may get an owner-occupant (homestead) exemption.
+  const groups = offer && investorProfile().ownerOccupant
+    ? groups0.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} That’s a rental’s rate: a home you live in may qualify for a homestead exemption that lowers it; ask the county.*`.trim() } : f)) }))
+    : groups0;
   // Numbers from your plan or the property (`start`) aren't our examples.
   const still = exampleLabels(visibleFields(groups, v), v, examples, typedKeys, new Set([...NOT_EXAMPLES, ...Object.keys(start)]));
   const basics = new Set<keyof RentInputs>(['monthlyRent', 'propertyTaxYear', 'insuranceYear', 'repairs', 'loanPct', 'ratePct']);
@@ -533,7 +537,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
         {offer && investorProfile().ownerOccupant && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
-        <AtThisPrice v={v} start={r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} />
+        <AtThisPrice v={v} start={r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} />
         <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} />
         {/* An auction rental's later refinance is sized on the value after repairs: say so while that's still our example. */}
         {exampleValue && (

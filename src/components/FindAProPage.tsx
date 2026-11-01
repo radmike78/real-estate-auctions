@@ -9,7 +9,7 @@ import { AreaLine } from './AreaPicker';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPercent, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 import { guidesFor } from '../lib/playbooks';
-import { ROADMAP_PATH_KEY, roadmapPath } from '../lib/roadmapState';
+import { roadmapPath } from '../lib/roadmapState';
 import { CURRENT_KEY, type Deal } from '../lib/analyze';
 import { guideKeyFor } from '../lib/dealPacket';
 import { STATES, stateByCode, type StateCode } from '../lib/regions';
@@ -297,7 +297,6 @@ export default function FindAProPage({ section }: { section?: string }) {
   const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
   const [mine, setMine] = useMyState();
   // Opens on the kind of sale your roadmap route is about (an auction, a lien certificate), when your state has it.
-  const hasPickedRoute = () => { try { return localStorage.getItem(ROADMAP_PATH_KEY) !== null; } catch { return false; } };
   const [sale, setSale] = useState<string>(() => {
     // The property open in Analyze (a saved one) decides first: its own kind of sale.
     try {
@@ -311,8 +310,8 @@ export default function FindAProPage({ section }: { section?: string }) {
     const pre = mine === 'NV' ? '' : (mine ?? '').toLowerCase();
     const want = r === 'auction' ? `${pre}foreclosure` : r === 'certificate' ? (mine === 'NV' ? 'sid' : 'aztaxlien') : '';
     if (want && guidesFor(mine).some((p) => p.key === want)) return want;
-    // The agent route (a route was picked): the team for a listed home.
-    return mine && r === 'listing' && hasPickedRoute() ? 'listing' : 'start';
+    // The agent route (the roadmap's default): the team for a listed home.
+    return mine && r === 'listing' ? 'listing' : 'start';
   });
   const { pros } = useDirectory();
   const book = mine ? guidesFor(mine).find((p) => p.key === sale) : undefined;

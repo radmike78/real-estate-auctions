@@ -5,7 +5,7 @@ import { workStorage as localStorage } from './workStorage';
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
 import { ownNumbers } from './dealPacket';
 import { EVIDENCE_AREAS, GATES, loadLog } from './evidence';
-import { rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, type RentInputs } from './holdCalc';
+import { rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, withPlanCash, type RentInputs } from './holdCalc';
 import { readConfirmed } from './calcConfirmation';
 import { cleanGoal, cleanTeamList, GOAL_KEY, investorProfile, TEAM_LIST_KEY, TEAM_ROLES } from './myPlan';
 import { proGuideByKey } from './proGuide';
@@ -35,10 +35,10 @@ export function dealNumbers(d: Deal): { price: number; monthly: number; cashOnCa
   const raw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
   if (!raw) return null;
   const typed = readConfirmed(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
-  const v = withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, typed);
+  const v = withPlanCash(withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, typed), offer, typed, investorProfile().investable);
   if (!(v.atPrice > 0)) return null;
   const a = rentAtPrice(v, v.atPrice, offer);
-  return { price: v.atPrice, monthly: a.cashFlow / 12, cashOnCash: a.cashOnCash, target: v.targetCocPct, cashIn: a.cashIn, exampleValue: refiOnExampleValue(v, offer, typed), refiValue: v.value, cashNeeded: !offer && a.loan > 0 ? a.allIn : a.cashIn, cashLimit: v.cashAvailable > 0 ? v.cashAvailable : 0, refi: !offer && a.loan > 0 };
+  return { price: v.atPrice, monthly: a.cashFlow / 12, cashOnCash: a.cashOnCash, target: v.targetCocPct, cashIn: a.cashIn, exampleValue: refiOnExampleValue(v, offer, typed), refiValue: v.value, cashNeeded: !offer && a.loan > 0 ? a.allIn : a.cashIn, cashLimit: typed.has('cashAvailable') && v.cashAvailable > 0 ? v.cashAvailable : 0, refi: !offer && a.loan > 0 };
 }
 
 export function propertyPacketText(d: Deal): string {
