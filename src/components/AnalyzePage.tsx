@@ -12,7 +12,7 @@ import { CalcRegion } from './calcRegion';
 import { useMarkStep, stepEyebrow } from '../lib/path';
 import { dropStateLead, useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { CURRENT_KEY, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
+import { CURRENT_KEY, keepUnsavedDraft, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
 import { investorProfile } from '../lib/myPlan';
@@ -53,11 +53,6 @@ function blank(st: StateCode): Deal {
 function loadCurrent(st: StateCode): Deal {
   try {
     const v = cleanDeal(JSON.parse(localStorage.getItem(CURRENT) ?? 'null'));
-    // An untouched draft (no name, notes or ticks) follows your route's kind of sale, like a new one.
-    if (v && (!st || v.state === st) && !v.id && !v.name.trim() && !v.notes.trim() && v.done.length === 0 && v.kind !== kindForRoute(v.state)) {
-      const kind = kindForRoute(v.state);
-      return { ...v, kind, plan: kind === 'lien' ? 'lien' : v.plan === 'lien' ? planFromBuyBox() : v.plan };
-    }
     if (v && (!st || v.state === st)) return v;
   } catch {
     /* start fresh */
@@ -94,19 +89,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   // or a change of state replaces it. Returns the deal's state when one was saved, for the notice.
   const [keptNote, setKeptNote] = useState('');
   const keepUnsaved = (): string | null => {
-    let cur: Deal | null = null;
-    try {
-      cur = cleanDeal(JSON.parse(localStorage.getItem(CURRENT) ?? 'null'));
-    } catch {
-      return null;
-    }
-    if (!cur || cur.id || (!cur.name.trim() && !cur.notes.trim() && cur.done.length === 0)) return null;
-    const all = loadDeals();
-    if (all.some((x) => x.updatedAt === cur.updatedAt && x.name.trim() === (cur.name.trim() || `${countyName(cur.county)} deal`))) return null;
-    const d = { ...cur, id: `d${Date.now().toString(36)}`, name: cur.name.trim() || `${countyName(cur.county)} deal` };
-    saveDeals([d, ...all]);
-    carryDraftNumbers(d.id, d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short');
-    return `Your unsaved ${stateByCode(d.state)?.name ?? ''} deal “${d.name}” was saved to My deals.`;
+    const d = keepUnsavedDraft();
+    return d ? `Your unsaved ${stateByCode(d.state)?.name ?? ''} deal “${d.name}” was saved to My deals.` : null;
   };
   const [deal, setDeal] = useState<Deal>(() => {
     if (!prefill) {
@@ -181,7 +165,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const saveNew = () => {
     if (!deal.locationConfirmed) return;
     // Saved while the roadmap is on paper practice (or finding a property): a practice analysis.
-    const practicing = ['paper', 'c-paper', 'find', 'a-find', 'c-sale'].includes(roadmapNextStep()?.id ?? '');
+    const practicing = savingPractice();
     const d: Deal = { ...deal, id: `d${Date.now().toString(36)}`, name: deal.name.trim() || `${countyName(deal.county)} deal`, stage: 'researching', ...(practicing ? { practice: true } : {}) };
     carryDraftNumbers(d.id, d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short');
     const next = [d, ...saved];
@@ -270,7 +254,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             <ul>
               {saved.map((d) => (
                 <li key={d.id} className={d.id === deal.id ? 'on' : ''}>
-                  <button type="button" className="linkish" onClick={() => setDeal(d)}>{d.name}</button>
+                  <button type="button" className="linkish" onClick={() => { const kept = keepUnsaved(); if (kept) setKeptNote(kept); setDeal(d); }}>{d.name}</button>
                   <span className="muted"> · {countyName(d.county)}, {d.state}</span>
                   <button type="button" className="linkish danger" aria-label={`Delete ${d.name}`} onClick={() => remove(d.id)}>Delete</button>
                 </li>

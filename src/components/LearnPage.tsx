@@ -1,3 +1,4 @@
+import { openDeal } from '../lib/analyze';
 import { planNow, planStarted } from '../lib/planNext';
 import { getMode } from '../lib/journey';
 import StatePicker from './StatePicker';
@@ -81,7 +82,7 @@ export default function LearnPage() {
         {/* Guided readers past the Start-here lessons: the plan's next step leads, the next lesson stays one link away. */}
         <h2 id="learn-next">Your next step: {guidedPlan.task.label}</h2>
         <p>{guidedPlan.task.text}</p>
-        <a className="btn" href={guidedPlan.task.href}>{planStarted(guidedPlan) ? 'Continue' : 'Start'}&nbsp;→</a>
+        <a className="btn" href={guidedPlan.task.href} onClick={(e) => { if (guidedPlan.task.openDeal && guidedPlan.deal) { e.preventDefault(); openDeal(guidedPlan.deal); } }}>{planStarted(guidedPlan) ? 'Continue' : 'Start'}&nbsp;→</a>
         <p className="muted">Or keep reading: <a href={`#/learn/${next.key}`}>{next.title}&nbsp;→</a></p>
       </section>
       ) : (

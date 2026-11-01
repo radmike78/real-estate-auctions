@@ -223,7 +223,32 @@ const KEY = 'deedowl.analyze.v1';
 export const CURRENT_KEY = 'deedowl.analyze.current.v1';
 
 /** Open a saved deal on the Analyze page. */
+// Whether a deal saved now is a practice analysis (the roadmap is on paper practice). planNext.ts sets the check, so
+// this module doesn't import the plan.
+let practicingNow = () => false;
+export function setPracticeCheck(f: () => boolean) { practicingNow = f; }
+export const savingPractice = () => practicingNow();
+
+/** An unsaved, started deal in Analyze, saved to My deals before something replaces it. Returns it, or null. */
+export function keepUnsavedDraft(): Deal | null {
+  let cur: Deal | null = null;
+  try {
+    cur = cleanDeal(JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null'));
+  } catch {
+    return null;
+  }
+  if (!cur || cur.id || (!cur.name.trim() && !cur.notes.trim() && cur.done.length === 0)) return null;
+  const all = loadDeals();
+  const name = cur.name.trim() || `${countyName(cur.county)} deal`;
+  if (all.some((x) => x.updatedAt === cur!.updatedAt && x.name.trim() === name)) return null;
+  const d: Deal = { ...cur, id: `d${Date.now().toString(36)}`, name, stage: 'researching', ...(savingPractice() ? { practice: true } : {}) };
+  saveDeals([d, ...all]);
+  carryDraftNumbers(d.id, d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short');
+  return d;
+}
+
 export function openDeal(d: Deal) {
+  keepUnsavedDraft(); // opening a saved deal never throws away one you started
   try {
     localStorage.setItem(CURRENT_KEY, JSON.stringify(d));
   } catch {

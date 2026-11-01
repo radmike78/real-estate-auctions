@@ -3,7 +3,7 @@ import { emptyRow, EVIDENCE_AREAS, EVIDENCE_EVENT, GATES, loadLog, logText, save
 import { downloadText, fileName } from '../lib/download';
 
 /** For one deal: what you verified, where it came from and what's still open, then the decision it supports. */
-export default function EvidenceLog({ dealId, name, initiallyOpen = false }: { dealId: string; name: string; initiallyOpen?: boolean }) {
+export default function EvidenceLog({ dealId, name, initiallyOpen = false, onPass }: { dealId: string; name: string; initiallyOpen?: boolean; /** Offered after choosing Pass: move the property to Passed. */ onPass?: () => void }) {
   const [log, setLog] = useState<Log>(() => loadLog(dealId));
   useReloadOnSave(dealId, setLog);
   // Saved on every change, so another editor of the same deal (a roadmap step) never works from an old copy.
@@ -48,6 +48,7 @@ export default function EvidenceLog({ dealId, name, initiallyOpen = false }: { d
             <span><strong>{g.label}</strong> <span className="muted">{g.when}</span></span>
           </label>
         ))}
+        {log.gate === 'pass' && onPass && <p><button type="button" className="btn btn-secondary" onClick={onPass}>Move it to Passed</button></p>}
       </fieldset>
       {log.gate === 'proceed' && openCount > 0 && <p className="caution" role="status">You still have {openCount} open question{openCount === 1 ? '' : 's'}. Resolve them before you commit money.</p>}
       <button type="button" className="btn btn-secondary" onClick={() => downloadText(fileName(`evidence log ${name}`, 'txt'), logText(name, log))}>Download the log</button>
@@ -115,7 +116,7 @@ export function DecisionGate({ dealId, onPass }: { dealId: string; /** Offered a
           <span><strong>{g.label}</strong> <span className="muted">{g.when}</span></span>
         </label>
       ))}
-      {moved ? <p role="status"><strong>Moved to Passed.</strong> My plan moves on to your next property.</p>
+      {moved && log.gate === 'pass' ? <p role="status"><strong>Moved to Passed.</strong> My plan moves on to your next property.</p>
         : log.gate === 'pass' && onPass && <p><button type="button" className="btn btn-secondary" onClick={() => { onPass(); setMoved(true); }}>Move it to Passed</button> <span className="muted small">My plan then stops asking for research on it.</span></p>}
     </fieldset>
   );
