@@ -19,7 +19,7 @@ import { projectedMonthly, useOwned } from './OwnedTracker';
 import { countyName } from '../lib/regions';
 import StatusBadge from './StatusBadge';
 import { dealNumbers } from '../lib/propertyPacket';
-import { nextAction, savedNumbers } from '../lib/dealPacket';
+import { flipNeedsRepairs, nextAction, savedNumbers } from '../lib/dealPacket';
 import { investorProfile } from '../lib/myPlan';
 import { refiValueWords, rentVerdict } from '../lib/holdCalc';
 import { stageLabel, stageOf, setDealStage } from '../lib/dealStage';
@@ -159,7 +159,7 @@ function OtherNumbers({ d }: { d: Deal }) {
   const { bid, lien, commercial } = savedNumbers(d);
   if (commercial) {
     // The same order as the deal packet: no price works, a price over $1 billion (a typo), no target, then your price.
-    if (commercial.noRealistic && (commercial.none || !commercial.at)) return <p className="deal-urgent">No realistic price fits the cash you entered: {commercial.none ? 'it doesn’t cover the repairs and costs, before any price' : `it covers the costs but leaves only about ${fmtMoney(commercial.maxBid)} for the price`}.</p>;
+    if (commercial.noRealistic && (commercial.none || !commercial.at)) return <p className="deal-urgent">No realistic price fits the cash you entered: {commercial.none ? 'it doesn’t cover the repairs and costs, before any price' : commercial.hasLoan ? `with what’s left for the down payment, the most you could pay is about ${fmtMoney(commercial.maxBid)}` : `it covers the costs but leaves only about ${fmtMoney(commercial.maxBid)} for the price`}.</p>;
     if (commercial.none && commercial.weakSupported) return <p className="deal-urgent">The income supports a price of only about {fmtMoney(commercial.weakSupported)}, far below the value, and the cash you entered doesn’t cover the costs either.</p>;
     if (commercial.none) return <p className="deal-urgent">No price meets your {commercial.capPct}% return on cost with the income and costs entered.</p>;
     if (commercial.noTarget && commercial.overCap) return <p className="deal-urgent">The price comes out over $1 billion with the rent and costs entered: check them for a typo.</p>;
@@ -212,6 +212,8 @@ function OtherNumbers({ d }: { d: Deal }) {
   }
   if (lien?.overCap) return <p className="deal-urgent">{fmtMoney(lien.price)} certificate · the interest rate entered is above {d.state === 'AZ' ? 'Arizona’s legal maximum of 16% a year' : 'Nevada’s 1% a month'}: fix it under Lien certificate to see the yield.</p>;
   if (lien) return <p>{fmtMoney(lien.price)} certificate · {lien.yearly === null ? 'no yield' : `${(lien.yearly * 100).toFixed(1)}% a year`} if paid off in {lien.months} months</p>;
+  // The resale value is in, only the repairs are missing: ask for just those.
+  if (flipNeedsRepairs(d)) return <p className="muted">Almost there: open it and enter the repairs under Fix and flip (fix and sell), or 0 if there are none.</p>;
   return <p className="muted">No numbers yet: open it and enter {d.plan === 'flip' ? 'the resale value and repairs under Fix and flip (fix and sell)' : d.plan === 'commercial' ? 'the rent under Commercial income' : 'the certificate price under Lien certificate'}.</p>;
 }
 

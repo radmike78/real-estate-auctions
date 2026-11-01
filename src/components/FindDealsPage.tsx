@@ -1,7 +1,7 @@
 import { planPath } from '../lib/roadmapState';
 import { findDealsAllowsAds } from '../lib/contextAds';
 import { guideKeyFor } from '../lib/dealPacket';
-import { type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import NarrowDown from './NarrowDown';
 import { findDealsConfig } from '../lib/narrow';
 import PageHero from './PageHero';
@@ -66,6 +66,8 @@ export default function FindDealsPage() {
   const [mine, setMine] = useMyArea();
   // Auction and lien-certificate readers (their roadmap route) start at the county sources, not the agent's MLS search.
   const countyRoute = planPath() !== 'listing';
+  // The route picked on this page (it opens those sources): County auction hides the ads, as the auction route does.
+  const [chosen, setChosen] = useState<'listing' | 'county' | null>(null);
   const { pros } = useDirectory();
   const adCats = useSpotCategories('finddeals');
   const adShows = useAdShows(adCats, pros);
@@ -129,11 +131,11 @@ export default function FindDealsPage() {
           <li>Before you offer or bid, check the rent, value, repairs, title, who lives there, allowed use, insurance and loan. A quick calculation is only a first screen.</li>
         </ol></details>
       </section>
-      <section aria-label="Choose a purchase route"><h2>How do you want to buy?</h2><p>Choose a route to open the relevant official sources. You can switch or browse the other groups.</p><button type="button" className={countyRoute ? 'btn btn-secondary' : 'btn'} onClick={() => openSources('deals-national')}>Listed or bank-owned property</button>{' '}<button type="button" className={countyRoute ? 'btn' : 'btn btn-secondary'} onClick={() => openSources('deals-county')}>County auction</button></section>
+      <section aria-label="Choose a purchase route"><h2>How do you want to buy?</h2><p>Choose a route to open the relevant official sources. You can switch or browse the other groups.</p><button type="button" className={countyRoute ? 'btn btn-secondary' : 'btn'} onClick={() => { setChosen('listing'); openSources('deals-national'); }}>Listed or bank-owned property</button>{' '}<button type="button" className={countyRoute ? 'btn' : 'btn btn-secondary'} onClick={() => { setChosen('county'); openSources('deals-county'); }}>County auction</button></section>
       <h2 className="section-title">Official sources</h2>
       <p className="muted">Government agencies, Fannie Mae and Freddie Mac, and the banks that own the homes: the sellers themselves.</p>
 
-      <details className="plan-section" name="deal-sources" open={countyRoute || undefined}><summary>County auctions and property research</summary>
+      <details className="plan-section" name="deal-sources" open={countyRoute || undefined} onToggle={(e) => { if ((e.currentTarget as HTMLDetailsElement).open) setChosen('county'); }}><summary>County auctions and property research</summary>
       <Band id="deals-county" tone="county" icon={<IconFile />} title={`County offices: ${place}`} sub="The county’s own pages for tax sales, records and sheriff’s sales.">
         {officeCards.length > 0 ? (
           <>
@@ -196,7 +198,7 @@ export default function FindDealsPage() {
 
       </details>
       {/* Apart from the official sources and the other sites: its own heading, before the page's next step. */}
-      {adShows && findDealsAllowsAds(planPath()) && (
+      {adShows && findDealsAllowsAds(planPath()) && chosen !== 'county' && (
         <section aria-labelledby="fd-ads-head">
           <h2 id="fd-ads-head" className="section-title">Local professionals (paid ads)</h2>
           <FixedAds spot="finddeals" pros={pros} categories={adCats} placeholder />

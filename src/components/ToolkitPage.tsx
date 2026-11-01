@@ -571,7 +571,7 @@ function strategyPhrase(st: string): string {
   if (st === 'Bank-owned and government homes') return ', to buy bank-owned and government homes';
   if (st === 'Tax and foreclosure auctions') return ', to buy at tax and foreclosure auctions';
   if (st === 'Still deciding') return ', strategy still to be decided';
-  if (st === 'Apartments and commercial property') return ', to buy apartments or commercial property';
+  if (st === 'Apartments and commercial property') return ', to buy for the income';
   return `, to ${st.charAt(0).toLowerCase()}${st.slice(1)}`;
 }
 
@@ -658,7 +658,7 @@ function BuyBoxBuilder() {
           <span>Strategy</span>
           <select value={b.strategy} onChange={(e) => set('strategy', e.target.value)}>
             <option value="">Choose</option>
-            {strategies.map((s) => <option key={s} value={s}>{s === 'Apartments and commercial property' ? 'Apartments, commercial' : s}</option>)}
+            {strategies.map((s) => <option key={s}>{s}</option>)}
           </select>
         </label>
         {lien ? (
@@ -708,7 +708,7 @@ function BuyBoxBuilder() {
       <div className="buybox-summary" aria-live="polite">
         <h3>My buy box</h3>
         <p>
-          {lien ? `Lien certificates on ${b.types.length ? b.types.join(', ').toLowerCase() : 'any kind of parcel'}` : b.types.length ? b.types.join(', ') : 'Any property type'}
+          {lien ? `Lien certificates on ${b.types.length ? b.types.join(', ').toLowerCase() : 'any kind of parcel'}` : b.types.length ? b.types.join(', ') : b.strategy === 'Apartments and commercial property' ? 'Apartments or commercial property' : 'Any property type'}
           {b.beds && !lien ? ` (${b.beds})` : ''}
           {b.area ? ` in ${b.area}${state ? `, ${state.name}` : ''}` : state ? `, anywhere in ${state.name}` : ' in any area'}
           {b.strategy && !lien ? strategyPhrase(b.strategy) : ''}.

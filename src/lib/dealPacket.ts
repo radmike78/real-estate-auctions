@@ -457,7 +457,7 @@ const cashLimit = (offer: boolean) => (offer ? 'the cash you can put in' : 'the 
 function commercialPriceText(capPct: number, maxBid: number, limitedBy: CommercialLimit | undefined, capOnCost: number | null | undefined, offer: boolean, lower = false, noRealistic = false): string {
   const roc = pct1(capOnCost);
   // Under a tenth of the value: the cash goes to the costs, leaving almost nothing for the price (as the calculator says).
-  if (noRealistic) return `${lower ? 'walk-away price' : 'Walk-away price'}, set by ${cashLimit(offer)}: ${money(maxBid)}. That leaves almost nothing for the price, so no realistic ${offer ? 'offer' : 'bid'} fits this cash`;
+  if (noRealistic) return `${lower ? 'walk-away price' : 'Walk-away price'}, set by ${cashLimit(offer)}: ${money(maxBid)}, far below what the deal itself supports, so no realistic ${offer ? 'offer' : 'bid'} fits this cash`;
   if (limitedBy === 'cash') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by ${cashLimit(offer)}: ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
   if (limitedBy === 'dscr') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by the lender’s minimum coverage (DSCR): ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
   return lower ? `highest price ${money(maxBid)}` : `Highest price for ${/^(8|11|18)(\.|$)|^8/.test(String(capPct)) ? 'an' : 'a'} ${capPct}% return on cost: ${money(maxBid)}`;
@@ -601,7 +601,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   } else if (commercial?.noTarget) {
     cash.push(commercialNoTarget(strategy, commercial.overCap));
   } else if (commercial?.noRealistic) {
-    cash.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered in ${strategy}: ${commercial.none ? 'it doesn’t cover the repairs and costs, before any price' : `it covers the costs but leaves only about ${money(commercial.maxBid)} for the price`}. ${noRealisticAdvice(offer, !!commercial.hasLoan)}`);
+    cash.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered in ${strategy}: ${commercial.none ? 'it doesn’t cover the repairs and costs, before any price' : commercial.hasLoan ? `with what’s left for the down payment, the most you could pay is about ${money(commercial.maxBid)}` : `it covers the costs but leaves only about ${money(commercial.maxBid)} for the price`}. ${noRealisticAdvice(offer, !!commercial.hasLoan)}`);
   } else if (commercial?.none && commercial.weakSupported) {
     cash.push(`The income supports a price of only about ${money(commercial.weakSupported)}, far below the value, and the cash you entered in ${strategy} doesn’t cover the costs either. Check the rent and costs, or skip this one.`);
   } else if (commercial?.none) {

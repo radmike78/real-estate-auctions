@@ -226,7 +226,8 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
           </section>
         ))}
         <p className="walk-away-callout" role="note"><strong>No hype, no income promises.</strong> Many good decisions are the deals you walk away from.</p>
-        <AdSpot spot="playbook" />
+        {/* The list of sale guides is mostly forced sales and liens: no ads beside it. */}
+        <AdSpot spot="playbook" allow={false} />
       </main>
     );
   }

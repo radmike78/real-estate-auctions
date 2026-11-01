@@ -554,7 +554,7 @@ it('says no realistic bid fits when the cash leaves almost nothing for a commerc
   expect(c.limitedBy).toBe('cash');
   expect(c.maxBid).toBeLessThan(100000);
   const t = packetSections(auction, EMPTY_PACKET, now).find((s) => s.key === 'numbers')!.lines.join('\n');
-  expect(t).toMatch(/That leaves almost nothing for the price, so no realistic bid fits this cash/);
+  expect(t).toMatch(/far below what the deal itself supports, so no realistic bid fits this cash/);
 });
 
 it('says the cash entered, not the income, blocks a commercial deal', () => {

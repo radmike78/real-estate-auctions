@@ -226,11 +226,12 @@ export default function DecidePage() {
           </ol>
           <details className="decide-others">
             <summary>Other strategies, and why they rank lower for you</summary>
+            <p className="small muted">Which fits best depends on your situation, finances and risk tolerance; a goal that matters most to you can count for more than the score.</p>
             <ul>
               {rank(saved.answers).slice(3).map((m) => (
                 <li key={m.strategy.key}>
                   <strong>{m.strategy.title}.</strong> {m.goalFit && !notYetWhy(saved.answers)
-                    ? `It matches your goal (you ${QUESTIONS.find((q) => q.key === 'goal')!.options.find((o) => o.value === saved.answers.goal)?.why ?? 'picked it'}), but ranks lower because ${m.cautions.length || m.weak?.length ? `you ${joinReasons([...m.cautions, ...(m.weak ?? [])])}` : 'your other answers fit the three above a little better'}. Which fits best depends on your situation, finances and risk tolerance; a goal that matters most to you can count for more than the score.`
+                    ? `It matches your goal (you ${QUESTIONS.find((q) => q.key === 'goal')!.options.find((o) => o.value === saved.answers.goal)?.why ?? 'picked it'}), but ranks lower because ${m.cautions.length || m.weak?.length ? `you ${joinReasons([...m.cautions, ...(m.weak ?? [])])}` : 'your other answers fit the three above a little better'}.`
                     : m.cautions.length ? `Ranks lower because you ${joinReasons(m.cautions)}.` : 'It fits your answers less well than the three above.'}
                   {m.strategy.key === 'auction' && <> {AUCTION_REALITY}</>}
                 </li>
