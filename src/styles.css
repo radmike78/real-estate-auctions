@@ -2949,3 +2949,6 @@ dl.cash-result .cash-main { border-color: var(--accent); }
 .lookup-card a, .disclaimer a, .verify-card a:not(.btn), .lesson-try a, .plan-now a:not(.btn) { display: inline-flex; align-items: center; min-height: 44px; }
 /* Profile page: the contact card's heading fits its narrow side column (the name doesn't wrap to three big lines). */
 .page .side-col section > h2:first-child, .page .side-col h2 { font-size: 1.3rem; line-height: 1.3; }
+/* Advertiser dashboard: the ad-line box spans its card, and section titles inside a row with a button sit level with it. */
+.page section.plan-card > .field.wide { justify-self: stretch; }
+.row > .page-section-title { margin: 0; flex: 1 1 auto; }
