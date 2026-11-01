@@ -546,3 +546,13 @@ it('keeps the commercial minimum coverage for My deals', () => {
   expect(c.minDscr).toBe(1.25);
   expect(c.at!.loanOk).toBe(false);
 });
+
+it('says no realistic bid fits when the cash leaves almost nothing for a commercial price', () => {
+  const auction: Deal = { ...deal, kind: 'trustee', plan: 'commercial' };
+  localStorage.setItem('fsf.calc.commercial.d1.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 9, cashAvailable: 80000, value: 1000000 }));
+  const c = savedNumbers(auction).commercial!;
+  expect(c.limitedBy).toBe('cash');
+  expect(c.maxBid).toBeLessThan(100000);
+  const t = packetSections(auction, EMPTY_PACKET, now).find((s) => s.key === 'numbers')!.lines.join('\n');
+  expect(t).toMatch(/That leaves almost nothing for the price, so no realistic bid fits this cash/);
+});

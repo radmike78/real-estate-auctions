@@ -194,7 +194,7 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
       {deal && s.evidence && dealScoped(s) && <EvidenceArea key={`${deal.id}|${s.evidence}`} dealId={deal.id} dealName={deal.name} area={s.evidence} askFinding={status === 'done'} kind={deal.kind} />}
       {!deal && s.evidence && dealScoped(s) && <p className="muted">Working on a real property? Save it in <a href="#/analyze">Analyze</a> (it becomes the property you’re working on, shown above) to record what you find here.</p>}
       {s.id === 'goal' && <GoalField />}
-      {s.id === 'market' && <AreaLine what="Your sources, rules and checklists follow it." />}
+      {s.id === 'market' && <AreaLine county what="Your sources, rules and checklists follow it." />}
       {s.stop && forStateText(myState, s.stop) && <p className="roadmap-stop"><strong>When to pause:</strong> {dropStateLead(forStateText(myState, s.stop), myState)}</p>}
       <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
       {status !== 'done' && stepEvidence(s.id) && (

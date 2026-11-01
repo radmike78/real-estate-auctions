@@ -161,9 +161,16 @@ export function AreaDialog({ onClose }: { onClose: () => void }) {
 }
 
 /** "Your area: Henderson (Clark County) · Change": the saved area, on pages that use it, with a way to switch. */
-export function AreaLine({ what }: { what: string }) {
+export function AreaLine({ what, county = false }: { what: string; /** Asks for a county until one is chosen (the "Pick a county" step). */ county?: boolean }) {
   const [area] = useMyArea();
   const [open, setOpen] = useState(false);
+  if (county) return (
+    <p className="area-line">
+      {area?.county ? <>Your area: <strong>{areaLong(area)}</strong>. {what}</> : area ? <>Your area: <strong>{areaLong(area)}</strong>, no county yet. Your county decides the sources, rules and checklists you see.</> : <>Your county decides the sources, rules and checklists you see.</>}{' '}
+      <button type="button" className="linkish" onClick={() => setOpen(true)}>{area?.county ? 'Change' : 'Choose your county'}</button>
+      {open && <AreaDialog onClose={() => setOpen(false)} />}
+    </p>
+  );
   return (
     <p className="area-line">
       {area ? <>Your area: <strong>{areaLong(area)}</strong>. {what}</> : <>Choose your city or county to see {what.replace(/^Showing /, '').replace(/\.$/, '')}.</>}{' '}

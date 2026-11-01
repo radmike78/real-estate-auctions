@@ -2123,9 +2123,9 @@ h3.topic-head { margin: 24px 0 10px; padding: 8px 14px; font-size: 1.2rem; borde
 .why-col { border-radius: 14px; padding: 16px 18px; border: 1px solid var(--border); background: var(--surface); }
 .why-yes { border-top: 4px solid #16a34a; background: color-mix(in srgb, #16a34a 6%, var(--surface)); }
 .why-no { border-top: 4px solid #dc2626; background: color-mix(in srgb, #dc2626 5%, var(--surface)); }
-.why-col h4 { margin: 0 0 10px; font-size: 1.2rem; font-weight: 800; }
-.why-yes h4 span { color: #16a34a; }
-.why-no h4 span { color: #dc2626; }
+.why-col .why-head { margin: 0 0 10px; font-size: 1.2rem; font-weight: 800; font-family: var(--font-body); letter-spacing: normal; line-height: 1.6; }
+.why-yes .why-head span { color: #16a34a; }
+.why-no .why-head span { color: #dc2626; }
 .why-col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
 .why-col li { display: grid; gap: 3px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); max-width: none; }
 .why-col li:last-child { border-bottom: 0; padding-bottom: 0; }
@@ -2943,8 +2943,8 @@ dl.cash-result .cash-main { border-color: var(--accent); }
 .prerender-hold th, .prerender-hold td { text-align: left; padding: 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
 
 /* Check and cross marks use the theme-tuned colors, which keep 3:1 contrast in light and dark. */
-.why-yes h4 span { color: var(--go); }
-.why-no h4 span { color: var(--stop); }
+.why-yes .why-head span { color: var(--go); }
+.why-no .why-head span { color: var(--stop); }
 /* Phone tap targets: disclosure titles, decision tabs and stand-alone links get at least 44px. */
 .page summary, .deal-task-nav button { min-height: 44px; }
 .page summary:not(.lesson-topic > summary) { padding-block: 10px; }

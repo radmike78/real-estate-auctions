@@ -68,7 +68,7 @@ export function countyTaxLine(state: StateCode, county?: string): { short: strin
   const place = /\bCity$/.test(county) ? county : `${county} County`;
   const range = c.low !== null && c.high !== null ? ` Inside the county it runs about ${pctWord(c.low)} to ${pctWord(c.high)}, depending on the city, school district and special districts at the address.` : ' The rate at a given address can differ from the county’s average.';
   return {
-    short: `${place}: about ${pctWord(c.pct)} of ${OF_SHORT[s.of]} a year (${s.year} rental rate${s.of === 'taxable' || s.of === 'fcv' ? '; on a price it errs high' : ''}).`,
+    short: `${place}: about ${pctWord(c.pct)} of ${OF_SHORT[s.of]} a year (${s.year} rate for a rental${s.of === 'taxable' || s.of === 'fcv' ? '; figured on a price, it comes out a little high' : ''}).`,
     detail: `The starting figure here is this rate on the calculator’s example value; once you enter your price, the hint works out the rate on it for you to enter (at an auction, on the value instead wherever the county taxes its own value, not the price you pay). Use the county’s figure for your property when you have it. For a first estimate, multiply your ${s.of === 'price' ? 'price' : 'price or value'} by ${pctWord(c.pct)}. That rate is ${s.how}, from the ${s.source}.${range}`,
   };
 }
@@ -83,7 +83,7 @@ export function ownerOccupiedTaxNote(state: StateCode): string {
     case 'NV': return 'In Nevada a home you live in pays the same rate as a rental, but its yearly tax increase is capped at 3% (a rental’s cap can be up to 8%); ask the county assessor.*';
     case 'CA': return 'That’s a rental’s figure: a home you live in can get the homeowners’ exemption, which takes a little off the assessed value; ask the county assessor.*';
     case 'AZ': return 'That’s a rental’s figure: a home you live in can get the homeowner rebate on part of the school tax (up to $600 a year); ask the county assessor.*';
-    case 'UT': return 'A home you live in gets the same main-home exemption a long-term rental gets once you, the owner, file the assessor’s declaration that it’s a tenant’s main home; ask the county assessor.*';
+    case 'UT': return 'That rate already counts Utah’s main-home (primary residential) exemption, and a home you live in gets it too; some counties ask the owner to sign a statement that it’s their main home. Ask the county assessor.*';
   }
 }
 

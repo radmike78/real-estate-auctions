@@ -32,11 +32,11 @@ it('starts a rental’s property tax from the county’s rate, and from the stat
 
 it('says where the starting tax comes from, with the year and the range inside the county', () => {
   const h = propertyTaxHint('TX', 'Harris');
-  expect(h.hint).toBe('Harris County: about 2.44% of value a year (2025 rental rate).');
+  expect(h.hint).toBe('Harris County: about 2.44% of value a year (2025 rate for a rental).');
   // One short line: the state's rules are in the details.
   expect(h.more).toContain('the hint works out the rate on it for you to enter');
   expect(h.more).toContain('homestead');
-  expect(countyTaxLine('NV', 'Carson City')?.short).toBe('Carson City: about 1.24% of taxable value a year (2026 rental rate; on a price it errs high).');
+  expect(countyTaxLine('NV', 'Carson City')?.short).toBe('Carson City: about 1.24% of taxable value a year (2026 rate for a rental; figured on a price, it comes out a little high).');
   expect(h.more).toContain('Texas Comptroller of Public Accounts');
   expect(h.more).toContain('1.51% to 4.32%');
   expect(countyTaxLine('CA', 'Kern')?.short).toContain('about 1.25% of price');

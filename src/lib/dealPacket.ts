@@ -294,6 +294,8 @@ export function savedNumbers(d: Deal) {
     atNeed?: number;
     /** The lender's minimum income coverage (DSCR) you entered. */
     minDscr?: number;
+    /** The value once leased, as entered (0: blank). */
+    value?: number;
     at?: ReturnType<typeof commercialAtPrice> & { price: number };
     stress: { label: string; maxBid: number | null; limitedBy?: CommercialLimit; capOnCost?: number | null }[];
   } | null = null;
@@ -343,6 +345,7 @@ export function savedNumbers(d: Deal) {
         if (commercial) {
           commercial.cashLimit = v.cashAvailable > 0 ? v.cashAvailable : 0;
           commercial.minDscr = v.minDscr;
+          commercial.value = v.value > 0 ? v.value : 0;
           commercial.cashTyped = readConfirmed(`fsf.calc.commercial.${d.id}${offer ? '-offer' : ''}.v1`).has('cashAvailable');
         }
         if (commercial && v.atPrice > 0) {
@@ -426,8 +429,10 @@ const pct1 = (x: number | null | undefined) => (x === null || x === undefined ? 
 /** The commercial walk-away price, worded by what sets it: your target return, your cash, or the lender's coverage. */
 /** The calculator's own words for the cash limit: "put in" for a listed property (down payment, closing costs and repairs), "bring" at an auction. */
 const cashLimit = (offer: boolean) => (offer ? 'the cash you can put in' : 'the cash you can bring');
-function commercialPriceText(capPct: number, maxBid: number, limitedBy: CommercialLimit | undefined, capOnCost: number | null | undefined, offer: boolean, lower = false): string {
+function commercialPriceText(capPct: number, maxBid: number, limitedBy: CommercialLimit | undefined, capOnCost: number | null | undefined, offer: boolean, lower = false, value = 0): string {
   const roc = pct1(capOnCost);
+  // Under a tenth of the value: the cash goes to the costs, leaving almost nothing for the price (as the calculator says).
+  if (limitedBy === 'cash' && value > 0 && maxBid < value * 0.1) return `${lower ? 'walk-away price' : 'Walk-away price'}, set by ${cashLimit(offer)}: ${money(maxBid)}. That leaves almost nothing for the price, so no realistic ${offer ? 'offer' : 'bid'} fits this cash`;
   if (limitedBy === 'cash') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by ${cashLimit(offer)}: ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
   if (limitedBy === 'dscr') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by the lender’s minimum coverage (DSCR): ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
   return lower ? `highest price ${money(maxBid)}` : `Highest price for ${/^(8|11|18)(\.|$)|^8/.test(String(capPct)) ? 'an' : 'a'} ${capPct}% return on cost: ${money(maxBid)}`;
@@ -624,7 +629,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
   else if (commercial?.none) nums.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered`);
   else if (commercial) {
-    nums.push(`${commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost, offer)}, on ${money(commercial.noi)} a year of net operating income`);
+    nums.push(`${commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost, offer, false, commercial.value ?? 0)}, on ${money(commercial.noi)} a year of net operating income`);
     for (const s of commercial.stress) {
       // Cash sets both prices: the lower rent doesn't move it, so say so instead of repeating the same figure as news.
       const same = s.limitedBy === 'cash' && commercial.limitedBy === 'cash' && s.maxBid === commercial.maxBid;

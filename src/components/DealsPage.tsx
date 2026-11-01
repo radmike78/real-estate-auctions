@@ -178,7 +178,9 @@ function OtherNumbers({ d }: { d: Deal }) {
     const limit = commercial.cashLimit && commercial.cashLimit > 0 ? commercial.cashLimit : commercial.cashTyped ? 0 : planCash;
     const need = commercial.refi ? commercial.allIn : commercial.cashLeft;
     const short = limit > 0 && need > limit;
-    return <p className={short ? 'deal-urgent' : undefined}>Highest price for your {commercial.capPct}% return on cost: {fmtMoney(commercial.maxBid)} · {fmtMoney(Math.round(commercial.noi))} a year of net operating income{short ? ` · needs about ${fmtMoney(Math.round(need))} of your cash at that price (${commercial.cashLimit && commercial.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</p>;
+    // Capped by your cash so low (under a tenth of the value) that no realistic price fits, as Commercial income says.
+    if (commercial.limitedBy === 'cash' && (commercial.value ?? 0) > 0 && commercial.maxBid < (commercial.value ?? 0) * 0.1) return <p className="deal-urgent">No realistic price fits the cash you entered: it covers the costs but leaves only about {fmtMoney(commercial.maxBid)} for the price.</p>;
+    return <p className={short ? 'deal-urgent' : undefined}>{commercial.limitedBy === 'cash' ? 'Walk-away price, set by the cash you entered' : commercial.limitedBy === 'dscr' ? 'Walk-away price, set by the lender’s minimum coverage' : `Highest price for your ${commercial.capPct}% return on cost`}: {fmtMoney(commercial.maxBid)} · {fmtMoney(Math.round(commercial.noi))} a year of net operating income{short ? ` · needs about ${fmtMoney(Math.round(need))} of your cash at that price (${commercial.cashLimit && commercial.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</p>;
   }
   if (bid) {
     if (bid.none) return <p className="deal-urgent">No price works at a {fmtMoney(bid.exitValue)} resale value with these costs and your profit target.</p>;

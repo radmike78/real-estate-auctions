@@ -24,16 +24,18 @@ function Point({ p }: { p: WhyPoint }) {
 
 /** "Why you would / Why you wouldn't", side by side on wide screens and stacked on phones. */
 export default function WhyBlock({ title, yes, no, yesLabel = 'Why you would', noLabel = 'Why you wouldn’t', more }: { title?: string; yes: WhyPoint[]; no: WhyPoint[]; yesLabel?: string; noLabel?: string; more?: { href: string; label: string } }) {
+  // One level below the block's own title, or below the page section's h2 when there's no title.
+  const H = title ? 'h4' : 'h3';
   return (
     <div className="why-block">
       {title && <h3 className="why-title">{title}</h3>}
       <div className="why-cols">
         <div className="why-col why-yes">
-          <h4><span aria-hidden>✓</span> {yesLabel}</h4>
+          <H className="why-head"><span aria-hidden>✓</span> {yesLabel}</H>
           <ul>{yes.map((p) => <Point key={p.text} p={p} />)}</ul>
         </div>
         <div className="why-col why-no">
-          <h4><span aria-hidden>✕</span> {noLabel}</h4>
+          <H className="why-head"><span aria-hidden>✕</span> {noLabel}</H>
           <ul>{no.map((p) => <Point key={p.text} p={p} />)}</ul>
         </div>
       </div>
