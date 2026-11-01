@@ -69,7 +69,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         }
       },
       {
-        text: "In 2023, several Sun Belt metros had some of the worst flip profit margins and big drops in flipping. In Texas, that included Austin, Dallas, San Antonio and Houston. In Utah, it included Salt Lake City. In Arizona, it included Phoenix and Tucson. In Nevada, it included Las Vegas. In California, it included Sacramento.",
+        text: "In 2023, flip profits fell in about two-thirds of U.S. metros, and the biggest drops in flipping were in the South and West. In Texas, Austin, Dallas, San Antonio and Houston had some of the worst flip profit margins among large metros. In Utah, Salt Lake City had some of the worst flip profit margins, and Provo had one of the biggest drops in flipping. In Arizona, Phoenix and Tucson had some of the biggest drops in flipping. In Nevada, Las Vegas had one of the biggest drops in flipping. In California, Sacramento had one of the biggest drops in flipping.",
         source: {
           label: "FOX 11 Los Angeles: House flipping down nearly 30% as profits drop, data reveals (2024, citing ATTOM)",
           url: "https://www.foxla.com/news/house-flipping-down-profits-drop-real-estate"
@@ -502,7 +502,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     overview: [
       "A manufactured home is built in a factory to a federal code and moved to a site. It is often the cheapest way to own a home. The big question is the land. If you own the land too, the home can be financed and valued much like a regular house. If the home sits on a rented lot in a park, you own the house but pay “lot rent” to the park owner. Since moving the home is costly or impossible, you have little power if the rent goes up.",
       "Since about 2015, investors and private equity firms have bought many parks and raised lot rents sharply. Some residents have fought back by buying their parks as resident-owned cooperatives (ROCs), often with help from nonprofits like ROC USA and state funds. AP reported increases of 87% at one Iowa park, and at another, owned by Utah-based Havenpark, rent and fees nearly doubled. In California, residents of a Fresno County park bought their park as a cooperative in 2024 using state programs.",
-      "Loans on homes without land are usually “chattel” loans (personal-property loans). They make up about 42% of manufactured home purchase loans and have higher interest rates and fewer protections than mortgages (CFPB). Older homes in parks often lose value instead of gaining it. State law matters too. Nevada requires 90 days’ written notice before a lot-rent increase (NRS 118B.150). California has its Mobilehome Residency Law, and some of its cities and counties have local rent control."
+      "Loans on homes without land are usually “chattel” loans (personal-property loans). They make up about 42% of manufactured home purchase loans and have higher interest rates and fewer protections than mortgages (CFPB). Older homes in parks often lose value instead of gaining it. State law matters too. Nevada requires 90 days’ written notice before a lot-rent increase (NRS 118B.150). California has its Mobilehome Residency Law, and some of its cities and counties have local rent control. In Arizona, a park must give written notice at least 90 days before a lease ends or renews to raise the rent (A.R.S. 33-1413(G)). In Utah, a rent or fee increase on a month-to-month space can’t be enforced until 60 days after the notice is mailed (Utah Code 57-16-4). In Texas, the community must offer renewal, with the proposed rent, or give notice to vacate at least 60 days before the lease ends (Property Code 94.055)."
     ],
     bestFor: [
       "Buyers who also buy the land, so the home can be financed and gain value more like a house.",
@@ -1373,7 +1373,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       },
       {
         tone: "good",
-        who: "A California developer building warehouses near the Las Vegas Motor Speedway, Nevada",
+        who: "A developer building warehouses near the Las Vegas Motor Speedway, Nevada",
         year: "2022",
         title: "Two leased warehouses sell for $271.5 million",
         happened: "CapRock Partners built two warehouses totaling 1.1 million square feet off Interstate 15 in North Las Vegas. Both were fully leased, the larger one to Amazon. Property records showed Eaton Vance bought them for $271.5 million. A CapRock executive called pricing ‘a little bit frothy’ even as demand stayed strong.",

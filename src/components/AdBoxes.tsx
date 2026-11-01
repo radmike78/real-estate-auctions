@@ -80,7 +80,10 @@ export function useAdImpressions(shown: Pro[], spot?: string, box?: RefObject<HT
     };
     const el = box?.current;
     if (!el || typeof IntersectionObserver === 'undefined') { if (!box) count(); return; }
-    const io = new IntersectionObserver((entries) => { if (entries.some((e) => e.isIntersecting)) { count(); io.disconnect(); } }, { threshold: 0.5 });
+    // Half the box on screen, or half the screen filled by a box taller than the screen (a long list on a phone).
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.intersectionRatio >= 0.5 || e.intersectionRect.height >= window.innerHeight / 2)) { count(); io.disconnect(); }
+    }, { threshold: [0, 0.1, 0.25, 0.5] });
     io.observe(el);
     return () => io.disconnect();
   }, [key]); // eslint-disable-line react-hooks/exhaustive-deps

@@ -55,7 +55,7 @@ export const ROADMAP_PHASES: Record<RoadmapStep['phase'], string> = {
 export const ROADMAP_PATHS: Record<RoadmapPath, { label: string; hint: string }> = {
   listing: { label: 'Through an agent', hint: 'Listed homes, bank-owned homes and short sales: make an offer, then follow the agreed contract conditions and deadlines. Your right to inspect, cancel or recover a deposit depends on the contract and local law.' },
   auction: { label: 'At an auction', hint: 'Tax, foreclosure, sheriff and IRS sales of the property itself: you research first, then bid, usually with no inside look and no way out after you win.' },
-  certificate: { label: 'Lien certificates', hint: 'Arizona tax liens and Nevada SID liens: you buy a lien that earns interest, not the property. Owners usually pay them off; you own the property only if a court or the law later gives it to you.' },
+  certificate: { label: 'Lien certificates', hint: 'You buy a lien that earns interest, not the property. Owners usually pay them off; you own the property only if a court or the law later gives it to you. In Arizona, these are county tax liens. In Nevada, these are Clark County special assessment (SID) liens.' },
 };
 
 const AGENT: RoadmapPath[] = ['listing'];

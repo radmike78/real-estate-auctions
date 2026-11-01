@@ -52,9 +52,13 @@ const NAMES: [RegExp, StateCode][] = [
 export const US_STATE_NAMES = ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'];
 
 /** Historical examples from a different state do not belong on this state's page. */
+// Names that contain a state's name but aren't about that state: a Las Vegas casino, a Las Vegas shopping center, a
+// California county, newspapers.
+const NOT_A_STATE = /Texas Station|Maryland Square|Nevada County|New York Times|Hawaii Tribune-Herald/g;
 export function mentionsOtherState(state: StateCode | null, text: string): boolean {
   const own = STATES.find((s) => s.code === state)?.name;
-  return US_STATE_NAMES.some((name) => name !== own && text.includes(name));
+  const plain = text.replace(NOT_A_STATE, '');
+  return US_STATE_NAMES.some((name) => name !== own && plain.includes(name));
 }
 
 /** Explicit place references, including examples that do not begin with a state name. */

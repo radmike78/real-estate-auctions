@@ -271,7 +271,7 @@ export function FirstDealRoadmap() {
         {(Object.keys(ROADMAP_PATHS) as RoadmapPath[]).filter((k) => k !== 'certificate' || path === k || liensSoldIn(mine)).map((k) => (
           <button key={k} type="button" aria-pressed={path === k} onClick={() => choosePath(k)}>{ROADMAP_PATHS[k].label}</button>
         ))}
-        <span className="muted">{ROADMAP_PATHS[path].hint}</span>
+        <span className="muted">{dropStateLead(forStateText(getMyState(), ROADMAP_PATHS[path].hint), getMyState())}</span>
       </div>
       <div className="roadmap-deal">
         <label className="field">
