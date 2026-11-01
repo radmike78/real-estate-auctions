@@ -144,12 +144,11 @@ export const ROADMAP: RoadmapStep[] = [
   },
   // Lien certificates: you judge a county's sale and a lien's risk, not a market's rents or a property's repairs.
   {
-    id: 'c-compare', phase: 2, path: LIEN, title: 'Compare two counties’ lien sales',
-    text: 'Counties run their lien sales differently. Compare two before you choose where to buy.',
-    outcome: 'Notes comparing two counties’ lien sales, the one you chose and why.',
-    steps: ['For each county, read the treasurer’s sale page: when the sale is, how it’s run (online or in person) and how bidding works.', 'Note how many parcels are offered and what kinds (vacant land, homes, commercial).', 'Note how payment works, the deadlines and any fees.', 'Record sources, dates and open questions in your buy-box notes.'],
-    doneWhen: 'You compared two counties’ sales and recorded why you chose one, with sources and open questions.',
-    notIn: ['NV'],
+    id: 'c-compare', phase: 2, path: LIEN, title: 'Compare two lien sales',
+    text: 'Each sale (a county’s, or a city’s where cities hold their own) runs differently. Compare two before you choose where to buy.',
+    outcome: 'Notes comparing two lien sales, the one you chose and why.',
+    steps: ['For each sale, read the official seller’s sale page (the county or city treasurer): when the sale is, how it’s run (online or in person) and how bidding works.', 'Note how many parcels are offered and what kinds (vacant land, homes, commercial).', 'Note how payment works, the deadlines and any fees.', 'Record sources, dates and open questions in your buy-box notes.'],
+    doneWhen: 'You compared two sales and recorded why you chose one, with sources and open questions.',
     action: 'Your county’s lien sale page', href: '#/find-deals',
   },
   {
@@ -157,7 +156,7 @@ export const ROADMAP: RoadmapStep[] = [
     text: 'Set your limits before the sale, so a list of parcels can’t talk you into tying up more than you meant to.',
     outcome: 'Saved limits: the cash you’ll tie up in certificates, the most per certificate, the longest wait you’ll accept and the parcels you’ll skip.',
     steps: ['Choose Lien certificates as your strategy in the buy box below and enter the cash you’ll tie up.', 'Enter the most you’ll pay for one certificate in its field, and in the buy box notes write the longest you’re willing to wait to be paid.', 'In the notes too, list the parcels you’ll skip no matter the rate (for example, land you’d never want to own if the lien isn’t paid).'],
-    doneWhen: 'Your buy box shows Lien certificates and the cash you’ll tie up, with your other limits in its notes.',
+    doneWhen: 'Your buy box shows Lien certificates, the cash you’ll tie up and the most for one certificate, with your longest wait and the parcels you’ll skip in its notes.',
     action: 'Fill in your buy box', href: '#/toolkit/buy-box',
   },
   {

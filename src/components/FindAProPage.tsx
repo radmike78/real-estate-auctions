@@ -312,7 +312,7 @@ export default function FindAProPage({ section }: { section?: string }) {
     const want = r === 'auction' ? `${pre}foreclosure` : r === 'certificate' ? (mine === 'NV' ? 'sid' : 'aztaxlien') : '';
     if (want && guidesFor(mine).some((p) => p.key === want)) return want;
     // The agent route (a route was picked): the team for a listed home.
-    return mine && hasPickedRoute() ? 'listing' : 'start';
+    return mine && r === 'listing' && hasPickedRoute() ? 'listing' : 'start';
   });
   const { pros } = useDirectory();
   const book = mine ? guidesFor(mine).find((p) => p.key === sale) : undefined;

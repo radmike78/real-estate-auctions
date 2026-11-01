@@ -293,16 +293,17 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false }
         <p className={`calc-verdict${exampleRefi ? ' neutral' : cashShort || !(a.cashFlow > 0 && (coc === null || coc >= target)) ? ' bad' : ' good'}`} role="status">
           <strong>{exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; your target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
           {blankRefi && 'No refinance is counted yet: enter the value after repairs to include it. '}
-          {cashShort && <>It needs about {fmtMoney(Math.round(needed))} of your cash, more than {limitWords}. <button type="button" className="linkish" onClick={(e) => { const f = e.currentTarget.closest('.calc')?.querySelector<HTMLInputElement>('input[id$="-cashAvailable"]'); if (!f) return; for (let d = f.closest('details'); d; d = d.parentElement?.closest('details') ?? null) d.open = true; f.scrollIntoView({ block: 'center' }); f.focus({ preventScroll: true }); }}>Enter your cash</button>{' '}</>}
+          {cashShort && <>It needs about {fmtMoney(Math.round(needed))} of your cash, more than {limitWords}. </>}
           {exampleRefi ? null : a.cashFlow <= 0
             ? livingThere
-              ? `After the rent from the other units, living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month: compare that with what you pay to live where you are now.`
+              ? `After any rent you collect, living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month: compare that with what you pay to live where you are now.`
               : `It loses about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month after every cost. Investigate whether the price, the costs or your plan should change, or walk away.`
             : coc !== null && coc < target
               ? `Cash flow is positive (about ${fmtMoney(Math.round(a.cashFlow / 12))} a month), but it misses your goal. Investigate whether the price, the costs or the goal should change.`
               : cashShort ? 'The return meets your target, but the cash it needs doesn’t fit what you have.' : `It meets your target at this price, based on your numbers. Check each number against evidence before you rely on it.`}
         </p>
       )}
+      {price > 0 && cashShort && <p className="small"><button type="button" className="linkish" onClick={(e) => { const f = e.currentTarget.closest('.calc')?.querySelector<HTMLInputElement>('input[id$="-cashAvailable"]'); if (!f) return; for (let d = f.closest('details'); d; d = d.parentElement?.closest('details') ?? null) d.open = true; f.scrollIntoView({ block: 'center' }); f.focus({ preventScroll: true }); }}>Enter your cash</button></p>}
       {price === 0 && <p className="muted small">Enter the price you’d pay (the asking price, or your offer) to see your numbers at that price.</p>}
       {walkAway > 0 && price !== walkAway && <button type="button" className="linkish" onClick={() => setPrice(walkAway)}>Use the walk-away price ({fmtMoney(walkAway)})</button>}
       {price > 0 && (<>
@@ -531,7 +532,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
-        {offer && investorProfile().ownerOccupant && <p className="calc-note small" role="note"><strong>Living in one unit?</strong> Enter only the rent from the units you’ll rent out. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
+        {offer && investorProfile().ownerOccupant && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
         <AtThisPrice v={v} start={r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} />
         <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} />
         {/* An auction rental's later refinance is sized on the value after repairs: say so while that's still our example. */}

@@ -261,7 +261,7 @@ export function savedNumbers(d: Deal) {
   const offer = isOffer(d);
   // Example numbers aren't the property's numbers: nothing is reported until its own are typed.
   const own = ownNumbers(d);
-  let rent: { price: number; monthly: number; cashIn: number; allIn: number; repairs: number; possession: number; retained: number; refi: boolean; noLoan: boolean; exampleValue: boolean; refiValue: number; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
+  let rent: { price: number; monthly: number; cashIn: number; allIn: number; repairs: number; possession: number; retained: number; refi: boolean; noLoan: boolean; exampleValue: boolean; refiValue: number; cashLimit: number; cashOnCash: number | null; target: number; stress: { label: string; monthly: number }[] } | null = null;
   let bid: {
     maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean; target: number;
     /** A loan pays part of the price or repairs (repair draws aren't modeled, so the cash figures assume the loan pays as costs come due). */
@@ -293,7 +293,7 @@ export function savedNumbers(d: Deal) {
       const v = withoutOldValueExample(sanitizeNumbers(rentRaw, RENT_DEFAULTS) as RentInputs, offer, typedRent);
       if (v.atPrice > 0) {
         const a = rentAtPrice(v, v.atPrice, offer);
-        rent = { price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, allIn: a.allIn, repairs: v.repairs * (1 + v.contingencyPct / 100), possession: v.possession, retained: v.reserveCash, refi: !offer && a.loan > 0, noLoan: !(a.loan > 0), exampleValue: refiOnExampleValue(v, offer, typedRent), refiValue: v.value, cashOnCash: a.cashOnCash, target: v.targetCocPct, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
+        rent = { price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, allIn: a.allIn, repairs: v.repairs * (1 + v.contingencyPct / 100), possession: v.possession, retained: v.reserveCash, refi: !offer && a.loan > 0, noLoan: !(a.loan > 0), exampleValue: refiOnExampleValue(v, offer, typedRent), refiValue: v.value, cashLimit: v.cashAvailable > 0 ? v.cashAvailable : 0, cashOnCash: a.cashOnCash, target: v.targetCocPct, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
       }
     }
   } else if (d.plan === 'flip' && own) {
@@ -391,7 +391,7 @@ export function hasSavedNumbers(n: ReturnType<typeof savedNumbers>): boolean {
   return !!(n.rent || n.bid || n.lien || (n.commercial && !n.commercial.noTarget));
 }
 
-const UNCONFIRMED_PLACE = 'The location changed in Analyze and isn’t confirmed yet: costs that follow the state and county (transfer tax, insurance, property tax) update once you confirm it there.';
+const UNCONFIRMED_PLACE = 'Its location isn’t confirmed in Analyze: costs that follow the state and county (transfer tax, insurance, property tax) update once you confirm it there.';
 
 const REPAIRS_NEEDED = (strategy: string) => `Enter the repairs in ${strategy} (type 0 if there truly are none). Until then this deal’s walk-away price doesn’t count them, so it isn’t shown here.`;
 
@@ -560,7 +560,11 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   } else {
     cash.push(`Run ${strategy} in Analyze to see the cash this deal needs.`);
   }
-  if (profile.investable > 0 && need > 0) cash.push(need > profile.investable ? `${needAt}, that’s ${money(need - profile.investable)} more than your investable cash: the deal doesn’t fit as entered.` : `${needAt}, that leaves ${money(profile.investable - need)} unallocated from your investable cash, after any retained reserves recorded above.`);
+  // The same limit the calculator uses: the cash you entered there, else My plan's investable cash.
+  const entered = rent?.cashLimit || bid?.cashLimit || 0;
+  const limit = entered > 0 ? entered : profile.investable;
+  const limitWord = entered > 0 ? `the cash you entered in ${strategy}` : 'your investable cash';
+  if (limit > 0 && need > 0) cash.push(need > limit ? `${needAt}, that’s ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered.` : `${needAt}, that leaves ${money(limit - need)} unallocated from ${limitWord}, after any retained reserves recorded above.`);
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
   out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: cash, fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
