@@ -589,6 +589,7 @@ export default function AdvertiserPage({ token }: { token: string | null }) {
           {!!summary.bySpot?.length && (
             <section aria-labelledby="by-spot-head">
               <h2 id="by-spot-head">Where your ad was seen</h2>
+              <p className="small muted">“Shown” counts each time your ad card was at least half on a visitor’s screen, once per visit to that page.</p>
               <div className="table-wrap">
                 <table>
                   <thead><tr><th scope="col">Placement</th><th scope="col" className="num">Shown</th><th scope="col" className="num">Clicked</th></tr></thead>

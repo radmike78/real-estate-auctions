@@ -53,9 +53,9 @@ export function stepContext(step: RoadmapStep): string {
   const practiced = loadJourney().completed.length === CHAPTERS.length;
   if (!practiced || at < 0 || team < 0 || find < 0 || step.phase >= 6) return `Roadmap · ${phase}`;
   // Step 6 (Analyze a deal) is where you run the numbers and work through buying it.
-  if (step.phase === 5) return 'Step 6 · Analyze and buy';
+  if (step.phase === 5) return 'Step 6 · Analyze a deal';
   if (/(^|-)practice$/.test(step.id)) return 'Step 3 · Practice';
-  if (at < team) return 'Step 4 · Your team · first, finish your plan';
+  if (at < team) return 'Your plan, before Step 4 (your team)';
   if (at < find) return 'Step 4 · Your team';
   return 'Step 5 · Find deals';
 }

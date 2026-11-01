@@ -2952,3 +2952,7 @@ dl.cash-result .cash-main { border-color: var(--accent); }
 /* Advertiser dashboard: the ad-line box spans its card, and section titles inside a row with a button sit level with it. */
 .page section.plan-card > .field.wide { justify-self: stretch; }
 .row > .page-section-title { margin: 0; flex: 1 1 auto; }
+/* Advertiser dashboard: six result tiles (Premium and Mentor Connect) fill one row; on phones none is left alone. */
+@media (min-width: 901px) { .kpis:has(> :nth-child(6)) { grid-template-columns: 1.4fr repeat(5, 1fr); } }
+@media (max-width: 900px) { .kpis:has(> :nth-child(6):last-child) > :last-child { grid-column: 1 / -1; } }
+.lead-list li { overflow-wrap: anywhere; }
