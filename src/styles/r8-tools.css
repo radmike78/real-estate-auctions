@@ -82,4 +82,5 @@
 .calc-results > h3.price-head { margin-top: 0; }
 
 /* The buy box's "Use my area" link: a full row of the form grid, under the area field. */
-.buybox-grid > .buybox-use-area { grid-column: 1 / -1; margin: -4px 0 0; }
+.buybox-area-cell { display: grid; gap: 4px; align-content: start; }
+.buybox-use-area { margin: 0; }

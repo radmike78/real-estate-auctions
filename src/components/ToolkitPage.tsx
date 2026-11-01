@@ -641,6 +641,7 @@ function BuyBoxBuilder() {
             {STATES.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
           </select>
         </label>
+        <div className="buybox-area-cell">
         <label className="field">
           <span>Counties, cities or neighborhoods</span>
           <input id="buybox-area" type="text" maxLength={200} value={b.area} onChange={(e) => set('area', e.target.value)} />
@@ -652,11 +653,12 @@ function BuyBoxBuilder() {
           const words = my?.county && (!b.state || b.state === my.state) ? (my.city && my.city !== cn ? `${my.city}, ${cn}` : cn) : '';
           return !b.area.trim() && words ? <p className="buybox-use-area"><button type="button" className="linkish small" onClick={() => { set('area', words); if (!b.state) set('state', my!.state); requestAnimationFrame(() => document.getElementById('buybox-area')?.focus()); }}>Use my area ({words})</button></p> : null;
         })()}
+        </div>
         <label className="field">
           <span>Strategy</span>
           <select value={b.strategy} onChange={(e) => set('strategy', e.target.value)}>
             <option value="">Choose</option>
-            {strategies.map((s) => <option key={s}>{s}</option>)}
+            {strategies.map((s) => <option key={s} value={s}>{s === 'Apartments and commercial property' ? 'Apartments, commercial' : s}</option>)}
           </select>
         </label>
         {lien ? (

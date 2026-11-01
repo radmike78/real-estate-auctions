@@ -23,6 +23,8 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
 
   useEffect(() => {
     if (!state) return;
+    // Back on the saved state: its county-only choice comes back at once (the city, if any, once the list loads).
+    if (area?.state === state && !area.city) setCountyOnly(area.county);
     let alive = true;
     setPlaces(null);
     loadPlaces(state).then((p) => {

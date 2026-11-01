@@ -128,7 +128,9 @@ function fromListing(f: Prefill): Deal {
   // A kind of sale this state doesn't have falls back to an auction (court sale), never to a regular listing.
   const kinds = kindsFor(f.state);
   const kind = kinds.some((k) => k.key === f.kind) ? f.kind : (kinds.find((k) => k.key === 'court') ?? kinds[0]).key;
-  return { ...blank(f.state), name: f.name, county: f.county, kind, plan: plansFor(kind)[0] };
+  // The plan your buy box or Decide points to, when this kind of sale offers it (else the kind's first).
+  const want = planFromBuyBox();
+  return { ...blank(f.state), name: f.name, county: f.county, kind, plan: plansFor(kind).includes(want) ? want : plansFor(kind)[0] };
 }
 
 /** A link that names a calculator ("#/analyze?plan=commercial") opens that one. A saved deal is left as it was. */

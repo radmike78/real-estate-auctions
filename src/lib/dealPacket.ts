@@ -364,7 +364,7 @@ export function savedNumbers(d: Deal) {
           commercial.value = v.value > 0 ? v.value : 0;
           // Only the cash entered is short (Commercial income says "No realistic price fits your cash").
           commercial.noRealistic = noRealisticPrice(r, commercialMaxBid({ ...v, cashAvailable: 0 }, offer), v.value);
-          commercial.hasLoan = v.loanPct > 0;
+          commercial.hasLoan = v.loanPct > 0 && (offer || v.value > 0);
           commercial.saleDay = r.noBidWorks || !Number.isFinite(r.cashAtAuction) ? 0 : r.cashAtAuction;
           commercial.cashTyped = readConfirmed(`fsf.calc.commercial.${d.id}${offer ? '-offer' : ''}.v1`).has('cashAvailable');
         }
@@ -490,6 +490,9 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const goal = cleanGoal(read(GOAL_KEY));
   const log = loadLog(`analyzed:${d.id}`);
   const { rent, bid, commercial, lien } = savedNumbers(d);
+  // An untouched profit target is our starting example, not the reader's goal: say so wherever it's the yardstick.
+  const goalW = bid && !bid.targetTyped ? 'our example profit target' : 'your goal';
+  const targetW = bid && !bid.targetTyped ? 'our example profit target' : 'your profit target';
   const out: PacketSection[] = [];
 
   // 1. Your plan and buy box
@@ -560,7 +563,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     cash.push(rent.retained > 0 ? `Retained property reserves: ${money(rent.retained)}, kept separately from the ${money(need)} modeled cash requirement.` : 'Retained property reserves: not entered. Set aside a separate amount for vacancies and unexpected costs.');
     if (rent.retained > 0) need += rent.retained;
   } else if (bid?.none && !bid.at) {
-    cash.push(bid.cashBlocked ? `No bid fits the cash you entered in ${strategy}: the deal itself meets your goal up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than you entered.` : `No price works with the numbers you entered in ${strategy}: the costs and your profit target take up the whole ${money(bid.exitValue)} resale value.`);
+    cash.push(bid.cashBlocked ? `No bid fits the cash you entered in ${strategy}: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than you entered.` : `No price works with the numbers you entered in ${strategy}: the costs and ${targetW} take up the whole ${money(bid.exitValue)} resale value.`);
   } else if (bid) {
     // Your own price first; the walk-away price is a separate what-if (the most you'd pay), never your price.
     const a = bid.at;
@@ -578,7 +581,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     }
     // A walk-away price below the opening bid (or asking price) is no price you could pay: say so instead of a what-if.
     if (!bid.none && a?.source === 'listed' && bid.maxBid < a.price) {
-      cash.push(`No ${offer ? 'offer at or above the asking price' : 'bid at or above the opening bid'} of ${money(a.price)} ${a.profit >= bid.target && bid.limitedBy === 'cash' ? 'fits your cash' : 'meets your goal'} as entered: the most that would is ${money(bid.maxBid)}, below it.`);
+      cash.push(`No ${offer ? 'offer at or above the asking price' : 'bid at or above the opening bid'} of ${money(a.price)} ${a.profit >= bid.target && bid.limitedBy === 'cash' ? 'fits your cash' : `meets ${goalW}`} as entered: the most that would is ${money(bid.maxBid)}, below it.`);
     } else if (!bid.none) {
       const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could pay, not your price)`;
       cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} on sale day; estimated cash you’d put in ${money(bid.cashPeak)}`);
@@ -639,7 +642,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     const a = bid.at;
     if (a) nums.push(`${priceName(a.source, offer, true)} (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'}): ${money(a.price)} → estimated profit ${money(a.profit)} (${bid.targetTyped ? 'your target' : 'our example target'} ${money(bid.target)}${a.profit < bid.target ? ', so it falls short' : ''}), based on a ${money(bid.exitValue)} resale value`);
     const belowOpening = !bid.none && a?.source === 'listed' && bid.maxBid < a.price;
-    nums.push(bid.none && bid.cashBlocked ? `No bid fits the cash you entered: the deal itself meets your goal up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that` : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and your profit target` : `What-if: walk-away price ${money(bid.maxBid)}, the most you could pay and still meet your goal (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : 'this deal doesn’t meet your goal'} as entered` : ''}`);
+    nums.push(bid.none && bid.cashBlocked ? `No bid fits the cash you entered: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that` : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and ${targetW}` : `What-if: walk-away price ${money(bid.maxBid)}, the most you could pay and still meet ${goalW} (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : `this deal doesn’t meet ${goalW}`} as entered` : ''}`);
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
     const floor = a?.source === 'listed' ? a.price : 0;
     for (const s of bid.stress.slice(1)) {
