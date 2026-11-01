@@ -229,7 +229,9 @@ export default function DecidePage() {
             <ul>
               {rank(saved.answers).slice(3).map((m) => (
                 <li key={m.strategy.key}>
-                  <strong>{m.strategy.title}.</strong> {m.cautions.length ? `Ranks lower because you ${joinReasons(m.cautions)}.` : 'It fits your answers less well than the three above.'}
+                  <strong>{m.strategy.title}.</strong> {m.goalFit
+                    ? `It matches your goal (you ${QUESTIONS.find((q) => q.key === 'goal')!.options.find((o) => o.value === saved.answers.goal)?.why ?? 'picked it'}), but ranks lower because ${m.cautions.length || m.weak?.length ? `you ${joinReasons([...m.cautions, ...(m.weak ?? [])])}` : 'your other answers fit the three above a little better'}. If your goal matters most to you, it can still be the one to start with.`
+                    : m.cautions.length ? `Ranks lower because you ${joinReasons(m.cautions)}.` : 'It fits your answers less well than the three above.'}
                   {m.strategy.key === 'auction' && <> {AUCTION_REALITY}</>}
                 </li>
               ))}

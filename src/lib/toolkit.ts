@@ -36,7 +36,7 @@ export interface BuyBox {
 }
 
 export const PROPERTY_TYPE_OPTIONS = ['Single-family house', 'Condo or townhouse', 'Duplex to fourplex', 'Manufactured home', 'Apartment building (5+ units)', 'Commercial property', 'Mixed-use property', 'Land'];
-export const STRATEGY_OPTIONS = ['Live in one unit, rent the others', 'Buy and hold a rental', 'Buy, fix, rent and refinance (BRRRR)', 'Fix and flip', 'Bank-owned and government homes', 'Tax and foreclosure auctions', 'Lien certificates (earn interest until the owner pays)', 'Still deciding'];
+export const STRATEGY_OPTIONS = ['Live in one unit, rent the others', 'Buy and hold a rental', 'Buy, fix, rent and refinance (BRRRR)', 'Fix and flip', 'Bank-owned and government homes', 'Apartments and commercial property', 'Tax and foreclosure auctions', 'Lien certificates (earn interest until the owner pays)', 'Still deciding'];
 /** The buy-box strategy for liens: there's no property to rent, so rent and bedroom fields don't apply. */
 export const LIEN_STRATEGY = 'Lien certificates (earn interest until the owner pays)';
 export const DEAL_BREAKERS = [

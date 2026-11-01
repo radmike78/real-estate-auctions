@@ -571,12 +571,13 @@ function strategyPhrase(st: string): string {
   if (st === 'Bank-owned and government homes') return ', to buy bank-owned and government homes';
   if (st === 'Tax and foreclosure auctions') return ', to buy at tax and foreclosure auctions';
   if (st === 'Still deciding') return ', strategy still to be decided';
+  if (st === 'Apartments and commercial property') return ', to buy apartments or commercial property';
   return `, to ${st.charAt(0).toLowerCase()}${st.slice(1)}`;
 }
 
 /** The top strategy from Decide, as a buy-box strategy, if Decide has been answered. */
 const DECIDE_STRATEGY: Record<string, string> = {
-  rental: 'Buy and hold a rental', househack: 'Live in one unit, rent the others', brrrr: 'Buy, fix, rent and refinance (BRRRR)', flip: 'Fix and flip', reo: 'Bank-owned and government homes', auction: 'Tax and foreclosure auctions',
+  rental: 'Buy and hold a rental', househack: 'Live in one unit, rent the others', brrrr: 'Buy, fix, rent and refinance (BRRRR)', flip: 'Fix and flip', reo: 'Bank-owned and government homes', auction: 'Tax and foreclosure auctions', apartments: 'Apartments and commercial property',
 };
 function decideStrategy(): string | null {
   const d = read<{ answers?: Answers } | null>(DECIDE_KEY, null, (v) => (v && typeof v === 'object' ? (v as { answers?: Answers }) : null));
@@ -642,14 +643,14 @@ function BuyBoxBuilder() {
         </label>
         <label className="field">
           <span>Counties, cities or neighborhoods</span>
-          <input type="text" maxLength={200} value={b.area} onChange={(e) => set('area', e.target.value)} />
+          <input id="buybox-area" type="text" maxLength={200} value={b.area} onChange={(e) => set('area', e.target.value)} />
         </label>
         {(() => {
           // Your area (from the county step or the header), offered when this is still empty, for the same state.
           const my = getMyArea();
           const cn = my?.county ? countyName(my.county) : '';
           const words = my?.county && (!b.state || b.state === my.state) ? (my.city && my.city !== cn ? `${my.city}, ${cn}` : cn) : '';
-          return !b.area.trim() && words ? <button type="button" className="linkish small" onClick={() => { set('area', words); if (!b.state) set('state', my!.state); }}>Use my area ({words})</button> : null;
+          return !b.area.trim() && words ? <p className="buybox-use-area"><button type="button" className="linkish small" onClick={() => { set('area', words); if (!b.state) set('state', my!.state); requestAnimationFrame(() => document.getElementById('buybox-area')?.focus()); }}>Use my area ({words})</button></p> : null;
         })()}
         <label className="field">
           <span>Strategy</span>

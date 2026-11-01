@@ -565,3 +565,17 @@ it('says the cash entered, not the income, blocks a commercial deal', () => {
   expect(all).toMatch(/No realistic bid fits the cash you entered/);
   expect(all).not.toMatch(/No price meets your 9% return on cost/);
 });
+
+it('gives a commercial offer commercial contract dates, not the Texas home form’s', () => {
+  const g = dateGuide({ kind: 'listing', state: 'TX', plan: 'commercial' }).map((x) => x.what).join('; ');
+  expect(g).toMatch(/Feasibility \(due-diligence\) period ends/);
+  expect(g).not.toMatch(/7B\(2\)|7I\(2\)|HOA subdivision/);
+  expect(dateGuide({ kind: 'listing', state: 'TX', plan: 'rent' }).map((x) => x.what).join('; ')).toMatch(/7B\(2\)/);
+});
+
+it('calls an untouched profit target our example', () => {
+  localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 200000, exitValue: 300000, repairs: 20000 }));
+  localStorage.setItem('fsf.bid.analyzed-d1.v1.typed.v1', JSON.stringify(['minimumBid', 'exitValue', 'repairs']));
+  const nums = packetSections({ ...deal, plan: 'flip' }, EMPTY_PACKET, now).find((s) => s.key === 'numbers')!.lines.join('\n');
+  expect(nums).toMatch(/our example target \$/);
+});

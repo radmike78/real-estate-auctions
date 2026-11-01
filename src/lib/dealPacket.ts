@@ -164,8 +164,12 @@ const txLoanDates = (short: boolean): DateGuide[] => [
 const names = (xs: string[]): DateGuide[] => xs.map((what) => ({ what }));
 
 /** The dates most deals of this kind need on the calendar, each with how it works where we have it (Texas contracts). */
-export function dateGuide(d: Pick<Deal, 'kind' | 'state'>): DateGuide[] {
+export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'] }): DateGuide[] {
   const tx = d.state === 'TX';
+  // A commercial building isn't bought on a home contract (Texas: TREC's one-to-four-family form), so no home-form dates.
+  if (d.plan === 'commercial' && isOffer(d)) return [
+    ...names(['Contract signed (commercial contracts vary: take each date below from your signed contract)', 'Earnest money due', 'Feasibility (due-diligence) period ends', 'Title and survey objections due', ...(d.kind === 'short' ? ['Lienholder approval deadline (from the short sale addendum)'] : []), 'Loan approval deadline', 'Closing']),
+  ];
   if (d.kind === 'short') return [...names(['Contract signed']), ...(tx ? TX_DEPOSIT_DATES : []), ...names(['Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)']), ...(tx ? [TX_SHORT_OPTION_END, txDisclosureDate(true), txHoaDate(true), TX_TITLE_DATE, txWaterDate(true), txAppraisalDate(true), ...txLoanDates(true)] : names(['Inspection period ends', 'Loan approval deadline'])), ...names(['Closing'])];
   if (isOffer(d)) return [...names(['Offer accepted (Day 0)']), ...(tx ? TX_DEPOSIT_DATES : names(['Earnest money due'])), ...(tx ? [TX_OPTION_END, txDisclosureDate(false), txHoaDate(false), TX_TITLE_DATE, txWaterDate(false), txAppraisalDate(false), ...txLoanDates(false)] : names(['Inspection period ends', 'Appraisal deadline', 'Loan approval deadline'])), ...names(['Closing'])];
   if (d.kind === 'lien') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien']);
@@ -266,6 +270,8 @@ export function savedNumbers(d: Deal) {
     maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean; target: number;
     /** No bid works only because of the cash entered: the deal itself works up to `profitBid`. */
     cashBlocked: boolean; profitBid: number;
+    /** A profit target was typed (else it's our starting 15%). */
+    targetTyped: boolean;
     /** A loan pays part of the price or repairs (repair draws aren't modeled, so the cash figures assume the loan pays as costs come due). */
     financed: boolean;
     unentered: string[];
@@ -331,7 +337,7 @@ export function savedNumbers(d: Deal) {
         const pp = proposedPriceOf(i);
         const at = pp ? { ...resultAtPrice(i, pp.price), source: pp.source } : null;
         const stress = stressCases(i).map((c) => ({ label: c.label, maxBid: maxSafeBid(c.inputs).maxBid, profit: pp ? resultAtPrice(c.inputs, pp.price).profit : null }));
-        bid = { cashBlocked: r.noBidWorks && r.profitBid > 0, profitBid: r.profitBid, maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: !offer && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: !offer && i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer) };
+        bid = { targetTyped: ['targetProfitPct', 'targetProfitMin', 'profitInDollars'].some((k) => readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has(k)), cashBlocked: r.noBidWorks && r.profitBid > 0, profitBid: r.profitBid, maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: !offer && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: !offer && i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer) };
       }
     }
   } else if (d.plan === 'commercial' && own) {
@@ -631,7 +637,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   if (bid) {
     const a = bid.at;
-    if (a) nums.push(`${priceName(a.source, offer, true)} (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'}): ${money(a.price)} → estimated profit ${money(a.profit)} (your target ${money(bid.target)}${a.profit < bid.target ? ', so it falls short' : ''}), based on a ${money(bid.exitValue)} resale value`);
+    if (a) nums.push(`${priceName(a.source, offer, true)} (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'}): ${money(a.price)} → estimated profit ${money(a.profit)} (${bid.targetTyped ? 'your target' : 'our example target'} ${money(bid.target)}${a.profit < bid.target ? ', so it falls short' : ''}), based on a ${money(bid.exitValue)} resale value`);
     const belowOpening = !bid.none && a?.source === 'listed' && bid.maxBid < a.price;
     nums.push(bid.none && bid.cashBlocked ? `No bid fits the cash you entered: the deal itself meets your goal up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that` : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and your profit target` : `What-if: walk-away price ${money(bid.maxBid)}, the most you could pay and still meet your goal (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : 'this deal doesn’t meet your goal'} as entered` : ''}`);
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);

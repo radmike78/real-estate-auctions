@@ -419,6 +419,10 @@ export interface Match {
   fits: string[];
   /** Answers that point away from it. */
   cautions: string[];
+  /** Answers that count a little against it (below 0, above the cautions' -2). */
+  weak?: string[];
+  /** Your goal is one this strategy serves best (goal weight 3 or more). */
+  goalFit?: boolean;
 }
 
 /** The answer as it reads after “you”: “have under $10,000 to invest”. */
@@ -479,6 +483,8 @@ export function rank(answers: Answers): Match[] {
     let score = 0;
     const fits: string[] = [];
     const cautions: string[] = [];
+    const weak: string[] = [];
+    let goalFit = false;
     for (const q of QUESTIONS) {
       if (q.key === 'state') continue;
       const v = answers[q.key];
@@ -486,8 +492,10 @@ export function rank(answers: Answers): Match[] {
       score += w;
       if (v && w >= 3) fits.push(answerText(q, v));
       if (v && w <= -2) cautions.push(answerText(q, v));
+      else if (v && w < 0) weak.push(answerText(q, v));
+      if (q.key === 'goal' && w >= 3) goalFit = true;
     }
-    return { strategy: s, score, fits, cautions };
+    return { strategy: s, score, fits, cautions, weak, goalFit };
   }).sort((a, b) => notYet(answers, b) - notYet(answers, a) || b.score - a.score);
 }
 

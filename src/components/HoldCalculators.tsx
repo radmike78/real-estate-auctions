@@ -187,7 +187,7 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
         <dl className="calc-kv">
           {!offer && <div><dt>Cash needed on auction day</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
           <div><dt>Everything you pay, ready to rent, before loan fees</dt><dd>{fmtMoney(Math.round(r.allIn))}</dd></div>
-          {r.loanFees > 0 && <div><dt>Including the loan’s points and fees</dt><dd>{fmtMoney(Math.round(r.allIn + r.loanFees))}</dd></div>}
+          {r.loanFees > 0 && (!offer ? <div><dt>Loan fees at the refinance (usually paid from the new loan)</dt><dd>{fmtMoney(Math.round(r.loanFees))}</dd></div> : <div><dt>Including the loan’s points and fees</dt><dd>{fmtMoney(Math.round(r.allIn + r.loanFees))}</dd></div>)}
           <div><dt>Net operating income (NOI), per year: after operating costs{r.reserves > 0 ? ', before reserves' : ''} and before the loan</dt><dd>{fmtMoney(Math.round(r.noi))}</dd></div>
           {r.reserves > 0 && <div><dt>Reserves for big replacements, per year</dt><dd>{fmtMoney(Math.round(r.reserves))}</dd></div>}
           <div><dt>Return on everything you pay before loan fees (cap rate on cost)</dt><dd>{pctText(r.capOnCost)}</dd></div>
@@ -201,7 +201,7 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
       {r.dscr !== null && !r.loanOk && (
         <p className="calc-note small">The unrounded income coverage is below your {minDscr.toFixed(2)} minimum, even if the displayed ratio rounds to that number. A smaller loan may be needed; ask your lender for its own calculation.</p>
       )}
-      <p className="muted small">{noiNote} An estimate to help you set a limit before the sale, not advice.</p>
+      <p className="muted small">{noiNote} An estimate to help you set a limit {offer ? 'before you make an offer' : 'before the sale'}, not advice.</p>
     </section>
   );
 }
@@ -328,7 +328,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
               : cashShort ? 'The return meets your target, but the cash it needs doesn’t fit what you have.' : `It meets your target at this price, based on your numbers. Check each number against evidence before you rely on it.`}
         </p>
       )}
-      {price > 0 && cashShort && <p className="small"><button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>Enter your cash</button></p>}
+      {price > 0 && cashShort && <p className="small"><button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>{cashTyped ? 'Change your cash' : 'Enter your cash'}</button></p>}
       {price === 0 && <p className="muted small">Enter the price you’d pay ({onPrice ? 'the asking price, or your offer' : 'your planned bid'}) to see your numbers at that price.</p>}
       {walkAway > 0 && price !== walkAway && !livingThere && <button type="button" className="linkish" onClick={() => setPrice(walkAway)}>Use the walk-away price ({fmtMoney(walkAway)})</button>}
       {price > 0 && (<>
@@ -589,6 +589,12 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
           </details>
         ) : <HoldResults r={r} title={v.atPrice > 0 ? 'Price that meets your target' : 'Walk-away price to keep and rent it'} target={`Gives your ${v.targetCocPct}% cash-on-cash return, based on your numbers. Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} noRealistic={noReal} hasLoan={v.loanPct > 0} />}
         {walkShort && <PlanCashNote need={walkNeed} planCash={planCash} offer={false} auctionDay={r.cashAtAuction} />}
+        {/* Under 20% down on a purchase loan: mortgage insurance isn't in the payment here (HUD Mortgagee Letter 2023-05). */}
+        {offer && v.loanPct > 80 && (() => {
+          const base = v.atPrice > 0 ? (v.value > 0 ? Math.min(v.atPrice, v.value) : v.atPrice) : 0;
+          const mi = base > 0 ? Math.round((base * v.loanPct / 100) * 0.0055 / 12) : 0;
+          return <p className="calc-note small" role="note"><strong>Mortgage insurance isn’t counted yet.</strong> With under 20% down, most loans add it: FHA charges 1.75% of the loan upfront and, on most 30-year loans with under 5% down, 0.55% a year{mi > 0 ? ` (about ${fmtMoney(mi)} a month on this loan)` : ''} (HUD Mortgagee Letter 2023-05); conventional loans add private mortgage insurance instead. Ask your lender for the monthly amount and add it to “HOA dues, per month” until you have it.</p>;
+        })()}
         {/* An auction rental's later refinance is sized on the value after repairs: say so while that's still our example. */}
         {exampleValue && (
           <p className="calc-note small" role="note"><strong>{v.value > 0 ? <>The refinance is figured on our {fmtMoney(RENT_DEFAULTS.value)} example value.</> : 'No refinance is counted: the value after repairs is blank.'}</strong> Enter the value an appraisal would support after repairs (under “Review all other costs, loan terms and targets”) before you rely on the loan, the cash left in or the walk-away price.</p>
@@ -650,7 +656,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
   const noReal = noRealisticPrice(r, commercialMaxBid({ ...v, cashAvailable: 0 }, offer), v.value);
   const n = commercialNoi(v);
   // Commercial cash doesn't follow My plan (the results compare with it instead), so its help says so.
-  const groups = (offer ? forOffer(ct.groups) : ct.groups).map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'loanPct' && offer ? { ...f, hint: 'Commercial lenders often lend 65–75% of the price or value; use your lender’s figure. 0 for all cash.*' } : f.k === 'cashAvailable' ? { ...f, more: 'Enter the cash you can put in, and the price is capped at what it covers. Until you type a figure, the results compare the cash it needs with your investable cash in My plan; a 0 you type means no limit and no comparison. Subtract the reserves your lender wants you to keep.' } : f)) }));
+  const groups = (offer ? forOffer(ct.groups) : ct.groups).map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'loanPct' && offer ? { ...f, hint: 'Commercial lenders often lend 65–75% of the price or value; use your lender’s figure. 0 for all cash.*' } : f.k === 'leaseUpMonths' && offer ? { ...f, hint: 'Empty or partly leased buildings can take months to fill: ask the broker for the rent roll and how long each space sat empty.' } : f.k === 'cashAvailable' ? { ...f, more: 'Enter the cash you can put in, and the price is capped at what it covers. Until you type a figure, the results compare the cash it needs with your investable cash in My plan; a 0 you type means no limit and no comparison. Subtract the reserves your lender wants you to keep.' } : f)) }));
   const still = exampleLabels(visibleFields(groups, v), v, COMMERCIAL_DEFAULTS, typedKeys, new Set([...NOT_EXAMPLES, ...Object.keys(start)]));
   const allExample = !typed && Object.keys(start).length === 0;
   // Commercial cash isn't taken from My plan: with no cash entered here (a typed 0 is no limit), compare the cash the

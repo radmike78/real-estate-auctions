@@ -53,3 +53,9 @@ describe('not yet: under $10,000', () => {
     expect(r[0].strategy.key).toBe('practice');
   });
 });
+
+it('marks the strategy that serves the reader’s goal, even when it ranks lower', () => {
+  const r = rank({ goal: 'quick', cash: '50to150', ready: 'ready', borrow: 'invest', time: 'weekly', hands: 'hire', risk: 'medium', market: 'res' });
+  expect(r.find((m) => m.strategy.key === 'flip')!.goalFit).toBe(true);
+  expect(r.find((m) => m.strategy.key === 'rental')!.goalFit).toBe(false);
+});

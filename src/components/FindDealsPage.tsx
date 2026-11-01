@@ -195,14 +195,14 @@ export default function FindDealsPage() {
       ))}
 
       </details>
-      <PathNext step="deals" />
-      {/* Apart from the official sources and the other sites: its own heading, at the end of the page. */}
+      {/* Apart from the official sources and the other sites: its own heading, before the page's next step. */}
       {adShows && findDealsAllowsAds(planPath()) && (
         <section aria-labelledby="fd-ads-head">
           <h2 id="fd-ads-head" className="section-title">Local professionals (paid ads)</h2>
           <FixedAds spot="finddeals" pros={pros} categories={adCats} placeholder />
         </section>
       )}
+      <PathNext step="deals" />
     </main>
   );
 }

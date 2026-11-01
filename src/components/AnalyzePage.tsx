@@ -31,9 +31,17 @@ const CURRENT = CURRENT_KEY;
 /** The plan a new deal starts on: from the strategy in your buy box (rentals open Keep and rent). */
 function planFromBuyBox(): Plan {
   try {
-    const s = (JSON.parse(localStorage.getItem('deedowl.buybox.v1') ?? 'null') as { strategy?: unknown } | null)?.strategy;
+    const box = JSON.parse(localStorage.getItem('deedowl.buybox.v1') ?? 'null') as { strategy?: unknown; types?: unknown } | null;
+    const s = box?.strategy;
+    if (s === 'Apartments and commercial property') return 'commercial';
     if (typeof s === 'string' && /rental|rent the others|BRRRR/.test(s)) return 'rent';
     if (s === 'Fix and flip') return 'flip';
+    // Only income property types ticked (commercial, mixed-use, 5+ apartments): Commercial income.
+    const types = Array.isArray(box?.types) ? box!.types.filter((t): t is string => typeof t === 'string') : [];
+    if (types.length && types.every((t) => /Commercial|Mixed-use|Apartment building/.test(t))) return 'commercial';
+    // Decide's market answer: commercial.
+    const market = (JSON.parse(localStorage.getItem('deedowl.decide.v1') ?? 'null') as { answers?: { market?: unknown } } | null)?.answers?.market;
+    if (market === 'com') return 'commercial';
     // No strategy, or one that doesn't say rent or flip (auctions, bank-owned homes, still deciding): the goal from
     // Decide (rent or long-run growth opens Keep and rent).
     const goal = (JSON.parse(localStorage.getItem('deedowl.decide.v1') ?? 'null') as { answers?: { goal?: unknown } } | null)?.answers?.goal;
@@ -55,7 +63,7 @@ const kindForRoute = (st: StateCode): SaleKind => { const r = roadmapPath(); ret
 
 function blank(st: StateCode): Deal {
   const kind = kindForRoute(st);
-  return { id: '', name: '', state: st, county: startCounty(st), kind, plan: kind === 'lien' ? 'lien' : planFromBuyBox(), notes: '', done: [], updatedAt: new Date().toISOString() };
+  return { id: '', name: '', state: st, county: startCounty(st), kind, plan: kind === 'lien' ? 'lien' : plansFor(kind).includes(planFromBuyBox()) ? planFromBuyBox() : plansFor(kind)[0], notes: '', done: [], updatedAt: new Date().toISOString() };
 }
 
 const DELETED_NOTE = 'This deal was deleted (perhaps in another tab). What you typed is still here, unsaved: save it again to keep it.';

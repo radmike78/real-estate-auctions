@@ -335,6 +335,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const profit = bid > 0 ? profitAtBid(i, bid) : null;
   const over = bid > 0 && bid > r.maxBid;
   const target = requiredProfit(i);
+  // The profit target is still our starting 15%: say it's ours, not yours.
+  const targetIsExample = !typedKeys.has('targetProfitPct') && !typedKeys.has('targetProfitMin') && !typedKeys.has('profitInDollars');
   const steps = maxBidSteps(i);
   const atOpening = i.minimumBid > 0 ? profitAtBid(i, i.minimumBid) : 0;
   // The deal itself fails at the opening bid, or only the cash you entered falls short of it.
@@ -493,7 +495,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                   : 'Even at $0, costs leave less than your profit target. Walk away or change your plan.'
                 : r.limitedBy === 'cash'
                   ? `Set by the cash you can bring: the ${w.bid} plus every cost until you sell (repairs, holding, fees). Your profit target alone would allow ${fmtMoney(r.profitBid)}.`
-                  : `Leaves your ${fmtMoney(Math.round(target))} profit target after every cost, based on your numbers. Not a guarantee.`}
+                  : targetIsExample ? `Leaves our example profit target, ${i.targetProfitPct}% of the resale value (${fmtMoney(Math.round(target))}), after every cost. Set your own under “Profit you want”. Not a guarantee.` : `Leaves your ${fmtMoney(Math.round(target))} profit target after every cost, based on your numbers. Not a guarantee.`}
               {!r.noBidWorks && !(i.minimumBid > 0) && unenteredNote}
             </small>
           </div>

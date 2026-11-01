@@ -59,7 +59,8 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
       if (optional) onDone?.();
       return;
     }
-    if (needsCounty || unfinished) return;
+    if (unfinished) { input.current?.focus(); return; }
+    if (needsCounty) return;
     // Cities still loading, same state: nothing was changed here, so keep the saved area as it is.
     if (!places && area?.state === state && countyOnly === (area.city ? null : area.county)) { onDone?.(); return; }
     // A city (and its county), or just a county, or just the state.
@@ -139,9 +140,9 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
         </div>
       )}
       <div className="row">
-        <button type="button" className="btn" disabled={(!state && !optional) || needsCounty || unfinished} onClick={save}>{doneLabel}</button>
+        <button type="button" className="btn" disabled={(!state && !optional) || needsCounty} onClick={save}>{doneLabel}</button>
         {needsCounty && <span className="small muted">Choose the county first.</span>}
-        {unfinished && !needsCounty && <span className="small muted">Choose a city from the list, or clear the city box.</span>}
+        {unfinished && !needsCounty && <span className="small muted" role="status">Choose a city from the list, or clear the city box.</span>}
         {extra ?? (area && <button type="button" className="btn btn-secondary" onClick={() => { setArea(null); onDone?.(); }}>Clear my area</button>)}
       </div>
     </div>
