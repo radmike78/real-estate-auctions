@@ -28,8 +28,13 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
     loadPlaces(state).then((p) => {
       if (!alive) return;
       setPlaces(p);
-      // The saved city, if it's still on the list.
-      if (area?.state === state && area.city) setPicked(p.find((x) => x.name === area.city && (!area.county || x.counties.includes(area.county))) ?? null);
+      // The saved city, if it's still on the list: the box, the pick and its county together (also on coming back to
+      // this state after looking at another).
+      if (area?.state === state && area.city) {
+        const pk = p.find((x) => x.name === area.city && (!area.county || x.counties.includes(area.county))) ?? null;
+        setPicked(pk);
+        if (pk) { setTyped(pk.name); setCounty(area.county); }
+      }
     });
     return () => {
       alive = false;
@@ -55,6 +60,8 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
       return;
     }
     if (needsCounty || unfinished) return;
+    // Cities still loading, same state: nothing was changed here, so keep the saved area as it is.
+    if (!places && area?.state === state && countyOnly === (area.city ? null : area.county)) { onDone?.(); return; }
     // A city (and its county), or just a county, or just the state.
     const a: Area = picked && county ? { state, city: picked.name, county } : !picked && countyOnly && st?.counties.includes(countyOnly) ? { state, city: null, county: countyOnly } : { state, city: null, county: null };
     setArea(a);

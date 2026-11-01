@@ -163,7 +163,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-11-01",
-    "hash": "a0733dc6c550cd8f",
+    "hash": "84c027a4f85b54e8",
     "note": "Reviewed 2026-11-01 (rounds 33-36): rent calculator example value and refinance sizing restored to the pre-round-32 formulas; county property tax rates from official state sources set the starting tax (stateCosts.rentalStartFor and taxAt); plan-cash checks, example-value and living-there wording added. Formulas checked by unit tests and browser runs."
   },
   {

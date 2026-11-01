@@ -275,3 +275,10 @@ it('blames the cash, not the property, when only the cash is short', () => {
   const bad = { ...RENT_DEFAULTS, monthlyRent: 100, cashAvailable: 20000 };
   expect(noRealisticPrice(rentMaxBid(bad, false), rentMaxBid({ ...bad, cashAvailable: 0 }, false), bad.value)).toBe(false);
 });
+
+it('blames the cash when it doesn’t cover the costs, even if the deal’s own price is low against the value', () => {
+  const v = { ...RENT_DEFAULTS, monthlyRent: 900, cashAvailable: 20000 };
+  const r = rentMaxBid(v, false);
+  const unc = rentMaxBid({ ...v, cashAvailable: 0 }, false);
+  if (r.noBidWorks && !unc.noBidWorks) expect(noRealisticPrice(r, unc, v.value)).toBe(true);
+});

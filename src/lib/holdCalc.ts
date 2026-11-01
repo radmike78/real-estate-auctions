@@ -618,9 +618,10 @@ export function withPlanCash<T extends { cashAvailable: number }>(v: T, offer: b
  */
 export function noRealisticPrice(r: HoldResult, uncapped: HoldResult, value: number): boolean {
   if (r.limitedBy !== 'cash' || uncapped.noBidWorks) return false;
+  // The cash doesn't even cover the costs, while the deal works without that limit: the cash is short.
+  if (r.noBidWorks) return true;
   // The deal's own price is under a tenth of the value too: the property's numbers are the problem, not the cash.
   if (nz(value) > 0 && Number.isFinite(uncapped.maxBid) && uncapped.maxBid < nz(value) * 0.1) return false;
-  if (r.noBidWorks) return true;
   if (!Number.isFinite(r.maxBid)) return false;
   // What the deal itself supports, else a tenth of the value, else (no target, no value) a year of its income.
   const floor = Number.isFinite(uncapped.maxBid) && uncapped.maxBid > 0 ? uncapped.maxBid * 0.1 : nz(value) > 0 ? nz(value) * 0.1 : Math.max(0, r.noi);
