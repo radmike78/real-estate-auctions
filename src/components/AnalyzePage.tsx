@@ -137,6 +137,14 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     replaceAddress('/analyze');
   }, [plan]);
   const [saved, setSaved] = useState<Deal[]>(loadDeals);
+  // The saved deals as stored (another tab or page may have changed them), or this page's copy when storage can't be
+  // read at all (blocked storage).
+  const storedDeals = (): Deal[] => {
+    const list = loadDeals();
+    let readable = true;
+    try { readable = localStorage.getItem('deedowl.analyze.v1') !== null; } catch { readable = false; }
+    return list.length === 0 && !readable ? saved : list;
+  };
 
   // Keep the working deal between visits, and in the saved list once it has been saved.
   useEffect(() => {
@@ -149,7 +157,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       setSaved(() => {
         // Built from what's stored, not this page's copy, so a deal saved elsewhere meanwhile (a kept draft) stays.
         // The stage is changed in My plan or the deal packet, not here: keep the one stored with the deal.
-        const list = loadDeals();
+        const list = storedDeals();
         const stage = list.find((d) => d.id === deal.id)?.stage ?? deal.stage;
         const next = list.map((d) => (d.id === deal.id ? { ...deal, ...(stage ? { stage } : {}) } : d));
         saveDeals(next);
@@ -184,7 +192,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     const practicing = savingPractice();
     const d: Deal = { ...deal, id: `d${Date.now().toString(36)}`, name: deal.name.trim() || `${countyName(deal.county)} deal`, stage: 'researching', ...(practicing ? { practice: true } : {}) };
     carryDraftNumbers(d.id, d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short');
-    const next = [d, ...saved];
+    const next = [d, ...storedDeals()];
     saveDeals(next);
     setSaved(next);
     setDeal(d);
@@ -192,7 +200,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const remove = (id: string) => {
     // One click used to wipe the packet, numbers and evidence; My deals asks first, so this does too.
     if (!window.confirm('Delete this deal, with its numbers, deal packet and evidence log?')) return;
-    const next = saved.filter((d) => d.id !== id);
+    const next = storedDeals().filter((d) => d.id !== id);
     saveDeals(next);
     forgetDeal(id);
     setSaved(next);
@@ -270,7 +278,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             <ul>
               {saved.map((d) => (
                 <li key={d.id} className={d.id === deal.id ? 'on' : ''}>
-                  <button type="button" className="linkish" onClick={() => { const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); } setDeal(d); }}>{d.name}</button>
+                  <button type="button" className="linkish" onClick={() => { const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); setDeal({ ...d, updatedAt: new Date().toISOString() }); } else setDeal(d); }}>{d.name}</button>
                   <span className="muted"> · {countyName(d.county)}, {d.state}</span>
                   <button type="button" className="linkish danger" aria-label={`Delete ${d.name}`} onClick={() => remove(d.id)}>Delete</button>
                 </li>
