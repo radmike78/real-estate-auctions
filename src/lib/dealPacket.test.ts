@@ -526,3 +526,23 @@ it('says “an 8%” return on cost', () => {
   const t = packetSections(auction, EMPTY_PACKET, now).find((s) => s.key === 'numbers')!.lines.join('\n');
   expect(t).toMatch(/Highest price for an 8% return on cost/);
 });
+
+it('compares an offer flip with My plan even if cash was typed while it was an auction', () => {
+  localStorage.setItem('deedowl.cash.v1', JSON.stringify({ savings: 50000 }));
+  const flip: Deal = { ...deal, county: 'Clark', state: 'NV', plan: 'flip' };
+  localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 200000, exitValue: 300000, repairs: 20000, contingencyPct: 15, cashAvailable: 300000 }));
+  localStorage.setItem('fsf.bid.analyzed-d1.v1.typed.v1', JSON.stringify(['minimumBid', 'exitValue', 'repairs', 'contingencyPct', 'cashAvailable']));
+  const n = savedNumbers(flip).bid!;
+  expect(n.cashTyped).toBe(false);
+  expect(n.cashLimit).toBe(0);
+  const cash = packetSections(flip, EMPTY_PACKET, now).find((s) => s.key === 'cash')!.lines.join('\n');
+  expect(cash).toMatch(/more than your investable cash: the deal doesn’t fit as entered/);
+  localStorage.removeItem('deedowl.cash.v1');
+});
+
+it('keeps the commercial minimum coverage for My deals', () => {
+  localStorage.setItem('fsf.calc.commercial.d1-offer.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 6, atPrice: 900000, loanPct: 80, ratePct: 6.5, years: 25, minDscr: 1.25 }));
+  const c = savedNumbers({ ...deal, plan: 'commercial' }).commercial!;
+  expect(c.minDscr).toBe(1.25);
+  expect(c.at!.loanOk).toBe(false);
+});

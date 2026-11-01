@@ -352,10 +352,13 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const still = exampleLabels(GROUPS.flatMap((g) => g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : f))), i, offer ? offerInputs(defaults) : defaults, typedKeys, NOT_EXAMPLES);
   const yours = offer ? 'Your offer' : 'Your bid';
   const planCash = investorProfile().investable;
+  // A cash figure typed here (a typed 0 is no limit). An offer hides the field, so a figure typed while this was an
+  // auction doesn't count there.
+  const cashTyped = !offer && typedKeys.has('cashAvailable');
   // No cash entered here, and My plan's cash doesn't cover the opening bid with every cost (the packet says the same).
-  const planShort = !offer && !dealFails && !cashShort && i.minimumBid > 0 && !(i.cashAvailable > 0) && !typedKeys.has('cashAvailable') && planCash > 0 && openingCash > planCash;
+  const planShort = !offer && !dealFails && !cashShort && i.minimumBid > 0 && !(i.cashAvailable > 0) && !cashTyped && planCash > 0 && openingCash > planCash;
   // Your own bid's cash against your limit: the cash entered here, else My plan's (a typed 0 is no limit).
-  const bidCashLimit = i.cashAvailable > 0 ? i.cashAvailable : typedKeys.has('cashAvailable') ? 0 : planCash;
+  const bidCashLimit = i.cashAvailable > 0 ? i.cashAvailable : cashTyped ? 0 : planCash;
   const bidCash = bid > 0 ? cashNeededAtBid(i, bid) : 0;
   const bidShort = bid > 0 && bidCashLimit > 0 && bidCash > bidCashLimit;
   // Costs still at $0 that nobody entered: unknown, not confirmed zero. Typing 0 confirms there's none.
@@ -497,7 +500,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           )
         )}
         {/* No cash limit entered here, but My plan has your investable cash and this needs more: say so by the price. */}
-        {!needsValue && !r.noBidWorks && !planShort && !(i.cashAvailable > 0) && !typedKeys.has('cashAvailable') && planCash > 0 && r.cashPeak > planCash && (
+        {!needsValue && !r.noBidWorks && !planShort && !(i.cashAvailable > 0) && !cashTyped && planCash > 0 && r.cashPeak > planCash && (
           <p className="calc-verdict bad" role="note"><strong>This needs about {fmtMoney(Math.round(r.cashPeak))} of your cash at the walk-away price; My plan shows {fmtMoney(Math.round(planCash))} of investable cash.</strong> {offer ? 'Offer only what fits your cash (with any loan your lender approves), or compare a loan with a lender.' : <>Enter the cash you can bring (an auction wants the full amount by its payment deadline) to cap the {w.bid} at what you have, or compare a loan with a lender. <button type="button" className="linkish" onClick={() => { const f = document.getElementById(`${uid}-cashAvailable`); f?.scrollIntoView({ block: 'center' }); f?.focus({ preventScroll: true }); }}>Enter your cash</button></>}</p>
         )}
         {!needsValue && i.minimumBid > 0 && <PriceHead kind="listed" tag={offer ? 'From the listing' : 'From the sale notice'} label={w.Opening} price={i.minimumBid} result={atOpening} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(openingCash))}.`} />}

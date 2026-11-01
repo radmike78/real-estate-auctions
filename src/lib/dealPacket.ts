@@ -292,6 +292,8 @@ export function savedNumbers(d: Deal) {
     cashTyped?: boolean;
     /** Your own cash needed at your price: all in before an auction's refinance, else the cash you put in. */
     atNeed?: number;
+    /** The lender's minimum income coverage (DSCR) you entered. */
+    minDscr?: number;
     at?: ReturnType<typeof commercialAtPrice> & { price: number };
     stress: { label: string; maxBid: number | null; limitedBy?: CommercialLimit; capOnCost?: number | null }[];
   } | null = null;
@@ -317,7 +319,7 @@ export function savedNumbers(d: Deal) {
         const pp = proposedPriceOf(i);
         const at = pp ? { ...resultAtPrice(i, pp.price), source: pp.source } : null;
         const stress = stressCases(i).map((c) => ({ label: c.label, maxBid: maxSafeBid(c.inputs).maxBid, profit: pp ? resultAtPrice(c.inputs, pp.price).profit : null }));
-        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer) };
+        bid = { maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: !offer && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: !offer && i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer) };
       }
     }
   } else if (d.plan === 'commercial' && own) {
@@ -340,6 +342,7 @@ export function savedNumbers(d: Deal) {
         }
         if (commercial) {
           commercial.cashLimit = v.cashAvailable > 0 ? v.cashAvailable : 0;
+          commercial.minDscr = v.minDscr;
           commercial.cashTyped = readConfirmed(`fsf.calc.commercial.${d.id}${offer ? '-offer' : ''}.v1`).has('cashAvailable');
         }
         if (commercial && v.atPrice > 0) {
@@ -596,7 +599,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   // You plan to live there: a monthly loss is what living there costs you (as Keep and rent and My deals say).
   const living = !!rent && offer && !!profile.ownerOccupant;
   if (rent && living) {
-    nums.push(`Your offer (your actual price): ${money(rent.price)} → ${rent.monthly < 0 ? `living there costs you about ${money(-rent.monthly)} a month after any rent you collect` : `the rent you collect covers every cost, with about ${money(rent.monthly)} a month to spare`}. Compare that with what you pay to live where you are now; the return target is an investor’s yardstick.`);
+    nums.push(`Your offer (your actual price): ${money(rent.price)} → ${Math.round(Math.abs(rent.monthly)) === 0 ? 'the rent you collect about breaks even with every cost' : rent.monthly < 0 ? `living there costs you about ${money(-rent.monthly)} a month after any rent you collect` : `the rent you collect covers every cost, with about ${money(rent.monthly)} a month to spare`}. Compare that with what you pay to live where you are now; the return target is an investor’s yardstick.`);
     for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${s.monthly < 0 ? `living there costs about ${money(-s.monthly)} a month` : `${money(s.monthly)} a month to spare`}`);
   } else if (rent) {
     nums.push(`${offer ? 'Your offer' : 'Your bid'} (your actual price): ${money(rent.price)} → monthly cash flow ${money(rent.monthly)}${rent.exampleValue ? ` (${refiValueWords(rent.refiValue)})` : rent.refi ? ' after the refinance' : ''}; ${rent.exampleValue && rent.refiValue > 0 ? 'return not shown until you enter the value after repairs' : rent.cashOnCash === null ? 'all your cash back' : `${(rent.cashOnCash * 100).toFixed(1)}% a year on your cash`} (target ${rent.target}%)`);

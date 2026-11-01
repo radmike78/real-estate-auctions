@@ -98,7 +98,7 @@ function loadCurrent(st: StateCode): Deal {
     if (v && v.id && opened !== v.id && storedStage(v.id) === 'passed') return blank(st || v.state);
     // An untouched blank left on a regular listing from before you chose an auction or lien route starts again, on the
     // kind of sale that route is about.
-    if (v && !v.id && !v.name.trim() && !v.notes.trim() && v.done.length === 0 && !v.locationConfirmed && v.kind === 'listing' && (v.county === startCounty(v.state) || v.county === DEFAULT_COUNTY[v.state]) && v.plan === planFromBuyBox() && kindForRoute(st || v.state) !== 'listing') return blank(st || v.state);
+    if (v && !v.id && !v.name.trim() && !v.notes.trim() && v.done.length === 0 && !v.locationConfirmed && v.kind === 'listing' && (v.county === startCounty(v.state) || (!v.countyChosen && v.county === DEFAULT_COUNTY[v.state])) && v.plan === planFromBuyBox() && kindForRoute(st || v.state) !== 'listing') return blank(st || v.state);
     if (v && (!st || v.state === st)) {
       // Deleted from My deals since: keep what was typed as a new, unsaved deal (the note says so).
       if (v.id && !stillSaved(v.id)) {
@@ -106,7 +106,7 @@ function loadCurrent(st: StateCode): Deal {
         return asDraft(v);
       }
       // An untouched unsaved draft still on the state's default county, from before you chose your area: use your area's.
-      if (!v.id && !v.name.trim() && !v.notes.trim() && v.done.length === 0 && !v.locationConfirmed && v.county === DEFAULT_COUNTY[v.state] && startCounty(v.state) !== v.county) return { ...v, county: startCounty(v.state) };
+      if (!v.id && !v.name.trim() && !v.notes.trim() && v.done.length === 0 && !v.locationConfirmed && !v.countyChosen && v.county === DEFAULT_COUNTY[v.state] && startCounty(v.state) !== v.county) return { ...v, county: startCounty(v.state) };
       return v;
     }
   } catch {
@@ -324,13 +324,13 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           </label>
           <label className="field">
             <span>State</span>
-            <select value={deal.state} onChange={(e) => { const s = e.target.value as StateCode; const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: startCounty(s), locationConfirmed: false, kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); setMyState(s); }}>
+            <select value={deal.state} onChange={(e) => { const s = e.target.value as StateCode; const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: startCounty(s), countyChosen: false, locationConfirmed: false, kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); setMyState(s); }}>
               {STATES.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
             </select>
           </label>
           <label className="field">
             <span>County</span>
-            <select value={deal.county} onChange={(e) => set({ county: e.target.value, locationConfirmed: false })}>
+            <select value={deal.county} onChange={(e) => set({ county: e.target.value, locationConfirmed: false, countyChosen: true })}>
               {st.counties.map((c) => <option key={c} value={c}>{countyName(c)}</option>)}
             </select>
           </label>

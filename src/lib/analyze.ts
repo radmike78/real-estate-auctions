@@ -72,6 +72,8 @@ export interface Deal {
   /** Saved during paper practice: an analysis to learn from, not a property you're buying. My plan never picks it
    *  on its own; choose it in My plan to work on it. */
   practice?: boolean;
+  /** The county was picked for this property (not just your area's or the state's starting county). */
+  countyChosen?: boolean;
 }
 
 export interface CheckItem {
@@ -292,6 +294,7 @@ export function cleanDeal(v: unknown): Deal | null {
     ...(isDealStage(d.stage) ? { stage: d.stage } : {}),
     ...(d.locationConfirmed === true && typeof d.county === 'string' && st.counties.includes(d.county) ? { locationConfirmed: true } : {}),
     ...(d.practice === true ? { practice: true } : {}),
+    ...(d.countyChosen === true ? { countyChosen: true } : {}),
   };
 }
 

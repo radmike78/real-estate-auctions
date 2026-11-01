@@ -313,7 +313,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
       </label>
       {price > 0 && (
         <p className={`calc-verdict ${rentVerdict({ cashFlow: a.cashFlow, cashOnCash: coc, targetPct: v.targetCocPct, cashShort, exampleRefi, living: livingThere })}`} role="status">
-          <strong>{livingThere && !exampleRefi ? (a.cashFlow <= 0 ? `Living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month, after any rent you collect.` : `The rent you collect would cover every cost, with about ${fmtMoney(Math.round(a.cashFlow / 12))} a month to spare.`) : exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; your target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
+          <strong>{livingThere && !exampleRefi ? (Math.round(Math.abs(a.cashFlow) / 12) === 0 ? 'The rent you collect about breaks even with every cost.' : a.cashFlow < 0 ? `Living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month, after any rent you collect.` : `The rent you collect would cover every cost, with about ${fmtMoney(Math.round(a.cashFlow / 12))} a month to spare.`) : exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; your target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; your target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; your target: ${v.targetCocPct}%.`}</strong>{' '}
           {blankRefi && 'No refinance is counted yet: enter the value after repairs to include it. '}
           {cashShort && <>It needs about {fmtMoney(Math.round(needed))} of your cash, more than {limitWords}. </>}
           {exampleRefi ? null : a.cashFlow <= 0
@@ -644,7 +644,8 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
   const v = offer ? { ...saved, buyerPremiumPct: 0 } : saved;
   const r = commercialMaxBid(v, offer);
   const n = commercialNoi(v);
-  const groups = offer ? forOffer(ct.groups) : ct.groups;
+  // Commercial cash doesn't follow My plan (the results compare with it instead), so its help says so.
+  const groups = (offer ? forOffer(ct.groups) : ct.groups).map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'cashAvailable' ? { ...f, more: 'Enter the cash you can put in. Left at 0, nothing caps the price here; the results still compare the cash it needs with your investable cash in My plan. Subtract the reserves your lender wants you to keep.' } : f)) }));
   const still = exampleLabels(visibleFields(groups, v), v, COMMERCIAL_DEFAULTS, typedKeys, new Set([...NOT_EXAMPLES, ...Object.keys(start)]));
   const allExample = !typed && Object.keys(start).length === 0;
   // Commercial cash isn't taken from My plan: with no cash entered here (a typed 0 is no limit), compare the cash the
