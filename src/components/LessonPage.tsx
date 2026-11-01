@@ -1,3 +1,4 @@
+import { openDeal } from '../lib/analyze';
 import { lessonAllowsAds } from '../lib/contextAds';
 import { planNow, START_LESSONS } from '../lib/planNext';
 import { currentProgress, getMode } from '../lib/journey';
@@ -334,7 +335,7 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
           return (
             <nav className="path-next" aria-label="Next step">
               <span className="muted">Next: {plan.context}</span>
-              <a className="btn" href={plan.task.href}>{plan.task.label}&nbsp;→</a>
+              <a className="btn" href={plan.task.href} onClick={(e) => { if (plan.task.openDeal && plan.deal) { e.preventDefault(); openDeal(plan.deal); } }}>{plan.task.label}&nbsp;→</a>
               {next && <a href={nextHref}>Or keep reading: {next.title}&nbsp;→</a>}
             </nav>
           );
