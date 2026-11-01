@@ -58,9 +58,10 @@ export const COUNTY_SALES: CountySale[] = [
     endsAt: '2026-11-03T23:59:00-06:00',
     redeemBy: null,
     registerBy: null,
-    saleUrl: 'https://www.dallam.org/county/clerk.shtml',
+    // Checked 2026-11-01: the clerk's page no longer lists this sale, but the notice is still posted.
+    saleUrl: 'https://www.dallam.org/county/11.3.26sale.pdf',
     listUrl: 'https://www.dallam.org/county/11.3.26sale.pdf',
-    checkedOn: '2026-10-06',
+    checkedOn: '2026-11-01',
   },
   {
     // https://www.childresstx.us/pages/county-sheriff, checked 2026-10-06: "Upcoming Sheriff's Sale Property Tax Sale -
@@ -201,6 +202,30 @@ export const COUNTY_SALES: CountySale[] = [
     checkedOn: '2026-10-06',
   },
   {
+    // https://www.tarrantcountytx.gov/en/constables/constable-3/delinquent-tax-sales/monthly-tax-sales-listings.html, checked
+    // 2026-11-01: a "DECEMBER 1, 2026" listing. The Constable 3 page: register before 10 a.m.; cashier's checks and money
+    // orders only. The place isn't on these pages, so it isn't shown.
+    id: 'tx-tarrant-2026-12',
+    state: 'TX',
+    county: 'Tarrant',
+    agency: 'Tarrant County Constable, Precinct 3',
+    name: 'December 1, 2026 delinquent tax sale',
+    format: 'In-person auction',
+    startOnly: true,
+    startsAt: '2026-12-01T10:00:00-06:00',
+    endsAt: '2026-12-01T23:59:00-06:00',
+    redeemBy: null,
+    registerBy: null,
+    saleUrl: 'https://www.tarrantcountytx.gov/en/constables/constable-3/delinquent-tax-sales/monthly-tax-sales-listings.html',
+    listUrl: 'https://www.tarrantcountytx.gov/en/constables/constable-3/delinquent-tax-sales/monthly-tax-sales-listings/december-1--2026.html',
+    bidRules: [
+      'Register before 10 a.m.; no registrations once the sale starts.',
+      'Pay with cashier’s checks or money orders for the exact amount (bring several sizes); certified funds are due within one hour after the sale.',
+      'Get the county tax office’s statement that you owe no delinquent taxes ($10) before a constable’s deed can be issued.',
+    ],
+    checkedOn: '2026-11-01',
+  },
+  {
     // https://www.fortbendcountytx.gov/your-county/county-calendar/november-tax-sales, checked 2026-10-06: "Nov. 03, 2026,
     // 10:00 AM - 4:00 PM Location Gus George Academy-Patton Hall 1521 Eugene Heimann Cir Richmond, TX 77469", with the
     // Constable Precinct 1 list.
@@ -215,9 +240,10 @@ export const COUNTY_SALES: CountySale[] = [
     endsAt: '2026-11-03T16:00:00-06:00',
     redeemBy: null,
     registerBy: null,
+    // Checked 2026-11-01: the calendar page now links a notice for each property instead of one list.
     saleUrl: 'https://www.fortbendcountytx.gov/your-county/county-calendar/november-tax-sales',
-    listUrl: 'https://www.fortbendcountytx.gov/sites/default/files/document-central/document-central/constable-pct-1-documents/November-Tax-Sales-Pct-1-Revised.pdf',
-    checkedOn: '2026-10-06',
+    listUrl: 'https://www.fortbendcountytx.gov/your-county/county-calendar/november-tax-sales',
+    checkedOn: '2026-11-01',
   },
   {
     // https://tax-office.traviscountytx.gov/properties/foreclosed, checked 2026-10-06: online sales; the bidder registration
