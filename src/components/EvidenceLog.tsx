@@ -99,3 +99,21 @@ function useReloadOnSave(dealId: string, setLog: (l: Log) => void) {
     return () => window.removeEventListener(EVIDENCE_EVENT, on);
   }, [dealId, setLog]);
 }
+
+/** The decision on its own, where the deal packet asks for it; the same choice as the log's, kept in sync. */
+export function DecisionGate({ dealId }: { dealId: string }) {
+  const [log, setLog] = useState<Log>(() => loadLog(dealId));
+  useReloadOnSave(dealId, setLog);
+  const choose = (gate: Log['gate']) => { const next = { ...loadLog(dealId), gate }; saveLog(dealId, next); setLog(next); };
+  return (
+    <fieldset className="evidence-gate">
+      <legend>Your decision</legend>
+      {GATES.map((g) => (
+        <label key={g.key}>
+          <input type="radio" name={`gate-${dealId}-decision`} checked={log.gate === g.key} onChange={() => choose(g.key)} />
+          <span><strong>{g.label}</strong> <span className="muted">{g.when}</span></span>
+        </label>
+      ))}
+    </fieldset>
+  );
+}

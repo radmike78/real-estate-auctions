@@ -12,6 +12,13 @@
   .plan-now.with-helper { grid-template-columns: minmax(0, 5fr) minmax(0, 3fr) minmax(0, 3fr); }
   .plan-now.with-helper .plan-now-help { grid-column: auto; }
 }
+/* No side panel or ad (My plan without a property, before any advertiser): no empty column. */
+@media (min-width: 900px) {
+  .plan-now:not(:has(> .plan-now-side)) { grid-template-columns: minmax(0, 1fr); }
+}
+@media (min-width: 1300px) {
+  .plan-now.with-helper:not(:has(> .plan-now-side)) { grid-template-columns: minmax(0, 5fr) minmax(0, 3fr); }
+}
 @media (max-width: 600px) {
   .page section.plan-now, .home .plan-now { padding: 20px 16px; }
 }

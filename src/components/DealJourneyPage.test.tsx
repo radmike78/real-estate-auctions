@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
-import DealJourneyPage, { parseAnswer } from './DealJourneyPage';
+import DealJourneyPage, { answerShapeOk, parseAnswer } from './DealJourneyPage';
 import { CHAPTERS, JOURNEY_KEY, answerTask, emptyJourney, saveJourney } from '../practice/dealJourney';
 import { planNow } from '../lib/planNext';
 import { DECIDE_KEY, QUESTIONS } from '../lib/decide';
@@ -70,5 +70,7 @@ describe('typed practice answers', () => {
   it('read any minus sign, dash or parentheses as below zero', () => {
     for (const x of ['-21.93', '−21.93', '–21.93', '-$21.93', '$-21.93', '(21.93)', '- 21.93']) expect(Number(parseAnswer(x))).toBe(-21.93);
     expect(Number(parseAnswer('$1,250'))).toBe(1250);
+    for (const x of ['-21.93', '−21.93', '-$21.93', '(21.93)', '1,250', '$1,250.50']) expect(answerShapeOk(x), x).toBe(true);
+    for (const x of ['1,2,3', '-21,93', 'abc', '12,50']) expect(answerShapeOk(x), x).toBe(false);
   });
 });
