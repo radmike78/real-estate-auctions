@@ -2,6 +2,7 @@ import { workStorage as localStorage } from './workStorage';
 // What My plan's roadmap has stored in this browser: the steps ticked, their statuses, the way of buying and the
 // property being worked on. Read here so the roadmap, the home page and My plan's next step all count the same way.
 import { loadDeals, type Deal } from './analyze';
+import { getMyState } from './myState';
 import { ROADMAP, roadmapFor, type RoadmapPath, type RoadmapStep, type StepStatus } from './roadmap';
 import { cleanDealSteps, DEAL_ID, DEAL_KEY, DEAL_STEPS_KEY } from './roadmapDeals';
 
@@ -74,7 +75,9 @@ export function markStepDone(id: string) {
   }
 }
 /** How the visitor plans to buy: through an agent, at an auction, or lien certificates. */
-export const roadmapPath = () => readKey(ROADMAP_PATH_KEY, 'listing' as RoadmapPath, cleanPath);
+// Lien certificates are sold only in Nevada and Arizona: a lien route kept after switching to another state follows the
+// auction route there (its tasks would point to sales that don't exist), until the reader picks again.
+export const roadmapPath = (): RoadmapPath => { const p = readKey(ROADMAP_PATH_KEY, 'listing' as RoadmapPath, cleanPath); const st = getMyState(); return p === 'certificate' && st && st !== 'NV' && st !== 'AZ' ? 'auction' : p; };
 /** The route that fits a property's kind of sale. */
 export const pathForDeal = (d: Pick<Deal, 'kind'>): RoadmapPath => (d.kind === 'lien' ? 'certificate' : d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? 'listing' : 'auction');
 

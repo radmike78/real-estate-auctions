@@ -1,3 +1,4 @@
+import { planPath } from '../lib/roadmapState';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { getMyState } from '../lib/myState';
 import RoutePracticeDone from './RoutePracticeDone';
@@ -242,7 +243,9 @@ export function DrillList({ presetTopic, liensFirst = false }: { presetTopic?: T
   ].map((g) => ({ ...g, drills: g.drills.filter(keep) }));
   // Guided visitors start with three drills: a rental, then a foreclosure and a tax sale in their state.
   const code = (mine ?? 'NV').toLowerCase();
-  const starter = ['rental-265', `trustee-sale-${code}`, code === 'az' ? 'tax-lien-az' : code === 'ut' ? 'tax-sale-ut' : `tax-deed-${code}`]
+  // On the auction route (practice part 2 asks for three auction drills), an auction drill replaces the rental one.
+  const firstStarter = planPath() === 'auction' ? [`sheriff-sale-${code}`, `hoa-sale-${code}`, 'rental-265'].find((id) => DRILLS.some((d) => d.id === id))! : 'rental-265';
+  const starter = [firstStarter, `trustee-sale-${code}`, code === 'az' ? 'tax-lien-az' : code === 'ut' ? 'tax-sale-ut' : `tax-deed-${code}`]
     .map((id) => DRILLS.find((d) => d.id === id))
     .filter((d): d is Drill => !!d);
   const guided = mode === 'guided' && !showAll;

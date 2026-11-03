@@ -1,5 +1,6 @@
 import { playbookAllowsAds } from '../lib/contextAds';
 import { getMyArea } from '../lib/myArea';
+import { COUNTY_OFFICES } from '../lib/countyOffices';
 import type { StateCode } from '../lib/regions';
 import NarrowDown from './NarrowDown';
 import { useLastActivity } from '../lib/journey';
@@ -260,6 +261,23 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
           This guide follows {stateByCode(stateOf(p))?.name ?? ''} law. You chose {mineName}: <a href={`#/playbooks/${mineGuide.key}`}>see {mineGuide.title}&nbsp;→</a>
         </p>
       )}
+      {(() => {
+        // These Nevada guides follow Clark County: a reader in another Nevada county hears that theirs differs.
+        const a = getMyArea();
+        if (stateOf(p) !== 'NV' || a?.state !== 'NV' || !a.county || a.county === 'Clark') return null;
+        const place = a.county === 'Carson City' ? 'Carson City' : `${a.county} County`;
+        const offices = COUNTY_OFFICES[`NV/${a.county}`];
+        const page = p.key === 'sid' ? offices?.specialAssessment ?? offices?.treasurer : p.key === 'tax' ? offices?.taxSale : undefined;
+        return (
+          <p className="other-state-guide" role="note">
+            This guide follows Clark County.{' '}
+            {a.county === 'Washoe' && p.key === 'tax'
+              ? 'Washoe County’s tax sale differs: one auction a year, usually in April; register from 9:00 a.m. two business days before, with a $500 deposit in certified funds; a winning bidder pays a $500 deposit and the balance by 5:00 p.m. the day after the sale.'
+              : `${place}’s own dates, deposits and payment rules may differ: confirm them with the county before a real sale.`}
+            {page && <> <a href={page.url} target="_blank" rel="noopener noreferrer">{place}’s page ↗</a></>}
+          </p>
+        );
+      })()}
       {!open && (
         <>
           <div className="you-get">
