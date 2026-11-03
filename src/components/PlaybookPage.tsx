@@ -276,7 +276,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
           <p className="other-state-guide" role="note">
             This guide follows Clark County.{' '}
             {a.county === 'Washoe' && p.key === 'tax'
-              ? 'Washoe County’s tax sale differs: one auction a year, usually in April. You register from 9:00 a.m. two business days before, with a $500 pre-bid deposit in certified funds. For a winning bid, the Treasurer’s FAQ lists a $500 non-refundable deposit and the balance due by 5:00 p.m. the day after the sale.'
+              ? 'Washoe County’s tax sale differs: one auction a year, usually in April. You register in person at the Treasurer’s office from 9:00 a.m. two business days before, with a $500 pre-bid deposit in certified funds. The opening bid is what’s owed (taxes, assessments, costs, interest and penalties) or the assessed value, whichever is greater. For a winning bid, the Treasurer’s FAQ lists a $500 non-refundable deposit and the balance due by 5:00 p.m. the day after the sale.'
               : ['tax', 'sid', 'sheriff'].includes(p.key)
                 ? `${place}’s own dates, deposits and payment rules may differ: confirm them with ${p.key === 'sheriff' ? 'its sheriff' : 'its treasurer'} before a real sale.`
                 : p.key === 'irs' ? 'IRS sales follow federal law, the same in every county; each sale’s terms come from the IRS notice of sale, so read it for the one you’re buying.' : 'This kind of sale follows the same Nevada law in every county; each sale’s own terms come from its notice or the seller, so read them for the one you’re buying.'}

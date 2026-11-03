@@ -108,7 +108,8 @@ function loadCurrent(st: StateCode): Deal {
     // An untouched blank left on a regular listing from before you chose an auction or lien route starts again, on the
     // kind of sale that route is about.
     if (v && !v.id && !v.name.trim() && !v.notes.trim() && v.done.length === 0 && !v.locationConfirmed && v.kind === 'listing' && (v.county === startCounty(v.state) || (!v.countyChosen && v.county === DEFAULT_COUNTY[v.state])) && v.plan === planFromBuyBox() && kindForRoute(st || v.state) !== 'listing') return blank(st || v.state);
-    if (v && (!st || v.state === st)) {
+    // A deal you opened (My deals, the packet) opens in its own state, even when your state is another.
+    if (v && (!st || v.state === st || (!!v.id && opened === v.id))) {
       // Deleted from My deals since: keep what was typed as a new, unsaved deal (the note says so).
       if (v.id && !stillSaved(v.id)) {
         deletedOnLoad = true;

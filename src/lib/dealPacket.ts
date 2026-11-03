@@ -177,8 +177,8 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   if (d.kind === 'lien') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien']);
   // California homes of one to four units: a win isn't final until eligible bidders' windows close (Civil Code 2924m).
   if (d.kind === 'trustee' && d.state === 'CA') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),
-    { what: '15-day intent-to-bid window*', when: 'For a home of 1–4 units: 15 days after the sale.', who: 'Eligible bidders (such as tenants and some buyers who will live there)', todo: 'Watch for a notice that one of them intends to bid; until then your win isn’t final.', missed: 'If none gives notice in time, your win stands, unless an exception applies.', why: 'Civil Code 2924m*' },
-    { what: '45-day eligible bid deadline*', when: 'For a home of 1–4 units: 45 days after the sale, if one gave notice of intent.', who: 'The eligible bidder who gave notice', todo: 'Plan for the chance that a higher eligible bid replaces yours.', missed: 'If no qualifying bid arrives in time, your win stands.', why: 'Civil Code 2924m*' },
+    { what: '15-day intent-to-bid window', when: 'For a home of 1–4 units: 15 days after the sale.', who: 'Eligible bidders (such as tenants and some buyers who will live there)', todo: 'Watch for a notice that one of them intends to bid; until then your win isn’t final.', missed: 'If none gives notice in time, your win stands, unless an exception applies.', why: 'Civil Code 2924m, in effect until January 1, 2031' },
+    { what: '45-day eligible bid deadline', when: 'For a home of 1–4 units: 45 days after the sale, if one gave notice of intent.', who: 'The eligible bidder who gave notice', todo: 'Plan for the chance that a higher eligible bid replaces yours.', missed: 'If no qualifying bid arrives in time, your win stands.', why: 'Civil Code 2924m, in effect until January 1, 2031' },
     ...names(['Deed recorded'])];
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
@@ -332,6 +332,8 @@ export function savedNumbers(d: Deal) {
     weakSupported?: number;
     /** The refinance entered costs more a year than the building earns (no bid works with that loan). */
     loanTooBig?: boolean;
+    /** The minimum coverage was typed (else our example). */
+    dscrTyped?: boolean;
     at?: ReturnType<typeof commercialAtPrice> & { price: number };
     stress: { label: string; maxBid: number | null; limitedBy?: CommercialLimit; capOnCost?: number | null }[];
   } | null = null;
@@ -381,6 +383,7 @@ export function savedNumbers(d: Deal) {
         if (commercial) {
           commercial.cashLimit = v.cashAvailable > 0 ? v.cashAvailable : 0;
           commercial.minDscr = v.minDscr;
+          commercial.dscrTyped = readConfirmed(`fsf.calc.commercial.${d.id}${offer ? '-offer' : ''}.v1`).has('minDscr');
           commercial.capTyped = readConfirmed(`fsf.calc.commercial.${d.id}${offer ? '-offer' : ''}.v1`).has('targetCapPct');
           commercial.value = v.value > 0 ? v.value : 0;
           // Only the cash entered is short (Commercial income says "No realistic price fits your cash").
@@ -609,6 +612,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     } else if (!bid.none) {
       const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could pay, not your price)`;
       cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} on sale day; estimated cash you’d put in ${money(bid.cashPeak)}`);
+      // As Fix and sell says in red: with no cash entered there, the walk-away price can need more than My plan's cash.
+      if (!(bid.cashLimit > 0) && !bid.cashTyped && profile.investable > 0 && bid.cashPeak > profile.investable) cash.push(`That walk-away price needs ${money(bid.cashPeak - profile.investable)} more than the ${money(profile.investable)} of investable cash in My plan: enter the cash you can ${offer ? 'put in' : 'bring'} in ${strategy} to cap the price at what you have.`);
     }
     if (bid.unentered.length) cash.push(`Doesn’t include costs still at $0 because not entered: ${bid.unentered.join('; ')}.`);
     if (bid.financed) cash.push(DRAW_NOTE);
@@ -682,7 +687,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   if (commercial?.at) {
     const a = commercial.at;
-    nums.push(`Your ${offer ? 'offer' : 'bid'} (your actual price): ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; ${a.cashIn < 0 ? `cash left in: none (the refinance returns all your cash and ${money(-a.cashIn)} more, if approved)` : `cash left in ${money(a.cashIn)}`}; return on total cost ${pct1(a.capOnCost, commercial.capPct)}; ${a.dscr === null ? 'no loan' : `income coverage ${dscrText(a.dscr)}× (${a.loanOk ? 'meets' : 'below'} the ${commercial.minDscr ?? 1.25}× minimum)`}`);
+    nums.push(`Your ${offer ? 'offer' : 'bid'} (your actual price): ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; ${a.cashIn < 0 ? `cash left in: none (the refinance returns all your cash and ${money(-a.cashIn)} more, if approved)` : `cash left in ${money(a.cashIn)}`}; return on total cost ${pct1(a.capOnCost, commercial.capPct)}; ${a.dscr === null ? 'no loan' : `income coverage ${dscrText(a.dscr)}× (${a.loanOk ? 'meets' : 'below'} ${commercial.dscrTyped ? 'your' : 'our example'} ${commercial.minDscr ?? 1.25}× minimum)`}`);
   }
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
   else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? `Without that cash limit the deal meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost` : 'Without that cash limit the numbers work'}`);

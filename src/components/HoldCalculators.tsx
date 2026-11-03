@@ -690,7 +690,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
       <div className="calc-inputs"><ExampleInputs labels={still} all={allExample} /><CalcFields groups={groups} values={v} onChange={set} /></div>
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
-        <CommercialAtPrice v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={noReal ? NaN : r.maxBid} cashTyped={cashTyped} capTyped={typedKeys.has('targetCapPct')} rentTyped={!exactKey || typedKeys.has('monthlyRent')} />
+        <CommercialAtPrice v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={noReal ? NaN : r.maxBid} cashTyped={cashTyped} capTyped={typedKeys.has('targetCapPct')} rentTyped={!exactKey || typedKeys.has('monthlyRent')} dscrTyped={typedKeys.has('minDscr')} />
         {n.byLine && (() => {
           const blank = ([['opTaxYear', 'property tax'], ['opInsuranceYear', 'insurance'], ['opRepairsYear', 'repairs'], ['opUtilitiesYear', 'utilities'], ['opManagementPct', 'management']] as const).filter(([k]) => !(Number(v[k]) > 0)).map(([, label]) => label);
           if (!blank.length) return null;
@@ -708,7 +708,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
 }
 
 /** The commercial verdict at your price, naming each test it misses (return on cost, the coverage minimum, cash flow). */
-function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialAtPrice>, capTyped: boolean, cashShort = false): string {
+function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialAtPrice>, capTyped: boolean, cashShort = false, dscrTyped = true): string {
   // The cash it needs is more than you entered (or My plan's): named in the verdict, with the figures just below.
   const short = cashShort ? ' It needs more cash than you have (below).' : '';
   const target = `${capTyped ? 'your' : 'our example'} ${v.targetCapPct}% return-on-cost target`;
@@ -716,7 +716,7 @@ function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialA
   const noCap = !(v.targetCapPct > 0);
   const misses: string[] = [];
   if (!noCap && a.capOnCost !== null && capMisses(a.capOnCost, v.targetCapPct)) misses.push(`${target} (${capText(a.capOnCost, v.targetCapPct)}% at this price)`);
-  if (!a.loanOk && a.dscr !== null) misses.push(`the ${v.minDscr}× income coverage minimum (${dscrText(a.dscr)}×)`);
+  if (!a.loanOk && a.dscr !== null) misses.push(`${dscrTyped ? 'your' : 'our example'} ${v.minDscr}× income coverage minimum (${dscrText(a.dscr)}×)`);
   const noFlow = a.cashFlow <= 0 ? 'has no positive cash flow' : '';
   if (noCap) {
     const parts = [...misses.map((m) => `misses ${m}`), ...(noFlow ? [noFlow] : [])];
@@ -728,7 +728,7 @@ function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialA
   return `${missText}${missText && noFlow ? ', and ' : ''}${missText ? noFlow : noFlow.replace(/^h/, 'H')}.${cashShort ? ' It also needs more cash than you have (below).' : ''}`;
 }
 
-function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capTyped = false, rentTyped = true }: { /** The rent was typed (else our example: not saved to My deals). */ rentTyped?: boolean; v: CommercialInputs; offer: boolean; setPrice: (n: number) => void; target: number; /** A cash figure was typed here (a typed 0 is no limit). */ cashTyped?: boolean; /** The cap-rate target was typed (else it's our example). */ capTyped?: boolean }) {
+function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capTyped = false, rentTyped = true, dscrTyped = false }: { /** The minimum coverage was typed (else our example). */ dscrTyped?: boolean; /** The rent was typed (else our example: not saved to My deals). */ rentTyped?: boolean; v: CommercialInputs; offer: boolean; setPrice: (n: number) => void; target: number; /** A cash figure was typed here (a typed 0 is no limit). */ cashTyped?: boolean; /** The cap-rate target was typed (else it's our example). */ capTyped?: boolean }) {
   const a = v.atPrice > 0 ? commercialAtPrice(v, v.atPrice, offer) : null;
   const word = offer ? 'Your offer' : 'Your bid';
   const meets = a && v.targetCapPct > 0 && a.capOnCost !== null && !capMisses(a.capOnCost, v.targetCapPct) && a.loanOk && a.cashFlow > 0;
@@ -743,7 +743,7 @@ function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capT
       {Number.isFinite(target) && target > 0 && <button type="button" className="linkish" onClick={() => setPrice(target)}>Use the walk-away price ({fmtMoney(target)})</button>}
       {!a ? <p>{offer ? 'Enter the asking price or your proposed price to compare this property with your targets.' : 'Enter the bid you plan to make to compare this property with your targets.'}</p> : <>
         {!rentTyped && <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the building’s rent to save these results to My deals and the deal packet.</p>}
-        <p className={meets && !planShort && !(v.cashAvailable > 0 && need > v.cashAvailable) ? 'notice' : 'caution'}>{commercialVerdict(v, a, capTyped, planShort || (v.cashAvailable > 0 && need > v.cashAvailable))} Verify the income, costs and loan terms before relying on this result.</p>
+        <p className={meets && !planShort && !(v.cashAvailable > 0 && need > v.cashAvailable) ? 'notice' : 'caution'}>{commercialVerdict(v, a, capTyped, planShort || (v.cashAvailable > 0 && need > v.cashAvailable), dscrTyped)} Verify the income, costs and loan terms before relying on this result.</p>
         {v.cashAvailable > 0 && need > v.cashAvailable && <p className="caution">Your entered cash does not cover this price and the modeled costs.</p>}
         {planShort && <p className="caution">It needs about {fmtMoney(Math.round(need))} of your cash, more than the {fmtMoney(Math.round(planCash))} of investable cash in My plan. <button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>Enter your cash</button></p>}
         {!offer && a.loan > 0 && <p className="caution">The loan is a later refinance, not cash available at the auction. Until it closes, the full purchase and costs are your cash.</p>}
@@ -759,7 +759,7 @@ function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capT
           <div><dt>Cap rate on purchase price</dt><dd>{capPctText(a.capOnPrice, v.targetCapPct)}</dd></div>
           <div><dt>Cap rate on total cost before loan fees</dt><dd>{capPctText(a.capOnCost, v.targetCapPct)}{v.targetCapPct > 0 ? ` (target ${v.targetCapPct}%)` : ''}</dd></div>
           <div><dt>Cash-on-cash return, before income tax</dt><dd>{capPctText(a.cashOnCash)}</dd></div>
-          {a.dscr !== null && <div><dt>Income coverage (minimum {v.minDscr})</dt><dd>{dscrText(a.dscr)}× — {a.loanOk ? 'meets' : 'below'} the minimum</dd></div>}
+          {a.dscr !== null && <div><dt>Income coverage ({dscrTyped ? 'your' : 'our example'} minimum {v.minDscr}×)</dt><dd>{dscrText(a.dscr)}× — {a.loanOk ? 'meets' : 'below'} the minimum</dd></div>}
         </dl>
       </>}
     </section>

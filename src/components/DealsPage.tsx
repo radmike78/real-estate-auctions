@@ -174,7 +174,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       const limit = commercial.cashLimit && commercial.cashLimit > 0 ? commercial.cashLimit : commercial.cashTyped ? 0 : planCash;
       const need = commercial.atNeed ?? 0;
       const short = limit > 0 && need > limit;
-      return <p className={missed || short ? 'deal-urgent' : undefined}>At your price, {fmtMoney(a.price)}: {a.cashFlow < 0 ? `loses ${fmtMoney(Math.round(-a.cashFlow / 12))}` : `${fmtMoney(Math.round(a.cashFlow / 12))} cash flow`} a month{a.capOnCost !== null ? ` · ${capText(a.capOnCost, commercial.capPct)}% return on cost${commercial.capPct > 0 ? ` (target ${commercial.capPct}%${commercial.capTyped ? '' : ', our example'})` : ''}` : ''}{!a.loanOk && a.dscr !== null ? ` · income coverage ${dscrText(a.dscr)}× (below the ${commercial.minDscr ?? 1.25}× minimum)` : ''}{short ? ` · needs about ${fmtMoney(Math.round(need))} of your cash (${commercial.cashLimit && commercial.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</p>;
+      return <p className={missed || short ? 'deal-urgent' : undefined}>At your price, {fmtMoney(a.price)}: {a.cashFlow < 0 ? `loses ${fmtMoney(Math.round(-a.cashFlow / 12))}` : `${fmtMoney(Math.round(a.cashFlow / 12))} cash flow`} a month{a.capOnCost !== null ? ` · ${capText(a.capOnCost, commercial.capPct)}% return on cost${commercial.capPct > 0 ? ` (target ${commercial.capPct}%${commercial.capTyped ? '' : ', our example'})` : ''}` : ''}{!a.loanOk && a.dscr !== null ? ` · income coverage ${dscrText(a.dscr)}× (below ${commercial.dscrTyped ? 'your' : 'our example'} ${commercial.minDscr ?? 1.25}× minimum)` : ''}{short ? ` · needs about ${fmtMoney(Math.round(need))} of your cash (${commercial.cashLimit && commercial.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</p>;
     }
     if (commercial.noTarget) return <p className="muted">No target return entered yet: open it and enter the cap rate you require under Commercial income.</p>;
     // The cash at that price, against the cash entered in Commercial income, else My plan's (as the packet counts it).
@@ -201,8 +201,8 @@ function OtherNumbers({ d }: { d: Deal }) {
       const listed = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
       const at = a.source === 'yours' ? `At your ${listed ? 'offer' : 'bid'}` : `At the ${listed ? 'asking price' : 'opening bid'}`;
       return (
-        <p className={mine || a.profit < bid.target || a.price > bid.maxBid ? 'deal-urgent' : undefined}>
-          {at}, {fmtMoney(a.price)}: profit about {fmtMoney(Math.round(a.profit))} · needs about {fmtMoney(Math.round(a.cashPeak))} of your cash{mine ? ` (${bid.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''} · walk-away price {fmtMoney(bid.maxBid)}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
+        <p className={mine || short || a.profit < bid.target || a.price > bid.maxBid ? 'deal-urgent' : undefined}>
+          {at}, {fmtMoney(a.price)}: profit about {fmtMoney(Math.round(a.profit))} · needs about {fmtMoney(Math.round(a.cashPeak))} of your cash{mine ? ` (${bid.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''} · walk-away price {fmtMoney(bid.maxBid)}{short ? ` (needs about ${fmtMoney(Math.round(bid.cashPeak))} of your cash; My plan: ${fmtMoney(Math.round(planCash))})` : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
         </p>
       );
     }
