@@ -70,7 +70,12 @@
 /* Analyze: "3. Run the numbers" sits in the same white card as steps 1, 2 and 4. */
 .deal-numbers { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 22px; margin-bottom: 22px; }
 .deal-numbers > h2 { font-size: 1.4rem; margin: 0 0 12px; }
-@media (max-width: 600px) { .deal-numbers { padding: 14px 12px; } }
+/* On phones, fewer nested boxes so the results text keeps its width: the results panel loses its own card. */
+@media (max-width: 600px) {
+  .deal-numbers { padding: 14px 10px; }
+  .calc-results { padding: 14px 0; border: 0; box-shadow: none; background: transparent; }
+  .at-price { padding: 12px; }
+}
 
 /* Drill toolbar: one even row on wide screens (the menus share the free width); an even two-column grid on tablets. */
 @media (min-width: 1401px) {
