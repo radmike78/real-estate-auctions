@@ -462,7 +462,7 @@ function ProfileNote({ deal }: { deal: Deal }) {
   const parts: string[] = [];
   if (listed && p.investable > 0) parts.push(`${fmtMoney(p.investable)} of investable cash (your limit for a listed home)`);
   if (listed && p.loan === 'cash') parts.push('paying cash');
-  else if (listed && p.loan === 'yes' && worksheetDownPct() !== null) parts.push(`a loan for ${Math.round((100 - worksheetDownPct()!) * 10) / 10}% of the price (the ${worksheetDownPct()}% down payment in your cash worksheet; replace it with your lender’s figure)${p.ownerOccupant ? '; no property manager, since you’d live there' : ''}`);
+  else if (listed && p.loan === 'yes' && worksheetDownPct() !== null) parts.push(`a loan for ${Math.round((100 - worksheetDownPct()!) * 100) / 100}% of the price (the ${worksheetDownPct()}% down payment in your cash worksheet; replace it with your lender’s figure)${p.ownerOccupant ? '; no property manager, since you’d live there' : ''}`);
   else if (listed && p.loan === 'yes' && p.ownerOccupant) parts.push('a home loan you’d live in (the loan field starts at the 75% investor example; owner-occupant loans can need less down, so replace it with your lender’s figure); no property manager, since you’d live there');
   else if (listed && p.loan === 'yes') parts.push('a loan (a common 75% of the price for a listed rental, until your lender quotes)');
   if (!p.ownerOccupant && p.manager === true) parts.push('a property manager (8% of rent)');

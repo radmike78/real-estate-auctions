@@ -604,3 +604,17 @@ it('counts a buy box with only a cash limit or a strategy as started, and prints
   expect(s.status).toBe('started');
   localStorage.removeItem('deedowl.buybox.v1');
 });
+
+describe('the cash worksheet down payment', () => {
+  it('counts only a down payment you changed, never our 25% example or 100% down', async () => {
+    const { worksheetDownPct, profileStart } = await import('./myPlan');
+    localStorage.setItem('deedowl.cash.estimates.v1', JSON.stringify({ downPct: 25, closingPct: 3, reserveMonths: 6, ratePct: 7, taxInsPct: 1.2 }));
+    expect(worksheetDownPct()).toBeNull();
+    localStorage.setItem('deedowl.cash.estimates.v1', JSON.stringify({ downPct: 3.25 }));
+    expect(worksheetDownPct()).toBe(3.25);
+    expect(profileStart({ loan: 'yes', manager: null, investable: 0 }, true).loanPct).toBe(96.75);
+    localStorage.setItem('deedowl.cash.estimates.v1', JSON.stringify({ downPct: 100 }));
+    expect(worksheetDownPct()).toBeNull();
+    localStorage.removeItem('deedowl.cash.estimates.v1');
+  });
+});

@@ -185,7 +185,8 @@ function hold(i: BuyInputs & LoanInputs, noi: number, limit: (loanNet: number, c
     reserves: r2(reserves),
     debtService: r2(debtService),
     cashFlow: r2(cashFlow),
-    dscr: dscr === null ? null : Math.round(dscr * 100) / 100,
+    // Full precision: dscrText rounds it down for display, so a hair under a minimum never reads as meeting it.
+    dscr,
     // Eligibility uses full precision; rounding is presentation only.
     loanOk: dscr === null || dscr >= nz(minDscr),
     loanNet: r2(loanNet),
@@ -263,7 +264,7 @@ export function rentAtPrice(i: RentInputs, price: number, onPrice = false) {
     cashOnCash: cashIn > 0 ? cashFlow / cashIn : null,
     capOnPrice: nz(price) > 0 ? n.noi / nz(price) : null,
     capOnCost: allIn > 0 ? n.noi / allIn : null,
-    dscr: debtService > 0 ? Math.round((n.noi / debtService) * 100) / 100 : null,
+    dscr: debtService > 0 ? n.noi / debtService : null,
   };
 }
 
@@ -527,7 +528,7 @@ export function lenderView(i: RentInputs, price: number, onPrice = false) {
     /** 75% of the rent minus PITIA: what a conventional lender adds to (or takes from) your monthly income. */
     conventionalNet: r2(rent * 0.75 - pitia),
     /** Rent ÷ PITIA; null with no payment. */
-    dscr: pitia > 0 ? Math.round((rent / pitia) * 100) / 100 : null,
+    dscr: pitia > 0 ? rent / pitia : null,
     loan: base.loan,
   };
 }

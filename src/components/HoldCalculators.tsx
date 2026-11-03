@@ -374,7 +374,7 @@ function LenderView({ v, at: atP, onPrice }: { v: RentInputs; at: PriceAt; onPri
       <dl className="calc-kv">
         <div><dt>Full monthly payment with taxes, insurance and HOA (PITIA)</dt><dd>{fmtMoney(Math.round(r.pitia))}</dd></div>
         <div><dt>Conventional loan: 75% of the rent minus that payment, a month</dt><dd>{r.conventionalNet < 0 ? '−' : ''}{fmtMoney(Math.abs(Math.round(r.conventionalNet)))}</dd></div>
-        <div><dt>DSCR-loan ratio: rent ÷ that full payment (looser than income coverage above, because it doesn’t subtract operating costs)</dt><dd>{r.dscr === null ? '—' : r.dscr.toFixed(2)}</dd></div>
+        <div><dt>DSCR-loan ratio: rent ÷ that full payment (looser than income coverage above, because it doesn’t subtract operating costs)</dt><dd>{r.dscr === null ? '—' : dscrText(r.dscr)}</dd></div>
       </dl>
       <p className="small">
         {r.conventionalNet < 0 ? 'For a conventional loan, the shortfall counts against your income when the lender figures what you can afford.' : 'For a conventional loan, the rent at least covers this payment for qualifying. A surplus adds to your income only if you have 12 months or more of experience managing rental property; with less, the rent can only offset this payment.'}{' '}

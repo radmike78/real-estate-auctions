@@ -71,6 +71,8 @@ export default function FindDealsPage() {
   const [chosen, setChosen0] = useState<'listing' | 'county' | null>(() => { try { const v = sessionStorage.getItem('deedowl.finddeals.route'); return v === 'listing' || v === 'county' ? v : null; } catch { return null; } });
   const setChosen = (v: 'listing' | 'county') => { setChosen0(v); try { sessionStorage.setItem('deedowl.finddeals.route', v); } catch { /* storage unavailable */ } };
   const onCounty = chosen ? chosen === 'county' : countyRoute;
+  // The county sources opened by hand (without picking the route): no ads beside them while they're open.
+  const [countyOpen, setCountyOpen] = useState(false);
   const { pros } = useDirectory();
   const adCats = useSpotCategories('finddeals');
   const adShows = useAdShows(adCats, pros);
@@ -138,7 +140,7 @@ export default function FindDealsPage() {
       <h2 className="section-title">Official sources</h2>
       <p className="muted">Government agencies, Fannie Mae and Freddie Mac, and the banks that own the homes: the sellers themselves.</p>
 
-      <details className="plan-section" name="deal-sources" open={onCounty || undefined} onToggle={(e) => { if ((e.currentTarget as HTMLDetailsElement).open) setChosen0('county'); }}><summary>County auctions and property research</summary>
+      <details className="plan-section" name="deal-sources" open={onCounty || undefined} onToggle={(e) => setCountyOpen((e.currentTarget as HTMLDetailsElement).open)}><summary>County auctions and property research</summary>
       <Band id="deals-county" tone="county" icon={<IconFile />} title={`County offices: ${place}`} sub="The county’s own pages for tax sales, records and sheriff’s sales.">
         {officeCards.length > 0 ? (
           <>
@@ -173,7 +175,7 @@ export default function FindDealsPage() {
         <a className="band-link" href="#/learn/forced-sales">Read the lesson on forced sales&nbsp;→</a>
       </Band>
       </details>
-      <details className="plan-section" name="deal-sources" open={chosen === 'listing' || undefined} onToggle={(e) => { if ((e.currentTarget as HTMLDetailsElement).open) setChosen0('listing'); }}><summary>Government and bank-owned listings</summary>
+      <details className="plan-section" name="deal-sources" open={chosen === 'listing' || undefined} ><summary>Government and bank-owned listings</summary>
       <Band id="deals-national" tone="national" icon={<IconBank />} title={`Across ${st.name} and nationwide`} sub="Federal agencies, Fannie Mae and Freddie Mac, and banks selling homes they own.">
         {NATIONAL_GROUPS.map(([g, label]) => {
           const xs = nationalOfficialFor(st.name).filter((s) => s.group === g);
@@ -201,7 +203,7 @@ export default function FindDealsPage() {
 
       </details>
       {/* Apart from the official sources and the other sites: its own heading, before the page's next step. */}
-      {adShows && findDealsAllowsAds(planPath()) && chosen !== 'county' && (
+      {adShows && findDealsAllowsAds(planPath()) && chosen !== 'county' && !countyOpen && (
         <section aria-labelledby="fd-ads-head">
           <h2 id="fd-ads-head" className="section-title">Local professionals (paid ads)</h2>
           <FixedAds spot="finddeals" pros={pros} categories={adCats} placeholder />

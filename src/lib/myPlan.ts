@@ -108,8 +108,8 @@ export function worksheetDownPct(): number | null {
     const e = JSON.parse(localStorage.getItem('deedowl.cash.estimates.v1') ?? 'null') as { downPct?: unknown } | null;
     const box = JSON.parse(localStorage.getItem('deedowl.buybox.v1') ?? 'null') as { priceAssumptions?: { downPct?: unknown } } | null;
     const d = e?.downPct ?? box?.priceAssumptions?.downPct;
-    // 100% down is no loan at all: leave the loan field to the cash/loan answer instead.
-    return typeof d === 'number' && Number.isFinite(d) && d >= 0 && d < 100 ? d : null;
+    // 100% down is no loan at all, and our own 25% example isn't yours: both leave the loan field to the cash/loan answer.
+    return typeof d === 'number' && Number.isFinite(d) && d >= 0 && d < 100 && d !== PRICE_DEFAULTS.downPct ? d : null;
   } catch {
     return null;
   }
@@ -122,7 +122,7 @@ export function profileStart(p: InvestorProfile, offer: boolean): Record<string,
   // Living in it: owner-occupant loans can need less down, so the lender's figure goes in, not an investor's 75%;
   // and you're on site, so no manager is assumed.
   // The down payment you set in the cash worksheet sets the loan, so My plan's price limit and Analyze agree.
-  else if (p.loan === 'yes' && offer && worksheetDownPct() !== null) out.loanPct = Math.round((100 - worksheetDownPct()!) * 10) / 10;
+  else if (p.loan === 'yes' && offer && worksheetDownPct() !== null) out.loanPct = Math.round((100 - worksheetDownPct()!) * 100) / 100;
   else if (p.loan === 'yes' && offer && !p.ownerOccupant) out.loanPct = 75;
   if (p.ownerOccupant) out.managementPct = 0; // you live there: on site
   else if (p.manager === true) out.managementPct = 8;
