@@ -147,7 +147,12 @@ export function syncRoadmapCredits() {
   if (readLessons().includes('red-flags')) creditStep('avoid');
   if (practicePart2Done()) creditStep('practice');
   // The cash worksheet's investable cash, and a county with a chosen route, are those steps' own work.
-  if (investorProfile().investable > 0) creditStep('money');
+  // The step's own test: investable cash with the emergency fund taken out (spending and months entered).
+  try {
+    const c = JSON.parse(localStorage.getItem('deedowl.cash.v1') ?? 'null') as Record<string, unknown> | null;
+    const pos = (x: unknown) => typeof x === 'number' && Number.isFinite(x) && x > 0;
+    if (c && pos(c.spending) && pos(c.months) && investorProfile().investable > 0) creditStep('money');
+  } catch { /* unreadable worksheet: nothing to credit */ }
   try { if (getMyArea()?.county && localStorage.getItem(ROADMAP_PATH_KEY) !== null) creditStep('market'); } catch { /* storage unavailable */ }
   try { if ((JSON.parse(localStorage.getItem('deedowl.goal.v1') ?? '""') as string).trim().length >= 12) creditStep('goal'); } catch { /* unreadable goal: nothing to credit */ }
 }

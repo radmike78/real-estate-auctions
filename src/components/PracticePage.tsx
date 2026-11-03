@@ -140,7 +140,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
         </>}
         {!otherState && <>
         <h2 id="practice-auction" className="practice-step">{ownPractice ? (planPath() === 'certificate' ? 'Practice part 2: Nevada auction and lien practice' : 'Practice part 2: Nevada auction practice') : 'Nevada auction practice: choose a kind of sale'}</h2>
-        <p className="practice-step-intro"><strong>{planPath() === 'certificate' ? 'The SID lien run is your part 2; the other runs are extra.' : 'Any run at an auction counts (tax, foreclosure, HOA, sheriff or IRS sale); bank-owned and short-sale runs are extra.'}</strong></p>
+        <p className="practice-step-intro"><strong>{planPath() === 'certificate' ? 'The SID lien run is your part 2; the other runs are extra.' : 'Any run at an auction counts (tax, foreclosure, HOA, sheriff or IRS sale); the bank-owned, short-sale and SID lien runs are extra.'}</strong></p>
         <p className="practice-step-intro">Buy a fictional property at one kind of sale, step by step, from research to the day after.</p>
         <p className="practice-nv-note" role="note"><strong>Clark County practice.</strong> These sales follow local rules. Check your county’s requirements before a real purchase.</p>
         {auctionTiles}

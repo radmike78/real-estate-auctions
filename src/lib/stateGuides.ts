@@ -601,7 +601,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Pay on time",
-      detail: "Pay the full amount in cash by the treasurer’s deadline, no later than 15 days after the sale closes. Add a processing fee of up to $10 per lien. If you don’t pay, the treasurer resells the lien if the sale is still open. If it has closed, the treasurer can sue you for the amount or bar you from Arizona tax lien sales for up to one year (ARS 42-18116)."
+      detail: "Pay the full amount in cash by the treasurer’s deadline, no later than 15 days after the sale closes. Add a processing fee of up to $10 per lien and the $10 certificate fee (ARS 42-18118). If you don’t pay, the treasurer resells the lien if the sale is still open. If it has closed, the treasurer can sue you for the amount or bar you from Arizona tax lien sales for up to one year (ARS 42-18116)."
     },
     {
       title: "Hold the certificate and track redemptions",
@@ -680,6 +680,10 @@ export const STATE_GUIDES: Playbook[] = [
     {
       label: "ARS 42-18116: Payment within 15 days; processing fee",
       url: "https://www.azleg.gov/ars/42/18116.htm"
+    },
+    {
+      label: "ARS 42-18118: Certificate of purchase; $10 fee",
+      url: "https://www.azleg.gov/ars/42/18118.htm"
     },
     {
       label: "ARS 42-18121: Payment of subsequent taxes",

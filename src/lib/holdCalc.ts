@@ -650,10 +650,10 @@ export function fhaMonthlyMi(v: Pick<RentInputs, 'atPrice' | 'value' | 'loanPct'
 
 /** Income coverage for display: two decimals, rounded down (a hair under a minimum never reads as meeting it). */
 export const dscrText = (x: number) => (Math.floor(x * 100 + 1e-6) / 100).toFixed(2);
-/** A return on cost (a fraction) as a percent with one decimal, rounded down, so 8.96% never reads as a 9% target met. */
 /** Return on cost (a fraction) misses a cap-rate target (%), with float slack: an exact 7.25% isn't a miss (0.0725 × 100 = 7.2499…). */
 export const capMisses = (x: number, targetPct: number) => x * 100 < targetPct - 1e-9;
 
+/** A return on cost (a fraction) as a percent with one decimal, rounded down, so 8.96% never reads as a 9% target met. */
 export const capText = (x: number, target = 0) => {
   // As many decimals as the target has (one to three: two for a 7.25% target), so a met target never reads below itself.
   const d = Math.min(3, Math.max(1, String(target).split('.')[1]?.length ?? 0));
@@ -677,5 +677,5 @@ export function rentVerdict(o: { cashFlow: number; cashOnCash: number | null; ta
   if (o.cashShort) return 'bad';
   if (o.exampleRefi || (o.living && o.cashFlow <= 0)) return 'neutral';
   if (o.living) return 'good';
-  return o.cashFlow > 0 && (o.cashOnCash === null || o.cashOnCash >= o.targetPct / 100) ? 'good' : 'bad';
+  return o.cashFlow > 0 && (o.cashOnCash === null || !capMisses(o.cashOnCash, o.targetPct)) ? 'good' : 'bad';
 }

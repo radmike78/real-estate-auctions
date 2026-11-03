@@ -33,7 +33,7 @@ function useRegionTax<T extends BuyInputs>(groups: CalcGroup<T>[], countyTax = f
 
 // One decimal always (8.0%, not 8%), so figures side by side read the same way.
 const pctText = (x: number | null) => (x === null ? '—' : `${(Math.round(x * 1000) / 10).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`);
-// Return on cost, rounded down as the verdict, My deals and the packet show it.
+// Returns (on cost, cash-on-cash), rounded down as the verdict, My deals and the packet show them.
 const capPctText = (x: number | null, target = 0) => (x === null ? '—' : `${capText(x, target)}%`);
 
 /** Inputs kept in this browser (per property when there is one); rebuilt safely from storage. */
@@ -197,7 +197,7 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
           {r.debtService > 0 && <div><dt>Debt service: loan payments, per year</dt><dd>{fmtMoney(Math.round(r.debtService))}</dd></div>}
           <div><dt>Cash flow, per month: NOI minus {r.reserves > 0 ? 'reserves and ' : ''}loan payments{r.reserves > 0 ? '' : ' (before any replacement reserves)'}</dt><dd>{fmtMoney(Math.round(r.cashFlow / 12))}</dd></div>
           {r.debtService > 0 && <div><dt>Your cash left in the deal</dt><dd>{r.cashLeft > 0 ? fmtMoney(Math.round(r.cashLeft)) : 'None: the loan repays it'}</dd></div>}
-          <div><dt>Cash-on-cash return: that cash flow ÷ your cash left in the deal</dt><dd>{r.cashOnCash === null ? 'All your cash is back' : pctText(r.cashOnCash)}</dd></div>
+          <div><dt>Cash-on-cash return: that cash flow ÷ your cash left in the deal</dt><dd>{r.cashOnCash === null ? 'All your cash is back' : capPctText(r.cashOnCash)}</dd></div>
           {r.dscr !== null && <div><dt>{commercial ? 'Debt-service coverage: yearly NOI ÷ yearly loan payments. Your lender may adjust the income, costs and reserves when it underwrites; ask for its calculation and minimum.' : 'Income coverage: NOI ÷ loan payments (a DSCR-loan lender instead divides rent by the full payment; see “How a lender sees this rent”)'}</dt><dd>{dscrText(r.dscr)}×</dd></div>}
         </dl>
       )}
@@ -317,7 +317,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
       </label>
       {price > 0 && (
         <p className={`calc-verdict ${rentVerdict({ cashFlow: a.cashFlow, cashOnCash: coc, targetPct: v.targetCocPct, cashShort, exampleRefi, living: livingThere })}`} role="status">
-          <strong>{livingThere && !exampleRefi ? (Math.round(Math.abs(a.cashFlow) / 12) === 0 ? 'The rent you collect about breaks even with every cost.' : a.cashFlow < 0 ? `Living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month, after any rent you collect.` : `The rent you collect would cover every cost, with about ${fmtMoney(Math.round(a.cashFlow / 12))} a month to spare.`) : exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : `Estimated return: ${pctText(coc)} a year on your cash; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.`}</strong>{' '}
+          <strong>{livingThere && !exampleRefi ? (Math.round(Math.abs(a.cashFlow) / 12) === 0 ? 'The rent you collect about breaks even with every cost.' : a.cashFlow < 0 ? `Living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month, after any rent you collect.` : `The rent you collect would cover every cost, with about ${fmtMoney(Math.round(a.cashFlow / 12))} a month to spare.`) : exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : `Estimated return: ${capText(coc, v.targetCocPct)}% a year on your cash; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.`}</strong>{' '}
           {blankRefi && 'No refinance is counted yet: enter the value after repairs to include it. '}
           {cashShort && <>It needs about {fmtMoney(Math.round(needed))} of your cash, more than {limitWords}. </>}
           {exampleRefi ? null : a.cashFlow <= 0
@@ -354,7 +354,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         {a.loan > 0 && <div><dt>Net loan proceeds after loan fees</dt><dd>{fmtMoney(Math.round(a.loan * (1 - v.loanCostPct / 100)))}</dd></div>}
         {!onPrice && a.loan > 0 && <div><dt>Your cash until the refinance closes</dt><dd>{fmtMoney(Math.round(a.allIn))}{cashLimit > 0 && a.allIn > cashLimit && <span className="deal-urgent"> · more than {limitWords}</span>}</dd></div>}
         <div><dt>{!onPrice && a.loan > 0 ? 'Your cash left in after the refinance, if approved' : 'Your cash in the deal'}</dt><dd>{a.cashIn > 0 ? fmtMoney(Math.round(a.cashIn)) : 'None: the loan covers it'}{(onPrice || !(a.loan > 0)) && cashLimit > 0 && a.cashIn > cashLimit && <span className="deal-urgent"> · more than {limitWords}</span>}</dd></div>
-        <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : pctText(a.cashOnCash)}</dd></div>
+        <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : `${capText(a.cashOnCash, v.targetCocPct)}%`}</dd></div>
         <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{pctText(a.capOnPrice)}</dd></div>
         <div><dt>Cap rate on everything you pay</dt><dd>{capPctText(a.capOnCost)}</dd></div>
         {a.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments</dt><dd>{dscrText(a.dscr)}×{a.dscr < v.minDscr && (livingThere ? <span> · below the {v.minDscr}× an investor’s lender looks for; a home loan you live in is judged mainly on your own income</span> : <span className="deal-urgent"> · below your {v.minDscr}× income-coverage target; check the lender’s separate requirements</span>)}</dd></div>}
@@ -705,7 +705,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
 /** The commercial verdict at your price, naming each test it misses (return on cost, the coverage minimum, cash flow). */
 function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialAtPrice>, capTyped: boolean, cashShort = false): string {
   // The cash it needs is more than you entered (or My plan's): named in the verdict, with the figures just below.
-  const short = cashShort ? ', but it needs more cash than you have (below)' : '';
+  const short = cashShort ? ' It needs more cash than you have (below).' : '';
   const target = `${capTyped ? 'your' : 'our example'} ${v.targetCapPct}% return-on-cost target`;
   // A 0 target is no target (the walk-away price asks for one): nothing to meet or miss on return on cost.
   const noCap = !(v.targetCapPct > 0);
@@ -717,8 +717,8 @@ function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialA
     const parts = [...misses.map((m) => `misses ${m}`), ...(noFlow ? [noFlow] : [])];
     return `No return-on-cost target entered yet: enter the cap rate you require to compare.${parts.length ? ` It ${parts.join(' and ')}.` : ''}${cashShort ? ` It${parts.length ? ' also' : ''} needs more cash than you have (below).` : ''}`;
   }
-  if (a.capOnCost === null && !misses.length && !noFlow) return `No return on cost to compare yet with these numbers${short}.`;
-  if (!misses.length && !noFlow) return `Meets ${target}${a.loan > 0 ? ' and the income coverage minimum' : ''} and has positive cash flow with these numbers${short}.`;
+  if (a.capOnCost === null && !misses.length && !noFlow) return `No return on cost to compare yet with these numbers.${short}`;
+  if (!misses.length && !noFlow) return `Meets ${target}${a.loan > 0 ? ' and the income coverage minimum' : ''} and has positive cash flow with these numbers.${short}`;
   const missText = misses.length ? `Misses ${misses.join(' and ')}` : '';
   return `${missText}${missText && noFlow ? ', and ' : ''}${missText ? noFlow : noFlow.replace(/^h/, 'H')}.${cashShort ? ' It also needs more cash than you have (below).' : ''}`;
 }
@@ -752,7 +752,7 @@ function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capT
           <div><dt>Cash flow per month, before income tax</dt><dd>{fmtMoney(Math.round(a.cashFlow / 12))}</dd></div>
           <div><dt>Cap rate on purchase price</dt><dd>{pctText(a.capOnPrice)}</dd></div>
           <div><dt>Cap rate on total cost before loan fees</dt><dd>{capPctText(a.capOnCost, v.targetCapPct)}{v.targetCapPct > 0 ? ` (target ${v.targetCapPct}%)` : ''}</dd></div>
-          <div><dt>Cash-on-cash return, before income tax</dt><dd>{pctText(a.cashOnCash)}</dd></div>
+          <div><dt>Cash-on-cash return, before income tax</dt><dd>{capPctText(a.cashOnCash)}</dd></div>
           {a.dscr !== null && <div><dt>Income coverage (minimum {v.minDscr})</dt><dd>{dscrText(a.dscr)}× — {a.loanOk ? 'meets' : 'below'} the minimum</dd></div>}
         </dl>
       </>}
@@ -784,7 +784,7 @@ const AZ_LIEN_GROUPS: CalcGroup<LienInputs>[] = [
   {
     title: 'The certificate',
     fields: [
-      { k: 'price', label: 'Lien amount you pay', unit: '$', hint: 'The unpaid taxes, interest and fees on the lien.' },
+      { k: 'price', label: 'Lien amount you pay', unit: '$', hint: 'The unpaid taxes, interest and fees on the lien, plus the $10 certificate fee (repaid with interest).' },
       { k: 'fees', label: 'Fees you pay', unit: '$', hint: 'The processing fee only (up to $10 per lien), which isn’t repaid. Add the $10 certificate fee to the price instead: it’s repaid with interest. Confirm both in the county’s sale terms.', more: 'The treasurer may charge a processing fee of up to $10 per lien (A.R.S. 42-18116), which isn’t repaid. It also collects a $10 fee for each certificate (A.R.S. 42-18118); like the $5 fee each time you pay later years’ taxes (A.R.S. 42-18121), it’s repaid with interest at your rate if the owner redeems (A.R.S. 42-18153).' },
       { k: 'ratePctMonth', label: 'Interest', unit: '%/mo', hint: 'The rate you win, divided by 12. At most 16% a year (1.33% a month).', more: 'Bidders bid the interest rate down from 16% a year; the lien earns simple interest at the winning rate from the first day of the next month, and part of a month counts as a whole month (A.R.S. 42-18053 and 42-18114).' },
     ],

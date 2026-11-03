@@ -5,7 +5,7 @@ import { workStorage as localStorage } from './workStorage';
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
 import { ownNumbers } from './dealPacket';
 import { EVIDENCE_AREAS, GATES, loadLog } from './evidence';
-import { fhaMonthlyMi, rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, withPlanCash, type RentInputs } from './holdCalc';
+import { fhaMonthlyMi, rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, withPlanCash, capMisses, capText, type RentInputs } from './holdCalc';
 import { readConfirmed } from './calcConfirmation';
 import { cleanGoal, cleanTeamList, GOAL_KEY, investorProfile, TEAM_LIST_KEY, TEAM_ROLES } from './myPlan';
 import { proGuideByKey } from './proGuide';
@@ -14,7 +14,6 @@ import { ROADMAP, STEP_STATUS_LABEL } from './roadmap';
 import { cleanDealSteps, DEAL_STEPS_KEY } from './roadmapDeals';
 
 const money = (n: number) => `${n < 0 ? '−' : ''}$${Math.round(Math.abs(n)).toLocaleString('en-US')}`;
-const pct = (n: number | null) => (n === null ? 'n/a' : `${(n * 100).toFixed(1)}%`);
 
 function read(key: string): unknown {
   try {
@@ -64,7 +63,7 @@ export function propertyPacketText(d: Deal): string {
         `Loan: ${a.loan > 0 ? `${money(a.loan)} at ${v.ratePct}%` : 'none (all cash)'}`,
         ...(!offer && a.loan > 0 ? [`Your cash until the refinance closes: ${money(a.allIn)}`, `Your cash left in after the refinance, if approved: ${money(a.cashIn)}`] : [`Your cash in the deal: ${money(a.cashIn)}`]),
         `Monthly cash flow before income tax: ${money(a.cashFlow / 12)}`,
-        `Cash-on-cash return: ${pct(a.cashOnCash)} a year; your target ${v.targetCocPct}%${a.cashOnCash !== null && a.cashOnCash < v.targetCocPct / 100 ? ' (below target)' : ''}`,
+        `Cash-on-cash return: ${a.cashOnCash === null ? 'n/a' : `${capText(a.cashOnCash, v.targetCocPct)}%`} a year; your target ${v.targetCocPct}%${a.cashOnCash !== null && capMisses(a.cashOnCash, v.targetCocPct) ? ' (below target)' : ''}`,
         'Downside cases (monthly cash flow before income tax):',
         ...rentStress(v, v.atPrice, offer).map((s) => `  ${s.label}: ${money(s.monthly)}`),
       );

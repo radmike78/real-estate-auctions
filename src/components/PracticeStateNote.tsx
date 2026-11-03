@@ -32,6 +32,18 @@ const DIFFERS: Partial<Record<SaleKey, Partial<Record<StateCode, string>>>> = {
   },
 };
 
+/** Who to check with in another Nevada county, by kind of sale (the practice runs follow Clark County). */
+const WHO_RUNS: Partial<Record<SaleKey, (place: string) => string>> = {
+  tax: (p) => `${p}’s tax sale deadlines and deposits may differ: check its treasurer before a real deal.`,
+  sheriff: (p) => `${p}’s sheriff’s sale terms may differ: check its sheriff before a real deal.`,
+  sid: (p) => `${p}’s SID lien sales, where it holds them, have their own rules: ask its treasurer before a real deal.`,
+  foreclosure: () => 'Trustee sales follow state law everywhere in Nevada; read the notice of sale for this one’s place and terms.',
+  hoa: () => 'HOA sales follow state law everywhere in Nevada; read the notice of sale for this one’s place and terms.',
+  reo: () => 'A bank-owned purchase follows your contract; your agent and title company handle the local steps.',
+  short: () => 'A short sale follows your contract and the lender’s approval; your agent and title company handle the local steps.',
+  irs: () => 'IRS sales follow the same federal rules everywhere; only the county recording steps after the sale differ.',
+};
+
 /** The line for a state without its own entry in DIFFERS. */
 function generalDiff(sale: SaleKey, name: string) {
   if (sale === 'irs') return <>IRS sales follow the same federal rules in every state; what differs in {name} is the county recording and transfer steps after the sale. The <a href="#/practice/drills">IRS drills</a> work for any state.</>;
@@ -57,7 +69,7 @@ export default function PracticeStateNote({ sale }: { sale: SaleKey }) {
         <strong>This practice uses Clark County’s rules.</strong>{' '}
         {washoeSid
           ? <>Washoe County runs its own SID sale: its pages describe buyers chosen by a show of hands (numbers drawn if several want a parcel) or a random number program, with payment due by 10:00 a.m. the next day; confirm it in the sale notice.* {page && <a href={page} target="_blank" rel="noopener noreferrer">Washoe County’s SID sale page ↗</a>}</>
-          : <>{county === 'Carson City' ? 'Carson City' : `${county} County`}’s own deadlines, deposits and who runs the sale may differ: check its treasurer and sheriff before a real deal.</>}
+          : <>{(WHO_RUNS[sale] ?? ((p: string) => `${p}’s deadlines, deposits and terms may differ: confirm them before a real deal.`))(county === 'Carson City' ? 'Carson City' : `${county} County`)}</>}
       </div>
     );
   }

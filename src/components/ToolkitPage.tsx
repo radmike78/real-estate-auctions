@@ -231,7 +231,8 @@ export function FirstDealRoadmap() {
   // stage when they're changed at the top of My plan.
   const [, setTick] = useState(0);
   useEffect(() => {
-    const on = () => setTick((n) => n + 1);
+    // A change elsewhere on My plan (the cash worksheet, Your area) can finish a step: credit it now, not next visit.
+    const on = () => { setTick((n) => n + 1); syncRoadmapCredits(); };
     const reload = () => {
       setDone(roadmapDone());
       setStatusMap(read(STATUS_KEY, {}, cleanStatus));
@@ -243,6 +244,8 @@ export function FirstDealRoadmap() {
     window.addEventListener(PLAN_CHANGED, on);
     window.addEventListener(PLAN_EVENT, on);
     window.addEventListener(PROGRESS_EVENT, reload);
+    // Steps ticked for you before this listener was added (My plan's check-in runs first) show now.
+    reload();
     return () => {
       window.removeEventListener(PLAN_CHANGED, on);
       window.removeEventListener(PLAN_EVENT, on);
@@ -294,14 +297,16 @@ export function FirstDealRoadmap() {
   const setStatus = (s: RoadmapStep, v: StepStatus | 'done' | 'todo', learner = false) => {
     if (scoped(s) && !learner) {
       const k = deal!.id;
-      const cur = perDeal[k] ?? { done: [], status: {} };
-      const all = { ...perDeal, [k]: { done: nextDone(cur.done, s.id, v), status: nextStatus(cur.status, s.id, v) } };
+      // From storage, not this page's first read: steps ticked for you since (an auto-credit) aren't written over.
+      const stored = read(DEAL_STEPS_KEY, {}, cleanDealSteps);
+      const cur = stored[k] ?? { done: [], status: {} };
+      const all = { ...stored, [k]: { done: nextDone(cur.done, s.id, v), status: nextStatus(cur.status, s.id, v) } };
       setPerDeal(all);
       save(DEAL_STEPS_KEY, all);
       return;
     }
-    const d = nextDone(done, s.id, v);
-    const m = nextStatus(status, s.id, v);
+    const d = nextDone(roadmapDone(), s.id, v);
+    const m = nextStatus(read(STATUS_KEY, {}, cleanStatus), s.id, v);
     setDone(d);
     setStatusMap(m);
     write(ROADMAP_KEY, d);
