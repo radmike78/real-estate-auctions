@@ -1,7 +1,7 @@
 import { calculatorInputError, parseCalcInput, shownInputError } from './CalcFields';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
-import { useEffect, useId, useReducer, useState } from 'react';
+import { useEffect, useId, useReducer, useRef, useState } from 'react';
 import { BLANK_INPUTS, START_INPUTS, maxBidSteps, clampInput, costsAtBid, GRID_REPAIR_STEPS, GRID_VALUE_STEPS, maxSafeBid, profitAtBid, redemptionOutcome, requiredProfit, ruleOf, sanitizeInputs, stressGrid, totalMonths, type BidInputs, offerInputs, cashNeededAtBid, DRAW_NOTE, unenteredCosts } from '../lib/bidCalc';
 import { offeredRedemptionRules, redemptionChoicesFor, redemptionPresetsFor, taxSaleWait, transferTaxFor } from '../lib/stateCosts';
 import { useCalcRegion } from './calcRegion';
@@ -242,6 +242,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       /* storage unavailable */
     }
   };
+  const dropTypedWait = useRef(false);
   // The listing's opening bid is the starting point (older saved inputs didn't have it).
   const [i, setI] = useState<BidInputs>(() => {
     let v0 = load(storeId, propertyId ? defaults : { ...defaults, transferTaxPer500: tax.per500 });
@@ -256,7 +257,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     // one that fits, and has to be confirmed again.
     if (!offer && choices) {
       const cur = ruleOf(v, offered);
-      const typedWait = typedKeys.has('redemptionMonths') || typedKeys.has('redemptionRatePct');
+      // Your own typed wait counts only for the kind of sale you typed it for (marked rulePick_<kind>_custom).
+      const typedWait = typedKeys.has(rulePick(saleKind, 'custom'));
       // A fresh deal (no rule typed or confirmed yet) starts with the rule you last picked for this kind of sale, else
       // the rule the caution names, not "No redemption", even where "No redemption" is one of the choices (a court sale).
       // The rule you last picked for this kind of sale, if any (it comes back when the deal returns to that kind).
@@ -268,6 +270,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         const r0 = rules[pickedHere ?? choices.start];
         v = { ...v, redemptionMonths: r0.months, redemptionRatePct: r0.ratePct, redemptionDaily: r0.daily, redemptionFlat: r0.flat, redemptionFlat2Pct: r0.flat2Pct, redemptionChecked: 0 };
         save(v);
+        // The numbers you typed for another kind of sale are gone now: so is their "typed" mark (after mount, below).
+        if (cur === 'custom') dropTypedWait.current = true;
       }
     }
     return !v.minimumBid && openingBid ? { ...v, minimumBid: openingBid } : v;
@@ -277,6 +281,19 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     stampRegion();
     if (!typedKeys.has('transferTaxPer500')) update({ transferTaxPer500: tax.per500 });
   }, [regionSig]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!dropTypedWait.current) return;
+    dropTypedWait.current = false;
+    setTypedKeys((t) => {
+      const next = new Set([...t].filter((x) => x !== 'redemptionMonths' && x !== 'redemptionRatePct' && !/^rulePick_.*_custom$/.test(x)));
+      try {
+        if (storeId) saveConfirmed(KEY(storeId), next);
+      } catch {
+        /* storage unavailable */
+      }
+      return next;
+    });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [mode, setModeState] = useState<'quick' | 'detailed'>(loadMode);
   const setMode = (m: 'quick' | 'detailed') => {
     setModeState(m);
@@ -326,20 +343,19 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const set = (k: keyof BidInputs, text: string, unit?: string) => {
     trackAction('calculator_used', true);
     markTyped(k);
+    // Typing the redemption numbers makes them your own rule for this kind of sale.
+    if ((k === 'redemptionMonths' || k === 'redemptionRatePct') && !offer) setPick('custom');
     setDraft((d) => ({ ...d, [k]: text }));
     // Something that isn't a number keeps the last valid value (and shows why) instead of quietly becoming 0.
     if (calculatorInputError(text, (unit ?? '$') as never)) return;
     // Changing the redemption numbers by hand means the rule you confirmed may no longer be the one used.
     update({ [k]: clampInput(k, toNum(text)), ...(k.startsWith('redemption') && k !== 'redemptionChecked' ? { redemptionChecked: 0 } : {}) });
   };
-  const pickRule = (rule: string) => {
-    const r = rules[rule];
-    setPicked(rule);
-    // A rule picked from the menu is the reader's choice for this kind of sale: kept on the next visit (No redemption
-    // included), but not after the deal moves to another kind of sale.
+  // The redemption rule chosen for this kind of sale: one picked from the menu, or "custom" for numbers you typed.
+  // One per kind of sale (it replaces the last one for the same kind). A menu pick also ends your typed wait.
+  const setPick = (rule: string) =>
     setTypedKeys((t) => {
-      // One pick per kind of sale: this one replaces the last pick for the same kind.
-      const next = new Set([...t].filter((x) => !x.startsWith(rulePick(saleKind, ''))));
+      const next = new Set([...t].filter((x) => !x.startsWith(rulePick(saleKind, '')) && (rule === 'custom' || (x !== 'redemptionMonths' && x !== 'redemptionRatePct'))));
       next.add(rulePick(saleKind, rule));
       try {
         if (storeId) saveConfirmed(KEY(storeId), next);
@@ -348,6 +364,12 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       }
       return next;
     });
+  const pickRule = (rule: string) => {
+    const r = rules[rule];
+    setPicked(rule);
+    // A rule picked from the menu is the reader's choice for this kind of sale: kept on the next visit (No redemption
+    // included), but not after the deal moves to another kind of sale.
+    setPick(rule);
     setDraft((d) => ({ ...d, redemptionMonths: undefined, redemptionRatePct: undefined }));
     update({ redemptionMonths: r.months, redemptionRatePct: r.ratePct, redemptionDaily: r.daily, redemptionFlat: r.flat, redemptionFlat2Pct: r.flat2Pct, redemptionChecked: 0 });
   };

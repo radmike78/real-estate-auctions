@@ -1,11 +1,10 @@
-import { replaceAddress } from '../lib/nav';
 import { roadmapNextStep, stepContext } from '../lib/planNext';
 import { AreaLine } from './AreaPicker';
 import NumInput from './NumInput';
 import { syncRoadmapCredits } from '../lib/journey';
 import { useAccount } from '../lib/account';
 import { workStorage as localStorage } from '../lib/workStorage';
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { STATES, countyName, stateByCode } from '../lib/regions';
@@ -165,6 +164,15 @@ if (typeof window !== 'undefined') {
   window.addEventListener('pointercancel', up, true);
 }
 
+/** The step a link names (/toolkit/roadmap?step=goal), if any. */
+const linkedStep = (): string | null => {
+  try {
+    return new URLSearchParams(window.location?.search ?? '').get('step');
+  } catch {
+    return null;
+  }
+};
+
 /** One roadmap step, opened: what you'll have, what to do, what to say, the documents, when to stop, and when it's done. */
 function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: StepStatus | 'done' | 'todo'; setStatus: (v: StepStatus | 'done' | 'todo') => void; deal?: { id: string; name: string; kind?: string } }) {
   const [myState] = useMyState();
@@ -295,29 +303,39 @@ export function FirstDealRoadmap() {
   const starterStep = plan.source === 'starter' ? steps.find((s) => `roadmap-${s.id}` === plan.task.key) : undefined;
   const shown = starterStep ?? (!deal && plan.source === 'roadmap' ? next : undefined);
   // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
-  const [openPhase, setOpenPhase] = useState(() => (starterStep ?? next)?.phase ?? 1);
+  const [openPhase, setOpenPhase] = useState(() => {
+    // A link to one step (below) opens on that step's phase.
+    const linked = steps.find((x) => x.id === linkedStep());
+    return linked?.phase ?? (starterStep ?? next)?.phase ?? 1;
+  });
+  // On the first visit from a link to one step (below), that step's phase stays open.
+  const firstPhase = useRef(true);
+  useEffect(() => {
+    const linked = firstPhase.current && !!linkedStep();
+    firstPhase.current = false;
+    if (!linked) setOpenPhase((starterStep ?? next)?.phase ?? 1);
+  }, [deal?.id, stage, starterStep?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   // A link to one step (/toolkit/roadmap?step=goal, from "Put your goal in one sentence"): open its phase and the
   // step, with the cursor in it.
   useEffect(() => {
     const go = () => {
-      const id = new URLSearchParams(window.location.search).get('step');
+      const id = linkedStep();
       const s = id ? steps.find((x) => x.id === id) : undefined;
       if (!s) return;
       setOpenPhase(s.phase);
       setTimeout(() => {
         const el = document.querySelector<HTMLDetailsElement>(`details.roadmap-step[data-step="${s.id}"]`);
         if (!el) return;
-        el.open = true;
+        // Open it and everything around it now (the phase may not have re-rendered open yet): a closed one can't take focus.
+        for (let x: HTMLElement | null = el; x; x = x.parentElement) if (x instanceof HTMLDetailsElement) x.open = true;
         el.scrollIntoView({ block: 'start' });
         el.querySelector<HTMLElement>('.roadmap-step-body textarea, .roadmap-step-body input, .roadmap-step-body select')?.focus({ preventScroll: true });
-        replaceAddress('/toolkit/roadmap');
       }, 0);
     };
     go();
     window.addEventListener('deedowl:navigate', go);
     return () => window.removeEventListener('deedowl:navigate', go);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { setOpenPhase((starterStep ?? next)?.phase ?? 1); }, [deal?.id, stage, starterStep?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const phases = ([1, 2, 3, 4, 5, 6, 7] as const).map((n) => ({ n, title: ROADMAP_PHASES[n], steps: steps.filter((s) => s.phase === n) })).filter((ph) => ph.steps.length);
   const nextDone = (d: string[], id: string, v: StepStatus | 'done' | 'todo') => (v === 'done' ? (d.includes(id) ? d : [...d, id]) : d.filter((x) => x !== id));
   const nextStatus = (m: Record<string, StepStatus>, id: string, v: StepStatus | 'done' | 'todo') => {

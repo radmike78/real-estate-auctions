@@ -290,7 +290,9 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       )}
       {(() => {
         // These Nevada guides follow Clark County: a reader in another Nevada county hears that theirs differs.
-        const a = myArea;
+        // Opened for the Nevada lien deal you're working on (your own state is another): that deal's county.
+        const ld = forLienDeal ? practiceLienDeal() : null;
+        const a = ld ? { state: ld.state, county: ld.county } : myArea;
         // Only the county-run sales (tax, SID, sheriff) follow Clark County's own rules here; the others follow state or
         // federal law, the same in every county, so they need no note.
         if (stateOf(p) !== 'NV' || !['tax', 'sid', 'sheriff'].includes(p.key) || a?.state !== 'NV' || !a.county || a.county === 'Clark') return null;

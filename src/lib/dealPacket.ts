@@ -562,7 +562,12 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   else if (p.earnest) cash.push(`Before the sale: ${money(p.earnest)} bidder deposit`);
   // Washoe County publishes its tax sale's deposit and payment terms (Treasurer's FAQ, checked 2026-11-03).
-  if (!offer && d.kind === 'taxSale' && d.state === 'NV' && d.county === 'Washoe') cash.push('Washoe County’s tax sale terms (Treasurer’s FAQ): a $500 pre-bid deposit in certified funds when you register; if you win, a $500 non-refundable deposit and the balance by 5:00 p.m. the day after the sale, in cash, cashier’s check, certified check or money order. Confirm them in the sale notice.');
+  const washoeTax = !offer && d.kind === 'taxSale' && d.state === 'NV' && d.county === 'Washoe';
+  if (washoeTax) cash.push('Washoe County’s tax sale terms (Treasurer’s FAQ): a $500 pre-bid deposit in certified funds when you register; if you win, a $500 non-refundable deposit (the FAQ doesn’t say whether it’s the pre-bid deposit)* and the balance by 5:00 p.m. the day after the sale, in cash, cashier’s check, certified check or money order. Confirm them in the sale notice.');
+  // Washoe's balance is due the day after the sale, not all on sale day.
+  const saleDay = (at: string, amount: number, end = '') => washoeTax
+    ? `On sale day and by 5:00 p.m. the next day, at ${at}: ${money(amount)} (the $500 deposit on sale day, the balance the next day, in the form the sale requires)${end}`
+    : `On sale day, at ${at}: ${money(amount)} (bid plus any buyer’s premium, in the form the sale requires)${end}`;
   let need = 0;
   // The price `need` is figured at, so the investable-cash line after the what-if says which price it means.
   let needAt = '';
@@ -600,7 +605,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       need = a.cashPeak;
       const at = `${priceName(a.source, offer)} of ${money(a.price)}`;
       needAt = `At ${at}`;
-      if (!offer) cash.push(`On sale day, at ${at}: ${money(a.cashOnDay)} (bid plus any buyer’s premium, in the form the sale requires)`);
+      if (!offer) cash.push(saleDay(at, a.cashOnDay));
       cash.push(`Estimated cash you’ll put in, at ${at}, under these assumptions (through repairs and holding until it sells): ${money(a.cashPeak)}`);
       if (a.cashLeft < a.cashPeak) cash.push(`Left in once the loan funds, at ${at}: ${money(a.cashLeft)}`);
     } else {
@@ -613,7 +618,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       cash.push(`No ${offer ? 'offer at or above the asking price' : 'bid at or above the opening bid'} of ${money(a.price)} ${a.profit >= bid.target && bid.limitedBy === 'cash' ? 'fits your cash' : `meets ${goalW}`} as entered: the most that would is ${money(bid.maxBid)}, below it.`);
     } else if (!bid.none) {
       const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could pay, not your price)`;
-      cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} on sale day; estimated cash you’d put in ${money(bid.cashPeak)}`);
+      cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} ${washoeTax ? 'by 5:00 p.m. the day after the sale ($500 of it on sale day)' : 'on sale day'}; estimated cash you’d put in ${money(bid.cashPeak)}`);
       // As Fix and sell says in red: with no cash entered there, the walk-away price can need more than My plan's cash.
       if (bid.at && bid.at.cashPeak <= profile.investable && !(bid.cashLimit > 0) && !bid.cashTyped && profile.investable > 0 && bid.cashPeak > profile.investable) cash.push(`That walk-away price needs ${money(bid.cashPeak - profile.investable)} more than the ${money(profile.investable)} of investable cash in My plan: ${offer ? 'offer only what fits your cash' : `enter the cash you can bring in ${strategy} to cap the bid at what you have`}.`);
     }
@@ -623,7 +628,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     const a = commercial.at;
     need = commercial.atNeed ?? (!offer && a.loan > 0 ? a.allIn : a.cashIn);
     needAt = `At your actual price of ${money(a.price)}`;
-    if (!offer) cash.push(`On sale day, at your bid of ${money(a.price)}: ${money(commercial.atSaleDay ?? a.price)} (bid plus any buyer’s premium, in the form the sale requires).`);
+    if (!offer) cash.push(saleDay(`your bid of ${money(a.price)}`, commercial.atSaleDay ?? a.price, '.'));
     cash.push(`${needAt}: ${money(need)} needed ${!offer && a.loan > 0 ? 'before a refinance closes (loan fees are paid at refinancing)' : a.loan > 0 ? 'from your own cash, including the loan’s points and fees' : 'from your own cash'}.`);
   } else if (commercial?.noTarget) {
     cash.push(commercialNoTarget(strategy, commercial.overCap));
@@ -640,7 +645,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   } else if (commercial) {
     need = commercial.refi ? commercial.allIn : commercial.cashLeft;
     needAt = `At your highest price of ${money(commercial.maxBid)}`;
-    if (!offer && (commercial.saleDay ?? 0) > 0) cash.push(`On sale day, at your highest price of ${money(commercial.maxBid)}: ${money(commercial.saleDay!)} (bid plus any buyer’s premium, in the form the sale requires).`);
+    if (!offer && (commercial.saleDay ?? 0) > 0) cash.push(saleDay(`your highest price of ${money(commercial.maxBid)}`, commercial.saleDay!, '.'));
     cash.push(commercial.refi
       ? `All in at your highest price, until a refinance closes: ${money(commercial.allIn)}; after a refinance, if approved: ${commercial.cashLeft < 0 ? `none left in (it returns all your cash and ${money(-commercial.cashLeft)} more)` : `${money(commercial.cashLeft)} left in`} (from ${strategy})`
       : `All in at your highest price: ${money(commercial.allIn)}, with ${money(commercial.cashLeft)} of your own cash left in (from ${strategy})`);

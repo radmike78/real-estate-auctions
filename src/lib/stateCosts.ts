@@ -245,7 +245,7 @@ export function redemptionChoicesFor(state: StateCode, kind: string): { keys: st
     return {
       keys: ['none', 'txTaxLoanLong', 'txTaxLoanOther', 'usFederal'],
       start: 'none',
-      confirm: 'A mortgage foreclosure has no redemption, so this calculator starts with none. The property tax loan choices apply only if the lien foreclosed is a transferred property tax lien (Tax Code 32.06).',
+      confirm: 'A mortgage foreclosure has no redemption. This calculator starts with none. The property tax loan choices apply only if the lien foreclosed is a transferred property tax lien (Tax Code 32.06).',
     };
   if (kind === 'trustee') return { keys: ['none', 'usFederal'], start: 'none' };
   // A tax sale has no owner redemption in Nevada, Utah, California or Arizona (Texas has its own, always longer than 120
