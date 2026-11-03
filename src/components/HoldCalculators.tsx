@@ -741,7 +741,7 @@ function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capT
       <PriceHead level={3} kind="yours" label={word} price={a?.price ?? null} result={a ? a.cashFlow / 12 : null} note="Your actual price, using the income, costs, lease-up period and loan entered above." />
       <label className="field"><span>{word} ($)</span><NumInput blank max={1e9} value={v.atPrice} onValue={(n) => setPrice(n ?? 0)} /></label>
       {Number.isFinite(target) && target > 0 && <button type="button" className="linkish" onClick={() => setPrice(target)}>Use the walk-away price ({fmtMoney(target)})</button>}
-      {!a ? <p>Enter the asking price or your proposed price to compare this property with your targets.</p> : <>
+      {!a ? <p>{offer ? 'Enter the asking price or your proposed price to compare this property with your targets.' : 'Enter the bid you plan to make to compare this property with your targets.'}</p> : <>
         {!rentTyped && <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the building’s rent to save these results to My deals and the deal packet.</p>}
         <p className={meets && !planShort && !(v.cashAvailable > 0 && need > v.cashAvailable) ? 'notice' : 'caution'}>{commercialVerdict(v, a, capTyped, planShort || (v.cashAvailable > 0 && need > v.cashAvailable))} Verify the income, costs and loan terms before relying on this result.</p>
         {v.cashAvailable > 0 && need > v.cashAvailable && <p className="caution">Your entered cash does not cover this price and the modeled costs.</p>}

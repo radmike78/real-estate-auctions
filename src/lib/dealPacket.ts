@@ -177,8 +177,8 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   if (d.kind === 'lien') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien']);
   // California homes of one to four units: a win isn't final until eligible bidders' windows close (Civil Code 2924m).
   if (d.kind === 'trustee' && d.state === 'CA') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),
-    { what: 'Intent-to-bid window ends (15 days)*', when: 'For a home of 1–4 units: 15 days after the sale.', who: 'Eligible bidders (such as tenants and some buyers who will live there)', todo: 'Watch for a notice that one of them intends to bid; until then your win isn’t final.', missed: 'If none gives notice in time, your win stands, unless an exception applies.', why: 'Civil Code 2924m*' },
-    { what: 'Eligible bidder’s bid deadline (45 days)*', when: 'For a home of 1–4 units: 45 days after the sale, if one gave notice of intent.', who: 'The eligible bidder who gave notice', todo: 'Plan for the chance that a higher eligible bid replaces yours.', missed: 'If no qualifying bid arrives in time, your win stands.', why: 'Civil Code 2924m*' },
+    { what: '15-day intent-to-bid window*', when: 'For a home of 1–4 units: 15 days after the sale.', who: 'Eligible bidders (such as tenants and some buyers who will live there)', todo: 'Watch for a notice that one of them intends to bid; until then your win isn’t final.', missed: 'If none gives notice in time, your win stands, unless an exception applies.', why: 'Civil Code 2924m*' },
+    { what: '45-day eligible bid deadline*', when: 'For a home of 1–4 units: 45 days after the sale, if one gave notice of intent.', who: 'The eligible bidder who gave notice', todo: 'Plan for the chance that a higher eligible bid replaces yours.', missed: 'If no qualifying bid arrives in time, your win stands.', why: 'Civil Code 2924m*' },
     ...names(['Deed recorded'])];
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
@@ -625,7 +625,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   } else if (commercial?.none && commercial.weakSupported) {
     cash.push(`The income supports a price of only about ${money(commercial.weakSupported)}, far below the value, and the cash you entered in ${strategy} doesn’t cover the costs either. Check the rent and costs, or skip this one.`);
   } else if (commercial?.none && commercial.loanTooBig) {
-    cash.push(`The refinance you entered in ${strategy} costs more a year than the building earns, so no price works with that loan. Try a smaller loan, or run it all cash.`);
+    cash.push(`The refinance you entered costs more a year than the property earns, so no price works with that loan. Try a smaller loan, or run it all cash (in ${strategy}).`);
   } else if (commercial?.none && !(commercial.capPct > 0)) {
     cash.push(`No price works with the income, costs and loan you entered in ${strategy}.`);
   } else if (commercial?.none) {
@@ -687,7 +687,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
   else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? `Without that cash limit the deal meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost` : 'Without that cash limit the numbers work'}`);
   else if (commercial?.none && commercial.weakSupported) nums.push(`The income supports a price of only about ${money(commercial.weakSupported)}, far below the value, and the cash you entered doesn’t cover the costs either`);
-  else if (commercial?.none && commercial.loanTooBig) nums.push(`The refinance you entered costs more a year than the building earns, so no price works with that loan. Try a smaller loan, or run it all cash, in ${strategy}`);
+  else if (commercial?.none && commercial.loanTooBig) nums.push(`The refinance you entered costs more a year than the property earns, so no price works with that loan. Try a smaller loan, or run it all cash (in ${strategy})`);
   else if (commercial?.none && !(commercial.capPct > 0)) nums.push(`No price works with the income, costs and loan you entered in ${strategy}`);
   else if (commercial?.none) nums.push(`No price meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost with the income and costs you entered`);
   else if (commercial) {
