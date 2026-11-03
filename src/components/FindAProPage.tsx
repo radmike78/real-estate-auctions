@@ -1,4 +1,5 @@
 import { planPath } from '../lib/roadmapState';
+import { practiceState } from '../lib/planNext';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useState, type ReactElement } from 'react';
 import PageHero from './PageHero';
@@ -311,7 +312,7 @@ export default function FindAProPage({ section }: { section?: string }) {
     } catch { /* storage unavailable */ }
     const r = planPath();
     const pre = mine === 'NV' ? '' : (mine ?? '').toLowerCase();
-    const want = r === 'auction' ? `${pre}foreclosure` : r === 'certificate' ? (mine === 'NV' ? 'sid' : 'aztaxlien') : '';
+    const want = r === 'auction' ? `${pre}foreclosure` : r === 'certificate' ? (practiceState() === 'NV' ? 'sid' : 'aztaxlien') : '';
     if (want && guidesFor(mine).some((p) => p.key === want)) return want;
     // The agent route (the roadmap's default): the team for a listed home, or the commercial team for a commercial buy box.
     try {

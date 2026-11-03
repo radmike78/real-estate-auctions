@@ -1,3 +1,4 @@
+import { practiceState } from '../lib/planNext';
 import { getMyState } from '../lib/myState';
 import { shuffled } from '../lib/shuffle';
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
@@ -24,7 +25,9 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
   const scenario = useMemo(() => scenarioById(id), [id]);
   useLastActivity(`#/practice/${id}${stageKey ? `/${stageKey}` : ''}`, scenario ? `Practice purchase: ${scenario.headline}` : undefined);
   const [progress, setProgress] = useState<ScenarioProgress>(() => loadProgress(id));
-  const [mine] = useMyState();
+  // A Nevada lien deal in focus (on the lien route) practices under Nevada rules, whatever your own state.
+  const [mineRaw] = useMyState();
+  const mine = practiceState() === 'NV' ? 'NV' : mineRaw;
   useEffect(() => setProgress(loadProgress(id)), [id]);
   useNoIndex(!scenario);
   // On phones the step buttons are one swipeable row: bring the current step into view.
@@ -177,7 +180,7 @@ function Results({ s, progress }: { s: Scenario; progress: ScenarioProgress }) {
       <h2 id="results-head">You finished this practice run</h2>
       <p className="lead">{right} of {decisions.length} decisions right on the first try.</p>
       {/* The lien practice is the SID run; the auction practice is a run at an auction (not a listed bank-owned home or a short sale). */}
-      <RoutePracticeDone what="run" fits={(id) => getMyState() === 'NV' && (id === 'c-practice' ? s.playbookKey === 'sid' : ['tax', 'foreclosure', 'hoa', 'sheriff', 'irs'].includes(s.playbookKey))} />
+      <RoutePracticeDone what="run" fits={(id) => (getMyState() === 'NV' || practiceState() === 'NV') && (id === 'c-practice' ? s.playbookKey === 'sid' : ['tax', 'foreclosure', 'hoa', 'sheriff', 'irs'].includes(s.playbookKey))} />
       <p>When you’re ready for a real one:</p>
       <ul>
         <li><a href={`#/playbooks/${s.playbookKey}`}>Read the full guide for this sale</a></li>

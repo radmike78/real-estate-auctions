@@ -64,7 +64,9 @@ export default function PracticePage({ sale }: { sale?: string }) {
   // On the auction and lien routes, practice part 2 is the route's own practice; the rental case is extra.
   const ownPractice = routePractice(planPath());
   useMarkStep('practice');
-  const [mine] = useMyState();
+  // A Nevada lien deal in focus (on the lien route) practices under Nevada rules, whatever your own state.
+  const [mineRaw] = useMyState();
+  const mine = practiceState() === 'NV' ? 'NV' : mineRaw;
   const [cls, setCls] = useState<ClassFilter>('all');
   const chosen = mine === 'NV' && sale && (SALE_ORDER as string[]).includes(sale) ? (sale as SaleKey) : null;
   const titleOf = (s: SaleKey) => playbookByKey(s)?.title ?? s;

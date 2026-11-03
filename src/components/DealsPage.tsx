@@ -202,7 +202,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       const at = a.source === 'yours' ? `At your ${listed ? 'offer' : 'bid'}` : `At the ${listed ? 'asking price' : 'opening bid'}`;
       return (
         <p className={mine || short || a.profit < bid.target || a.price > bid.maxBid ? 'deal-urgent' : undefined}>
-          {at}, {fmtMoney(a.price)}: profit about {fmtMoney(Math.round(a.profit))} · needs about {fmtMoney(Math.round(a.cashPeak))} of your cash{mine ? ` (${bid.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''} · walk-away price {fmtMoney(bid.maxBid)}{short ? ` (needs about ${fmtMoney(Math.round(bid.cashPeak))} of your cash; My plan: ${fmtMoney(Math.round(planCash))}; ${listed ? 'offer only what fits your cash' : 'enter your cash in Fix and sell to cap it'})` : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
+          {at}, {fmtMoney(a.price)}: profit about {fmtMoney(Math.round(a.profit))} · needs about {fmtMoney(Math.round(a.cashPeak))} of your cash{mine ? ` (${bid.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''} · walk-away price {fmtMoney(bid.maxBid)}{short && !mine ? ` (needs about ${fmtMoney(Math.round(bid.cashPeak))} of your cash; My plan: ${fmtMoney(Math.round(planCash))}; ${listed ? 'offer only what fits your cash' : 'enter your cash in Fix and sell to cap it'})` : ''}{mine && bid.cashLimit <= 0 ? ` · even this ${listed ? 'price' : 'bid'} needs more than My plan’s cash: skip this one, or update My plan if you have more` : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
         </p>
       );
     }

@@ -7,7 +7,7 @@ import { setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask 
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
-import { guidedPracticeDone, planNow, planStarted, roadmapNextStep, ROADMAP_TASK_HREF } from '../lib/planNext';
+import { guidedPracticeDone, practiceState, planNow, planStarted, roadmapNextStep, ROADMAP_TASK_HREF } from '../lib/planNext';
 import { stepAdCategories, stepAllowsAds } from '../lib/contextAds';
 import { useSpotCategories } from './AdSpot';
 import { useDirectory } from './ProDirectory';
@@ -84,7 +84,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   const checked = log ? EVIDENCE_AREAS.filter((a) => log.rows[a.key]?.done).length : 0;
   // Working on a property doesn't finish the groundwork: the goal, cash, buy box and payment plan still open stay in view.
   const settledOwn = settledFor('');
-  const foundations = deal ? roadmapFor(planPath()).filter((s) => s.phase <= 2 && !settledOwn(s)) : [];
+  const foundations = deal ? roadmapFor(planPath(), practiceState()).filter((s) => s.phase <= 2 && !settledOwn(s)) : [];
 
   // The same label My plan's roadmap uses: "Next roadmap task · Get ready".
   const nextLabel = now.context.startsWith('Roadmap · ') ? `Next roadmap task · ${now.context.slice('Roadmap · '.length)}` : `Next task · ${now.context}`;
@@ -206,7 +206,7 @@ function PlanStepAd({ deal, stage, inline = false }: { deal?: Deal; stage?: Deal
   const path = deal ? pathForDeal(deal) : planPath();
   const settled = settledFor(deal ? `analyzed:${deal.id}` : '');
   // The stage's first open step that names someone to call ("Find a property" names no one).
-  const open = deal && stage ? roadmapFor(path).filter((s) => STAGE_STEPS[stage].includes(s.id) && !settled(s)) : [];
+  const open = deal && stage ? roadmapFor(path, practiceState()).filter((s) => STAGE_STEPS[stage].includes(s.id) && !settled(s)) : [];
   const step = deal && stage ? open.find((s) => stepAllowsAds(s, path) && stepAdCategories(s, path).length > 0) ?? open[0] ?? null : roadmapNextStep();
   const cats = useSpotCategories('toolkit', step ? stepAdCategories(step, path) : []);
   const allowed = step && stepAllowsAds(step, path) ? cats : [];
@@ -220,7 +220,7 @@ function PlanStepAd({ deal, stage, inline = false }: { deal?: Deal; stage?: Deal
 /** Without a property: the roadmap's phases, each with how many of its steps are done. */
 function PhaseSummary() {
   const deals = loadDeals();
-  const steps = roadmapFor(planPath(deals));
+  const steps = roadmapFor(planPath(deals), practiceState());
   const settled = settledFor(focusDealId(deals));
   const phases = ([1, 2, 3, 4, 5, 6, 7] as const).map((n) => ({ n, steps: steps.filter((s) => s.phase === n) })).filter((p) => p.steps.length);
   return (

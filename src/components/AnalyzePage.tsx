@@ -148,6 +148,9 @@ function forLink(d: Deal, plan?: Plan): Deal {
 /** A guide's link can name the plan too (keep and rent, fix and sell), when that plan fits the kind of sale. */
 const linkPlan = (d: Deal, plan?: Plan): Deal => (plan && plansFor(d.kind).includes(plan) ? { ...d, plan } : d);
 
+/** The kept-draft note read this page load (see keptNote below). */
+let keptNoteOnce = '';
+
 export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: Prefill } = {}) {
   useMarkStep('analyze');
   useLastActivity('#/analyze', 'Analyze a deal');
@@ -156,15 +159,20 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   // or a change of state replaces it. Returns the deal's state when one was saved, for the notice.
   // The "just opened" marker is read once, when the page first loads its deal.
   // The kept-draft note shows once. (The "opened on purpose" marker stays while that deal is the one open.)
+  // Read into keptNoteOnce, so a second mount during the first paint (the prerendered /analyze page) still shows it.
   useEffect(() => { try { localStorage.removeItem(KEPT_NOTE_KEY); } catch { /* storage unavailable */ } }, []);
   const [keptNote, setKeptNote] = useState(() => {
     // Left by openDeal when a started deal was saved before another was opened elsewhere on the site.
     try {
       const v: unknown = JSON.parse(localStorage.getItem(KEPT_NOTE_KEY) ?? 'null');
-      return typeof v === 'string' ? v : '';
+      if (typeof v === 'string') keptNoteOnce = v;
     } catch {
-      return '';
+      /* storage unavailable */
     }
+    const note = keptNoteOnce;
+    // Shown on this load only: the next visit to Analyze starts without it.
+    setTimeout(() => { keptNoteOnce = ''; }, 1500);
+    return note;
   });
   const keepUnsaved = (): string | null => {
     const d = keepUnsavedDraft();
@@ -301,7 +309,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     saveDeals(next);
     forgetDeal(id);
     setSaved(next);
-    if (deal.id === id) setDeal(blank(deal.state));
+    if (deal.id === id) setDeal(blank(mine ?? deal.state));
   };
 
   // The Mentor Connect spot beside What's next (Admin → Ad spots); automatic: by plan, listings and bank-owned only.
@@ -323,10 +331,10 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <section className="deal-setup" aria-labelledby="setup-head">
         <h2 id="setup-head">1. Tell us about the property you found</h2>
         {deal.id && saved.find((d) => d.id === deal.id)?.stage === 'passed' && (
-          <p className="note" role="status">You passed on “{deal.name}”. Changes here update it in My deals. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(deal.state)); }}>Start a new deal</button></p>
+          <p className="note" role="status">You passed on “{deal.name}”. Changes here update it in My deals. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button></p>
         )}
         {deal.id && deal.practice && !savingPractice() && saved.find((d) => d.id === deal.id)?.stage !== 'passed' && (
-          <p className="note" role="status">This is your practice analysis “{deal.name}”. Changes here update it in My deals, and it stays a practice analysis. Found a real property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(deal.state)); }}>Start a new deal</button></p>
+          <p className="note" role="status">This is your practice analysis “{deal.name}”. Changes here update it in My deals, and it stays a practice analysis. Found a real property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button></p>
         )}
         <p className="muted">Found a property on an official list, a listing site or from your agent? Enter it here. You’ll get the checklist for that kind of sale in that county, and the calculator for your plan. Save it to come back to it in My deals.</p>
         <div className="deal-fields">
@@ -374,7 +382,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             <>
               <span className="muted">Saved as “{deal.name}”. Changes save as you go.</span>
               <a className="btn" href={`#/deals/packet/${deal.id}`}>Deal packet&nbsp;→</a>
-              <button type="button" className="btn btn-secondary" onClick={() => { clearDraftNumbers(); setDeal(blank(deal.state)); }}>Start a new deal</button>
+              <button type="button" className="btn btn-secondary" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button>
             </>
           ) : (
             <button type="button" className="btn" onClick={() => { if (!deal.locationConfirmed) set({ locationConfirmed: true }); else saveNew(); }}>{deal.locationConfirmed ? 'Save this deal' : 'Confirm location and open my analysis'}</button>

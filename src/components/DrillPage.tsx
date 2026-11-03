@@ -456,7 +456,8 @@ export default function DrillPage({ id }: { id: string }) {
         <EmptyState title="We couldn’t find that drill"><p>It may have been renamed. <a href="#/practice">Back to Practice&nbsp;→</a></p></EmptyState>
       </main>
     );
-  if (drillState(d) && drillState(d) !== myState) return (
+  // A lien deal in another state in focus (an Arizona lien deal for a Texas reader) opens that state's drill too.
+  if (drillState(d) && drillState(d) !== myState && drillState(d) !== practiceState()) return (
     <main className="page">
       <PageHero compact top={<a href="#/practice">← Practice</a>} title="Choose this exercise’s state" sub={`This exercise uses ${STATE_NAMES[drillState(d)!]} rules. Change your investing state to open it, or return to your own practice.`} />
       <section aria-labelledby="drill-state-head">

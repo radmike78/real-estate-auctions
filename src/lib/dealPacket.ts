@@ -477,12 +477,12 @@ const pct1 = (x: number | null | undefined, target = 0) => (x === null || x === 
 /** The commercial walk-away price, worded by what sets it: your target return, your cash, or the lender's coverage. */
 /** The calculator's own words for the cash limit: "put in" for a listed property (down payment, closing costs and repairs), "bring" at an auction. */
 const cashLimit = (offer: boolean) => (offer ? 'the cash you can put in' : 'the cash you can bring');
-function commercialPriceText(capPct: number, maxBid: number, limitedBy: CommercialLimit | undefined, capOnCost: number | null | undefined, offer: boolean, lower = false, noRealistic = false, capTyped = true): string {
+function commercialPriceText(capPct: number, maxBid: number, limitedBy: CommercialLimit | undefined, capOnCost: number | null | undefined, offer: boolean, lower = false, noRealistic = false, capTyped = true, dscrTyped = true): string {
   const roc = pct1(capOnCost, capPct);
   // Under a tenth of the value: the cash goes to the costs, leaving almost nothing for the price (as the calculator says).
   if (noRealistic) return `${lower ? 'walk-away price' : 'Walk-away price'}, set by ${cashLimit(offer)}: ${money(maxBid)}, far below what the deal itself supports, so no realistic ${offer ? 'offer' : 'bid'} fits this cash`;
   if (limitedBy === 'cash') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by ${cashLimit(offer)}: ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
-  if (limitedBy === 'dscr') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by the minimum income coverage (DSCR): ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
+  if (limitedBy === 'dscr') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by ${dscrTyped ? 'your' : 'our example'} minimum income coverage (DSCR): ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
   return lower ? `highest price ${money(maxBid)}` : `Highest price for ${capTyped ? `${/^(8|11|18)(\.|$)|^8/.test(String(capPct)) ? 'an' : 'a'}` : 'our example'} ${capPct}% return on cost: ${money(maxBid)}`;
 }
 
@@ -613,7 +613,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could pay, not your price)`;
       cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} on sale day; estimated cash you’d put in ${money(bid.cashPeak)}`);
       // As Fix and sell says in red: with no cash entered there, the walk-away price can need more than My plan's cash.
-      if (bid.at && !(bid.cashLimit > 0) && !bid.cashTyped && profile.investable > 0 && bid.cashPeak > profile.investable) cash.push(`That walk-away price needs ${money(bid.cashPeak - profile.investable)} more than the ${money(profile.investable)} of investable cash in My plan: ${offer ? 'offer only what fits your cash' : `enter the cash you can bring in ${strategy} to cap the bid at what you have`}.`);
+      if (bid.at && bid.at.cashPeak <= profile.investable && !(bid.cashLimit > 0) && !bid.cashTyped && profile.investable > 0 && bid.cashPeak > profile.investable) cash.push(`That walk-away price needs ${money(bid.cashPeak - profile.investable)} more than the ${money(profile.investable)} of investable cash in My plan: ${offer ? 'offer only what fits your cash' : `enter the cash you can bring in ${strategy} to cap the bid at what you have`}.`);
     }
     if (bid.unentered.length) cash.push(`Doesn’t include costs still at $0 because not entered: ${bid.unentered.join('; ')}.`);
     if (bid.financed) cash.push(DRAW_NOTE);
@@ -696,12 +696,12 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   else if (commercial?.none && !(commercial.capPct > 0)) nums.push(`No price works with the income, costs and loan you entered in ${strategy}`);
   else if (commercial?.none) nums.push(`No price meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost with the income and costs you entered`);
   else if (commercial) {
-    const priceText = commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost, offer, false, !!commercial.noRealistic, !!commercial.capTyped);
+    const priceText = commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost, offer, false, !!commercial.noRealistic, !!commercial.capTyped, !!commercial.dscrTyped);
     nums.push(/no realistic/.test(priceText) ? `${priceText}.` : `${priceText}, on ${money(commercial.noi)} a year of net operating income`);
     for (const s of commercial.noRealistic ? [] : commercial.stress) {
       // Cash sets both prices: the lower rent doesn't move it, so say so instead of repeating the same figure as news.
       const same = s.limitedBy === 'cash' && commercial.limitedBy === 'cash' && s.maxBid === commercial.maxBid;
-      nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid !== null && s.maxBid > 0 ? (same ? `still ${money(s.maxBid)}, set by ${cashLimit(offer)}${pct1(s.capOnCost, commercial.capPct) ? ` (return on cost at that price: ${pct1(s.capOnCost, commercial.capPct)})` : ''}` : commercialPriceText(commercial.capPct, s.maxBid, s.limitedBy, s.capOnCost, offer, true)) : 'no price works'}`);
+      nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid !== null && s.maxBid > 0 ? (same ? `still ${money(s.maxBid)}, set by ${cashLimit(offer)}${pct1(s.capOnCost, commercial.capPct) ? ` (return on cost at that price: ${pct1(s.capOnCost, commercial.capPct)})` : ''}` : commercialPriceText(commercial.capPct, s.maxBid, s.limitedBy, s.capOnCost, offer, true, false, !!commercial.capTyped, !!commercial.dscrTyped)) : 'no price works'}`);
     }
   }
   if (lien) {
