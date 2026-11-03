@@ -4,6 +4,7 @@ import { shuffled } from '../lib/shuffle';
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
+import OwlNote from './OwlNote';
 import StatePicker from './StatePicker';
 import EmptyState from './EmptyState';
 import { PracticeRibbon } from './PracticePage';
@@ -50,7 +51,8 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
   }
   if (mine !== 'NV') return (
     <main className="page">
-      <PageHero compact top={<a href="#/practice">← Practice</a>} title="This purchase exercise uses Nevada rules" sub="Change your investing state to open it, or return to Practice for exercises in your selected state." />
+      <PageHero compact top={<a href="#/practice">← Practice</a>} title="This purchase exercise uses Nevada rules" />
+      <OwlNote>Change your investing state to open it, or return to Practice for exercises in your selected state.</OwlNote>
       <section aria-labelledby="scenario-state-head">
         <h2 id="scenario-state-head">Your investing state</h2>
         <StatePicker label="Show rules for" />

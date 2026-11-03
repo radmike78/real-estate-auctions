@@ -1,4 +1,4 @@
-import { roadmapNextStep } from '../lib/planNext';
+import { planNow, roadmapNextStep } from '../lib/planNext';
 import { roadmapPath } from '../lib/roadmapState';
 import PathNext from './PathNext';
 import { workStorage as localStorage } from '../lib/workStorage';
@@ -381,7 +381,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         <div className="deal-actions">
           {deal.id ? (
             <>
-              <span className="muted">Saved as “{deal.name}”. Changes save as you go.</span>
+              <span className="muted">Saved as {deal.practice ? 'the practice analysis ' : ''}“{deal.name}”. Changes save as you go.</span>
               <a className="btn" href={`#/deals/packet/${deal.id}`}>Deal packet&nbsp;→</a>
               <button type="button" className="btn btn-secondary" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button>
             </>
@@ -390,7 +390,11 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           )}
         </div>
         {/* Said before the save: while My plan is on a practice step, what's saved stays a practice analysis. */}
-        {!deal.id && deal.locationConfirmed && savingPractice(deal) && <p className="muted" role="note">My plan is on a practice step, so a deal saved now is a practice analysis: it won’t become the property you’re working on. Finish that step first to save a real property.</p>}
+        {!deal.id && deal.locationConfirmed && savingPractice(deal) && (() => {
+          // The practice step that makes this a practice analysis: the roadmap's, else My plan's (practice part 2).
+          const st = roadmapNextStep();
+          const t = st && ['paper', 'c-paper', 'a-practice', 'c-practice'].includes(st.id) ? { href: st.href ?? '#/toolkit/roadmap', label: st.title } : planNow().task;
+          return <p className="muted" role="note">My plan is on the practice step <a href={t.href}>{t.label}</a>, so a deal saved now is a practice analysis: it won’t become the property you’re working on. Finish that step first to save a real property.</p>; })()}
         {saved.length > 0 && (
           <div className="saved-deals">
             <strong>Your deals</strong>

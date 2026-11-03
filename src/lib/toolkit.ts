@@ -53,7 +53,7 @@ export const DEAL_BREAKERS = [
 
 // A lien certificate has no rent and nothing to insure: those two don't fit it, and these do.
 const RENTAL_ONLY_BREAKERS = ['Can’t get insurance at a workable price', 'Negative cash flow with realistic rent'];
-export const LIEN_DEAL_BREAKERS = ['Landlocked or unusable parcel', 'Owner in bankruptcy', 'Interest rate below my minimum'];
+export const LIEN_DEAL_BREAKERS = ['Landlocked or unusable parcel', 'Owner in bankruptcy', 'Interest rate below the minimum in my notes'];
 /** The deal breakers offered for a buy box strategy. */
 export const dealBreakersFor = (strategy: string): string[] =>
   strategy === LIEN_STRATEGY ? [...DEAL_BREAKERS.filter((t) => !RENTAL_ONLY_BREAKERS.includes(t)), ...LIEN_DEAL_BREAKERS]

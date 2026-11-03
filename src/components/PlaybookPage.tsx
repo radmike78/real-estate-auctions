@@ -86,6 +86,8 @@ import SaleDocsPanel from './SaleDocsPanel';
 import { useEffect } from 'react';
 import { replaceAddress } from '../lib/nav';
 import AdSpot from './AdSpot';
+import OwlNote from './OwlNote';
+import { practiceLienDeal, practiceState } from '../lib/planNext';
 
 /** The right calculator for the kind of sale: a lien's yield, an offer on a listed home, or an auction bid. Links open
  * Analyze already set to this guide's state and kind of sale, in the reader's county when it's in that state. */
@@ -220,6 +222,21 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
         <StateSelect label="Show guides for" />
         <NarrowDown config={guidesConfig(mine)} intro="Tell us how and what you want to buy, and we’ll point you to the guides to read first. Every guide is still listed below." />
         {playbook && <p className="notice" role="status">We couldn’t find that guide. Choose one below.</p>}
+        {(() => {
+          // The lien guide for the Nevada or Arizona lien deal you're working on, while your chosen state is another.
+          const ld = st ? practiceLienDeal() : null;
+          const g = ld ? playbookByKey(ld.state === 'NV' ? 'sid' : 'aztaxlien') : null;
+          if (!ld || !g) return null;
+          const name = stateByCode(ld.state)?.name ?? ld.state;
+          return (
+            <section className="guide-group" aria-labelledby="lien-deal-guide-head">
+              <h2 id="lien-deal-guide-head" className="section-title">For your {name} lien deal</h2>
+              <div className="drill-tiles">
+                <Tile href={`#/playbooks/${g.key}`} icon={saleIcon(g.key)} title={`${name}: ${g.short}`} summary={g.teaser ?? g.oneLine} />
+              </div>
+            </section>
+          );
+        })()}
         {groups.map((g) => (
           <section key={g.code} className="guide-group" aria-label={`${g.name} guides`}>
             {!st && <h2 className="section-title">{g.name}{g.code === 'NV' ? ' (Clark County)' : ''}</h2>}
@@ -237,13 +254,16 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
 
   const base = `#/playbooks/${p.key}`;
   // A visitor who chose another state (e.g. Texas) and landed on a Nevada guide gets a link to their own state's guide.
-  const mineName = mine && mine !== stateOf(p) ? stateByCode(mine)?.name : null;
+  // Except the lien guide for the Nevada or Arizona lien deal you're working on (the same deal that sets your lien
+  // practice and team), which opens with a note.
+  const forLienDeal = (p.key === 'sid' || p.key === 'aztaxlien') && !!mine && mine !== stateOf(p) && practiceState() === stateOf(p);
+  const mineName = mine && mine !== stateOf(p) && !forLienDeal ? stateByCode(mine)?.name : null;
   const mineGuide = mineName ? playbookByKey(guideKey(mine!, kindOf(p.key)) ?? '') : null;
   if (mineName) return (
     <main className="page">
       <h1>Open the guide for {mineName}</h1>
-      <p>This link is outside your selected investing state. Choose the matching local guide before reviewing sale procedures.</p>
-      <a className="btn" href={mineGuide ? `#/playbooks/${mineGuide.key}` : '#/playbooks'}>{mineGuide ? `Read ${mineGuide.title}` : 'Choose a local sale guide'} →</a>
+      <OwlNote>This link is outside your selected investing state. Choose the matching local guide before reviewing sale procedures.</OwlNote>
+      <p><a className="btn" href={mineGuide ? `#/playbooks/${mineGuide.key}` : '#/playbooks'}>{mineGuide ? `Read ${mineGuide.title}` : 'Choose a local sale guide'} →</a></p>
     </main>
   );
   const drill = stateDrill(p);
@@ -258,6 +278,11 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
         title={open ? <a className="title-link" href={base}>{p.title}</a> : p.title}
         sub={open ? undefined : p.oneLine}
       />
+      {forLienDeal && (
+        <p className="other-state-guide" role="note">
+          This guide follows {stateByCode(stateOf(p))?.name ?? ''} law, for the {stateByCode(stateOf(p))?.name ?? ''} lien deal you’re working on. Your chosen state is {stateByCode(mine!)?.name ?? mine}.
+        </p>
+      )}
       {mineGuide && mineGuide.key !== p.key && (
         <p className="other-state-guide" role="note">
           This guide follows {stateByCode(stateOf(p))?.name ?? ''} law. You chose {mineName}: <a href={`#/playbooks/${mineGuide.key}`}>see {mineGuide.title}&nbsp;→</a>
@@ -276,7 +301,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
           <p className="other-state-guide" role="note">
             This guide follows Clark County.{' '}
             {a.county === 'Washoe' && p.key === 'tax'
-              ? 'Washoe County’s tax sale differs. It’s held once a year, usually in April. Register in person at the Treasurer’s office, starting at 9:00 a.m. two business days before the sale, with photo ID and a $500 pre-bid deposit in certified funds. The Treasurer’s FAQ says registration closes at “the Tuesday 5:00 pm deadline” without naming the date: check the sale notice for it.* The opening bid is what’s owed or the assessed value, whichever is greater. If you win, the Treasurer’s FAQ lists a $500 non-refundable deposit, with the balance due by 5:00 p.m. the day after the sale.'
+              ? 'Washoe County’s tax sale differs. It’s held once a year, usually in April. Register in person at the Treasurer’s office, starting at 9:00 a.m. two business days before the sale, with photo ID and a $500 pre-bid deposit in certified funds. Registration closes at 5:00 p.m. on a date the sale notice gives (the Treasurer’s FAQ calls it the Tuesday deadline).* The opening bid is what’s owed or the assessed value, whichever is greater. If you win, the FAQ lists a $500 non-refundable deposit (it doesn’t say whether that’s the pre-bid deposit)* and the balance due by 5:00 p.m. the day after the sale.'
               : ['tax', 'sid', 'sheriff'].includes(p.key)
                 ? `${place}’s own dates, deposits and payment rules may differ: confirm them with ${p.key === 'sheriff' ? 'its sheriff' : 'its treasurer'} before a real sale.`
                 : p.key === 'irs' ? 'IRS sales follow federal law, the same in every county; each sale’s terms come from the IRS notice of sale, so read it for the one you’re buying.' : 'This kind of sale follows the same Nevada law in every county; each sale’s own terms come from its notice or the seller, so read them for the one you’re buying.'}

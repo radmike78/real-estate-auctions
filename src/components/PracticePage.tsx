@@ -97,7 +97,10 @@ export default function PracticePage({ sale }: { sale?: string }) {
   }, [toAuctionDrills]);
   // SID lien certificates are a Clark County, Nevada sale only: not offered to visitors from other states.
   // On the lien route the SID run (part 2) comes first.
-  const auctionSales = SALE_ORDER.filter((s) => s !== 'sid' || !mine || mine === 'NV').sort((a, b) => (planPath() === 'certificate' ? Number(b === 'sid') - Number(a === 'sid') : 0));
+  // A reader in another state practicing for a Nevada lien deal gets the SID run only (the other Nevada runs follow
+  // their own state's gate).
+  const lienDealOnly = !!mineRaw && mineRaw !== 'NV' && mine === 'NV';
+  const auctionSales = SALE_ORDER.filter((s) => (s !== 'sid' || !mine || mine === 'NV') && (!lienDealOnly || s === 'sid')).sort((a, b) => (planPath() === 'certificate' ? Number(b === 'sid') - Number(a === 'sid') : 0));
   const auctionTiles = (
     <div className="practice-sales">
       {auctionSales.map((s, i) => {
@@ -143,7 +146,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
         </>}
         {!otherState && <>
         <h2 id="practice-auction" tabIndex={-1} className="practice-step">{ownPractice ? `Practice part 2: ${ownPractice.title} (${planPath() === 'certificate' ? 'Nevada auction and lien practice' : 'Nevada auction practice'})` : 'Nevada auction practice: choose a kind of sale'}</h2>
-        <p className="practice-step-intro"><strong>{planPath() === 'certificate' ? 'The first run, Nevada lien certificates (SID), is your part 2; the other runs are extra.' : 'A run at an auction (tax, foreclosure, HOA, sheriff or IRS sale) is part of it; the step also asks for three auction drills, so check its test before you mark it done. The bank-owned, short-sale and SID lien runs are extra.'}</strong></p>
+        <p className="practice-step-intro"><strong>{planPath() === 'certificate' ? (mineRaw && mineRaw !== 'NV' ? 'The lien deal you’re working on is in Nevada, so your part 2 is the Nevada lien certificates (SID) run below.' : 'The first run, Nevada lien certificates (SID), is your part 2; the other runs are extra.') : 'A run at an auction (tax, foreclosure, HOA, sheriff or IRS sale) is part of it; the step also asks for three auction drills, so check its test before you mark it done. The bank-owned, short-sale and SID lien runs are extra.'}</strong></p>
         <p className="practice-step-intro">Buy a fictional property at one kind of sale, step by step, from research to the day after.</p>
         <p className="practice-nv-note" role="note"><strong>Clark County practice.</strong> These sales follow local rules. Check your county’s requirements before a real purchase.</p>
         {auctionTiles}

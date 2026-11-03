@@ -461,7 +461,8 @@ export default function DrillPage({ id }: { id: string }) {
   const lienDrill = d.id === 'tax-lien-az' && practiceState() === 'AZ';
   if (drillState(d) && drillState(d) !== myState && !lienDrill) return (
     <main className="page">
-      <PageHero compact top={<a href="#/practice">← Practice</a>} title="Choose this exercise’s state" sub={`This exercise uses ${STATE_NAMES[drillState(d)!]} rules. Change your investing state to open it, or return to your own practice.`} />
+      <PageHero compact top={<a href="#/practice">← Practice</a>} title="Choose this exercise’s state" />
+      <OwlNote>This exercise uses {STATE_NAMES[drillState(d)!]} rules. Change your investing state to open it, or return to your own practice.</OwlNote>
       <section aria-labelledby="drill-state-head">
         <h2 id="drill-state-head">Your investing state</h2>
         <StatePicker label="Show rules for" />

@@ -4,7 +4,7 @@ import NumInput from './NumInput';
 import { syncRoadmapCredits } from '../lib/journey';
 import { useAccount } from '../lib/account';
 import { workStorage as localStorage } from '../lib/workStorage';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { STATES, countyName, stateByCode } from '../lib/regions';
@@ -94,6 +94,7 @@ function stepEvidence(id: string): string | null {
 
 /** The goal shows in "Your next step" and again in its phase: both copies stay in step. */
 function GoalField({ markedDone = false }: { markedDone?: boolean }) {
+  const noteId = useId();
   const [g, setG] = useState(() => read(GOAL_KEY, '', cleanGoal));
   // A first draft from the answers given in Decide (goal, budget, time), to edit rather than retype.
   const fromDecide = (() => {
@@ -138,7 +139,7 @@ function GoalField({ markedDone = false }: { markedDone?: boolean }) {
     <>
     <label className="field roadmap-goal">
       <span>Your goal, in one sentence</span>
-      <textarea rows={2} maxLength={400} value={g} onChange={(e) => change(e.target.value)} onBlur={(e) => {
+      <textarea rows={2} maxLength={400} value={g} aria-describedby={markedDone && !g.trim() ? noteId : undefined} onChange={(e) => change(e.target.value)} onBlur={(e) => {
         // Moving on within this step (Tab to its "Done" or its status buttons): those buttons decide, so the step
         // doesn't move away from under the keyboard. Leaving the step straight from the box ticks it as before.
         const here = e.currentTarget.closest('.roadmap-next, .roadmap-step');
@@ -149,7 +150,7 @@ function GoalField({ markedDone = false }: { markedDone?: boolean }) {
     </label>
     {/* Marked done without a sentence: My plan and the packets still read "not written yet" until one is saved.
         Outside the label, so it isn't read as part of the box's name. */}
-    {markedDone && !g.trim() && <p className="small muted" role="note">This step shows Done, but no goal sentence is saved yet. Write it in the box above so it shows at the top of My plan and in your packets.</p>}
+    {markedDone && !g.trim() && <p id={noteId} className="note small" role="note">This step shows Done, but no goal sentence is saved yet. Write it in the box above so it shows at the top of My plan and in your packets.</p>}
     </>
   );
 }
@@ -739,7 +740,7 @@ function BuyBoxBuilder() {
       </fieldset>
       <label className="field">
         <span>Notes</span>
-        <textarea maxLength={1000} rows={3} value={b.notes} onChange={(e) => set('notes', e.target.value)} />
+        <textarea maxLength={1000} rows={3} value={b.notes} onChange={(e) => set('notes', e.target.value)} placeholder={lien ? 'e.g. the lowest interest rate I’ll accept, and the counties I’ll bid in' : undefined} />
       </label>
       <div className="buybox-summary" aria-live="polite">
         <h3>My buy box</h3>

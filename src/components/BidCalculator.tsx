@@ -430,7 +430,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {GROUPS.map((g) => {
           const fields = g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : f)).map((f) =>
             f.k === 'redemptionRatePct' && i.redemptionFlat
-              ? { ...f, label: i.redemptionFlat2Pct ? 'Premium a redemption pays you (first year)' : 'Premium a redemption pays you', unit: '%' as const, hint: i.redemptionFlat2Pct ? `A flat % of your price set by law, not a yearly rate; ${i.redemptionFlat2Pct}% in the second year.` : ruleNow === 'txTaxOther' ? 'A % of your price, not a yearly rate. Texas law caps it at 25% (Tax Code 34.21(e)); this uses the full 25%.' : 'A flat % of your price set by law, not a yearly rate.' }
+              ? { ...f, label: i.redemptionFlat2Pct ? 'Premium a redemption pays you (first year)' : 'Premium a redemption pays you', unit: '%' as const, hint: i.redemptionFlat2Pct ? `A flat % of your price set by law, not a yearly rate; ${i.redemptionFlat2Pct}% in the second year.` : ruleNow === 'txTaxOther' ? 'A % of your price plus the costs the law repays, not a yearly rate. Texas law caps it at 25% (Tax Code 34.21(e)); this calculator applies the full 25% to your price only.' : 'A flat % of your price set by law, not a yearly rate.' }
               : f);
           if (!fields.length) return null;
           return (
@@ -504,7 +504,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         <p className="small muted">Profit estimates are before income tax. Review taxes on a sale with your tax adviser.</p>
         {unconfirmed && (
           <div className="caution calc-unconfirmed">
-            <strong>Redemption rule not confirmed.</strong> {choices?.confirm} Your walk-away price now uses{' '}
+            <strong>Redemption rule not confirmed.</strong> {ruleNow === choices?.start ? choices?.confirm : (choices?.confirm ?? '').replace(/ ?This calculator starts with [^.]*\. ?/, ' ').trim()} Your walk-away price now uses{' '}
             {ruleNow === 'custom'
               ? <>your own numbers: a {Math.round(i.redemptionMonths)}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
               : <>{offered[ruleNow]?.label}.</>}{' '}
@@ -607,7 +607,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <div className="calc-note">
             <strong>If {ruleNow === 'usFederal' || ruleNow === 'usCourt' ? 'the United States' : 'the owner'} redeems: an illustration of your bid and what the law adds</strong>
             <p className="small">
-              {i.redemptionFlat ? <>If the owner redeems {i.redemptionFlat2Pct ? 'in the first year' : 'at any time in the wait'}, {ruleNow === 'txTaxOther' ? <>the law adds a premium of up to {i.redemptionRatePct}% (Tax Code 34.21(e)). This illustration uses the full {i.redemptionRatePct}%. </> : <>the law adds {i.redemptionRatePct}% of your price{i.redemptionFlat2Pct ? `, or ${i.redemptionFlat2Pct}% in the second year` : ''}, no matter how early. </>}</> : null}At the end of the {Math.round(i.redemptionMonths)}-month wait you’d get back about {fmtMoney(Math.round(redeemed.repaid))} on a {fmtMoney(bid > 0 ? bid : r.maxBid)} bid. By then you’d have spent about {fmtMoney(Math.round(redeemed.spent))}, so you’d {redeemed.net >= 0 ? `come out about ${fmtMoney(Math.round(redeemed.net))} ahead` : `be about ${fmtMoney(Math.round(-redeemed.net))} short`}.{' '}
+              {i.redemptionFlat ? <>If the owner redeems {i.redemptionFlat2Pct ? 'in the first year' : 'at any time in the wait'}, {ruleNow === 'txTaxOther' ? <>the law adds a premium of up to {i.redemptionRatePct}% of your price plus the costs the law repays (Tax Code 34.21(e)). This illustration applies the full {i.redemptionRatePct}% to your price only. </> : <>the law adds {i.redemptionRatePct}% of your price{i.redemptionFlat2Pct ? `, or ${i.redemptionFlat2Pct}% in the second year` : ''}, no matter how early. </>}</> : null}At the end of the {Math.round(i.redemptionMonths)}-month wait you’d get back about {fmtMoney(Math.round(redeemed.repaid))} on a {fmtMoney(bid > 0 ? bid : r.maxBid)} bid. By then you’d have spent about {fmtMoney(Math.round(redeemed.spent))}, so you’d {redeemed.net >= 0 ? `come out about ${fmtMoney(Math.round(redeemed.net))} ahead` : `be about ${fmtMoney(Math.round(-redeemed.net))} short`}.{' '}
               {region.state === 'TX' && taxLoanRule
                 ? 'This isn’t the full Texas payoff: the law also repays the costs you reasonably spent on the property, plus interest on them at the legal judgment rate: property insurance, repairs required by a building code, an ordinance or a lease in effect at the sale, city health-and-safety liens, HOA dues and certain fees (Tax Code 32.06(k)(2), 34.21(g)). Optional remodeling isn’t on that list. Keep every receipt and ask an attorney which of your costs qualify.'
                 : region.state === 'TX' && saleKind === 'taxSale'
