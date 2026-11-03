@@ -176,7 +176,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   if (isOffer(d)) return [...names(['Offer accepted (Day 0)']), ...(tx ? TX_DEPOSIT_DATES : names(['Earnest money due'])), ...(tx ? [TX_OPTION_END, txDisclosureDate(false), txHoaDate(false), TX_TITLE_DATE, txWaterDate(false), txAppraisalDate(false), ...txLoanDates(false)] : names(['Inspection period ends', 'Appraisal deadline', 'Loan approval deadline'])), ...names(['Closing'])];
   if (d.kind === 'lien') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien']);
   // California homes of one to four units: a win isn't final until eligible bidders' windows close (Civil Code 2924m).
-  if (d.kind === 'trustee' && d.state === 'CA') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Eligible bidders’ notice of intent to bid (15 days after the sale, homes of 1–4 units)', 'Eligible bidders’ bid deadline (45 days after the sale)', 'Deed recorded']);
+  if (d.kind === 'trustee' && d.state === 'CA' && d.plan !== 'commercial') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Eligible bidders’ notice of intent to bid (15 days after the sale, homes of 1–4 units)*', 'Eligible bidders’ bid deadline (45 days after the sale, homes of 1–4 units)*', 'Deed recorded']);
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
   // Texas execution sale; a Texas tax sale has its own redemption period (Tax Code 34.21).
@@ -274,7 +274,7 @@ export function savedNumbers(d: Deal) {
   const own = ownNumbers(d);
   let rent: {
     /** FHA mortgage insurance a month, not counted (0: none). */
-    mi: number; price: number; monthly: number; cashIn: number; allIn: number; repairs: number; possession: number; retained: number; refi: boolean; noLoan: boolean; exampleValue: boolean; refiValue: number; cashLimit: number; cashTyped: boolean; cashOnCash: number | null; target: number; /** The return target was typed (else it's our example). */ targetTyped?: boolean; /** Under the minimum income coverage at this price (investors). */ coverageShort?: boolean; minDscr?: number; stress: { label: string; monthly: number }[] } | null = null;
+    mi: number; price: number; monthly: number; cashIn: number; allIn: number; repairs: number; possession: number; retained: number; refi: boolean; noLoan: boolean; exampleValue: boolean; refiValue: number; cashLimit: number; cashTyped: boolean; cashOnCash: number | null; target: number; /** The return target was typed (else it's our example). */ targetTyped?: boolean; /** Under the minimum income coverage at this price (investors). */ coverageShort?: boolean; minDscr?: number; dscrTyped?: boolean; stress: { label: string; monthly: number }[] } | null = null;
   let bid: {
     maxBid: number; cashOnDay: number; cashTotal: number; cashPeak: number; exitValue: number; none: boolean; target: number;
     /** No bid works only because of the cash entered: the deal itself works up to `profitBid`. */
@@ -339,7 +339,7 @@ export function savedNumbers(d: Deal) {
       const v = withPlanCash(withoutOldValueExample(sanitizeNumbers(rentRaw, RENT_DEFAULTS) as RentInputs, offer, typedRent), offer, typedRent, investorProfile().investable);
       if (v.atPrice > 0) {
         const a = rentAtPrice(v, v.atPrice, offer);
-        rent = { mi: investorProfile().ownerOccupant && offer ? fhaMonthlyMi(v)?.monthly ?? 0 : 0, price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, allIn: a.allIn, repairs: v.repairs * (1 + v.contingencyPct / 100), possession: v.possession, retained: v.reserveCash, refi: !offer && a.loan > 0, noLoan: !(a.loan > 0), exampleValue: refiOnExampleValue(v, offer, typedRent), refiValue: v.value, cashLimit: typedRent.has('cashAvailable') && v.cashAvailable > 0 ? v.cashAvailable : 0, cashTyped: typedRent.has('cashAvailable'), cashOnCash: a.cashOnCash, target: v.targetCocPct, targetTyped: typedRent.has('targetCocPct'), coverageShort: !(offer && investorProfile().ownerOccupant) && !refiOnExampleValue(v, offer, typedRent) && v.minDscr > 0 && a.dscr !== null && a.dscr < v.minDscr, minDscr: v.minDscr, stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
+        rent = { mi: investorProfile().ownerOccupant && offer ? fhaMonthlyMi(v)?.monthly ?? 0 : 0, price: v.atPrice, monthly: a.cashFlow / 12, cashIn: a.cashIn, allIn: a.allIn, repairs: v.repairs * (1 + v.contingencyPct / 100), possession: v.possession, retained: v.reserveCash, refi: !offer && a.loan > 0, noLoan: !(a.loan > 0), exampleValue: refiOnExampleValue(v, offer, typedRent), refiValue: v.value, cashLimit: typedRent.has('cashAvailable') && v.cashAvailable > 0 ? v.cashAvailable : 0, cashTyped: typedRent.has('cashAvailable'), cashOnCash: a.cashOnCash, target: v.targetCocPct, targetTyped: typedRent.has('targetCocPct'), coverageShort: !(offer && investorProfile().ownerOccupant) && !refiOnExampleValue(v, offer, typedRent) && v.minDscr > 0 && a.dscr !== null && a.dscr < v.minDscr, minDscr: v.minDscr, dscrTyped: typedRent.has('minDscr'), stress: rentStress(v, v.atPrice, offer).map((s) => ({ label: s.label, monthly: s.monthly })) };
       }
     }
   } else if (d.plan === 'flip' && own) {
@@ -540,7 +540,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     status: calendarComplete(p, stageOf(d)) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length
       ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), nd ? `Next: ${nd.what}, ${nd.days < 0 ? `overdue by ${-nd.days} days` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : 'All dated items are marked handled.']
-      : [`Add the dates from the ${offer ? 'contract' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
+      : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' && d.plan !== 'commercial' ? 'official notice (the eligible-bidder windows count from the sale day)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
   });
 
   // 4. Cash needed, by when (from the deal's own strategy)
@@ -625,7 +625,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     needAt = `At your highest price of ${money(commercial.maxBid)}`;
     if (!offer && (commercial.saleDay ?? 0) > 0) cash.push(`On sale day, at your highest price of ${money(commercial.maxBid)}: ${money(commercial.saleDay!)} (bid plus any buyer’s premium, in the form the sale requires).`);
     cash.push(commercial.refi
-      ? `All in at your highest price, until a refinance closes: ${money(commercial.allIn)}; after a refinance, if approved: ${money(commercial.cashLeft)} left in (from ${strategy})`
+      ? `All in at your highest price, until a refinance closes: ${money(commercial.allIn)}; after a refinance, if approved: ${commercial.cashLeft < 0 ? `none left in (it returns all your cash and ${money(-commercial.cashLeft)} more)` : `${money(commercial.cashLeft)} left in`} (from ${strategy})`
       : `All in at your highest price: ${money(commercial.allIn)}, with ${money(commercial.cashLeft)} of your own cash left in (from ${strategy})`);
   } else if (lien) {
     need = lien.price + lien.fees;
@@ -655,7 +655,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     nums.push(`Your offer (your actual price): ${money(rent.price)} → ${Math.round(Math.abs(rent.monthly)) === 0 ? 'the rent you collect about breaks even with every cost' : rent.monthly < 0 ? `living there costs you about ${money(-rent.monthly)} a month after any rent you collect` : `the rent you collect covers every cost, with about ${money(rent.monthly)} a month to spare`}${rent.mi > 0 ? `, before mortgage insurance (about ${money(rent.mi)} a month on an FHA loan; not counted)` : ''}. Compare that with what you pay to live where you are now; the return target is an investor’s yardstick.`);
     for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${s.monthly < 0 ? `living there costs about ${money(-s.monthly)} a month` : `${money(s.monthly)} a month to spare`}`);
   } else if (rent) {
-    nums.push(`${offer ? 'Your offer' : 'Your bid'} (your actual price): ${money(rent.price)} → monthly cash flow ${money(rent.monthly)}${rent.exampleValue ? ` (${refiValueWords(rent.refiValue)})` : rent.refi ? ' after the refinance' : ''}; ${rent.exampleValue && rent.refiValue > 0 ? 'return not shown until you enter the value after repairs' : rent.cashOnCash === null ? 'all your cash back' : `${capText(rent.cashOnCash, rent.target)}% a year on your cash`} (${rent.targetTyped ? 'your' : 'our example'} target ${rent.target}%)${rent.coverageShort ? `; income coverage under the ${rent.minDscr}× minimum` : ''}`);
+    nums.push(`${offer ? 'Your offer' : 'Your bid'} (your actual price): ${money(rent.price)} → monthly cash flow ${money(rent.monthly)}${rent.exampleValue ? ` (${refiValueWords(rent.refiValue)})` : rent.refi ? ' after the refinance' : ''}; ${rent.exampleValue && rent.refiValue > 0 ? 'return not shown until you enter the value after repairs' : rent.cashOnCash === null ? 'all your cash back' : `${capText(rent.cashOnCash, rent.target)}% a year on your cash`} (${rent.targetTyped ? 'your' : 'our example'} target ${rent.target}%)${rent.coverageShort ? `; income coverage under ${rent.dscrTyped ? 'your' : 'our example'} ${rent.minDscr}× minimum` : ''}`);
     for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${money(s.monthly)} a month`);
   }
   if (bid) {
@@ -672,7 +672,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   if (commercial?.at) {
     const a = commercial.at;
-    nums.push(`Your ${offer ? 'offer' : 'bid'} (your actual price): ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; cash left in ${money(a.cashIn)}; return on total cost ${pct1(a.capOnCost, commercial.capPct)}; ${a.dscr === null ? 'no loan' : `income coverage ${dscrText(a.dscr)}× (${a.loanOk ? 'meets' : 'below'} the ${commercial.minDscr ?? 1.25}× minimum)`}`);
+    nums.push(`Your ${offer ? 'offer' : 'bid'} (your actual price): ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; ${a.cashIn < 0 ? `cash left in: none (the refinance returns all your cash and ${money(-a.cashIn)} more, if approved)` : `cash left in ${money(a.cashIn)}`}; return on total cost ${pct1(a.capOnCost, commercial.capPct)}; ${a.dscr === null ? 'no loan' : `income coverage ${dscrText(a.dscr)}× (${a.loanOk ? 'meets' : 'below'} the ${commercial.minDscr ?? 1.25}× minimum)`}`);
   }
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
   else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? `Without that cash limit the deal meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost` : 'Without that cash limit the numbers work'}`);
