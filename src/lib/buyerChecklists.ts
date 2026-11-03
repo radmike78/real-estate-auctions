@@ -67,7 +67,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: 'Register in person on sale day', detail: 'About an hour before the sale, with government photo ID. The certificate is issued in the name on your ID. There is no deposit or registration fee at present. You must be 18 or older, arrive on time, and register yourself.' },
       { text: 'Funds for the next morning', detail: "Winners are drawn at random. Pay by 10:00 a.m. the next business day in cash, cashier's check or money order, or the certificate goes to an alternate." },
       { text: 'A W-9 for the Treasurer', detail: 'Interest over $10 is reported on a 1099-INT.' },
-      { text: 'Patience for the redemption period', detail: '120 days, or 2 years if the land has a building or significant improvement. Most owners redeem.' },
+      { text: 'Patience for the redemption period', detail: '120 days, or 2 years if the land has a building or significant improvement. Most owners redeem.*' },
       { text: 'A calendar reminder for the deadline', detail: 'If the owner never redeems, serve them notice in person, and post it on the property if the public can reach it. If they can’t be found, publish the notice and mail it to every address a diligent records search finds. Then pay any delinquent taxes and assessments and request a deed. The certificate expires 3 years after the redemption period ends.' },
       CONFIRM,
     ],

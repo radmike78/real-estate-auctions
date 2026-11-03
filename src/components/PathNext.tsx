@@ -1,3 +1,4 @@
+import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { useEffect, useState } from 'react';
 import { CURRENT_KEY, openDeal } from '../lib/analyze';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
@@ -14,7 +15,9 @@ export default function PathNext({ step }: { step: StepKey }) {
     let t: ReturnType<typeof setTimeout> | undefined;
     const on = () => { clearTimeout(t); t = setTimeout(() => setTick((n) => n + 1), 50); };
     window.addEventListener(CONFIRMED_EVENT, on);
-    return () => { clearTimeout(t); window.removeEventListener(CONFIRMED_EVENT, on); };
+    // A step marked done elsewhere on the page ("Mark it done in My plan") moves the plan on too.
+    window.addEventListener(PROGRESS_EVENT, on);
+    return () => { clearTimeout(t); window.removeEventListener(CONFIRMED_EVENT, on); window.removeEventListener(PROGRESS_EVENT, on); };
   }, []);
   if (getMode() === 'guided') {
     const plan = planNow();

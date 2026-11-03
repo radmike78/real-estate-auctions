@@ -320,7 +320,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
       </label>
       {price > 0 && (
         <p className={`calc-verdict ${rentVerdict({ coverageShort: covShort, cashFlow: a.cashFlow, cashOnCash: coc, targetPct: v.targetCocPct, cashShort, exampleRefi, living: livingThere })}`} role="status">
-          <strong>{covShort && a.dscr !== null ? `Income coverage is ${dscrText(a.dscr)}×, under the ${v.minDscr}× minimum. ` : ''}{livingThere && !exampleRefi ? (Math.round(Math.abs(a.cashFlow) / 12) === 0 ? 'The rent you collect about breaks even with every cost.' : a.cashFlow < 0 ? `Living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month, after any rent you collect.` : `The rent you collect would cover every cost, with about ${fmtMoney(Math.round(a.cashFlow / 12))} a month to spare.`) : exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : `Estimated return: ${capText(coc, v.targetCocPct)}% a year on your cash; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.`}</strong>{' '}
+          <strong>{covShort && a.dscr !== null ? `Income coverage is ${dscrText(a.dscr)}×, under your ${v.minDscr}× minimum. ` : ''}{livingThere && !exampleRefi ? (Math.round(Math.abs(a.cashFlow) / 12) === 0 ? 'The rent you collect about breaks even with every cost.' : a.cashFlow < 0 ? `Living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month, after any rent you collect.` : `The rent you collect would cover every cost, with about ${fmtMoney(Math.round(a.cashFlow / 12))} a month to spare.`) : exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : `Estimated return: ${capText(coc, v.targetCocPct)}% a year on your cash; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.`}</strong>{' '}
           {blankRefi && 'No refinance is counted yet: enter the value after repairs to include it. '}
           {cashShort && <>It needs about {fmtMoney(Math.round(needed))} of your cash, more than {limitWords}. </>}
           {exampleRefi ? null : a.cashFlow <= 0
@@ -331,7 +331,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
               ? 'Check each number against evidence before you rely on it.'
             : coc !== null && capMisses(coc, v.targetCocPct)
               ? `Cash flow is positive (about ${fmtMoney(Math.round(a.cashFlow / 12))} a month), but it misses ${targetTyped ? 'your' : 'our example'} target. Investigate whether the price, the costs or the goal should change.`
-              : cashShort ? `The return meets ${targetTyped ? 'your' : 'our example'} target, but the cash it needs doesn’t fit what you have.` : covShort && a.dscr !== null ? `The return meets ${targetTyped ? 'your' : 'our example'} target, but a lender may not approve this loan as entered: a lower price, a smaller loan or a larger down payment would raise the coverage.` : `It meets ${targetTyped ? 'your' : 'our example'} target at this price, based on your numbers. Check each number against evidence before you rely on it.`}
+              : cashShort ? `The return meets ${targetTyped ? 'your' : 'our example'} target, but the cash it needs doesn’t fit what you have.` : covShort && a.dscr !== null ? `The return meets ${targetTyped ? 'your' : 'our example'} target, but the income covers the loan payments by less than your planning minimum: a lower price, a smaller loan or a larger down payment would raise it. Ask your lender how it tests coverage.` : `It meets ${targetTyped ? 'your' : 'our example'} target at this price, based on your numbers. Check each number against evidence before you rely on it.`}
         </p>
       )}
       {price > 0 && cashShort && <p className="small"><button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>{cashTyped ? 'Change your cash' : 'Enter your cash'}</button></p>}
@@ -358,7 +358,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         {!onPrice && a.loan > 0 && <div><dt>Your cash until the refinance closes</dt><dd>{fmtMoney(Math.round(a.allIn))}{cashLimit > 0 && a.allIn > cashLimit && <span className="deal-urgent"> · more than {limitWords}</span>}</dd></div>}
         <div><dt>{!onPrice && a.loan > 0 ? 'Your cash left in after the refinance, if approved' : 'Your cash in the deal'}</dt><dd>{a.cashIn > 0 ? fmtMoney(Math.round(a.cashIn)) : 'None: the loan covers it'}{(onPrice || !(a.loan > 0)) && cashLimit > 0 && a.cashIn > cashLimit && <span className="deal-urgent"> · more than {limitWords}</span>}</dd></div>
         <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : `${capText(a.cashOnCash, v.targetCocPct)}%`}</dd></div>
-        <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{pctText(a.capOnPrice)}</dd></div>
+        <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{capPctText(a.capOnPrice)}</dd></div>
         <div><dt>Cap rate on everything you pay</dt><dd>{capPctText(a.capOnCost)}</dd></div>
         {a.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments</dt><dd>{dscrText(a.dscr)}×{a.dscr < v.minDscr && (livingThere ? <span> · below the {v.minDscr}× an investor’s lender looks for; a home loan you live in is judged mainly on your own income</span> : <span className="deal-urgent"> · below your {v.minDscr}× income-coverage target; check the lender’s separate requirements</span>)}</dd></div>}
       </dl>
@@ -777,7 +777,7 @@ const LIEN_GROUPS: CalcGroup<LienInputs>[] = [
   {
     title: 'Timing',
     fields: [
-      { k: 'monthsToRedeem', label: 'Months until the owner pays', unit: 'mo', hint: 'Most owners redeem.' },
+      { k: 'monthsToRedeem', label: 'Months until the owner pays', unit: 'mo', hint: 'Most owners redeem.*' },
       { k: 'payoutDelayMonths', label: 'Months until you’re paid', unit: 'mo', hint: 'After they redeem; often 1–2.' },
     ],
   },
@@ -795,7 +795,7 @@ const AZ_LIEN_GROUPS: CalcGroup<LienInputs>[] = [
   {
     title: 'Timing',
     fields: [
-      { k: 'monthsToRedeem', label: 'Months until the owner pays', unit: 'mo', hint: 'Most owners redeem.' },
+      { k: 'monthsToRedeem', label: 'Months until the owner pays', unit: 'mo', hint: 'Most owners redeem.*' },
       { k: 'payoutDelayMonths', label: 'Months until you’re paid', unit: 'mo', hint: 'After they redeem.' },
     ],
   },

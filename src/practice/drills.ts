@@ -870,7 +870,7 @@ export const DRILLS: Drill[] = [
           { label: 'A certificate of purchase: a lien that earns interest at my bid rate until the owner pays', good: true, why: 'Right. You can ask a court for a treasurer’s deed only after 3 years, if the lien is still unpaid. Or, if you or the owner ask and the property is likely to sell for more than $2,500 above what’s owed, the court must order an auction instead, and you’re paid in cash (A.R.S. 42-18204).' },
           { label: 'The land', good: false, why: 'At the February sale, the county sells liens, not the property.' },
         ],
-        lesson: 'Most liens are redeemed: plan on interest, not on getting the land.',
+        lesson: 'Most liens are redeemed:* plan on interest, not on getting the land.',
       },
       {
         kind: 'facts',

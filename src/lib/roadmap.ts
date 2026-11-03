@@ -61,7 +61,7 @@ export const ROADMAP_PHASES: Record<RoadmapStep['phase'], string> = {
 export const ROADMAP_PATHS: Record<RoadmapPath, { label: string; hint: string }> = {
   listing: { label: 'Through an agent', hint: 'Listed homes, bank-owned homes and short sales: make an offer, then follow the agreed contract conditions and deadlines. Your right to inspect, cancel or recover a deposit depends on the contract and local law.' },
   auction: { label: 'At an auction', hint: 'Tax, foreclosure, sheriff and IRS sales of the property itself: you research first, then bid, usually with no inside look and no way out after you win.' },
-  certificate: { label: 'Lien certificates', hint: 'You buy a lien that earns interest, not the property. Owners usually pay them off; you own the property only if a court or the law later gives it to you. In Arizona, these are county tax liens. In Nevada, these are special assessment (SID) liens, sold by Clark County, Washoe County and some cities.' },
+  certificate: { label: 'Lien certificates', hint: 'You buy a lien that earns interest, not the property. Owners usually pay them off;* you own the property only if a court or the law later gives it to you. In Arizona, these are county tax liens. In Nevada, these are special assessment (SID) liens, sold by Clark County, Washoe County and some cities.' },
 };
 
 const AGENT: RoadmapPath[] = ['listing'];
@@ -367,7 +367,7 @@ export const ROADMAP: RoadmapStep[] = [
   {
     id: 'c-research', phase: 4, path: LIEN, title: 'Research every parcel',
     evidence: 'title',
-    text: 'Owners usually pay off the lien, but bid only on parcels you’d actually want to own if one isn’t.',
+    text: 'Owners usually pay off the lien,* but bid only on parcels you’d actually want to own if one isn’t.',
     outcome: 'A short list of parcels you’d be willing to own, with notes on each.',
     steps: ['Check each parcel on the county map: access, size, zoning and use.', 'Leave out slivers, drainage strips and land with no access.', 'Check for other liens and special assessments.'],
     stop: 'If you wouldn’t want to own the parcel, don’t bid on it.',
@@ -666,7 +666,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'c-own', phase: 6, path: LIEN, title: 'If you end up owning the property',
-    text: 'Owners usually pay off the lien. If you ever get the deed, you’re an owner: switch to the auction route’s “Own it” steps.',
+    text: 'Owners usually pay off the lien.* If you ever get the deed, you’re an owner: switch to the auction route’s “Own it” steps.',
     outcome: 'A plan for ownership, or a clean record of liens paid off.',
     steps: ['If a lien ends with you getting the deed, get title insurance before spending money on the property.', 'Then follow the “Own it” steps on the auction route.'],
     doneWhen: 'Every lien is paid off and recorded, or you’ve switched to the owner steps.',
@@ -689,7 +689,9 @@ const ROUTE_WORDING: Record<string, Partial<Record<RoadmapPath, Partial<RoadmapS
   },
 };
 
-export const roadmapFor = (path: RoadmapPath, state: StateCode | null = getMyState()) => ROADMAP.filter((s) => (!s.path || s.path.includes(path)) && !(state && s.notIn?.includes(state))).map((s) => (ROUTE_WORDING[s.id]?.[path] ? { ...s, ...ROUTE_WORDING[s.id]![path] } : s));
+export const roadmapFor = (path: RoadmapPath, state: StateCode | null = getMyState()) => ROADMAP.filter((s) => (!s.path || s.path.includes(path)) && !(state && s.notIn?.includes(state))).map((s) => (ROUTE_WORDING[s.id]?.[path] ? { ...s, ...ROUTE_WORDING[s.id]![path] } : s))
+  // Arizona's lien practice is its own tax lien drill (the practice runs follow Nevada).
+  .map((s) => (s.id === 'c-practice' && state === 'AZ' ? { ...s, action: 'Open the Arizona tax lien drill', href: '#/practice/drills/tax-lien-az' } : s));
 
 /** The roadmap for buying through an agent (the default). */
 export const FIRST_DEAL: RoadmapStep[] = roadmapFor('listing');

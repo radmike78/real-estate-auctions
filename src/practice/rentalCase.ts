@@ -362,7 +362,7 @@ const TX: CaseConfig = {
       prompt: `In Texas, what is the most you can take as a security deposit at ${usd(n.rent)} a month rent?`,
       choices: [
         { label: 'Texas law sets no limit. Pick an amount the market accepts, and return it with an itemized list of deductions within 30 days after the tenant moves out.', verdict: 'best', why: 'Texas doesn’t cap deposits, but you must refund them, less itemized deductions for damage beyond normal wear and tear, within 30 days after the tenant leaves (Property Code 92.103, 92.104). The clock waits until the tenant gives you a written forwarding address (Property Code 92.107).' },
-        { label: `${usd(n.rent * 3)}, the legal maximum`, verdict: 'poor', why: 'Texas has no legal maximum; 3 months’ rent is Nevada’s cap. And a very high deposit can cost you good tenants.' },
+        { label: `${usd(n.rent * 3)}, the legal maximum`, verdict: 'poor', why: 'Texas has no legal maximum, and a very high deposit can cost you good tenants.' },
         { label: `${usd(n.rent)}: 1 month’s rent`, verdict: 'ok', why: 'A common choice, and lawful. But it’s your choice, not a limit.' },
       ],
     },
@@ -497,7 +497,7 @@ const CA: CaseConfig = {
       prompt: `In California, you own this one rental in your own name. What is the most you can take as a security deposit at ${usd(n.rent)} a month rent?`,
       choices: [
         { label: `${usd(n.rent * 2)}: 2 months’ rent, because you’re a small landlord (unless the tenant is a service member)`, verdict: 'best', why: 'Since July 1, 2024, most California landlords may take only 1 month’s rent. A landlord who is a person, or an LLC of people, with no more than two rental properties and four units in all may take up to 2 months, but not from a service member (Civil Code 1950.5). Return it, with an itemized statement, within 21 days after the tenant moves out.' },
-        { label: `${usd(n.rent * 3)}: 3 months’ rent`, verdict: 'poor', why: 'That’s over California’s limit. 3 months is Nevada’s cap, not California’s (Civil Code 1950.5).' },
+        { label: `${usd(n.rent * 3)}: 3 months’ rent`, verdict: 'poor', why: 'That’s over California’s limit (Civil Code 1950.5).' },
         { label: `${usd(n.rent)}: 1 month’s rent`, verdict: 'ok', why: 'Lawful, and the limit for most California landlords. As a small landlord you could take more, but you don’t have to.' },
       ],
     },
@@ -612,7 +612,7 @@ const AZ: CaseConfig = {
       prompt: `In Arizona, what is the most you can take as a security deposit at ${usd(n.rent)} a month rent?`,
       choices: [
         { label: `${usd(n.rent * 1.5)}: 1½ months’ rent`, verdict: 'best', why: 'Arizona caps it at 1½ months’ rent, unless the tenant chooses to pay more rent in advance (A.R.S. 33-1321). Return it, with an itemized list of deductions, within 14 days, not counting weekends and holidays, after the tenancy ends, the tenant moves out and asks for it.' },
-        { label: `${usd(n.rent * 3)}: 3 months’ rent`, verdict: 'poor', why: 'That’s over Arizona’s limit. 3 months is Nevada’s cap, not Arizona’s (A.R.S. 33-1321).' },
+        { label: `${usd(n.rent * 3)}: 3 months’ rent`, verdict: 'poor', why: 'That’s over Arizona’s limit (A.R.S. 33-1321).' },
         { label: `${usd(n.rent)}: 1 month’s rent`, verdict: 'ok', why: 'A common choice, and lawful. But it’s your choice, not the limit.' },
       ],
     },
@@ -720,7 +720,7 @@ const UT: CaseConfig = {
       prompt: `In Utah, what is the most you can take as a security deposit at ${usd(n.rent)} a month rent?`,
       choices: [
         { label: 'Utah law sets no limit. Pick an amount the market accepts, and return what’s left with a written list of deductions within 30 days after the tenant moves out.', verdict: 'best', why: 'Utah doesn’t cap deposits. Within 30 days after the tenant moves out and returns possession, send what’s left of it with a written list of deductions (Utah Code 57-17-3).' },
-        { label: `${usd(n.rent * 3)}, the legal maximum`, verdict: 'poor', why: 'Utah has no legal maximum; 3 months’ rent is Nevada’s cap. And a very high deposit can cost you good tenants.' },
+        { label: `${usd(n.rent * 3)}, the legal maximum`, verdict: 'poor', why: 'Utah has no legal maximum, and a very high deposit can cost you good tenants.' },
         { label: `${usd(n.rent)}: 1 month’s rent`, verdict: 'ok', why: 'A common choice, and lawful. But it’s your choice, not a limit.' },
       ],
     },

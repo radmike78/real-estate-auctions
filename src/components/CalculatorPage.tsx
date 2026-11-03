@@ -47,7 +47,8 @@ function BeforeYouCommit({ plan, state, saleKind }: { plan?: string; state?: Sta
         <li><strong>Who lives there,</strong> and the court process to get possession.</li>
         <li><strong>Insurance from the day it’s yours.</strong> <a href="#/learn/analyze">What to ask</a></li>
         <li><strong>Your tax bill, not the last owner’s.</strong> It can change when you buy or rent it out. <a href={`#/learn/analyze?section=your-tax-bill-after-you-buy${state ? `&state=${state}` : ''}`}>{name ? `${name} property tax rules` : 'Property tax rules by state'}</a></li>
-        {renting && <li><strong>The rules for renting it:</strong> HOA limits, short-term rental rules and local rent rules.</li>}
+        {renting && plan === 'commercial' && <li><strong>The rules for leasing it:</strong> zoning and permitted uses, and the existing leases and their terms.</li>}
+        {renting && plan !== 'commercial' && <li><strong>The rules for renting it:</strong> HOA limits, short-term rental rules and local rent rules.</li>}
         <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor and financial advisor before you bid.</li>
       </ul>
       <p className="muted small">Can’t check one yet? Get the answer before you bid.</p>
@@ -73,7 +74,8 @@ function BeforeYouCommit({ plan, state, saleKind }: { plan?: string; state?: Sta
         <li><strong>Your tax bill, not the seller’s.</strong> It can change when you buy or rent it out. <a href={`#/learn/analyze?section=your-tax-bill-after-you-buy${state ? `&state=${state}` : ''}`}>{name ? `${name} property tax rules` : 'Property tax rules by state'}</a></li>
         <li><strong>A written insurance quote</strong> for how you’ll use it, including while it’s empty. <a href="#/learn/analyze">What to ask</a></li>
         <li><strong>A reserve cushion after closing and repairs.</strong> Plan for vacancies and unexpected costs, and confirm any reserve requirement with your lender.</li>
-        {renting && <li><strong>The rules for renting it:</strong> HOA limits, short-term rental rules and local rent rules.</li>}
+        {renting && plan === 'commercial' && <li><strong>The rules for leasing it:</strong> zoning and permitted uses, and the existing leases and their terms.</li>}
+        {renting && plan !== 'commercial' && <li><strong>The rules for renting it:</strong> HOA limits, short-term rental rules and local rent rules.</li>}
         <li><strong>Wire instructions confirmed by phone</strong> with your title or escrow company, using a number you looked up yourself. <a href="#/learn/negotiate">Why</a></li>
         <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor, agent and financial advisor before you bid, buy or borrow.</li>
       </ul>

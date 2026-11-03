@@ -640,7 +640,7 @@ export const STATE_GUIDES: Playbook[] = [
   mistakes: [
     {
       mistake: "Treating the certificate as a way to get cheap property",
-      prevent: "Owners usually pay off these liens. Plan for interest income. Bid only on parcels you would actually want to own."
+      prevent: "Owners usually pay off these liens.* Plan for interest income. Bid only on parcels you would actually want to own."
     },
     {
       mistake: "Bidding on a parcel you never researched",
