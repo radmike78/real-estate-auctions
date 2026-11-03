@@ -136,7 +136,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
         {ownPractice ? <>
         {otherState && <>
         <h2 id="practice-auction" className="practice-step">Practice part 2: {ownPractice.id === 'c-practice' && mine === 'AZ' ? 'the Arizona tax lien drill' : `auction drills for ${stateByCode(mine!)?.name ?? 'your state'}`}</h2>
-        <p className="practice-step-intro">Practice runs follow Nevada rules, so your part 2 is the drills for your own state’s sales, below. <a className="btn" href={ownPractice.href}>Open {ownPractice.id === 'c-practice' && mine === 'AZ' ? 'the tax lien drill' : 'the auction drills'} →</a></p>
+        <p className="practice-step-intro">Practice runs follow Nevada rules, so your part 2 is the drills for your own state’s sales, below. <a className="btn" href={ownPractice.id === 'c-practice' && mine === 'AZ' ? '#/practice/drills/tax-lien-az' : ownPractice.href}>Open {ownPractice.id === 'c-practice' && mine === 'AZ' ? 'the tax lien drill' : 'the auction drills'} →</a></p>
         </>}
         {!otherState && <>
         <h2 id="practice-auction" className="practice-step">{ownPractice ? (planPath() === 'certificate' ? 'Practice part 2: Nevada auction and lien practice' : 'Practice part 2: Nevada auction practice') : 'Nevada auction practice: choose a kind of sale'}</h2>

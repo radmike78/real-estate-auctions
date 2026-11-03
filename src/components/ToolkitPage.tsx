@@ -231,8 +231,7 @@ export function FirstDealRoadmap() {
   // stage when they're changed at the top of My plan.
   const [, setTick] = useState(0);
   useEffect(() => {
-    // A change elsewhere on My plan (the cash worksheet, Your area) can finish a step: credit it now, not next visit.
-    const on = () => { setTick((n) => n + 1); syncRoadmapCredits(); };
+    const on = () => setTick((n) => n + 1);
     const reload = () => {
       setDone(roadmapDone());
       setStatusMap(read(STATUS_KEY, {}, cleanStatus));

@@ -55,3 +55,14 @@ describe('steps ticked for you', () => {
     expect(roadmapDone()).toContain('market');
   });
 });
+
+describe('returns shown and tested the same way', () => {
+  it('a figure that reads as the target meets it, and a tiny loss reads 0.0%', async () => {
+    const { capMisses, capText } = await import('./holdCalc');
+    expect(capText(0.0799999999, 8)).toBe('8.0');
+    expect(capMisses(0.0799999999, 8)).toBe(false);
+    expect(capMisses(0.0799, 8)).toBe(true);
+    expect(capText(-0.0004)).toBe('0.0');
+    expect(capText(-0.0123)).toBe('-1.2');
+  });
+});
