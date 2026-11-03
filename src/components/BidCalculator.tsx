@@ -244,6 +244,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     }
   };
   const dropTypedWait = useRef(false);
+  const droppedWait = useRef<number | null>(null);
+  const [waitCleared, setWaitCleared] = useState<number | null>(null);
   // The listing's opening bid is the starting point (older saved inputs didn't have it).
   const [i, setI] = useState<BidInputs>(() => {
     let v0 = load(storeId, propertyId ? defaults : { ...defaults, transferTaxPer500: tax.per500 });
@@ -269,6 +271,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       const own = cur === 'custom' && typedWait;
       if ((!choices.keys.includes(cur) && !own) || fresh) {
         const r0 = rules[pickedHere ?? choices.start];
+        if (cur === 'custom') droppedWait.current = Math.round(nz(v.redemptionMonths));
         v = { ...v, redemptionMonths: r0.months, redemptionRatePct: r0.ratePct, redemptionDaily: r0.daily, redemptionFlat: r0.flat, redemptionFlat2Pct: r0.flat2Pct, redemptionChecked: 0 };
         save(v);
         // The numbers you typed for another kind of sale are gone now: so is their "typed" mark (after mount, below).
@@ -285,6 +288,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   useEffect(() => {
     if (!dropTypedWait.current) return;
     dropTypedWait.current = false;
+    setWaitCleared(droppedWait.current);
     setTypedKeys((t) => {
       const next = new Set([...t].filter((x) => x !== 'redemptionMonths' && x !== 'redemptionRatePct' && !/^rulePick_.*_custom$/.test(x)));
       try {
@@ -525,6 +529,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
 
       <div className="calc-results" id={`${uid}-results`}>
         <p className="small muted">Profit estimates are before income tax. Review taxes on a sale with your tax adviser.</p>
+        {/* Your own typed wait was for another kind of sale: it's cleared, and you're told (it changes the walk-away). */}
+        {waitCleared !== null && <p className="note" role="status">Your typed redemption wait{waitCleared > 0 ? ` (${waitCleared} month${waitCleared === 1 ? '' : 's'})` : ''} was for another kind of sale, so it was cleared and this sale’s rule is used. Type it again under Holding and financing (Detailed) if it applies here. <button type="button" className="linkish" onClick={() => setWaitCleared(null)}>Dismiss</button></p>}
         {unconfirmed && (
           <div className="caution calc-unconfirmed">
             <strong>Redemption rule not confirmed.</strong> {ruleNow === choices?.start ? choices?.confirm : (choices?.confirm ?? '').replace(/ ?This calculator starts with [^.]*\. ?/, ' ').trim()} Your walk-away price now uses{' '}

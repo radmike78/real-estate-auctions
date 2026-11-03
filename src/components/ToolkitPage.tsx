@@ -26,7 +26,7 @@ import { cleanDealSteps, DEAL_KEY, DEAL_STEPS_KEY, type DealSteps } from '../lib
 import { cleanStatus, creditStep, dealScoped, focusDealId, NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_KEY, ROADMAP_PATH_KEY, roadmapDone, roadmapPath, roadmapProgress, STATUS_KEY } from '../lib/roadmapState';
 import { stageLabel, stageOf, stageOfStep, STAGE_STEPS, DEAL_STAGES } from '../lib/dealStage';
 import PlanNext from './PlanNext';
-import { planNow, practiceState } from '../lib/planNext';
+import { planNow, practiceLienDeal, practiceState } from '../lib/planNext';
 import { cashForPrice, cleanGoal, investorProfile, cleanTeamList, GOAL_KEY, PLAN_EVENT, PRICE_DEFAULTS, priceForCash, TEAM_LIST_KEY, TEAM_ROLES, type PriceAssumptions, type TeamList, type TeamMember } from '../lib/myPlan';
 import { currentProgress } from '../lib/journey';
 import { DECIDE_KEY, QUESTIONS, rank, type Answers } from '../lib/decide';
@@ -701,7 +701,10 @@ function BuyBoxBuilder() {
   const flip = b.strategy === 'Fix and flip';
   const bidPrice = flip || b.strategy === 'Tax and foreclosure auctions';
   // Lien certificates only where they're sold (Arizona and Nevada), unless already chosen.
-  const strategies = STRATEGY_OPTIONS.filter((s) => s !== LIEN_STRATEGY || lien || liensSoldIn(b.state || mine));
+  // Lien certificates are offered where liens are sold, and for the Nevada or Arizona lien deal your plan is built
+  // around (your own state may sell none).
+  const lienDeal = practiceLienDeal();
+  const strategies = STRATEGY_OPTIONS.filter((s) => s !== LIEN_STRATEGY || lien || liensSoldIn(b.state || mine) || !!lienDeal);
   return (
     <section id="buy-box" aria-labelledby="buybox-head">
       <h2 id="buybox-head">Your buy box: what you’re looking for</h2>
@@ -762,6 +765,7 @@ function BuyBoxBuilder() {
           </>
         )}
       </div>
+      {lien && lienDeal && !liensSoldIn(b.state || mine) && <p className="note" role="note">Your lien deal is in {stateByCode(lienDeal.state)?.name ?? lienDeal.state}, where lien certificates are sold: set this buy box’s State to {stateByCode(lienDeal.state)?.name ?? lienDeal.state} so its limits fit that sale.</p>}
       {lien && <p className="muted">A lien certificate isn’t the property: there’s no rent and nothing to repair. Your buy box is the parcels you’ll bid on, what you’ll pay, and how long your money can wait. Property types and deal breakers below describe the land behind each lien.</p>}
       {!b.strategy && suggested && <p className="roadmap-has">Decide suggested: <strong>{suggested}</strong>. <button type="button" className="linkish" onClick={() => set('strategy', suggested)}>Use it</button></p>}
       {!lien && b.priceMax > 0 && b.cashMax > 0 && cashForPrice(b.priceMax, pa).total > b.cashMax && (

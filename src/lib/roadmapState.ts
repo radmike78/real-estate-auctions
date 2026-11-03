@@ -3,6 +3,7 @@ import { workStorage as localStorage } from './workStorage';
 // property being worked on. Read here so the roadmap, the home page and My plan's next step all count the same way.
 import { loadDeals, type Deal } from './analyze';
 import { getMyState } from './myState';
+import { DECIDE_KEY, rank, type Answers } from './decide';
 import { ROADMAP, roadmapFor, type RoadmapPath, type RoadmapStep, type StepStatus } from './roadmap';
 import { cleanDealSteps, DEAL_ID, DEAL_KEY, DEAL_STEPS_KEY } from './roadmapDeals';
 
@@ -140,7 +141,20 @@ function planPathRaw(d: Deal | undefined, deals: Deal[]): RoadmapPath {
   // No property in focus and no route picked (a state without lien sales offers no lien route button): the lien
   // deal you passed on keeps the lien route.
   const lien = !picked ? lienDealFor(deals) : null;
-  return lien ? 'certificate' : roadmapPath();
+  if (lien) return 'certificate';
+  // Nothing picked yet: Decide's top strategy decides when it's auctions (so its practice part 2 is the auction one).
+  return !picked && decideRoute() === 'auction' ? 'auction' : roadmapPath();
+}
+
+/** The route of Decide's top strategy, when it's auctions (the other strategies follow the agent route). */
+function decideRoute(): RoadmapPath | null {
+  try {
+    const answers = (JSON.parse(localStorage.getItem(DECIDE_KEY) ?? 'null') as { answers?: Answers } | null)?.answers;
+    if (!answers || !answers.goal) return null;
+    return rank(answers)[0]?.strategy.key === 'auction' ? 'auction' : null;
+  } catch {
+    return null;
+  }
 }
 
 /** Roadmap progress kept for one property (steps 4 to 7). */

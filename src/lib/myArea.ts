@@ -31,6 +31,9 @@ function read(): Area | null {
   }
 }
 
+/** The area last saved, whatever the visitor's state is now (it can differ after Analyze's State field changed it). */
+export const storedArea = (): Area | null => read();
+
 /** The chosen area, or null. A city counts only while its state is still the visitor's state. */
 export function getMyArea(): Area | null {
   const state = getMyState();

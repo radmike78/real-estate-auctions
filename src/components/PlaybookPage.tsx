@@ -288,7 +288,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       />
       {forLienDeal && (
         <p className="other-state-guide" role="note">
-          This guide follows {stateByCode(stateOf(p))?.name ?? ''} law, for the {stateByCode(stateOf(p))?.name ?? ''} lien deal you’re working on. Your chosen state is {stateByCode(mine!)?.name ?? mine}.
+          This guide follows {stateByCode(stateOf(p))?.name ?? ''} law, for the {stateByCode(stateOf(p))?.name ?? ''} lien deal you saved. Your chosen state is {stateByCode(mine!)?.name ?? mine}.
         </p>
       )}
       {mineGuide && mineGuide.key !== p.key && (

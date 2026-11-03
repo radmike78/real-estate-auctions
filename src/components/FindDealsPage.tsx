@@ -1,4 +1,5 @@
 import { planPath } from '../lib/roadmapState';
+import { practiceLienDeal } from '../lib/planNext';
 import { findDealsAllowsAds } from '../lib/contextAds';
 import { guideKeyFor } from '../lib/dealPacket';
 import { useState, type ReactNode } from 'react';
@@ -124,6 +125,22 @@ export default function FindDealsPage() {
       </PageHero>
 
       <NarrowDown config={findDealsConfig()} intro="Answer two quick questions and we’ll point you to the best places to look first. Other sources stay available in the expandable groups below." />
+      {(() => {
+        // Your lien route comes from a Nevada or Arizona lien deal while these sources are for another state: say where
+        // that deal's lien sales are, so "Find your next lien sale" doesn't end here.
+        const ld = practiceLienDeal();
+        if (!ld || ld.state === area.state) return null;
+        const o = COUNTY_OFFICES[countyKey(ld.state, ld.county)];
+        const page = ld.state === 'NV' ? o?.specialAssessment ?? o?.treasurer : o?.taxSale;
+        const nm = stateByCode(ld.state)?.name ?? ld.state;
+        return (
+          <OwlNote>
+            Your saved lien deal is in {countyName(ld.county)}, {nm}, where lien certificates are sold. The sources below are for {place}.{' '}
+            {page && <><a href={page.url} target="_blank" rel="noopener noreferrer">{countyName(ld.county)}’s lien sale page ↗</a> · </>}
+            <a href={`#/playbooks/${ld.state === 'NV' ? 'sid' : 'aztaxlien'}`}>The {nm} lien guide →</a>
+          </OwlNote>
+        );
+      })()}
       {countyRoute ? <p className="page-starter"><strong>{lienRoute ? 'Buying lien certificates?' : 'Buying at a county sale?'}</strong> Start with the county {lienRoute ? 'lien sales' : 'auctions'} and sale calendars below: they come from the official seller. <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p> : <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box (your written limits: area, property type, price and condition). <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>}
       {/* Trustee's (foreclosure) sales: where their notices are, after the general starting point. */}
       {planPath() === 'auction' && <p className="page-starter"><strong>A trustee’s (foreclosure) sale?</strong> The trustee runs it, not the county. Find its notice of sale (it names the trustee, date and place) at the county records office or clerk below, or in a local paper’s legal notices, and confirm the date with the trustee. <a href={`#/playbooks/${guideKeyFor({ kind: 'trustee', state: st.code })}`}>How trustee sales work in {st.name}&nbsp;→</a></p>}

@@ -2,7 +2,7 @@
 // which county. Saves to the visitor's area (myArea.ts), which the rest of the site follows.
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { areaLabel, areaLong, useMyArea, type Area } from '../lib/myArea';
+import { areaLabel, areaLong, storedArea, useMyArea, type Area } from '../lib/myArea';
 import { loadPlaces, matchPlaces, type Place } from '../lib/places';
 import { STATES, countyName, type StateCode } from '../lib/regions';
 import { useModal } from '../lib/useModal';
@@ -23,8 +23,12 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
 
   useEffect(() => {
     if (!state) return;
+    // The area saved for this state: the current one, or the one kept from before the site's state was changed
+    // elsewhere (Analyze's State field changes the state but leaves the saved area).
+    const kept = storedArea();
+    const saved = area?.state === state ? area : kept?.state === state ? kept : null;
     // Back on the saved state: its county-only choice comes back at once (the city, if any, once the list loads).
-    if (area?.state === state && !area.city) setCountyOnly(area.county);
+    if (saved && !saved.city) setCountyOnly(saved.county);
     let alive = true;
     setPlaces(null);
     loadPlaces(state).then((p) => {
@@ -32,10 +36,10 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
       setPlaces(p);
       // The saved city, if it's still on the list: the box, the pick and its county together (also on coming back to
       // this state after looking at another).
-      if (area?.state === state && area.city) {
-        const pk = p.find((x) => x.name === area.city && (!area.county || x.counties.includes(area.county))) ?? null;
+      if (saved?.city) {
+        const pk = p.find((x) => x.name === saved.city && (!saved.county || x.counties.includes(saved.county))) ?? null;
         setPicked(pk);
-        if (pk) { setTyped(pk.name); setCounty(area.county); }
+        if (pk) { setTyped(pk.name); setCounty(saved.county); }
       }
     });
     return () => {

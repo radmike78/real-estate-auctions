@@ -122,7 +122,7 @@ export const ROADMAP: RoadmapStep[] = [
     id: 'market', phase: 2, title: 'Pick a county and how you’ll buy',
     text: 'Choose where you’ll buy, and exactly what kind of sale. A deed, a lien certificate and an offer through an agent are different purchases with different rules.',
     outcome: 'A state, a county, the kind of sale, and what you’d actually get (a deed, a certificate, or a contract to buy).',
-    steps: ['Choose your state and county. Buying a listed or bank-owned home through an agent? Read “Making an offer and closing”. At an auction or a lien sale? Read your state’s sale guide for that kind of sale.', 'Choose your route at the top of this roadmap: through an agent, at an auction, or lien certificates.', 'You’ll look at real properties in Find deals later, after practice and lining up your team.'],
+    steps: ['Choose your state and county. Buying a listed or bank-owned home through an agent? Read “Making an offer and closing”. At an auction or a lien sale? Read your state’s sale guide for that kind of sale.', 'Choose your route at the top of this roadmap: through an agent, at an auction, or, where your state sells them, lien certificates.', 'You’ll look at real properties in Find deals later, after practice and lining up your team.'],
     doneWhen: 'You know your county, the kind of sale, and what you’d get if you buy.',
     action: 'Sale guides: every way to buy', href: '#/playbooks',
   },

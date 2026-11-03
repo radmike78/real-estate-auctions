@@ -82,7 +82,7 @@ export default function PracticeStateNote({ sale }: { sale: SaleKey }) {
     const page = washoe ? COUNTY_OFFICES['NV/Washoe']?.specialAssessment?.url : undefined;
     return (
       <div className="notice practice-state-note" role="note">
-        <strong>This practice is for the Nevada lien deal you’re working on.</strong> It uses Nevada (Clark County) rules. Special improvement district (SID) lien certificates are sold only in Nevada, so {name}’s own sales work differently: see the <a href="#/playbooks">sale guides for {name}</a> before a deal there.
+        <strong>This practice is for the Nevada lien deal you saved.</strong> It uses Nevada (Clark County) rules for special improvement district (SID) lien certificates. {name}’s own sales work differently: see the <a href="#/playbooks">sale guides for {name}</a> before a deal there.
         {washoe && <> Your deal is in Washoe County, which runs its own SID sale: its pages describe buyers chosen by a show of hands (numbers drawn if several want a parcel) or a random number program, with payment due by 10:00 a.m. the next day; confirm it in the sale notice.* {page && <a href={page} target="_blank" rel="noopener noreferrer">Washoe County’s SID sale page ↗</a>}</>}
       </div>
     );
@@ -90,10 +90,10 @@ export default function PracticeStateNote({ sale }: { sale: SaleKey }) {
   if (sale === 'sid') {
     return (
       <div className="notice practice-state-note" role="note">
-        <strong>This sale exists only in Nevada.</strong> Special improvement district (SID) lien certificates are sold in Nevada (Clark and Washoe counties and some cities).{' '}
+        <strong>This practice uses Nevada’s SID lien sale.</strong> Special improvement district (SID) lien certificates are sold in Nevada (Clark and Washoe counties and some cities).{' '}
         {st === 'AZ'
-          ? <>Arizona has no SID lien sale, but its county tax lien certificates work in a similar way: you buy a lien that earns interest, not the property. See the <a href="#/playbooks/aztaxlien">Arizona tax lien guide</a>.</>
-          : <>{name} doesn’t sell anything like them; see the <a href="#/playbooks">sale guides for {name}</a> instead.</>}
+          ? <>Arizona law also provides for sales of improvement district assessment liens, with a certificate of sale (A.R.S. 48-529), but we haven’t found a current one to point you to.* Arizona’s county tax lien certificates work in a similar way: you buy a lien that earns interest, not the property. See the <a href="#/playbooks/aztaxlien">Arizona tax lien guide</a>.</>
+          : <>{name}’s own sales work differently; see the <a href="#/playbooks">sale guides for {name}</a> instead.</>}
       </div>
     );
   }

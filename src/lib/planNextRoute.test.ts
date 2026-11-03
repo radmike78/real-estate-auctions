@@ -92,4 +92,15 @@ describe('practice part 2 follows your route', () => {
     expect(planPath()).toBe('auction');
     expect(practiceState()).toBe('UT');
   });
+
+  it('follows Decide’s top strategy for the route until one is picked', async () => {
+    const { planNow } = await import('./planNext');
+    const { planPath } = await import('./roadmapState');
+    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { ready: 'ready', goal: 'income', cash: '10to50', borrow: 'cash', time: 'parttime', hands: 'diy', risk: 'high', market: 'com' } }));
+    expect(planPath()).toBe('auction');
+    expect(planNow(new Date('2026-11-03T12:00:00Z')).context).toBe('Step 3 · Practice part 2: Finish a practice auction');
+    // A route you pick wins.
+    localStorage.setItem('deedowl.roadmap.path.v1', JSON.stringify('listing'));
+    expect(planPath()).toBe('listing');
+  });
 });

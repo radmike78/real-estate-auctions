@@ -150,6 +150,8 @@ const linkPlan = (d: Deal, plan?: Plan): Deal => (plan && plansFor(d.kind).inclu
 
 /** The kept-draft note read this page load (see keptNote below). */
 let keptNoteOnce = '';
+/** The saved lien deal a lien calculator link opened this load (see lienLinked below). */
+let lienLinkOpened = '';
 
 export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: Prefill } = {}) {
   useMarkStep('analyze');
@@ -205,7 +207,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           keptNoteOnce = kept; setTimeout(() => { keptNoteOnce = ''; }, 1500); setTimeout(() => setKeptNote(kept), 0);
         }
         try { localStorage.setItem(CURRENT_KEY, JSON.stringify(ld)); localStorage.setItem(OPENED_KEY, JSON.stringify(ld.id)); } catch { /* storage unavailable */ }
-      }
+        lienLinkOpened = ld.id;
+      } else lienLinkOpened = '';
       const cur = loadCurrent(mine ?? 'NV');
       if (deletedOnLoad) { const n = deletedNote; setTimeout(() => setKeptNote(n), 0); }
       // The working deal is in another state than the one now chosen: keep it in My deals before starting fresh.
@@ -219,6 +222,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     keepUnsaved();
     return linkPlan(fromListing(prefill), plan);
   });
+  // Opened by a lien calculator link (a practice step's): it's your saved deal, so numbers tried here change it.
+  const [lienLinked] = useState(() => lienLinkOpened);
   // A property opened from a DeedOwl listing arrives filled in; the address then goes back to plain /analyze.
   useEffect(() => {
     if (!prefill) return;
@@ -363,6 +368,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           <p className="note" role="status">This is your practice analysis “{deal.name}”. Changes here update it in My deals, and it stays a practice analysis. Found a real property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button></p>
         )}
         <p className="muted">Found a property on an official list, a listing site or from your agent? Enter it here. You’ll get the checklist for that kind of sale in that county, and the calculator for your plan. Save it to come back to it in My deals.</p>
+        {lienLinked && deal.id === lienLinked && <p className="notice" role="note"><strong>This is your saved lien deal “{deal.name}”.</strong> Numbers you try in its lien calculator change it in My deals and its packet. To try practice payoffs (paid in 6 months, in 2 years), note its own numbers first and put them back afterward.</p>}
         {/* The State here is also your investing state for the whole site: say so when it changes it. */}
         {stateMoved && mine && stateMoved !== mine && <p className="notice" role="status">Your investing state for the whole site is now {stateByCode(mine)?.name ?? mine}, so guides, practice and Find deals follow {stateByCode(mine)?.name ?? mine}. (The State here sets it.) Choosing {stateByCode(stateMoved)?.name ?? stateMoved} here again changes it back.</p>}
         <div className="deal-fields">

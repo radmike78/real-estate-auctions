@@ -10,7 +10,7 @@ import { FeaturedAds, RotatingAd } from './AdBoxes';
 import { AreaLine } from './AreaPicker';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPercent, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
-import { guidesFor } from '../lib/playbooks';
+import { guidesFor, stateOf } from '../lib/playbooks';
 import { CURRENT_KEY, type Deal } from '../lib/analyze';
 import { COMMERCIAL_OFFER_ROLES, guideKeyFor } from '../lib/dealPacket';
 import { STATES, stateByCode, type StateCode } from '../lib/regions';
@@ -385,6 +385,10 @@ export default function FindAProPage({ section }: { section?: string }) {
                 {book ? <>{book.short}{/commercial$/.test(book.key) ? ' at a forced sale' : ''}: the team, in the order you’ll usually need them.</> : sale === 'commercial-offer' ? <>For a commercial building you buy through a broker or from a bank, in the order you’ll usually need them. Commercial deals vary; your broker and attorney can say who else this one needs.</> : <>For a home listed for sale, the way most first rentals are bought, in the order you’ll usually need them.</>}{' '}
                 {book ? <a href={`#/playbooks/${book.key}`}>Read the guide: {book.short}{NBSP}→</a> : sale === 'commercial-offer' ? <a href="#/learn/strategies/apartments-and-commercial">Read about apartments and commercial property{NBSP}→</a> : <a href="#/practice/case">Practice a listed purchase, start to finish{NBSP}→</a>}
               </p>
+              {/* The lien team for a Nevada or Arizona lien deal while your own state is another: that state's law applies. */}
+              {book && mine && !guidesFor(mine).includes(book) && (
+                <p className="note" role="note">This deal is in {stateByCode(stateOf(book))?.name ?? stateOf(book)}, so {stateByCode(stateOf(book))?.name ?? stateOf(book)} law applies (where the list says “your state”). Look for professionals licensed in {stateByCode(stateOf(book))?.name ?? stateOf(book)}, an attorney especially; the ones shown advertise in your own area.</p>
+              )}
               <TeamList team={team} />
             </>
           )}
