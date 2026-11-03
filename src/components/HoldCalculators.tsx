@@ -202,7 +202,7 @@ function HoldResults({ coverageQuiet = false, dscrTyped = true, r, title, target
         </dl>
       )}
       {r.dscr !== null && !r.loanOk && minDscr > 0 && !r.noBidWorks && !coverageQuiet && (
-        <p className="calc-note small">{Number(dscrText(r.dscr)) >= minDscr ? `The unrounded income coverage is below ${dscrTyped ? 'your' : 'our example'} ${minDscr}× minimum, even if the displayed ratio rounds to it.` : `Income coverage is under ${dscrTyped ? 'your' : 'our example'} ${minDscr}× minimum at the walk-away price.`} {offer ? 'A lower price or a smaller loan raises it' : 'A smaller refinance raises it; a lower bid doesn’t'}; ask your lender for its own calculation.</p>
+        <p className="calc-note small">{Number(dscrText(r.dscr)) >= minDscr ? `The unrounded income coverage is below ${dscrTyped ? 'your' : 'our example'} ${minDscr}× minimum, even if the displayed ratio rounds to it.` : `Income coverage is under ${dscrTyped ? 'your' : 'our example'} ${minDscr}× minimum at the walk-away price.`} {offer ? 'A lower price, a smaller loan or a larger down payment would raise it.' : 'A smaller refinance (a lower Loan %) would raise it; a lower bid doesn’t, since the refinance is sized on the value.'} Ask your lender how it tests coverage.</p>
       )}
       <p className="muted small">{noiNote} An estimate to help you set a limit {offer ? 'before you make an offer' : 'before the sale'}, not advice.</p>
     </section>
@@ -328,7 +328,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
           {exampleRefi ? null : a.cashFlow <= 0
             ? livingThere
               ? 'Compare that monthly cost with what you pay to live where you are now.'
-              : `It loses about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month after every cost. Investigate whether the price, the costs or your plan should change, or walk away.`
+              : `It loses about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month after every cost. ${!onPrice && a.loan > 0 ? 'Investigate whether the refinance, the costs or your plan should change (a lower bid doesn’t change the refinance payment), or walk away.' : 'Investigate whether the price, the costs or your plan should change, or walk away.'}`
             : livingThere
               ? 'Check each number against evidence before you rely on it.'
             : coc !== null && capMisses(coc, v.targetCocPct)
