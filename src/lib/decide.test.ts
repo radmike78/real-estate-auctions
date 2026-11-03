@@ -63,6 +63,7 @@ it('marks the strategy that serves the reader’s goal, even when it ranks lower
 it('gives Clark County’s SID note only to Clark County (or no county) readers', () => {
   expect(stateNote('auction', 'NV', 'Clark')).toMatch(/Clark County/);
   expect(stateNote('auction', 'NV', null)).toMatch(/Clark County/);
-  expect(stateNote('auction', 'NV', 'Washoe')).not.toMatch(/Clark/);
+  expect(stateNote('auction', 'NV', 'Washoe')).not.toMatch(/SID|special assessment \(SID\)/);
+  expect(stateNote('auction', 'NV', 'Washoe')).toMatch(/In your county/);
   expect(stateNote('passive', 'NV', 'Washoe')).toBeNull();
 });

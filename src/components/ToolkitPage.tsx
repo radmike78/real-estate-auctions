@@ -663,7 +663,7 @@ function BuyBoxBuilder() {
         </label>
         {lien ? (
           <>
-            {money('priceMax', 'Most for one certificate ($)', b.state === 'AZ' ? 'The lien amount (Arizona bids the interest rate, not a premium).' : 'The lien amount plus any premium you’d bid.')}
+            {money('priceMax', 'Most for one certificate ($)', b.state === 'AZ' ? 'The lien amount (Arizona bids the interest rate, not a premium).' : b.state === 'NV' ? 'The certificate’s price (Clark County picks buyers by a random drawing, not by bidding).' : 'The lien amount plus any premium you’d bid.')}
             {money('cashMax', 'Cash you’ll tie up, all in ($)', 'Every certificate, plus later taxes or assessments you may pay to protect them. Money you won’t need for years.')}
           </>
         ) : (

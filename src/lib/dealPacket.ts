@@ -170,9 +170,9 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   if (d.plan === 'commercial' && isOffer(d)) return [
     ...names(['Contract signed', 'Earnest money due', 'Feasibility (due-diligence) period ends', 'Title and survey objections due', ...(d.kind === 'short' ? ['Lienholder approval deadline (from the short sale addendum)'] : []), 'Loan approval deadline', 'Closing']),
   ];
-  if (d.kind === 'short') return [...names(['Contract signed']), ...(tx ? TX_DEPOSIT_DATES : []), ...names(['Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)']), ...(tx ? [TX_SHORT_OPTION_END, txDisclosureDate(true), txHoaDate(true), TX_TITLE_DATE, txWaterDate(true), txAppraisalDate(true), ...txLoanDates(true)] : names(['Inspection period ends', 'Loan approval deadline'])), ...names(['Closing'])];
   // Utah's state-approved purchase contract (REPC, section 24) has its own named deadlines.
-  if (isOffer(d) && d.state === 'UT') return names(['Acceptance (Day 0)', 'Earnest Money Deposit due (4 calendar days after Acceptance, unless the contract says otherwise)', 'Seller Disclosure Deadline', 'Due Diligence Deadline', 'Financing & Appraisal Deadline', 'Settlement Deadline', ...(d.kind === 'reo' ? ['Any dates the bank’s addendum changes (it can replace the REPC’s)'] : [])]);
+  if (isOffer(d) && d.state === 'UT') return names([...(d.kind === 'short' ? ['Lienholder approval deadline (from the short sale addendum)'] : []), 'Acceptance (Day 0)', 'Earnest Money Deposit due (4 calendar days after Acceptance, unless the contract says otherwise)', 'Seller Disclosure Deadline', 'Due Diligence Deadline', 'Financing & Appraisal Deadline', 'Settlement Deadline', ...(d.kind === 'reo' ? ['Any dates the bank’s addendum changes (it can replace the REPC’s)'] : [])]);
+  if (d.kind === 'short') return [...names(['Contract signed']), ...(tx ? TX_DEPOSIT_DATES : []), ...names(['Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)']), ...(tx ? [TX_SHORT_OPTION_END, txDisclosureDate(true), txHoaDate(true), TX_TITLE_DATE, txWaterDate(true), txAppraisalDate(true), ...txLoanDates(true)] : names(['Inspection period ends', 'Loan approval deadline'])), ...names(['Closing'])];
   if (isOffer(d)) return [...names(['Offer accepted (Day 0)']), ...(tx ? TX_DEPOSIT_DATES : names(['Earnest money due'])), ...(tx ? [TX_OPTION_END, txDisclosureDate(false), txHoaDate(false), TX_TITLE_DATE, txWaterDate(false), txAppraisalDate(false), ...txLoanDates(false)] : names(['Inspection period ends', 'Appraisal deadline', 'Loan approval deadline'])), ...names(['Closing'])];
   if (d.kind === 'lien') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien']);
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
@@ -222,6 +222,8 @@ const lienKey = (d: Deal) => `fsf.calc.lien.${d.id}${d.state === 'AZ' ? '-az' : 
 
 const GUIDE_FOR: Partial<Record<Deal['kind'], string>> = { trustee: 'foreclosure', taxSale: 'tax', court: 'sheriff', hoa: 'hoa', irs: 'irs', reo: 'reo', short: 'short' };
 const LISTING_ROLES: ProKey[] = ['agent', 'lender', 'inspector', 'title', 'insurance', 'property_manager'];
+/** A commercial building bought by offer (through a broker, or from a bank): no home inspector; environmental, appraisal and tax help. */
+export const COMMERCIAL_OFFER_ROLES: ProKey[] = ['agent', 'lender', 'attorney', 'title', 'environmental', 'appraiser', 'insurance', 'cpa', 'property_manager'];
 
 /**
  * The professionals this kind of sale usually needs (the team Your team shows for it), without a lender when your plan
@@ -234,10 +236,10 @@ export function guideKeyFor(d: Pick<Deal, 'kind' | 'state'>): string {
 }
 
 export function teamRolesFor(d: Deal): ProKey[] {
-  // A commercial deal bought by offer: the state's commercial team, not the home team.
-  const key = d.plan === 'commercial' && isOffer(d) ? `${d.state === 'NV' ? '' : d.state.toLowerCase()}commercial` : guideKeyFor(d);
+  // A commercial deal bought by offer: the commercial-offer team (the commercial sale guides are built for auctions).
+  const key = d.plan === 'commercial' && isOffer(d) ? '' : guideKeyFor(d);
   const book = key ? PLAYBOOKS.find((p) => p.key === key) : undefined;
-  const roles = book ? [...new Set(book.team.map((t) => t.pro).filter((k): k is ProKey => !!k))] : LISTING_ROLES;
+  const roles = book ? [...new Set(book.team.map((t) => t.pro).filter((k): k is ProKey => !!k))] : d.plan === 'commercial' && isOffer(d) ? COMMERCIAL_OFFER_ROLES : LISTING_ROLES;
   const cash = investorProfile().loan === 'cash';
   return roles.filter((k) => !(cash && (k === 'lender' || k === 'private_lender')));
 }
@@ -277,6 +279,8 @@ export function savedNumbers(d: Deal) {
     cashBlocked: boolean; profitBid: number;
     /** A profit target was typed (else it's our starting 15%). */
     targetTyped: boolean;
+    /** Dollar target left at $0: no target yet (the walk-away is break-even). */
+    noTarget: boolean;
     /** A loan pays part of the price or repairs (repair draws aren't modeled, so the cash figures assume the loan pays as costs come due). */
     financed: boolean;
     unentered: string[];
@@ -307,6 +311,8 @@ export function savedNumbers(d: Deal) {
     atNeed?: number;
     /** The lender's minimum income coverage (DSCR) you entered. */
     minDscr?: number;
+    /** The target cap rate was typed (else it's our example). */
+    capTyped?: boolean;
     /** The value once leased, as entered (0: blank). */
     value?: number;
     /** No realistic price fits the cash entered: it doesn't cover the costs, or leaves almost nothing for the price. */
@@ -344,7 +350,7 @@ export function savedNumbers(d: Deal) {
         const pp = proposedPriceOf(i);
         const at = pp ? { ...resultAtPrice(i, pp.price), source: pp.source } : null;
         const stress = stressCases(i).map((c) => ({ label: c.label, maxBid: maxSafeBid(c.inputs).maxBid, profit: pp ? resultAtPrice(c.inputs, pp.price).profit : null }));
-        bid = { targetTyped: (() => { const t = readConfirmed(`fsf.bid.analyzed-${d.id}.v1`); return t.has('targetProfitPct') || t.has('profitInDollars') || !!i.profitInDollars || (t.has('targetProfitMin') && (i.exitValue * i.targetProfitPct) / 100 < i.targetProfitMin); })(), cashBlocked: r.noBidWorks && r.profitBid > 0, profitBid: r.profitBid, maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: !offer && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: !offer && i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer) };
+        bid = { noTarget: !!i.profitInDollars && !(i.targetProfitMin > 0), targetTyped: (() => { const t = readConfirmed(`fsf.bid.analyzed-${d.id}.v1`); return t.has('targetProfitPct') || t.has('profitInDollars') || !!i.profitInDollars || (t.has('targetProfitMin') && (i.exitValue * i.targetProfitPct) / 100 < i.targetProfitMin); })(), cashBlocked: r.noBidWorks && r.profitBid > 0, profitBid: r.profitBid, maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: !offer && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: !offer && i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer) };
       }
     }
   } else if (d.plan === 'commercial' && own) {
@@ -368,6 +374,7 @@ export function savedNumbers(d: Deal) {
         if (commercial) {
           commercial.cashLimit = v.cashAvailable > 0 ? v.cashAvailable : 0;
           commercial.minDscr = v.minDscr;
+          commercial.capTyped = readConfirmed(`fsf.calc.commercial.${d.id}${offer ? '-offer' : ''}.v1`).has('targetCapPct');
           commercial.value = v.value > 0 ? v.value : 0;
           // Only the cash entered is short (Commercial income says "No realistic price fits your cash").
           const unc = commercialMaxBid({ ...v, cashAvailable: 0 }, offer);
@@ -500,8 +507,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const log = loadLog(`analyzed:${d.id}`);
   const { rent, bid, commercial, lien } = savedNumbers(d);
   // An untouched profit target is our starting example, not the reader's goal: say so wherever it's the yardstick.
-  const goalW = bid && !bid.targetTyped ? 'our example profit target' : 'your goal';
-  const targetW = bid && !bid.targetTyped ? 'our example profit target' : 'your profit target';
+  const targetW = bid?.noTarget ? 'break-even (no profit target set yet)' : bid && !bid.targetTyped ? 'our example profit target' : 'your profit target';
+  const goalW = targetW === 'your profit target' ? 'your goal' : targetW;
   const out: PacketSection[] = [];
 
   // 1. Your plan and buy box
@@ -610,7 +617,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   } else if (commercial?.none && commercial.weakSupported) {
     cash.push(`The income supports a price of only about ${money(commercial.weakSupported)}, far below the value, and the cash you entered in ${strategy} doesn’t cover the costs either. Check the rent and costs, or skip this one.`);
   } else if (commercial?.none) {
-    cash.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered in ${strategy}.`);
+    cash.push(`No price meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost with the income and costs you entered in ${strategy}.`);
   } else if (commercial) {
     need = commercial.refi ? commercial.allIn : commercial.cashLeft;
     needAt = `At your highest price of ${money(commercial.maxBid)}`;
@@ -651,7 +658,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   if (bid) {
     const a = bid.at;
-    if (a) nums.push(`${priceName(a.source, offer, true)} (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'}): ${money(a.price)} → estimated profit ${money(a.profit)} (${bid.targetTyped ? 'your target' : 'our example target'} ${money(bid.target)}${a.profit < bid.target ? ', so it falls short' : ''}), based on a ${money(bid.exitValue)} resale value`);
+    if (a) nums.push(`${priceName(a.source, offer, true)} (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'}): ${money(a.price)} → estimated profit ${money(a.profit)} (${bid.noTarget ? 'no profit target set yet' : `${bid.targetTyped ? 'your target' : 'our example target'} ${money(bid.target)}`}${a.profit < bid.target ? ', so it falls short' : ''}), based on a ${money(bid.exitValue)} resale value`);
     const belowOpening = !bid.none && a?.source === 'listed' && bid.maxBid < a.price;
     nums.push(bid.none && bid.cashBlocked ? `No bid fits the cash you entered: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that` : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and ${targetW}` : `What-if: walk-away price ${money(bid.maxBid)}, ${bid.limitedBy === 'cash' ? `the most your cash covers with every cost until you sell (${goalW} alone allows ${money(bid.profitBid)})` : `the most you could pay and still meet ${goalW}`} (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : `this deal doesn’t meet ${goalW}`} as entered` : ''}`);
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
@@ -666,9 +673,9 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     nums.push(`Your ${offer ? 'offer' : 'bid'} (your actual price): ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; cash left in ${money(a.cashIn)}; return on total cost ${pct1(a.capOnCost)}; ${a.dscr === null ? 'no loan' : `income coverage ${a.dscr.toFixed(3)} (${a.loanOk ? 'meets' : 'below'} your minimum)`}`);
   }
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
-  else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? `Without that cash limit the deal meets your ${commercial.capPct}% return on cost` : 'Without that cash limit the numbers work'}`);
+  else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? `Without that cash limit the deal meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost` : 'Without that cash limit the numbers work'}`);
   else if (commercial?.none && commercial.weakSupported) nums.push(`The income supports a price of only about ${money(commercial.weakSupported)}, far below the value, and the cash you entered doesn’t cover the costs either`);
-  else if (commercial?.none) nums.push(`No price meets your ${commercial.capPct}% return on cost with the income and costs you entered`);
+  else if (commercial?.none) nums.push(`No price meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost with the income and costs you entered`);
   else if (commercial) {
     const priceText = commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost, offer, false, !!commercial.noRealistic);
     nums.push(/no realistic/.test(priceText) ? `${priceText}.` : `${priceText}, on ${money(commercial.noi)} a year of net operating income`);

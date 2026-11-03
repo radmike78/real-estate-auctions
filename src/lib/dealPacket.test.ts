@@ -145,9 +145,9 @@ describe('the deal packet', () => {
     localStorage.setItem('fsf.calc.commercial.d1-offer.v1', JSON.stringify({ monthlyRent: 500, repairs: 400000 }));
     const none = packetSections({ ...deal, plan: 'commercial' }, EMPTY_PACKET, now);
     const noneText = none.find((s) => s.key === 'numbers')!.lines.join('\n');
-    expect(noneText).toMatch(/No price meets your 9% return on cost with the income and costs you entered/);
+    expect(noneText).toMatch(/No price meets our example 9% return on cost with the income and costs you entered/);
     expect(noneText).not.toMatch(/No numbers yet/);
-    expect(none.find((s) => s.key === 'cash')!.lines.join('\n')).toMatch(/No price meets your 9% return on cost/);
+    expect(none.find((s) => s.key === 'cash')!.lines.join('\n')).toMatch(/No price meets our example 9% return on cost/);
   });
 
   it('counts loan interest and points in a financed flip’s budget, at your saved price', () => {
@@ -563,7 +563,7 @@ it('says the cash entered, not the income, blocks a commercial deal', () => {
   const s = packetSections(auction, EMPTY_PACKET, now);
   const all = s.map((x) => x.lines.join('\n')).join('\n');
   expect(all).toMatch(/No realistic bid fits the cash you entered/);
-  expect(all).not.toMatch(/No price meets your 9% return on cost/);
+  expect(all).not.toMatch(/No price meets our example 9% return on cost/);
 });
 
 it('gives a commercial offer commercial contract dates, not the Texas home form’s', () => {

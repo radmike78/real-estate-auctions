@@ -161,7 +161,7 @@ function OtherNumbers({ d }: { d: Deal }) {
     // The same order as the deal packet: no price works, a price over $1 billion (a typo), no target, then your price.
     if (commercial.noRealistic && (commercial.none || !commercial.at)) return <p className="deal-urgent">No realistic price fits the cash you entered: {commercial.none ? 'it doesn’t cover the repairs and costs, before any price' : commercial.hasLoan ? `with what’s left for the down payment, the most you could pay is about ${fmtMoney(commercial.maxBid)}` : `it covers the costs but leaves only about ${fmtMoney(commercial.maxBid)} for the price`}.</p>;
     if (commercial.none && commercial.weakSupported) return <p className="deal-urgent">The income supports a price of only about {fmtMoney(commercial.weakSupported)}, far below the value, and the cash you entered doesn’t cover the costs either.</p>;
-    if (commercial.none) return <p className="deal-urgent">No price meets your {commercial.capPct}% return on cost with the income and costs entered.</p>;
+    if (commercial.none) return <p className="deal-urgent">No price meets {commercial.capTyped ? 'your' : 'our example'} {commercial.capPct}% return on cost with the income and costs entered.</p>;
     if (commercial.noTarget && commercial.overCap) return <p className="deal-urgent">The price comes out over $1 billion with the rent and costs entered: check them for a typo.</p>;
     if (commercial.at) {
       const a = commercial.at;
@@ -180,11 +180,11 @@ function OtherNumbers({ d }: { d: Deal }) {
     const limit = commercial.cashLimit && commercial.cashLimit > 0 ? commercial.cashLimit : commercial.cashTyped ? 0 : planCash;
     const need = commercial.refi ? commercial.allIn : commercial.cashLeft;
     const short = limit > 0 && need > limit;
-    return <p className={short ? 'deal-urgent' : undefined}>{commercial.limitedBy === 'cash' ? 'Walk-away price, set by the cash you entered' : commercial.limitedBy === 'dscr' ? 'Walk-away price, set by the lender’s minimum coverage' : `Highest price for your ${commercial.capPct}% return on cost`}: {fmtMoney(commercial.maxBid)} · {fmtMoney(Math.round(commercial.noi))} a year of net operating income{short ? ` · needs about ${fmtMoney(Math.round(need))} of your cash at that price (${commercial.cashLimit && commercial.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</p>;
+    return <p className={short ? 'deal-urgent' : undefined}>{commercial.limitedBy === 'cash' ? 'Walk-away price, set by the cash you entered' : commercial.limitedBy === 'dscr' ? 'Walk-away price, set by the lender’s minimum coverage' : `Highest price for ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost`}: {fmtMoney(commercial.maxBid)} · {fmtMoney(Math.round(commercial.noi))} a year of net operating income{short ? ` · needs about ${fmtMoney(Math.round(need))} of your cash at that price (${commercial.cashLimit && commercial.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</p>;
   }
   if (bid) {
-    if (bid.none && bid.cashBlocked) return <p className="deal-urgent">No bid fits the cash you entered: the deal itself meets {bid.targetTyped ? 'your goal' : 'our example profit target'} at bids up to {fmtMoney(bid.profitBid)}, but every cost until you sell needs more than the cash you entered.</p>;
-    if (bid.none) return <p className="deal-urgent">No price works at a {fmtMoney(bid.exitValue)} resale value with these costs and {bid.targetTyped ? 'your profit target' : 'our example profit target'}.</p>;
+    if (bid.none && bid.cashBlocked) return <p className="deal-urgent">No bid fits the cash you entered: the deal itself meets {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your goal' : 'our example profit target'} at bids up to {fmtMoney(bid.profitBid)}, but every cost until you sell needs more than the cash you entered.</p>;
+    if (bid.none) return <p className="deal-urgent">No price works at a {fmtMoney(bid.exitValue)} resale value with these costs and {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your profit target' : 'our example profit target'}.</p>;
     // Below the opening bid (or asking price): no bid you'd make works, whatever the walk-away price says.
     if (bid.at?.source === 'listed' && bid.maxBid < bid.at.price) return <p className="deal-urgent">{bid.at.profit >= bid.target && bid.limitedBy === 'cash' ? 'Your cash doesn’t cover this deal at' : bid.targetTyped ? 'Doesn’t meet your profit target at' : 'Doesn’t meet our example profit target at'} the {d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? 'asking price' : 'opening bid'} of {fmtMoney(bid.at.price)}.</p>;
     const planCash = investorProfile().investable;

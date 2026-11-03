@@ -11,7 +11,7 @@ import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayer
 import { guidesFor } from '../lib/playbooks';
 import { roadmapPath } from '../lib/roadmapState';
 import { CURRENT_KEY, type Deal } from '../lib/analyze';
-import { guideKeyFor } from '../lib/dealPacket';
+import { COMMERCIAL_OFFER_ROLES, guideKeyFor } from '../lib/dealPacket';
 import { STATES, stateByCode, type StateCode } from '../lib/regions';
 import { LICENSE_LOOKUPS, type Lookup } from '../lib/licenseLookups';
 import { useMyState, forStateText, showFor, mentionsOtherState } from '../lib/myState';
@@ -301,12 +301,11 @@ export default function FindAProPage({ section }: { section?: string }) {
     // The property open in Analyze (a saved one) decides first: its own kind of sale.
     try {
       const cur = JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as { id?: string; kind?: Deal['kind']; state?: string; plan?: Deal['plan'] } | null;
-      const pre0 = mine === 'NV' ? '' : (mine ?? '').toLowerCase();
       if (cur?.id && cur.kind && cur.state === mine) {
         // A commercial building bought through an agent or from a bank: the commercial team.
         const offerKind = cur.kind === 'listing' || cur.kind === 'reo' || cur.kind === 'short';
-        const k = cur.plan === 'commercial' && offerKind ? `${pre0}commercial` : cur.kind === 'listing' ? 'listing' : guideKeyFor({ kind: cur.kind, state: mine });
-        if (k === 'listing' || guidesFor(mine).some((p) => p.key === k)) return k;
+        const k = cur.plan === 'commercial' && offerKind ? 'commercial-offer' : cur.kind === 'listing' ? 'listing' : guideKeyFor({ kind: cur.kind, state: mine });
+        if (k === 'listing' || k === 'commercial-offer' || guidesFor(mine).some((p) => p.key === k)) return k;
       }
     } catch { /* storage unavailable */ }
     const r = roadmapPath();
@@ -316,7 +315,7 @@ export default function FindAProPage({ section }: { section?: string }) {
     // The agent route (the roadmap's default): the team for a listed home, or the commercial team for a commercial buy box.
     try {
       const box = JSON.parse(localStorage.getItem('deedowl.buybox.v1') ?? 'null') as { strategy?: unknown } | null;
-      if (mine && r === 'listing' && box?.strategy === 'Apartments and commercial property' && guidesFor(mine).some((p) => p.key === `${pre}commercial`)) return `${pre}commercial`;
+      if (mine && r === 'listing' && box?.strategy === 'Apartments and commercial property') return 'commercial-offer';
     } catch { /* storage unavailable */ }
     return mine && r === 'listing' ? 'listing' : 'start';
   });
@@ -324,8 +323,8 @@ export default function FindAProPage({ section }: { section?: string }) {
   const book = mine ? guidesFor(mine).find((p) => p.key === sale) : undefined;
   const team = book
     ? book.team
-    : sale === 'listing'
-      ? LISTING_TEAM.map((k) => proGuideByKey(k)!).map((g) => ({ role: g.title, when: g.summary, href: `#/pros/${g.key}` }))
+    : sale === 'listing' || sale === 'commercial-offer'
+      ? (sale === 'listing' ? LISTING_TEAM : COMMERCIAL_OFFER_ROLES).map((k) => proGuideByKey(k)!).filter(Boolean).map((g) => ({ role: g.title, when: g.summary, href: `#/pros/${g.key}` }))
       : null;
 
   const teamCats = team && sale !== 'start'
@@ -357,6 +356,7 @@ export default function FindAProPage({ section }: { section?: string }) {
                 <select value={sale} onChange={(e) => setSale(e.target.value)}>
                   <option value="start">Kind of sale: not sure yet</option>
                   <option value="listing">A listed home (through an agent)</option>
+                  <option value="commercial-offer">A commercial building (through a broker, or from a bank)</option>
                   {guidesFor(mine).map((p) => <option key={p.key} value={p.key}>{p.short}</option>)}
                 </select>
               </label>
@@ -373,7 +373,7 @@ export default function FindAProPage({ section }: { section?: string }) {
           {team && (
             <>
               <p className="muted">
-                {book ? <>{book.short}: the team, in the order you’ll usually need them.</> : <>For a home listed for sale, the way most first rentals are bought, in the order you’ll usually need them.</>}{' '}
+                {book ? <>{book.short}: the team, in the order you’ll usually need them.</> : sale === 'commercial-offer' ? <>For a commercial building you buy through a broker or from a bank, in the order you’ll usually need them. Commercial deals vary; your broker and attorney can say who else this one needs.</> : <>For a home listed for sale, the way most first rentals are bought, in the order you’ll usually need them.</>}{' '}
                 {book ? <a href={`#/playbooks/${book.key}`}>Read the guide: {book.short}{NBSP}→</a> : <a href="#/practice/case">Practice a listed purchase, start to finish{NBSP}→</a>}
               </p>
               <TeamList team={team} />

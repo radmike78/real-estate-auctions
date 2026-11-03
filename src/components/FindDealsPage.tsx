@@ -67,7 +67,10 @@ export default function FindDealsPage() {
   // Auction and lien-certificate readers (their roadmap route) start at the county sources, not the agent's MLS search.
   const countyRoute = planPath() !== 'listing';
   // The route picked on this page (it opens those sources): County auction hides the ads, as the auction route does.
-  const [chosen, setChosen] = useState<'listing' | 'county' | null>(null);
+  // Kept for the visit, so a reload doesn't bring back the ads you left behind by picking the county route.
+  const [chosen, setChosen0] = useState<'listing' | 'county' | null>(() => { try { const v = sessionStorage.getItem('deedowl.finddeals.route'); return v === 'listing' || v === 'county' ? v : null; } catch { return null; } });
+  const setChosen = (v: 'listing' | 'county') => { setChosen0(v); try { sessionStorage.setItem('deedowl.finddeals.route', v); } catch { /* storage unavailable */ } };
+  const onCounty = chosen ? chosen === 'county' : countyRoute;
   const { pros } = useDirectory();
   const adCats = useSpotCategories('finddeals');
   const adShows = useAdShows(adCats, pros);
@@ -131,7 +134,7 @@ export default function FindDealsPage() {
           <li>Before you offer or bid, check the rent, value, repairs, title, who lives there, allowed use, insurance and loan. A quick calculation is only a first screen.</li>
         </ol></details>
       </section>
-      <section aria-label="Choose a purchase route"><h2>How do you want to buy?</h2><p>Choose a route to open the relevant official sources. You can switch or browse the other groups.</p><button type="button" className={countyRoute ? 'btn btn-secondary' : 'btn'} onClick={() => { setChosen('listing'); openSources('deals-national'); }}>Listed or bank-owned property</button>{' '}<button type="button" className={countyRoute ? 'btn' : 'btn btn-secondary'} onClick={() => { setChosen('county'); openSources('deals-county'); }}>County auction</button></section>
+      <section aria-label="Choose a purchase route"><h2>How do you want to buy?</h2><p>Choose a route to open the relevant official sources. You can switch or browse the other groups.</p><button type="button" aria-pressed={!onCounty} className={onCounty ? 'btn btn-secondary' : 'btn'} onClick={() => { setChosen('listing'); openSources('deals-national'); }}>Listed or bank-owned property</button>{' '}<button type="button" aria-pressed={onCounty} className={onCounty ? 'btn' : 'btn btn-secondary'} onClick={() => { setChosen('county'); openSources('deals-county'); }}>County auction</button></section>
       <h2 className="section-title">Official sources</h2>
       <p className="muted">Government agencies, Fannie Mae and Freddie Mac, and the banks that own the homes: the sellers themselves.</p>
 
@@ -170,7 +173,7 @@ export default function FindDealsPage() {
         <a className="band-link" href="#/learn/forced-sales">Read the lesson on forced sales&nbsp;→</a>
       </Band>
       </details>
-      <details className="plan-section" name="deal-sources"><summary>Government and bank-owned listings</summary>
+      <details className="plan-section" name="deal-sources" onToggle={(e) => { if ((e.currentTarget as HTMLDetailsElement).open) setChosen('listing'); }}><summary>Government and bank-owned listings</summary>
       <Band id="deals-national" tone="national" icon={<IconBank />} title={`Across ${st.name} and nationwide`} sub="Federal agencies, Fannie Mae and Freddie Mac, and banks selling homes they own.">
         {NATIONAL_GROUPS.map(([g, label]) => {
           const xs = nationalOfficialFor(st.name).filter((s) => s.group === g);

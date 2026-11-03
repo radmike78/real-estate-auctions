@@ -39,7 +39,7 @@ export const AD_SPOTS: AdSpot[] = [
   { key: 'drill', label: 'Practice drills (not forced-sale, lien or short-sale drills)', where: 'at the end of the drill', categories: INVESTOR_TEAM },
   { key: 'practiceCase', label: 'Practice purchase', where: 'at the end of each step', categories: BUYER_TEAM },
   { key: 'guides', label: 'Guides (the list)', where: 'at the end of the page', categories: INVESTOR_TEAM },
-  { key: 'playbook', label: 'Sale guides for bank-owned homes and short sales', where: 'at the end of those guides and the list of guides', categories: BUYER_TEAM },
+  { key: 'playbook', label: 'Sale guides for bank-owned homes and short sales', where: 'at the end of those two guides', categories: BUYER_TEAM },
   { key: 'bankowned', label: 'Bank-owned and government homes', where: 'at the end of the page', categories: BUYER_TEAM },
   { key: 'shortsales', label: 'Short sales (for buyers)', where: 'at the end of the page', categories: BUYER_TEAM },
   { key: 'financing', label: 'Financing', where: 'at the end of the page', categories: [...LENDERS, 'private_lender'] },
