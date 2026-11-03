@@ -651,7 +651,7 @@ export function fhaMonthlyMi(v: Pick<RentInputs, 'atPrice' | 'value' | 'loanPct'
 /** Income coverage for display: two decimals, rounded down (a hair under a minimum never reads as meeting it). */
 export const dscrText = (x: number) => (Math.floor(x * 100 + 1e-6) / 100).toFixed(2);
 /** Return on cost (a fraction) misses a cap-rate target (%), with float slack: an exact 7.25% isn't a miss (0.0725 × 100 = 7.2499…). */
-export const capMisses = (x: number, targetPct: number) => Number(capText(x, targetPct)) < targetPct - 1e-9;
+export const capMisses = (x: number, targetPct: number) => Number(capText(x, targetPct)) < Number(targetPct.toFixed(6)) - 1e-9;
 
 /** A return on cost (a fraction) as a percent with one decimal, rounded down, so 8.96% never reads as a 9% target met. */
 export const capText = (x: number, target = 0) => {

@@ -201,8 +201,8 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
           {r.dscr !== null && <div><dt>{commercial ? 'Debt-service coverage: yearly NOI ÷ yearly loan payments. Your lender may adjust the income, costs and reserves when it underwrites; ask for its calculation and minimum.' : 'Income coverage: NOI ÷ loan payments (a DSCR-loan lender instead divides rent by the full payment; see “How a lender sees this rent”)'}</dt><dd>{dscrText(r.dscr)}×</dd></div>}
         </dl>
       )}
-      {r.dscr !== null && !r.loanOk && Number(dscrText(r.dscr)) >= minDscr && (
-        <p className="calc-note small">The unrounded income coverage is below your {minDscr.toFixed(2)} minimum, even if the displayed ratio rounds to that number. A smaller loan may be needed; ask your lender for its own calculation.</p>
+      {r.dscr !== null && !r.loanOk && minDscr > 0 && (
+        <p className="calc-note small">{Number(dscrText(r.dscr)) >= minDscr ? `The unrounded income coverage is below the ${minDscr.toFixed(2)} minimum, even if the displayed ratio rounds to that number.` : `Income coverage is under the ${minDscr.toFixed(2)} minimum at this price.`} A smaller loan may be needed; ask your lender for its own calculation.</p>
       )}
       <p className="muted small">{noiNote} An estimate to help you set a limit {offer ? 'before you make an offer' : 'before the sale'}, not advice.</p>
     </section>
@@ -306,9 +306,9 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
   const needed = !onPrice && a.loan > 0 ? a.allIn : a.cashIn;
   const cashShort = price > 0 && cashLimit > 0 && needed > cashLimit;
   // An investor's income-coverage test at this price (the walk-away price can be set by it).
-  // Only on an offer: there the loan follows the price, so a lower price fixes it. An auction's refinance is sized on
-  // the value, the same at every price (its walk-away handles a refinance that's too big).
-  const covShort = onPrice && !livingThere && v.minDscr > 0 && a.dscr !== null && a.dscr < v.minDscr;
+  // On an offer the loan follows the price, so a lower price raises the coverage; an auction's refinance is sized on the
+  // value, so only a smaller refinance does (the advice below says which). Not on our example refinance value.
+  const covShort = !livingThere && !exampleRefi && v.minDscr > 0 && a.dscr !== null && a.dscr < v.minDscr;
   const mo = (n: number) => fmtMoney(Math.round(n / 12));
   const neg = (n: number) => (n > 0 ? `−\u2060${mo(n)}` : mo(0)); // word joiner: the minus never wraps away from the amount
   return (
@@ -331,7 +331,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
               ? 'Check each number against evidence before you rely on it.'
             : coc !== null && capMisses(coc, v.targetCocPct)
               ? `Cash flow is positive (about ${fmtMoney(Math.round(a.cashFlow / 12))} a month), but it misses ${targetTyped ? 'your' : 'our example'} target. Investigate whether the price, the costs or the goal should change.`
-              : cashShort ? `The return meets ${targetTyped ? 'your' : 'our example'} target, but the cash it needs doesn’t fit what you have.` : covShort && a.dscr !== null ? `The return meets ${targetTyped ? 'your' : 'our example'} target, but the income covers the loan payments by less than ${dscrTyped ? 'your' : 'our example'} planning minimum: a lower price, a smaller loan or a larger down payment would raise it. Ask your lender how it tests coverage.` : `It meets ${targetTyped ? 'your' : 'our example'} target at this price, based on your numbers. Check each number against evidence before you rely on it.`}
+              : cashShort ? `The return meets ${targetTyped ? 'your' : 'our example'} target, but the cash it needs doesn’t fit what you have.` : covShort && a.dscr !== null ? `The return meets ${targetTyped ? 'your' : 'our example'} target, but the income covers the loan payments by less than ${dscrTyped ? 'your' : 'our example'} planning minimum: ${onPrice ? 'a lower price, a smaller loan or a larger down payment would raise it' : 'a smaller refinance (a lower Loan %) would raise it; a lower bid doesn’t, since the refinance is sized on the value'}. Ask your lender how it tests coverage.` : `It meets ${targetTyped ? 'your' : 'our example'} target at this price, based on your numbers. Check each number against evidence before you rely on it.`}
         </p>
       )}
       {price > 0 && cashShort && <p className="small"><button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>{cashTyped ? 'Change your cash' : 'Enter your cash'}</button></p>}
@@ -360,7 +360,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : `${capText(a.cashOnCash, v.targetCocPct)}%`}</dd></div>
         <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{capPctText(a.capOnPrice)}</dd></div>
         <div><dt>Cap rate on everything you pay</dt><dd>{capPctText(a.capOnCost)}</dd></div>
-        {a.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments</dt><dd>{dscrText(a.dscr)}×{a.dscr < v.minDscr && (livingThere ? <span> · below the {v.minDscr}× an investor’s lender looks for; a home loan you live in is judged mainly on your own income</span> : <span className="deal-urgent"> · below your {v.minDscr}× income-coverage target; check the lender’s separate requirements</span>)}</dd></div>}
+        {a.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments</dt><dd>{dscrText(a.dscr)}×{v.minDscr > 0 && a.dscr < v.minDscr && (livingThere ? <span> · below the {v.minDscr}× an investor’s lender looks for; a home loan you live in is judged mainly on your own income</span> : <span className="deal-urgent"> · under {dscrTyped ? 'your' : 'our example'} {v.minDscr}× minimum; check the lender’s separate requirements</span>)}</dd></div>}
       </dl>
       </>)}
       <p className="muted small">Uses the rent, costs and loan you entered above; taxes and insurance are counted in operating costs, not in the loan payment. Your cash in doesn’t include reserves you keep in the bank. An estimate, not advice.</p>
@@ -551,7 +551,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const valueBase = v.value > 0 ? v.value : (start.value ?? RENT_DEFAULTS.value);
   const taxBase = taxOnPrice ? v.atPrice : valueBase;
   const taxHere = rate ? taxAt(taxBase, rate.pct) : 0;
-  const taxAtWords = taxOnPrice ? `At your ${fmtMoney(v.atPrice)} ${offer ? 'offer' : 'bid'}` : v.atPrice > 0 ? `Tax is on the property’s value, not your bid. At ${v.value > 0 && !typedKeys.has('value') && !('value' in start) ? `our ${fmtMoney(taxBase)} example value` : `a ${fmtMoney(taxBase)} value`}` : `At a ${fmtMoney(taxBase)} ${priceState ? 'price' : 'value'}`;
+  const taxAtWords = taxOnPrice ? `At your ${fmtMoney(v.atPrice)} ${offer ? 'offer' : 'bid'}` : v.atPrice > 0 ? `Tax is on the property’s value, not your bid. At ${(v.value > 0 ? !typedKeys.has('value') && !('value' in start) : !('value' in start)) ? `our ${fmtMoney(taxBase)} example value` : `a ${fmtMoney(taxBase)} value`}` : `At a ${fmtMoney(taxBase)} ${priceState ? 'price' : 'value'}`;
   const withTaxHint = (gs: CalcGroup<RentInputs>[]) => (rate && taxHere !== v.propertyTaxYear
     ? gs.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} ${taxAtWords}: about ${fmtMoney(taxHere)}.`.trim() } : f)) }))
     : gs);

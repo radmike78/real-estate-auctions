@@ -691,7 +691,7 @@ const ROUTE_WORDING: Record<string, Partial<Record<RoadmapPath, Partial<RoadmapS
 
 export const roadmapFor = (path: RoadmapPath, state: StateCode | null = getMyState()) => ROADMAP.filter((s) => (!s.path || s.path.includes(path)) && !(state && s.notIn?.includes(state))).map((s) => (ROUTE_WORDING[s.id]?.[path] ? { ...s, ...ROUTE_WORDING[s.id]![path] } : s))
   // Arizona's lien practice is its own tax lien drill (the practice runs follow Nevada).
-  .map((s) => (s.id === 'c-practice' && state === 'AZ' ? { ...s, action: 'Open the Arizona tax lien drill', href: '#/practice/drills/tax-lien-az' } : s));
+  .map((s) => (s.id === 'c-practice' && state === 'AZ' ? { ...s, action: 'Open the Arizona tax lien drill', href: '#/practice/drills/tax-lien-az', steps: s.steps.filter((x) => !/^In Nevada\b/.test(x)) } : s.id === 'c-practice' && state === 'NV' ? { ...s, steps: s.steps.filter((x) => !/^In Arizona\b/.test(x)) } : s));
 
 /** The roadmap for buying through an agent (the default). */
 export const FIRST_DEAL: RoadmapStep[] = roadmapFor('listing');
