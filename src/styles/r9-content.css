@@ -72,9 +72,10 @@
 .deal-numbers > h2 { font-size: 1.4rem; margin: 0 0 12px; }
 /* On phones, fewer nested boxes so the results text keeps its width: the results panel loses its own card. */
 @media (max-width: 600px) {
-  .deal-numbers { padding: 14px 10px; }
+  /* !important: the phone rule for every page section (styles.css) is more specific than these. */
+  .deal-numbers { padding: 14px 10px !important; }
   .calc-results { padding: 14px 0; border: 0; box-shadow: none; background: transparent; }
-  .at-price { padding: 12px; }
+  .at-price { padding: 12px !important; }
 }
 
 /* Drill toolbar: one even row on wide screens (the menus share the free width); an even two-column grid on tablets. */

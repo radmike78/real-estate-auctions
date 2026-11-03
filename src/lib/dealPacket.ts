@@ -176,7 +176,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   if (isOffer(d)) return [...names(['Offer accepted (Day 0)']), ...(tx ? TX_DEPOSIT_DATES : names(['Earnest money due'])), ...(tx ? [TX_OPTION_END, txDisclosureDate(false), txHoaDate(false), TX_TITLE_DATE, txWaterDate(false), txAppraisalDate(false), ...txLoanDates(false)] : names(['Inspection period ends', 'Appraisal deadline', 'Loan approval deadline'])), ...names(['Closing'])];
   if (d.kind === 'lien') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien']);
   // California homes of one to four units: a win isn't final until eligible bidders' windows close (Civil Code 2924m).
-  if (d.kind === 'trustee' && d.state === 'CA' && d.plan !== 'commercial') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Eligible bidders’ notice of intent to bid (15 days after the sale, homes of 1–4 units)*', 'Eligible bidders’ bid deadline (45 days after the sale, homes of 1–4 units)*', 'Deed recorded']);
+  if (d.kind === 'trustee' && d.state === 'CA') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Eligible bidders’ notice of intent to bid (15 days after the sale, homes of 1–4 units)*', 'Eligible bidders’ bid deadline (45 days after the sale, homes of 1–4 units)*', 'Deed recorded']);
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
   // Texas execution sale; a Texas tax sale has its own redemption period (Tax Code 34.21).
@@ -327,6 +327,8 @@ export function savedNumbers(d: Deal) {
     hasLoan?: boolean;
     /** Cash short and the deal itself supports under a tenth of the value: that price (0: not this case). */
     weakSupported?: number;
+    /** The refinance entered costs more a year than the building earns (no bid works with that loan). */
+    loanTooBig?: boolean;
     at?: ReturnType<typeof commercialAtPrice> & { price: number };
     stress: { label: string; maxBid: number | null; limitedBy?: CommercialLimit; capOnCost?: number | null }[];
   } | null = null;
@@ -382,6 +384,7 @@ export function savedNumbers(d: Deal) {
           const unc = commercialMaxBid({ ...v, cashAvailable: 0 }, offer);
           commercial.noRealistic = noRealisticPrice(r, unc, v.value);
           commercial.weakSupported = cashAndPropertyWeak(r, unc, v.value) ? unc.maxBid : 0;
+          commercial.loanTooBig = !!r.loanTooBig;
           commercial.hasLoan = v.loanPct > 0 && (offer || v.value > 0);
           commercial.saleDay = r.noBidWorks || !Number.isFinite(r.cashAtAuction) ? 0 : r.cashAtAuction;
           commercial.cashTyped = readConfirmed(`fsf.calc.commercial.${d.id}${offer ? '-offer' : ''}.v1`).has('cashAvailable');
@@ -540,7 +543,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     status: calendarComplete(p, stageOf(d)) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length
       ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), nd ? `Next: ${nd.what}, ${nd.days < 0 ? `overdue by ${-nd.days} days` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : 'All dated items are marked handled.']
-      : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' && d.plan !== 'commercial' ? 'official notice (the eligible-bidder windows count from the sale day)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
+      : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' ? 'official notice (the eligible-bidder windows count from the sale day, for homes of 1–4 units)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
   });
 
   // 4. Cash needed, by when (from the deal's own strategy)
@@ -677,6 +680,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
   else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? `Without that cash limit the deal meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost` : 'Without that cash limit the numbers work'}`);
   else if (commercial?.none && commercial.weakSupported) nums.push(`The income supports a price of only about ${money(commercial.weakSupported)}, far below the value, and the cash you entered doesn’t cover the costs either`);
+  else if (commercial?.none && commercial.loanTooBig) nums.push(`The refinance you entered costs more a year than the building earns, so no price works with that loan. Try a smaller loan, or run it all cash, in ${strategy}`);
   else if (commercial?.none) nums.push(`No price meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost with the income and costs you entered`);
   else if (commercial) {
     const priceText = commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost, offer, false, !!commercial.noRealistic, !!commercial.capTyped);

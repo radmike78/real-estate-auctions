@@ -752,7 +752,7 @@ function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capT
           <div><dt>Everything you pay, ready to lease, before loan fees</dt><dd>{fmtMoney(Math.round(a.allIn))}</dd></div>
           <div><dt>Lease-up carrying costs</dt><dd>{fmtMoney(Math.round(a.leaseUpCost))}</dd></div>
           {a.leaseUpDebt > 0 && <div><dt>Loan payments during lease-up (included above)</dt><dd>{fmtMoney(Math.round(a.leaseUpDebt))}</dd></div>}
-          <div><dt>Your cash in, including loan fees</dt><dd>{fmtMoney(Math.round(a.cashIn))}</dd></div>
+          <div><dt>Your cash in, including loan fees</dt><dd>{a.cashIn < 0 ? `None: the refinance returns all your cash and ${fmtMoney(Math.round(-a.cashIn))} more, if approved` : fmtMoney(Math.round(a.cashIn))}</dd></div>
           <div><dt>Debt service, per year</dt><dd>{fmtMoney(Math.round(a.debtService))}</dd></div>
           <div><dt>Replacement reserves, per year</dt><dd>{fmtMoney(Math.round(a.reserves))}</dd></div>
           <div><dt>Cash flow per month, before income tax</dt><dd>{fmtMoney(Math.round(a.cashFlow / 12))}</dd></div>

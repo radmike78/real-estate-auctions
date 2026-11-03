@@ -257,7 +257,9 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       out.push(task({ key: 'final-walkthrough', label: `Do the final walkthrough of ${n}`, produces: 'agreed repairs, condition and possession checked with your agent; mark the walkthrough roadmap task done', href: ROADMAP_HREF, done: stepDone('walkthrough') }));
       out.push(task({ key: 'close', label: `Close on ${n}`, produces: 'the signed closing statement and the deed. Then mark it closed and the new-owner tasks appear here', href: ROADMAP_HREF, advance: { stage: 'closed', label: 'It closed: mark it closed' }, support: [L.caseStage('closing', 'Closing')], done: false }));
     } else {
-      out.push(task({ key: 'dates', label: `Put ${n}’s payment and recording deadlines on its calendar`, produces: 'the payment deadline and when the deed or certificate should be recorded, on one calendar', href: packetHref(d, 'dates'), support: [L.guides], done: calendarComplete(p, stage) }));
+      // California homes of 1–4 units: a trustee-sale win isn't final until the eligible-bidder windows close (Civil Code 2924m).
+      const ca2924m = d.kind === 'trustee' && d.state === 'CA';
+      out.push(task({ key: 'dates', label: `Put ${n}’s payment and recording deadlines on its calendar`, produces: ca2924m ? 'the payment deadline, for a home of 1–4 units, the eligible-bidder windows (15 and 45 days after the sale: until they close your win isn’t final, unless an exception applies*) and when the deed should be recorded, on one calendar' : 'the payment deadline and when the deed or certificate should be recorded, on one calendar', href: packetHref(d, 'dates'), support: [L.guides], done: calendarComplete(p, stage) }));
       area('terms', `Pay for ${n} as the sale requires`, 'the receipt, and the deed or certificate you’re owed, in its evidence log', [L.guides]);
       if (w === 'auction') {
         if (!ev('insurance')) area('insurance', `Insure ${n} right away`, 'a policy in your name from the day you own it, in its evidence log', [L.pro('insurance')]);
