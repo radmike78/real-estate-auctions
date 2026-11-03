@@ -702,7 +702,9 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
 }
 
 /** The commercial verdict at your price, naming each test it misses (return on cost, the coverage minimum, cash flow). */
-function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialAtPrice>, capTyped: boolean): string {
+function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialAtPrice>, capTyped: boolean, cashShort = false): string {
+  // The cash it needs is more than you entered (or My plan's): named in the verdict, with the figures just below.
+  const short = cashShort ? ', but it needs more cash than you have (below)' : '';
   const target = `${capTyped ? 'your' : 'our example'} ${v.targetCapPct}% return-on-cost target`;
   // A 0 target is no target (the walk-away price asks for one): nothing to meet or miss on return on cost.
   const noCap = !(v.targetCapPct > 0);
@@ -712,12 +714,12 @@ function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialA
   const noFlow = a.cashFlow <= 0 ? 'has no positive cash flow' : '';
   if (noCap) {
     const parts = [...misses.map((m) => `misses ${m}`), ...(noFlow ? [noFlow] : [])];
-    return `No return-on-cost target entered yet: enter the cap rate you require to compare.${parts.length ? ` It ${parts.join(' and ')}.` : ''}`;
+    return `No return-on-cost target entered yet: enter the cap rate you require to compare.${parts.length ? ` It ${parts.join(' and ')}${cashShort ? ', and needs more cash than you have (below)' : ''}.` : cashShort ? ' It needs more cash than you have (below).' : ''}`;
   }
-  if (a.capOnCost === null && !misses.length && !noFlow) return 'No return on cost to compare yet with these numbers.';
-  if (!misses.length && !noFlow) return `Meets ${target}${a.loan > 0 ? ' and the income coverage minimum' : ''}, with positive cash flow, with these numbers.`;
+  if (a.capOnCost === null && !misses.length && !noFlow) return `No return on cost to compare yet with these numbers${short}.`;
+  if (!misses.length && !noFlow) return `Meets ${target}${a.loan > 0 ? ' and the income coverage minimum' : ''} and has positive cash flow with these numbers${short}.`;
   const missText = misses.length ? `Misses ${misses.join(' and ')}` : '';
-  return `${missText}${missText && noFlow ? ', and ' : ''}${missText ? noFlow : noFlow.replace(/^h/, 'H')}.`;
+  return `${missText}${missText && noFlow ? ', and ' : ''}${missText ? noFlow : noFlow.replace(/^h/, 'H')}${cashShort ? ', and needs more cash than you have (below)' : ''}.`;
 }
 
 function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capTyped = false }: { v: CommercialInputs; offer: boolean; setPrice: (n: number) => void; target: number; /** A cash figure was typed here (a typed 0 is no limit). */ cashTyped?: boolean; /** The cap-rate target was typed (else it's our example). */ capTyped?: boolean }) {
@@ -734,7 +736,7 @@ function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capT
       <label className="field"><span>{word} ($)</span><NumInput blank max={1e9} value={v.atPrice} onValue={(n) => setPrice(n ?? 0)} /></label>
       {Number.isFinite(target) && target > 0 && <button type="button" className="linkish" onClick={() => setPrice(target)}>Use the walk-away price ({fmtMoney(target)})</button>}
       {!a ? <p>Enter the asking price or your proposed price to compare this property with your targets.</p> : <>
-        <p className={meets && !planShort && !(v.cashAvailable > 0 && need > v.cashAvailable) ? 'notice' : 'caution'}>{commercialVerdict(v, a, capTyped)} Verify the income, costs and loan terms before relying on this result.</p>
+        <p className={meets && !planShort && !(v.cashAvailable > 0 && need > v.cashAvailable) ? 'notice' : 'caution'}>{commercialVerdict(v, a, capTyped, planShort || (v.cashAvailable > 0 && need > v.cashAvailable))} Verify the income, costs and loan terms before relying on this result.</p>
         {v.cashAvailable > 0 && need > v.cashAvailable && <p className="caution">Your entered cash does not cover this price and the modeled costs.</p>}
         {planShort && <p className="caution">It needs about {fmtMoney(Math.round(need))} of your cash, more than the {fmtMoney(Math.round(planCash))} of investable cash in My plan. <button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>Enter your cash</button></p>}
         {!offer && a.loan > 0 && <p className="caution">The loan is a later refinance, not cash available at the auction. Until it closes, the full purchase and costs are your cash.</p>}

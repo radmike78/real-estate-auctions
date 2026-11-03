@@ -542,17 +542,20 @@ function PriceFromCash({ cash }: { cash: number }) {
   return (
     <div className="price-from-cash">
       <h3>What price your investable cash supports</h3>
-      {Number.isFinite(price) ? (
+      {Number.isFinite(price) ? (<>
         <p>
           With {a.downPct}% down, closing costs of about {a.closingPct}% and {a.reserveMonths} months of payments kept in reserve, your {fmtMoney(cash)} supports a price up to about <strong>{fmtMoney(price)}</strong>:
-          {' '}{fmtMoney(Math.round(c.down))} down, {fmtMoney(Math.round(c.closing))} closing costs and {fmtMoney(Math.round(c.reserves))} in reserve (about {fmtMoney(Math.round(c.monthly))} a month in loan, tax and insurance, at {a.taxInsPct}% of the price a year for tax and insurance{(() => {
-            // Where the county's tax alone is higher (Texas rates are often 2% or more), say so here, not only in the folded estimates.
-            // Named when tax alone leaves under about 0.4% of the estimate for insurance (or exceeds it).
-            const rate = area?.county && area.state !== 'NV' && area.state !== 'AZ' ? countyTaxRate(area.state, area.county) : null;
-            return rate && rate.pct > a.taxInsPct - 0.4 ? `; ${/\bCity$/.test(area!.county!) ? area!.county : `${area!.county} County`}’s tax alone is about ${rate.pct.toLocaleString('en-US', { maximumFractionDigits: 2 })}%, plus insurance, so check it under the planning estimates` : '';
-          })()}). Repairs come out of the same cash, so leave room for them.{a.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : ''}{investorProfile().ownerOccupant && a.downPct >= 20 ? ` ${a.downPct}% down is common for an investment; a home you’ll live in can need less, so replace it below with your lender’s figure.` : ''}
+          {' '}{fmtMoney(Math.round(c.down))} down, {fmtMoney(Math.round(c.closing))} closing costs and {fmtMoney(Math.round(c.reserves))} in reserve (about {fmtMoney(Math.round(c.monthly))} a month in loan, tax and insurance, at {a.taxInsPct}% of the price a year for tax and insurance). Repairs come out of the same cash, so leave room for them.{a.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : ''}{investorProfile().ownerOccupant && a.downPct >= 20 ? ` ${a.downPct}% down is common for an investment; a home you’ll live in can need less, so replace it below with your lender’s figure.` : ''}
         </p>
-      ) : (
+        {(() => {
+          // Where the county's tax alone is near or above the estimate for tax and insurance together (Texas rates are
+          // often 2% or more), the price above is likely too high: said on its own, not only in the folded estimates.
+          const rate = area?.county && area.state !== 'NV' && area.state !== 'AZ' ? countyTaxRate(area.state, area.county) : null;
+          if (!rate || !(rate.pct > a.taxInsPct - 0.4)) return null;
+          const place = /\bCity$/.test(area!.county!) ? area!.county : `${area!.county} County`;
+          return <p className="caution">{place}’s property tax alone is about {rate.pct.toLocaleString('en-US', { maximumFractionDigits: 2 })}% of value a year, {rate.pct >= a.taxInsPct ? 'more than' : 'nearly all of'} the {a.taxInsPct}% this uses for tax and insurance together, so this price is likely too high. Raise “Property tax and insurance” under Change the planning estimates.</p>;
+        })()}
+      </>) : (
         <p>With no down payment, closing costs or reserves, these assumptions don’t limit the price. Enter what your lender expects below to see a price.</p>
       )}
       <details>
@@ -668,7 +671,7 @@ function BuyBoxBuilder() {
           return !b.area.trim() && words ? <p className="buybox-use-area"><button type="button" className="linkish small" onClick={() => { set('area', words); if (!b.state) set('state', my!.state); requestAnimationFrame(() => document.getElementById('buybox-area')?.focus()); }}>Use my area ({words})</button></p> : null;
         })()}
         </div>
-        <label className="field">
+        <label className="field strategy-field">
           <span>Strategy</span>
           <select value={b.strategy} onChange={(e) => set('strategy', e.target.value)}>
             <option value="">Choose</option>
@@ -688,8 +691,8 @@ function BuyBoxBuilder() {
             </label>
             {money('priceMax', 'Highest price ($)', bidPrice ? `The most you’d bid or pay, before repairs and costs (Analyze gives the walk-away price).${b.strategy === 'Tax and foreclosure auctions' ? ' Auctions want cash by their payment deadline; any loan comes afterward.' : ''}` : 'Use your own budget and financing information. Pre-approval does not guarantee a loan or show what you can comfortably afford.')}
             {money('repairsMax', 'Most repairs you’ll take on ($)', 'New investors often start with cosmetic work only.')}
-            {money('cashMax', 'Cash you can put in, all in ($)', 'Down payment, closing costs, repairs and reserves.')}
-            {!flip && money('minCashFlow', b.strategy === 'Tax and foreclosure auctions' ? 'Minimum monthly cash left, if you rent it ($)' : 'Minimum monthly cash left from a rental ($)', 'Your cash-flow target after operating costs, loan payments and planned reserves, before income tax.')}
+            {money('cashMax', 'Cash you can put in, all in ($)', b.strategy === 'Tax and foreclosure auctions' ? 'The winning bid, fees, repairs and reserves: the whole price is due by the sale’s deadline.' : flip ? 'The price or down payment, closing costs, repairs and holding costs until it sells.' : 'Down payment, closing costs, repairs and reserves.')}
+            {!flip && money('minCashFlow', b.strategy === 'Tax and foreclosure auctions' ? 'Monthly cash left if rented ($)' : 'Minimum monthly cash left from a rental ($)', 'Your cash-flow target after operating costs, loan payments and planned reserves, before income tax.')}
           </>
         )}
       </div>

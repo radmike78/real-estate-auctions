@@ -344,7 +344,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
               {st.counties.map((c) => <option key={c} value={c}>{countyName(c)}</option>)}
             </select>
           </label>
-          <label className="field">
+          <label className="field kind-field">
             <span>Kind of sale</span>
             <select value={deal.kind} aria-describedby={deal.state === 'TX' && deal.kind === 'court' ? 'tx-court-note' : undefined} onChange={(e) => { const k = e.target.value as SaleKind; set({ kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); }}>
               {kinds.map((k) => <option key={k.key} value={k.key}>{kindLabel(k, deal.state)}</option>)}
@@ -462,7 +462,7 @@ function ProfileNote({ deal }: { deal: Deal }) {
     if (loan === null) return null;
     const wd = worksheetDownPct();
     const text = loan === 0 ? 'paying cash (no loan)' : `a loan for ${loan}% of the price (${wd !== null && 100 - wd <= 75 ? `the ${wd}% down payment in your cash worksheet` : `a common commercial figure until your lender quotes; commercial lenders often want 25% or more down${wd !== null ? `, more than the ${wd}% in your cash worksheet` : ''}`})`;
-    return <p className="muted analyze-profile">From your plan: {text}. This fills in a new deal’s starting loan. Change it below; it isn’t loan terms anyone approved. <a href="#/toolkit">Edit your plan</a></p>;
+    return <p className="muted analyze-profile">From your plan: {text}{p.investable > 0 ? `; ${fmtMoney(p.investable)} of investable cash (what the results compare the cash it needs with, until you enter your own)` : ''}. This fills in a new deal’s starting loan. Change it below; it’s a starting figure, not loan terms anyone approved. <a href="#/toolkit">Edit your plan</a></p>;
   }
   // Only Keep and rent starts from your plan's cash, loan and management.
   if (deal.plan !== 'rent') return null;

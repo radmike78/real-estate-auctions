@@ -129,24 +129,41 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <DealJourneyEntry />
         <NarrowDown config={practiceConfig(!otherState)} intro="Answer two quick questions and we’ll point you to the best practice to start with. Everything else stays on this page below." />
         <details className="practice-more" open><summary>All the ways to practice: {otherState ? 'a full purchase and quick drills, including auction drills' : 'a full purchase, auctions and quick drills'}</summary>
+        {/* On the auction and lien routes, their own practice (part 2) comes first; the rental purchase is extra. */}
+        {ownPractice ? <>
+        {!otherState && <>
+        <h2 id="practice-auction" className="practice-step">{ownPractice ? (planPath() === 'certificate' ? 'Practice part 2: Nevada auction and lien practice' : 'Practice part 2: Nevada auction practice') : 'Nevada auction practice: choose a kind of sale'}</h2>
+        <p className="practice-step-intro">Buy a fictional property at one kind of sale, step by step, from research to the day after.</p>
+        <p className="practice-nv-note" role="note"><strong>Clark County practice.</strong> These sales follow local rules. Check your county’s requirements before a real purchase.</p>
+        {auctionTiles}
+        </>}
         <h2 id="practice-case" className="practice-step">{ownPractice ? 'Optional: Buy a rental (the paperwork)' : 'Practice part 2: Buy a rental (the paperwork)'}</h2>
-        <p className="practice-step-intro">{ownPractice ? <>On your route, practice part 2 is “<a href={ownPractice.href}>{ownPractice.title}</a>”; this rental purchase is extra, if you may buy a listed home later. It’s the paperwork, on a new fictional house.</> : 'Part 1 was the decisions; part 2 is the paperwork, on a new fictional house.'} Work one fictional purchase from your budget to the first months of renting it out. Read teaching versions of the paperwork (comparables, a loan quote, an inspection report, a title commitment, a closing statement), each with a guide to reading the real form, and make the calls when things go wrong. You finish with your own deal packet: a budget, a deadline calendar, an evidence log and your questions for each professional.</p>
+        <p className="practice-step-intro">Part 1 was the decisions; part 2 is the paperwork, on a new fictional house. Work one fictional purchase from your budget to the first months of renting it out. Read teaching versions of the paperwork (comparables, a loan quote, an inspection report, a title commitment, a closing statement), each with a guide to reading the real form, and make the calls when things go wrong. You finish with your own deal packet: a budget, a deadline calendar, an evidence log and your questions for each professional.</p>
         <div className="practice-case-go">
           <a className="btn big" href={`#/practice/case${caseStarted ? `/${caseNext.key}` : ''}`}>{!caseStarted ? 'Start the purchase\u00a0→' : caseNext.packet ? 'See your deal packet\u00a0→' : 'Continue the purchase\u00a0→'}</a>
           <span className="practice-case-meta">About 45 minutes · {practiceCase.property} · {practiceCase.stateName} rules{practiceCase.state === 'TX' ? ', with the TREC contract' : ''}</span>
         </div>
+        </> : <>
+        <h2 id="practice-case" className="practice-step">Practice part 2: Buy a rental (the paperwork)</h2>
+        <p className="practice-step-intro">Part 1 was the decisions; part 2 is the paperwork, on a new fictional house. Work one fictional purchase from your budget to the first months of renting it out. Read teaching versions of the paperwork (comparables, a loan quote, an inspection report, a title commitment, a closing statement), each with a guide to reading the real form, and make the calls when things go wrong. You finish with your own deal packet: a budget, a deadline calendar, an evidence log and your questions for each professional.</p>
+        <div className="practice-case-go">
+          <a className="btn big" href={`#/practice/case${caseStarted ? `/${caseNext.key}` : ''}`}>{!caseStarted ? 'Start the purchase\u00a0→' : caseNext.packet ? 'See your deal packet\u00a0→' : 'Continue the purchase\u00a0→'}</a>
+          <span className="practice-case-meta">About 45 minutes · {practiceCase.property} · {practiceCase.stateName} rules{practiceCase.state === 'TX' ? ', with the TREC contract' : ''}</span>
+        </div>
+        {/* Ads only here, after the rental purchase: never beside the forced-sale practice and drills below. */}
+        <AdSpot spot="practice" allow={!chosen && !sale} />
         {!otherState && <>
-        <h2 id="practice-auction" className="practice-step">{otherState ? 'Auction practice: choose a kind of sale' : 'Nevada auction practice: choose a kind of sale'}</h2>
+        <h2 id="practice-auction" className="practice-step">{ownPractice ? (planPath() === 'certificate' ? 'Practice part 2: Nevada auction and lien practice' : 'Practice part 2: Nevada auction practice') : 'Nevada auction practice: choose a kind of sale'}</h2>
         <p className="practice-step-intro">Buy a fictional property at one kind of sale, step by step, from research to the day after.</p>
         <p className="practice-nv-note" role="note"><strong>Clark County practice.</strong> These sales follow local rules. Check your county’s requirements before a real purchase.</p>
         {auctionTiles}
+        </>}
         </>}
         <h2 id="practice-drills" className="practice-step">Quick drills: would you buy it?</h2>
         <p className="practice-step-intro"><strong>Each drill is one short, made-up deal.</strong> Work through 2 to 4 missions (value it, check the rent, price the repairs, find the liens, run the numbers), then decide: Buy, Investigate or Pass. Missions are rehearsal: finishing them builds skill, not readiness to buy a real property.</p>
         <DrillList presetTopic={toAuctionDrills ? 'auctions' : undefined} liensFirst={sale === 'sid'} />
         </details>
         <PathNext step="practice" />
-        <AdSpot spot="practice" allow={!chosen} />
       </main>
     );
   }

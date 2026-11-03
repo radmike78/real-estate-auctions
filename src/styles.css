@@ -2062,6 +2062,8 @@ h3.topic-head { margin: 24px 0 10px; padding: 8px 14px; font-size: 1.2rem; borde
 @media (min-width: 640px) { .deal-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (min-width: 1860px) { .deal-fields { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .deal-fields .field.wide { grid-column: 1 / -1; }
+/* Two columns under 1000px are too narrow for the longest sale names ("Bank-owned or government home (REO, HUD)"). */
+@media (min-width: 640px) and (max-width: 999px) { .deal-fields .kind-field { grid-column: 1 / -1; } }
 .deal-fields input, .deal-fields select, .deal-notes textarea { width: 100%; box-sizing: border-box; }
 .deal-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
 .saved-deals { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
@@ -2306,6 +2308,8 @@ h2.part-bar { margin: 36px 0 16px; padding: 10px 16px; font-size: 1.5rem; border
 .buybox-checks:has(> label:nth-of-type(9)) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 @media (max-width: 1000px) { .buybox-grid, .buybox-checks, .buybox-checks:has(> label) { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .buybox-grid, .buybox-checks, .buybox-checks:has(> label) { grid-template-columns: minmax(0, 1fr); } }
+/* The strategy names are long ("Lien certificates (earn interest until the owner pays)"): two columns where there are two. */
+@media (min-width: 561px) { .buybox-grid .strategy-field { grid-column: span 2; } }
 
 /* Your deal team: build your team, one question at a time */
 .team-progress { color: var(--muted); margin: 0 0 8px; }
@@ -2930,6 +2934,8 @@ dl.cash-result .cash-main { border-color: var(--accent); }
 @container (min-width: 620px) {
   .ad-box:not(.ad-space) .ad-box-grid:has(> .ad-card:only-child) .ad-card,
   .ad-box:not(.ad-space) .ad-box-grid:has(> .ad-card:nth-child(2):last-child) .ad-card { align-items: center; }
+  /* Featured cards have taller bodies: the photo stays at the top, as in the rotating ad. */
+  .ad-box.featured-ads:not(.ad-space) .ad-box-grid .ad-card { align-items: flex-start; }
   .ad-box:not(.ad-space) .ad-box-grid:has(> .ad-card:only-child) .ad-card-body {
     grid-template-columns: minmax(0, 1fr) auto; column-gap: 24px; width: 100%; justify-items: start;
   }

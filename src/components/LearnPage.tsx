@@ -144,8 +144,9 @@ export default function LearnPage() {
         </section>
       ))}
       </details>
-      <details className="plan-section"><summary>Sale guides for your selected state</summary><StatePicker label="Show rules for" /><SaleGuides /></details>
+      {/* Above the sale guides, so an ad never sits under the tax-sale, trustee and sheriff guides. */}
       <AdSpot spot="learn" />
+      <details className="plan-section"><summary>Sale guides for your selected state</summary><StatePicker label="Show rules for" /><SaleGuides /></details>
       <PathNext step="learn" />
     </main>
   );
