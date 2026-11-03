@@ -1,4 +1,3 @@
-import { getMyState } from '../lib/myState';
 import { stateByCode } from '../lib/regions';
 import PageHero from './PageHero';
 import { LEARN_MODULES } from '../lib/learn';
@@ -9,7 +8,7 @@ import { useMyState } from '../lib/myState';
 import { downloadText } from '../lib/download';
 import { navigate } from '../lib/nav';
 import { getMode, readLessons, useLastActivity } from '../lib/journey';
-import { guidedPracticeDone, routePractice } from '../lib/planNext';
+import { guidedPracticeDone, practiceState, routePractice } from '../lib/planNext';
 import { planPath } from '../lib/roadmapState';
 import { CHAPTERS, SPECIALTIES, SOURCES, LOCAL_NOTE, DEFAULT_LAB, accepts, answerTask, calculateDeal, emptyJourney, journeyHref, loadJourney, money, originalDecision, resumeChapter, saveJourney, taskKey, workbookText, type Answer, type Chapter, type JourneyProgress, type LabInputs, type Task } from '../practice/dealJourney';
 import '../styles/deal-journey.css';
@@ -169,7 +168,7 @@ function PartTwoLink({ className, rental }: { className: string; rental: string 
   const own = routePractice(planPath());
   if (!own?.href) return <a className={className} href="#/practice/case">{rental}</a>;
   // The practice runs follow Nevada rules: elsewhere the same link opens your state's drills, so it says so.
-  const st = getMyState();
+  const st = practiceState();
   const words = !st || st === 'NV' ? own.title.charAt(0).toLowerCase() + own.title.slice(1) : own.id === 'c-practice' ? (st === 'AZ' ? 'the Arizona tax lien drill' : 'lien practice (Nevada and Arizona sales)') : `auction drills for ${stateByCode(st)?.name ?? 'your state'}`;
   return <><a className={className} href={own.href}>Next, part 2: {words} →</a> <a className="btn btn-secondary" href="#/practice/case">Optional: buy a rental (the paperwork)</a></>;
 }

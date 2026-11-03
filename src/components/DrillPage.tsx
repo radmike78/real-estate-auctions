@@ -8,7 +8,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { shuffled } from '../lib/shuffle';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useJourney, useLastActivity } from '../lib/journey';
-import { planNow } from '../lib/planNext';
+import { planNow, practiceState } from '../lib/planNext';
 import PageHero from './PageHero';
 import StatePicker from './StatePicker';
 import EmptyState from './EmptyState';
@@ -513,7 +513,7 @@ export default function DrillPage({ id }: { id: string }) {
       )}
       {/* Only once the verdict and the expert's view are shown, outside the missions and their feedback. */}
       {/* On the lien route the Arizona tax lien drill is part 2; on the auction route, the auction drills. */}
-      {allDone && verdict && <RoutePracticeDone what="drill" fits={(id) => (drillState(d) === null || drillState(d) === getMyState()) && (id === 'c-practice' ? d.id === 'tax-lien-az' : drillCard(d).group === 'auctions' && !/^(tax-lien|sid)/.test(d.id))} />}
+      {allDone && verdict && <RoutePracticeDone what="drill" fits={(id) => (drillState(d) === null || drillState(d) === getMyState() || drillState(d) === practiceState()) && (id === 'c-practice' ? d.id === 'tax-lien-az' : drillCard(d).group === 'auctions' && !/^(tax-lien|sid)/.test(d.id))} />}
       {allDone && verdict && <TopicAd drill={d.id} />}
       <div className="decide-nav">
         <a className="btn btn-secondary" href="#/practice/drills">← All practice</a>

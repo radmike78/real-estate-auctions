@@ -74,7 +74,16 @@ export function roadmapNextStep(): RoadmapStep | null {
 const ROUTE_PRACTICE: Partial<Record<RoadmapPath, string>> = { auction: 'a-practice', certificate: 'c-practice' };
 // Lien certificates are sold only in Nevada and Arizona: elsewhere a leftover lien route has no lien practice.
 // (planPath keeps the lien route there only for a lien deal in focus from a state that sells them.)
-export const routePractice = (path: RoadmapPath) => (ROUTE_PRACTICE[path] && !(path === 'certificate' && planPath() !== 'certificate') ? roadmapFor(path).find((s) => s.id === ROUTE_PRACTICE[path]) : undefined);
+export const routePractice = (path: RoadmapPath) => (ROUTE_PRACTICE[path] && !(path === 'certificate' && planPath() !== 'certificate') ? roadmapFor(path, practiceState()).find((s) => s.id === ROUTE_PRACTICE[path]) : undefined);
+
+/** The state whose practice fits: yours, or on the lien route a focused lien deal's (an Arizona lien deal for a Texas reader). */
+export function practiceState() {
+  const st = getMyState();
+  if (st === 'NV' || st === 'AZ' || planPath() !== 'certificate') return st;
+  const deals = loadDeals();
+  const d = deals.find((x) => `analyzed:${x.id}` === focusDealId(deals));
+  return d && d.kind === 'lien' && (d.state === 'NV' || d.state === 'AZ') ? d.state : st;
+}
 
 /** Practice part 2 is done: the rental case's packet, or (auction and lien routes) that route's practice step. */
 export function guidedPracticeDone(path: RoadmapPath = planPath()): boolean {

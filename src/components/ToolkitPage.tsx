@@ -26,7 +26,7 @@ import { cleanDealSteps, DEAL_KEY, DEAL_STEPS_KEY, type DealSteps } from '../lib
 import { cleanStatus, creditStep, dealScoped, focusDealId, NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_KEY, ROADMAP_PATH_KEY, roadmapDone, roadmapPath, roadmapProgress, STATUS_KEY } from '../lib/roadmapState';
 import { stageLabel, stageOf, stageOfStep, STAGE_STEPS, DEAL_STAGES } from '../lib/dealStage';
 import PlanNext from './PlanNext';
-import { planNow } from '../lib/planNext';
+import { planNow, practiceState } from '../lib/planNext';
 import { cashForPrice, cleanGoal, investorProfile, cleanTeamList, GOAL_KEY, PLAN_EVENT, PRICE_DEFAULTS, priceForCash, TEAM_LIST_KEY, TEAM_ROLES, type PriceAssumptions, type TeamList, type TeamMember } from '../lib/myPlan';
 import { currentProgress } from '../lib/journey';
 import { DECIDE_KEY, QUESTIONS, rank, type Answers } from '../lib/decide';
@@ -259,7 +259,8 @@ export function FirstDealRoadmap() {
   const scoped = (s: RoadmapStep) => !!deal && dealScoped(s);
   const doneOf = (s: RoadmapStep) => (scoped(s) ? (perDeal[deal!.id]?.done ?? []).includes(s.id) : done.includes(s.id));
   const statusOf = (s: RoadmapStep): StepStatus | undefined => (scoped(s) ? perDeal[deal!.id]?.status[s.id] : status[s.id]);
-  const steps = roadmapFor(path);
+  // On the lien route, a focused lien deal's state decides its practice step (an Arizona deal for a Texas reader).
+  const steps = roadmapFor(path, practiceState());
   // A step that doesn't apply (with its stated reason) counts as settled, so it never blocks the next one.
   const settled = (s: RoadmapStep) => doneOf(s) || statusOf(s) === 'na';
   const count = steps.filter(settled).length;
@@ -845,7 +846,7 @@ function TeamListSection() {
 /** Everything in My plan as one text file: goal, cash, buy box, roadmap and team. */
 function planText(): string {
   const path = planPath();
-  const steps = roadmapFor(path);
+  const steps = roadmapFor(path, practiceState());
   const done = roadmapDone();
   const status = read(STATUS_KEY, {}, cleanStatus);
   const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);

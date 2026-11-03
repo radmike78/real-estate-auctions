@@ -183,8 +183,8 @@ describe('the deal packet', () => {
     const offer: Deal = { ...deal, plan: 'commercial' };
     localStorage.setItem('fsf.calc.commercial.d1-offer.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 0, loanPct: 70, value: 900000 }));
     t = packetSections(offer, EMPTY_PACKET, now).find((s) => s.key === 'numbers')!.lines.join('\n');
-    expect(t).toMatch(/Walk-away price, set by the lender’s minimum coverage \(DSCR\): \$[\d,]+/);
-    expect(t).toMatch(/If rent 10% lower: walk-away price, set by the lender’s minimum coverage/);
+    expect(t).toMatch(/Walk-away price, set by the minimum income coverage \(DSCR\): \$[\d,]+/);
+    expect(t).toMatch(/If rent 10% lower: walk-away price, set by the minimum income coverage/);
     // The target return sets it: the usual wording.
     localStorage.setItem('fsf.calc.commercial.d1.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 9 }));
     expect(numbers()).toMatch(/Highest price for a 9% return on cost: \$[\d,]+/);

@@ -360,6 +360,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           </label>
         </div>
         {/* Texas tax sales are held by the sheriff or a constable: picking the sheriff's sale would drop the owner's buy-back. */}
+        {/* A saved deal opened from another state keeps its own state's rules: say so, since the header shows yours. */}
+        {deal.id && mine && mine !== deal.state && <p className="notice" role="note">This saved deal is in {stateByCode(deal.state)?.name ?? deal.state}; your chosen state is {stateByCode(mine)?.name ?? mine}. Its numbers and checklist follow {stateByCode(deal.state)?.name ?? deal.state}’s rules.</p>}
         {deal.state === 'AZ' && deal.kind === 'lien' && <p className="muted small" id="az-land-note">Buying land the county already took by tax deed, at the board of supervisors’ auction? That’s the property, not a lien, and this list has no checklist for it yet: follow the county’s own sale terms (A.R.S. 42-18301 to 42-18303) and ask a title company before you bid.</p>}
         {deal.state === 'TX' && deal.kind === 'court' && <p className="muted small" id="tx-court-note">Buying at a Texas tax sale? The sheriff or a constable holds those too: choose “County tax sale (the property)” so the owner’s right to buy it back is counted.</p>}
         <label className="check">
