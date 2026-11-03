@@ -120,7 +120,8 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     };
     // A commercial building's association, if any, isn't the homeowners' association these rules are written for.
     if (!commercialListing) sale.push({ id: 'hoa-docs', text: hoa[st] });
-    sale.push({ id: 'lead', text: 'Built before 1978: in most sales you get a lead-paint pamphlet and 10 days to test for lead-based paint, unless you waive it. A sale at foreclosure is exempt, so plan your own lead-safe inspection there.' });
+    // The lead rule covers housing (40 CFR 745.103 "target housing"): apartments yes, offices, stores and industrial space no.
+    sale.push({ id: 'lead', text: (commercialListing ? 'Apartments (housing, not offices, stores or industrial space) b' : 'B') + 'uilt before 1978: in most sales you get a lead-paint pamphlet and 10 days to test for lead-based paint, unless you waive it. A sale at foreclosure is exempt, so plan your own lead-safe inspection there.' });
   }
   if (d.kind === 'reo') {
     sale.push({ id: 'reo-asis', text: 'Expect an as-is sale: the seller usually won’t repair. Inspect within the contract’s window (10 days on Fannie Mae’s contract).', href: '#/bank-owned' });

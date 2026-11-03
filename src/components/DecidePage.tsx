@@ -257,7 +257,8 @@ export default function DecidePage() {
           <p className="muted">Your answers are kept in this browser. To keep a copy, <a href="#/toolkit/backup">download your progress</a> in My plan.</p>
         </section>
       )}
-      <AdSpot spot="decide" />
+      {/* Not after results that recommend forced sales (auctions) or liens (hands-off includes lien certificates). */}
+      <AdSpot spot="decide" allow={!matches.some((m) => m.strategy.key === 'auction' || m.strategy.key === 'passive')} />
     </main>
   );
 }
