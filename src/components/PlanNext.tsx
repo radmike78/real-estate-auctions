@@ -7,13 +7,13 @@ import { setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask 
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
-import { planNow, planStarted, roadmapNextStep, ROADMAP_TASK_HREF } from '../lib/planNext';
+import { guidedPracticeDone, planNow, planStarted, roadmapNextStep, ROADMAP_TASK_HREF } from '../lib/planNext';
 import { stepAdCategories, stepAllowsAds } from '../lib/contextAds';
 import { useSpotCategories } from './AdSpot';
 import { useDirectory } from './ProDirectory';
 import { FixedAds, useAdShows } from './AdBoxes';
 import { DECIDE_KEY, rank, type Answers } from '../lib/decide';
-import { currentProgress, getMode, practicePart2Done } from '../lib/journey';
+import { currentProgress, getMode } from '../lib/journey';
 import { ROADMAP_PHASES, roadmapFor } from '../lib/roadmap';
 import { DEAL_KEY } from '../lib/roadmapDeals';
 import { NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_PATH_KEY, roadmapProgress, settledFor, focusDealId } from '../lib/roadmapState';
@@ -141,7 +141,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
               // Only while a guided beginner is still learning (as My plan's next task says), and only properties
               // still being researched: a passed one isn't waiting.
               const waiting = deals.filter((d) => !d.practice && d.stage !== 'passed');
-              if (focus || !waiting.length || getMode() !== 'guided' || practicePart2Done()) return null;
+              if (focus || !waiting.length || getMode() !== 'guided' || guidedPracticeDone()) return null;
               return <p className="muted small">{waiting.length > 1 ? `Your ${waiting.length} saved properties wait` : `Your saved property, ${waiting[0].name || 'unnamed'}, waits`} while you finish the lessons and practice. Choose {waiting.length > 1 ? 'one' : 'it'} here to work on it now.</p>;
             })()}
             {deal && stage && (

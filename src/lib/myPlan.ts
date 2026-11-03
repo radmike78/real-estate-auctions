@@ -116,6 +116,21 @@ export function worksheetDownPct(): number | null {
 }
 
 /** Starting numbers for a new rental analysis from your profile; nothing here is an approved loan term. */
+/** Commercial income's loan for a listed building, from your plan: a borrower starts at a common 75% (less when your
+ * cash worksheet puts more down), paying cash at 0. Used by Analyze, so its cash need matches My plan's price limit. */
+export function commercialLoanStart(p: InvestorProfile, offer: boolean): number | null {
+  if (!offer) return null;
+  if (p.loan === 'cash') return 0;
+  if (p.loan !== 'yes') return null;
+  const wd = worksheetDownPct();
+  return wd !== null ? Math.min(75, Math.round((100 - wd) * 100) / 100) : 75;
+}
+
+export function commercialProfileStart(p: InvestorProfile, offer: boolean): Record<string, number> {
+  const loan = commercialLoanStart(p, offer);
+  return loan === null ? {} : { loanPct: loan };
+}
+
 export function profileStart(p: InvestorProfile, offer: boolean): Record<string, number> {
   const out: Record<string, number> = {};
   if (p.loan === 'cash') out.loanPct = 0;

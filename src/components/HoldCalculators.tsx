@@ -272,10 +272,10 @@ function focusCalcField(from: HTMLElement, k: string) {
 }
 
 /** The walk-away price needs more cash than My plan shows, and no cash limit is entered here to cap it. */
-function PlanCashNote({ need, planCash, offer, auctionDay = 0 }: { need: number; planCash: number; offer: boolean; /** Cash on auction day, shown above: named when the total adds more to it. */ auctionDay?: number }) {
+function PlanCashNote({ need, planCash, offer, auctionDay = 0, noLoan = false }: { need: number; planCash: number; offer: boolean; /** Cash on auction day, shown above: named when the total adds more to it. */ auctionDay?: number; /** No loan is counted (Loan % is 0): said, so the figure isn't read as a borrower's. */ noLoan?: boolean }) {
   return (
     <p className="calc-verdict bad" role="note">
-      <strong>This needs about {fmtMoney(Math.round(need))} of your cash at the walk-away price{!offer && auctionDay > 0 && Math.round(need) > Math.round(auctionDay) ? ` (the ${fmtMoney(Math.round(auctionDay))} you pay on auction day, plus repairs and costs until it’s ready)` : ''}; My plan shows {fmtMoney(Math.round(planCash))} of investable cash.</strong>{' '}
+      <strong>{noLoan ? 'This assumes no loan (Loan % is 0): it' : 'This'} needs about {fmtMoney(Math.round(need))} of your cash at the walk-away price{!offer && auctionDay > 0 && Math.round(need) > Math.round(auctionDay) ? ` (the ${fmtMoney(Math.round(auctionDay))} you pay on auction day, plus repairs and costs until it’s ready)` : ''}; My plan shows {fmtMoney(Math.round(planCash))} of investable cash.</strong>{' '}
       {offer ? 'Enter the cash you can put in to cap your price at what you have, or compare a loan with a lender.' : 'Enter the cash you can bring (an auction wants the full amount by its payment deadline) to cap the bid at what you have, or compare a loan with a lender.'}{' '}
       <button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>Enter your cash</button>
     </p>
@@ -682,7 +682,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
       <div className="calc-inputs"><ExampleInputs labels={still} all={allExample} /><CalcFields groups={groups} values={v} onChange={set} /></div>
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
-        <CommercialAtPrice v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={noReal ? NaN : r.maxBid} cashTyped={cashTyped} />
+        <CommercialAtPrice v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={noReal ? NaN : r.maxBid} cashTyped={cashTyped} capTyped={typedKeys.has('targetCapPct')} />
         {n.byLine && (() => {
           const blank = ([['opTaxYear', 'property tax'], ['opInsuranceYear', 'insurance'], ['opRepairsYear', 'repairs'], ['opUtilitiesYear', 'utilities'], ['opManagementPct', 'management']] as const).filter(([k]) => !(Number(v[k]) > 0)).map(([, label]) => label);
           if (!blank.length) return null;
@@ -692,14 +692,27 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
         {/* An auction purchase's later loan is sized on the value: with no value entered, no loan is counted. */}
         {!offer && v.loanPct > 0 && !(v.value > 0) && <p className="calc-note small" role="note"><strong>No loan is counted yet: the value is blank.</strong> A loan after an auction is sized on the value an appraisal would support. Enter it (under the loan terms) to include the loan in the cash and the walk-away price.</p>}
         <HoldResults commercial r={r} title="Walk-away price for the income" target={`Yields ${typedKeys.has('targetCapPct') ? 'your' : 'our example'} ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} headLabel="Walk-away price" noRealistic={noReal} hasLoan={v.loanPct > 0 && (offer || v.value > 0)} supported={uncapped.noBidWorks ? NaN : uncapped.maxBid} />
-        {walkShort && <PlanCashNote need={walkNeed} planCash={planCash} offer={offer} auctionDay={r.cashAtAuction} />}
+        {walkShort && <PlanCashNote need={walkNeed} planCash={planCash} offer={offer} auctionDay={r.cashAtAuction} noLoan={offer && !(v.loanPct > 0)} />}
       </div>
       <StickyResult label="Walk-away price" value={noReal ? 'No realistic price' : r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks || noReal} />
     </div>
   );
 }
 
-function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false }: { v: CommercialInputs; offer: boolean; setPrice: (n: number) => void; target: number; /** A cash figure was typed here (a typed 0 is no limit). */ cashTyped?: boolean }) {
+/** The commercial verdict at your price, naming each test it misses (return on cost, the coverage minimum, cash flow). */
+function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialAtPrice>, capTyped: boolean): string {
+  const target = `${capTyped ? 'your' : 'our example'} ${v.targetCapPct}% return-on-cost target`;
+  const misses: string[] = [];
+  if (a.capOnCost !== null && a.capOnCost * 100 < v.targetCapPct) misses.push(`${target} (${(a.capOnCost * 100).toFixed(1)}% at this price)`);
+  if (!a.loanOk && a.dscr !== null) misses.push(`the ${v.minDscr}× income coverage minimum (${dscrText(a.dscr)}×)`);
+  const noFlow = a.cashFlow <= 0 ? 'has no positive cash flow' : '';
+  if (a.capOnCost === null && !misses.length && !noFlow) return 'No return on cost to compare yet with these numbers.';
+  if (!misses.length && !noFlow) return `Meets ${target}${a.loan > 0 ? ' and the income coverage minimum' : ''}, with positive cash flow, with these numbers.`;
+  const missText = misses.length ? `Misses ${misses.join(' and ')}` : '';
+  return `${missText}${missText && noFlow ? ', and ' : ''}${missText ? noFlow : noFlow.replace(/^h/, 'H')}.`;
+}
+
+function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capTyped = false }: { v: CommercialInputs; offer: boolean; setPrice: (n: number) => void; target: number; /** A cash figure was typed here (a typed 0 is no limit). */ cashTyped?: boolean; /** The cap-rate target was typed (else it's our example). */ capTyped?: boolean }) {
   const a = v.atPrice > 0 ? commercialAtPrice(v, v.atPrice, offer) : null;
   const word = offer ? 'Your offer' : 'Your bid';
   const meets = a && a.capOnCost !== null && a.capOnCost * 100 >= v.targetCapPct && a.loanOk && a.cashFlow > 0;
@@ -713,7 +726,7 @@ function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false }: { 
       <label className="field"><span>{word} ($)</span><NumInput blank max={1e9} value={v.atPrice} onValue={(n) => setPrice(n ?? 0)} /></label>
       {Number.isFinite(target) && target > 0 && <button type="button" className="linkish" onClick={() => setPrice(target)}>Use the walk-away price ({fmtMoney(target)})</button>}
       {!a ? <p>Enter the asking price or your proposed price to compare this property with your targets.</p> : <>
-        <p className={meets && !planShort && !(v.cashAvailable > 0 && need > v.cashAvailable) ? 'notice' : 'caution'}>{meets ? 'Meets your return-on-cost and coverage targets with these numbers.' : 'Misses the return-on-cost or coverage target, or has no positive cash flow.'} Verify the income, costs and loan terms before relying on this result.</p>
+        <p className={meets && !planShort && !(v.cashAvailable > 0 && need > v.cashAvailable) ? 'notice' : 'caution'}>{commercialVerdict(v, a, capTyped)} Verify the income, costs and loan terms before relying on this result.</p>
         {v.cashAvailable > 0 && need > v.cashAvailable && <p className="caution">Your entered cash does not cover this price and the modeled costs.</p>}
         {planShort && <p className="caution">It needs about {fmtMoney(Math.round(need))} of your cash, more than the {fmtMoney(Math.round(planCash))} of investable cash in My plan. <button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>Enter your cash</button></p>}
         {!offer && a.loan > 0 && <p className="caution">The loan is a later refinance, not cash available at the auction. Until it closes, the full purchase and costs are your cash.</p>}

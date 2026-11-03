@@ -377,7 +377,7 @@ export const ROADMAP: RoadmapStep[] = [
   {
     id: 'c-budget', phase: 4, path: LIEN, title: 'Budget for the whole holding period',
     evidence: 'exit',
-    text: 'Plan for more than the purchase: later years’ taxes you may pay, fees, and an attorney if you ever foreclose.',
+    text: 'Plan for more than the purchase: later years’ taxes you may pay, fees, and what it costs if a lien is never paid (Arizona: an attorney for a foreclosure case; Nevada: serving notice and asking the treasurer for a deed).',
     outcome: 'A budget for the purchase, later taxes, fees, and a possible attorney.',
     steps: ['Total what you’ll pay at the sale, with fees.', 'Estimate later years’ taxes you may choose to pay.', 'Arizona: get an attorney’s rough cost for a foreclosure case, in case you need one. Nevada (SID): budget for the formal notice to the owner (an attorney or process server) and the delinquent taxes and assessments you must pay before the treasurer issues a deed.'],
     doneWhen: 'Your budget covers the purchase, later taxes, fees and a possible attorney.',

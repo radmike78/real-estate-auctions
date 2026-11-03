@@ -44,3 +44,24 @@ it('keeps specialist contacts when the saved team is reloaded', () => {
   expect(Object.keys(cleaned).sort()).toEqual(Object.keys(contacts).sort());
   for (const role of Object.keys(contacts)) expect(TEAM_ROLES).toContain(role);
 });
+
+describe('Commercial income’s starting loan from your plan', () => {
+  it('starts a borrower at a common 75% on a listed building, cash at 0, and nothing at an auction or when unsure', async () => {
+    const { commercialLoanStart, commercialProfileStart } = await import('./myPlan');
+    const p = { loan: 'yes' as const, manager: null, investable: 432_000 };
+    expect(commercialLoanStart(p, true)).toBe(75);
+    expect(commercialProfileStart(p, true)).toEqual({ loanPct: 75 });
+    expect(commercialLoanStart({ ...p, loan: 'cash' }, true)).toBe(0);
+    expect(commercialLoanStart({ ...p, loan: 'unsure' }, true)).toBeNull();
+    expect(commercialLoanStart(p, false)).toBeNull();
+    expect(commercialProfileStart(p, false)).toEqual({});
+  });
+});
+
+describe('tax-sale wait help', () => {
+  it('names Utah’s wait for the tax deed', async () => {
+    const { taxSaleWait } = await import('./stateCosts');
+    expect(taxSaleWait('UT')).toMatch(/60 to 180 days/);
+    expect(taxSaleWait('NV')).toMatch(/NRS 361\.600/);
+  });
+});

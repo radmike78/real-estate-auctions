@@ -11,7 +11,7 @@ import { STATES, countyName } from '../lib/regions';
 import { dropStateLead, forStateText, getMyState, useMyState } from '../lib/myState';
 import { fmtMoney } from '../lib/status';
 import { getMyArea } from '../lib/myArea';
-import { countyTaxLine } from '../lib/stateCosts';
+import { countyTaxLine, countyTaxRate } from '../lib/stateCosts';
 import { cleanAssumptions, cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP_PATHS, ROADMAP_PHASES, ROADMAP_PHASE_HELP, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
 import { downloadText, fileName } from '../lib/download';
 import { cleanLog, logText } from '../lib/evidence';
@@ -538,7 +538,12 @@ function PriceFromCash({ cash }: { cash: number }) {
       {Number.isFinite(price) ? (
         <p>
           With {a.downPct}% down, closing costs of about {a.closingPct}% and {a.reserveMonths} months of payments kept in reserve, your {fmtMoney(cash)} supports a price up to about <strong>{fmtMoney(price)}</strong>:
-          {' '}{fmtMoney(Math.round(c.down))} down, {fmtMoney(Math.round(c.closing))} closing costs and {fmtMoney(Math.round(c.reserves))} in reserve (about {fmtMoney(Math.round(c.monthly))} a month in loan, tax and insurance). Repairs come out of the same cash, so leave room for them.{a.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : ''}{investorProfile().ownerOccupant && a.downPct >= 20 ? ` ${a.downPct}% down is common for an investment; a home you’ll live in can need less, so replace it below with your lender’s figure.` : ''}
+          {' '}{fmtMoney(Math.round(c.down))} down, {fmtMoney(Math.round(c.closing))} closing costs and {fmtMoney(Math.round(c.reserves))} in reserve (about {fmtMoney(Math.round(c.monthly))} a month in loan, tax and insurance, at {a.taxInsPct}% of the price a year for tax and insurance{(() => {
+            // Where the county's tax alone is higher (Texas rates are often 2% or more), say so here, not only in the folded estimates.
+            const area = getMyArea();
+            const rate = area?.county && area.state !== 'NV' && area.state !== 'AZ' ? countyTaxRate(area.state, area.county) : null;
+            return rate && rate.pct >= a.taxInsPct ? `; ${/\bCity$/.test(area!.county!) ? area!.county : `${area!.county} County`}’s tax alone is about ${rate.pct.toLocaleString('en-US', { maximumFractionDigits: 2 })}%, so change it under the planning estimates` : '';
+          })()}). Repairs come out of the same cash, so leave room for them.{a.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : ''}{investorProfile().ownerOccupant && a.downPct >= 20 ? ` ${a.downPct}% down is common for an investment; a home you’ll live in can need less, so replace it below with your lender’s figure.` : ''}
         </p>
       ) : (
         <p>With no down payment, closing costs or reserves, these assumptions don’t limit the price. Enter what your lender expects below to see a price.</p>
@@ -617,6 +622,9 @@ function BuyBoxBuilder() {
   );
   const state = STATES.find((s) => s.code === b.state);
   const lien = b.strategy === LIEN_STRATEGY;
+  // A flip is sold, not rented: no rental cash-flow target. Flips and auctions set a price to bid or pay, not a loan size.
+  const flip = b.strategy === 'Fix and flip';
+  const bidPrice = flip || b.strategy === 'Tax and foreclosure auctions';
   // Lien certificates only where they're sold (Arizona and Nevada), unless already chosen.
   const strategies = STRATEGY_OPTIONS.filter((s) => s !== LIEN_STRATEGY || lien || liensSoldIn(b.state || mine));
   return (
@@ -672,10 +680,10 @@ function BuyBoxBuilder() {
               <span>Bedrooms or units</span>
               <input type="text" maxLength={40} value={b.beds} onChange={(e) => set('beds', e.target.value)} placeholder="e.g. 3+ beds, or 2–4 units" />
             </label>
-            {money('priceMax', 'Highest price ($)', 'Use your own budget and financing information. Pre-approval does not guarantee a loan or show what you can comfortably afford.')}
+            {money('priceMax', 'Highest price ($)', bidPrice ? `The most you’d bid or pay, before repairs and costs (Analyze gives the walk-away price).${investorProfile().loan === 'cash' || b.strategy === 'Tax and foreclosure auctions' ? ' Auctions want cash by their payment deadline; any loan comes afterward.' : ''}` : 'Use your own budget and financing information. Pre-approval does not guarantee a loan or show what you can comfortably afford.')}
             {money('repairsMax', 'Most repairs you’ll take on ($)', 'New investors often start with cosmetic work only.')}
             {money('cashMax', 'Cash you can put in, all in ($)', 'Down payment, closing costs, repairs and reserves.')}
-            {money('minCashFlow', 'Minimum monthly cash left from a rental ($)', 'Your cash-flow target after operating costs, loan payments and planned reserves, before income tax.')}
+            {!flip && money('minCashFlow', b.strategy === 'Tax and foreclosure auctions' ? 'Minimum monthly cash left, if you rent it ($)' : 'Minimum monthly cash left from a rental ($)', 'Your cash-flow target after operating costs, loan payments and planned reserves, before income tax.')}
           </>
         )}
       </div>
@@ -715,7 +723,7 @@ function BuyBoxBuilder() {
           {b.priceMax ? (lien ? ` Up to ${fmtMoney(b.priceMax)} for one certificate.` : ` Price up to ${fmtMoney(b.priceMax)}.`) : ''}
           {b.repairsMax && !lien ? ` Repairs up to ${fmtMoney(b.repairsMax)}.` : ''}
           {b.cashMax ? ` No more than ${fmtMoney(b.cashMax)} of my cash in it.` : ''}
-          {b.minCashFlow && !lien ? ` At least ${fmtMoney(b.minCashFlow)} a month of cash flow.` : ''}
+          {b.minCashFlow && !lien && !flip ? ` At least ${fmtMoney(b.minCashFlow)} a month of cash flow.` : ''}
         </p>
         {b.dealBreakers.length > 0 && <p><strong>I walk away if:</strong> {b.dealBreakers.map((d) => (/^[A-Z][a-z]/.test(d) ? d.charAt(0).toLowerCase() + d.slice(1) : d)).join('; ')}.</p>}
         <div className="decide-nav">
@@ -748,7 +756,7 @@ function buyBoxText(b: BuyBox, stateName?: string): string {
           `Highest price: ${money(b.priceMax)}`,
           `Most repairs I’ll take on: ${money(b.repairsMax)}`,
           `Cash I can put in, all in: ${money(b.cashMax)}`,
-          `Least cash flow per month: ${money(b.minCashFlow)}`,
+          ...(b.strategy === 'Fix and flip' ? [] : [`Least cash flow per month: ${money(b.minCashFlow)}`]),
         ]),
     `I walk away if: ${b.dealBreakers.join('; ')}`,
     `Notes: ${b.notes}`,

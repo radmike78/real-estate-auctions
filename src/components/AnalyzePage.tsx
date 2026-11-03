@@ -15,7 +15,7 @@ import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions'
 import { CURRENT_KEY, KEPT_NOTE_KEY, OPENED_KEY, keepUnsavedDraft, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, nextStamp, restoreDraftNumbers, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
-import { worksheetDownPct, investorProfile } from '../lib/myPlan';
+import { worksheetDownPct, investorProfile, commercialLoanStart } from '../lib/myPlan';
 import { fmtMoney } from '../lib/status';
 import { getMyArea } from '../lib/myArea';
 import { analyzeAdCategories, analyzeAllowsAds } from '../lib/contextAds';
@@ -455,6 +455,15 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
 
 /** What a new deal's starting numbers take from your plan, said once, so nothing changes silently. */
 function ProfileNote({ deal }: { deal: Deal }) {
+  // Commercial income on a listed building starts its loan from your plan (cash stays its own field there).
+  if (deal.plan === 'commercial') {
+    const p = investorProfile();
+    const loan = commercialLoanStart(p, deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short');
+    if (loan === null) return null;
+    const wd = worksheetDownPct();
+    const text = loan === 0 ? 'paying cash (no loan)' : `a loan for ${loan}% of the price (${wd !== null && 100 - wd <= 75 ? `the ${wd}% down payment in your cash worksheet` : `a common commercial figure until your lender quotes; commercial lenders often want 25% or more down${wd !== null ? `, more than the ${wd}% in your cash worksheet` : ''}`})`;
+    return <p className="muted analyze-profile">From your plan: {text}. This fills in a new deal’s starting loan. Change it below; it isn’t loan terms anyone approved. <a href="#/toolkit">Edit your plan</a></p>;
+  }
   // Only Keep and rent starts from your plan's cash, loan and management.
   if (deal.plan !== 'rent') return null;
   const listed = deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short';

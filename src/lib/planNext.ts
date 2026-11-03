@@ -11,7 +11,7 @@ import { loadCase } from '../practice/caseProgress';
 import { caseFor, caseResume } from '../practice/rentalCase';
 import { LEARN_MODULES } from './learn';
 import { cleanGoal, GOAL_KEY } from './myPlan';
-import { ROADMAP_PHASES, roadmapFor, type RoadmapStep } from './roadmap';
+import { ROADMAP_PHASES, roadmapFor, type RoadmapPath, type RoadmapStep } from './roadmap';
 import { AUTO_STEPS, cleanStatus, rawDealChoice, focusDealId, planPath, readKey, roadmapDone, settledFor, STATUS_KEY } from './roadmapState';
 
 export interface PlanNow {
@@ -70,6 +70,17 @@ export function roadmapNextStep(): RoadmapStep | null {
 }
 
 /** A roadmap step as a plan task: what to do, what you'll have, and the page that helps. */
+// On the auction and lien routes, practice part 2 is the route's own practice, not the rental paperwork case.
+const ROUTE_PRACTICE: Partial<Record<RoadmapPath, string>> = { auction: 'a-practice', certificate: 'c-practice' };
+const routePractice = (path: RoadmapPath) => (ROUTE_PRACTICE[path] ? roadmapFor(path).find((s) => s.id === ROUTE_PRACTICE[path]) : undefined);
+
+/** Practice part 2 is done: the rental case's packet, or (auction and lien routes) that route's practice step. */
+export function guidedPracticeDone(path: RoadmapPath = planPath()): boolean {
+  if (practicePart2Done()) return true;
+  const step = routePractice(path);
+  return !!step && settledFor('')(step);
+}
+
 export const roadmapTask = (s: RoadmapStep): PlanTask => ({
   key: `roadmap-${s.id}`,
   label: s.title,
@@ -92,7 +103,7 @@ export function planNow(now = new Date()): PlanNow {
   // Unless you chose that property in My plan: then it's the one you're working on. (Practice analyses saved during
   // paper practice are left out of the focus altogether: roadmapState.focusDealId.)
   const picked = !!deal && rawDealChoice() === `analyzed:${deal.id}`;
-  const guidedLearning = !picked && getMode() === 'guided' && !practicePart2Done() && researching;
+  const guidedLearning = !picked && getMode() === 'guided' && !guidedPracticeDone(planPath(deals)) && researching;
   if (deal && !guidedLearning) {
     const stage = stageOf(deal);
     return { goal, source: 'deal', context: `${deal.name} · ${stageLabel(stage, deal)}`, task: dealNextTask(deal, undefined, now, stage), deal, stage, tasks: stageTasks(deal, stage, undefined, now) };
@@ -126,7 +137,13 @@ export function planNow(now = new Date()): PlanNow {
     return { goal, source: 'starter', context: 'Step 3 · Practice part 1: Cedar House (the decisions)', task: { key: 'practice-deal', label: chapter.title, produces: 'practical experience checking a deal, recorded in your workbook', href: journeyHref(chapter.id), support: [], done: false, text: chapter.purpose } };
   }
   // Practice part 2 (the paperwork) follows part 1 before the roadmap takes over.
-  if (getMode() !== 'explore' && !roadmapStarted && practiceDone) {
+  const ownPractice = routePractice(planPath(deals));
+  if (getMode() !== 'explore' && !roadmapStarted && practiceDone && ownPractice) {
+    if (!guidedPracticeDone(planPath(deals))) {
+      const t = roadmapTask(ownPractice);
+      return { goal, source: 'starter', context: `Step 3 · Practice part 2: ${ownPractice.title}`, task: { ...t, support: [...t.support, { label: 'Optional: Buy a rental, start to finish (the paperwork for a listed home), if you may buy one later', href: '#/practice/case' }] } };
+    }
+  } else if (getMode() !== 'explore' && !roadmapStarted && practiceDone) {
     const pc = caseFor(getMyState());
     const prog = loadCase(pc.state);
     const next = caseResume(pc.stages, prog);

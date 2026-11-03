@@ -274,5 +274,6 @@ export function taxSaleWait(state: StateCode): string {
   if (state === 'NV') return 'After a tax sale, resale may wait for a quiet title action or the 2-year window after the Treasurer’s deed (NRS 361.600).';
   if (state === 'CA') return 'After a tax sale, anyone challenging it has a year to petition the board of supervisors, and another year to sue if it refuses (R&T 3725), so title insurance and resale may wait.';
   if (state === 'TX') return 'After a Texas tax sale, the owner can redeem for 180 days, or 2 years for a homestead, land designated for agricultural use or a mineral interest, counted from the day the deed is filed (Tax Code 34.21). Resale may wait until that ends and a title company will insure the title.';
+  if (state === 'UT') return 'After a Utah tax sale, the tax deed is recorded only after the county ratifies the bids (Utah County says usually 60 to 180 days after the sale), so count that wait before work or a resale, then the time a title company needs before it insures the title.';
   return 'After a forced sale, resale may wait until a title company will insure the title; ask one before you plan your timeline.';
 }
