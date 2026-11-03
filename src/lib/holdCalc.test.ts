@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fhaMonthlyMi, cashAndPropertyWeak, noRealisticPrice, allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialAtPrice, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt, withoutOldValueExample, refiOnExampleValue, refiValueWords, rentVerdict } from './holdCalc';
+import { dscrText, fhaMonthlyMi, cashAndPropertyWeak, noRealisticPrice, allInCost, annualDebtService, COMMERCIAL_DEFAULTS, commercialMaxBid, commercialAtPrice, commercialNoi, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentMaxBid, rentNoi, sanitizeNumbers, rentStress, rentMonthlyCashFlow, explainRent, rentAtPrice, loanAt, withoutOldValueExample, refiOnExampleValue, refiValueWords, rentVerdict } from './holdCalc';
 import { rentalStartFor } from './stateCosts';
 
 describe('rent / hold', () => {
@@ -295,4 +295,10 @@ it('works out FHA mortgage insurance from HUD’s table (ML 2023-05)', () => {
   expect(fhaMonthlyMi({ atPrice: 800000, value: 0, loanPct: 96.5, years: 30 })!.rate).toBeCloseTo(0.75);
   expect(fhaMonthlyMi({ atPrice: 400000, value: 0, loanPct: 80, years: 30 })).toBeNull();
   expect(fhaMonthlyMi({ atPrice: 400000, value: 0, loanPct: 96.5, years: 15 })).toBeNull();
+});
+
+it('shows income coverage rounded down without losing a hundredth to float error', () => {
+  expect(dscrText(1.15)).toBe('1.15');
+  expect(dscrText(1.2499)).toBe('1.24');
+  expect(dscrText(1.25)).toBe('1.25');
 });

@@ -104,9 +104,12 @@ export function investorProfile(): InvestorProfile {
 /** The down payment (% of price) you set in the cash worksheet's planning estimates, or null if you never changed them. */
 export function worksheetDownPct(): number | null {
   try {
+    // The worksheet's own copy, else the one saved with the buy box (where the worksheet's price went).
     const e = JSON.parse(localStorage.getItem('deedowl.cash.estimates.v1') ?? 'null') as { downPct?: unknown } | null;
-    const d = e?.downPct;
-    return typeof d === 'number' && Number.isFinite(d) && d >= 0 && d <= 100 ? d : null;
+    const box = JSON.parse(localStorage.getItem('deedowl.buybox.v1') ?? 'null') as { priceAssumptions?: { downPct?: unknown } } | null;
+    const d = e?.downPct ?? box?.priceAssumptions?.downPct;
+    // 100% down is no loan at all: leave the loan field to the cash/loan answer instead.
+    return typeof d === 'number' && Number.isFinite(d) && d >= 0 && d < 100 ? d : null;
   } catch {
     return null;
   }

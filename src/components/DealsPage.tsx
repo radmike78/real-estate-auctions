@@ -21,7 +21,7 @@ import StatusBadge from './StatusBadge';
 import { dealNumbers } from '../lib/propertyPacket';
 import { flipNeedsRepairs, nextAction, savedNumbers } from '../lib/dealPacket';
 import { investorProfile } from '../lib/myPlan';
-import { refiValueWords, rentVerdict } from '../lib/holdCalc';
+import { dscrText, refiValueWords, rentVerdict } from '../lib/holdCalc';
 import { stageLabel, stageOf, setDealStage } from '../lib/dealStage';
 import AdSpot from './AdSpot';
 
@@ -172,7 +172,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       const limit = commercial.cashLimit && commercial.cashLimit > 0 ? commercial.cashLimit : commercial.cashTyped ? 0 : planCash;
       const need = commercial.atNeed ?? 0;
       const short = limit > 0 && need > limit;
-      return <p className={missed || short ? 'deal-urgent' : undefined}>At your price, {fmtMoney(a.price)}: {a.cashFlow < 0 ? `loses ${fmtMoney(Math.round(-a.cashFlow / 12))}` : `${fmtMoney(Math.round(a.cashFlow / 12))} cash flow`} a month{a.capOnCost !== null ? ` · ${(a.capOnCost * 100).toFixed(1)}% return on cost (target ${commercial.capPct}%)` : ''}{!a.loanOk && a.dscr !== null ? ` · income coverage ${(Math.floor(a.dscr * 100) / 100).toFixed(2)}× (below your ${commercial.minDscr ?? ''}× minimum)` : ''}{short ? ` · needs about ${fmtMoney(Math.round(need))} of your cash (${commercial.cashLimit && commercial.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</p>;
+      return <p className={missed || short ? 'deal-urgent' : undefined}>At your price, {fmtMoney(a.price)}: {a.cashFlow < 0 ? `loses ${fmtMoney(Math.round(-a.cashFlow / 12))}` : `${fmtMoney(Math.round(a.cashFlow / 12))} cash flow`} a month{a.capOnCost !== null ? ` · ${(a.capOnCost * 100).toFixed(1)}% return on cost (target ${commercial.capPct}%)` : ''}{!a.loanOk && a.dscr !== null ? ` · income coverage ${dscrText(a.dscr)}× (below the ${commercial.minDscr ?? 1.25}× minimum)` : ''}{short ? ` · needs about ${fmtMoney(Math.round(need))} of your cash (${commercial.cashLimit && commercial.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</p>;
     }
     if (commercial.noTarget) return <p className="muted">No target return entered yet: open it and enter the cap rate you require under Commercial income.</p>;
     // The cash at that price, against the cash entered in Commercial income, else My plan's (as the packet counts it).

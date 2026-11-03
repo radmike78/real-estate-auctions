@@ -9,7 +9,7 @@ import { kindLabel, SALE_KINDS, type Deal } from './analyze';
 import { costsAtBid, maxSafeBid, offerInputs, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, unenteredCosts, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
 import { cleanBuyBox, EMPTY_BUY_BOX, LIEN_STRATEGY, type BuyBox } from './toolkit';
 import { areasFor, GATES, loadLog } from './evidence';
-import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, refiValueWords, withPlanCash, noRealisticPrice, noRealisticAdvice, cashAndPropertyWeak, fhaMonthlyMi, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
+import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, refiValueWords, withPlanCash, dscrText, noRealisticPrice, noRealisticAdvice, cashAndPropertyWeak, fhaMonthlyMi, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
 import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
@@ -515,10 +515,10 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const boxLines = [
     `Goal: ${goal || 'not written yet'}`,
     `Investable cash: ${profile.investable > 0 ? money(profile.investable) : 'not worked out yet'}`,
-    box.priceMax || box.types.length || box.cashMax || box.strategy ? `Buy box: ${[box.types.join(', '), box.priceMax ? `up to ${money(box.priceMax)}${box.strategy === LIEN_STRATEGY ? ' for one certificate' : ''}` : '', box.cashMax ? `${money(box.cashMax)} of cash at most${profile.investable > 0 && box.cashMax > profile.investable ? ` (more than the ${money(profile.investable)} of investable cash you have now: update your buy box if it no longer fits)` : ''}` : '', box.minCashFlow ? `at least ${money(box.minCashFlow)} a month` : ''].filter(Boolean).join('; ')}` : 'Buy box: not set up yet',
+    box.priceMax || box.types.length || box.cashMax || box.strategy ? `Buy box: ${[box.strategy ? box.strategy.charAt(0).toLowerCase() + box.strategy.slice(1) : '', box.types.join(', '), box.priceMax ? `up to ${money(box.priceMax)}${box.strategy === LIEN_STRATEGY ? ' for one certificate' : ''}` : '', box.cashMax ? `${money(box.cashMax)} of cash at most${profile.investable > 0 && box.cashMax > profile.investable ? ` (more than the ${money(profile.investable)} of investable cash you have now: update your buy box if it no longer fits)` : ''}` : '', box.minCashFlow ? `at least ${money(box.minCashFlow)} a month` : ''].filter(Boolean).join('; ')}` : 'Buy box: not set up yet',
     p.fit ? `This property: ${FIT_LABEL[p.fit]}${p.fitWhy ? `, because ${p.fitWhy}` : ''}` : 'This property: not judged against your buy box yet',
   ];
-  out.push({ key: 'plan', title: 'Your plan and buy box', status: p.fit && p.fitWhy && goal ? 'done' : p.fit || goal || box.priceMax ? 'started' : 'missing', lines: boxLines, fix: !goal || !box.priceMax ? { label: 'Goal, cash and buy box in My plan', href: '#/toolkit' } : undefined });
+  out.push({ key: 'plan', title: 'Your plan and buy box', status: p.fit && p.fitWhy && goal ? 'done' : p.fit || goal || box.priceMax || box.cashMax || box.strategy || box.types.length ? 'started' : 'missing', lines: boxLines, fix: !goal || !(box.priceMax || box.cashMax) ? { label: 'Goal, cash and buy box in My plan', href: '#/toolkit' } : undefined });
 
   // 2. The property
   const sale = log.rows.sale;
@@ -658,7 +658,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   if (bid) {
     const a = bid.at;
-    if (a) nums.push(`${priceName(a.source, offer, true)} (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'}): ${money(a.price)} → estimated profit ${money(a.profit)} (${bid.noTarget ? 'no profit target set yet' : `${bid.targetTyped ? 'your target' : 'our example target'} ${money(bid.target)}`}${a.profit < bid.target ? ', so it falls short' : ''}), based on a ${money(bid.exitValue)} resale value`);
+    if (a) nums.push(`${priceName(a.source, offer, true)} (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'}): ${money(a.price)} → estimated profit ${money(a.profit)} (${bid.noTarget ? 'no profit target set yet' : `${bid.targetTyped ? 'your target' : 'our example target'} ${money(bid.target)}`}${a.profit < bid.target ? (bid.noTarget ? ', below break-even' : ', so it falls short') : ''}), based on a ${money(bid.exitValue)} resale value`);
     const belowOpening = !bid.none && a?.source === 'listed' && bid.maxBid < a.price;
     nums.push(bid.none && bid.cashBlocked ? `No bid fits the cash you entered: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that` : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and ${targetW}` : `What-if: walk-away price ${money(bid.maxBid)}, ${bid.limitedBy === 'cash' ? `the most your cash covers with every cost until you sell (${goalW} alone allows ${money(bid.profitBid)})` : `the most you could pay and still meet ${goalW}`} (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : `this deal doesn’t meet ${goalW}`} as entered` : ''}`);
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
@@ -670,7 +670,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   if (commercial?.at) {
     const a = commercial.at;
-    nums.push(`Your ${offer ? 'offer' : 'bid'} (your actual price): ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; cash left in ${money(a.cashIn)}; return on total cost ${pct1(a.capOnCost)}; ${a.dscr === null ? 'no loan' : `income coverage ${(Math.floor(a.dscr * 100) / 100).toFixed(2)}× (${a.loanOk ? 'meets' : 'below'} the ${commercial.minDscr ?? 1.25}× minimum)`}`);
+    nums.push(`Your ${offer ? 'offer' : 'bid'} (your actual price): ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; cash left in ${money(a.cashIn)}; return on total cost ${pct1(a.capOnCost)}; ${a.dscr === null ? 'no loan' : `income coverage ${dscrText(a.dscr)}× (${a.loanOk ? 'meets' : 'below'} the ${commercial.minDscr ?? 1.25}× minimum)`}`);
   }
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
   else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? `Without that cash limit the deal meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost` : 'Without that cash limit the numbers work'}`);

@@ -596,3 +596,11 @@ it('lists the Utah REPC deadlines for a Utah offer, and the commercial team for 
   expect(roles).not.toContain('inspector');
   expect(roles).toContain('environmental');
 });
+
+it('counts a buy box with only a cash limit or a strategy as started, and prints what it has', () => {
+  localStorage.setItem('deedowl.buybox.v1', JSON.stringify({ state: 'NV', strategy: 'Fix and flip', types: [] }));
+  const s = packetSections(deal, EMPTY_PACKET, now).find((x) => x.key === 'plan')!;
+  expect(s.lines.join('\n')).toMatch(/Buy box: fix and flip/);
+  expect(s.status).toBe('started');
+  localStorage.removeItem('deedowl.buybox.v1');
+});
