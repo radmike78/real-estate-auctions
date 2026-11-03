@@ -175,6 +175,8 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   if (d.kind === 'short') return [...names(['Contract signed']), ...(tx ? TX_DEPOSIT_DATES : []), ...names(['Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)']), ...(tx ? [TX_SHORT_OPTION_END, txDisclosureDate(true), txHoaDate(true), TX_TITLE_DATE, txWaterDate(true), txAppraisalDate(true), ...txLoanDates(true)] : names(['Inspection period ends', 'Loan approval deadline'])), ...names(['Closing'])];
   if (isOffer(d)) return [...names(['Offer accepted (Day 0)']), ...(tx ? TX_DEPOSIT_DATES : names(['Earnest money due'])), ...(tx ? [TX_OPTION_END, txDisclosureDate(false), txHoaDate(false), TX_TITLE_DATE, txWaterDate(false), txAppraisalDate(false), ...txLoanDates(false)] : names(['Inspection period ends', 'Appraisal deadline', 'Loan approval deadline'])), ...names(['Closing'])];
   if (d.kind === 'lien') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien']);
+  // California homes of one to four units: a win isn't final until eligible bidders' windows close (Civil Code 2924m).
+  if (d.kind === 'trustee' && d.state === 'CA') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Eligible bidders’ notice of intent to bid (15 days after the sale, homes of 1–4 units)', 'Eligible bidders’ bid deadline (45 days after the sale)', 'Deed recorded']);
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
   // Texas execution sale; a Texas tax sale has its own redemption period (Tax Code 34.21).
@@ -690,7 +692,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     if (lien.overCap) nums.push(`The interest rate entered is more than ${d.state === 'AZ' ? 'Arizona’s legal maximum of 16% a year (1.33% a month)' : 'Nevada’s 1% a month'}, so no yield is shown: enter the monthly rate in Lien certificate.`);
     if (!lien.overCap) nums.push(`Certificate ${money(lien.price)}: if paid off in ${lien.months} months, ${yr(lien.yearly)} on your cash (profit after fees ${money(lien.profit)})`);
     nums.push('  Downside, if it’s never paid off: no payoff comes; your cash stays in until you enforce the lien, which usually takes an attorney and more cost.*');
-    if (lien.later && !lien.overCap) nums.push(`  If it takes longer, to ${lien.later.months} months: your ${money(lien.price)} is tied up ${lien.later.months - lien.months} months more, earning ${yr(lien.later.yearly)} (profit after fees ${money(lien.later.profit)}); add any later taxes or assessments you pay to protect the lien.`);
+    if (lien.later && !lien.overCap) nums.push(`  If it takes longer, to ${lien.later.months} months: your ${money(lien.price)} is tied up ${lien.later.months - lien.months} months more, earning ${yr(lien.later.yearly)} (profit after fees ${money(lien.later.profit)}; the yearly rate can read higher because the fees and the wait to be paid are spread over more months, but your money is tied up longer); add any later taxes or assessments you pay to protect the lien.`);
   }
   // A saved deal's state or county changed in Analyze and isn't confirmed yet: its costs still follow the old place.
   if (hasNums && !d.locationConfirmed) nums.push(UNCONFIRMED_PLACE);

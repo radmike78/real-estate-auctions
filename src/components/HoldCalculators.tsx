@@ -286,7 +286,7 @@ function PlanCashNote({ need, planCash, offer, auctionDay = 0, noLoan = false }:
 }
 
 /** The rental at a price you type: every step from rent to cash flow, with its assumptions. */
-function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, cashTyped = false, targetTyped = true, dscrTyped = false }: { /** The minimum income coverage was typed (else it's our example). */ dscrTyped?: boolean; /** The return target was typed (else it's our example). */ targetTyped?: boolean; v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string; /** The refinance is still on our example value. */ exampleValue?: boolean; /** The cash limit is one you typed (else it follows My plan). */ cashTyped?: boolean }) {
+function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, cashTyped = false, targetTyped = true, dscrTyped = false, rentTyped = true }: { /** The rent was typed (else our example: the results aren't saved to My deals). */ rentTyped?: boolean; /** The minimum income coverage was typed (else it's our example). */ dscrTyped?: boolean; /** The return target was typed (else it's our example). */ targetTyped?: boolean; v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string; /** The refinance is still on our example value. */ exampleValue?: boolean; /** The cash limit is one you typed (else it follows My plan). */ cashTyped?: boolean }) {
   // You plan to live in one unit (Decide: a home loan and live in it): a loss is your own housing cost, not a failed deal.
   const livingThere = onPrice && !!investorProfile().ownerOccupant;
   // The refinance on our example value: its return isn't this property's. Blank: no refinance counted, the rest is real.
@@ -318,6 +318,8 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         <span>{word} ($)</span>
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
       </label>
+      {/* My deals and the packet count only a typed rent: say so here, so the pages agree. */}
+      {price > 0 && !rentTyped && <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the property’s rent to save these results to My deals and the deal packet.</p>}
       {price > 0 && (
         <p className={`calc-verdict ${rentVerdict({ coverageShort: covShort, cashFlow: a.cashFlow, cashOnCash: coc, targetPct: v.targetCocPct, cashShort, exampleRefi, living: livingThere })}`} role="status">
           <strong>{covShort && a.dscr !== null ? `Income coverage is ${dscrText(a.dscr)}×, under ${dscrTyped ? 'your' : 'our example'} ${v.minDscr}× minimum. ` : ''}{livingThere && !exampleRefi ? (Math.round(Math.abs(a.cashFlow) / 12) === 0 ? 'The rent you collect about breaks even with every cost.' : a.cashFlow < 0 ? `Living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month, after any rent you collect.` : `The rent you collect would cover every cost, with about ${fmtMoney(Math.round(a.cashFlow / 12))} a month to spare.`) : exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : `Estimated return: ${capText(coc, v.targetCocPct)}% a year on your cash; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.`}</strong>{' '}
@@ -589,7 +591,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
         {offer && investorProfile().ownerOccupant && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
-        <AtThisPrice v={v} start={noReal ? NaN : r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} targetTyped={typedKeys.has('targetCocPct')} dscrTyped={typedKeys.has('minDscr')} />
+        <AtThisPrice v={v} start={noReal ? NaN : r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} targetTyped={typedKeys.has('targetCocPct')} dscrTyped={typedKeys.has('minDscr')} rentTyped={typedKeys.has('monthlyRent')} />
         {living ? (
           <details className="calc-assumptions">
             <summary>{r.limitedBy === 'dscr' ? `Investor yardstick: the most an investor’s loan allows at ${v.minDscr}× income coverage` : `Investor yardstick: the price that meets an investor’s ${v.targetCocPct}% return`}</summary>
@@ -688,7 +690,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
       <div className="calc-inputs"><ExampleInputs labels={still} all={allExample} /><CalcFields groups={groups} values={v} onChange={set} /></div>
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
-        <CommercialAtPrice v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={noReal ? NaN : r.maxBid} cashTyped={cashTyped} capTyped={typedKeys.has('targetCapPct')} />
+        <CommercialAtPrice v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={noReal ? NaN : r.maxBid} cashTyped={cashTyped} capTyped={typedKeys.has('targetCapPct')} rentTyped={typedKeys.has('monthlyRent')} />
         {n.byLine && (() => {
           const blank = ([['opTaxYear', 'property tax'], ['opInsuranceYear', 'insurance'], ['opRepairsYear', 'repairs'], ['opUtilitiesYear', 'utilities'], ['opManagementPct', 'management']] as const).filter(([k]) => !(Number(v[k]) > 0)).map(([, label]) => label);
           if (!blank.length) return null;
@@ -726,7 +728,7 @@ function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialA
   return `${missText}${missText && noFlow ? ', and ' : ''}${missText ? noFlow : noFlow.replace(/^h/, 'H')}.${cashShort ? ' It also needs more cash than you have (below).' : ''}`;
 }
 
-function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capTyped = false }: { v: CommercialInputs; offer: boolean; setPrice: (n: number) => void; target: number; /** A cash figure was typed here (a typed 0 is no limit). */ cashTyped?: boolean; /** The cap-rate target was typed (else it's our example). */ capTyped?: boolean }) {
+function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capTyped = false, rentTyped = true }: { /** The rent was typed (else our example: not saved to My deals). */ rentTyped?: boolean; v: CommercialInputs; offer: boolean; setPrice: (n: number) => void; target: number; /** A cash figure was typed here (a typed 0 is no limit). */ cashTyped?: boolean; /** The cap-rate target was typed (else it's our example). */ capTyped?: boolean }) {
   const a = v.atPrice > 0 ? commercialAtPrice(v, v.atPrice, offer) : null;
   const word = offer ? 'Your offer' : 'Your bid';
   const meets = a && v.targetCapPct > 0 && a.capOnCost !== null && !capMisses(a.capOnCost, v.targetCapPct) && a.loanOk && a.cashFlow > 0;
@@ -740,6 +742,7 @@ function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capT
       <label className="field"><span>{word} ($)</span><NumInput blank max={1e9} value={v.atPrice} onValue={(n) => setPrice(n ?? 0)} /></label>
       {Number.isFinite(target) && target > 0 && <button type="button" className="linkish" onClick={() => setPrice(target)}>Use the walk-away price ({fmtMoney(target)})</button>}
       {!a ? <p>Enter the asking price or your proposed price to compare this property with your targets.</p> : <>
+        {!rentTyped && <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the building’s rent to save these results to My deals and the deal packet.</p>}
         <p className={meets && !planShort && !(v.cashAvailable > 0 && need > v.cashAvailable) ? 'notice' : 'caution'}>{commercialVerdict(v, a, capTyped, planShort || (v.cashAvailable > 0 && need > v.cashAvailable))} Verify the income, costs and loan terms before relying on this result.</p>
         {v.cashAvailable > 0 && need > v.cashAvailable && <p className="caution">Your entered cash does not cover this price and the modeled costs.</p>}
         {planShort && <p className="caution">It needs about {fmtMoney(Math.round(need))} of your cash, more than the {fmtMoney(Math.round(planCash))} of investable cash in My plan. <button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>Enter your cash</button></p>}

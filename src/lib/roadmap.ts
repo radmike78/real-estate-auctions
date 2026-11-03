@@ -190,7 +190,7 @@ export const ROADMAP: RoadmapStep[] = [
     text: 'A lien certificate earns interest until the owner pays; you don’t get the property or any rent. Practice the parts that decide whether it pays: the price, the wait, the costs while you wait, and what happens if it’s never paid.',
     outcome: 'A practice record: the certificate price and rate, a holding budget, two payoff results and a never-paid plan, and when you’d bring in an attorney.',
     steps: [
-      'In Nevada, work the special assessment (SID) lien practice in Practice, from the notice to the wait for redemption.', 'In Arizona, do the tax lien drill in Practice, then read your county’s tax lien guide. Arizona sales are auctions where the lowest interest-rate bid wins, not a drawing at a fixed 1% a month.',
+      'In Nevada, work the special assessment (SID) lien practice in Practice, from the notice to the wait for redemption.', 'In Arizona, do the tax lien drill in Practice, then read your county’s tax lien guide. Arizona sales are auctions where the lowest interest-rate bid wins.',
       'In the lien calculator, try two payoffs: paid in 6 months and paid in 2 years. For never paid, write what you’d do and what it would cost (the deal packet lists it).',
       'List the later taxes or assessments you might pay to protect your lien, and add them to your holding budget.',
       'Write the point where you’d ask an attorney about enforcing the lien, and what that would cost.',

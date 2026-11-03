@@ -95,7 +95,7 @@ export function AreaPicker({ onDone, doneLabel = 'Done', extra, optional = false
               aria-activedescendant={matches.length ? `${listId}-${active}` : undefined}
               aria-describedby={unfinished ? `${listId}-unfinished` : undefined}
               autoComplete="off"
-              placeholder={places ? 'Start typing, e.g. Henderson' : 'Loading cities…'}
+              placeholder={places ? `Start typing, e.g. ${({ NV: 'Henderson', CA: 'Sacramento', AZ: 'Mesa', UT: 'Provo', TX: 'Austin' } as Record<string, string>)[state ?? 'NV'] ?? 'Henderson'}` : 'Loading cities…'}
               disabled={!places}
               value={typed}
               onChange={(e) => { setTyped(e.target.value); if (picked) setCounty(null); /* that city's county goes with it */ setPicked(null); setOpen(true); setActive(0); }}
