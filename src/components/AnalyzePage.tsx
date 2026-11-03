@@ -420,7 +420,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         {!deal.id && deal.locationConfirmed && practiceSave(deal) && (() => {
           // The practice step that makes this a practice analysis: the roadmap's, else My plan's (practice part 2).
           const st = roadmapNextStep();
-          const t = st && ['paper', 'c-paper', 'a-practice', 'c-practice'].includes(st.id) ? { href: st.href ?? '#/toolkit/roadmap', label: st.title } : planNow().task;
+          // The link opens the practice itself (the step's own action), not the roadmap.
+          const pt = planNow().task;
+          const t = st && ['paper', 'c-paper', 'a-practice', 'c-practice'].includes(st.id) ? { href: st.href ?? '#/toolkit/roadmap', label: st.title } : { href: pt.support[0]?.href ?? pt.href, label: pt.label };
           return <p className="muted" role="note">My plan is on the practice step <a href={t.href}>{t.label}</a>, so a deal saved now is a practice analysis: it won’t become the property you’re working on. Finish that step first to save a real property.</p>; })()}
         {saved.length > 0 && (
           <div className="saved-deals">

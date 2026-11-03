@@ -209,6 +209,9 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
 
   if (!p) {
     const st = mine ? stateByCode(mine) : null;
+    const lienDeal = st ? practiceLienDeal() : null;
+    const lienGuide = lienDeal ? playbookByKey(lienDeal.state === 'NV' ? 'sid' : 'aztaxlien') : null;
+    const lienDealGuide = lienDeal && lienGuide ? { deal: lienDeal, guide: lienGuide } : null;
     const groups = st ? [{ code: st.code, name: st.name }] : STATES.map((x) => ({ code: x.code, name: x.name }));
     return (
       <main className="page">
@@ -224,8 +227,8 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
         {playbook && <p className="notice" role="status">We couldn’t find that guide. Choose one below.</p>}
         {(() => {
           // The lien guide for the Nevada or Arizona lien deal you're working on, while your chosen state is another.
-          const ld = st ? practiceLienDeal() : null;
-          const g = ld ? playbookByKey(ld.state === 'NV' ? 'sid' : 'aztaxlien') : null;
+          const ld = lienDealGuide?.deal;
+          const g = lienDealGuide?.guide;
           if (!ld || !g) return null;
           const name = stateByCode(ld.state)?.name ?? ld.state;
           return (
@@ -239,7 +242,8 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
         })()}
         {groups.map((g) => (
           <section key={g.code} className="guide-group" aria-label={`${g.name} guides`}>
-            {!st && <h2 className="section-title">{g.name}{g.code === 'NV' ? ' (Clark County)' : ''}</h2>}
+            {/* With the lien deal's own section above, your state's guides get their own heading too. */}
+            {(!st || lienDealGuide) && <h2 className="section-title">{st ? `${g.name} sale guides` : `${g.name}${g.code === 'NV' ? ' (Clark County)' : ''}`}</h2>}
             <div className="drill-tiles">
               {guidesFor(g.code).map((x) => <Tile key={x.key} href={`#/playbooks/${x.key}`} icon={saleIcon(x.key)} title={x.short} summary={st ? withoutState(x.teaser ?? x.oneLine, st.name) : x.teaser ?? x.oneLine} />)}
             </div>
@@ -261,9 +265,13 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
   const mineGuide = mineName ? playbookByKey(guideKey(mine!, kindOf(p.key)) ?? '') : null;
   if (mineName) return (
     <main className="page">
-      <h1>Open the guide for {mineName}</h1>
+      <PageHero compact top={<a href="#/playbooks">← All sale guides</a>} title={`Open the guide for ${mineName}`} />
       <OwlNote>This link is outside your selected investing state. Choose the matching local guide before reviewing sale procedures.</OwlNote>
       <p><a className="btn" href={mineGuide ? `#/playbooks/${mineGuide.key}` : '#/playbooks'}>{mineGuide ? `Read ${mineGuide.title}` : 'Choose a local sale guide'} →</a></p>
+      <section aria-labelledby="guide-state-head">
+        <h2 id="guide-state-head">Your investing state</h2>
+        <StateSelect label="Show rules for" />
+      </section>
     </main>
   );
   const drill = stateDrill(p);

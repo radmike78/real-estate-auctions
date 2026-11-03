@@ -566,7 +566,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   if (washoeTax) cash.push('Washoe County’s tax sale terms (Treasurer’s FAQ): a $500 pre-bid deposit in certified funds when you register; if you win, a $500 non-refundable deposit (the FAQ doesn’t say whether it’s the pre-bid deposit)* and the balance by 5:00 p.m. the day after the sale, in cash, cashier’s check, certified check or money order. Confirm them in the sale notice.');
   // Washoe's balance is due the day after the sale, not all on sale day.
   const saleDay = (at: string, amount: number, end = '') => washoeTax
-    ? `On sale day and by 5:00 p.m. the next day, at ${at}: ${money(amount)} (the $500 deposit on sale day, the balance the next day, in the form the sale requires)${end}`
+    ? `By 5:00 p.m. the day after the sale, at ${at}: ${money(amount)} (the $500 non-refundable deposit and the balance, in the form the sale requires)${end}`
     : `On sale day, at ${at}: ${money(amount)} (bid plus any buyer’s premium, in the form the sale requires)${end}`;
   let need = 0;
   // The price `need` is figured at, so the investable-cash line after the what-if says which price it means.
@@ -618,7 +618,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       cash.push(`No ${offer ? 'offer at or above the asking price' : 'bid at or above the opening bid'} of ${money(a.price)} ${a.profit >= bid.target && bid.limitedBy === 'cash' ? 'fits your cash' : `meets ${goalW}`} as entered: the most that would is ${money(bid.maxBid)}, below it.`);
     } else if (!bid.none) {
       const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could pay, not your price)`;
-      cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} ${washoeTax ? 'by 5:00 p.m. the day after the sale ($500 of it on sale day)' : 'on sale day'}; estimated cash you’d put in ${money(bid.cashPeak)}`);
+      cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} ${washoeTax ? 'by 5:00 p.m. the day after the sale' : 'on sale day'}; estimated cash you’d put in ${money(bid.cashPeak)}`);
       // As Fix and sell says in red: with no cash entered there, the walk-away price can need more than My plan's cash.
       if (bid.at && bid.at.cashPeak <= profile.investable && !(bid.cashLimit > 0) && !bid.cashTyped && profile.investable > 0 && bid.cashPeak > profile.investable) cash.push(`That walk-away price needs ${money(bid.cashPeak - profile.investable)} more than the ${money(profile.investable)} of investable cash in My plan: ${offer ? 'offer only what fits your cash' : `enter the cash you can bring in ${strategy} to cap the bid at what you have`}.`);
     }

@@ -390,7 +390,7 @@ export function FirstDealRoadmap() {
       )}
       <div className="roadmap-deal">
         <label className="field">
-          <span>Which property are you working on?</span>
+          <span>Property you’re working on</span>
           <select
             value={deal ? deal.id : ''}
             onChange={(e) => {
@@ -411,7 +411,7 @@ export function FirstDealRoadmap() {
         </label>
         <p className="muted">
           {waits && focused
-            ? `Your saved property, ${focused.name || 'unnamed'}, waits while you finish the lessons and practice (as at the top of My plan). Choose it here to work on it now.`
+            ? `Phases 4 to 7 (find, buy, own and sell) start for ${focused.name || 'your saved property'} once you choose it here or at the top of My plan.`
             : deal
             ? `Phases 4 to 7 (find, buy, own, then sell, refinance or trade) are tracked for ${deal.name} only, and what you record goes into its evidence log. Phases 1 to 3 are yours, whatever the property.`
             : deals.length

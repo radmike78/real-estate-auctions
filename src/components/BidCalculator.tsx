@@ -531,7 +531,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
             {ruleNow === 'custom'
               ? <>your own numbers: a {Math.round(i.redemptionMonths)}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
               : <>{offered[ruleNow]?.label}.</>}{' '}
-            Pick the rule under Holding and financing (Detailed), then confirm it here.
+            {ruleNow === choices?.start ? 'Pick the rule under Holding and financing (Detailed), then confirm it here.' : 'Once the records show this rule applies, confirm it here (or pick another under Holding and financing, Detailed).'}
             <label className="calc-check">
               <input type="checkbox" checked={false} onChange={() => update({ redemptionChecked: 1 })} />
               <span>I’ve checked the records, and the redemption rule set in this calculator is the one that applies.</span>
