@@ -593,5 +593,6 @@ it('lists the Utah REPC deadlines for a Utah offer, and the commercial team for 
   expect(ut).toMatch(/Seller Disclosure Deadline; Due Diligence Deadline; Financing & Appraisal Deadline; Settlement Deadline/);
   expect(ut).not.toMatch(/Inspection period ends/);
   const roles = teamRolesFor({ ...deal, state: 'CA', plan: 'commercial' });
-  expect(roles).not.toContain('home_inspector');
+  expect(roles).not.toContain('inspector');
+  expect(roles).toContain('environmental');
 });

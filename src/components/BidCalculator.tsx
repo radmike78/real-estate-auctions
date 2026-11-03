@@ -301,6 +301,17 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       }
       return next;
     });
+  const unmarkTyped = (k: keyof BidInputs) =>
+    setTypedKeys((t) => {
+      if (!t.has(k)) return t;
+      const next = new Set([...t].filter((x) => x !== k));
+      try {
+        if (storeId) saveConfirmed(KEY(storeId), next);
+      } catch {
+        /* storage unavailable */
+      }
+      return next;
+    });
   const set = (k: keyof BidInputs, text: string, unit?: string) => {
     trackAction('calculator_used', true);
     markTyped(k);
@@ -421,7 +432,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                       <label className="calc-label" htmlFor={`${uid}-${f.k}`}>{f.label}<span className="sr-only">{f.unit === '$' ? ', in dollars' : `, ${unitText(f.unit).replace('%', 'percent')}`}</span></label>
                       {f0.profitSwitch && (
                         <span className="calc-unit-switch" role="group" aria-label="Profit as a percent or dollars">
-                          <button type="button" aria-pressed={!i.profitInDollars} onClick={() => { setDraft((d) => ({ ...d, targetProfitMin: undefined })); if (i.profitInDollars) { update({ profitInDollars: 0 }); markTyped('profitInDollars'); } }}>%</button>
+                          <button type="button" aria-pressed={!i.profitInDollars} onClick={() => { setDraft((d) => ({ ...d, targetProfitMin: undefined })); if (i.profitInDollars) { update({ profitInDollars: 0 }); if (typedKeys.has('targetProfitPct')) markTyped('profitInDollars'); else unmarkTyped('profitInDollars'); } }}>%</button>
                           <button type="button" aria-pressed={!!i.profitInDollars} onClick={() => { setDraft((d) => ({ ...d, targetProfitMin: undefined })); if (!i.profitInDollars) { update({ profitInDollars: 1 }); markTyped('profitInDollars'); } }}>$</button>
                         </span>
                       )}
@@ -524,9 +535,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <div className={`calc-verdict ${dealFails || cashShort || planShort ? 'bad' : 'good'}`}>
             {dealFails ? (
               offer ? (
-                <><strong>Misses {targetIsExample ? 'our example target' : 'your target'} at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below {targetIsExample ? 'our example' : 'your'} {fmtMoney(Math.round(target))} target. {r.maxBid > 0 ? <>Offer no more than {fmtMoney(r.maxBid)}, or pass.</> : 'Pass, or change your plan.'}</>
+                <><strong>{noTarget0 ? 'Doesn’t break even' : `Misses ${targetIsExample ? 'our example target' : 'your target'}`} at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, {noTarget0 ? 'below break-even.' : <>below {targetIsExample ? 'our example' : 'your'} {fmtMoney(Math.round(target))} target.</>} {r.maxBid > 0 ? <>Offer no more than {fmtMoney(r.maxBid)}, or pass.</> : 'Pass, or change your plan.'}</>
               ) : (
-                <><strong>Doesn’t work at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, below {targetIsExample ? 'our example' : 'your'} {fmtMoney(Math.round(target))} target. Skip this one or change your plan.</>
+                <><strong>Doesn’t work at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, {noTarget0 ? 'below break-even.' : <>below {targetIsExample ? 'our example' : 'your'} {fmtMoney(Math.round(target))} target.</>} Skip this one or change your plan.</>
               )
             ) : planShort ? (
               <><strong>The cash in My plan doesn’t cover this deal at the {w.opening}.</strong> The deal works (about {fmtMoney(Math.round(atOpening))} profit at {fmtMoney(i.minimumBid)}), but with repairs and every cost until you sell you’d need about {fmtMoney(Math.round(openingCash))}, and My plan shows {fmtMoney(Math.round(planCash))}. Enter the cash you can bring to see the most you could bid, or skip this one. <button type="button" className="linkish" onClick={() => { const f = document.getElementById(`${uid}-cashAvailable`); f?.scrollIntoView({ block: 'center' }); f?.focus({ preventScroll: true }); }}>Enter your cash</button></>

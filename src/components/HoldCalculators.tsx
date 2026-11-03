@@ -602,8 +602,8 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
           const rate = f?.rate ?? ((v.atPrice * v.loanPct / 100 > 726200 ? 0.70 : 0.50) + (v.loanPct > 95 ? 0.05 : 0));
           const mi = f?.monthly ?? 0;
           return <p className="calc-note small" role="note"><strong>Mortgage insurance isn’t counted yet.</strong> {live
-            ? <>With under 20% down, most loans add it. An FHA loan (for a home you live in) charges 1.75% of the loan upfront and {long ? <>, on a loan over 15 years, {rate.toFixed(2)}% a year at this loan size and down payment{mi > 0 ? ` (about ${fmtMoney(mi)} a month here)` : ''}, per HUD Mortgagee Letter 2023-05</> : ' a lower yearly rate on a 15-year loan (ask the lender for it)'}; a conventional loan adds private mortgage insurance instead.</>
-            : <>With under 20% down, a conventional loan usually adds private mortgage insurance (FHA loans are for homes the buyer lives in).</>} It isn’t in the monthly cost above: until there’s a separate box for it, add your lender’s monthly figure to “HOA dues, per month” so the cost includes it.</p>;
+            ? <>With under 20% down, most loans add it. An FHA loan (for a home you live in) charges 1.75% of the loan upfront and{long ? <>, on a loan over 15 years, {rate.toFixed(2)}% a year at this loan size and down payment{mi > 0 ? ` (about ${fmtMoney(mi)} a month here)` : ''}, per HUD Mortgagee Letter 2023-05</> : ' a lower yearly rate on a 15-year loan (ask the lender for it)'}; a conventional loan adds private mortgage insurance instead.</>
+            : <>With under 20% down, a conventional loan usually adds private mortgage insurance (FHA loans are for homes the buyer lives in).</>} It isn’t in the monthly cost here, in My deals or in the deal packet: ask your lender for the monthly amount and add it to the cost yourself when you compare.</p>;
         })()}
         {/* An auction rental's later refinance is sized on the value after repairs: say so while that's still our example. */}
         {exampleValue && (
