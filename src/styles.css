@@ -2060,7 +2060,7 @@ h3.topic-head { margin: 24px 0 10px; padding: 8px 14px; font-size: 1.2rem; borde
 .deal-fields { display: grid; gap: 12px; grid-template-columns: minmax(0, 1fr); }
 /* Fixed column counts: the full-width address field stops auto-fit from widening the selects, which cut off their text. */
 @media (min-width: 640px) { .deal-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (min-width: 1100px) { .deal-fields { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 1500px) { .deal-fields { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .deal-fields .field.wide { grid-column: 1 / -1; }
 .deal-fields input, .deal-fields select, .deal-notes textarea { width: 100%; box-sizing: border-box; }
 .deal-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }

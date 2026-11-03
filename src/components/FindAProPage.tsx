@@ -236,7 +236,8 @@ function GuideBody({ g }: { g: ProGuide }) {
         </>
       )}
       {/* The Featured ad spot gets its own full-width row, so no box is left half empty beside it. */}
-      {g.directory && script && <div className="pro-ad-row"><FeaturedAds pros={pros} categories={g.directory} placeholder /></div>}
+      {/* Not on the eviction guide: it's about removing former owners after forced sales. */}
+      {g.directory && script && g.key !== 'eviction' && <div className="pro-ad-row"><FeaturedAds pros={pros} categories={g.directory} placeholder /></div>}
       {money.length > 0 && (
         <>
           <h3 className="part-head">How they’re paid</h3>
@@ -373,8 +374,8 @@ export default function FindAProPage({ section }: { section?: string }) {
           {team && (
             <>
               <p className="muted">
-                {book ? <>{book.short}: the team, in the order you’ll usually need them.</> : sale === 'commercial-offer' ? <>For a commercial building you buy through a broker or from a bank, in the order you’ll usually need them. Commercial deals vary; your broker and attorney can say who else this one needs.</> : <>For a home listed for sale, the way most first rentals are bought, in the order you’ll usually need them.</>}{' '}
-                {book ? <a href={`#/playbooks/${book.key}`}>Read the guide: {book.short}{NBSP}→</a> : sale === 'commercial-offer' ? null : <a href="#/practice/case">Practice a listed purchase, start to finish{NBSP}→</a>}
+                {book ? <>{book.short}{/commercial$/.test(book.key) ? ' at a forced sale' : ''}: the team, in the order you’ll usually need them.</> : sale === 'commercial-offer' ? <>For a commercial building you buy through a broker or from a bank, in the order you’ll usually need them. Commercial deals vary; your broker and attorney can say who else this one needs.</> : <>For a home listed for sale, the way most first rentals are bought, in the order you’ll usually need them.</>}{' '}
+                {book ? <a href={`#/playbooks/${book.key}`}>Read the guide: {book.short}{NBSP}→</a> : sale === 'commercial-offer' ? <a href="#/learn/strategies/apartments-and-commercial">Read about apartments and commercial property{NBSP}→</a> : <a href="#/practice/case">Practice a listed purchase, start to finish{NBSP}→</a>}
               </p>
               <TeamList team={team} />
             </>

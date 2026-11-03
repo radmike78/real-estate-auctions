@@ -136,12 +136,12 @@ export default function FindDealsPage() {
           <li>Before you offer or bid, check the rent, value, repairs, title, who lives there, allowed use, insurance and loan. A quick calculation is only a first screen.</li>
         </ol></details>
       </section>
-      <section aria-label="Choose a purchase route"><h2>How do you want to buy?</h2><p>Choose a route to open the relevant official sources. You can switch or browse the other groups.</p><button type="button" aria-pressed={chosen === 'listing'} className={chosen === 'listing' ? 'btn' : 'btn btn-secondary'} onClick={() => { setChosen('listing'); openSources('deals-national'); }}>Listed or bank-owned property</button>{' '}<button type="button" aria-pressed={chosen === 'county'} className={chosen === 'county' ? 'btn' : 'btn btn-secondary'} onClick={() => { setChosen('county'); openSources('deals-county'); }}>County auction</button></section>
+      <section aria-label="Choose a purchase route"><h2>Open the sources for your route</h2><p>Choose a route to open its official sources. You can switch or browse the other groups.</p><button type="button" aria-pressed={!onCounty} className={onCounty ? 'btn btn-secondary' : 'btn'} onClick={() => { setChosen('listing'); openSources('deals-national'); }}>Listed or bank-owned property</button>{' '}<button type="button" aria-pressed={onCounty} className={onCounty ? 'btn' : 'btn btn-secondary'} onClick={() => { setChosen('county'); openSources('deals-county'); }}>County auction</button></section>
       <h2 className="section-title">Official sources</h2>
       <p className="muted">Government agencies, Fannie Mae and Freddie Mac, and the banks that own the homes: the sellers themselves.</p>
 
       <details className="plan-section" name="deal-sources" open={onCounty || undefined} onToggle={(e) => setCountyOpen((e.currentTarget as HTMLDetailsElement).open)}><summary>County auctions and property research</summary>
-      <Band id="deals-county" tone="county" icon={<IconFile />} title={`County offices: ${place}`} sub="The county’s own pages for tax sales, records and sheriff’s sales.">
+      <Band id="deals-county" tone="county" icon={<IconFile />} title={`County offices: ${place}`} sub={offices?.specialAssessment ? "The county’s own pages for tax and lien sales, records and sheriff’s sales." : "The county’s own pages for tax sales, records and sheriff’s sales."}>
         {officeCards.length > 0 ? (
           <>
             <ul className="deal-sources">{officeCards.map((s) => <SourceCard key={s.url} s={s} />)}</ul>
@@ -175,7 +175,7 @@ export default function FindDealsPage() {
         <a className="band-link" href="#/learn/forced-sales">Read the lesson on forced sales&nbsp;→</a>
       </Band>
       </details>
-      <details className="plan-section" name="deal-sources" open={chosen === 'listing' || undefined} ><summary>Government and bank-owned listings</summary>
+      <details className="plan-section" name="deal-sources" open={!onCounty || undefined} ><summary>Government and bank-owned listings</summary>
       <Band id="deals-national" tone="national" icon={<IconBank />} title={`Across ${st.name} and nationwide`} sub="Federal agencies, Fannie Mae and Freddie Mac, and banks selling homes they own.">
         {NATIONAL_GROUPS.map(([g, label]) => {
           const xs = nationalOfficialFor(st.name).filter((s) => s.group === g);
