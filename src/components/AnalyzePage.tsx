@@ -1,4 +1,4 @@
-import { planNow, roadmapNextStep } from '../lib/planNext';
+import { planNow, practiceLienDeal, roadmapNextStep } from '../lib/planNext';
 import { roadmapPath } from '../lib/roadmapState';
 import PathNext from './PathNext';
 import { workStorage as localStorage } from '../lib/workStorage';
@@ -155,6 +155,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   useMarkStep('analyze');
   useLastActivity('#/analyze', 'Analyze a deal');
   const [mine] = useMyState();
+  // The investing state before the State field below changed it, for the notice.
+  const [stateMoved, setStateMoved] = useState<StateCode | null>(null);
   // Nothing typed is ever wiped: a started, unsaved deal is saved to My deals, with its numbers, before a listing
   // or a change of state replaces it. Returns the deal's state when one was saved, for the notice.
   // The "just opened" marker is read once, when the page first loads its deal.
@@ -181,6 +183,15 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const [deal, setDeal] = useState<Deal>(() => {
     if (!prefill) {
       deletedOnLoad = false;
+      // A link to the lien calculator ("Open the lien calculator") from a state without lien sales opens the Nevada or
+      // Arizona lien deal your plan is built around, where the lien calculator is, instead of a blank listing. It
+      // opens as if chosen in My deals (an unsaved draft is kept first).
+      const ld = plan === 'lien' && !kindsFor(mine ?? 'NV').some((k) => k.key === 'lien') ? practiceLienDeal() : null;
+      if (ld) {
+        const kept = keepUnsaved();
+        if (kept) { keptNoteOnce = kept; setTimeout(() => { keptNoteOnce = ''; }, 1500); setTimeout(() => setKeptNote(kept), 0); }
+        try { localStorage.setItem(CURRENT_KEY, JSON.stringify(ld)); localStorage.setItem(OPENED_KEY, JSON.stringify(ld.id)); } catch { /* storage unavailable */ }
+      }
       const cur = loadCurrent(mine ?? 'NV');
       if (deletedOnLoad) { const n = deletedNote; setTimeout(() => setKeptNote(n), 0); }
       // The working deal is in another state than the one now chosen: keep it in My deals before starting fresh.
@@ -189,7 +200,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         // Also into keptNoteOnce: the first-paint remount reads it there, after this instance is thrown away.
         if (kept) { keptNoteOnce = kept; setTimeout(() => { keptNoteOnce = ''; }, 1500); setTimeout(() => setKeptNote(kept), 0); }
       }
-      return forLink(cur, plan);
+      return ld && cur.id === ld.id ? cur : forLink(cur, plan);
     }
     keepUnsaved();
     return linkPlan(fromListing(prefill), plan);
@@ -338,6 +349,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           <p className="note" role="status">This is your practice analysis “{deal.name}”. Changes here update it in My deals, and it stays a practice analysis. Found a real property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button></p>
         )}
         <p className="muted">Found a property on an official list, a listing site or from your agent? Enter it here. You’ll get the checklist for that kind of sale in that county, and the calculator for your plan. Save it to come back to it in My deals.</p>
+        {/* The State here is also your investing state for the whole site: say so when it changes it. */}
+        {stateMoved && mine && stateMoved !== mine && <p className="note" role="status">Your investing state for the whole site is now {stateByCode(mine)?.name ?? mine}, so guides, practice and Find deals follow {stateByCode(mine)?.name ?? mine}. (The State here sets it.) Choosing {stateByCode(stateMoved)?.name ?? stateMoved} here again changes it back.</p>}
         <div className="deal-fields">
           <label className="field wide">
             <span>Address or nickname</span>
@@ -345,7 +358,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           </label>
           <label className="field">
             <span>State</span>
-            <select value={deal.state} onChange={(e) => { const s = e.target.value as StateCode; setMyState(s); /* first, so the starting county is your area's in that state */ const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: startCounty(s), countyChosen: false, locationConfirmed: false, kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); }}>
+            <select value={deal.state} onChange={(e) => { const s = e.target.value as StateCode; if (mine && s !== mine) setStateMoved(mine); setMyState(s); /* first, so the starting county is your area's in that state */ const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: startCounty(s), countyChosen: false, locationConfirmed: false, kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); }}>
               {STATES.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
             </select>
           </label>
@@ -456,10 +469,10 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <div className={adShows ? 'next-with-ad' : undefined}>
       <section className="analyze-next" aria-labelledby="analyze-next-head">
         <h2 id="analyze-next-head">4. What’s next</h2>
-        <p>{['paper', 'c-paper'].includes(roadmapNextStep()?.id ?? '') ? 'Practicing without buying? Save this analysis so you can compare it with the next ones, and mark the task done in My plan when you’ve analyzed enough.' : 'Numbers work, and every checklist item above has an answer? Save the deal so you can come back to it, then follow the “Buy it” steps for this kind of sale in My plan.'}</p>
+        <p>{!deal.id && savingPractice(deal) ? 'Practicing without buying? Save this as a practice analysis so you can compare it with the next ones, and mark the practice step done in My plan when you’ve finished it.' : ['paper', 'c-paper'].includes(roadmapNextStep()?.id ?? '') ? 'Practicing without buying? Save this analysis so you can compare it with the next ones, and mark the task done in My plan when you’ve analyzed enough.' : 'Numbers work, and every checklist item above has an answer? Save the deal so you can come back to it, then follow the “Buy it” steps for this kind of sale in My plan.'}</p>
         <p><strong>Reasons to pause, revise or pass:</strong> {calcTabFor(deal.plan) === 'flip' ? 'the price you’d have to pay leaves no profit after repairs, holding and selling costs, or the profit is smaller than your goal' : calcTabFor(deal.plan) === 'lien' ? 'the interest you’d earn, after the wait to be paid, misses your goal' : deal.plan === 'rent' && investorProfile().ownerOccupant && (deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short') ? 'the monthly cost of living there (after any rent you collect) is more than you can comfortably pay alongside your other bills, or it leaves too little cash for repairs and emergencies' : 'the monthly cash flow is negative after reserves, or the long-term return misses your goal'}. Compare the tradeoffs with your goals and risk tolerance, and record your reasoning. Get appropriate professional guidance before committing. <a href="#/learn/walk-away">When to walk away</a></p>
         <div className="row">
-          {!deal.id ? <button type="button" className="btn" onClick={saveNew}>Save this deal</button> : <a className="btn" href="#/deals">Open My deals</a>}
+          {!deal.id ? <button type="button" className="btn" onClick={saveNew}>{savingPractice(deal) ? 'Save as a practice analysis' : 'Save this deal'}</button> : <a className="btn" href="#/deals">Open My deals</a>}
           <a href="#/toolkit">Your buying steps in My plan&nbsp;→</a>
         </div>
       </section>

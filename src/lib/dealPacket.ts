@@ -561,6 +561,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     cash.push('A deposit or fee may be credited toward the purchase. Confirm its treatment with your title or escrow professional; do not add an amount twice.');
   }
   else if (p.earnest) cash.push(`Before the sale: ${money(p.earnest)} bidder deposit`);
+  // Washoe County publishes its tax sale's deposit and payment terms (Treasurer's FAQ, checked 2026-11-03).
+  if (!offer && d.kind === 'taxSale' && d.state === 'NV' && d.county === 'Washoe') cash.push('Washoe County’s tax sale terms (Treasurer’s FAQ): a $500 pre-bid deposit in certified funds when you register; if you win, a $500 non-refundable deposit and the balance by 5:00 p.m. the day after the sale, in cash, cashier’s check, certified check or money order. Confirm them in the sale notice.');
   let need = 0;
   // The price `need` is figured at, so the investable-cash line after the what-if says which price it means.
   let needAt = '';

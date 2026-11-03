@@ -107,23 +107,38 @@ const dealChosen = () => rawDealChoice() !== '';
 /** The route the roadmap shows: the stored choice, or, until a property is chosen, the route of the one in focus. */
 export function planPath(deals: Deal[] = loadDeals()): RoadmapPath {
   const d = deals.find((x) => `analyzed:${x.id}` === focusDealId(deals));
-  const p = planPathRaw(d);
+  const p = planPathRaw(d, deals);
   // Lien certificates are sold only in Nevada and Arizona: a lien route kept after switching to another state follows
-  // the auction route there (its tasks would point to sales that don't exist), unless the property in focus is a lien
-  // in a state that sells them.
+  // the auction route there (its tasks would point to sales that don't exist), unless the lien deal you're working on
+  // (lienDealFor) is in a state that sells them.
   const st = getMyState();
-  const lienDeal = !!d && d.kind === 'lien' && (d.state === 'NV' || d.state === 'AZ');
-  return p === 'certificate' && st && st !== 'NV' && st !== 'AZ' && !lienDeal ? 'auction' : p;
+  return p === 'certificate' && st && st !== 'NV' && st !== 'AZ' && !lienDealFor(deals) ? 'auction' : p;
 }
 
-function planPathRaw(d: Deal | undefined): RoadmapPath {
+const nvAzLien = (d: Deal) => d.kind === 'lien' && (d.state === 'NV' || d.state === 'AZ');
+
+/**
+ * The Nevada or Arizona lien deal that keeps a lien route: the property in focus, or, with none in focus (you passed
+ * on it), your most recent real one, so passing on it doesn't drop the lien route and the lien practice you finished.
+ */
+export function lienDealFor(deals: Deal[] = loadDeals()): Deal | null {
+  const d = deals.find((x) => `analyzed:${x.id}` === focusDealId(deals));
+  if (d) return nvAzLien(d) ? d : null;
+  return [...deals].filter((x) => !x.practice && nvAzLien(x)).sort((x, y) => y.updatedAt.localeCompare(x.updatedAt))[0] ?? null;
+}
+
+function planPathRaw(d: Deal | undefined, deals: Deal[]): RoadmapPath {
   if (dealChosen()) return roadmapPath();
   // A route you picked holds while the property in focus is still being researched (a practice analysis, a listing
   // your agent sent): only a deal you've moved on with (an offer, a bid, a contract) changes the route.
   let picked = false;
   try { picked = localStorage.getItem(ROADMAP_PATH_KEY) !== null; } catch { /* storage unavailable */ }
   if (d && picked && (!d.stage || d.stage === 'researching')) return roadmapPath();
-  return d ? pathForDeal(d) : roadmapPath();
+  if (d) return pathForDeal(d);
+  // No property in focus and no route picked (a state without lien sales offers no lien route button): the lien
+  // deal you passed on keeps the lien route.
+  const lien = !picked ? lienDealFor(deals) : null;
+  return lien ? 'certificate' : roadmapPath();
 }
 
 /** Roadmap progress kept for one property (steps 4 to 7). */

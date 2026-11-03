@@ -126,7 +126,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
         <h2 id={`plan-now-head-${variant}`}>{onPlan || now.source === 'starter' ? 'Your next step' : 'Your next real-world step'}</h2>
         <p className="plan-now-goal">
           <span className="plan-now-k">Your goal</span>
-          {now.goal ? <span>{now.goal}</span> : decidedPick() ? <span>Not written yet. Decide suggests <strong>{decidedPick()}</strong>. <a href={ROADMAP_TASK_HREF}>Put your goal in one sentence&nbsp;→</a></span> : <span>Not written yet. <a href="#/decide">Choose my goal</a> (a few questions), then write it in a sentence in your roadmap.</span>}
+          {now.goal ? <span>{now.goal}</span> : decidedPick() ? <span>Not written yet. Decide suggests <strong>{decidedPick()}</strong>. <a href="#/toolkit/roadmap?step=goal">Put your goal in one sentence&nbsp;→</a></span> : <span>Not written yet. <a href="#/decide">Choose my goal</a> (a few questions), then write it in a sentence in your roadmap.</span>}
         </p>
         {onPlan && deals.length > 0 && (
           <div className="plan-now-deal">

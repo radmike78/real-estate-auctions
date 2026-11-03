@@ -1,3 +1,4 @@
+import { replaceAddress } from '../lib/nav';
 import { roadmapNextStep, stepContext } from '../lib/planNext';
 import { AreaLine } from './AreaPicker';
 import NumInput from './NumInput';
@@ -261,6 +262,9 @@ export function FirstDealRoadmap() {
   }, []);
   const active = deals.find((d) => `analyzed:${d.id}` === dealId);
   const deal = active ? { id: `analyzed:${active.id}`, name: active.name, kind: active.kind } : undefined;
+  // A guided beginner's saved property waits while they finish the lessons and practice: My plan's top picker shows
+  // "None yet (learning)" then, and so does this one.
+  const waits = !!active && planNow().deal?.id !== active.id;
   const stage = active ? stageOf(active) : undefined;
   const scoped = (s: RoadmapStep) => !!deal && dealScoped(s);
   const doneOf = (s: RoadmapStep) => (scoped(s) ? (perDeal[deal!.id]?.done ?? []).includes(s.id) : done.includes(s.id));
@@ -292,6 +296,27 @@ export function FirstDealRoadmap() {
   const shown = starterStep ?? (!deal && plan.source === 'roadmap' ? next : undefined);
   // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
   const [openPhase, setOpenPhase] = useState(() => (starterStep ?? next)?.phase ?? 1);
+  // A link to one step (/toolkit/roadmap?step=goal, from "Put your goal in one sentence"): open its phase and the
+  // step, with the cursor in it.
+  useEffect(() => {
+    const go = () => {
+      const id = new URLSearchParams(window.location.search).get('step');
+      const s = id ? steps.find((x) => x.id === id) : undefined;
+      if (!s) return;
+      setOpenPhase(s.phase);
+      setTimeout(() => {
+        const el = document.querySelector<HTMLDetailsElement>(`details.roadmap-step[data-step="${s.id}"]`);
+        if (!el) return;
+        el.open = true;
+        el.scrollIntoView({ block: 'start' });
+        el.querySelector<HTMLElement>('.roadmap-step-body textarea, .roadmap-step-body input, .roadmap-step-body select')?.focus({ preventScroll: true });
+        replaceAddress('/toolkit/roadmap');
+      }, 0);
+    };
+    go();
+    window.addEventListener('deedowl:navigate', go);
+    return () => window.removeEventListener('deedowl:navigate', go);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { setOpenPhase((starterStep ?? next)?.phase ?? 1); }, [deal?.id, stage, starterStep?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const phases = ([1, 2, 3, 4, 5, 6, 7] as const).map((n) => ({ n, title: ROADMAP_PHASES[n], steps: steps.filter((s) => s.phase === n) })).filter((ph) => ph.steps.length);
   const nextDone = (d: string[], id: string, v: StepStatus | 'done' | 'todo') => (v === 'done' ? (d.includes(id) ? d : [...d, id]) : d.filter((x) => x !== id));
@@ -348,7 +373,7 @@ export function FirstDealRoadmap() {
         <label className="field">
           <span>Which property are you working on?</span>
           <select
-            value={deal ? deal.id : ''}
+            value={deal && !waits ? deal.id : ''}
             onChange={(e) => {
               setDealId(e.target.value);
               write(DEAL_KEY, e.target.value || NO_DEAL);
@@ -366,14 +391,16 @@ export function FirstDealRoadmap() {
           </select>
         </label>
         <p className="muted">
-          {deal
+          {waits && active
+            ? `Your saved property, ${active.name || 'unnamed'}, waits while you finish the lessons and practice (as at the top of My plan). Choose it here to work on it now.`
+            : deal
             ? `Phases 4 to 7 (find, buy, own, then sell, refinance or trade) are tracked for ${deal.name} only, and what you record goes into its evidence log. Phases 1 to 3 are yours, whatever the property.`
             : deals.length
               ? 'Choose a property to track phases 4 to 7 (find, buy, own and sell) for it. Each property keeps its own progress and evidence.'
               : 'To track phases 4 to 7 (find, buy, own and sell) for a real property, save it in Analyze first. Each property keeps its own progress and evidence.'}
         </p>
       </div>
-      {active && stage && (
+      {active && stage && !waits && (
         <p className="roadmap-stage-note">
           <strong>{active.name}: {stageLabel(stage, active)}.</strong>{' '}
           {stage === 'passed'
@@ -423,7 +450,7 @@ export function FirstDealRoadmap() {
                 const st = stateOf(s);
                 const wait = st === 'todo' ? later(s) : undefined;
                 return (
-                  <details key={s.id} name="roadmap-tasks" className={`roadmap-step ${st}`}>
+                  <details key={s.id} name="roadmap-tasks" className={`roadmap-step ${st}`} data-step={s.id}>
                     <summary>
                       <span className="roadmap-step-title">{s.title}{wait && active && <span className="roadmap-later"> · Later stage: {stageLabel(wait, active)}</span>}</span>
                       <span className={`roadmap-chip ${st}`}>{STEP_STATUS_LABEL[st]}</span>

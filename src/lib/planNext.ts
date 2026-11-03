@@ -12,7 +12,7 @@ import { caseFor, caseResume } from '../practice/rentalCase';
 import { LEARN_MODULES } from './learn';
 import { cleanGoal, GOAL_KEY } from './myPlan';
 import { ROADMAP_PHASES, roadmapFor, type RoadmapPath, type RoadmapStep } from './roadmap';
-import { AUTO_STEPS, cleanStatus, rawDealChoice, focusDealId, planPath, readKey, roadmapDone, roadmapPath, settledFor, STATUS_KEY } from './roadmapState';
+import { AUTO_STEPS, cleanStatus, rawDealChoice, focusDealId, lienDealFor, planPath, readKey, roadmapDone, roadmapPath, settledFor, STATUS_KEY } from './roadmapState';
 
 export interface PlanNow {
   /** Your goal in one sentence, or '' when it isn't written yet. */
@@ -85,9 +85,7 @@ export function practiceState() {
 export function practiceLienDeal(): Deal | null {
   const st = getMyState();
   if (st === 'NV' || st === 'AZ' || planPath() !== 'certificate') return null;
-  const deals = loadDeals();
-  const d = deals.find((x) => `analyzed:${x.id}` === focusDealId(deals));
-  return d && d.kind === 'lien' && (d.state === 'NV' || d.state === 'AZ') ? d : null;
+  return lienDealFor();
 }
 
 /** Practice part 2 is done: the rental case's packet, or (auction and lien routes) that route's practice step. */
