@@ -129,6 +129,8 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <PracticeRibbon />
         <DealJourneyEntry />
         <NarrowDown config={practiceConfig(!otherState)} intro="Answer two quick questions and we’ll point you to the best practice to start with. Everything else stays on this page below." />
+        {/* Ads only here, above all the practice: never beside the forced-sale runs and drills, and not on the auction or lien routes. */}
+        <AdSpot spot="practice" allow={!chosen && !sale && !ownPractice} />
         <details className="practice-more" open><summary>All the ways to practice: {otherState ? 'a full purchase and quick drills, including auction drills' : 'a full purchase, auctions and quick drills'}</summary>
         {/* On the auction and lien routes, their own practice (part 2) comes first; the rental purchase is extra. */}
         {ownPractice ? <>
@@ -156,8 +158,6 @@ export default function PracticePage({ sale }: { sale?: string }) {
           <a className="btn big" href={`#/practice/case${caseStarted ? `/${caseNext.key}` : ''}`}>{!caseStarted ? 'Start the purchase\u00a0→' : caseNext.packet ? 'See your deal packet\u00a0→' : 'Continue the purchase\u00a0→'}</a>
           <span className="practice-case-meta">About 45 minutes · {practiceCase.property} · {practiceCase.stateName} rules{practiceCase.state === 'TX' ? ', with the TREC contract' : ''}</span>
         </div>
-        {/* Ads only here, after the rental purchase: never beside the forced-sale practice and drills below. */}
-        <AdSpot spot="practice" allow={!chosen && !sale} />
         {!otherState && <>
         <h2 id="practice-auction" className="practice-step">{ownPractice ? (planPath() === 'certificate' ? 'Practice part 2: Nevada auction and lien practice' : 'Practice part 2: Nevada auction practice') : 'Nevada auction practice: choose a kind of sale'}</h2>
         <p className="practice-step-intro">Buy a fictional property at one kind of sale, step by step, from research to the day after.</p>

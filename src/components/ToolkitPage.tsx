@@ -540,6 +540,17 @@ function PriceFromCash({ cash }: { cash: number }) {
       {savedNote && <p className="muted small" role="status">{savedNote}</p>}
     </div>
   );
+  const taxWarn = (() => {
+          // Where the county's tax alone is near or above the estimate for tax and insurance together (Texas rates are
+          // often 2% or more), the price above is likely too high: said on its own, not only in the folded estimates.
+          const rate = area?.county && area.state !== 'NV' && area.state !== 'AZ' ? countyTaxRate(area.state, area.county) : null;
+          // No county yet: the state's middle county, so a Texas reader isn't handed a 1.2% price before choosing one.
+          const mid = !area?.county && area?.state && area.state !== 'NV' && area.state !== 'AZ' ? stateMedianTaxRate(area.state) : null;
+          if (!rate && mid !== null && mid > a.taxInsPct - 0.4) return <p className="caution">In {stateByCode(area!.state)?.name}, property tax alone is about {mid.toLocaleString('en-US', { maximumFractionDigits: 2 })}% of value a year in the middle county, {mid >= a.taxInsPct ? 'more than' : 'nearly all of'} the {a.taxInsPct}% this uses for tax and insurance together, so this price is likely too high. Choose your county with the area button at the top of the page (it shows your state) for its rate, or raise “Property tax and insurance” under Change the planning estimates.</p>;
+          if (!rate || !(rate.pct > a.taxInsPct - 0.4)) return null;
+          const place = /\bCity$/.test(area!.county!) ? area!.county : `${area!.county} County`;
+          return <p className="caution">{place}’s property tax alone is about {rate.pct.toLocaleString('en-US', { maximumFractionDigits: 2 })}% of value a year, {rate.pct >= a.taxInsPct ? 'more than' : 'nearly all of'} the {a.taxInsPct}% this uses for tax and insurance together, so this price is likely too high. Raise “Property tax and insurance” under Change the planning estimates.</p>;
+  })();
   return (
     <div className="price-from-cash">
       <h3>What price your investable cash supports</h3>
@@ -548,17 +559,7 @@ function PriceFromCash({ cash }: { cash: number }) {
           With {a.downPct}% down, closing costs of about {a.closingPct}% and {a.reserveMonths} months of payments kept in reserve, your {fmtMoney(cash)} supports a price up to about <strong>{fmtMoney(price)}</strong>:
           {' '}{fmtMoney(Math.round(c.down))} down, {fmtMoney(Math.round(c.closing))} closing costs and {fmtMoney(Math.round(c.reserves))} in reserve (about {fmtMoney(Math.round(c.monthly))} a month in loan, tax and insurance, at {a.taxInsPct}% of the price a year for tax and insurance). Repairs come out of the same cash, so leave room for them.{a.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : ''}{investorProfile().ownerOccupant && a.downPct >= 20 ? ` ${a.downPct}% down is common for an investment; a home you’ll live in can need less, so replace it below with your lender’s figure.` : ''}
         </p>
-        {(() => {
-          // Where the county's tax alone is near or above the estimate for tax and insurance together (Texas rates are
-          // often 2% or more), the price above is likely too high: said on its own, not only in the folded estimates.
-          const rate = area?.county && area.state !== 'NV' && area.state !== 'AZ' ? countyTaxRate(area.state, area.county) : null;
-          // No county yet: the state's middle county, so a Texas reader isn't handed a 1.2% price before choosing one.
-          const mid = !area?.county && area?.state && area.state !== 'NV' && area.state !== 'AZ' ? stateMedianTaxRate(area.state) : null;
-          if (!rate && mid !== null && mid > a.taxInsPct - 0.4) return <p className="caution">In {stateByCode(area!.state)?.name}, property tax alone is about {mid.toLocaleString('en-US', { maximumFractionDigits: 2 })}% of value a year in the middle county, {mid >= a.taxInsPct ? 'more than' : 'nearly all of'} the {a.taxInsPct}% this uses for tax and insurance together, so this price is likely too high. Choose your county (the “{stateByCode(area!.state)?.name}” button at the top of the page) for its rate, or raise “Property tax and insurance” under Change the planning estimates.</p>;
-          if (!rate || !(rate.pct > a.taxInsPct - 0.4)) return null;
-          const place = /\bCity$/.test(area!.county!) ? area!.county : `${area!.county} County`;
-          return <p className="caution">{place}’s property tax alone is about {rate.pct.toLocaleString('en-US', { maximumFractionDigits: 2 })}% of value a year, {rate.pct >= a.taxInsPct ? 'more than' : 'nearly all of'} the {a.taxInsPct}% this uses for tax and insurance together, so this price is likely too high. Raise “Property tax and insurance” under Change the planning estimates.</p>;
-        })()}
+        {taxWarn}
       </>) : (
         <p>With no down payment, closing costs or reserves, these assumptions don’t limit the price. Enter what your lender expects below to see a price.</p>
       )}
@@ -579,7 +580,7 @@ function PriceFromCash({ cash }: { cash: number }) {
         <p className="muted small">These are starting estimates, not loan requirements or an affordability decision. Down payment, interest rate and money kept in reserve depend on the loan and your situation. Confirm financing with your lender, and costs with the relevant providers.</p>
       </details>
       <p className="muted" role="note">Cash-budget estimate—not loan approval or proof you can afford the monthly costs. Check ongoing expenses, repairs and your lender’s requirements before using it as a price limit.</p>
-      {Number.isFinite(price) && <button type="button" className="btn btn-secondary" onClick={useIt}>Use {fmtMoney(price)} in my buy box</button>}
+      {Number.isFinite(price) && <button type="button" className="btn btn-secondary" onClick={useIt}>{taxWarn ? `Use ${fmtMoney(price)} in my buy box anyway (likely high until you raise the tax estimate)` : `Use ${fmtMoney(price)} in my buy box`}</button>}
     </div>
   );
 }

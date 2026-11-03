@@ -35,7 +35,7 @@ export const AD_SPOTS: AdSpot[] = [
   { key: 'learn', label: 'Learn (the list of lessons) and strategy guides', where: 'after the lessons, and at the end of each strategy guide (not the auctions guide)', categories: INVESTOR_TEAM },
   { key: 'lesson', label: 'Lessons (not the forced-sales lesson)', where: 'at the end of the lesson', categories: INVESTOR_TEAM },
   { key: 'decide', label: 'Decide', where: 'at the end of the page', categories: INVESTOR_TEAM },
-  { key: 'practice', label: 'Practice (the main page)', where: 'at the end of the page', categories: INVESTOR_TEAM },
+  { key: 'practice', label: 'Practice (the main page)', where: 'under the “Not sure where to start?” questions, above the practice list', categories: INVESTOR_TEAM },
   { key: 'drill', label: 'Practice drills (not forced-sale, lien or short-sale drills)', where: 'at the end of the drill', categories: INVESTOR_TEAM },
   { key: 'practiceCase', label: 'Practice purchase', where: 'at the end of each step', categories: BUYER_TEAM },
   { key: 'guides', label: 'Guides (the list)', where: 'at the end of the page', categories: INVESTOR_TEAM },

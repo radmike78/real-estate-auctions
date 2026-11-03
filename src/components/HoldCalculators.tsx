@@ -714,12 +714,12 @@ function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialA
   const noFlow = a.cashFlow <= 0 ? 'has no positive cash flow' : '';
   if (noCap) {
     const parts = [...misses.map((m) => `misses ${m}`), ...(noFlow ? [noFlow] : [])];
-    return `No return-on-cost target entered yet: enter the cap rate you require to compare.${parts.length ? ` It ${parts.join(' and ')}${cashShort ? ', and needs more cash than you have (below)' : ''}.` : cashShort ? ' It needs more cash than you have (below).' : ''}`;
+    return `No return-on-cost target entered yet: enter the cap rate you require to compare.${parts.length ? ` It ${parts.join(' and ')}.` : ''}${cashShort ? ` It${parts.length ? ' also' : ''} needs more cash than you have (below).` : ''}`;
   }
   if (a.capOnCost === null && !misses.length && !noFlow) return `No return on cost to compare yet with these numbers${short}.`;
   if (!misses.length && !noFlow) return `Meets ${target}${a.loan > 0 ? ' and the income coverage minimum' : ''} and has positive cash flow with these numbers${short}.`;
   const missText = misses.length ? `Misses ${misses.join(' and ')}` : '';
-  return `${missText}${missText && noFlow ? ', and ' : ''}${missText ? noFlow : noFlow.replace(/^h/, 'H')}${cashShort ? ', and needs more cash than you have (below)' : ''}.`;
+  return `${missText}${missText && noFlow ? ', and ' : ''}${missText ? noFlow : noFlow.replace(/^h/, 'H')}.${cashShort ? ' It also needs more cash than you have (below).' : ''}`;
 }
 
 function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capTyped = false }: { v: CommercialInputs; offer: boolean; setPrice: (n: number) => void; target: number; /** A cash figure was typed here (a typed 0 is no limit). */ cashTyped?: boolean; /** The cap-rate target was typed (else it's our example). */ capTyped?: boolean }) {
