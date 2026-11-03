@@ -121,7 +121,7 @@ function propertyTaxRules(state: StateCode): { hint: string; more: string } {
   if (state === 'UT')
     return {
       hint: 'A second home or short-term rental pays about 80% more. A long-term rental gets the lower main-home rate only if you file the county assessor’s declaration that it’s a tenant’s main home.',
-      more: 'In Utah, a home that is someone’s main home is taxed on 55% of its value. A long-term rental counts when it’s the tenant’s main home, if you file the county assessor’s declaration that it’s a tenant’s main home (Utah Code 59-2-103.5). A second home or short-term rental is taxed on its full value, so its bill is about 80% higher.',
+      more: 'In Utah, a main home is taxed on 55% of its value (the 45% residential exemption). For a long-term rental, the declaration goes to the county assessor (Utah Code 59-2-103.5); without it, or for a second home or short-term rental, the full value is taxed.',
     };
   return {
     hint: 'Rentals generally have a cap of up to 8%; qualifying rentals can receive the 3% cap.',

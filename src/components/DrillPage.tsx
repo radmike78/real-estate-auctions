@@ -1,3 +1,4 @@
+import RoutePracticeDone from './RoutePracticeDone';
 import { drillAllowsAds } from '../lib/contextAds';
 import NumInput from './NumInput';
 import { workStorage as localStorage } from '../lib/workStorage';
@@ -503,6 +504,8 @@ export default function DrillPage({ id }: { id: string }) {
         </section>
       )}
       {/* Only once the verdict and the expert's view are shown, outside the missions and their feedback. */}
+      {/* On the lien route the Arizona tax lien drill is part 2; on the auction route, the auction drills. */}
+      {allDone && verdict && <RoutePracticeDone what="drill" fits={(id) => (id === 'c-practice' ? d.id === 'tax-lien-az' : drillCard(d).group === 'auctions' && !/^(tax-lien|sid)/.test(d.id))} />}
       {allDone && verdict && <TopicAd drill={d.id} />}
       <div className="decide-nav">
         <a className="btn btn-secondary" href="#/practice/drills">← All practice</a>
