@@ -88,3 +88,12 @@ it('saves the goal, buy box, Decide answers and owned months without notes, and 
   expect(validCloudWork(projectCloudWork(safe))).toBe(true); expect(projectCloudWork(safe)).toEqual(safe);
   expect(excludedWork(workStorage)).toEqual(['the cash worksheet','evidence logs']);
 });
+
+it('keeps the Max bid calculator’s redemption rule choices in the typed list', () => {
+  const work = { 'fsf.bid.analyzed-d1.v1.typed.v1': ['exitValue', 'rulePick_CA_court_none', 'rulePick_NV_court_custom', 'redemptionMonths'] };
+  const out = projectCloudWork(work);
+  expect(out).toEqual(work);
+  expect(validCloudWork(out)).toBe(true);
+  // Anything else that isn't a field name is still dropped.
+  expect(projectCloudWork({ 'fsf.bid.analyzed-d1.v1.typed.v1': ['rulePick_<x>', 'notAField'] })['fsf.bid.analyzed-d1.v1.typed.v1']).toEqual([]);
+});

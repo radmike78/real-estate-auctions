@@ -16,8 +16,9 @@ const NOT_EXAMPLES = new Set<string>(['minimumBid', 'transferTaxPer500', 'cashAv
 
 const KEY = (id: string) => `fsf.bid.${id}.v1`;
 // The redemption rule picked from the menu, kept with the typed fields as "rulePick_<kind of sale>_<rule>" (so it
-// travels, syncs and is deleted with the deal's numbers), and only for the kind of sale it was picked for.
-const rulePick = (kind: string | undefined, rule: string) => `rulePick_${kind ?? 'any'}_${rule}`;
+// travels, syncs and is deleted with the deal's numbers), and only for the state and kind of sale it was picked for.
+// The state is part of it too: the same kind of sale has other rules in another state.
+const rulePick = (state: string, kind: string | undefined, rule: string) => `rulePick_${state}_${kind ?? 'any'}_${rule}`;
 // The fields you've typed in, and the region whose transfer tax the saved numbers carry: kept beside the numbers, so
 // saving, clearing and forgetting a deal (analyze.ts) moves or removes them together.
 const TYPED_KEY = (id: string) => `${KEY(id)}.typed.v1`;
@@ -258,11 +259,11 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     if (!offer && choices) {
       const cur = ruleOf(v, offered);
       // Your own typed wait counts only for the kind of sale you typed it for (marked rulePick_<kind>_custom).
-      const typedWait = typedKeys.has(rulePick(saleKind, 'custom'));
+      const typedWait = typedKeys.has(rulePick(region.state, saleKind, 'custom'));
       // A fresh deal (no rule typed or confirmed yet) starts with the rule you last picked for this kind of sale, else
       // the rule the caution names, not "No redemption", even where "No redemption" is one of the choices (a court sale).
       // The rule you last picked for this kind of sale, if any (it comes back when the deal returns to that kind).
-      const pickedHere = choices.keys.find((k) => typedKeys.has(rulePick(saleKind, k)));
+      const pickedHere = choices.keys.find((k) => typedKeys.has(rulePick(region.state, saleKind, k)));
       const fresh = cur === 'none' && !v.redemptionChecked && !typedWait && (pickedHere ? pickedHere !== 'none' : choices.start !== 'none');
       // Your own typed numbers stay yours (the caution calls them a what-if until you confirm the rule).
       const own = cur === 'custom' && typedWait;
@@ -355,8 +356,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   // One per kind of sale (it replaces the last one for the same kind). A menu pick also ends your typed wait.
   const setPick = (rule: string) =>
     setTypedKeys((t) => {
-      const next = new Set([...t].filter((x) => !x.startsWith(rulePick(saleKind, '')) && (rule === 'custom' || (x !== 'redemptionMonths' && x !== 'redemptionRatePct'))));
-      next.add(rulePick(saleKind, rule));
+      const next = new Set([...t].filter((x) => !x.startsWith(rulePick(region.state, saleKind, '')) && (rule === 'custom' || (x !== 'redemptionMonths' && x !== 'redemptionRatePct'))));
+      next.add(rulePick(region.state, saleKind, rule));
       try {
         if (storeId) saveConfirmed(KEY(storeId), next);
       } catch {

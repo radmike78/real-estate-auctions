@@ -79,4 +79,17 @@ describe('practice part 2 follows your route', () => {
     expect(guidedPracticeDone()).toBe(true);
     expect(planNow(new Date('2026-11-03T12:00:00Z')).context).not.toMatch(/Practice part 2/);
   });
+
+  it('drops the lien deal’s route when you choose "None yet (learning)"', async () => {
+    const { practiceState } = await import('./planNext');
+    const { planPath, NO_DEAL } = await import('./roadmapState');
+    localStorage.setItem('deedowl.state.v1', 'UT');
+    localStorage.setItem('deedowl.roadmap.path.v1', JSON.stringify('certificate'));
+    const deal = { id: 'dz1', name: 'Clark SID parcel 1', state: 'NV', county: 'Clark', kind: 'lien', plan: 'lien', notes: '', done: [], stage: 'researching', updatedAt: '2026-11-01T00:00:00.000Z', locationConfirmed: true };
+    localStorage.setItem('deedowl.analyze.v1', JSON.stringify([deal]));
+    expect(planPath()).toBe('certificate');
+    localStorage.setItem('deedowl.roadmap.deal.v1', JSON.stringify(NO_DEAL));
+    expect(planPath()).toBe('auction');
+    expect(practiceState()).toBe('UT');
+  });
 });

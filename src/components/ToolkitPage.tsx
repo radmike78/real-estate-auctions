@@ -268,11 +268,12 @@ export function FirstDealRoadmap() {
       window.removeEventListener(PROGRESS_EVENT, reload);
     };
   }, []);
-  const active = deals.find((d) => `analyzed:${d.id}` === dealId);
-  const deal = active ? { id: `analyzed:${active.id}`, name: active.name, kind: active.kind } : undefined;
+  const focused = deals.find((d) => `analyzed:${d.id}` === dealId);
   // A guided beginner's saved property waits while they finish the lessons and practice: My plan's top picker shows
-  // "None yet (learning)" then, and so does this one.
-  const waits = !!active && planNow().deal?.id !== active.id;
+  // "None yet (learning)" then, and so does this one, and phases 4 to 7 don't track it yet.
+  const waits = !!focused && planNow().deal?.id !== focused.id;
+  const active = waits ? undefined : focused;
+  const deal = active ? { id: `analyzed:${active.id}`, name: active.name, kind: active.kind } : undefined;
   const stage = active ? stageOf(active) : undefined;
   const scoped = (s: RoadmapStep) => !!deal && dealScoped(s);
   const doneOf = (s: RoadmapStep) => (scoped(s) ? (perDeal[deal!.id]?.done ?? []).includes(s.id) : done.includes(s.id));
@@ -391,7 +392,7 @@ export function FirstDealRoadmap() {
         <label className="field">
           <span>Which property are you working on?</span>
           <select
-            value={deal && !waits ? deal.id : ''}
+            value={deal ? deal.id : ''}
             onChange={(e) => {
               setDealId(e.target.value);
               write(DEAL_KEY, e.target.value || NO_DEAL);
@@ -409,8 +410,8 @@ export function FirstDealRoadmap() {
           </select>
         </label>
         <p className="muted">
-          {waits && active
-            ? `Your saved property, ${active.name || 'unnamed'}, waits while you finish the lessons and practice (as at the top of My plan). Choose it here to work on it now.`
+          {waits && focused
+            ? `Your saved property, ${focused.name || 'unnamed'}, waits while you finish the lessons and practice (as at the top of My plan). Choose it here to work on it now.`
             : deal
             ? `Phases 4 to 7 (find, buy, own, then sell, refinance or trade) are tracked for ${deal.name} only, and what you record goes into its evidence log. Phases 1 to 3 are yours, whatever the property.`
             : deals.length
@@ -418,7 +419,7 @@ export function FirstDealRoadmap() {
               : 'To track phases 4 to 7 (find, buy, own and sell) for a real property, save it in Analyze first. Each property keeps its own progress and evidence.'}
         </p>
       </div>
-      {active && stage && !waits && (
+      {active && stage && (
         <p className="roadmap-stage-note">
           <strong>{active.name}: {stageLabel(stage, active)}.</strong>{' '}
           {stage === 'passed'

@@ -124,6 +124,8 @@ const nvAzLien = (d: Deal) => d.kind === 'lien' && (d.state === 'NV' || d.state 
 export function lienDealFor(deals: Deal[] = loadDeals()): Deal | null {
   const d = deals.find((x) => `analyzed:${x.id}` === focusDealId(deals));
   if (d) return nvAzLien(d) ? d : null;
+  // "None yet (learning)" chosen: no property, so none keeps a route.
+  if (rawDealChoice() === NO_DEAL) return null;
   return [...deals].filter((x) => !x.practice && nvAzLien(x)).sort((x, y) => y.updatedAt.localeCompare(x.updatedAt))[0] ?? null;
 }
 

@@ -243,7 +243,28 @@ export const CURRENT_KEY = 'deedowl.analyze.current.v1';
 type SavedKind = { kind?: string; state?: string };
 let practicingNow: (d?: SavedKind) => boolean = () => false;
 export function setPracticeCheck(f: (d?: SavedKind) => boolean) { practicingNow = f; }
-export const savingPractice = (d?: SavedKind) => practicingNow(d);
+// The state Analyze's State field moved you from (this browser session), so a Nevada or Arizona lien deal priced
+// after moving from a state without lien sales is the real one your lien route is about: on every save path.
+const MOVED_KEY = 'deedowl.analyze.movedFrom.v1';
+export function noteStateMove(from: string | null, to: string) {
+  try {
+    const was = sessionStorage.getItem(MOVED_KEY);
+    if (was === to) sessionStorage.removeItem(MOVED_KEY);
+    else if (!was && from && from !== to) sessionStorage.setItem(MOVED_KEY, from);
+  } catch {
+    /* storage unavailable */
+  }
+}
+const movedFromNoLienState = () => {
+  try {
+    const f = sessionStorage.getItem(MOVED_KEY);
+    return !!f && f !== 'NV' && f !== 'AZ';
+  } catch {
+    return false;
+  }
+};
+export const savingPractice = (d?: SavedKind) =>
+  practicingNow(d) && !(d?.kind === 'lien' && (d.state === 'NV' || d.state === 'AZ') && movedFromNoLienState());
 
 /** An unsaved, started deal in Analyze, saved to My deals before something replaces it. Returns it, or null. */
 export function keepUnsavedDraft(): Deal | null {

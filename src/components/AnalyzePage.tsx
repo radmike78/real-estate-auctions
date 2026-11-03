@@ -12,7 +12,7 @@ import { CalcRegion } from './calcRegion';
 import { useMarkStep, stepEyebrow } from '../lib/path';
 import { dropStateLead, useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { CURRENT_KEY, KEPT_NOTE_KEY, OPENED_KEY, keepUnsavedDraft, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, nextStamp, restoreDraftNumbers, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
+import { CURRENT_KEY, KEPT_NOTE_KEY, OPENED_KEY, keepUnsavedDraft, noteStateMove, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, nextStamp, restoreDraftNumbers, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
 import { worksheetDownPct, investorProfile, commercialLoanStart } from '../lib/myPlan';
@@ -157,10 +157,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const [mine] = useMyState();
   // The investing state before the State field below changed it, for the notice.
   const [stateMoved, setStateMoved] = useState<StateCode | null>(null);
-  // A Nevada or Arizona lien deal priced after the State field moved a reader from a state without lien sales: it's
-  // the real deal their lien route is about, not a practice analysis (as when their own state stays put).
-  const lienFromElsewhere = (d: Deal) => !!stateMoved && stateMoved !== 'NV' && stateMoved !== 'AZ' && d.kind === 'lien' && (d.state === 'NV' || d.state === 'AZ');
-  const practiceSave = (d: Deal) => savingPractice(d) && !lienFromElsewhere(d);
+  // (A Nevada or Arizona lien deal priced after the State field moved you from a state without lien sales saves as a
+  // real deal: savingPractice reads where you moved from.)
+  const practiceSave = (d: Deal) => savingPractice(d);
   // Nothing typed is ever wiped: a started, unsaved deal is saved to My deals, with its numbers, before a listing
   // or a change of state replaces it. Returns the deal's state when one was saved, for the notice.
   // The "just opened" marker is read once, when the page first loads its deal.
@@ -192,10 +191,19 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       // opens as if chosen in My deals (an unsaved draft is kept first).
       // Not one you passed on: its numbers stay as you left them.
       const ld0 = plan === 'lien' && !kindsFor(mine ?? 'NV').some((k) => k.key === 'lien') ? practiceLienDeal() : null;
-      const ld = ld0 && ld0.stage !== 'passed' ? ld0 : null;
+      let ld = ld0 && ld0.stage !== 'passed' ? ld0 : null;
       if (ld) {
-        const kept = keepUnsaved();
-        if (kept) { keptNoteOnce = kept; setTimeout(() => { keptNoteOnce = ''; }, 1500); setTimeout(() => setKeptNote(kept), 0); }
+        const keptDeal = keepUnsavedDraft();
+        if (keptDeal) {
+          // As when opening a deal from My deals: the lien deal stays the one you're working on (the kept draft is
+          // newer otherwise, and would take My plan's focus and its route).
+          const now = nextStamp([ld.updatedAt, keptDeal.updatedAt].sort().pop() ?? ld.updatedAt);
+          const id = ld.id;
+          saveDeals(loadDeals().map((x) => (x.id === id ? { ...x, updatedAt: now } : x)));
+          ld = { ...ld, updatedAt: now };
+          const kept = `Your unsaved ${stateByCode(keptDeal.state)?.name ?? ''} deal “${keptDeal.name}” was saved to My deals.`;
+          keptNoteOnce = kept; setTimeout(() => { keptNoteOnce = ''; }, 1500); setTimeout(() => setKeptNote(kept), 0);
+        }
         try { localStorage.setItem(CURRENT_KEY, JSON.stringify(ld)); localStorage.setItem(OPENED_KEY, JSON.stringify(ld.id)); } catch { /* storage unavailable */ }
       }
       const cur = loadCurrent(mine ?? 'NV');
@@ -364,7 +372,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           </label>
           <label className="field">
             <span>State</span>
-            <select value={deal.state} onChange={(e) => { const s = e.target.value as StateCode; if (mine && s !== mine && !stateMoved) setStateMoved(mine); setMyState(s); /* first, so the starting county is your area's in that state */ const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: startCounty(s), countyChosen: false, locationConfirmed: false, kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); }}>
+            <select value={deal.state} onChange={(e) => { const s = e.target.value as StateCode; if (mine && s !== mine && !stateMoved) setStateMoved(mine); noteStateMove(mine, s); setMyState(s); /* first, so the starting county is your area's in that state */ const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: startCounty(s), countyChosen: false, locationConfirmed: false, kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); }}>
               {STATES.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
             </select>
           </label>

@@ -51,6 +51,7 @@ const label = (v: unknown) => typeof v === 'string' && v.length <= 120 && !/[<>\
 const BID_FIELDS = 'exitValue repairs contingencyPct buyerPremiumPct transferTaxPer500 survivingLiens titleLegal possession redemptionMonths redemptionRatePct redemptionDaily redemptionFlat redemptionFlat2Pct redemptionChecked holdingMonths monthlyCarry financedPct loanAtClosing interestRatePct pointsPct sellingCostPct targetProfitPct targetProfitMin profitInDollars proposedPrice cashAvailable'.split(' ');
 const numericKeys = [...new Set([...BID_FIELDS, ...Object.keys(RENT_DEFAULTS), ...Object.keys(COMMERCIAL_DEFAULTS), ...Object.keys(LIEN_DEFAULTS), ...Object.keys(SELLER_FINANCE_DEFAULTS), ...Object.keys(HOLD_SELL_DEFAULTS), ...Object.keys(STR_DEFAULTS), ...Object.keys(INCOME_DEFAULTS)])];
 const CALC = /^fsf\.(bid\.[A-Za-z0-9_-]{1,64}|income\.[A-Za-z0-9_-]{1,64}|calc\.(rent|commercial)(\.[A-Za-z0-9_-]{1,64})?|calc\.lien(\.[A-Za-z0-9_-]{1,64})?|calc\.sellerfinance|calc\.strategy)\.v1$/;
+const RULE_PICK = /^rulePick_[A-Z]{2}_[A-Za-z]{1,20}_[A-Za-z]{1,30}$/;
 const TYPED = /^fsf\.(bid|calc\.(rent|commercial|lien|sellerfinance|strategy))(\.[A-Za-z0-9_-]{1,64})?(\.v1)?\.typed\.v1$/;
 function deal(v: unknown): unknown {
   if (!record(v) || !ID.test(String(v.id)) || !label(v.name) || !stamp(v.updatedAt)) return null;
@@ -154,7 +155,8 @@ export function projectCloudWork(input: unknown): CloudWork {
     else if (k === 'deedowl.analyze.v1' && Array.isArray(v)) out[k] = v.slice(0, 50).map(deal).filter(Boolean);
     else if (k === 'deedowl.analyze.current.v1' && deal(v)) out[k] = deal(v);
     else if (CALC.test(k) && record(v)) out[k] = Object.fromEntries(Object.entries(v).filter(([n, a]) => numericKeys.includes(n) && number(a)));
-    else if (TYPED.test(k)) out[k] = ids(v, numericKeys);
+    // The typed fields, plus the Max bid calculator's redemption rule choices (rulePick_<state>_<kind>_<rule>).
+    else if (TYPED.test(k)) out[k] = Array.isArray(v) ? [...new Set(v.filter((s): s is string => typeof s === 'string' && (numericKeys.includes(s) || RULE_PICK.test(s))))].slice(0, 200) : [];
     else if (k === 'fsf.bid.mode.v1' && ['quick','detailed'].includes(String(v))) out[k] = v;
     else if (k === 'deedowl.practice-deal.v1' || Object.values(CASE_KEYS).includes(k as never)) { const p = progress(v, k); if (p) out[k] = p; }
   }
