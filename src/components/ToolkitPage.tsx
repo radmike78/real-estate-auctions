@@ -710,7 +710,8 @@ function BuyBoxBuilder() {
       <h2 id="buybox-head">Your buy box: what you’re looking for</h2>
       <p>Write down your target area, property type, budget and limits. Investors call this a “buy box.” Use it to decide which properties deserve a closer look; it does not prove a property is a good deal.</p>
       {/* After a state switch, the buy box still names the old state: say so, and offer to move it. */}
-      {mine && b.state && b.state !== mine && (
+      {/* Not for a lien buy box set to the state of the lien deal your plan is built around (the note below asks for that). */}
+      {mine && b.state && b.state !== mine && !(lien && lienDeal && b.state === lienDeal.state) && (
         <p className="notice" role="status">Your buy box is for {STATES.find((x) => x.code === b.state)?.name ?? b.state}, but you’ve chosen {STATES.find((x) => x.code === mine)?.name ?? mine}.{' '}
           <button type="button" className="linkish" onClick={() => { setSwitched(b.area ? `Switched to ${STATES.find((x) => x.code === mine)?.name ?? mine}. Your area (${b.area}) was cleared: add one there.` : `Switched to ${STATES.find((x) => x.code === mine)?.name ?? mine}.`); setB({ ...b, state: mine, area: '' }); }}>Switch it to {STATES.find((x) => x.code === mine)?.name ?? mine}</button>
         </p>

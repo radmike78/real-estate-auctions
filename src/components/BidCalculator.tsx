@@ -18,6 +18,8 @@ const KEY = (id: string) => `fsf.bid.${id}.v1`;
 // The redemption rule picked from the menu, kept with the typed fields as "rulePick_<kind of sale>_<rule>" (so it
 // travels, syncs and is deleted with the deal's numbers), and only for the state and kind of sale it was picked for.
 // The state is part of it too: the same kind of sale has other rules in another state.
+/** A typed redemption wait cleared on this load, for the notice (see waitCleared). */
+let pendingWaitClear: { store: string; months: number } | null = null;
 const rulePick = (state: string, kind: string | undefined, rule: string) => `rulePick_${state}_${kind ?? 'any'}_${rule}`;
 // The fields you've typed in, and the region whose transfer tax the saved numbers carry: kept beside the numbers, so
 // saving, clearing and forgetting a deal (analyze.ts) moves or removes them together.
@@ -244,7 +246,6 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     }
   };
   const dropTypedWait = useRef(false);
-  const droppedWait = useRef<number | null>(null);
   const [waitCleared, setWaitCleared] = useState<number | null>(null);
   // The listing's opening bid is the starting point (older saved inputs didn't have it).
   const [i, setI] = useState<BidInputs>(() => {
@@ -271,7 +272,16 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       const own = cur === 'custom' && typedWait;
       if ((!choices.keys.includes(cur) && !own) || fresh) {
         const r0 = rules[pickedHere ?? choices.start];
-        if (cur === 'custom') droppedWait.current = Math.round(nz(v.redemptionMonths));
+        if (cur === 'custom') {
+          // Kept outside the component too: a first-paint remount runs this again on the already-reset numbers, and
+          // the notice and the "typed" cleanup below would be lost with the first instance.
+          pendingWaitClear = { store: storeId ?? '', months: Math.round(nz(v.redemptionMonths)) };
+          try {
+            if (storeId) saveConfirmed(KEY(storeId), new Set([...typedKeys].filter((x) => x !== 'redemptionMonths' && x !== 'redemptionRatePct' && !/^rulePick_.*_custom$/.test(x))));
+          } catch {
+            /* storage unavailable */
+          }
+        }
         v = { ...v, redemptionMonths: r0.months, redemptionRatePct: r0.ratePct, redemptionDaily: r0.daily, redemptionFlat: r0.flat, redemptionFlat2Pct: r0.flat2Pct, redemptionChecked: 0 };
         save(v);
         // The numbers you typed for another kind of sale are gone now: so is their "typed" mark (after mount, below).
@@ -286,9 +296,12 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     if (!typedKeys.has('transferTaxPer500')) update({ transferTaxPer500: tax.per500 });
   }, [regionSig]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
-    if (!dropTypedWait.current) return;
+    const pending = pendingWaitClear && pendingWaitClear.store === (storeId ?? '') ? pendingWaitClear : null;
+    if (!dropTypedWait.current && !pending) return;
     dropTypedWait.current = false;
-    setWaitCleared(droppedWait.current);
+    setWaitCleared(pending ? pending.months : null);
+    // Shown on this load only.
+    setTimeout(() => { pendingWaitClear = null; }, 1500);
     setTypedKeys((t) => {
       const next = new Set([...t].filter((x) => x !== 'redemptionMonths' && x !== 'redemptionRatePct' && !/^rulePick_.*_custom$/.test(x)));
       try {
@@ -530,14 +543,14 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       <div className="calc-results" id={`${uid}-results`}>
         <p className="small muted">Profit estimates are before income tax. Review taxes on a sale with your tax adviser.</p>
         {/* Your own typed wait was for another kind of sale: it's cleared, and you're told (it changes the walk-away). */}
-        {waitCleared !== null && <p className="note" role="status">Your typed redemption wait{waitCleared > 0 ? ` (${waitCleared} month${waitCleared === 1 ? '' : 's'})` : ''} was for another kind of sale, so it was cleared and this sale’s rule is used. Type it again under Holding and financing (Detailed) if it applies here. <button type="button" className="linkish" onClick={() => setWaitCleared(null)}>Dismiss</button></p>}
+        {waitCleared !== null && <p className="note" role="status">Your typed redemption wait{waitCleared > 0 ? ` (${waitCleared} month${waitCleared === 1 ? '' : 's'})` : ''} was for another kind of sale or state, so it was cleared and this sale’s rule is used. Type it again under Holding and financing (Detailed) if it applies here. <button type="button" className="linkish" onClick={() => setWaitCleared(null)}>Dismiss</button></p>}
         {unconfirmed && (
           <div className="caution calc-unconfirmed">
             <strong>Redemption rule not confirmed.</strong> {ruleNow === choices?.start ? choices?.confirm : (choices?.confirm ?? '').replace(/ ?This calculator starts with [^.]*\. ?/, ' ').trim()} Your walk-away price now uses{' '}
             {ruleNow === 'custom'
               ? <>your own numbers: a {Math.round(i.redemptionMonths)}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
               : <>{offered[ruleNow]?.label}.</>}{' '}
-            {ruleNow === choices?.start ? 'Pick the rule under Holding and financing (Detailed), then confirm it here.' : 'Once the records show this rule applies, confirm it here (or pick another under Holding and financing, Detailed).'}
+            {ruleNow === choices?.start ? 'Pick the rule under Holding and financing (Detailed), then confirm it here.' : ruleNow === 'custom' ? 'Once the records show which rule applies, pick it under Holding and financing (Detailed) and confirm it here.' : 'Once the records show this rule applies, confirm it here (or pick another under Holding and financing, Detailed).'}
             <label className="calc-check">
               <input type="checkbox" checked={false} onChange={() => update({ redemptionChecked: 1 })} />
               <span>I’ve checked the records, and the redemption rule set in this calculator is the one that applies.</span>

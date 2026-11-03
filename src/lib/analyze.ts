@@ -1,4 +1,5 @@
 import { workStorage as localStorage } from './workStorage';
+import { getMyState } from './myState';
 import type { SaleType } from '../types';
 import { removeLog } from './evidence';
 import { forgetRoadmapDeal } from './roadmapDeals';
@@ -243,21 +244,24 @@ export const CURRENT_KEY = 'deedowl.analyze.current.v1';
 type SavedKind = { kind?: string; state?: string };
 let practicingNow: (d?: SavedKind) => boolean = () => false;
 export function setPracticeCheck(f: (d?: SavedKind) => boolean) { practicingNow = f; }
-// The state Analyze's State field moved you from (this browser session), so a Nevada or Arizona lien deal priced
-// after moving from a state without lien sales is the real one your lien route is about: on every save path.
+// The state Analyze's State field moved you from (kept in this browser, across tabs, until you're back in it), so a
+// Nevada or Arizona lien deal priced after moving from a state without lien sales is the real one your lien route is
+// about: on every save path.
 const MOVED_KEY = 'deedowl.analyze.movedFrom.v1';
 export function noteStateMove(from: string | null, to: string) {
   try {
-    const was = sessionStorage.getItem(MOVED_KEY);
-    if (was === to) sessionStorage.removeItem(MOVED_KEY);
-    else if (!was && from && from !== to) sessionStorage.setItem(MOVED_KEY, from);
+    const was = localStorage.getItem(MOVED_KEY);
+    if (was === to) localStorage.removeItem(MOVED_KEY);
+    else if (!was && from && from !== to) localStorage.setItem(MOVED_KEY, from);
   } catch {
     /* storage unavailable */
   }
 }
 const movedFromNoLienState = () => {
   try {
-    const f = sessionStorage.getItem(MOVED_KEY);
+    const f = localStorage.getItem(MOVED_KEY);
+    // Back in that state another way (the header): the move is over.
+    if (f && f === getMyState()) { localStorage.removeItem(MOVED_KEY); return false; }
     return !!f && f !== 'NV' && f !== 'AZ';
   } catch {
     return false;

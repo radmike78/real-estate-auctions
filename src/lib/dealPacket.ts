@@ -566,7 +566,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   if (washoeTax) cash.push('Washoe County’s tax sale terms (Treasurer’s FAQ): a $500 pre-bid deposit in certified funds when you register; if you win, a $500 non-refundable deposit (the FAQ doesn’t say whether it’s the pre-bid deposit)* and the balance by 5:00 p.m. the day after the sale, in cash, cashier’s check, certified check or money order. Confirm them in the sale notice.');
   // Washoe's balance is due the day after the sale, not all on sale day.
   const saleDay = (at: string, amount: number, end = '') => washoeTax
-    ? `By 5:00 p.m. the day after the sale, at ${at}: ${money(amount)} (the $500 non-refundable deposit and the balance, in the form the sale requires)${end}`
+    ? `By 5:00 p.m. the day after the sale, at ${at}: ${money(amount)} (the balance by then, in the form the sale requires; the FAQ doesn’t say when the $500 non-refundable deposit is due, so check the sale notice)*${end}`
     : `On sale day, at ${at}: ${money(amount)} (bid plus any buyer’s premium, in the form the sale requires)${end}`;
   let need = 0;
   // The price `need` is figured at, so the investable-cash line after the what-if says which price it means.

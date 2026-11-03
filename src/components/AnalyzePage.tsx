@@ -1,5 +1,5 @@
 import { planNow, practiceLienDeal, roadmapNextStep } from '../lib/planNext';
-import { roadmapPath } from '../lib/roadmapState';
+import { chosenRoute } from '../lib/roadmapState';
 import PathNext from './PathNext';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useRef, useState } from 'react';
@@ -60,7 +60,7 @@ const lastAuctionKind = (st: StateCode): SaleKind => {
   return k && kindsFor(st).some((x) => x.key === k) ? k : 'trustee';
 };
 // A lien route in a state without lien sales starts the new deal as an auction there (as My plan follows).
-const kindForRoute = (st: StateCode): SaleKind => { const r0 = roadmapPath(); const r = r0 === 'certificate' && st !== 'NV' && st !== 'AZ' ? 'auction' : r0; return r === 'auction' ? lastAuctionKind(st) : r === 'certificate' && (st === 'NV' || st === 'AZ') ? 'lien' : 'listing'; };
+const kindForRoute = (st: StateCode): SaleKind => { const r0 = chosenRoute(); const r = r0 === 'certificate' && st !== 'NV' && st !== 'AZ' ? 'auction' : r0; return r === 'auction' ? lastAuctionKind(st) : r === 'certificate' && (st === 'NV' || st === 'AZ') ? 'lien' : 'listing'; };
 
 function blank(st: StateCode): Deal {
   const kind = kindForRoute(st);
@@ -369,6 +369,13 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         )}
         <p className="muted">Found a property on an official list, a listing site or from your agent? Enter it here. You’ll get the checklist for that kind of sale in that county, and the calculator for your plan. Save it to come back to it in My deals.</p>
         {lienLinked && deal.id === lienLinked && <p className="notice" role="note"><strong>This is your saved lien deal “{deal.name}”.</strong> Numbers you try in its lien calculator change it in My deals and its packet. To try practice payoffs (paid in 6 months, in 2 years), note its own numbers first and put them back afterward.</p>}
+        {(() => {
+          // A new deal on a lien route kept by a Nevada or Arizona lien deal while your own state sells no liens: say
+          // how to price another one there.
+          const ld = !deal.id && deal.kind !== 'lien' ? practiceLienDeal() : null;
+          const nm = ld ? stateByCode(ld.state)?.name ?? ld.state : '';
+          return ld && deal.state !== ld.state ? <p className="note" role="note">Your saved lien deal is in {nm}. To price another {nm} lien certificate, choose {nm} in State below.</p> : null;
+        })()}
         {/* The State here is also your investing state for the whole site: say so when it changes it. */}
         {stateMoved && mine && stateMoved !== mine && <p className="notice" role="status">Your investing state for the whole site is now {stateByCode(mine)?.name ?? mine}, so guides, practice and Find deals follow {stateByCode(mine)?.name ?? mine}. (The State here sets it.) Choosing {stateByCode(stateMoved)?.name ?? stateMoved} here again changes it back.</p>}
         <div className="deal-fields">

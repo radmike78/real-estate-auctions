@@ -99,6 +99,9 @@ describe('practice part 2 follows your route', () => {
     localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { ready: 'ready', goal: 'income', cash: '10to50', borrow: 'cash', time: 'parttime', hands: 'diy', risk: 'high', market: 'com' } }));
     expect(planPath()).toBe('auction');
     expect(planNow(new Date('2026-11-03T12:00:00Z')).context).toBe('Step 3 · Practice part 2: Finish a practice auction');
+    // "None yet (learning)" keeps it.
+    localStorage.setItem('deedowl.roadmap.deal.v1', JSON.stringify('none'));
+    expect(planPath()).toBe('auction');
     // A route you pick wins.
     localStorage.setItem('deedowl.roadmap.path.v1', JSON.stringify('listing'));
     expect(planPath()).toBe('listing');
