@@ -33,7 +33,7 @@ function useRegionTax<T extends BuyInputs>(groups: CalcGroup<T>[], countyTax = f
 
 const pctText = (x: number | null) => (x === null ? '—' : `${(Math.round(x * 1000) / 10).toLocaleString()}%`);
 // Return on cost, rounded down as the verdict, My deals and the packet show it.
-const capPctText = (x: number | null) => (x === null ? '—' : `${capText(x)}%`);
+const capPctText = (x: number | null, target = 0) => (x === null ? '—' : `${capText(x, target)}%`);
 
 /** Inputs kept in this browser (per property when there is one); rebuilt safely from storage. */
 function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> = {}, sig = JSON.stringify(force)): [T, (k: keyof T & string, v: number) => void, boolean, ReadonlySet<string>] {
@@ -168,7 +168,7 @@ function loanGroup<T extends LoanInputs>(valueLabel: string, valueHint: string):
   };
 }
 
-function HoldResults({ r, title, target, noiNote, minDscr, offer = false, examples = 0, allExample = false, commercial = false, headLabel = 'Walk-away price', noRealistic = false, hasLoan = false, supported = NaN }: { r: HoldResult; title: string; /** The price the deal supports without the cash limit (for the no-realistic-price note). */ supported?: number; /** No realistic price fits the cash (noRealisticPrice). */ noRealistic?: boolean; /** A loan is entered (the advice then doesn't suggest one). */ hasLoan?: boolean; target: string; noiNote: string; minDscr: number; offer?: boolean; /** How many inputs are still starting examples. */ examples?: number; /** Every number is still a starting example. */ allExample?: boolean; /** Commercial: no residential lender panel to point to. */ commercial?: boolean; /** The heading bar's name for the price this block evaluates. */ headLabel?: string }) {
+function HoldResults({ r, title, target, noiNote, minDscr, offer = false, examples = 0, allExample = false, commercial = false, headLabel = 'Walk-away price', noRealistic = false, hasLoan = false, supported = NaN , capTarget = 0}: { /** The cap-rate target (commercial), so the return on cost shows as many decimals. */ capTarget?: number; r: HoldResult; title: string; /** The price the deal supports without the cash limit (for the no-realistic-price note). */ supported?: number; /** No realistic price fits the cash (noRealisticPrice). */ noRealistic?: boolean; /** A loan is entered (the advice then doesn't suggest one). */ hasLoan?: boolean; target: string; noiNote: string; minDscr: number; offer?: boolean; /** How many inputs are still starting examples. */ examples?: number; /** Every number is still a starting example. */ allExample?: boolean; /** Commercial: no residential lender panel to point to. */ commercial?: boolean; /** The heading bar's name for the price this block evaluates. */ headLabel?: string }) {
   const tiny = noRealistic;
   const priced = !r.noBidWorks && Number.isFinite(r.maxBid) && !tiny;
   return (
@@ -192,7 +192,7 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
           {r.loanFees > 0 && (!offer ? <div><dt>Loan fees at the refinance (usually paid from the new loan)</dt><dd>{fmtMoney(Math.round(r.loanFees))}</dd></div> : <div><dt>Including the loan’s points and fees</dt><dd>{fmtMoney(Math.round(r.allIn + r.loanFees))}</dd></div>)}
           <div><dt>Net operating income (NOI), per year: after operating costs{r.reserves > 0 ? ', before reserves' : ''} and before the loan</dt><dd>{fmtMoney(Math.round(r.noi))}</dd></div>
           {r.reserves > 0 && <div><dt>Reserves for big replacements, per year</dt><dd>{fmtMoney(Math.round(r.reserves))}</dd></div>}
-          <div><dt>Return on everything you pay before loan fees (cap rate on cost)</dt><dd>{capPctText(r.capOnCost)}</dd></div>
+          <div><dt>Return on everything you pay before loan fees (cap rate on cost)</dt><dd>{capPctText(r.capOnCost, capTarget)}</dd></div>
           {r.debtService > 0 && <div><dt>Debt service: loan payments, per year</dt><dd>{fmtMoney(Math.round(r.debtService))}</dd></div>}
           <div><dt>Cash flow, per month: NOI minus {r.reserves > 0 ? 'reserves and ' : ''}loan payments{r.reserves > 0 ? '' : ' (before any replacement reserves)'}</dt><dd>{fmtMoney(Math.round(r.cashFlow / 12))}</dd></div>
           {r.debtService > 0 && <div><dt>Your cash left in the deal</dt><dd>{r.cashLeft > 0 ? fmtMoney(Math.round(r.cashLeft)) : 'None: the loan repays it'}</dd></div>}
@@ -693,7 +693,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
         })()}
         {/* An auction purchase's later loan is sized on the value: with no value entered, no loan is counted. */}
         {!offer && v.loanPct > 0 && !(v.value > 0) && <p className="calc-note small" role="note"><strong>No loan is counted yet: the value is blank.</strong> A loan after an auction is sized on the value an appraisal would support. Enter it (under the loan terms) to include the loan in the cash and the walk-away price.</p>}
-        <HoldResults commercial r={r} title="Walk-away price for the income" target={`Yields ${typedKeys.has('targetCapPct') ? 'your' : 'our example'} ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} headLabel="Walk-away price" noRealistic={noReal} hasLoan={v.loanPct > 0 && (offer || v.value > 0)} supported={uncapped.noBidWorks ? NaN : uncapped.maxBid} />
+        <HoldResults commercial capTarget={v.targetCapPct} r={r} title="Walk-away price for the income" target={`Yields ${typedKeys.has('targetCapPct') ? 'your' : 'our example'} ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} headLabel="Walk-away price" noRealistic={noReal} hasLoan={v.loanPct > 0 && (offer || v.value > 0)} supported={uncapped.noBidWorks ? NaN : uncapped.maxBid} />
         {walkShort && <PlanCashNote need={walkNeed} planCash={planCash} offer={offer} auctionDay={r.cashAtAuction} noLoan={offer && !(v.loanPct > 0)} />}
       </div>
       <StickyResult label="Walk-away price" value={noReal ? 'No realistic price' : r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks || noReal} />
@@ -707,7 +707,7 @@ function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialA
   // A 0 target is no target (the walk-away price asks for one): nothing to meet or miss on return on cost.
   const noCap = !(v.targetCapPct > 0);
   const misses: string[] = [];
-  if (!noCap && a.capOnCost !== null && a.capOnCost * 100 < v.targetCapPct) misses.push(`${target} (${capText(a.capOnCost)}% at this price)`);
+  if (!noCap && a.capOnCost !== null && a.capOnCost * 100 < v.targetCapPct) misses.push(`${target} (${capText(a.capOnCost, v.targetCapPct)}% at this price)`);
   if (!a.loanOk && a.dscr !== null) misses.push(`the ${v.minDscr}× income coverage minimum (${dscrText(a.dscr)}×)`);
   const noFlow = a.cashFlow <= 0 ? 'has no positive cash flow' : '';
   if (noCap) {
@@ -748,7 +748,7 @@ function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capT
           <div><dt>Replacement reserves, per year</dt><dd>{fmtMoney(Math.round(a.reserves))}</dd></div>
           <div><dt>Cash flow per month, before income tax</dt><dd>{fmtMoney(Math.round(a.cashFlow / 12))}</dd></div>
           <div><dt>Cap rate on purchase price</dt><dd>{pctText(a.capOnPrice)}</dd></div>
-          <div><dt>Cap rate on total cost before loan fees</dt><dd>{capPctText(a.capOnCost)}{v.targetCapPct > 0 ? ` (target ${v.targetCapPct}%)` : ''}</dd></div>
+          <div><dt>Cap rate on total cost before loan fees</dt><dd>{capPctText(a.capOnCost, v.targetCapPct)}{v.targetCapPct > 0 ? ` (target ${v.targetCapPct}%)` : ''}</dd></div>
           <div><dt>Cash-on-cash return, before income tax</dt><dd>{pctText(a.cashOnCash)}</dd></div>
           {a.dscr !== null && <div><dt>Income coverage (minimum {v.minDscr})</dt><dd>{dscrText(a.dscr)}× — {a.loanOk ? 'meets' : 'below'} the minimum</dd></div>}
         </dl>

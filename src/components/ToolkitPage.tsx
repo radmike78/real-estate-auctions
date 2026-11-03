@@ -273,9 +273,14 @@ export function FirstDealRoadmap() {
     const st = stageOfStep(s.id);
     return !!stage && stage !== 'passed' && !!st && dealScoped(s) && DEAL_STAGES.indexOf(st) > DEAL_STAGES.indexOf(stage) ? st : undefined;
   };
+  // Before the roadmap starts, My plan's task can still be one of its steps (an auction or lien route's own practice,
+  // practice part 2): that step is the one shown here, with its phase open.
+  const plan = deal ? null : planNow();
+  const starterStep = plan?.source === 'starter' ? steps.find((s) => `roadmap-${s.id}` === plan.task.key) : undefined;
+  const shown = plan?.source === 'roadmap' ? next : starterStep;
   // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
-  const [openPhase, setOpenPhase] = useState(() => next?.phase ?? 1);
-  useEffect(() => { setOpenPhase(next?.phase ?? 1); }, [deal?.id, stage]);
+  const [openPhase, setOpenPhase] = useState(() => (starterStep ?? next)?.phase ?? 1);
+  useEffect(() => { setOpenPhase((starterStep ?? next)?.phase ?? 1); }, [deal?.id, stage, starterStep?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   const phases = ([1, 2, 3, 4, 5, 6, 7] as const).map((n) => ({ n, title: ROADMAP_PHASES[n], steps: steps.filter((s) => s.phase === n) })).filter((ph) => ph.steps.length);
   const nextDone = (d: string[], id: string, v: StepStatus | 'done' | 'todo') => (v === 'done' ? (d.includes(id) ? d : [...d, id]) : d.filter((x) => x !== id));
   const nextStatus = (m: Record<string, StepStatus>, id: string, v: StepStatus | 'done' | 'todo') => {
@@ -371,12 +376,12 @@ export function FirstDealRoadmap() {
           You stopped at “{walked.title}”. Walking away from a deal that doesn’t fit is a good result. When you find the next one, set that task back to “Working on it”.
         </p>
       )}
-      {!deal && planNow().source === 'roadmap' && next ? (
+      {!deal && shown ? (
         <div>
           <div className="roadmap-next" id="roadmap-next">
-            <p className="roadmap-next-label">Next task · {stepContext(next)}{scoped(next) ? ` · ${deal!.name}` : ''}</p>
-            <h3>{next.title}</h3>
-            <StepBody s={next} status={stateOf(next)} setStatus={(v) => setStatus(next, v)} deal={deal} />
+            <p className="roadmap-next-label">Next task · {starterStep ? plan!.context : stepContext(shown)}</p>
+            <h3>{shown.title}</h3>
+            <StepBody s={shown} status={stateOf(shown)} setStatus={(v) => setStatus(shown, v)} deal={deal} />
           </div>
         </div>
       ) : deal && learnerNext ? (
@@ -542,9 +547,9 @@ function PriceFromCash({ cash }: { cash: number }) {
           With {a.downPct}% down, closing costs of about {a.closingPct}% and {a.reserveMonths} months of payments kept in reserve, your {fmtMoney(cash)} supports a price up to about <strong>{fmtMoney(price)}</strong>:
           {' '}{fmtMoney(Math.round(c.down))} down, {fmtMoney(Math.round(c.closing))} closing costs and {fmtMoney(Math.round(c.reserves))} in reserve (about {fmtMoney(Math.round(c.monthly))} a month in loan, tax and insurance, at {a.taxInsPct}% of the price a year for tax and insurance{(() => {
             // Where the county's tax alone is higher (Texas rates are often 2% or more), say so here, not only in the folded estimates.
-            // Named whenever it's within a point of the estimate: tax alone near the total leaves too little for insurance.
+            // Named when tax alone leaves under about 0.4% of the estimate for insurance (or exceeds it).
             const rate = area?.county && area.state !== 'NV' && area.state !== 'AZ' ? countyTaxRate(area.state, area.county) : null;
-            return rate && rate.pct + 1 > a.taxInsPct ? `; ${/\bCity$/.test(area!.county!) ? area!.county : `${area!.county} County`}’s tax alone is about ${rate.pct.toLocaleString('en-US', { maximumFractionDigits: 2 })}%, plus insurance, so check it under the planning estimates` : '';
+            return rate && rate.pct > a.taxInsPct - 0.4 ? `; ${/\bCity$/.test(area!.county!) ? area!.county : `${area!.county} County`}’s tax alone is about ${rate.pct.toLocaleString('en-US', { maximumFractionDigits: 2 })}%, plus insurance, so check it under the planning estimates` : '';
           })()}). Repairs come out of the same cash, so leave room for them.{a.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : ''}{investorProfile().ownerOccupant && a.downPct >= 20 ? ` ${a.downPct}% down is common for an investment; a home you’ll live in can need less, so replace it below with your lender’s figure.` : ''}
         </p>
       ) : (

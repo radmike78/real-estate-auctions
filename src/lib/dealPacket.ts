@@ -462,12 +462,12 @@ const commercialNoTarget = (strategy: string, overCap = false) => overCap
   : `No target return entered in ${strategy}: enter the cap rate you require to get a walk-away price.`;
 
 type CommercialLimit = 'return' | 'cash' | 'dscr';
-const pct1 = (x: number | null | undefined) => (x === null || x === undefined ? null : `${capText(x)}%`);
+const pct1 = (x: number | null | undefined, target = 0) => (x === null || x === undefined ? null : `${capText(x, target)}%`);
 /** The commercial walk-away price, worded by what sets it: your target return, your cash, or the lender's coverage. */
 /** The calculator's own words for the cash limit: "put in" for a listed property (down payment, closing costs and repairs), "bring" at an auction. */
 const cashLimit = (offer: boolean) => (offer ? 'the cash you can put in' : 'the cash you can bring');
 function commercialPriceText(capPct: number, maxBid: number, limitedBy: CommercialLimit | undefined, capOnCost: number | null | undefined, offer: boolean, lower = false, noRealistic = false, capTyped = true): string {
-  const roc = pct1(capOnCost);
+  const roc = pct1(capOnCost, capPct);
   // Under a tenth of the value: the cash goes to the costs, leaving almost nothing for the price (as the calculator says).
   if (noRealistic) return `${lower ? 'walk-away price' : 'Walk-away price'}, set by ${cashLimit(offer)}: ${money(maxBid)}, far below what the deal itself supports, so no realistic ${offer ? 'offer' : 'bid'} fits this cash`;
   if (limitedBy === 'cash') return `${lower ? 'walk-away price' : 'Walk-away price'}, set by ${cashLimit(offer)}: ${money(maxBid)}${roc ? ` (return on cost at that price: ${roc})` : ''}`;
@@ -670,7 +670,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   if (commercial?.at) {
     const a = commercial.at;
-    nums.push(`Your ${offer ? 'offer' : 'bid'} (your actual price): ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; cash left in ${money(a.cashIn)}; return on total cost ${pct1(a.capOnCost)}; ${a.dscr === null ? 'no loan' : `income coverage ${dscrText(a.dscr)}× (${a.loanOk ? 'meets' : 'below'} the ${commercial.minDscr ?? 1.25}× minimum)`}`);
+    nums.push(`Your ${offer ? 'offer' : 'bid'} (your actual price): ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; cash left in ${money(a.cashIn)}; return on total cost ${pct1(a.capOnCost, commercial.capPct)}; ${a.dscr === null ? 'no loan' : `income coverage ${dscrText(a.dscr)}× (${a.loanOk ? 'meets' : 'below'} the ${commercial.minDscr ?? 1.25}× minimum)`}`);
   }
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
   else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? `Without that cash limit the deal meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost` : 'Without that cash limit the numbers work'}`);
@@ -682,7 +682,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     for (const s of commercial.noRealistic ? [] : commercial.stress) {
       // Cash sets both prices: the lower rent doesn't move it, so say so instead of repeating the same figure as news.
       const same = s.limitedBy === 'cash' && commercial.limitedBy === 'cash' && s.maxBid === commercial.maxBid;
-      nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid !== null && s.maxBid > 0 ? (same ? `still ${money(s.maxBid)}, set by ${cashLimit(offer)}${pct1(s.capOnCost) ? ` (return on cost at that price: ${pct1(s.capOnCost)})` : ''}` : commercialPriceText(commercial.capPct, s.maxBid, s.limitedBy, s.capOnCost, offer, true)) : 'no price works'}`);
+      nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid !== null && s.maxBid > 0 ? (same ? `still ${money(s.maxBid)}, set by ${cashLimit(offer)}${pct1(s.capOnCost, commercial.capPct) ? ` (return on cost at that price: ${pct1(s.capOnCost, commercial.capPct)})` : ''}` : commercialPriceText(commercial.capPct, s.maxBid, s.limitedBy, s.capOnCost, offer, true)) : 'no price works'}`);
     }
   }
   if (lien) {

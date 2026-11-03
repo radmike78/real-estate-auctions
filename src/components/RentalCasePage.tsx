@@ -1,3 +1,5 @@
+import { routePractice } from '../lib/planNext';
+import { planPath } from '../lib/roadmapState';
 import { shuffled } from '../lib/shuffle';
 import { useEffect, useRef, useState } from 'react';
 import { downloadText } from '../lib/download';
@@ -60,13 +62,15 @@ function CasePage({ stageKey }: { stageKey?: string }) {
   const stageDone = (st: CaseStage) => tasksFor(st, p.answers).every((t) => p.done.includes(key(st, t)));
   const doneStages = C.stages.filter(stageDone).length;
 
+  // On the auction and lien routes, this rental case is extra: their part 2 is the route's own practice.
+  const ownPractice = routePractice(planPath());
   return (
     <main className="page practice case">
       <PageHero
         compact
-        eyebrow={<span className="practice-tag">Practice part 2 · Buy a rental (the paperwork) · fictional property</span>}
+        eyebrow={<span className="practice-tag">{ownPractice ? 'Optional practice' : 'Practice part 2'} · Buy a rental (the paperwork) · fictional property</span>}
         title={CASE_TITLE}
-        sub={stage || packet ? C.property : `${C.property}. Part 2 of 2: a new fictional house, so you see the paperwork on a fresh deal; Cedar House was part 1. You’ll read teaching versions of a purchase’s paperwork (fictional extracts, each with a guide to the real form), make the calls, and finish with your own deal packet.`}
+        sub={stage || packet ? C.property : `${C.property}. ${ownPractice ? `Optional on your route (its practice part 2 is “${ownPractice.title}”)` : 'Part 2 of 2'}: a new fictional house, so you see the paperwork on a fresh deal; Cedar House was part 1. You’ll read teaching versions of a purchase’s paperwork (fictional extracts, each with a guide to the real form), make the calls, and finish with your own deal packet.`}
       />
       <PracticeRibbon />
       {/* An even grid of steps (two equal rows on wide screens); every chip has a marker, so Start and the packet line up with the numbered steps. */}

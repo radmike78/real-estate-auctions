@@ -237,7 +237,7 @@ export function practiceConfig(auctionPracticeHere: boolean): NarrowConfig {
           ? { label: 'Auction practice', scrollTo: 'practice-auction', why: 'Buy a fictional property at one kind of sale, step by step, from research to the day after.' }
           : { label: 'Your state’s sale guides', href: '#/playbooks', why: 'Your state’s guides show how its own sales work, step by step; the auction drills below practice the decisions.' });
       } else {
-        picks.push({ label: 'Practice part 2: Buy a rental', scrollTo: 'practice-case', why: 'About 45 minutes. The paperwork and calls of a purchase through an agent, with a deal packet at the end.' });
+        picks.push({ label: 'Buy a rental, start to finish', scrollTo: 'practice-case', why: 'About 45 minutes. The paperwork and calls of a purchase through an agent, with a deal packet at the end.' });
       }
       picks.push({ label: 'Quick drills', scrollTo: 'practice-drills', why: 'One short made-up deal each: value it, check the rent, find the liens, then decide Buy, Investigate or Pass.' });
       return picks.slice(0, 3);
