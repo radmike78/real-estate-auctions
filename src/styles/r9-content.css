@@ -75,7 +75,7 @@
   /* !important: the phone rule for every page section (styles.css) is more specific than these. */
   .deal-numbers { padding: 14px 10px !important; }
   .calc-results { padding: 14px 0; border: 0; box-shadow: none; background: transparent; }
-  .at-price { padding: 12px !important; }
+  .at-price, .calc-at-price { padding: 12px !important; }
 }
 
 /* Drill toolbar: one even row on wide screens (the menus share the free width); an even two-column grid on tablets. */
@@ -444,3 +444,9 @@
   .owl-note { align-items: flex-start; }
 }
 .welcome-trust { justify-content: flex-start; margin-top: 22px; }
+
+/* The narrowest phones (under 360px): the header's logo, area, theme and menu buttons fit on one line. */
+@media (max-width: 359px) {
+  .site-header { gap: 6px; padding-left: 10px; padding-right: 8px; }
+  .site-header .logo { font-size: 0.92em; min-width: 0; flex-shrink: 1; overflow: hidden; }
+}

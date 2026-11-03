@@ -259,7 +259,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     } else {
       // California homes of 1–4 units: a trustee-sale win isn't final until the eligible-bidder windows close (Civil Code 2924m).
       const ca2924m = d.kind === 'trustee' && d.state === 'CA';
-      out.push(task({ key: 'dates', label: `Put ${n}’s payment and recording deadlines on its calendar`, produces: ca2924m ? 'the payment deadline, for a home of 1–4 units, the eligible-bidder windows (15 and 45 days after the sale: until they close your win isn’t final, unless an exception applies*) and when the deed should be recorded, on one calendar' : 'the payment deadline and when the deed or certificate should be recorded, on one calendar', href: packetHref(d, 'dates'), support: [L.guides], done: calendarComplete(p, stage) }));
+      out.push(task({ key: 'dates', label: `Put ${n}’s payment and recording deadlines on its calendar`, produces: ca2924m ? 'the payment deadline and when the deed should be recorded, on one calendar; for a home of 1–4 units, also the eligible-bidder windows (15 and 45 days after the sale), since your win isn’t final until they close, unless an exception applies*' : 'the payment deadline and when the deed or certificate should be recorded, on one calendar', href: packetHref(d, 'dates'), support: [L.guides], done: calendarComplete(p, stage) }));
       area('terms', `Pay for ${n} as the sale requires`, 'the receipt, and the deed or certificate you’re owed, in its evidence log', [L.guides]);
       if (w === 'auction') {
         if (!ev('insurance')) area('insurance', `Insure ${n} right away`, 'a policy in your name from the day you own it, in its evidence log', [L.pro('insurance')]);

@@ -267,13 +267,15 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
         if (stateOf(p) !== 'NV' || a?.state !== 'NV' || !a.county || a.county === 'Clark') return null;
         const place = a.county === 'Carson City' ? 'Carson City' : `${a.county} County`;
         const offices = COUNTY_OFFICES[`NV/${a.county}`];
-        const page = p.key === 'sid' ? offices?.specialAssessment ?? offices?.treasurer : p.key === 'tax' ? offices?.taxSale : undefined;
+        const page = p.key === 'sid' ? offices?.specialAssessment ?? offices?.treasurer : p.key === 'tax' ? offices?.taxSale : p.key === 'sheriff' ? offices?.sheriff : undefined;
         return (
           <p className="other-state-guide" role="note">
             This guide follows Clark County.{' '}
             {a.county === 'Washoe' && p.key === 'tax'
               ? 'Washoe County’s tax sale differs: one auction a year, usually in April; register from 9:00 a.m. two business days before, with a $500 deposit in certified funds; a winning bidder pays a $500 deposit and the balance by 5:00 p.m. the day after the sale.'
-              : `${place}’s own dates, deposits and payment rules may differ: confirm them with the county before a real sale.`}
+              : ['tax', 'sid', 'sheriff'].includes(p.key)
+                ? `${place}’s own dates, deposits and payment rules may differ: confirm them with ${p.key === 'sheriff' ? 'its sheriff' : 'its treasurer'} before a real sale.`
+                : 'This kind of sale follows the same Nevada law in every county; each sale’s own terms come from its notice or the seller, so read them for the one you’re buying.'}
             {page && <> <a href={page.url} target="_blank" rel="noopener noreferrer">{place}’s page ↗</a></>}
           </p>
         );

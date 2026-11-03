@@ -624,6 +624,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     cash.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered in ${strategy}: ${commercial.none ? 'it doesn’t cover the repairs and costs, before any price' : commercial.hasLoan ? `with what’s left for the down payment, the most you could pay is about ${money(commercial.maxBid)}` : `it covers the costs but leaves only about ${money(commercial.maxBid)} for the price`}. ${noRealisticAdvice(offer, !!commercial.hasLoan)}`);
   } else if (commercial?.none && commercial.weakSupported) {
     cash.push(`The income supports a price of only about ${money(commercial.weakSupported)}, far below the value, and the cash you entered in ${strategy} doesn’t cover the costs either. Check the rent and costs, or skip this one.`);
+  } else if (commercial?.none && commercial.loanTooBig) {
+    cash.push(`The refinance you entered in ${strategy} costs more a year than the building earns, so no price works with that loan. Try a smaller loan, or run it all cash.`);
   } else if (commercial?.none) {
     cash.push(`No price meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost with the income and costs you entered in ${strategy}.`);
   } else if (commercial) {

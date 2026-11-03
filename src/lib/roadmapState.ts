@@ -75,9 +75,7 @@ export function markStepDone(id: string) {
   }
 }
 /** How the visitor plans to buy: through an agent, at an auction, or lien certificates. */
-// Lien certificates are sold only in Nevada and Arizona: a lien route kept after switching to another state follows the
-// auction route there (its tasks would point to sales that don't exist), until the reader picks again.
-export const roadmapPath = (): RoadmapPath => { const p = readKey(ROADMAP_PATH_KEY, 'listing' as RoadmapPath, cleanPath); const st = getMyState(); return p === 'certificate' && st && st !== 'NV' && st !== 'AZ' ? 'auction' : p; };
+export const roadmapPath = () => readKey(ROADMAP_PATH_KEY, 'listing' as RoadmapPath, cleanPath);
 /** The route that fits a property's kind of sale. */
 export const pathForDeal = (d: Pick<Deal, 'kind'>): RoadmapPath => (d.kind === 'lien' ? 'certificate' : d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? 'listing' : 'auction');
 
@@ -108,8 +106,18 @@ const dealChosen = () => rawDealChoice() !== '';
 
 /** The route the roadmap shows: the stored choice, or, until a property is chosen, the route of the one in focus. */
 export function planPath(deals: Deal[] = loadDeals()): RoadmapPath {
-  if (dealChosen()) return roadmapPath();
   const d = deals.find((x) => `analyzed:${x.id}` === focusDealId(deals));
+  const p = planPathRaw(d);
+  // Lien certificates are sold only in Nevada and Arizona: a lien route kept after switching to another state follows
+  // the auction route there (its tasks would point to sales that don't exist), unless the property in focus is a lien
+  // in a state that sells them.
+  const st = getMyState();
+  const lienDeal = !!d && d.kind === 'lien' && (d.state === 'NV' || d.state === 'AZ');
+  return p === 'certificate' && st && st !== 'NV' && st !== 'AZ' && !lienDeal ? 'auction' : p;
+}
+
+function planPathRaw(d: Deal | undefined): RoadmapPath {
+  if (dealChosen()) return roadmapPath();
   // A route you picked holds while the property in focus is still being researched (a practice analysis, a listing
   // your agent sent): only a deal you've moved on with (an offer, a bid, a contract) changes the route.
   let picked = false;

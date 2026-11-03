@@ -76,3 +76,19 @@ describe('Keep and rent verdict', () => {
     expect(rentVerdict({ ...base, living: true, coverageShort: true })).toBe('good');
   });
 });
+
+describe('a lien route outside Nevada and Arizona', () => {
+  it('follows the auction route, unless the property in focus is a lien where liens are sold', async () => {
+    const { planPath } = await import('./roadmapState');
+    const { saveDeals } = await import('./analyze');
+    localStorage.setItem('deedowl.state.v1', 'TX');
+    localStorage.setItem('deedowl.roadmap.path.v1', JSON.stringify('certificate'));
+    expect(planPath([])).toBe('auction');
+    const lien = { id: 'az1', name: 'AZ lien', state: 'AZ', county: 'Maricopa', kind: 'lien', plan: 'lien', notes: '', done: [], updatedAt: '2026-11-03T00:00:00Z' } as const;
+    saveDeals([lien as never]);
+    expect(planPath()).toBe('certificate');
+    localStorage.setItem('deedowl.state.v1', 'NV');
+    saveDeals([]);
+    expect(planPath([])).toBe('certificate');
+  });
+});

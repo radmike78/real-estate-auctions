@@ -651,12 +651,13 @@ export function fhaMonthlyMi(v: Pick<RentInputs, 'atPrice' | 'value' | 'loanPct'
 /** Income coverage for display: two decimals, rounded down (a hair under a minimum never reads as meeting it). */
 export const dscrText = (x: number) => (Math.floor(x * 100 + 1e-6) / 100).toFixed(2);
 /** Return on cost (a fraction) misses a cap-rate target (%), with float slack: an exact 7.25% isn't a miss (0.0725 × 100 = 7.2499…). */
-export const capMisses = (x: number, targetPct: number) => Number(capText(x, targetPct)) < targetPct - 1e-12;
+// Targets with more than six decimals are compared as numbers (the figure shown stops at six).
+export const capMisses = (x: number, targetPct: number) => ((String(targetPct).split('.')[1]?.length ?? 0) > 6 ? x * 100 < targetPct * (1 - 1e-12) : Number(capText(x, targetPct)) < targetPct - 1e-12);
 
 /** A return on cost (a fraction) as a percent with one decimal, rounded down, so 8.96% never reads as a 9% target met. */
 export const capText = (x: number, target = 0) => {
-  // As many decimals as the target has (one to ten: two for a 7.25% target), so a met target never reads below itself.
-  const d = Math.min(10, Math.max(1, String(target).split('.')[1]?.length ?? 0));
+  // As many decimals as the target has (one to six: two for a 7.25% target), so a met target never reads below itself.
+  const d = Math.min(6, Math.max(1, String(target).split('.')[1]?.length ?? 0));
   const f = 10 ** (d + 2);
   // Toward zero for a loss too, so a tiny loss reads 0.0%, not -0.1%.
   const v = Math.sign(x) * Math.floor(Math.abs(x) * f + 1e-6) / 10 ** d;

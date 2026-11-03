@@ -329,10 +329,10 @@ export function FirstDealRoadmap() {
         ))}
         <span className="muted">{dropStateLead(forStateText(getMyState(), ROADMAP_PATHS[path].hint), getMyState())}</span>
       </div>
-      {/* After a switch to a state that doesn't sell lien certificates, the route says so and offers the auction route. */}
-      {path === 'certificate' && mine && !liensSoldIn(mine) && !(active && active.kind === 'lien' && liensSoldIn(active.state)) && (
-        <p className="notice" role="status">Lien certificates are sold in Arizona and Nevada, not {STATES.find((x) => x.code === mine)?.name ?? mine}.{' '}
-          <button type="button" className="linkish" onClick={() => { choosePath('auction'); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.roadmap-path button[aria-pressed="true"]')?.focus()); }}>Switch to buying at an auction</button>
+      {/* After a switch to a state that doesn't sell lien certificates, the plan follows the auction route there: say why. */}
+      {path !== 'certificate' && roadmapPath() === 'certificate' && mine && !liensSoldIn(mine) && (
+        <p className="notice" role="status">Lien certificates are sold in Arizona and Nevada, not {STATES.find((x) => x.code === mine)?.name ?? mine}, so your plan follows buying at an auction here.{' '}
+          <button type="button" className="linkish" onClick={() => { choosePath('auction'); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.roadmap-path button[aria-pressed="true"]')?.focus()); }}>Keep the auction route</button>
         </p>
       )}
       <div className="roadmap-deal">
