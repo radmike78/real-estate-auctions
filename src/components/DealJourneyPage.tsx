@@ -1,3 +1,5 @@
+import { getMyState } from '../lib/myState';
+import { stateByCode } from '../lib/regions';
 import PageHero from './PageHero';
 import { LEARN_MODULES } from '../lib/learn';
 import { lessonByKey } from '../lib/lessons';
@@ -166,7 +168,10 @@ function DealLab({ p, update }: { p: JourneyProgress; update: (p: JourneyProgres
 function PartTwoLink({ className, rental }: { className: string; rental: string }) {
   const own = routePractice(planPath());
   if (!own?.href) return <a className={className} href="#/practice/case">{rental}</a>;
-  return <><a className={className} href={own.href}>Next, part 2: {own.title.charAt(0).toLowerCase() + own.title.slice(1)} →</a> <a className="btn btn-secondary" href="#/practice/case">Optional: buy a rental (the paperwork)</a></>;
+  // The practice runs follow Nevada rules: elsewhere the same link opens your state's drills, so it says so.
+  const st = getMyState();
+  const words = !st || st === 'NV' ? own.title.charAt(0).toLowerCase() + own.title.slice(1) : own.id === 'c-practice' ? `the ${stateByCode(st)?.name ?? ''} tax lien drill` : `auction drills for ${stateByCode(st)?.name ?? 'your state'}`;
+  return <><a className={className} href={own.href}>Next, part 2: {words} →</a> <a className="btn btn-secondary" href="#/practice/case">Optional: buy a rental (the paperwork)</a></>;
 }
 
 function Workbook({ p }: { p: JourneyProgress }) {

@@ -628,7 +628,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   } else if (lien) {
     need = lien.price + lien.fees;
     needAt = 'For the certificate';
-    cash.push(`Certificate price ${money(lien.price)} plus fees ${money(lien.fees)}: ${money(need)}, paid at the sale (confirm the payment deadline and method in the county’s sale terms).`);
+    cash.push(`Certificate price ${money(lien.price)} plus fees ${money(lien.fees)}: ${money(need)}, ${d.state === 'NV' && (d.county === 'Clark' || d.county === 'Washoe') ? `due by 10:00 a.m. the ${d.county === 'Clark' ? 'business day' : 'day'} after the sale (${d.county} County Treasurer; confirm it in the notice of sale)` : 'due by the sale’s payment deadline (confirm the deadline and method in the county’s sale terms)'}.`);
   } else if (d.plan === 'lien') {
     cash.push('The certificate price and fees, from the Lien certificate calculator in Analyze.');
   } else if (flipNeedsRepairs(d)) {
@@ -696,6 +696,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   if (hasNums && !d.locationConfirmed) nums.push(UNCONFIRMED_PLACE);
   if (!hasNums && flipNeedsRepairs(d)) nums.push(REPAIRS_NEEDED(strategy));
   else if (!hasNums && d.plan === 'rent') nums.push(`No numbers yet: type the property’s rent, and the price you’d pay, in ${strategy}. Our example rent doesn’t count.`);
+  else if (!hasNums && d.plan === 'commercial') nums.push(`No numbers yet: type the building’s rent in ${strategy}. Our example rent doesn’t count.`);
   else if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
   // Done only once there's a downside to look at, not just the base case.
   const downside = !!lien || (rent && rent.stress.length > 1) || (bid && bid.stress.length > 1) || (commercial && (commercial.none || commercial.stress.length > 0));

@@ -377,7 +377,7 @@ export const ROADMAP: RoadmapStep[] = [
   {
     id: 'c-budget', phase: 4, path: LIEN, title: 'Budget for the whole holding period',
     evidence: 'exit',
-    text: 'Plan for more than the purchase: later years’ taxes you may pay, fees, and what it costs if a lien is never paid (Arizona: an attorney for a foreclosure case; Nevada: serving notice and asking the treasurer for a deed).',
+    text: 'Plan for more than the purchase: later years’ taxes you may pay, fees, and what it costs if a lien is never paid. In Arizona, that’s an attorney for a foreclosure case. In Nevada, it’s serving notice on the owner and asking the treasurer for a deed.',
     outcome: 'A budget for the purchase, later taxes, fees, and a possible attorney.',
     steps: ['Total what you’ll pay at the sale, with fees.', 'Estimate later years’ taxes you may choose to pay.', 'Arizona: get an attorney’s rough cost for a foreclosure case, in case you need one. Nevada (SID): budget for the formal notice to the owner (an attorney or process server) and the delinquent taxes and assessments you must pay before the treasurer issues a deed.'],
     doneWhen: 'Your budget covers the purchase, later taxes, fees and a possible attorney.',
@@ -676,7 +676,20 @@ export const ROADMAP: RoadmapStep[] = [
 
 /** The steps for one way of buying. */
 /** The roadmap for a route, without the steps that don't exist in your state (`notIn`). */
-export const roadmapFor = (path: RoadmapPath, state: StateCode | null = getMyState()) => ROADMAP.filter((s) => (!s.path || s.path.includes(path)) && !(state && s.notIn?.includes(state)));
+/** A shared step worded for one route (same id, so progress carries): a lien's price is the amount owed, so its walk-away
+ * rules are limits, not a walk-away price. */
+const ROUTE_WORDING: Record<string, Partial<Record<RoadmapPath, Partial<RoadmapStep>>>> = {
+  walk: {
+    certificate: {
+      text: 'Decide in advance what makes you skip a parcel or stop buying. A certificate’s price is the amount owed, so your limits are what you’ll tie up, how long you’ll wait, and which parcels you won’t take.',
+      outcome: 'Your skip-and-stop rules, written next to your lien limits.',
+      steps: ['Read the walk-away lesson.', 'Write the most you’ll tie up in one certificate, the longest you’ll wait to be paid, and three kinds of parcel you won’t take even at the full rate.'],
+      doneWhen: 'Your skip-and-stop rules are written down.',
+    },
+  },
+};
+
+export const roadmapFor = (path: RoadmapPath, state: StateCode | null = getMyState()) => ROADMAP.filter((s) => (!s.path || s.path.includes(path)) && !(state && s.notIn?.includes(state))).map((s) => (ROUTE_WORDING[s.id]?.[path] ? { ...s, ...ROUTE_WORDING[s.id]![path] } : s));
 
 /** The roadmap for buying through an agent (the default). */
 export const FIRST_DEAL: RoadmapStep[] = roadmapFor('listing');

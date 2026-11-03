@@ -14,6 +14,8 @@ import { scenarioById } from '../practice/scenarios';
 import { firstOpenStage, loadProgress, resetProgress, saveProgress, type ScenarioProgress } from '../practice/progress';
 import type { Scenario, Stage, Task } from '../practice/types';
 import { useNoIndex } from '../lib/noindex';
+import { guidedPracticeDone, routePractice } from '../lib/planNext';
+import { creditStep, planPath } from '../lib/roadmapState';
 
 const taskKey = (stage: Stage, t: Task) => `${stage.key}/${t.id}`;
 
@@ -169,14 +171,24 @@ function Listing({ s, progress, total, onReset }: { s: Scenario; progress: Scena
 function Results({ s, progress }: { s: Scenario; progress: ScenarioProgress }) {
   const decisions = s.stages.flatMap((st) => st.tasks.filter((t) => t.kind === 'decision').map((t) => `${st.key}/${t.id}`));
   const right = decisions.filter((k) => progress.firstTry[k]).length;
+  // On the auction and lien routes this run can be My plan's practice part 2: say so, and let the reader mark it done.
+  const own = routePractice(planPath());
+  const matches = !!own && (own.id === 'c-practice') === (s.playbookKey === 'sid');
+  const [marked, setMarked] = useState(() => guidedPracticeDone());
+  const lien = s.playbookKey === 'sid';
   return (
     <section className="lead-card practice-results" aria-labelledby="results-head">
       <h2 id="results-head">You finished this practice run</h2>
       <p className="lead">{right} of {decisions.length} decisions right on the first try.</p>
+      {own && matches && (marked ? <p className="notice" role="status">Practice part 2 is done in My plan. <a href="#/toolkit">Back to My plan</a></p> : (
+        <p className="notice">This run is practice part 2 in My plan, “{own.title}”. That step also asks for: {own.doneWhen.charAt(0).toLowerCase() + own.doneWhen.slice(1)}{' '}
+          <button type="button" className="btn btn-secondary" onClick={() => { creditStep(own.id); setMarked(true); }}>Mark it done in My plan</button>
+        </p>
+      ))}
       <p>When you’re ready for a real one:</p>
       <ul>
         <li><a href={`#/playbooks/${s.playbookKey}`}>Read the full guide for this sale</a></li>
-        <li><a href="#/analyze?plan=flip">Run your own numbers in Analyze a deal (Fix and sell)</a></li>
+        <li><a href={lien ? '#/analyze?plan=lien' : '#/analyze?plan=flip'}>{lien ? 'Run your own numbers in the lien calculator' : 'Run your own numbers in Analyze a deal (Fix and sell)'}</a></li>
         <li><a href="#/pros">Learn who you need and how to find them</a></li>
         <li><a href="#/practice">Practice another kind of sale or property</a></li>
       </ul>

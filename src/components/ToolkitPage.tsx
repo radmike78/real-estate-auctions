@@ -7,11 +7,11 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
-import { STATES, countyName } from '../lib/regions';
+import { STATES, countyName, stateByCode } from '../lib/regions';
 import { dropStateLead, forStateText, getMyState, useMyState } from '../lib/myState';
 import { fmtMoney } from '../lib/status';
 import { getMyArea, useMyArea } from '../lib/myArea';
-import { countyTaxLine, countyTaxRate } from '../lib/stateCosts';
+import { countyTaxLine, countyTaxRate, stateMedianTaxRate } from '../lib/stateCosts';
 import { cleanAssumptions, cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP_PATHS, ROADMAP_PHASES, ROADMAP_PHASE_HELP, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
 import { downloadText, fileName } from '../lib/download';
 import { cleanLog, logText } from '../lib/evidence';
@@ -551,6 +551,9 @@ function PriceFromCash({ cash }: { cash: number }) {
           // Where the county's tax alone is near or above the estimate for tax and insurance together (Texas rates are
           // often 2% or more), the price above is likely too high: said on its own, not only in the folded estimates.
           const rate = area?.county && area.state !== 'NV' && area.state !== 'AZ' ? countyTaxRate(area.state, area.county) : null;
+          // No county yet: the state's middle county, so a Texas reader isn't handed a 1.2% price before choosing one.
+          const mid = !area?.county && area?.state && area.state !== 'NV' && area.state !== 'AZ' ? stateMedianTaxRate(area.state) : null;
+          if (!rate && mid !== null && mid > a.taxInsPct - 0.4) return <p className="caution">In {stateByCode(area!.state)?.name}, property tax alone is about {mid.toLocaleString('en-US', { maximumFractionDigits: 2 })}% of value a year in the middle county, {mid >= a.taxInsPct ? 'more than' : 'nearly all of'} the {a.taxInsPct}% this uses for tax and insurance together, so this price is likely too high. Choose your county in Your area for its rate, or raise “Property tax and insurance” under Change the planning estimates.</p>;
           if (!rate || !(rate.pct > a.taxInsPct - 0.4)) return null;
           const place = /\bCity$/.test(area!.county!) ? area!.county : `${area!.county} County`;
           return <p className="caution">{place}’s property tax alone is about {rate.pct.toLocaleString('en-US', { maximumFractionDigits: 2 })}% of value a year, {rate.pct >= a.taxInsPct ? 'more than' : 'nearly all of'} the {a.taxInsPct}% this uses for tax and insurance together, so this price is likely too high. Raise “Property tax and insurance” under Change the planning estimates.</p>;

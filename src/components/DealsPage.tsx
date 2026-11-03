@@ -214,7 +214,7 @@ function OtherNumbers({ d }: { d: Deal }) {
   if (lien) return <p>{fmtMoney(lien.price)} certificate · {lien.yearly === null ? 'no yield' : `${(lien.yearly * 100).toFixed(1)}% a year`} if paid off in {lien.months} months</p>;
   // The resale value is in, only the repairs are missing: ask for just those.
   if (flipNeedsRepairs(d)) return <p className="muted">Almost there: open it and enter the repairs under Fix and flip (fix and sell), or 0 if there are none.</p>;
-  return <p className="muted">No numbers yet: open it and enter {d.plan === 'flip' ? 'the resale value and repairs under Fix and flip (fix and sell)' : d.plan === 'commercial' ? 'the rent under Commercial income' : 'the certificate price under Lien certificate'}.</p>;
+  return <p className="muted">No numbers yet: open it and enter {d.plan === 'flip' ? 'the resale value and repairs under Fix and flip (fix and sell)' : d.plan === 'commercial' ? 'the building’s rent under Commercial income (our example rent doesn’t count)' : 'the certificate price under Lien certificate'}.</p>;
 }
 
 export default function DealsPage() {

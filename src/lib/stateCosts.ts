@@ -39,6 +39,14 @@ export function transferTaxFor(state: StateCode, county: string): TransferTax {
 const RENTAL_TAX_RATE: Record<StateCode, number> = { NV: 0.006, CA: 0.0115, AZ: 0.0065, UT: 0.0055, TX: 0.02 };
 const RENTAL_INSURANCE: Record<StateCode, number> = { NV: 1_300, CA: 1_600, AZ: 1_500, UT: 1_100, TX: 2_700 };
 /** The county's published rate for a rental (% a year), or null when the county isn't one we have. */
+/** The middle county's property tax rate (% of value a year) in a state, before a county is chosen; null without county rates. */
+export function stateMedianTaxRate(state: StateCode): number | null {
+  const all = Object.values(COUNTY_TAX_RATES[state]?.counties ?? {}).map((c) => c.pct).filter((n) => Number.isFinite(n)).sort((x, y) => x - y);
+  if (!all.length) return null;
+  const m = Math.floor(all.length / 2);
+  return all.length % 2 ? all[m] : (all[m - 1] + all[m]) / 2;
+}
+
 export function countyTaxRate(state: StateCode, county?: string): CountyTaxRate | null {
   return (county && COUNTY_TAX_RATES[state]?.counties[county]) || null;
 }

@@ -23,3 +23,13 @@ describe('roadmap routes', () => {
     for (const s of ROADMAP) if (s.skip !== undefined) expect(s.skip.length, s.id).toBeGreaterThan(10);
   });
 });
+
+describe('every roadmap step keeps its intro in every state', () => {
+  it('never filters a step’s text to nothing (a sentence naming two states drops everywhere)', async () => {
+    const { forStateText } = await import('./myState');
+    const { ROADMAP_PATHS, roadmapFor } = await import('./roadmap');
+    for (const st of ['NV', 'CA', 'AZ', 'UT', 'TX'] as const) for (const path of Object.keys(ROADMAP_PATHS) as (keyof typeof ROADMAP_PATHS)[]) for (const s of roadmapFor(path, st)) {
+      expect(forStateText(st, s.text).trim(), `${s.id} in ${st} (${path})`).not.toBe('');
+    }
+  });
+});
