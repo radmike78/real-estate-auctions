@@ -39,7 +39,7 @@ describe('marking a step done from another page', () => {
 });
 
 describe('steps ticked for you', () => {
-  it('ticks investable cash only once the emergency fund is taken out, and the county step with a route', async () => {
+  it('never ticks investable cash for you (a half-filled worksheet shows a number), and ticks the county step with a route', async () => {
     const { syncRoadmapCredits } = await import('./journey');
     const { roadmapDone } = await import('./roadmapState');
     localStorage.setItem('deedowl.cash.v1', JSON.stringify({ savings: 30000 }));
@@ -48,7 +48,7 @@ describe('steps ticked for you', () => {
     localStorage.setItem('deedowl.cash.v1', JSON.stringify({ savings: 30000, spending: 3000, months: 3 }));
     localStorage.setItem('deedowl.area.v1', JSON.stringify({ state: 'NV', city: null, county: 'Washoe' }));
     syncRoadmapCredits();
-    expect(roadmapDone()).toContain('money');
+    expect(roadmapDone()).not.toContain('money');
     expect(roadmapDone()).not.toContain('market');
     localStorage.setItem('deedowl.roadmap.path.v1', JSON.stringify('certificate'));
     syncRoadmapCredits();
@@ -64,5 +64,15 @@ describe('returns shown and tested the same way', () => {
     expect(capMisses(0.0799, 8)).toBe(true);
     expect(capText(-0.0004)).toBe('0.0');
     expect(capText(-0.0123)).toBe('-1.2');
+  });
+});
+
+describe('Keep and rent verdict', () => {
+  it('is not green above the income-coverage limit for an investor', async () => {
+    const { rentVerdict } = await import('./holdCalc');
+    const base = { cashFlow: 1200, cashOnCash: 0.09, targetPct: 8, cashShort: false, exampleRefi: false, living: false };
+    expect(rentVerdict(base)).toBe('good');
+    expect(rentVerdict({ ...base, coverageShort: true })).toBe('bad');
+    expect(rentVerdict({ ...base, living: true, coverageShort: true })).toBe('good');
   });
 });

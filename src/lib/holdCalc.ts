@@ -675,8 +675,9 @@ export function noRealisticAdvice(offer: boolean, hasLoan: boolean): string {
  * there with rent to spare is good (the investor's return target doesn't apply); otherwise good when cash flow is
  * positive and the return meets the target.
  */
-export function rentVerdict(o: { cashFlow: number; cashOnCash: number | null; targetPct: number; cashShort: boolean; exampleRefi: boolean; living: boolean }): 'good' | 'bad' | 'neutral' {
+export function rentVerdict(o: { cashFlow: number; cashOnCash: number | null; targetPct: number; cashShort: boolean; exampleRefi: boolean; living: boolean; /** The income covers the loan payments by less than the minimum set (an investor's test). */ coverageShort?: boolean }): 'good' | 'bad' | 'neutral' {
   if (o.cashShort) return 'bad';
+  if (o.coverageShort && !o.living && !o.exampleRefi) return 'bad';
   if (o.exampleRefi || (o.living && o.cashFlow <= 0)) return 'neutral';
   if (o.living) return 'good';
   return o.cashFlow > 0 && (o.cashOnCash === null || !capMisses(o.cashOnCash, o.targetPct)) ? 'good' : 'bad';

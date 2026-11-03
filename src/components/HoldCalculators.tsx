@@ -305,7 +305,8 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
   // Needs more cash than you have (the cash entered here, else My plan's): never a green verdict. Before a refinance, all in.
   const needed = !onPrice && a.loan > 0 ? a.allIn : a.cashIn;
   const cashShort = price > 0 && cashLimit > 0 && needed > cashLimit;
-  const target = v.targetCocPct / 100;
+  // An investor's income-coverage test at this price (the walk-away price can be set by it).
+  const covShort = !livingThere && a.dscr !== null && a.dscr < v.minDscr;
   const mo = (n: number) => fmtMoney(Math.round(n / 12));
   const neg = (n: number) => (n > 0 ? `−\u2060${mo(n)}` : mo(0)); // word joiner: the minus never wraps away from the amount
   return (
@@ -316,7 +317,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
       </label>
       {price > 0 && (
-        <p className={`calc-verdict ${rentVerdict({ cashFlow: a.cashFlow, cashOnCash: coc, targetPct: v.targetCocPct, cashShort, exampleRefi, living: livingThere })}`} role="status">
+        <p className={`calc-verdict ${rentVerdict({ coverageShort: covShort, cashFlow: a.cashFlow, cashOnCash: coc, targetPct: v.targetCocPct, cashShort, exampleRefi, living: livingThere })}`} role="status">
           <strong>{livingThere && !exampleRefi ? (Math.round(Math.abs(a.cashFlow) / 12) === 0 ? 'The rent you collect about breaks even with every cost.' : a.cashFlow < 0 ? `Living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month, after any rent you collect.` : `The rent you collect would cover every cost, with about ${fmtMoney(Math.round(a.cashFlow / 12))} a month to spare.`) : exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : `Estimated return: ${capText(coc, v.targetCocPct)}% a year on your cash; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.`}</strong>{' '}
           {blankRefi && 'No refinance is counted yet: enter the value after repairs to include it. '}
           {cashShort && <>It needs about {fmtMoney(Math.round(needed))} of your cash, more than {limitWords}. </>}
@@ -326,9 +327,9 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
               : `It loses about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month after every cost. Investigate whether the price, the costs or your plan should change, or walk away.`
             : livingThere
               ? 'Check each number against evidence before you rely on it.'
-            : coc !== null && coc < target
+            : coc !== null && capMisses(coc, v.targetCocPct)
               ? `Cash flow is positive (about ${fmtMoney(Math.round(a.cashFlow / 12))} a month), but it misses ${targetTyped ? 'your' : 'our example'} target. Investigate whether the price, the costs or the goal should change.`
-              : cashShort ? `The return meets ${targetTyped ? 'your' : 'our example'} target, but the cash it needs doesn’t fit what you have.` : `It meets ${targetTyped ? 'your' : 'our example'} target at this price, based on your numbers. Check each number against evidence before you rely on it.`}
+              : cashShort ? `The return meets ${targetTyped ? 'your' : 'our example'} target, but the cash it needs doesn’t fit what you have.` : covShort && a.dscr !== null ? `The return meets ${targetTyped ? 'your' : 'our example'} target, but the income covers the loan payments only ${dscrText(a.dscr)}×, under the ${v.minDscr}× minimum: above the walk-away price, a lender may not approve this loan.` : `It meets ${targetTyped ? 'your' : 'our example'} target at this price, based on your numbers. Check each number against evidence before you rely on it.`}
         </p>
       )}
       {price > 0 && cashShort && <p className="small"><button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>{cashTyped ? 'Change your cash' : 'Enter your cash'}</button></p>}

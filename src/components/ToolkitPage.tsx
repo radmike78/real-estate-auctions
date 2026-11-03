@@ -165,6 +165,7 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
     <div className="roadmap-step-body">
       <p>{dropStateLead(forStateText(myState, s.text), myState)}</p>
       <p className="roadmap-outcome"><strong>You’ll have:</strong> {s.outcome}</p>
+      {s.id === 'money' && status !== 'done' && investorProfile().investable > 0 && <p className="notice">Your cash worksheet shows {fmtMoney(Math.round(investorProfile().investable))} of investable cash. If that’s your finished number, with your emergency fund taken out, mark this step done.</p>}
       <div className="roadmap-actions">
         <div>
           <h4>What to do</h4>

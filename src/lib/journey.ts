@@ -8,7 +8,6 @@ import { QUESTIONS } from './decide';
 import { CHAPTERS, loadJourney } from '../practice/dealJourney';
 import { trackAction } from './track';
 import { creditStep, ROADMAP_PATH_KEY } from './roadmapState';
-import { investorProfile } from './myPlan';
 import { getMyArea } from './myArea';
 import { getMyState } from './myState';
 import { loadCase } from '../practice/caseProgress';
@@ -146,13 +145,8 @@ export function syncRoadmapCredits() {
   if (currentProgress().decided) creditStep('strategy');
   if (readLessons().includes('red-flags')) creditStep('avoid');
   if (practicePart2Done()) creditStep('practice');
-  // The cash worksheet's investable cash, and a county with a chosen route, are those steps' own work.
-  // The step's own test: investable cash with the emergency fund taken out (spending and months entered).
-  try {
-    const c = JSON.parse(localStorage.getItem('deedowl.cash.v1') ?? 'null') as Record<string, unknown> | null;
-    const pos = (x: unknown) => typeof x === 'number' && Number.isFinite(x) && x > 0;
-    if (c && pos(c.spending) && pos(c.months) && investorProfile().investable > 0) creditStep('money');
-  } catch { /* unreadable worksheet: nothing to credit */ }
+  // A county with a chosen route is that step's own work. (Investable cash isn't ticked for you: a half-filled
+  // worksheet can show a number; the step shows the worksheet's figure for you to mark done.)
   try { if (getMyArea()?.county && localStorage.getItem(ROADMAP_PATH_KEY) !== null) creditStep('market'); } catch { /* storage unavailable */ }
   try { if ((JSON.parse(localStorage.getItem('deedowl.goal.v1') ?? '""') as string).trim().length >= 12) creditStep('goal'); } catch { /* unreadable goal: nothing to credit */ }
 }

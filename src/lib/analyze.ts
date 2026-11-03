@@ -118,7 +118,8 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
       UT: 'Condo or HOA home: the seller must give you the association’s recorded governing documents and a link to the state’s educational materials for HOA buyers before closing (Utah Code 57-8a-105.1, 57-8-6.1).',
       TX: 'Condo or HOA home: get the resale certificate and the association’s rules, budget and fees before the deadline in the HOA addendum (Property Code 207.003 for a subdivision HOA, 82.157 for a condo). Ask your agent which TREC addendum your contract uses.',
     };
-    sale.push({ id: 'hoa-docs', text: hoa[st] });
+    // A commercial building's association, if any, isn't the homeowners' association these rules are written for.
+    if (!commercialListing) sale.push({ id: 'hoa-docs', text: hoa[st] });
     sale.push({ id: 'lead', text: 'Built before 1978: in most sales you get a lead-paint pamphlet and 10 days to test for lead-based paint, unless you waive it. A sale at foreclosure is exempt, so plan your own lead-safe inspection there.' });
   }
   if (d.kind === 'reo') {
