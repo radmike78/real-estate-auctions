@@ -1,3 +1,4 @@
+import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { getMyState } from '../lib/myState';
 import RoutePracticeDone from './RoutePracticeDone';
 import { drillAllowsAds } from '../lib/contextAds';
@@ -433,6 +434,9 @@ export default function DrillPage({ id }: { id: string }) {
   useLastActivity(`#/practice/drills/${id}`, d ? `Practice: ${d.title}` : undefined);
   useNoIndex(!d);
   const [saved, setSaved] = useState<Saved>(load);
+  // "Mark it done in My plan" on this page moves the plan on: redraw the Next line.
+  const [, setPlanTick] = useState(0);
+  useEffect(() => { const on = () => setPlanTick((n) => n + 1); window.addEventListener(PROGRESS_EVENT, on); return () => window.removeEventListener(PROGRESS_EVENT, on); }, []);
   // The answer just given, so only its feedback takes focus (not every finished mission on a return visit).
   const [fresh, setFresh] = useState('');
   useEffect(() => {
@@ -516,7 +520,9 @@ export default function DrillPage({ id }: { id: string }) {
       {mode === 'guided' && (() => {
         // The same next step as My plan, the home page and the header: never a tour of its own.
         const plan = planNow();
-        return plan.task.href !== `#/practice/drills/${d.id}` ? (
+        // This drill is the task (or the task's own link): no Next link that sends you to My plan and back here.
+        const here = `#/practice/drills/${d.id}`;
+        return plan.task.href !== here && !plan.task.support.some((x) => x.href === here) ? (
           <nav className="path-next" aria-label="Next step">
             <span className="muted">Next: {plan.context}</span>
             <a className="btn" href={plan.task.href}>{plan.task.label}&nbsp;→</a>

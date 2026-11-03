@@ -124,7 +124,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     sale.push({ id: 'lead', text: (commercialListing ? 'Apartments (housing, not offices, stores or industrial space) b' : 'B') + 'uilt before 1978: in most sales you get a lead-paint pamphlet and 10 days to test for lead-based paint, unless you waive it. A sale at foreclosure is exempt, so plan your own lead-safe inspection there.' });
   }
   if (d.kind === 'reo') {
-    sale.push({ id: 'reo-asis', text: 'Expect an as-is sale: the seller usually won’t repair. Inspect within the contract’s window (10 days on Fannie Mae’s contract).', href: '#/bank-owned' });
+    sale.push({ id: 'reo-asis', text: d.plan === 'commercial' ? 'Expect an as-is sale: the seller usually won’t repair. Inspect within the contract’s window.' : 'Expect an as-is sale: the seller usually won’t repair. Inspect within the contract’s window (10 days on Fannie Mae’s contract).', href: '#/bank-owned' });
     if (d.plan !== 'commercial') sale.push({ id: 'reo-hud', text: 'HUD homes: bid through a HUD-registered broker, and check whether owner-occupants get the first bidding period.' });
     if (st === 'NV' && d.plan !== 'commercial') sale.push({ id: 'reo-firstlook', text: 'Nevada Fannie Mae homes: for the first 30 days, only buyers who will live there, public entities and some nonprofits can make offers.' });
   }

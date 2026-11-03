@@ -502,7 +502,7 @@ const SID: Flow = {
       id: 'know-the-land',
       title: 'Know the land anyway',
       body: [
-        'The Assessor has parcel details but not liens; search the Recorder too. Most certificates are redeemed, but know what the land is in case you end up owning it.',
+        'The Assessor has parcel details but not liens; search the Recorder too. Most certificates are redeemed,* but know what the land is in case you end up owning it.',
         'A certificate is only a lien. You have no right to enter, mow, cut trees or use the property.',
       ],
     },
@@ -557,7 +557,7 @@ const SID: Flow = {
         id: 'redemption',
         title: 'Waiting for redemption',
         body: [
-          `Most owners pay. For practice, the owner redeems after ${months} months: you receive ${money(price)} plus 1% a month simple interest, ${money(price * 0.01 * months)}, usually 30–60 days after they redeem.`,
+          `Most owners pay.* For practice, the owner redeems after ${months} months: you receive ${money(price)} plus 1% a month simple interest, ${money(price * 0.01 * months)}, usually 30–60 days after they redeem.`,
           'If later property taxes go unpaid, you may pay them and add them to the certificate by giving the Treasurer written notice and receipts.',
         ],
       },

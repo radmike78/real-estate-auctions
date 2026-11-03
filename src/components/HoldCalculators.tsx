@@ -286,7 +286,7 @@ function PlanCashNote({ need, planCash, offer, auctionDay = 0, noLoan = false }:
 }
 
 /** The rental at a price you type: every step from rent to cash flow, with its assumptions. */
-function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, cashTyped = false, targetTyped = true }: { /** The return target was typed (else it's our example). */ targetTyped?: boolean; v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string; /** The refinance is still on our example value. */ exampleValue?: boolean; /** The cash limit is one you typed (else it follows My plan). */ cashTyped?: boolean }) {
+function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, cashTyped = false, targetTyped = true, dscrTyped = false }: { /** The minimum income coverage was typed (else it's our example). */ dscrTyped?: boolean; /** The return target was typed (else it's our example). */ targetTyped?: boolean; v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string; /** The refinance is still on our example value. */ exampleValue?: boolean; /** The cash limit is one you typed (else it follows My plan). */ cashTyped?: boolean }) {
   // You plan to live in one unit (Decide: a home loan and live in it): a loss is your own housing cost, not a failed deal.
   const livingThere = onPrice && !!investorProfile().ownerOccupant;
   // The refinance on our example value: its return isn't this property's. Blank: no refinance counted, the rest is real.
@@ -308,7 +308,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
   // An investor's income-coverage test at this price (the walk-away price can be set by it).
   // Only on an offer: there the loan follows the price, so a lower price fixes it. An auction's refinance is sized on
   // the value, the same at every price (its walk-away handles a refinance that's too big).
-  const covShort = onPrice && !livingThere && a.dscr !== null && a.dscr < v.minDscr;
+  const covShort = onPrice && !livingThere && v.minDscr > 0 && a.dscr !== null && a.dscr < v.minDscr;
   const mo = (n: number) => fmtMoney(Math.round(n / 12));
   const neg = (n: number) => (n > 0 ? `−\u2060${mo(n)}` : mo(0)); // word joiner: the minus never wraps away from the amount
   return (
@@ -320,7 +320,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
       </label>
       {price > 0 && (
         <p className={`calc-verdict ${rentVerdict({ coverageShort: covShort, cashFlow: a.cashFlow, cashOnCash: coc, targetPct: v.targetCocPct, cashShort, exampleRefi, living: livingThere })}`} role="status">
-          <strong>{covShort && a.dscr !== null ? `Income coverage is ${dscrText(a.dscr)}×, under your ${v.minDscr}× minimum. ` : ''}{livingThere && !exampleRefi ? (Math.round(Math.abs(a.cashFlow) / 12) === 0 ? 'The rent you collect about breaks even with every cost.' : a.cashFlow < 0 ? `Living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month, after any rent you collect.` : `The rent you collect would cover every cost, with about ${fmtMoney(Math.round(a.cashFlow / 12))} a month to spare.`) : exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : `Estimated return: ${capText(coc, v.targetCocPct)}% a year on your cash; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.`}</strong>{' '}
+          <strong>{covShort && a.dscr !== null ? `Income coverage is ${dscrText(a.dscr)}×, under ${dscrTyped ? 'your' : 'our example'} ${v.minDscr}× minimum. ` : ''}{livingThere && !exampleRefi ? (Math.round(Math.abs(a.cashFlow) / 12) === 0 ? 'The rent you collect about breaks even with every cost.' : a.cashFlow < 0 ? `Living there would cost you about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month, after any rent you collect.` : `The rent you collect would cover every cost, with about ${fmtMoney(Math.round(a.cashFlow / 12))} a month to spare.`) : exampleRefi ? `Not this property’s return yet: the refinance is figured on our ${fmtMoney(RENT_DEFAULTS.value)} example value. Enter the value after repairs to see the loan and your return; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : coc === null ? `Estimated return: the loan returns all your cash${onPrice ? '' : ' (if the refinance comes through)'}; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.` : `Estimated return: ${capText(coc, v.targetCocPct)}% a year on your cash; ${targetTyped ? 'your' : 'our example'} target: ${v.targetCocPct}%.`}</strong>{' '}
           {blankRefi && 'No refinance is counted yet: enter the value after repairs to include it. '}
           {cashShort && <>It needs about {fmtMoney(Math.round(needed))} of your cash, more than {limitWords}. </>}
           {exampleRefi ? null : a.cashFlow <= 0
@@ -331,7 +331,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
               ? 'Check each number against evidence before you rely on it.'
             : coc !== null && capMisses(coc, v.targetCocPct)
               ? `Cash flow is positive (about ${fmtMoney(Math.round(a.cashFlow / 12))} a month), but it misses ${targetTyped ? 'your' : 'our example'} target. Investigate whether the price, the costs or the goal should change.`
-              : cashShort ? `The return meets ${targetTyped ? 'your' : 'our example'} target, but the cash it needs doesn’t fit what you have.` : covShort && a.dscr !== null ? `The return meets ${targetTyped ? 'your' : 'our example'} target, but the income covers the loan payments by less than your planning minimum: a lower price, a smaller loan or a larger down payment would raise it. Ask your lender how it tests coverage.` : `It meets ${targetTyped ? 'your' : 'our example'} target at this price, based on your numbers. Check each number against evidence before you rely on it.`}
+              : cashShort ? `The return meets ${targetTyped ? 'your' : 'our example'} target, but the cash it needs doesn’t fit what you have.` : covShort && a.dscr !== null ? `The return meets ${targetTyped ? 'your' : 'our example'} target, but the income covers the loan payments by less than ${dscrTyped ? 'your' : 'our example'} planning minimum: a lower price, a smaller loan or a larger down payment would raise it. Ask your lender how it tests coverage.` : `It meets ${targetTyped ? 'your' : 'our example'} target at this price, based on your numbers. Check each number against evidence before you rely on it.`}
         </p>
       )}
       {price > 0 && cashShort && <p className="small"><button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>{cashTyped ? 'Change your cash' : 'Enter your cash'}</button></p>}
@@ -589,7 +589,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
         {offer && investorProfile().ownerOccupant && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
-        <AtThisPrice v={v} start={noReal ? NaN : r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} targetTyped={typedKeys.has('targetCocPct')} />
+        <AtThisPrice v={v} start={noReal ? NaN : r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} targetTyped={typedKeys.has('targetCocPct')} dscrTyped={typedKeys.has('minDscr')} />
         {living ? (
           <details className="calc-assumptions">
             <summary>{r.limitedBy === 'dscr' ? `Investor yardstick: the most an investor’s loan allows at ${v.minDscr}× income coverage` : `Investor yardstick: the price that meets an investor’s ${v.targetCocPct}% return`}</summary>

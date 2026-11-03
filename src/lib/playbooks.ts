@@ -125,7 +125,7 @@ const NEVADA: Playbook[] = [
       { title: 'Research the parcels', detail: 'The Assessor has parcel details but not liens, so search the Recorder too. Know what the land is in case you end up owning it.' },
       { title: 'Register in person', detail: 'Bring government photo ID with your current mailing address and fill out the buyer registration form. You must be present. Friends and family can’t register for you, and late arrivals can’t take part.' },
       { title: 'Drawing and payment', detail: "A random number generator picks the winner and two alternates for each parcel. Pay by 10:00 a.m. the next business day in cash, cashier's check or money order. Otherwise, the certificate goes to the first alternate (then the second). If nobody pays for a certificate, it’s sold first come, first served at the Treasurer’s window the next business day from 8:00 a.m. After noon, what’s left goes to the County. The County may sell them over the counter later for the price plus 1% a month." },
-      { title: 'Wait for redemption', detail: 'Most owners pay. You get back the price plus 1% a month, usually 30–60 days after they redeem. If later taxes go unpaid, you may pay them and add them to the certificate. To do that, give the Treasurer written notice and your receipts.' },
+      { title: 'Wait for redemption', detail: 'Most owners pay.* You get back the price plus 1% a month, usually 30–60 days after they redeem. If later taxes go unpaid, you may pay them and add them to the certificate. To do that, give the Treasurer written notice and your receipts.' },
       { title: 'If there is no redemption', detail: 'After the period ends, the owner must be formally served with notice that a deed will be requested. Certified mail isn’t enough: have your attorney or a process server handle the service, the posting on the property and, if the owner can’t be found, publication (the Treasurer suggests a process server). Don’t contact the owner yourself. If they still don’t redeem within 60 days, pay any delinquent taxes and assessments and request the deed. Don’t wait: the certificate expires 3 years after the redemption period ends.' },
     ],
     survives: {
@@ -133,7 +133,7 @@ const NEVADA: Playbook[] = [
       mayStay: ['Mortgages and other liens, until a deed is issued', 'Property taxes and other assessments', 'Liens held by the FDIC for failed banks. The FDIC says a certificate does not extinguish them'],
     },
     mistakes: [
-      { mistake: 'Expecting to get the property', prevent: 'Treat it as an investment in a debt. Most certificates are redeemed.' },
+      { mistake: 'Expecting to get the property', prevent: 'Treat it as an investment in a debt. Most certificates are redeemed.*' },
       { mistake: 'Treating the land as yours', prevent: 'A certificate is only a lien. You have no right to enter, mow, cut trees or use the property.' },
       { mistake: 'Ignoring what’s on the land', prevent: 'If there is a building, the redemption period is 2 years, not 120 days.' },
       { mistake: 'Forgetting later taxes', prevent: 'Pay later delinquent taxes and notify the Treasurer in writing so they’re added to your certificate.' },

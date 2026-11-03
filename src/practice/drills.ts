@@ -883,7 +883,7 @@ export const DRILLS: Drill[] = [
           { label: 'Processing fee, not paid back', value: 'Up to $10 per lien' },
           { label: 'Certificate fee, paid back with interest if the owner redeems', value: '$10 per certificate' },
         ],
-        lesson: 'Competition often pushes popular liens far below 16%. Your money is tied up until the owner pays, and the payoff date is unknown.',
+        lesson: 'Competition often pushes popular liens far below 16%.* Your money is tied up until the owner pays, and the payoff date is unknown.',
       },
       {
         kind: 'pick',
