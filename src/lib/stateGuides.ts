@@ -567,7 +567,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       label: "Fees",
-      value: "A processing fee of up to $10 per lien (ARS 42-18116). Counties may add others. Confirm with your county treasurer"
+      value: "A processing fee of up to $10 per lien (ARS 42-18116), not repaid, and a $10 fee for each certificate (ARS 42-18118), repaid with interest if the owner redeems (ARS 42-18153). Counties may add others. Confirm with your county treasurer"
     },
     {
       label: "Owner can redeem",

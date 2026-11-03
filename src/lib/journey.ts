@@ -7,7 +7,9 @@ import { useEffect, useState } from 'react';
 import { QUESTIONS } from './decide';
 import { CHAPTERS, loadJourney } from '../practice/dealJourney';
 import { trackAction } from './track';
-import { creditStep } from './roadmapState';
+import { creditStep, ROADMAP_PATH_KEY } from './roadmapState';
+import { investorProfile } from './myPlan';
+import { getMyArea } from './myArea';
 import { getMyState } from './myState';
 import { loadCase } from '../practice/caseProgress';
 import { caseFor, caseResume } from '../practice/rentalCase';
@@ -144,5 +146,8 @@ export function syncRoadmapCredits() {
   if (currentProgress().decided) creditStep('strategy');
   if (readLessons().includes('red-flags')) creditStep('avoid');
   if (practicePart2Done()) creditStep('practice');
+  // The cash worksheet's investable cash, and a county with a chosen route, are those steps' own work.
+  if (investorProfile().investable > 0) creditStep('money');
+  try { if (getMyArea()?.county && localStorage.getItem(ROADMAP_PATH_KEY) !== null) creditStep('market'); } catch { /* storage unavailable */ }
   try { if ((JSON.parse(localStorage.getItem('deedowl.goal.v1') ?? '""') as string).trim().length >= 12) creditStep('goal'); } catch { /* unreadable goal: nothing to credit */ }
 }

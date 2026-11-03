@@ -2,6 +2,8 @@ import { guideKey } from '../lib/narrow';
 import { STATES, type StateCode } from '../lib/regions';
 import type { SaleKey } from '../practice/types';
 import { useMyState } from '../lib/myState';
+import { useMyArea } from '../lib/myArea';
+import { COUNTY_OFFICES } from '../lib/countyOffices';
 
 /** The other-state drill for this kind of sale, where one exists (every id here is checked in practice.test.ts). */
 export const drillFor = (st: StateCode, sale: SaleKey): string | null => {
@@ -43,12 +45,28 @@ function generalDiff(sale: SaleKey, name: string) {
  */
 export default function PracticeStateNote({ sale }: { sale: SaleKey }) {
   const [st] = useMyState();
-  if (!st || st === 'NV') return null;
+  const [area] = useMyArea();
+  if (st === 'NV') {
+    // These runs follow Clark County: a reader in another Nevada county hears that their county's sale differs.
+    const county = area?.county;
+    if (!county || county === 'Clark') return null;
+    const washoeSid = county === 'Washoe' && sale === 'sid';
+    const page = washoeSid ? COUNTY_OFFICES['NV/Washoe']?.specialAssessment?.url : undefined;
+    return (
+      <div className="notice practice-state-note" role="note">
+        <strong>This practice uses Clark County’s rules.</strong>{' '}
+        {washoeSid
+          ? <>Washoe County runs its own SID sale: its pages describe buyers chosen by a show of hands (numbers drawn if several want a parcel) or a random number program, with payment due by 10:00 a.m. the next day; confirm it in the sale notice.* {page && <a href={page} target="_blank" rel="noopener noreferrer">Washoe County’s SID sale page ↗</a>}</>
+          : <>{county === 'Carson City' ? 'Carson City' : `${county} County`}’s own deadlines, deposits and who runs the sale may differ: check its treasurer and sheriff before a real deal.</>}
+      </div>
+    );
+  }
+  if (!st) return null;
   const name = STATES.find((x) => x.code === st)?.name ?? st;
   if (sale === 'sid') {
     return (
       <div className="notice practice-state-note" role="note">
-        <strong>This sale exists only in Nevada.</strong> Special improvement district (SID) lien certificates are a Clark County, Nevada sale.{' '}
+        <strong>This sale exists only in Nevada.</strong> Special improvement district (SID) lien certificates are sold in Nevada (Clark and Washoe counties and some cities).{' '}
         {st === 'AZ'
           ? <>Arizona has no SID lien sale, but its county tax lien certificates work in a similar way: you buy a lien that earns interest, not the property. See the <a href="#/playbooks/aztaxlien">Arizona tax lien guide</a>.</>
           : <>{name} doesn’t sell anything like them; see the <a href="#/playbooks">sale guides for {name}</a> instead.</>}

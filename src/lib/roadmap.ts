@@ -502,7 +502,7 @@ export const ROADMAP: RoadmapStep[] = [
     docs: ['Bidder registration form', 'Deposit receipt', 'A W-9 if the seller asks'],
     stop: 'Set your maximum before the sale, from your own numbers, and decide ahead of time what you’ll do if bidding passes it. Your situation, finances and risk tolerance decide where that line is. Losing an auction usually costs only your research and any non-refundable fees; overpaying can cost much more.',
     doneWhen: 'You bid within your maximum, or walked away.',
-    action: 'Practice an auction', href: '#/practice?sale=tax',
+    action: 'Read your sale’s bidding rules', href: '#/playbooks',
   },
   {
     id: 'a-pay', phase: 5, path: AUCTION, title: 'Pay, and get the right paperwork',

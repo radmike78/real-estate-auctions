@@ -31,7 +31,8 @@ function useRegionTax<T extends BuyInputs>(groups: CalcGroup<T>[], countyTax = f
   };
 }
 
-const pctText = (x: number | null) => (x === null ? '—' : `${(Math.round(x * 1000) / 10).toLocaleString()}%`);
+// One decimal always (8.0%, not 8%), so figures side by side read the same way.
+const pctText = (x: number | null) => (x === null ? '—' : `${(Math.round(x * 1000) / 10).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`);
 // Return on cost, rounded down as the verdict, My deals and the packet show it.
 const capPctText = (x: number | null, target = 0) => (x === null ? '—' : `${capText(x, target)}%`);
 
@@ -784,7 +785,7 @@ const AZ_LIEN_GROUPS: CalcGroup<LienInputs>[] = [
     title: 'The certificate',
     fields: [
       { k: 'price', label: 'Lien amount you pay', unit: '$', hint: 'The unpaid taxes, interest and fees on the lien.' },
-      { k: 'fees', label: 'Fees you pay', unit: '$', hint: 'Up to $10 processing per lien, plus a $10 fee for each certificate; not repaid. Confirm both in the county’s sale terms.', more: 'The treasurer may charge a processing fee of up to $10 per lien (A.R.S. 42-18116) and collects a $10 fee for each certificate (A.R.S. 42-18118), which the owner doesn’t repay. Paying later years’ taxes adds a $5 fee each time.' },
+      { k: 'fees', label: 'Fees you pay', unit: '$', hint: 'The processing fee only (up to $10 per lien), which isn’t repaid. Add the $10 certificate fee to the price instead: it’s repaid with interest. Confirm both in the county’s sale terms.', more: 'The treasurer may charge a processing fee of up to $10 per lien (A.R.S. 42-18116), which isn’t repaid. It also collects a $10 fee for each certificate (A.R.S. 42-18118); like the $5 fee each time you pay later years’ taxes (A.R.S. 42-18121), it’s repaid with interest at your rate if the owner redeems (A.R.S. 42-18153).' },
       { k: 'ratePctMonth', label: 'Interest', unit: '%/mo', hint: 'The rate you win, divided by 12. At most 16% a year (1.33% a month).', more: 'Bidders bid the interest rate down from 16% a year; the lien earns simple interest at the winning rate from the first day of the next month, and part of a month counts as a whole month (A.R.S. 42-18053 and 42-18114).' },
     ],
   },
