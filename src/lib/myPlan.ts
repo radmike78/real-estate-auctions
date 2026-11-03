@@ -101,12 +101,25 @@ export function investorProfile(): InvestorProfile {
   };
 }
 
+/** The down payment (% of price) you set in the cash worksheet's planning estimates, or null if you never changed them. */
+export function worksheetDownPct(): number | null {
+  try {
+    const e = JSON.parse(localStorage.getItem('deedowl.cash.estimates.v1') ?? 'null') as { downPct?: unknown } | null;
+    const d = e?.downPct;
+    return typeof d === 'number' && Number.isFinite(d) && d >= 0 && d <= 100 ? d : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Starting numbers for a new rental analysis from your profile; nothing here is an approved loan term. */
 export function profileStart(p: InvestorProfile, offer: boolean): Record<string, number> {
   const out: Record<string, number> = {};
   if (p.loan === 'cash') out.loanPct = 0;
   // Living in it: owner-occupant loans can need less down, so the lender's figure goes in, not an investor's 75%;
   // and you're on site, so no manager is assumed.
+  // The down payment you set in the cash worksheet sets the loan, so My plan's price limit and Analyze agree.
+  else if (p.loan === 'yes' && offer && worksheetDownPct() !== null) out.loanPct = Math.round((100 - worksheetDownPct()!) * 10) / 10;
   else if (p.loan === 'yes' && offer && !p.ownerOccupant) out.loanPct = 75;
   if (p.ownerOccupant) out.managementPct = 0; // you live there: on site
   else if (p.manager === true) out.managementPct = 8;

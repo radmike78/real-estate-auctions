@@ -15,8 +15,8 @@ export const TEAM = {
   /** For an offer on a listed home (bank-owned, short sale): you inspect during the contract, not after. */
   offerInspector: { role: 'Home inspector and contractors', when: 'Inspection and written repair bids before your inspection deadline, with the access the seller allows; ask the listing agent to turn on utilities for it', href: '#/pros/inspector', pro: 'inspector' },
   /** Lien certificates: you buy a lien, not the property (no insurance, repairs or rent). */
-  lienTitle: { role: 'Title company or title researcher', when: 'A title report on a parcel before you bid; title insurance matters only if you later foreclose the lien', href: '#/pros/title', pro: 'title' },
-  lienAttorney: { role: 'Real estate attorney', when: 'Before you enforce a lien that isn’t paid: the notices, deadlines and cost of foreclosing it', href: '#/pros/attorney', pro: 'attorney' },
+  lienTitle: { role: 'Title company or title researcher', when: 'A title report on a parcel before you bid; title insurance matters only if you later take the property', href: '#/pros/title', pro: 'title' },
+  lienAttorney: { role: 'Real estate attorney', when: 'Before you act on a lien that isn’t paid: the notices, deadlines and cost of getting the property, which your state’s law sets (in Nevada you ask for a deed; in Arizona you go to court)', href: '#/pros/attorney', pro: 'attorney' },
   lienCpa: { role: 'CPA', when: 'Before you buy: how the interest a certificate earns is taxed, and what to keep for records', href: '#/pros/cpa', pro: 'cpa' },
   cpa: { role: 'CPA', when: 'Before you buy: flips and rentals are taxed differently', href: '#/pros/cpa', pro: 'cpa' },
   commercialBroker: { role: 'Commercial real estate broker', when: 'Current rents and cap rates for this property type, and leasing it up after', href: '#/pros/agent', pro: 'agent' },

@@ -60,10 +60,11 @@ it('marks the strategy that serves the reader’s goal, even when it ranks lower
   expect(r.find((m) => m.strategy.key === 'rental')!.goalFit).toBe(false);
 });
 
-it('gives Clark County’s SID note only to Clark County (or no county) readers', () => {
+it('tells every Nevada reader about SID lien certificates, with Clark County’s guide named as Clark’s', () => {
   expect(stateNote('auction', 'NV', 'Clark')).toMatch(/Clark County/);
   expect(stateNote('auction', 'NV', null)).toMatch(/Clark County/);
-  expect(stateNote('auction', 'NV', 'Washoe')).not.toMatch(/SID|special assessment \(SID\)/);
   expect(stateNote('auction', 'NV', 'Washoe')).toMatch(/In your county/);
-  expect(stateNote('passive', 'NV', 'Washoe')).toBeNull();
+  expect(stateNote('auction', 'NV', 'Washoe')).toMatch(/SID/);
+  // Washoe County holds its own special assessment sales: the lien option isn't hidden from its readers.
+  expect(stateNote('passive', 'NV', 'Washoe')).toMatch(/Washoe County’s, set their own rules/);
 });

@@ -165,7 +165,11 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     sale.push({ id: 'tx-hoa-redeem', text: 'Subdivision: the owner, or a lender after 90 days, can redeem until 180 days after the HOA mails notice of the sale, and you can’t sell to anyone else until then (209.011). Condominium: the owner can redeem until 90 days after the sale and repays your bid plus 6% a year, and you can’t sell to anyone else until then either (82.113(g)). Ask a title company whether the first loan survives.' });
   }
   if (d.kind === 'irs') sale.push({ id: 'irs-redeem', text: 'IRS sales: for 180 days the owner can buy it back by paying your price plus 20% a year, so you can’t count on keeping it until then.', href: '#/learn/forced-sales' });
-  if (offices?.taxSale && (d.kind === 'taxSale' || d.kind === 'lien')) sale.push({ id: 'county-sale-page', text: `Read ${place}’s tax sale page: dates, deposit, payment deadline and what the deed promises.`, href: offices.taxSale.url });
+  if (offices?.taxSale && d.kind === 'taxSale') sale.push({ id: 'county-sale-page', text: `Read ${place}’s tax sale page: dates, deposit, payment deadline and what the deed promises.`, href: offices.taxSale.url });
+  // A lien certificate: the county's special assessment sale page (not its tax sale, which sells deeds), else ask.
+  if (d.kind === 'lien' && offices?.specialAssessment) sale.push({ id: 'county-sale-page', text: `Read ${place}’s special assessment sale page: sale dates, how a buyer is chosen, the payment deadline and the owner’s time to redeem.`, href: offices.specialAssessment.url });
+  else if (d.kind === 'lien' && st === 'NV' && offices?.treasurer && d.county !== 'Clark') sale.push({ id: 'county-sale-page', text: `Ask ${place}’s treasurer whether it holds special assessment (SID) lien sales, and get its rules: its tax sale sells deeds, not liens.`, href: offices.treasurer.url });
+  else if (d.kind === 'lien' && offices?.taxSale) sale.push({ id: 'county-sale-page', text: `Read ${place}’s lien sale page: dates, deposit, payment deadline and the owner’s time to redeem.`, href: offices.taxSale.url });
   if (sale.length) groups.push({ title: 'The sale', items: sale });
 
   // 2. Research the property

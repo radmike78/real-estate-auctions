@@ -125,10 +125,13 @@ export const officeLabelsFor = (state: StateCode) => state === 'TX' ? OFFICE_LAB
   ? OFFICE_LABELS.map((o) => o.key === 'sheriff' ? { ...o, name: 'Sheriff or constable' } : o)
   : OFFICE_LABELS;
 
+/** An office only some counties have: special assessment (SID) lien certificate sales (NRS 271). */
+const SPECIAL_ASSESSMENT = { key: 'specialAssessment', name: 'Special assessment (SID) lien sale', what: 'You buy a lien certificate, not the property: sale dates, how a buyer is chosen, payment and the owner’s time to redeem.' } as const;
+
 /** Keep every office's purpose visible when a county uses one shared page. */
 export const countyOfficeCards = (state: StateCode, offices?: CountyOffices): DealSource[] => {
   const cards = new Map<string, DealSource>();
-  for (const label of officeLabelsFor(state)) {
+  for (const label of [...officeLabelsFor(state).slice(0, 1), ...(offices?.specialAssessment ? [SPECIAL_ASSESSMENT] : []), ...officeLabelsFor(state).slice(1)]) {
     const office = offices?.[label.key];
     if (!office) continue;
     const description = office.contactOnly

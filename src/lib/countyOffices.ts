@@ -5,7 +5,7 @@
 
 export interface Office { url: string; checked: string | null; note?: string; contactOnly?: boolean }
 
-export interface CountyOffices { taxSale?: Office; treasurer?: Office; assessor?: Office; recorder?: Office; sheriff?: Office }
+export interface CountyOffices { taxSale?: Office; /** Special assessment (SID) lien certificate sales (NRS 271), where the county holds them. */ specialAssessment?: Office; treasurer?: Office; assessor?: Office; recorder?: Office; sheriff?: Office }
 
 export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   "AZ/Apache": {
@@ -626,6 +626,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "NV/Washoe": {
     taxSale: { url: "https://www.washoecounty.gov/treas/TaxSale.php", checked: "2026-09-29" },
+    specialAssessment: { url: "https://www.washoecounty.gov/treas/SpecialAssessments.php", checked: "2026-11-03", note: "Each parcel goes to the first person willing to pay what's owed, by a show of hands; if several want the same parcel, the county draws buyer numbers. Payment is due by 10:00 a.m. the next day, and a Certificate of Sale is recorded." },
     treasurer: { url: "https://nv-washoe.publicaccessnow.com/Treasurer/TaxSearch.aspx", checked: "2026-10-10" },
     assessor: { url: "https://www.washoecounty.gov/assessor/cama/index.php", checked: "2026-10-10" },
     recorder: { url: "https://icris.washoecounty.us/ssrecorder/", checked: "2026-10-10" },

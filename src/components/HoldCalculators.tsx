@@ -195,7 +195,7 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
           <div><dt>Cash flow, per month: NOI minus {r.reserves > 0 ? 'reserves and ' : ''}loan payments{r.reserves > 0 ? '' : ' (before any replacement reserves)'}</dt><dd>{fmtMoney(Math.round(r.cashFlow / 12))}</dd></div>
           {r.debtService > 0 && <div><dt>Your cash left in the deal</dt><dd>{r.cashLeft > 0 ? fmtMoney(Math.round(r.cashLeft)) : 'None: the loan repays it'}</dd></div>}
           <div><dt>Cash-on-cash return: that cash flow ÷ your cash left in the deal</dt><dd>{r.cashOnCash === null ? 'All your cash is back' : pctText(r.cashOnCash)}</dd></div>
-          {r.dscr !== null && <div><dt>{commercial ? 'Debt-service coverage: yearly NOI ÷ yearly loan payments. Your lender may adjust the income, costs and reserves when it underwrites; ask for its calculation and minimum.' : 'Income coverage: NOI ÷ loan payments (a DSCR-loan lender instead divides rent by the full payment; see “How a lender sees this rent”)'}</dt><dd>{r.dscr.toFixed(2)}×</dd></div>}
+          {r.dscr !== null && <div><dt>{commercial ? 'Debt-service coverage: yearly NOI ÷ yearly loan payments. Your lender may adjust the income, costs and reserves when it underwrites; ask for its calculation and minimum.' : 'Income coverage: NOI ÷ loan payments (a DSCR-loan lender instead divides rent by the full payment; see “How a lender sees this rent”)'}</dt><dd>{(Math.floor(r.dscr * 100) / 100).toFixed(2)}×</dd></div>}
         </dl>
       )}
       {r.dscr !== null && !r.loanOk && (
@@ -354,7 +354,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : pctText(a.cashOnCash)}</dd></div>
         <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{pctText(a.capOnPrice)}</dd></div>
         <div><dt>Cap rate on everything you pay</dt><dd>{pctText(a.capOnCost)}</dd></div>
-        {a.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments</dt><dd>{a.dscr.toFixed(2)}×{a.dscr < v.minDscr && (livingThere ? <span> · below the {v.minDscr}× an investor’s lender looks for; a home loan you live in is judged mainly on your own income</span> : <span className="deal-urgent"> · below your {v.minDscr}× income-coverage target; check the lender’s separate requirements</span>)}</dd></div>}
+        {a.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments</dt><dd>{(Math.floor(a.dscr * 100) / 100).toFixed(2)}×{a.dscr < v.minDscr && (livingThere ? <span> · below the {v.minDscr}× an investor’s lender looks for; a home loan you live in is judged mainly on your own income</span> : <span className="deal-urgent"> · below your {v.minDscr}× income-coverage target; check the lender’s separate requirements</span>)}</dd></div>}
       </dl>
       </>)}
       <p className="muted small">Uses the rent, costs and loan you entered above; taxes and insurance are counted in operating costs, not in the loan payment. Your cash in doesn’t include reserves you keep in the bank. An estimate, not advice.</p>
@@ -729,7 +729,7 @@ function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false }: { 
           <div><dt>Cap rate on purchase price</dt><dd>{pctText(a.capOnPrice)}</dd></div>
           <div><dt>Cap rate on total cost before loan fees</dt><dd>{pctText(a.capOnCost)} (target {v.targetCapPct}%)</dd></div>
           <div><dt>Cash-on-cash return, before income tax</dt><dd>{pctText(a.cashOnCash)}</dd></div>
-          {a.dscr !== null && <div><dt>Income coverage (minimum {v.minDscr})</dt><dd>{a.dscr.toFixed(3)}× — {a.loanOk ? 'meets' : 'below'} your minimum</dd></div>}
+          {a.dscr !== null && <div><dt>Income coverage (minimum {v.minDscr})</dt><dd>{(Math.floor(a.dscr * 100) / 100).toFixed(2)}× — {a.loanOk ? 'meets' : 'below'} the minimum</dd></div>}
         </dl>
       </>}
     </section>

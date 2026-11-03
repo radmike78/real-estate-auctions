@@ -515,7 +515,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const boxLines = [
     `Goal: ${goal || 'not written yet'}`,
     `Investable cash: ${profile.investable > 0 ? money(profile.investable) : 'not worked out yet'}`,
-    box.priceMax || box.types.length ? `Buy box: ${[box.types.join(', '), box.priceMax ? `up to ${money(box.priceMax)}${box.strategy === LIEN_STRATEGY ? ' for one certificate' : ''}` : '', box.cashMax ? `${money(box.cashMax)} of cash at most${profile.investable > 0 && box.cashMax > profile.investable ? ` (more than the ${money(profile.investable)} of investable cash you have now: update your buy box if it no longer fits)` : ''}` : '', box.minCashFlow ? `at least ${money(box.minCashFlow)} a month` : ''].filter(Boolean).join('; ')}` : 'Buy box: not set up yet',
+    box.priceMax || box.types.length || box.cashMax || box.strategy ? `Buy box: ${[box.types.join(', '), box.priceMax ? `up to ${money(box.priceMax)}${box.strategy === LIEN_STRATEGY ? ' for one certificate' : ''}` : '', box.cashMax ? `${money(box.cashMax)} of cash at most${profile.investable > 0 && box.cashMax > profile.investable ? ` (more than the ${money(profile.investable)} of investable cash you have now: update your buy box if it no longer fits)` : ''}` : '', box.minCashFlow ? `at least ${money(box.minCashFlow)} a month` : ''].filter(Boolean).join('; ')}` : 'Buy box: not set up yet',
     p.fit ? `This property: ${FIT_LABEL[p.fit]}${p.fitWhy ? `, because ${p.fitWhy}` : ''}` : 'This property: not judged against your buy box yet',
   ];
   out.push({ key: 'plan', title: 'Your plan and buy box', status: p.fit && p.fitWhy && goal ? 'done' : p.fit || goal || box.priceMax ? 'started' : 'missing', lines: boxLines, fix: !goal || !box.priceMax ? { label: 'Goal, cash and buy box in My plan', href: '#/toolkit' } : undefined });
@@ -670,7 +670,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   if (commercial?.at) {
     const a = commercial.at;
-    nums.push(`Your ${offer ? 'offer' : 'bid'} (your actual price): ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; cash left in ${money(a.cashIn)}; return on total cost ${pct1(a.capOnCost)}; ${a.dscr === null ? 'no loan' : `income coverage ${a.dscr.toFixed(3)} (${a.loanOk ? 'meets' : 'below'} your minimum)`}`);
+    nums.push(`Your ${offer ? 'offer' : 'bid'} (your actual price): ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; cash left in ${money(a.cashIn)}; return on total cost ${pct1(a.capOnCost)}; ${a.dscr === null ? 'no loan' : `income coverage ${(Math.floor(a.dscr * 100) / 100).toFixed(2)}× (${a.loanOk ? 'meets' : 'below'} the ${commercial.minDscr ?? 1.25}× minimum)`}`);
   }
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
   else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? `Without that cash limit the deal meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost` : 'Without that cash limit the numbers work'}`);
