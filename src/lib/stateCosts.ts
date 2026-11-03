@@ -230,13 +230,13 @@ export function redemptionChoicesFor(state: StateCode, kind: string): { keys: st
     return {
       keys: ['txTaxHomestead', 'txTaxOther'],
       start: 'txTaxHomestead',
-      confirm: 'We assumed the longer 2-year wait. Check the court judgment and the appraisal district record. If the property was the owner’s home, land designated for agricultural use, or a mineral interest when the suit was filed, the owner has 2 years; otherwise 180 days. Both count from the day your deed is recorded (Tax Code 34.21).',
+      confirm: 'This calculator starts with the longer 2-year wait. Check the court judgment and the appraisal district record. If the property was the owner’s home, land designated for agricultural use, or a mineral interest when the suit was filed, the owner has 2 years; otherwise 180 days. Both count from the day your deed is recorded (Tax Code 34.21).',
     };
   if (kind === 'hoa' && state === 'TX')
     return {
       keys: ['txHoaSubdivision', 'txHoaCondo', 'usFederal'],
       start: 'txHoaSubdivision',
-      confirm: 'Whether this is a subdivision HOA (Property Code 209: 180 days after the HOA mails notice of the sale) or a condominium association (82: 90 days after the sale) isn’t confirmed yet. The longer subdivision wait is assumed until you read the recorded declaration: a townhome can be either.',
+      confirm: 'Whether this is a subdivision HOA (Property Code 209: 180 days after the HOA mails notice of the sale) or a condominium association (82: 90 days after the sale) isn’t confirmed yet. This calculator starts with the longer subdivision wait. Read the recorded declaration: a townhome can be either.',
     };
   if (kind === 'hoa') return { keys: has('hoa') ? ['hoa', 'usFederal'] : ['none', 'usFederal'], start: has('hoa') ? 'hoa' : 'none' };
   // A trustee sale has no owner redemption in these states, but if it wipes out a junior federal tax lien, the United States
@@ -245,7 +245,7 @@ export function redemptionChoicesFor(state: StateCode, kind: string): { keys: st
     return {
       keys: ['none', 'txTaxLoanLong', 'txTaxLoanOther', 'usFederal'],
       start: 'none',
-      confirm: 'A mortgage foreclosure has no redemption, so none is assumed. The property tax loan choices apply only if the lien foreclosed is a transferred property tax lien (Tax Code 32.06).',
+      confirm: 'A mortgage foreclosure has no redemption, so this calculator starts with none. The property tax loan choices apply only if the lien foreclosed is a transferred property tax lien (Tax Code 32.06).',
     };
   if (kind === 'trustee') return { keys: ['none', 'usFederal'], start: 'none' };
   // A tax sale has no owner redemption in Nevada, Utah, California or Arizona (Texas has its own, always longer than 120
@@ -257,9 +257,9 @@ export function redemptionChoicesFor(state: StateCode, kind: string): { keys: st
     if (state === 'NV') return { keys: ['sheriff', 'usCourt'], start: 'sheriff' };
     if (state === 'UT') return { keys: ['utSheriff', 'usCourt'], start: 'utSheriff' };
     if (state === 'CA')
-      return { keys: ['none', 'caJudicialPaid', 'caJudicialShort', 'usCourt'], start: 'caJudicialShort', confirm: 'Whether this California court sale has a redemption period isn’t confirmed yet. The longest one is assumed until the notice of sale or your attorney tells you which applies.' };
+      return { keys: ['none', 'caJudicialPaid', 'caJudicialShort', 'usCourt'], start: 'caJudicialShort', confirm: 'Whether this California court sale has a redemption period isn’t confirmed yet. This calculator starts with the longest one. The notice of sale or your attorney tells you which applies.' };
     if (state === 'AZ')
-      return { keys: ['none', 'azJudicial', 'azJudicialAbandoned', 'usCourt'], start: 'azJudicial', confirm: 'Whether this Arizona court sale has a redemption period isn’t confirmed yet. The 6-month one is assumed until the notice of sale or your attorney tells you which applies.' };
+      return { keys: ['none', 'azJudicial', 'azJudicialAbandoned', 'usCourt'], start: 'azJudicial', confirm: 'Whether this Arizona court sale has a redemption period isn’t confirmed yet. This calculator starts with the 6-month one. The notice of sale or your attorney tells you which applies.' };
     return { keys: ['none', 'usCourt'], start: 'none' };
   }
   return { keys: ['none'], start: 'none' };

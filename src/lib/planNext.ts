@@ -175,4 +175,7 @@ export function planNow(now = new Date()): PlanNow {
 
 // A deal saved while the roadmap is on a practice step (paper practice, auction or lien practice) is a practice analysis
 // (analyze.ts marks it). At "Find a property" you're saving the real one.
-setPracticeCheck(() => ['paper', 'c-paper', 'a-practice', 'c-practice'].includes(roadmapNextStep()?.id ?? ''));
+// A guided learner on practice part 2 sees that route practice step as the Next task while the roadmap's first open
+// step is still an earlier one (Write your goal), so the plan's task counts too.
+const PRACTICE_STEPS = ['paper', 'c-paper', 'a-practice', 'c-practice'];
+setPracticeCheck(() => PRACTICE_STEPS.includes(roadmapNextStep()?.id ?? '') || PRACTICE_STEPS.some((id) => planNow().task.key === `roadmap-${id}`));

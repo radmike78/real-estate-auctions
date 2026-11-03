@@ -12,7 +12,7 @@ import { dropStateLead, forStateText, getMyState, useMyState } from '../lib/mySt
 import { fmtMoney } from '../lib/status';
 import { getMyArea, useMyArea } from '../lib/myArea';
 import { countyTaxLine, countyTaxRate, stateMedianTaxRate } from '../lib/stateCosts';
-import { cleanAssumptions, cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP_PATHS, ROADMAP_PHASES, ROADMAP_PHASE_HELP, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
+import { cleanAssumptions, cleanBuyBox, dealBreakersFor, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP_PATHS, ROADMAP_PHASES, ROADMAP_PHASE_HELP, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
 import { downloadText, fileName } from '../lib/download';
 import { cleanLog, logText } from '../lib/evidence';
 import { makeBackup, readBackup, restoreBackup } from '../lib/progressBackup';
@@ -72,7 +72,7 @@ function stepEvidence(id: string): string | null {
   if (id === 'money') return investableCash() > 0 ? `Your cash worksheet shows ${fmtMoney(investableCash())} of investable cash.` : null;
   if (id === 'buybox') {
     const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);
-    return b.area && b.types.length && b.priceMax && b.dealBreakers.length ? 'Your buy box has an area, property types, a price limit and deal breakers.' : null;
+    return b.area && b.types.length && b.priceMax && b.dealBreakers.some((t) => dealBreakersFor(b.strategy).includes(t)) ? 'Your buy box has an area, property types, a price limit and deal breakers.' : null;
   }
   if (id === 'c-buybox') {
     const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);
@@ -93,7 +93,7 @@ function stepEvidence(id: string): string | null {
 }
 
 /** The goal shows in "Your next step" and again in its phase: both copies stay in step. */
-function GoalField() {
+function GoalField({ markedDone = false }: { markedDone?: boolean }) {
   const [g, setG] = useState(() => read(GOAL_KEY, '', cleanGoal));
   // A first draft from the answers given in Decide (goal, budget, time), to edit rather than retype.
   const fromDecide = (() => {
@@ -145,6 +145,8 @@ function GoalField() {
         settleAfterPress(e.target.value);
       }} placeholder="e.g. A rental I’ll hold 10 years, where the rent covers the costs. About 6 hours a week." />
       {!g.trim() && fromDecide && <button type="button" className="linkish" onClick={() => { change(fromDecide); settle(fromDecide); }}>Start from my Decide answers: “{fromDecide}”</button>}
+      {/* Marked done without a sentence: My plan and the packets still read "not written yet" until one is saved. */}
+      {markedDone && !g.trim() && <span className="small muted" role="note">This step shows Done, but no goal sentence is saved yet. Write it here so it shows at the top of My plan and in your packets.</span>}
     </label>
   );
 }
@@ -193,7 +195,7 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
       </details> : null}
       {deal && s.evidence && dealScoped(s) && <EvidenceArea key={`${deal.id}|${s.evidence}`} dealId={deal.id} dealName={deal.name} area={s.evidence} askFinding={status === 'done'} kind={deal.kind} />}
       {!deal && s.evidence && dealScoped(s) && <p className="muted">Working on a real property? Save it in <a href="#/analyze">Analyze</a> (it becomes the property you’re working on, shown above) to record what you find here.</p>}
-      {s.id === 'goal' && <GoalField />}
+      {s.id === 'goal' && <GoalField markedDone={status === 'done'} />}
       {s.id === 'market' && <AreaLine county what="Your sources, rules and checklists follow it." />}
       {s.stop && forStateText(myState, s.stop) && <p className="roadmap-stop"><strong>When to pause:</strong> {dropStateLead(forStateText(myState, s.stop), myState)}</p>}
       <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
@@ -643,6 +645,8 @@ function BuyBoxBuilder() {
   );
   const state = STATES.find((s) => s.code === b.state);
   const lien = b.strategy === LIEN_STRATEGY;
+  // Ones ticked under another strategy that this one doesn't offer stay saved, but aren't shown.
+  const shownBreakers = b.dealBreakers.filter((t) => dealBreakersFor(b.strategy).includes(t));
   // A flip is sold, not rented: no rental cash-flow target. Flips and auctions set a price to bid or pay, not a loan size.
   const flip = b.strategy === 'Fix and flip';
   const bidPrice = flip || b.strategy === 'Tax and foreclosure auctions';
@@ -728,7 +732,7 @@ function BuyBoxBuilder() {
       </fieldset>
       <fieldset className="buybox-checks">
         <legend>Deal breakers: I walk away if…</legend>
-        {DEAL_BREAKERS.map((t) => <label key={t}><input type="checkbox" checked={b.dealBreakers.includes(t)} onChange={() => toggle('dealBreakers', t)} /> {t}</label>)}
+        {dealBreakersFor(b.strategy).map((t) => <label key={t}><input type="checkbox" checked={b.dealBreakers.includes(t)} onChange={() => toggle('dealBreakers', t)} /> {t}</label>)}
       </fieldset>
       <label className="field">
         <span>Notes</span>
@@ -746,7 +750,7 @@ function BuyBoxBuilder() {
           {b.cashMax ? ` No more than ${fmtMoney(b.cashMax)} of my cash in it.` : ''}
           {b.minCashFlow && !lien && !flip ? ` At least ${fmtMoney(b.minCashFlow)} a month of cash flow.` : ''}
         </p>
-        {b.dealBreakers.length > 0 && <p><strong>I walk away if:</strong> {b.dealBreakers.map((d) => (/^[A-Z][a-z]/.test(d) ? d.charAt(0).toLowerCase() + d.slice(1) : d)).join('; ')}.</p>}
+        {shownBreakers.length > 0 && <p><strong>I walk away if:</strong> {shownBreakers.map((d) => (/^[A-Z][a-z]/.test(d) ? d.charAt(0).toLowerCase() + d.slice(1) : d)).join('; ')}.</p>}
         <div className="decide-nav">
           <button type="button" className="btn btn-secondary" onClick={() => printWith('print-buybox')}>Print</button>
           <button type="button" className="btn btn-secondary" onClick={() => downloadText('my-buy-box.txt', buyBoxText(b, state?.name))}>Download</button>
@@ -779,7 +783,7 @@ function buyBoxText(b: BuyBox, stateName?: string): string {
           `Cash I can put in, all in: ${money(b.cashMax)}`,
           ...(b.strategy === 'Fix and flip' ? [] : [`Least cash flow per month: ${money(b.minCashFlow)}`]),
         ]),
-    `I walk away if: ${b.dealBreakers.join('; ')}`,
+    `I walk away if: ${b.dealBreakers.filter((t) => dealBreakersFor(b.strategy).includes(t)).join('; ')}`,
     `Notes: ${b.notes}`,
   ].join('\n');
 }
