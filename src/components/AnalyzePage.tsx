@@ -186,7 +186,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       // The working deal is in another state than the one now chosen: keep it in My deals before starting fresh.
       if (!cur.id && !cur.name && !cur.notes && cur.done.length === 0) {
         const kept = keepUnsaved();
-        if (kept) setTimeout(() => setKeptNote(kept), 0);
+        // Also into keptNoteOnce: the first-paint remount reads it there, after this instance is thrown away.
+        if (kept) { keptNoteOnce = kept; setTimeout(() => { keptNoteOnce = ''; }, 1500); setTimeout(() => setKeptNote(kept), 0); }
       }
       return forLink(cur, plan);
     }
@@ -385,9 +386,11 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
               <button type="button" className="btn btn-secondary" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button>
             </>
           ) : (
-            <button type="button" className="btn" onClick={() => { if (!deal.locationConfirmed) set({ locationConfirmed: true }); else saveNew(); }}>{deal.locationConfirmed ? 'Save this deal' : 'Confirm location and open my analysis'}</button>
+            <button type="button" className="btn" onClick={() => { if (!deal.locationConfirmed) set({ locationConfirmed: true }); else saveNew(); }}>{deal.locationConfirmed ? (savingPractice() ? 'Save as a practice analysis' : 'Save this deal') : 'Confirm location and open my analysis'}</button>
           )}
         </div>
+        {/* Said before the save: while My plan is on a practice step, what's saved stays a practice analysis. */}
+        {!deal.id && deal.locationConfirmed && savingPractice() && <p className="muted" role="note">My plan is on a practice step, so a deal saved now is a practice analysis: it won’t become the property you’re working on. Finish that step first to save a real property.</p>}
         {saved.length > 0 && (
           <div className="saved-deals">
             <strong>Your deals</strong>

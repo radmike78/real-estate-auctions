@@ -253,7 +253,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     // one that fits, and has to be confirmed again.
     if (!offer && choices) {
       const cur = ruleOf(v, offered);
-      if (!choices.keys.includes(cur)) {
+      // A fresh deal (no redemption rule picked, typed or confirmed yet) starts with the rule the caution names, not
+      // "No redemption", even where "No redemption" is one of the choices (a court sale).
+      const fresh = cur === 'none' && choices.start !== 'none' && !v.redemptionChecked && !typedKeys.has('redemptionMonths') && !typedKeys.has('redemptionRatePct');
+      if (!choices.keys.includes(cur) || fresh) {
         const r0 = rules[choices.start];
         v = { ...v, redemptionMonths: r0.months, redemptionRatePct: r0.ratePct, redemptionDaily: r0.daily, redemptionFlat: r0.flat, redemptionFlat2Pct: r0.flat2Pct, redemptionChecked: 0 };
         save(v);
@@ -324,6 +327,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const pickRule = (rule: string) => {
     const r = rules[rule];
     setPicked(rule);
+    // A rule picked from the menu is the reader's choice: kept on the next visit (No redemption included).
+    markTyped('redemptionMonths');
     setDraft((d) => ({ ...d, redemptionMonths: undefined, redemptionRatePct: undefined }));
     update({ redemptionMonths: r.months, redemptionRatePct: r.ratePct, redemptionDaily: r.daily, redemptionFlat: r.flat, redemptionFlat2Pct: r.flat2Pct, redemptionChecked: 0 });
   };
@@ -406,7 +411,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {GROUPS.map((g) => {
           const fields = g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : f)).map((f) =>
             f.k === 'redemptionRatePct' && i.redemptionFlat
-              ? { ...f, label: i.redemptionFlat2Pct ? 'Premium a redemption pays you (first year)' : 'Premium a redemption pays you', unit: '%' as const, hint: i.redemptionFlat2Pct ? `A flat % of your price set by law, not a yearly rate; ${i.redemptionFlat2Pct}% in the second year.` : 'A flat % of your price set by law, not a yearly rate. It’s the most the law allows.' }
+              ? { ...f, label: i.redemptionFlat2Pct ? 'Premium a redemption pays you (first year)' : 'Premium a redemption pays you', unit: '%' as const, hint: i.redemptionFlat2Pct ? `A flat % of your price set by law, not a yearly rate; ${i.redemptionFlat2Pct}% in the second year.` : ruleNow === 'txTaxOther' ? 'A % of your price, not a yearly rate. Texas law caps it at 25% (Tax Code 34.21(e)); this uses the full 25%.' : 'A flat % of your price set by law, not a yearly rate.' }
               : f);
           if (!fields.length) return null;
           return (

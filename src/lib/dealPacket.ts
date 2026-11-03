@@ -658,7 +658,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const typedNoLimit = !(entered > 0) && (rent?.cashTyped || bid?.cashTyped || commercial?.cashTyped || false);
   const limit = entered > 0 ? entered : typedNoLimit ? 0 : profile.investable;
   const limitWord = entered > 0 ? `the cash you entered in ${strategy}` : 'your investable cash';
-  if (limit > 0 && need > 0) cash.push(need > limit ? `${needAt}, that’s ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered.` : `${needAt}, that leaves ${money(limit - need)} unallocated from ${limitWord}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
+  if (limit > 0 && need > 0) cash.push(need > limit ? `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.` : `${needAt}, that leaves ${money(limit - need)} unallocated from ${limitWord}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
   out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: cash, fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 

@@ -298,6 +298,13 @@ export default function FindAProPage({ section }: { section?: string }) {
   const all = !open && !build; // the full page: #/pros (and the old #/pros/all)
   const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
   const [mine, setMine] = useMyState();
+  // The lien deal you're working on can be in Nevada or Arizona while your own state is another: its lien team is
+  // offered too (the same state practiceState() gives the roadmap's lien practice).
+  const teamGuides = () => {
+    const ps = practiceState();
+    const extra = planPath() === 'certificate' && ps && ps !== mine ? guidesFor(ps).filter((p) => p.key === (ps === 'NV' ? 'sid' : 'aztaxlien')) : [];
+    return [...guidesFor(mine), ...extra];
+  };
   // Opens on the kind of sale your roadmap route is about (an auction, a lien certificate), when your state has it.
   const [sale, setSale] = useState<string>(() => {
     // The property open in Analyze (a saved one) decides first: its own kind of sale.
@@ -313,7 +320,7 @@ export default function FindAProPage({ section }: { section?: string }) {
     const r = planPath();
     const pre = mine === 'NV' ? '' : (mine ?? '').toLowerCase();
     const want = r === 'auction' ? `${pre}foreclosure` : r === 'certificate' ? (practiceState() === 'NV' ? 'sid' : 'aztaxlien') : '';
-    if (want && guidesFor(mine).some((p) => p.key === want)) return want;
+    if (want && teamGuides().some((p) => p.key === want)) return want;
     // The agent route (the roadmap's default): the team for a listed home, or the commercial team for a commercial buy box.
     try {
       const box = JSON.parse(localStorage.getItem('deedowl.buybox.v1') ?? 'null') as { strategy?: unknown } | null;
@@ -322,7 +329,7 @@ export default function FindAProPage({ section }: { section?: string }) {
     return mine && r === 'listing' ? 'listing' : 'start';
   });
   const { pros } = useDirectory();
-  const book = mine ? guidesFor(mine).find((p) => p.key === sale) : undefined;
+  const book = mine ? teamGuides().find((p) => p.key === sale) : undefined;
   const team = book
     ? book.team
     : sale === 'listing' || sale === 'commercial-offer'
@@ -359,7 +366,7 @@ export default function FindAProPage({ section }: { section?: string }) {
                   <option value="start">Kind of sale: not sure yet</option>
                   <option value="listing">A listed home (through an agent)</option>
                   <option value="commercial-offer">A commercial building you make an offer on (through a broker, or from a bank)</option>
-                  {guidesFor(mine).map((p) => <option key={p.key} value={p.key}>{p.short}{/commercial$/.test(p.key) ? ' at a forced sale' : ''}</option>)}
+                  {teamGuides().map((p) => <option key={p.key} value={p.key}>{p.short}{/commercial$/.test(p.key) ? ' at a forced sale' : ''}{mine && !guidesFor(mine).includes(p) ? ` (${p.key === 'sid' ? 'Nevada' : 'Arizona'}, your lien deal)` : ''}</option>)}
                 </select>
               </label>
             ) : (

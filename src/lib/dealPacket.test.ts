@@ -195,7 +195,7 @@ describe('the deal packet', () => {
     const cash = () => packetSections(auction, EMPTY_PACKET, now).find((s) => s.key === 'cash')!.lines.join('\n');
     localStorage.setItem('deedowl.cash.v1', JSON.stringify({ savings: 100000 }));
     localStorage.setItem('fsf.calc.commercial.d1.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 9, atPrice: 500000 }));
-    expect(cash()).toMatch(/At your actual price of \$500,000, that’s \$[\d,]+ more than your investable cash: the deal doesn’t fit as entered\./);
+    expect(cash()).toMatch(/At your actual price of \$500,000, the \$[\d,]+ you’d put in is \$[\d,]+ more than your investable cash: the deal doesn’t fit as entered\./);
     expect(savedNumbers(auction).commercial!.atNeed).toBeGreaterThan(500000);
     // A 0 typed in Commercial income is no limit: no comparison with My plan.
     localStorage.setItem('fsf.calc.commercial.d1.v1', JSON.stringify({ monthlyRent: 10000, targetCapPct: 9, atPrice: 500000, cashAvailable: 0 }));
@@ -337,16 +337,16 @@ describe('the deal packet', () => {
       save({ ...base, proposedPrice: 190000 });
       // $213,000 at your offer, against $136,000 of investable cash.
       let c = cash(136000);
-      expect(c).toMatch(/At your offer of \$190,000, that’s \$77,000 more than your investable cash: the deal doesn’t fit as entered\./);
+      expect(c).toMatch(/At your offer of \$190,000, the \$[\d,]+ you’d put in is \$77,000 more than your investable cash: the deal doesn’t fit as entered\./);
       // It comes after the what-if at the walk-away price, so it has to say which price it means.
-      expect(c.indexOf('What-if')).toBeLessThan(c.indexOf('At your offer of $190,000, that’s'));
+      expect(c.indexOf('What-if')).toBeLessThan(c.indexOf('At your offer of $190,000, the '));
       c = cash(250000);
       expect(c).toMatch(/At your offer of \$190,000, that leaves \$37,000 unallocated from your investable cash/);
       save(base);
-      expect(cash(200000)).toMatch(/At the asking price of \$200,000, that’s \$23,000 more than your investable cash/);
+      expect(cash(200000)).toMatch(/At the asking price of \$200,000, the \$223,000 you’d put in is \$23,000 more than your investable cash/);
       // With a loan, the draw note comes last before it; the price is still named.
       save({ ...base, financedPct: 80, proposedPrice: 190000 });
-      expect(cash(1000)).toMatch(/through draws after work is done[^\n]*\nAt your offer of \$190,000, that’s/);
+      expect(cash(1000)).toMatch(/through draws after work is done[^\n]*\nAt your offer of \$190,000, the /);
     });
   });
 

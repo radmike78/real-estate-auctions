@@ -56,7 +56,10 @@ const RENTAL_ONLY_BREAKERS = ['Can’t get insurance at a workable price', 'Nega
 export const LIEN_DEAL_BREAKERS = ['Landlocked or unusable parcel', 'Owner in bankruptcy', 'Interest rate below my minimum'];
 /** The deal breakers offered for a buy box strategy. */
 export const dealBreakersFor = (strategy: string): string[] =>
-  strategy === LIEN_STRATEGY ? [...DEAL_BREAKERS.filter((t) => !RENTAL_ONLY_BREAKERS.includes(t)), ...LIEN_DEAL_BREAKERS] : DEAL_BREAKERS;
+  strategy === LIEN_STRATEGY ? [...DEAL_BREAKERS.filter((t) => !RENTAL_ONLY_BREAKERS.includes(t)), ...LIEN_DEAL_BREAKERS]
+  // A flip is sold, not rented: no rent to fall short.
+  : strategy === 'Fix and flip' ? DEAL_BREAKERS.filter((t) => t !== 'Negative cash flow with realistic rent')
+  : DEAL_BREAKERS;
 
 export const EMPTY_BUY_BOX: BuyBox = { state: '', area: '', types: [], strategy: '', priceMax: 0, repairsMax: 0, cashMax: 0, minCashFlow: 0, beds: '', dealBreakers: [], notes: '' };
 
