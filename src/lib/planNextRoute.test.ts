@@ -52,4 +52,15 @@ describe('practice part 2 follows your route', () => {
     localStorage.setItem('deedowl.roadmap.v1', JSON.stringify(['a-practice']));
     expect(savingPractice()).toBe(false);
   });
+
+  it('saves a Nevada or Arizona lien deal as a real deal when the lien route fell back to auctions', async () => {
+    await import('./planNext');
+    const { savingPractice } = await import('./analyze');
+    localStorage.setItem('deedowl.state.v1', 'TX');
+    localStorage.setItem('deedowl.roadmap.path.v1', JSON.stringify('certificate'));
+    expect(savingPractice()).toBe(true);
+    expect(savingPractice({ kind: 'lien', state: 'AZ' })).toBe(false);
+    expect(savingPractice({ kind: 'lien', state: 'NV' })).toBe(false);
+    expect(savingPractice({ kind: 'trustee', state: 'TX' })).toBe(true);
+  });
 });

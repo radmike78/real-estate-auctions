@@ -4,7 +4,7 @@ import type { SaleKey } from '../practice/types';
 import { useMyState } from '../lib/myState';
 import { useMyArea } from '../lib/myArea';
 import { COUNTY_OFFICES } from '../lib/countyOffices';
-import { practiceState } from '../lib/planNext';
+import { practiceLienDeal, practiceState } from '../lib/planNext';
 
 /** The other-state drill for this kind of sale, where one exists (every id here is checked in practice.test.ts). */
 export const drillFor = (st: StateCode, sale: SaleKey): string | null => {
@@ -78,9 +78,12 @@ export default function PracticeStateNote({ sale }: { sale: SaleKey }) {
   const name = STATES.find((x) => x.code === st)?.name ?? st;
   // A Nevada lien deal in focus makes this run the reader's lien practice, whatever their own state.
   if (sale === 'sid' && practiceState() === 'NV') {
+    const washoe = practiceLienDeal()?.county === 'Washoe';
+    const page = washoe ? COUNTY_OFFICES['NV/Washoe']?.specialAssessment?.url : undefined;
     return (
       <div className="notice practice-state-note" role="note">
         <strong>This practice is for the Nevada lien deal you’re working on.</strong> It uses Nevada (Clark County) rules. Special improvement district (SID) lien certificates are sold only in Nevada, so {name}’s own sales work differently: see the <a href="#/playbooks">sale guides for {name}</a> before a deal there.
+        {washoe && <> Your deal is in Washoe County, which runs its own SID sale: its pages describe buyers chosen by a show of hands (numbers drawn if several want a parcel) or a random number program, with payment due by 10:00 a.m. the next day; confirm it in the sale notice.* {page && <a href={page} target="_blank" rel="noopener noreferrer">Washoe County’s SID sale page ↗</a>}</>}
       </div>
     );
   }

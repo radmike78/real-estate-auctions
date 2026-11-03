@@ -135,6 +135,7 @@ function GoalField({ markedDone = false }: { markedDone?: boolean }) {
     window.addEventListener('pointercancel', released, true);
   };
   return (
+    <>
     <label className="field roadmap-goal">
       <span>Your goal, in one sentence</span>
       <textarea rows={2} maxLength={400} value={g} onChange={(e) => change(e.target.value)} onBlur={(e) => {
@@ -145,9 +146,11 @@ function GoalField({ markedDone = false }: { markedDone?: boolean }) {
         settleAfterPress(e.target.value);
       }} placeholder="e.g. A rental I’ll hold 10 years, where the rent covers the costs. About 6 hours a week." />
       {!g.trim() && fromDecide && <button type="button" className="linkish" onClick={() => { change(fromDecide); settle(fromDecide); }}>Start from my Decide answers: “{fromDecide}”</button>}
-      {/* Marked done without a sentence: My plan and the packets still read "not written yet" until one is saved. */}
-      {markedDone && !g.trim() && <span className="small muted" role="note">This step shows Done, but no goal sentence is saved yet. Write it here so it shows at the top of My plan and in your packets.</span>}
     </label>
+    {/* Marked done without a sentence: My plan and the packets still read "not written yet" until one is saved.
+        Outside the label, so it isn't read as part of the box's name. */}
+    {markedDone && !g.trim() && <p className="small muted" role="note">This step shows Done, but no goal sentence is saved yet. Write it in the box above so it shows at the top of My plan and in your packets.</p>}
+    </>
   );
 }
 

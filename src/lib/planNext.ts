@@ -12,7 +12,7 @@ import { caseFor, caseResume } from '../practice/rentalCase';
 import { LEARN_MODULES } from './learn';
 import { cleanGoal, GOAL_KEY } from './myPlan';
 import { ROADMAP_PHASES, roadmapFor, type RoadmapPath, type RoadmapStep } from './roadmap';
-import { AUTO_STEPS, cleanStatus, rawDealChoice, focusDealId, planPath, readKey, roadmapDone, settledFor, STATUS_KEY } from './roadmapState';
+import { AUTO_STEPS, cleanStatus, rawDealChoice, focusDealId, planPath, readKey, roadmapDone, roadmapPath, settledFor, STATUS_KEY } from './roadmapState';
 
 export interface PlanNow {
   /** Your goal in one sentence, or '' when it isn't written yet. */
@@ -78,11 +78,16 @@ export const routePractice = (path: RoadmapPath) => (ROUTE_PRACTICE[path] && !(p
 
 /** The state whose practice fits: yours, or on the lien route a focused lien deal's (an Arizona lien deal for a Texas reader). */
 export function practiceState() {
+  return practiceLienDeal()?.state ?? getMyState();
+}
+
+/** The Nevada or Arizona lien deal in focus that sets the lien practice for a reader in another state, if any. */
+export function practiceLienDeal(): Deal | null {
   const st = getMyState();
-  if (st === 'NV' || st === 'AZ' || planPath() !== 'certificate') return st;
+  if (st === 'NV' || st === 'AZ' || planPath() !== 'certificate') return null;
   const deals = loadDeals();
   const d = deals.find((x) => `analyzed:${x.id}` === focusDealId(deals));
-  return d && d.kind === 'lien' && (d.state === 'NV' || d.state === 'AZ') ? d.state : st;
+  return d && d.kind === 'lien' && (d.state === 'NV' || d.state === 'AZ') ? d : null;
 }
 
 /** Practice part 2 is done: the rental case's packet, or (auction and lien routes) that route's practice step. */
@@ -178,4 +183,9 @@ export function planNow(now = new Date()): PlanNow {
 // A guided learner on practice part 2 sees that route practice step as the Next task while the roadmap's first open
 // step is still an earlier one (Write your goal), so the plan's task counts too.
 const PRACTICE_STEPS = ['paper', 'c-paper', 'a-practice', 'c-practice'];
-setPracticeCheck(() => PRACTICE_STEPS.includes(roadmapNextStep()?.id ?? '') || PRACTICE_STEPS.some((id) => planNow().task.key === `roadmap-${id}`));
+setPracticeCheck((d) => {
+  // On a lien route kept in a state without lien sales (so the roadmap follows the auction route), a lien deal in
+  // Nevada or Arizona is the real one that brings the lien route back: never a practice analysis.
+  if (d?.kind === 'lien' && (d.state === 'NV' || d.state === 'AZ') && roadmapPath() === 'certificate' && planPath() !== 'certificate') return false;
+  return PRACTICE_STEPS.includes(roadmapNextStep()?.id ?? '') || PRACTICE_STEPS.some((id) => planNow().task.key === `roadmap-${id}`);
+});

@@ -294,7 +294,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const saveNew = () => {
     if (!deal.locationConfirmed) return;
     // Saved while the roadmap is on paper practice (or finding a property): a practice analysis.
-    const practicing = savingPractice();
+    const practicing = savingPractice(deal);
     const d: Deal = { ...deal, id: `d${Date.now().toString(36)}`, name: deal.name.trim() || `${countyName(deal.county)} deal`, stage: 'researching', ...(practicing ? { practice: true } : {}) };
     carryDraftNumbers(d.id, d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short');
     const next = [d, ...storedDeals()];
@@ -386,11 +386,11 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
               <button type="button" className="btn btn-secondary" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button>
             </>
           ) : (
-            <button type="button" className="btn" onClick={() => { if (!deal.locationConfirmed) set({ locationConfirmed: true }); else saveNew(); }}>{deal.locationConfirmed ? (savingPractice() ? 'Save as a practice analysis' : 'Save this deal') : 'Confirm location and open my analysis'}</button>
+            <button type="button" className="btn" onClick={() => { if (!deal.locationConfirmed) set({ locationConfirmed: true }); else saveNew(); }}>{deal.locationConfirmed ? (savingPractice(deal) ? 'Save as a practice analysis' : 'Save this deal') : 'Confirm location and open my analysis'}</button>
           )}
         </div>
         {/* Said before the save: while My plan is on a practice step, what's saved stays a practice analysis. */}
-        {!deal.id && deal.locationConfirmed && savingPractice() && <p className="muted" role="note">My plan is on a practice step, so a deal saved now is a practice analysis: it won’t become the property you’re working on. Finish that step first to save a real property.</p>}
+        {!deal.id && deal.locationConfirmed && savingPractice(deal) && <p className="muted" role="note">My plan is on a practice step, so a deal saved now is a practice analysis: it won’t become the property you’re working on. Finish that step first to save a real property.</p>}
         {saved.length > 0 && (
           <div className="saved-deals">
             <strong>Your deals</strong>

@@ -457,7 +457,9 @@ export default function DrillPage({ id }: { id: string }) {
       </main>
     );
   // A lien deal in another state in focus (an Arizona lien deal for a Texas reader) opens that state's drill too.
-  if (drillState(d) && drillState(d) !== myState && drillState(d) !== practiceState()) return (
+  // Another state's drill opens only as the lien practice for an Arizona lien deal you're working on.
+  const lienDrill = d.id === 'tax-lien-az' && practiceState() === 'AZ';
+  if (drillState(d) && drillState(d) !== myState && !lienDrill) return (
     <main className="page">
       <PageHero compact top={<a href="#/practice">← Practice</a>} title="Choose this exercise’s state" sub={`This exercise uses ${STATE_NAMES[drillState(d)!]} rules. Change your investing state to open it, or return to your own practice.`} />
       <section aria-labelledby="drill-state-head">

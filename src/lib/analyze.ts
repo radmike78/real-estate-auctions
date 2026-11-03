@@ -239,9 +239,11 @@ export const CURRENT_KEY = 'deedowl.analyze.current.v1';
 /** Open a saved deal on the Analyze page. */
 // Whether a deal saved now is a practice analysis (the roadmap is on paper practice). planNext.ts sets the check, so
 // this module doesn't import the plan.
-let practicingNow = () => false;
-export function setPracticeCheck(f: () => boolean) { practicingNow = f; }
-export const savingPractice = () => practicingNow();
+// Given the deal being saved: a lien deal can be the one that opens the lien route, and then it isn't practice.
+type SavedKind = { kind?: string; state?: string };
+let practicingNow: (d?: SavedKind) => boolean = () => false;
+export function setPracticeCheck(f: (d?: SavedKind) => boolean) { practicingNow = f; }
+export const savingPractice = (d?: SavedKind) => practicingNow(d);
 
 /** An unsaved, started deal in Analyze, saved to My deals before something replaces it. Returns it, or null. */
 export function keepUnsavedDraft(): Deal | null {
@@ -255,7 +257,7 @@ export function keepUnsavedDraft(): Deal | null {
   const all = loadDeals();
   const name = cur.name.trim() || `${countyName(cur.county)} deal`;
   if (all.some((x) => x.updatedAt === cur!.updatedAt && x.name.trim() === name)) return null;
-  const d: Deal = { ...cur, id: `d${Date.now().toString(36)}`, name, stage: 'researching', ...(savingPractice() ? { practice: true } : {}) };
+  const d: Deal = { ...cur, id: `d${Date.now().toString(36)}`, name, stage: 'researching', ...(savingPractice(cur) ? { practice: true } : {}) };
   saveDeals([d, ...all]);
   carryDraftNumbers(d.id, d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short');
   return d;

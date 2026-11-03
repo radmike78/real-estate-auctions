@@ -25,9 +25,10 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
   const scenario = useMemo(() => scenarioById(id), [id]);
   useLastActivity(`#/practice/${id}${stageKey ? `/${stageKey}` : ''}`, scenario ? `Practice purchase: ${scenario.headline}` : undefined);
   const [progress, setProgress] = useState<ScenarioProgress>(() => loadProgress(id));
-  // A Nevada lien deal in focus (on the lien route) practices under Nevada rules, whatever your own state.
+  // A Nevada lien deal in focus (on the lien route) practices the SID run under Nevada rules, whatever your own state.
   const [mineRaw] = useMyState();
-  const mine = practiceState() === 'NV' ? 'NV' : mineRaw;
+  // Only the SID lien run: the other Nevada runs keep your own state (and their "Not your state's rules" badge).
+  const mine = practiceState() === 'NV' && scenario?.playbookKey === 'sid' ? 'NV' : mineRaw;
   useEffect(() => setProgress(loadProgress(id)), [id]);
   useNoIndex(!scenario);
   // On phones the step buttons are one swipeable row: bring the current step into view.
