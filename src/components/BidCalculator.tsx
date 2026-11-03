@@ -506,7 +506,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           cashShort ? (
           <div className="calc-max bad" role="status">
             <span>Walk-away price</span>
-            <strong>Not enough cash</strong>
+            <strong>No {w.bid} at the {w.opening} fits your cash</strong>
             <small>At the {w.opening} you’d need about {fmtMoney(Math.round(openingCash))}: the {w.bid} plus repairs and every cost until you sell. The deal itself allows {w.bid}s up to {fmtMoney(r.profitBid)}.</small>
           </div>
           ) : (
@@ -545,7 +545,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
               <><strong>Your cash doesn’t cover this deal at the {w.opening}.</strong> The deal works (about {fmtMoney(Math.round(atOpening))} profit at {fmtMoney(i.minimumBid)}), but with repairs and every cost until you sell you’d need about {fmtMoney(Math.round(openingCash))}, and you entered {fmtMoney(i.cashAvailable)}.</>
             ) : (
               offer ? (
-                <><strong>Meets {tw} at the {w.opening}, with the numbers entered.</strong> Your most is {fmtMoney(r.maxBid)}, but you don’t have to offer more than {fmtMoney(i.minimumBid)}: start lower if the market allows. Going past {fmtMoney(r.maxBid)} means accepting less than the profit you asked for. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.{unenteredNote}</>
+                <><strong>Meets {tw} at the {w.opening}, with the numbers entered.</strong> Your most is {fmtMoney(r.maxBid)}, but you don’t have to offer more than {fmtMoney(i.minimumBid)}: start lower if the market allows. Going past {fmtMoney(r.maxBid)} means accepting less than {tw}. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.{unenteredNote}</>
               ) : (
                 <><strong>{fmtMoney(r.maxBid - i.minimumBid)} of room above the {w.opening}.</strong> Bidding starts at {fmtMoney(i.minimumBid)}; stop at {fmtMoney(r.maxBid)}. At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}.{unenteredNote}</>
               )

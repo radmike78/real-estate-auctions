@@ -356,8 +356,8 @@ export default function FindAProPage({ section }: { section?: string }) {
                 <select value={sale} onChange={(e) => setSale(e.target.value)}>
                   <option value="start">Kind of sale: not sure yet</option>
                   <option value="listing">A listed home (through an agent)</option>
-                  <option value="commercial-offer">A commercial building (through a broker, or from a bank)</option>
-                  {guidesFor(mine).map((p) => <option key={p.key} value={p.key}>{p.short}</option>)}
+                  <option value="commercial-offer">A commercial building you make an offer on (through a broker, or from a bank)</option>
+                  {guidesFor(mine).map((p) => <option key={p.key} value={p.key}>{p.short}{/commercial$/.test(p.key) ? ' at a forced sale' : ''}</option>)}
                 </select>
               </label>
             ) : (
@@ -374,7 +374,7 @@ export default function FindAProPage({ section }: { section?: string }) {
             <>
               <p className="muted">
                 {book ? <>{book.short}: the team, in the order you’ll usually need them.</> : sale === 'commercial-offer' ? <>For a commercial building you buy through a broker or from a bank, in the order you’ll usually need them. Commercial deals vary; your broker and attorney can say who else this one needs.</> : <>For a home listed for sale, the way most first rentals are bought, in the order you’ll usually need them.</>}{' '}
-                {book ? <a href={`#/playbooks/${book.key}`}>Read the guide: {book.short}{NBSP}→</a> : <a href="#/practice/case">Practice a listed purchase, start to finish{NBSP}→</a>}
+                {book ? <a href={`#/playbooks/${book.key}`}>Read the guide: {book.short}{NBSP}→</a> : sale === 'commercial-offer' ? null : <a href="#/practice/case">Practice a listed purchase, start to finish{NBSP}→</a>}
               </p>
               <TeamList team={team} />
             </>
@@ -382,7 +382,9 @@ export default function FindAProPage({ section }: { section?: string }) {
         </section>
       )}
       {/* With a sale's team shown, the ad comes from one of that team's roles (no lender ad under a cash-only team). */}
-      {all && <div className="pros-ad-row"><RotatingAd pros={teamCats ? pros.filter((x) => teamCats.has(x.category)) : pros} placeholder /></div>}
+      {/* Never beside a forced-sale or lien team (the same rule as Find deals, Analyze and My plan): only a listed, bank-owned
+          or short-sale team, a commercial building bought by offer, or no team chosen yet. */}
+      {all && (!book || /(reo|short)$/.test(book.key)) && <div className="pros-ad-row"><RotatingAd pros={teamCats ? pros.filter((x) => teamCats.has(x.category)) : pros} placeholder /></div>}
       {all ? (
         <section className="pros-all" aria-labelledby="pros-all-head">
           <h2 id="pros-all-head">The professionals</h2>
