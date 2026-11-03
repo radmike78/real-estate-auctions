@@ -72,7 +72,7 @@ export function roadmapNextStep(): RoadmapStep | null {
 /** A roadmap step as a plan task: what to do, what you'll have, and the page that helps. */
 // On the auction and lien routes, practice part 2 is the route's own practice, not the rental paperwork case.
 const ROUTE_PRACTICE: Partial<Record<RoadmapPath, string>> = { auction: 'a-practice', certificate: 'c-practice' };
-const routePractice = (path: RoadmapPath) => (ROUTE_PRACTICE[path] ? roadmapFor(path).find((s) => s.id === ROUTE_PRACTICE[path]) : undefined);
+export const routePractice = (path: RoadmapPath) => (ROUTE_PRACTICE[path] ? roadmapFor(path).find((s) => s.id === ROUTE_PRACTICE[path]) : undefined);
 
 /** Practice part 2 is done: the rental case's packet, or (auction and lien routes) that route's practice step. */
 export function guidedPracticeDone(path: RoadmapPath = planPath()): boolean {

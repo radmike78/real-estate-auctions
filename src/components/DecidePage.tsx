@@ -1,8 +1,8 @@
 import { workStorage as localStorage } from '../lib/workStorage';
 import { getMyArea } from '../lib/myArea';
 import { useEffect, useRef, useState } from 'react';
-import { getMode, practicePart2Done, readLessons, useLastActivity } from '../lib/journey';
-import { planNow } from '../lib/planNext';
+import { getMode, readLessons, useLastActivity } from '../lib/journey';
+import { guidedPracticeDone, planNow } from '../lib/planNext';
 import PageHero from './PageHero';
 import OwlNote from './OwlNote';
 import { useMarkStep, stepEyebrow } from '../lib/path';
@@ -46,11 +46,11 @@ function load(): Saved {
  *  finished ("Practice …" linking to Practice). */
 function seenDone(c: { id?: string; text: string; href?: string }): boolean {
   // Items the site tracks by name: the practice purchase (the lessons item also asks for your strategy's lessons).
-  if (c.id === 'pr-practice') return practicePart2Done();
+  if (c.id === 'pr-practice') return guidedPracticeDone();
   const lesson = c.href?.match(/^#\/learn\/([a-z-]+)$/);
   // Only an item about one lesson: "Read the lessons on X and Y" stays yours to tick.
   if (lesson && /^(Read|Learn)\b/.test(c.text) && !/\blessons\b/.test(c.text)) return readLessons().includes(lesson[1]);
-  if (c.href === '#/practice' && /^Practice\b/.test(c.text)) return practicePart2Done();
+  if (c.href === '#/practice' && /^Practice\b/.test(c.text)) return guidedPracticeDone();
   return false;
 }
 

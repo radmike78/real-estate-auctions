@@ -9,7 +9,7 @@ import { kindLabel, SALE_KINDS, type Deal } from './analyze';
 import { costsAtBid, maxSafeBid, offerInputs, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, unenteredCosts, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
 import { cleanBuyBox, EMPTY_BUY_BOX, LIEN_STRATEGY, type BuyBox } from './toolkit';
 import { areasFor, GATES, loadLog } from './evidence';
-import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, refiValueWords, withPlanCash, dscrText, noRealisticPrice, noRealisticAdvice, cashAndPropertyWeak, fhaMonthlyMi, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
+import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, refiValueWords, withPlanCash, dscrText, capText, noRealisticPrice, noRealisticAdvice, cashAndPropertyWeak, fhaMonthlyMi, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
 import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
@@ -462,7 +462,7 @@ const commercialNoTarget = (strategy: string, overCap = false) => overCap
   : `No target return entered in ${strategy}: enter the cap rate you require to get a walk-away price.`;
 
 type CommercialLimit = 'return' | 'cash' | 'dscr';
-const pct1 = (x: number | null | undefined) => (x === null || x === undefined ? null : `${(x * 100).toFixed(1)}%`);
+const pct1 = (x: number | null | undefined) => (x === null || x === undefined ? null : `${capText(x)}%`);
 /** The commercial walk-away price, worded by what sets it: your target return, your cash, or the lender's coverage. */
 /** The calculator's own words for the cash limit: "put in" for a listed property (down payment, closing costs and repairs), "bring" at an auction. */
 const cashLimit = (offer: boolean) => (offer ? 'the cash you can put in' : 'the cash you can bring');
@@ -515,7 +515,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const boxLines = [
     `Goal: ${goal || 'not written yet'}`,
     `Investable cash: ${profile.investable > 0 ? money(profile.investable) : 'not worked out yet'}`,
-    box.priceMax || box.types.length || box.cashMax || box.strategy ? `Buy box: ${[box.strategy ? box.strategy.charAt(0).toLowerCase() + box.strategy.slice(1) : '', box.types.join(', '), box.priceMax ? `up to ${money(box.priceMax)}${box.strategy === LIEN_STRATEGY ? ' for one certificate' : ''}` : '', box.cashMax ? `${money(box.cashMax)} of cash at most${profile.investable > 0 && box.cashMax > profile.investable ? ` (more than the ${money(profile.investable)} of investable cash you have now: update your buy box if it no longer fits)` : ''}` : '', box.minCashFlow ? `at least ${money(box.minCashFlow)} a month` : ''].filter(Boolean).join('; ')}` : 'Buy box: not set up yet',
+    box.priceMax || box.types.length || box.cashMax || box.strategy ? `Buy box: ${[box.strategy ? box.strategy.charAt(0).toLowerCase() + box.strategy.slice(1) : '', box.types.join(', '), box.priceMax ? `up to ${money(box.priceMax)}${box.strategy === LIEN_STRATEGY ? ' for one certificate' : ''}` : '', box.cashMax ? `${money(box.cashMax)} of cash at most${profile.investable > 0 && box.cashMax > profile.investable ? ` (more than the ${money(profile.investable)} of investable cash you have now: update your buy box if it no longer fits)` : ''}` : '', box.minCashFlow && box.strategy !== 'Fix and flip' && box.strategy !== LIEN_STRATEGY ? `at least ${money(box.minCashFlow)} a month` : ''].filter(Boolean).join('; ')}` : 'Buy box: not set up yet',
     p.fit ? `This property: ${FIT_LABEL[p.fit]}${p.fitWhy ? `, because ${p.fitWhy}` : ''}` : 'This property: not judged against your buy box yet',
   ];
   out.push({ key: 'plan', title: 'Your plan and buy box', status: p.fit && p.fitWhy && goal ? 'done' : p.fit || goal || box.priceMax || box.cashMax || box.strategy || box.types.length ? 'started' : 'missing', lines: boxLines, fix: !goal || !(box.priceMax || box.cashMax) ? { label: 'Goal, cash and buy box in My plan', href: '#/toolkit' } : undefined });

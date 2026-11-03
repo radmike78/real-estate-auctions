@@ -602,7 +602,19 @@ it('counts a buy box with only a cash limit or a strategy as started, and prints
   const s = packetSections(deal, EMPTY_PACKET, now).find((x) => x.key === 'plan')!;
   expect(s.lines.join('\n')).toMatch(/Buy box: fix and flip/);
   expect(s.status).toBe('started');
+  // A flip has no rental cash-flow target (the buy box hides that field), so a leftover one isn't printed.
+  localStorage.setItem('deedowl.buybox.v1', JSON.stringify({ state: 'NV', strategy: 'Fix and flip', types: [], minCashFlow: 200 }));
+  expect(packetSections(deal, EMPTY_PACKET, now).find((x) => x.key === 'plan')!.lines.join('\n')).not.toMatch(/a month/);
+  localStorage.setItem('deedowl.buybox.v1', JSON.stringify({ state: 'NV', strategy: 'Buy and hold a rental', types: [], minCashFlow: 200 }));
+  expect(packetSections(deal, EMPTY_PACKET, now).find((x) => x.key === 'plan')!.lines.join('\n')).toMatch(/at least \$200 a month/);
   localStorage.removeItem('deedowl.buybox.v1');
+});
+
+it('shows return on cost rounded down, so a price just under the target never reads as meeting it', async () => {
+  const { capText } = await import('./holdCalc');
+  expect(capText(0.08996)).toBe('8.9');
+  expect(capText(0.09)).toBe('9.0');
+  expect(capText(0.0861)).toBe('8.6');
 });
 
 describe('the cash worksheet down payment', () => {

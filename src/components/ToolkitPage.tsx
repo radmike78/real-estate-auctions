@@ -10,7 +10,7 @@ import PageHero from './PageHero';
 import { STATES, countyName } from '../lib/regions';
 import { dropStateLead, forStateText, getMyState, useMyState } from '../lib/myState';
 import { fmtMoney } from '../lib/status';
-import { getMyArea } from '../lib/myArea';
+import { getMyArea, useMyArea } from '../lib/myArea';
 import { countyTaxLine, countyTaxRate } from '../lib/stateCosts';
 import { cleanAssumptions, cleanBuyBox, DEAL_BREAKERS, EMPTY_BUY_BOX, EXAMPLE_BUY_BOX, PROPERTY_TYPE_OPTIONS, ROADMAP_PATHS, ROADMAP_PHASES, ROADMAP_PHASE_HELP, roadmapFor, LIEN_STRATEGY, STEP_STATUS_LABEL, STRATEGY_OPTIONS, TOOLKIT, WORKSHEETS, worksheetText, type BuyBox, type RoadmapPath, type RoadmapStep, type StepStatus } from '../lib/toolkit';
 import { downloadText, fileName } from '../lib/download';
@@ -480,6 +480,8 @@ function showBuyBox() {
 const ESTIMATES_KEY = 'deedowl.cash.estimates.v1';
 
 function PriceFromCash({ cash }: { cash: number }) {
+  // Your area, kept current when you change it in the header (its county's tax rate is named below).
+  const [area] = useMyArea();
   // Starts from the estimates you last changed here, else those saved with the buy box, else ours. A change is kept
   // at once (a live-in buyer's 3.5% down shouldn't go back to 25% on the next visit).
   const [a, setA0] = useState<PriceAssumptions>(() => read(ESTIMATES_KEY, null, cleanAssumptions) ?? read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox).priceAssumptions ?? PRICE_DEFAULTS);
@@ -540,9 +542,9 @@ function PriceFromCash({ cash }: { cash: number }) {
           With {a.downPct}% down, closing costs of about {a.closingPct}% and {a.reserveMonths} months of payments kept in reserve, your {fmtMoney(cash)} supports a price up to about <strong>{fmtMoney(price)}</strong>:
           {' '}{fmtMoney(Math.round(c.down))} down, {fmtMoney(Math.round(c.closing))} closing costs and {fmtMoney(Math.round(c.reserves))} in reserve (about {fmtMoney(Math.round(c.monthly))} a month in loan, tax and insurance, at {a.taxInsPct}% of the price a year for tax and insurance{(() => {
             // Where the county's tax alone is higher (Texas rates are often 2% or more), say so here, not only in the folded estimates.
-            const area = getMyArea();
+            // Named whenever it's within a point of the estimate: tax alone near the total leaves too little for insurance.
             const rate = area?.county && area.state !== 'NV' && area.state !== 'AZ' ? countyTaxRate(area.state, area.county) : null;
-            return rate && rate.pct >= a.taxInsPct ? `; ${/\bCity$/.test(area!.county!) ? area!.county : `${area!.county} County`}’s tax alone is about ${rate.pct.toLocaleString('en-US', { maximumFractionDigits: 2 })}%, so change it under the planning estimates` : '';
+            return rate && rate.pct + 1 > a.taxInsPct ? `; ${/\bCity$/.test(area!.county!) ? area!.county : `${area!.county} County`}’s tax alone is about ${rate.pct.toLocaleString('en-US', { maximumFractionDigits: 2 })}%, plus insurance, so check it under the planning estimates` : '';
           })()}). Repairs come out of the same cash, so leave room for them.{a.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : ''}{investorProfile().ownerOccupant && a.downPct >= 20 ? ` ${a.downPct}% down is common for an investment; a home you’ll live in can need less, so replace it below with your lender’s figure.` : ''}
         </p>
       ) : (
@@ -559,7 +561,6 @@ function PriceFromCash({ cash }: { cash: number }) {
         </div>
         {(() => {
           // The area's own property tax rate, so the estimate can match it (Texas rates are often 2% or more alone).
-          const area = getMyArea();
           const line = area?.county ? countyTaxLine(area.state, area.county) : null;
           return line ? <p className="muted small">Property tax alone, {line.short.replace(/\.$/, '')}; add insurance to it for this estimate.{area && (area.state === 'NV' || area.state === 'AZ') ? ' That rate is on the county’s value, which is often below the price.' : ''}</p> : null;
         })()}
@@ -680,7 +681,7 @@ function BuyBoxBuilder() {
               <span>Bedrooms or units</span>
               <input type="text" maxLength={40} value={b.beds} onChange={(e) => set('beds', e.target.value)} placeholder="e.g. 3+ beds, or 2–4 units" />
             </label>
-            {money('priceMax', 'Highest price ($)', bidPrice ? `The most you’d bid or pay, before repairs and costs (Analyze gives the walk-away price).${investorProfile().loan === 'cash' || b.strategy === 'Tax and foreclosure auctions' ? ' Auctions want cash by their payment deadline; any loan comes afterward.' : ''}` : 'Use your own budget and financing information. Pre-approval does not guarantee a loan or show what you can comfortably afford.')}
+            {money('priceMax', 'Highest price ($)', bidPrice ? `The most you’d bid or pay, before repairs and costs (Analyze gives the walk-away price).${b.strategy === 'Tax and foreclosure auctions' ? ' Auctions want cash by their payment deadline; any loan comes afterward.' : ''}` : 'Use your own budget and financing information. Pre-approval does not guarantee a loan or show what you can comfortably afford.')}
             {money('repairsMax', 'Most repairs you’ll take on ($)', 'New investors often start with cosmetic work only.')}
             {money('cashMax', 'Cash you can put in, all in ($)', 'Down payment, closing costs, repairs and reserves.')}
             {!flip && money('minCashFlow', b.strategy === 'Tax and foreclosure auctions' ? 'Minimum monthly cash left, if you rent it ($)' : 'Minimum monthly cash left from a rental ($)', 'Your cash-flow target after operating costs, loan payments and planned reserves, before income tax.')}

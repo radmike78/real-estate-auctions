@@ -650,6 +650,8 @@ export function fhaMonthlyMi(v: Pick<RentInputs, 'atPrice' | 'value' | 'loanPct'
 
 /** Income coverage for display: two decimals, rounded down (a hair under a minimum never reads as meeting it). */
 export const dscrText = (x: number) => (Math.floor(x * 100 + 1e-6) / 100).toFixed(2);
+/** A return on cost (a fraction) as a percent with one decimal, rounded down, so 8.96% never reads as a 9% target met. */
+export const capText = (x: number) => (Math.floor(x * 1000 + 1e-6) / 10).toFixed(1);
 
 /** What to do when no realistic price fits your cash, one wording for the calculators and the packet. */
 export function noRealisticAdvice(offer: boolean, hasLoan: boolean): string {

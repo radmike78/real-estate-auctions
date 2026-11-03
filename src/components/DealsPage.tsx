@@ -21,7 +21,7 @@ import StatusBadge from './StatusBadge';
 import { dealNumbers } from '../lib/propertyPacket';
 import { flipNeedsRepairs, nextAction, savedNumbers } from '../lib/dealPacket';
 import { investorProfile } from '../lib/myPlan';
-import { dscrText, refiValueWords, rentVerdict } from '../lib/holdCalc';
+import { capText, dscrText, refiValueWords, rentVerdict } from '../lib/holdCalc';
 import { stageLabel, stageOf, setDealStage } from '../lib/dealStage';
 import AdSpot from './AdSpot';
 
@@ -166,13 +166,13 @@ function OtherNumbers({ d }: { d: Deal }) {
     if (commercial.at) {
       const a = commercial.at;
       // The same test as Commercial income: the return on cost, the lender's coverage and positive cash flow.
-      const missed = a.cashFlow <= 0 || !a.loanOk || (a.capOnCost !== null && a.capOnCost * 100 < commercial.capPct);
+      const missed = a.cashFlow <= 0 || !a.loanOk || (commercial.capPct > 0 && a.capOnCost !== null && a.capOnCost * 100 < commercial.capPct);
       // The same cash check as Commercial income: the cash entered there, else My plan's (a typed 0 is no limit).
       const planCash = investorProfile().investable;
       const limit = commercial.cashLimit && commercial.cashLimit > 0 ? commercial.cashLimit : commercial.cashTyped ? 0 : planCash;
       const need = commercial.atNeed ?? 0;
       const short = limit > 0 && need > limit;
-      return <p className={missed || short ? 'deal-urgent' : undefined}>At your price, {fmtMoney(a.price)}: {a.cashFlow < 0 ? `loses ${fmtMoney(Math.round(-a.cashFlow / 12))}` : `${fmtMoney(Math.round(a.cashFlow / 12))} cash flow`} a month{a.capOnCost !== null ? ` · ${(a.capOnCost * 100).toFixed(1)}% return on cost (target ${commercial.capPct}%${commercial.capTyped ? '' : ', our example'})` : ''}{!a.loanOk && a.dscr !== null ? ` · income coverage ${dscrText(a.dscr)}× (below the ${commercial.minDscr ?? 1.25}× minimum)` : ''}{short ? ` · needs about ${fmtMoney(Math.round(need))} of your cash (${commercial.cashLimit && commercial.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</p>;
+      return <p className={missed || short ? 'deal-urgent' : undefined}>At your price, {fmtMoney(a.price)}: {a.cashFlow < 0 ? `loses ${fmtMoney(Math.round(-a.cashFlow / 12))}` : `${fmtMoney(Math.round(a.cashFlow / 12))} cash flow`} a month{a.capOnCost !== null ? ` · ${capText(a.capOnCost)}% return on cost${commercial.capPct > 0 ? ` (target ${commercial.capPct}%${commercial.capTyped ? '' : ', our example'})` : ''}` : ''}{!a.loanOk && a.dscr !== null ? ` · income coverage ${dscrText(a.dscr)}× (below the ${commercial.minDscr ?? 1.25}× minimum)` : ''}{short ? ` · needs about ${fmtMoney(Math.round(need))} of your cash (${commercial.cashLimit && commercial.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</p>;
     }
     if (commercial.noTarget) return <p className="muted">No target return entered yet: open it and enter the cap rate you require under Commercial income.</p>;
     // The cash at that price, against the cash entered in Commercial income, else My plan's (as the packet counts it).
