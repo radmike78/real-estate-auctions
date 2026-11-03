@@ -59,7 +59,8 @@ const lastAuctionKind = (st: StateCode): SaleKind => {
   const k = loadDeals().filter((d) => d.state === st && !d.practice && d.kind !== 'lien' && d.kind !== 'listing' && d.kind !== 'reo' && d.kind !== 'short').sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0]?.kind;
   return k && kindsFor(st).some((x) => x.key === k) ? k : 'trustee';
 };
-const kindForRoute = (st: StateCode): SaleKind => { const r = roadmapPath(); return r === 'auction' ? lastAuctionKind(st) : r === 'certificate' && (st === 'NV' || st === 'AZ') ? 'lien' : 'listing'; };
+// A lien route in a state without lien sales starts the new deal as an auction there (as My plan follows).
+const kindForRoute = (st: StateCode): SaleKind => { const r0 = roadmapPath(); const r = r0 === 'certificate' && st !== 'NV' && st !== 'AZ' ? 'auction' : r0; return r === 'auction' ? lastAuctionKind(st) : r === 'certificate' && (st === 'NV' || st === 'AZ') ? 'lien' : 'listing'; };
 
 function blank(st: StateCode): Deal {
   const kind = kindForRoute(st);

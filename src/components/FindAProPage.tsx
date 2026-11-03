@@ -1,3 +1,4 @@
+import { planPath } from '../lib/roadmapState';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useState, type ReactElement } from 'react';
 import PageHero from './PageHero';
@@ -9,7 +10,6 @@ import { AreaLine } from './AreaPicker';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPercent, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 import { guidesFor } from '../lib/playbooks';
-import { roadmapPath } from '../lib/roadmapState';
 import { CURRENT_KEY, type Deal } from '../lib/analyze';
 import { COMMERCIAL_OFFER_ROLES, guideKeyFor } from '../lib/dealPacket';
 import { STATES, stateByCode, type StateCode } from '../lib/regions';
@@ -309,7 +309,7 @@ export default function FindAProPage({ section }: { section?: string }) {
         if (k === 'listing' || k === 'commercial-offer' || guidesFor(mine).some((p) => p.key === k)) return k;
       }
     } catch { /* storage unavailable */ }
-    const r = roadmapPath();
+    const r = planPath();
     const pre = mine === 'NV' ? '' : (mine ?? '').toLowerCase();
     const want = r === 'auction' ? `${pre}foreclosure` : r === 'certificate' ? (mine === 'NV' ? 'sid' : 'aztaxlien') : '';
     if (want && guidesFor(mine).some((p) => p.key === want)) return want;

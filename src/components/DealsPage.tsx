@@ -162,6 +162,7 @@ function OtherNumbers({ d }: { d: Deal }) {
     if (commercial.noRealistic && (commercial.none || !commercial.at)) return <p className="deal-urgent">No realistic price fits the cash you entered: {commercial.none ? 'it doesn’t cover the repairs and costs, before any price' : commercial.hasLoan ? `with what’s left for the down payment, the most you could pay is about ${fmtMoney(commercial.maxBid)}` : `it covers the costs but leaves only about ${fmtMoney(commercial.maxBid)} for the price`}.</p>;
     if (commercial.none && commercial.weakSupported) return <p className="deal-urgent">The income supports a price of only about {fmtMoney(commercial.weakSupported)}, far below the value, and the cash you entered doesn’t cover the costs either.</p>;
     if (commercial.none && commercial.loanTooBig) return <p className="deal-urgent">The refinance you entered costs more a year than the building earns, so no price works with that loan. Open it and try a smaller loan, or all cash.</p>;
+    if (commercial.none && !(commercial.capPct > 0)) return <p className="deal-urgent">No price works with the income, costs and loan entered: open it to see what limits it.</p>;
     if (commercial.none) return <p className="deal-urgent">No price meets {commercial.capTyped ? 'your' : 'our example'} {commercial.capPct}% return on cost with the income and costs entered.</p>;
     if (commercial.noTarget && commercial.overCap) return <p className="deal-urgent">The price comes out over $1 billion with the rent and costs entered: check them for a typo.</p>;
     if (commercial.at) {

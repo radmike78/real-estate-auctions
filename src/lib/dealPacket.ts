@@ -626,6 +626,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     cash.push(`The income supports a price of only about ${money(commercial.weakSupported)}, far below the value, and the cash you entered in ${strategy} doesn’t cover the costs either. Check the rent and costs, or skip this one.`);
   } else if (commercial?.none && commercial.loanTooBig) {
     cash.push(`The refinance you entered in ${strategy} costs more a year than the building earns, so no price works with that loan. Try a smaller loan, or run it all cash.`);
+  } else if (commercial?.none && !(commercial.capPct > 0)) {
+    cash.push(`No price works with the income, costs and loan you entered in ${strategy}.`);
   } else if (commercial?.none) {
     cash.push(`No price meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost with the income and costs you entered in ${strategy}.`);
   } else if (commercial) {
@@ -686,6 +688,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? `Without that cash limit the deal meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost` : 'Without that cash limit the numbers work'}`);
   else if (commercial?.none && commercial.weakSupported) nums.push(`The income supports a price of only about ${money(commercial.weakSupported)}, far below the value, and the cash you entered doesn’t cover the costs either`);
   else if (commercial?.none && commercial.loanTooBig) nums.push(`The refinance you entered costs more a year than the building earns, so no price works with that loan. Try a smaller loan, or run it all cash, in ${strategy}`);
+  else if (commercial?.none && !(commercial.capPct > 0)) nums.push(`No price works with the income, costs and loan you entered in ${strategy}`);
   else if (commercial?.none) nums.push(`No price meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost with the income and costs you entered`);
   else if (commercial) {
     const priceText = commercialPriceText(commercial.capPct, commercial.maxBid, commercial.limitedBy, commercial.capOnCost, offer, false, !!commercial.noRealistic, !!commercial.capTyped);

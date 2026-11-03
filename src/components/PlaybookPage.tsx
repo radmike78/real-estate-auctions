@@ -1,5 +1,5 @@
 import { playbookAllowsAds } from '../lib/contextAds';
-import { getMyArea } from '../lib/myArea';
+import { getMyArea, useMyArea } from '../lib/myArea';
 import { COUNTY_OFFICES } from '../lib/countyOffices';
 import type { StateCode } from '../lib/regions';
 import NarrowDown from './NarrowDown';
@@ -189,6 +189,8 @@ export function sections(p: Playbook): DrillSection[] {
 }
 
 export default function PlaybookPage({ playbook, section }: { playbook?: string; section?: string }) {
+  // Your area, kept current when you change it (the Nevada guides' county note follows it).
+  const [myArea] = useMyArea();
   const p = playbook ? playbookByKey(playbook) : null;
   useLastActivity(`#/playbooks/${playbook ?? ''}`, p ? `Guide: ${p.title}` : undefined);
   const [mine, setMine] = useMyState();
@@ -263,7 +265,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       )}
       {(() => {
         // These Nevada guides follow Clark County: a reader in another Nevada county hears that theirs differs.
-        const a = getMyArea();
+        const a = myArea;
         if (stateOf(p) !== 'NV' || a?.state !== 'NV' || !a.county || a.county === 'Clark') return null;
         const place = a.county === 'Carson City' ? 'Carson City' : `${a.county} County`;
         const offices = COUNTY_OFFICES[`NV/${a.county}`];
@@ -275,7 +277,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
               ? 'Washoe County’s tax sale differs: one auction a year, usually in April; register from 9:00 a.m. two business days before, with a $500 deposit in certified funds; a winning bidder pays a $500 deposit and the balance by 5:00 p.m. the day after the sale.'
               : ['tax', 'sid', 'sheriff'].includes(p.key)
                 ? `${place}’s own dates, deposits and payment rules may differ: confirm them with ${p.key === 'sheriff' ? 'its sheriff' : 'its treasurer'} before a real sale.`
-                : 'This kind of sale follows the same Nevada law in every county; each sale’s own terms come from its notice or the seller, so read them for the one you’re buying.'}
+                : p.key === 'irs' ? 'IRS sales follow federal law, the same in every county; each sale’s terms come from the IRS notice of sale, so read it for the one you’re buying.' : 'This kind of sale follows the same Nevada law in every county; each sale’s own terms come from its notice or the seller, so read them for the one you’re buying.'}
             {page && <> <a href={page.url} target="_blank" rel="noopener noreferrer">{place}’s page ↗</a></>}
           </p>
         );

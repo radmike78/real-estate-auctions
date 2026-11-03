@@ -218,6 +218,8 @@ export function FirstDealRoadmap() {
   const [status, setStatusMap] = useState<Record<string, StepStatus>>(() => read(STATUS_KEY, {}, cleanStatus));
   const [path, setPath] = useState<RoadmapPath>(() => planPath());
   const [mine] = useMyState();
+  // A state change can move the plan off a lien route (no lien sales there): follow it.
+  useEffect(() => { setPath(planPath()); }, [mine]);
   const [deals, setDeals] = useState(loadAnalyzed);
   // The property in focus: the one chosen here or at the top of My plan, else the one you worked on last.
   const [dealId, setDealId] = useState(() => focusDealId());
@@ -330,7 +332,7 @@ export function FirstDealRoadmap() {
         <span className="muted">{dropStateLead(forStateText(getMyState(), ROADMAP_PATHS[path].hint), getMyState())}</span>
       </div>
       {/* After a switch to a state that doesn't sell lien certificates, the plan follows the auction route there: say why. */}
-      {path !== 'certificate' && roadmapPath() === 'certificate' && mine && !liensSoldIn(mine) && (
+      {path === 'auction' && roadmapPath() === 'certificate' && mine && !liensSoldIn(mine) && (
         <p className="notice" role="status">Lien certificates are sold in Arizona and Nevada, not {STATES.find((x) => x.code === mine)?.name ?? mine}, so your plan follows buying at an auction here.{' '}
           <button type="button" className="linkish" onClick={() => { choosePath('auction'); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.roadmap-path button[aria-pressed="true"]')?.focus()); }}>Keep the auction route</button>
         </p>
@@ -842,7 +844,7 @@ function TeamListSection() {
 
 /** Everything in My plan as one text file: goal, cash, buy box, roadmap and team. */
 function planText(): string {
-  const path = roadmapPath();
+  const path = planPath();
   const steps = roadmapFor(path);
   const done = roadmapDone();
   const status = read(STATUS_KEY, {}, cleanStatus);

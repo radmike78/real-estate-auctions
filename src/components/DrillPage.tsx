@@ -245,7 +245,7 @@ export function DrillList({ presetTopic, liensFirst = false }: { presetTopic?: T
   const code = (mine ?? 'NV').toLowerCase();
   // On the auction route (practice part 2 asks for three auction drills), an auction drill replaces the rental one.
   const firstStarter = planPath() === 'auction' ? [`sheriff-sale-${code}`, `hoa-sale-${code}`, 'rental-265'].find((id) => DRILLS.some((d) => d.id === id))! : 'rental-265';
-  const starter = [firstStarter, `trustee-sale-${code}`, code === 'az' ? 'tax-lien-az' : code === 'ut' ? 'tax-sale-ut' : `tax-deed-${code}`]
+  const starter = [firstStarter, `trustee-sale-${code}`, code === 'az' ? (planPath() === 'auction' ? 'hoa-sale-az' : 'tax-lien-az') : code === 'ut' ? 'tax-sale-ut' : `tax-deed-${code}`]
     .map((id) => DRILLS.find((d) => d.id === id))
     .filter((d): d is Drill => !!d);
   const guided = mode === 'guided' && !showAll;
