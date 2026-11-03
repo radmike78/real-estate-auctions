@@ -201,7 +201,7 @@ function HoldResults({ r, title, target, noiNote, minDscr, offer = false, exampl
           {r.dscr !== null && <div><dt>{commercial ? 'Debt-service coverage: yearly NOI ÷ yearly loan payments. Your lender may adjust the income, costs and reserves when it underwrites; ask for its calculation and minimum.' : 'Income coverage: NOI ÷ loan payments (a DSCR-loan lender instead divides rent by the full payment; see “How a lender sees this rent”)'}</dt><dd>{dscrText(r.dscr)}×</dd></div>}
         </dl>
       )}
-      {r.dscr !== null && !r.loanOk && (
+      {r.dscr !== null && !r.loanOk && Number(dscrText(r.dscr)) >= minDscr && (
         <p className="calc-note small">The unrounded income coverage is below your {minDscr.toFixed(2)} minimum, even if the displayed ratio rounds to that number. A smaller loan may be needed; ask your lender for its own calculation.</p>
       )}
       <p className="muted small">{noiNote} An estimate to help you set a limit {offer ? 'before you make an offer' : 'before the sale'}, not advice.</p>
@@ -306,7 +306,9 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
   const needed = !onPrice && a.loan > 0 ? a.allIn : a.cashIn;
   const cashShort = price > 0 && cashLimit > 0 && needed > cashLimit;
   // An investor's income-coverage test at this price (the walk-away price can be set by it).
-  const covShort = !livingThere && a.dscr !== null && a.dscr < v.minDscr;
+  // Only on an offer: there the loan follows the price, so a lower price fixes it. An auction's refinance is sized on
+  // the value, the same at every price (its walk-away handles a refinance that's too big).
+  const covShort = onPrice && !livingThere && a.dscr !== null && a.dscr < v.minDscr;
   const mo = (n: number) => fmtMoney(Math.round(n / 12));
   const neg = (n: number) => (n > 0 ? `−\u2060${mo(n)}` : mo(0)); // word joiner: the minus never wraps away from the amount
   return (

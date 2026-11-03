@@ -655,8 +655,8 @@ export const capMisses = (x: number, targetPct: number) => Number(capText(x, tar
 
 /** A return on cost (a fraction) as a percent with one decimal, rounded down, so 8.96% never reads as a 9% target met. */
 export const capText = (x: number, target = 0) => {
-  // As many decimals as the target has (one to three: two for a 7.25% target), so a met target never reads below itself.
-  const d = Math.min(3, Math.max(1, String(target).split('.')[1]?.length ?? 0));
+  // As many decimals as the target has (one to four: two for a 7.25% target), so a met target never reads below itself.
+  const d = Math.min(4, Math.max(1, String(target).split('.')[1]?.length ?? 0));
   const f = 10 ** (d + 2);
   // Toward zero for a loss too, so a tiny loss reads 0.0%, not -0.1%.
   const v = Math.sign(x) * Math.floor(Math.abs(x) * f + 1e-6) / 10 ** d;

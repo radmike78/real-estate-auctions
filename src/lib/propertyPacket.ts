@@ -39,7 +39,7 @@ export function dealNumbers(d: Deal): { /** FHA mortgage insurance a month, not 
   const a = rentAtPrice(v, v.atPrice, offer);
   // A live-in buyer's FHA mortgage insurance, which the monthly figure doesn't include (Keep and rent says so too).
   const mi = investorProfile().ownerOccupant && offer ? fhaMonthlyMi(v)?.monthly ?? 0 : 0;
-  return { mi, price: v.atPrice, monthly: a.cashFlow / 12, cashOnCash: a.cashOnCash, target: v.targetCocPct, targetTyped: typed.has('targetCocPct'), coverageShort: a.dscr !== null && a.dscr < v.minDscr, cashIn: a.cashIn, exampleValue: refiOnExampleValue(v, offer, typed), refiValue: v.value, cashNeeded: !offer && a.loan > 0 ? a.allIn : a.cashIn, cashLimit: typed.has('cashAvailable') && v.cashAvailable > 0 ? v.cashAvailable : 0, cashTyped: typed.has('cashAvailable'), refi: !offer && a.loan > 0 };
+  return { mi, price: v.atPrice, monthly: a.cashFlow / 12, cashOnCash: a.cashOnCash, target: v.targetCocPct, targetTyped: typed.has('targetCocPct'), coverageShort: offer && a.dscr !== null && a.dscr < v.minDscr, cashIn: a.cashIn, exampleValue: refiOnExampleValue(v, offer, typed), refiValue: v.value, cashNeeded: !offer && a.loan > 0 ? a.allIn : a.cashIn, cashLimit: typed.has('cashAvailable') && v.cashAvailable > 0 ? v.cashAvailable : 0, cashTyped: typed.has('cashAvailable'), refi: !offer && a.loan > 0 };
 }
 
 export function propertyPacketText(d: Deal): string {

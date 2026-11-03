@@ -1,3 +1,4 @@
+import { getMyState } from '../lib/myState';
 import { shuffled } from '../lib/shuffle';
 import { useEffect, useMemo, useState, type ReactElement } from 'react';
 import { useLastActivity } from '../lib/journey';
@@ -176,7 +177,7 @@ function Results({ s, progress }: { s: Scenario; progress: ScenarioProgress }) {
       <h2 id="results-head">You finished this practice run</h2>
       <p className="lead">{right} of {decisions.length} decisions right on the first try.</p>
       {/* The lien practice is the SID run; the auction practice is a run at an auction (not a listed bank-owned home or a short sale). */}
-      <RoutePracticeDone what="run" fits={(id) => (id === 'c-practice' ? s.playbookKey === 'sid' : ['tax', 'foreclosure', 'hoa', 'sheriff', 'irs'].includes(s.playbookKey))} />
+      <RoutePracticeDone what="run" fits={(id) => getMyState() === 'NV' && (id === 'c-practice' ? s.playbookKey === 'sid' : ['tax', 'foreclosure', 'hoa', 'sheriff', 'irs'].includes(s.playbookKey))} />
       <p>When you’re ready for a real one:</p>
       <ul>
         <li><a href={`#/playbooks/${s.playbookKey}`}>Read the full guide for this sale</a></li>
