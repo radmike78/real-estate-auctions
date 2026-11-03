@@ -21,7 +21,7 @@ import StatusBadge from './StatusBadge';
 import { dealNumbers } from '../lib/propertyPacket';
 import { flipNeedsRepairs, nextAction, savedNumbers } from '../lib/dealPacket';
 import { investorProfile } from '../lib/myPlan';
-import { capText, dscrText, refiValueWords, rentVerdict } from '../lib/holdCalc';
+import { capMisses, capText, dscrText, refiValueWords, rentVerdict } from '../lib/holdCalc';
 import { stageLabel, stageOf, setDealStage } from '../lib/dealStage';
 import AdSpot from './AdSpot';
 
@@ -166,7 +166,7 @@ function OtherNumbers({ d }: { d: Deal }) {
     if (commercial.at) {
       const a = commercial.at;
       // The same test as Commercial income: the return on cost, the lender's coverage and positive cash flow.
-      const missed = a.cashFlow <= 0 || !a.loanOk || (commercial.capPct > 0 && a.capOnCost !== null && a.capOnCost * 100 < commercial.capPct);
+      const missed = a.cashFlow <= 0 || !a.loanOk || (commercial.capPct > 0 && a.capOnCost !== null && capMisses(a.capOnCost, commercial.capPct));
       // The same cash check as Commercial income: the cash entered there, else My plan's (a typed 0 is no limit).
       const planCash = investorProfile().investable;
       const limit = commercial.cashLimit && commercial.cashLimit > 0 ? commercial.cashLimit : commercial.cashTyped ? 0 : planCash;

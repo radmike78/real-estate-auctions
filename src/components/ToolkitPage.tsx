@@ -275,9 +275,10 @@ export function FirstDealRoadmap() {
   };
   // Before the roadmap starts, My plan's task can still be one of its steps (an auction or lien route's own practice,
   // practice part 2): that step is the one shown here, with its phase open.
-  const plan = deal ? null : planNow();
-  const starterStep = plan?.source === 'starter' ? steps.find((s) => `roadmap-${s.id}` === plan.task.key) : undefined;
-  const shown = plan?.source === 'roadmap' ? next : starterStep;
+  // Also with a property saved: a guided learner stays on practice part 2 until it's done.
+  const plan = planNow();
+  const starterStep = plan.source === 'starter' ? steps.find((s) => `roadmap-${s.id}` === plan.task.key) : undefined;
+  const shown = starterStep ?? (!deal && plan.source === 'roadmap' ? next : undefined);
   // The phase holding the next step starts open; after that, phases stay as the reader leaves them.
   const [openPhase, setOpenPhase] = useState(() => (starterStep ?? next)?.phase ?? 1);
   useEffect(() => { setOpenPhase((starterStep ?? next)?.phase ?? 1); }, [deal?.id, stage, starterStep?.id]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -376,12 +377,12 @@ export function FirstDealRoadmap() {
           You stopped at “{walked.title}”. Walking away from a deal that doesn’t fit is a good result. When you find the next one, set that task back to “Working on it”.
         </p>
       )}
-      {!deal && shown ? (
+      {shown ? (
         <div>
           <div className="roadmap-next" id="roadmap-next">
-            <p className="roadmap-next-label">Next task · {starterStep ? plan!.context : stepContext(shown)}</p>
+            <p className="roadmap-next-label">Next task · {starterStep ? plan.context : stepContext(shown)}</p>
             <h3>{shown.title}</h3>
-            <StepBody s={shown} status={stateOf(shown)} setStatus={(v) => setStatus(shown, v)} deal={deal} />
+            <StepBody s={shown} status={stateOf(shown)} setStatus={(v) => setStatus(shown, v, !!starterStep)} deal={starterStep ? undefined : deal} />
           </div>
         </div>
       ) : deal && learnerNext ? (

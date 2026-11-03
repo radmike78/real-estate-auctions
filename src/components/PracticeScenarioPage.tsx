@@ -1,5 +1,5 @@
 import { shuffled } from '../lib/shuffle';
-import { useEffect, useMemo, useState, type ReactElement } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import StatePicker from './StatePicker';
@@ -14,8 +14,8 @@ import { scenarioById } from '../practice/scenarios';
 import { firstOpenStage, loadProgress, resetProgress, saveProgress, type ScenarioProgress } from '../practice/progress';
 import type { Scenario, Stage, Task } from '../practice/types';
 import { useNoIndex } from '../lib/noindex';
-import { guidedPracticeDone, routePractice } from '../lib/planNext';
-import { creditStep, planPath } from '../lib/roadmapState';
+import { routePractice } from '../lib/planNext';
+import { markStepDone, planPath, roadmapDone } from '../lib/roadmapState';
 
 const taskKey = (stage: Stage, t: Task) => `${stage.key}/${t.id}`;
 
@@ -175,17 +175,25 @@ function Results({ s, progress }: { s: Scenario; progress: ScenarioProgress }) {
   const own = routePractice(planPath());
   // The lien practice is the SID run; the auction practice is a run at an auction (not a listed bank-owned home or a short sale).
   const matches = !!own && (own.id === 'c-practice' ? s.playbookKey === 'sid' : ['tax', 'foreclosure', 'hoa', 'sheriff', 'irs'].includes(s.playbookKey));
-  const [marked, setMarked] = useState(() => guidedPracticeDone());
+  // Done means the route's own step is ticked in My plan (not the rental case or "doesn't apply").
+  const ownDone = () => !!own && roadmapDone().includes(own.id);
+  const [marked, setMarked] = useState(ownDone);
+  const [justMarked, setJustMarked] = useState(false);
+  const back = useRef<HTMLAnchorElement>(null);
+  // After the click, focus moves to the way back (the button it replaced is gone).
+  useEffect(() => { if (justMarked && marked) back.current?.focus(); }, [justMarked, marked]);
   const lien = s.playbookKey === 'sid';
   return (
     <section className="lead-card practice-results" aria-labelledby="results-head">
       <h2 id="results-head">You finished this practice run</h2>
       <p className="lead">{right} of {decisions.length} decisions right on the first try.</p>
-      {own && matches && (marked ? <p className="notice" role="status">Practice part 2 is done in My plan. <a href="#/toolkit">Back to My plan</a></p> : (
-        <p className="notice">This run is practice part 2 in My plan, “{own.title}”. Before you mark it done, check the step’s own test: {own.doneWhen}{' '}
-          <button type="button" className="btn btn-secondary" onClick={() => { creditStep(own.id); setMarked(true); }}>Mark it done in My plan</button>
-        </p>
-      ))}
+      {own && matches && <div className="notice">
+        {!marked && <p>This run is practice part 2 in My plan, “{own.title}”. Before you mark it done, check the step’s own test: {own.doneWhen}{' '}
+          <button type="button" className="btn btn-secondary" onClick={() => { markStepDone(own.id); setMarked(ownDone()); setJustMarked(true); }}>Mark it done in My plan</button>
+        </p>}
+        {/* One status line, kept on the page, so the change is announced. */}
+        <p role="status">{marked ? <>Practice part 2, “{own.title}”, is done in My plan. <a ref={back} href="#/toolkit">Back to My plan</a></> : null}</p>
+      </div>}
       <p>When you’re ready for a real one:</p>
       <ul>
         <li><a href={`#/playbooks/${s.playbookKey}`}>Read the full guide for this sale</a></li>

@@ -60,6 +60,19 @@ export function creditStep(id: string) {
     /* storage unavailable */
   }
 }
+/** A step the reader marks done themselves from another page (e.g. practice run results): ticked whatever it was before,
+ * as the roadmap's own Done does (unlike creditStep, which ticks a step for you only once). */
+export function markStepDone(id: string) {
+  try {
+    const done = roadmapDone();
+    if (!done.includes(id)) localStorage.setItem(ROADMAP_KEY, JSON.stringify([...done, id]));
+    const status = readKey(STATUS_KEY, {} as Record<string, string>, cleanStatus) as Record<string, string>;
+    if (id in status) { const { [id]: _drop, ...rest } = status; void _drop; localStorage.setItem(STATUS_KEY, JSON.stringify(rest)); }
+    progressChanged();
+  } catch {
+    /* storage unavailable */
+  }
+}
 /** How the visitor plans to buy: through an agent, at an auction, or lien certificates. */
 export const roadmapPath = () => readKey(ROADMAP_PATH_KEY, 'listing' as RoadmapPath, cleanPath);
 /** The route that fits a property's kind of sale. */

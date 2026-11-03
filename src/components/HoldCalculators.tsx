@@ -4,7 +4,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState } from 'react';
 import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
 import type { BidInputs } from '../lib/bidCalc';
-import { COMMERCIAL_DEFAULTS, commercialAtPrice, commercialLines, lenderView, STR_DEFAULTS, strCompare, type StrInputs, HOLD_SELL_DEFAULTS, SELLER_FINANCE_DEFAULTS, sellerFinance, type SellerFinanceInputs, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs, withoutOldValueExample, refiOnExampleValue, rentVerdict, withPlanCash, dscrText, capText, noRealisticPrice, noRealisticAdvice, fhaMonthlyMi } from '../lib/holdCalc';
+import { COMMERCIAL_DEFAULTS, commercialAtPrice, commercialLines, lenderView, STR_DEFAULTS, strCompare, type StrInputs, HOLD_SELL_DEFAULTS, SELLER_FINANCE_DEFAULTS, sellerFinance, type SellerFinanceInputs, holdAndSell, type HoldSellInputs, commercialMaxBid, commercialNoi, explainRent, rentStress, LIEN_DEFAULTS, lienYield, RENT_DEFAULTS, rentAtPrice, rentEmptyMonths, rentMaxBid, rentNoi, sanitizeNumbers, type BuyInputs, type CommercialInputs, type HoldResult, type LienInputs, type LoanInputs, type RentInputs, withoutOldValueExample, refiOnExampleValue, rentVerdict, withPlanCash, dscrText, capText, capMisses, noRealisticPrice, noRealisticAdvice, fhaMonthlyMi } from '../lib/holdCalc';
 import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
@@ -709,7 +709,7 @@ function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialA
   // A 0 target is no target (the walk-away price asks for one): nothing to meet or miss on return on cost.
   const noCap = !(v.targetCapPct > 0);
   const misses: string[] = [];
-  if (!noCap && a.capOnCost !== null && a.capOnCost * 100 < v.targetCapPct) misses.push(`${target} (${capText(a.capOnCost, v.targetCapPct)}% at this price)`);
+  if (!noCap && a.capOnCost !== null && capMisses(a.capOnCost, v.targetCapPct)) misses.push(`${target} (${capText(a.capOnCost, v.targetCapPct)}% at this price)`);
   if (!a.loanOk && a.dscr !== null) misses.push(`the ${v.minDscr}× income coverage minimum (${dscrText(a.dscr)}×)`);
   const noFlow = a.cashFlow <= 0 ? 'has no positive cash flow' : '';
   if (noCap) {
@@ -725,7 +725,7 @@ function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialA
 function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capTyped = false }: { v: CommercialInputs; offer: boolean; setPrice: (n: number) => void; target: number; /** A cash figure was typed here (a typed 0 is no limit). */ cashTyped?: boolean; /** The cap-rate target was typed (else it's our example). */ capTyped?: boolean }) {
   const a = v.atPrice > 0 ? commercialAtPrice(v, v.atPrice, offer) : null;
   const word = offer ? 'Your offer' : 'Your bid';
-  const meets = a && v.targetCapPct > 0 && a.capOnCost !== null && a.capOnCost * 100 >= v.targetCapPct && a.loanOk && a.cashFlow > 0;
+  const meets = a && v.targetCapPct > 0 && a.capOnCost !== null && !capMisses(a.capOnCost, v.targetCapPct) && a.loanOk && a.cashFlow > 0;
   // Your own cash at this price (all of it until an auction's refinance), against the cash entered here, else My plan's.
   const planCash = investorProfile().investable;
   const need = a ? (!offer && a.loan > 0 ? a.allIn : a.cashIn) : 0;

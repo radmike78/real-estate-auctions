@@ -1,3 +1,4 @@
+import { stateByCode } from '../lib/regions';
 import { routePractice } from '../lib/planNext';
 import { planPath } from '../lib/roadmapState';
 import NarrowDown from './NarrowDown';
@@ -131,8 +132,13 @@ export default function PracticePage({ sale }: { sale?: string }) {
         <details className="practice-more" open><summary>All the ways to practice: {otherState ? 'a full purchase and quick drills, including auction drills' : 'a full purchase, auctions and quick drills'}</summary>
         {/* On the auction and lien routes, their own practice (part 2) comes first; the rental purchase is extra. */}
         {ownPractice ? <>
+        {otherState && <>
+        <h2 id="practice-auction" className="practice-step">Practice part 2: {ownPractice.id === 'c-practice' && mine === 'AZ' ? 'the Arizona tax lien drill' : `auction drills for ${stateByCode(mine!)?.name ?? 'your state'}`}</h2>
+        <p className="practice-step-intro">Practice runs follow Nevada rules, so your part 2 is the drills for your own state’s sales, below. <a className="btn" href={ownPractice.href}>Open {ownPractice.id === 'c-practice' && mine === 'AZ' ? 'the tax lien drill' : 'the auction drills'} →</a></p>
+        </>}
         {!otherState && <>
         <h2 id="practice-auction" className="practice-step">{ownPractice ? (planPath() === 'certificate' ? 'Practice part 2: Nevada auction and lien practice' : 'Practice part 2: Nevada auction practice') : 'Nevada auction practice: choose a kind of sale'}</h2>
+        <p className="practice-step-intro"><strong>{planPath() === 'certificate' ? 'The SID lien run is your part 2; the other runs are extra.' : 'Any run at an auction counts (tax, foreclosure, HOA, sheriff or IRS sale); bank-owned and short-sale runs are extra.'}</strong></p>
         <p className="practice-step-intro">Buy a fictional property at one kind of sale, step by step, from research to the day after.</p>
         <p className="practice-nv-note" role="note"><strong>Clark County practice.</strong> These sales follow local rules. Check your county’s requirements before a real purchase.</p>
         {auctionTiles}
