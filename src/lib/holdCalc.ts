@@ -652,8 +652,8 @@ export function fhaMonthlyMi(v: Pick<RentInputs, 'atPrice' | 'value' | 'loanPct'
 export const dscrText = (x: number) => (Math.floor(x * 100 + 1e-6) / 100).toFixed(2);
 /** A return on cost (a fraction) as a percent with one decimal, rounded down, so 8.96% never reads as a 9% target met. */
 export const capText = (x: number, target = 0) => {
-  // As many decimals as the target has (two for a 7.25% target), so a met target never reads below itself.
-  const d = (String(target).split('.')[1]?.length ?? 0) >= 2 ? 2 : 1;
+  // As many decimals as the target has (one to three: two for a 7.25% target), so a met target never reads below itself.
+  const d = Math.min(3, Math.max(1, String(target).split('.')[1]?.length ?? 0));
   const f = 10 ** (d + 2);
   return (Math.floor(x * f + 1e-6) / 10 ** d).toFixed(d);
 };

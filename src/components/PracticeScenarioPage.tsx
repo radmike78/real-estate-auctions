@@ -173,7 +173,8 @@ function Results({ s, progress }: { s: Scenario; progress: ScenarioProgress }) {
   const right = decisions.filter((k) => progress.firstTry[k]).length;
   // On the auction and lien routes this run can be My plan's practice part 2: say so, and let the reader mark it done.
   const own = routePractice(planPath());
-  const matches = !!own && (own.id === 'c-practice') === (s.playbookKey === 'sid');
+  // The lien practice is the SID run; the auction practice is a run at an auction (not a listed bank-owned home or a short sale).
+  const matches = !!own && (own.id === 'c-practice' ? s.playbookKey === 'sid' : ['tax', 'foreclosure', 'hoa', 'sheriff', 'irs'].includes(s.playbookKey));
   const [marked, setMarked] = useState(() => guidedPracticeDone());
   const lien = s.playbookKey === 'sid';
   return (
@@ -181,7 +182,7 @@ function Results({ s, progress }: { s: Scenario; progress: ScenarioProgress }) {
       <h2 id="results-head">You finished this practice run</h2>
       <p className="lead">{right} of {decisions.length} decisions right on the first try.</p>
       {own && matches && (marked ? <p className="notice" role="status">Practice part 2 is done in My plan. <a href="#/toolkit">Back to My plan</a></p> : (
-        <p className="notice">This run is practice part 2 in My plan, “{own.title}”. That step also asks for: {own.doneWhen.charAt(0).toLowerCase() + own.doneWhen.slice(1)}{' '}
+        <p className="notice">This run is practice part 2 in My plan, “{own.title}”. Before you mark it done, check the step’s own test: {own.doneWhen}{' '}
           <button type="button" className="btn btn-secondary" onClick={() => { creditStep(own.id); setMarked(true); }}>Mark it done in My plan</button>
         </p>
       ))}

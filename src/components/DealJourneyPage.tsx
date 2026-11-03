@@ -170,7 +170,7 @@ function PartTwoLink({ className, rental }: { className: string; rental: string 
   if (!own?.href) return <a className={className} href="#/practice/case">{rental}</a>;
   // The practice runs follow Nevada rules: elsewhere the same link opens your state's drills, so it says so.
   const st = getMyState();
-  const words = !st || st === 'NV' ? own.title.charAt(0).toLowerCase() + own.title.slice(1) : own.id === 'c-practice' ? `the ${stateByCode(st)?.name ?? ''} tax lien drill` : `auction drills for ${stateByCode(st)?.name ?? 'your state'}`;
+  const words = !st || st === 'NV' ? own.title.charAt(0).toLowerCase() + own.title.slice(1) : own.id === 'c-practice' ? (st === 'AZ' ? 'the Arizona tax lien drill' : 'lien practice (Nevada and Arizona sales)') : `auction drills for ${stateByCode(st)?.name ?? 'your state'}`;
   return <><a className={className} href={own.href}>Next, part 2: {words} →</a> <a className="btn btn-secondary" href="#/practice/case">Optional: buy a rental (the paperwork)</a></>;
 }
 

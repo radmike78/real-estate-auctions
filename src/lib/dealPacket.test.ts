@@ -618,6 +618,7 @@ it('shows return on cost rounded down, so a price just under the target never re
   // A two-decimal target gets two decimals, so a met 7.25% target never reads 7.2%.
   expect(capText(0.072977, 7.25)).toBe('7.29');
   expect(capText(0.0725, 7.25)).toBe('7.25');
+  expect(capText(0.07126, 7.125)).toBe('7.126');
 });
 
 describe('the cash worksheet down payment', () => {

@@ -66,6 +66,8 @@ export default function FindDealsPage() {
   const [mine, setMine] = useMyArea();
   // Auction and lien-certificate readers (their roadmap route) start at the county sources, not the agent's MLS search.
   const countyRoute = planPath() !== 'listing';
+  // Lien wording only where lien certificates are sold (Nevada SID, Arizona tax liens).
+  const lienRoute = planPath() === 'certificate' && (mine?.state === 'NV' || mine?.state === 'AZ');
   // The route picked on this page (it opens those sources): County auction hides the ads, as the auction route does.
   // Kept for the visit, so a reload doesn't bring back the ads you left behind by picking the county route.
   const [chosen, setChosen0] = useState<'listing' | 'county' | null>(() => { try { const v = sessionStorage.getItem('deedowl.finddeals.route'); return v === 'listing' || v === 'county' ? v : null; } catch { return null; } });
@@ -122,7 +124,7 @@ export default function FindDealsPage() {
       </PageHero>
 
       <NarrowDown config={findDealsConfig()} intro="Answer two quick questions and we’ll point you to the best places to look first. Other sources stay available in the expandable groups below." />
-      {countyRoute ? <p className="page-starter"><strong>{planPath() === 'certificate' ? 'Buying lien certificates?' : 'Buying at a county sale?'}</strong> Start with the county {planPath() === 'certificate' ? 'lien sales' : 'auctions'} and sale calendars below: they come from the official seller. <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p> : <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box (your written limits: area, property type, price and condition). <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>}
+      {countyRoute ? <p className="page-starter"><strong>{lienRoute ? 'Buying lien certificates?' : 'Buying at a county sale?'}</strong> Start with the county {lienRoute ? 'lien sales' : 'auctions'} and sale calendars below: they come from the official seller. <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p> : <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box (your written limits: area, property type, price and condition). <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>}
       {/* Trustee's (foreclosure) sales: where their notices are, after the general starting point. */}
       {planPath() === 'auction' && <p className="page-starter"><strong>A trustee’s (foreclosure) sale?</strong> The trustee runs it, not the county. Find its notice of sale (it names the trustee, date and place) at the county records office or clerk below, or in a local paper’s legal notices, and confirm the date with the trustee. <a href={`#/playbooks/${guideKeyFor({ kind: 'trustee', state: st.code })}`}>How trustee sales work in {st.name}&nbsp;→</a></p>}
       <section aria-labelledby="search-routine">
@@ -136,7 +138,7 @@ export default function FindDealsPage() {
           <li>Before you offer or bid, check the rent, value, repairs, title, who lives there, allowed use, insurance and loan. A quick calculation is only a first screen.</li>
         </ol></details>
       </section>
-      <section aria-label="Choose a purchase route"><h2>Open the sources for your route</h2><p>Choose a route to open its official sources. You can switch or browse the other groups.</p><button type="button" aria-pressed={!onCounty} className={onCounty ? 'btn btn-secondary' : 'btn'} onClick={() => { setChosen('listing'); openSources('deals-national'); }}>Listed or bank-owned property</button>{' '}<button type="button" aria-pressed={onCounty} className={onCounty ? 'btn' : 'btn btn-secondary'} onClick={() => { setChosen('county'); openSources('deals-county'); }}>{planPath() === 'certificate' ? 'County auction or lien sale' : 'County auction'}</button></section>
+      <section aria-label="Choose a purchase route"><h2>Open the sources for your route</h2><p>Choose a route to open its official sources. You can switch or browse the other groups.</p><button type="button" aria-pressed={!onCounty} className={onCounty ? 'btn btn-secondary' : 'btn'} onClick={() => { setChosen('listing'); openSources('deals-national'); }}>Listed or bank-owned property</button>{' '}<button type="button" aria-pressed={onCounty} className={onCounty ? 'btn' : 'btn btn-secondary'} onClick={() => { setChosen('county'); openSources('deals-county'); }}>{lienRoute ? 'County auction or lien sale' : 'County auction'}</button></section>
       <h2 className="section-title">Official sources</h2>
       <p className="muted">Government agencies, Fannie Mae and Freddie Mac, and the banks that own the homes: the sellers themselves.</p>
 
