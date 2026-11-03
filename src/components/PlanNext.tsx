@@ -16,7 +16,7 @@ import { DECIDE_KEY, rank, type Answers } from '../lib/decide';
 import { currentProgress, getMode } from '../lib/journey';
 import { ROADMAP_PHASES, roadmapFor } from '../lib/roadmap';
 import { DEAL_KEY } from '../lib/roadmapDeals';
-import { NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_PATH_KEY, roadmapProgress, settledFor, focusDealId } from '../lib/roadmapState';
+import { NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_PATH_KEY, roadmapProgress, settledFor } from '../lib/roadmapState';
 
 /** The top strategy from a finished Decide quiz, so "Your goal" points forward instead of back to the quiz. */
 function decidedPick(): string | null {
@@ -73,7 +73,8 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   const onPlan = variant === 'plan';
   const deals = onPlan ? loadDeals() : [];
   const focus = deal ? `analyzed:${deal.id}` : '';
-  const prog = roadmapProgress();
+  // The property My plan follows (none while a guided learner's property waits), as the roadmap below counts it.
+  const prog = roadmapProgress(deal ? `analyzed:${deal.id}` : '');
   const chooseDeal = (v: string) => {
     write(DEAL_KEY, v || NO_DEAL);
     const d = deals.find((x) => `analyzed:${x.id}` === v);
@@ -221,7 +222,8 @@ function PlanStepAd({ deal, stage, inline = false }: { deal?: Deal; stage?: Deal
 function PhaseSummary() {
   const deals = loadDeals();
   const steps = roadmapFor(planPath(deals), practiceState());
-  const settled = settledFor(focusDealId(deals));
+  const followed = planNow().deal;
+  const settled = settledFor(followed ? `analyzed:${followed.id}` : '');
   const phases = ([1, 2, 3, 4, 5, 6, 7] as const).map((n) => ({ n, steps: steps.filter((s) => s.phase === n) })).filter((p) => p.steps.length);
   return (
     <ol className="plan-now-phases">

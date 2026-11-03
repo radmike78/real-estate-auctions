@@ -131,11 +131,12 @@ export default function FindDealsPage() {
         const ld = practiceLienDeal();
         if (!ld || ld.state === area.state) return null;
         const o = COUNTY_OFFICES[countyKey(ld.state, ld.county)];
-        const page = ld.state === 'NV' ? o?.specialAssessment ?? o?.treasurer : o?.taxSale;
+        // Nevada: only counties with a confirmed SID sale page (Clark, Washoe); every Arizona county sells tax liens.
+        const page = ld.state === 'NV' ? o?.specialAssessment : o?.taxSale;
         const nm = stateByCode(ld.state)?.name ?? ld.state;
         return (
           <OwlNote>
-            Your saved lien deal is in {countyName(ld.county)}, {nm}, where lien certificates are sold. The sources below are for {place}.{' '}
+            Your saved lien deal is in {countyName(ld.county)}, {nm}{page ? ', where lien certificates are sold' : ''}. The sources below are for {place}.{' '}
             {page && <><a href={page.url} target="_blank" rel="noopener noreferrer">{countyName(ld.county)}’s lien sale page ↗</a> · </>}
             <a href={`#/playbooks/${ld.state === 'NV' ? 'sid' : 'aztaxlien'}`}>The {nm} lien guide →</a>
           </OwlNote>

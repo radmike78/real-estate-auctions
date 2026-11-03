@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { QUESTIONS } from './decide';
 import { CHAPTERS, loadJourney } from '../practice/dealJourney';
 import { trackAction } from './track';
-import { creditStep, ROADMAP_PATH_KEY } from './roadmapState';
+import { creditStep, routeSet } from './roadmapState';
 import { getMyArea } from './myArea';
 import { getMyState } from './myState';
 import { loadCase } from '../practice/caseProgress';
@@ -147,6 +147,6 @@ export function syncRoadmapCredits() {
   if (practicePart2Done()) creditStep('practice');
   // A county with a chosen route is that step's own work. (Investable cash isn't ticked for you: a half-filled
   // worksheet can show a number; the step shows the worksheet's figure for you to mark done.)
-  try { if (getMyArea()?.county && localStorage.getItem(ROADMAP_PATH_KEY) !== null) creditStep('market'); } catch { /* storage unavailable */ }
+  try { if (getMyArea()?.county && routeSet()) creditStep('market'); } catch { /* storage unavailable */ }
   try { if ((JSON.parse(localStorage.getItem('deedowl.goal.v1') ?? '""') as string).trim().length >= 12) creditStep('goal'); } catch { /* unreadable goal: nothing to credit */ }
 }

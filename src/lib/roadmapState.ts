@@ -3,7 +3,7 @@ import { workStorage as localStorage } from './workStorage';
 // property being worked on. Read here so the roadmap, the home page and My plan's next step all count the same way.
 import { loadDeals, type Deal } from './analyze';
 import { getMyState } from './myState';
-import { DECIDE_KEY, rank, type Answers } from './decide';
+import { DECIDE_KEY, QUESTIONS, rank, type Answers } from './decide';
 import { ROADMAP, roadmapFor, type RoadmapPath, type RoadmapStep, type StepStatus } from './roadmap';
 import { cleanDealSteps, DEAL_ID, DEAL_KEY, DEAL_STEPS_KEY } from './roadmapDeals';
 
@@ -147,6 +147,12 @@ function planPathRaw(d: Deal | undefined, deals: Deal[]): RoadmapPath {
   return !picked && decideRoute() === 'auction' ? 'auction' : roadmapPath();
 }
 
+/** Whether a route is set: one you picked, or Decide's auctions pick (both show as pressed on the roadmap). */
+export function routeSet(): boolean {
+  try { if (localStorage.getItem(ROADMAP_PATH_KEY) !== null) return true; } catch { /* storage unavailable */ }
+  return decideRoute() === 'auction';
+}
+
 /** The route you picked, else Decide's auctions pick, else the agent route (not following a property in focus). */
 export function chosenRoute(): RoadmapPath {
   let picked = false;
@@ -158,7 +164,8 @@ export function chosenRoute(): RoadmapPath {
 function decideRoute(): RoadmapPath | null {
   try {
     const answers = (JSON.parse(localStorage.getItem(DECIDE_KEY) ?? 'null') as { answers?: Answers } | null)?.answers;
-    if (!answers || !answers.goal) return null;
+    // Only once Decide has a result: every question answered (the state one aside).
+    if (!answers || QUESTIONS.some((q) => q.key !== 'state' && !answers[q.key])) return null;
     return rank(answers)[0]?.strategy.key === 'auction' ? 'auction' : null;
   } catch {
     return null;
@@ -177,9 +184,10 @@ export function settledFor(dealKey: string) {
 }
 
 /** Steps done out of the steps on the visitor's path. */
-export function roadmapProgress() {
+/** Roadmap steps done, for the property given (My plan's: a guided learner's waiting property isn't tracked yet). */
+export function roadmapProgress(dealKey?: string) {
   const deals = loadDeals();
-  const focus = focusDealId(deals);
+  const focus = dealKey ?? focusDealId(deals);
   const steps = roadmapFor(planPath(deals));
   const settled = settledFor(focus);
   return { done: steps.filter(settled).length, total: steps.length };

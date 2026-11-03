@@ -272,7 +272,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
       const own = cur === 'custom' && typedWait;
       if ((!choices.keys.includes(cur) && !own) || fresh) {
         const r0 = rules[pickedHere ?? choices.start];
-        if (cur === 'custom') {
+        // Only numbers you typed (a redemption field or a "custom" pick in the typed list): a rule's own numbers that
+        // don't match this kind of sale's rules aren't yours to be told about.
+        const youTyped = typedKeys.has('redemptionMonths') || typedKeys.has('redemptionRatePct') || [...typedKeys].some((x) => /^rulePick_.*_custom$/.test(x));
+        if (cur === 'custom' && youTyped) {
           // Kept outside the component too: a first-paint remount runs this again on the already-reset numbers, and
           // the notice and the "typed" cleanup below would be lost with the first instance.
           pendingWaitClear = { store: storeId ?? '', months: Math.round(nz(v.redemptionMonths)) };
@@ -285,7 +288,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         v = { ...v, redemptionMonths: r0.months, redemptionRatePct: r0.ratePct, redemptionDaily: r0.daily, redemptionFlat: r0.flat, redemptionFlat2Pct: r0.flat2Pct, redemptionChecked: 0 };
         save(v);
         // The numbers you typed for another kind of sale are gone now: so is their "typed" mark (after mount, below).
-        if (cur === 'custom') dropTypedWait.current = true;
+        if (cur === 'custom' && youTyped) dropTypedWait.current = true;
       }
     }
     return !v.minimumBid && openingBid ? { ...v, minimumBid: openingBid } : v;
