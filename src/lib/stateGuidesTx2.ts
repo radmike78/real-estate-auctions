@@ -364,7 +364,7 @@ export const TX_GUIDES_2: Playbook[] = [
       url: "#/bank-owned"
     }
   ],
-  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.offerInspector, TEAM.insurance],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.offerTitle, TEAM.offerInspector, TEAM.offerInsurance],
   lastReviewed: "2026-10-05",
   state: 'TX'
 },
@@ -506,7 +506,7 @@ export const TX_GUIDES_2: Playbook[] = [
       url: "#/short-sales"
     }
   ],
-  team: [TEAM.agent, TEAM.mortgage, TEAM.title, TEAM.offerInspector, TEAM.attorney],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.offerTitle, TEAM.offerInspector, TEAM.attorney],
   lastReviewed: "2026-10-05",
   state: 'TX'
 },

@@ -14,7 +14,9 @@ export function transferTaxFor(state: StateCode, county: string): TransferTax {
   if (state === 'CA')
     return {
       per500: 0.55,
-      hint: 'County tax: $0.55 per $500. Some cities add their own.',
+      // Riverside County's Recorder: "Within the City of Riverside the tax rate is $1.10 per $500" (its Documentary
+      // Transfer Tax information sheet, rivcoacr.org).
+      hint: county === 'Riverside' ? 'County tax: $0.55 per $500; inside the City of Riverside it’s $1.10 per $500 (Riverside County Recorder). Other cities can add their own; ask your title company.' : 'County tax: $0.55 per $500. Some cities add their own.',
       more: 'California counties charge $0.55 for each $500 of value (Revenue and Taxation Code 11911), not counting liens that stay with the property. Cities can add their own tax, and some charter cities such as Los Angeles, San Francisco and Oakland charge much more; ask your title company for the total.',
     };
   if (state === 'AZ') return { per500: 0, hint: 'Arizona has no transfer tax; recording fees apply.', more: 'Arizona’s constitution bars new taxes on transferring real property. You’ll still pay the county recorder’s recording fee (about $30 a document), which includes Arizona’s $2 state transfer fee, which existed before the ban (A.R.S. 11-475 and 11-1132).' };
