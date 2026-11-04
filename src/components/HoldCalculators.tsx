@@ -1,3 +1,4 @@
+import { getMyArea } from '../lib/myArea';
 import NumInput from './NumInput';
 import StickyResult from './StickyResult';
 import { workStorage as localStorage } from '../lib/workStorage';
@@ -23,7 +24,9 @@ import { COUNTY_TAX_RATES } from '../lib/countyTaxRates';
 /** `countyTax`: the starting property tax follows the county (a deal's calculator), so the hint names the county. */
 function useRegionTax<T extends BuyInputs>(groups: CalcGroup<T>[], countyTax = false): { groups: CalcGroup<T>[]; per500: number } {
   const r = useCalcRegion();
-  const tax = transferTaxFor(r.state, r.county);
+  // Your area's city, when it's in this deal's county (a city rate, such as the City of Riverside's).
+  const myArea = getMyArea();
+  const tax = transferTaxFor(r.state, r.county, myArea && myArea.state === r.state && myArea.county === r.county ? myArea.city : null);
   const pt = propertyTaxHint(r.state, countyTax ? r.county : undefined);
   return {
     per500: tax.per500,

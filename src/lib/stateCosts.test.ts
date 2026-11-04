@@ -18,6 +18,10 @@ describe('state deal costs', () => {
     expect(transferTaxFor('NV', 'Churchill').per500).toBe(2.05);
     expect(transferTaxFor('NV', 'Elko').per500).toBe(1.95);
     expect(transferTaxFor('CA', 'Los Angeles').per500).toBe(0.55);
+    // Inside the City of Riverside: $1.10 per $500 (Riverside County Recorder); elsewhere in the county, $0.55.
+    expect(transferTaxFor('CA', 'Riverside', 'Riverside').per500).toBe(1.1);
+    expect(transferTaxFor('CA', 'Riverside', 'Corona').per500).toBe(0.55);
+    expect(transferTaxFor('CA', 'Riverside').per500).toBe(0.55);
     expect(transferTaxFor('AZ', 'Maricopa').per500).toBe(0);
     expect(transferTaxFor('UT', 'Salt Lake').per500).toBe(0);
   });

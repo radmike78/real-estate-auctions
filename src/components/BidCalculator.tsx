@@ -1,3 +1,4 @@
+import { getMyArea } from '../lib/myArea';
 import { calculatorInputError, parseCalcInput, shownInputError } from './CalcFields';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { readConfirmed, saveConfirmed } from '../lib/calcConfirmation';
@@ -177,7 +178,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     ? { bid: 'offer', Bid: 'Offer', opening: 'asking price', Opening: 'Asking price', max: 'Your maximum offer', day: 'at closing' }
     : { bid: 'bid', Bid: 'Bid', opening: 'opening bid', Opening: 'Opening bid', max: 'Your maximum bid', day: 'on auction day' };
   const region = useCalcRegion();
-  const tax = transferTaxFor(region.state, region.county);
+  // Your area's city, when it's in this deal's county (a city rate, such as the City of Riverside's).
+  const myArea = getMyArea();
+  const tax = transferTaxFor(region.state, region.county, myArea && myArea.state === region.state && myArea.county === region.county ? myArea.city : null);
   const rules = redemptionPresetsFor(region.state);
   const choices = saleKind ? redemptionChoicesFor(region.state, saleKind) : null;
   // Only the rules offered for this kind of sale. Some rules share the same numbers (a Texas property tax loan

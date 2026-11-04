@@ -10,7 +10,15 @@ export interface TransferTax {
 }
 
 /** Real property transfer tax for a county, per $500 of value (rounded up to the next $500). */
-export function transferTaxFor(state: StateCode, county: string): TransferTax {
+export function transferTaxFor(state: StateCode, county: string, city?: string | null): TransferTax {
+  // Inside the City of Riverside the rate is $1.10 per $500 (the county's $0.55 doubled), per the Riverside County
+  // Recorder's Documentary Transfer Tax information sheet.
+  if (state === 'CA' && county === 'Riverside' && city === 'Riverside')
+    return {
+      per500: 1.1,
+      hint: 'City of Riverside: $1.10 per $500 (the county’s $0.55 doubled; Riverside County Recorder). Ask your title company to confirm it for this property’s address.',
+      more: 'California counties charge $0.55 for each $500 of value (Revenue and Taxation Code 11911), not counting liens that stay with the property. Inside the City of Riverside the rate is $1.10 per $500, per the Riverside County Recorder’s Documentary Transfer Tax information sheet. Your area is set to the City of Riverside; if this property is outside the city, use $0.55.',
+    };
   if (state === 'CA')
     return {
       per500: 0.55,
