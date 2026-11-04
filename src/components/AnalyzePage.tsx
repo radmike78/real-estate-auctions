@@ -408,6 +408,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             setSaved(loadDeals());
             setDeal((d) => ({ ...d, practice: undefined }));
             progressChanged();
+            // The note goes away: focus moves to the saved line.
+            setTimeout(() => document.getElementById('deal-saved-line')?.focus(), 0);
           }}>make it a real deal</button>.</p>
         )}
         <p className="muted">Found a property on an official list, a listing site or from your agent? Enter it here. You’ll get the checklist for that kind of sale in that county, and the calculator for your plan. Save it to come back to it in My deals.</p>

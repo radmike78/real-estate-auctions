@@ -121,7 +121,8 @@ export function planNow(now = new Date()): PlanNow {
   // paper practice are left out of the focus altogether: roadmapState.focusDealId.)
   const picked = !!deal && rawDealChoice() === `analyzed:${deal.id}`;
   // Practice judged on the route apart from the property (as the route rule does: roadmapState.guidedWaiting).
-  const guidedLearning = !picked && getMode() === 'guided' && !guidedPracticeDone(baseRoute()) && researching;
+  // (Only a deal saved as researching waits, as in the route rule: an older stageless deal leads.)
+  const guidedLearning = !picked && getMode() === 'guided' && !guidedPracticeDone(baseRoute()) && researching && deal?.stage === 'researching';
   if (deal && !guidedLearning) {
     const stage = stageOf(deal);
     return { goal, source: 'deal', context: `${deal.name} · ${stageLabel(stage, deal)}`, task: dealNextTask(deal, undefined, now, stage), deal, stage, tasks: stageTasks(deal, stage, undefined, now) };

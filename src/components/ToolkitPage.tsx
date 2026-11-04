@@ -643,7 +643,7 @@ function PriceFromCash({ cash }: { cash: number }) {
         <p className="muted small">These are starting estimates, not loan requirements or an affordability decision. Down payment, interest rate and money kept in reserve depend on the loan and your situation. Confirm financing with your lender, and costs with the relevant providers.</p>
       </details>
       <p className="muted" role="note">Cash-budget estimate—not loan approval or proof you can afford the monthly costs. Check ongoing expenses, repairs and your lender’s requirements before using it as a price limit.</p>
-      {Number.isFinite(price) && <button type="button" className="btn btn-secondary" onClick={useIt}>{investLow ? `Use ${fmtMoney(price)} in my buy box anyway (likely high at this down payment)` : taxWarn ? `Use ${fmtMoney(price)} in my buy box anyway (likely high until you raise the tax estimate)` : `Use ${fmtMoney(price)} in my buy box`}</button>}
+      {Number.isFinite(price) && <button type="button" className="btn btn-secondary" onClick={useIt}>{investLow && taxWarn ? `Use ${fmtMoney(price)} in my buy box anyway (likely high at this down payment and tax rate)` : investLow ? `Use ${fmtMoney(price)} in my buy box anyway (likely high at this down payment)` : taxWarn ? `Use ${fmtMoney(price)} in my buy box anyway (likely high until you raise the tax estimate)` : `Use ${fmtMoney(price)} in my buy box`}</button>}
     </div>
   );
 }

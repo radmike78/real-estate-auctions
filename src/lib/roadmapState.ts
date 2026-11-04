@@ -185,7 +185,10 @@ export function practiceStepDoneAnyRoute(): boolean {
 export function baseRoute(): RoadmapPath {
   let picked = false;
   try { picked = localStorage.getItem(ROADMAP_PATH_KEY) !== null; } catch { /* storage unavailable */ }
-  return !picked && decideRoute() === 'auction' ? 'auction' : roadmapPath();
+  const r = !picked && decideRoute() === 'auction' ? 'auction' : roadmapPath();
+  // As planPath: a lien route in a state without lien sales follows the auction route (its practice is the auction one).
+  const st = getMyState();
+  return r === 'certificate' && st && st !== 'NV' && st !== 'AZ' && !lienDealFor() ? 'auction' : r;
 }
 
 /** Whether a route is set: one you picked, or Decide's auctions pick (both show as pressed on the roadmap). */

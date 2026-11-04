@@ -169,4 +169,15 @@ describe('practice part 2 follows your route', () => {
     localStorage.setItem('deedowl.roadmap.v1', JSON.stringify(['practice']));
     expect(planNow(new Date('2026-11-03T12:00:00Z')).context).not.toMatch(/Practice part 2/);
   });
+
+  it('lets a lien-route reader in a state without lien sales mark the auction practice "doesn’t apply"', async () => {
+    const { planNow } = await import('./planNext');
+    localStorage.setItem('deedowl.state.v1', 'CA');
+    localStorage.setItem('deedowl.roadmap.path.v1', JSON.stringify('certificate'));
+    const listing = { id: 'dl1', name: '9 Oak Ave', state: 'CA', county: 'Kern', kind: 'listing', plan: 'rent', notes: '', done: [], stage: 'researching', updatedAt: '2026-11-01T00:00:00.000Z', locationConfirmed: true };
+    localStorage.setItem('deedowl.analyze.v1', JSON.stringify([listing]));
+    expect(planNow(new Date('2026-11-03T12:00:00Z')).source).not.toBe('deal');
+    localStorage.setItem('deedowl.roadmap.status.v1', JSON.stringify({ 'a-practice': 'na' }));
+    expect(planNow(new Date('2026-11-03T12:00:00Z')).source).toBe('deal');
+  });
 });
