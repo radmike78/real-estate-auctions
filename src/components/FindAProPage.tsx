@@ -307,10 +307,11 @@ export default function FindAProPage({ section }: { section?: string }) {
   };
   // Opens on the kind of sale your roadmap route is about (an auction, a lien certificate), when your state has it.
   const [sale, setSale] = useState<string>(() => {
-    // The property open in Analyze (a saved one) decides first: its own kind of sale.
+    // The property open in Analyze (a saved, real one) decides first: its own kind of sale.
     try {
-      const cur = JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as { id?: string; kind?: Deal['kind']; state?: string; plan?: Deal['plan'] } | null;
-      if (cur?.id && cur.kind && cur.state === mine) {
+      const cur = JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as { id?: string; kind?: Deal['kind']; state?: string; plan?: Deal['plan']; practice?: boolean } | null;
+      // A practice analysis never becomes the property you're working on: the team follows your route instead.
+      if (cur?.id && cur.kind && cur.state === mine && !cur.practice) {
         // A commercial building bought through an agent or from a bank: the commercial team.
         const offerKind = cur.kind === 'listing' || cur.kind === 'reo' || cur.kind === 'short';
         const k = cur.plan === 'commercial' && offerKind ? 'commercial-offer' : cur.kind === 'listing' ? 'listing' : guideKeyFor({ kind: cur.kind, state: mine });

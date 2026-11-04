@@ -555,6 +555,15 @@ function PriceFromCash({ cash }: { cash: number }) {
   const price = priceForCash(cash, a);
   // An investment-property loan (Decide) with under 15% down: the price is likely too high.
   const investLow = a.downPct < 15 && investorProfile().loan === 'yes' && !investorProfile().ownerOccupant;
+  // The buy box's property types (kept current when the buy box changes below).
+  const [types, setTypes] = useState<string[]>(() => read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox).types);
+  useEffect(() => {
+    const on = () => setTypes(read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox).types);
+    window.addEventListener(PLAN_CHANGED, on);
+    return () => window.removeEventListener(PLAN_CHANGED, on);
+  }, []);
+  // 15% to under 25% down with a duplex to fourplex in the buy box: investment loans on 2 to 4 units usually need 25%.
+  const multiLow = !investLow && a.downPct < 25 && investorProfile().loan === 'yes' && !investorProfile().ownerOccupant && types.includes('Duplex to fourplex');
   const c = cashForPrice(Number.isFinite(price) ? price : 0, a);
   const num = (k: keyof PriceAssumptions, label: string, unit: string) => (
     <label className="field">
@@ -622,6 +631,7 @@ function PriceFromCash({ cash }: { cash: number }) {
           {' '}{fmtMoney(Math.round(c.down))} down, {fmtMoney(Math.round(c.closing))} closing costs and {fmtMoney(Math.round(c.reserves))} in reserve (about {fmtMoney(Math.round(c.monthly))} a month in loan, tax and insurance, at {a.taxInsPct}% of the price a year for tax and insurance). Repairs come out of the same cash, so leave room for them.{a.downPct < 20 && !investLow ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : ''}{investorProfile().ownerOccupant && a.downPct >= 20 ? ` ${a.downPct}% down is common for an investment; a home you’ll live in can need less, so replace it below with your lender’s figure.` : ''}
         </p>
         {investLow && <p className="caution">Loans for a property you won’t live in usually need 15% to 25% down,* so this price is likely too high: low-down-payment programs are for homes you live in. Raise “Down payment” under Change the planning estimates, or ask your lender.</p>}
+        {multiLow && <p className="caution">Loans for a duplex to fourplex you won’t live in usually need 25% down,* so for one of those this price is likely too high. Raise “Down payment” under Change the planning estimates, or ask your lender.</p>}
         {taxWarn}
       </>) : (
         <p>With no down payment, closing costs or reserves, these assumptions don’t limit the price. Enter what your lender expects below to see a price.</p>
@@ -643,7 +653,7 @@ function PriceFromCash({ cash }: { cash: number }) {
         <p className="muted small">These are starting estimates, not loan requirements or an affordability decision. Down payment, interest rate and money kept in reserve depend on the loan and your situation. Confirm financing with your lender, and costs with the relevant providers.</p>
       </details>
       <p className="muted" role="note">Cash-budget estimate—not loan approval or proof you can afford the monthly costs. Check ongoing expenses, repairs and your lender’s requirements before using it as a price limit.</p>
-      {Number.isFinite(price) && <button type="button" className="btn btn-secondary" onClick={useIt}>{investLow && taxWarn ? `Use ${fmtMoney(price)} in my buy box anyway (likely high at this down payment and tax rate)` : investLow ? `Use ${fmtMoney(price)} in my buy box anyway (likely high at this down payment)` : taxWarn ? `Use ${fmtMoney(price)} in my buy box anyway (likely high until you raise the tax estimate)` : `Use ${fmtMoney(price)} in my buy box`}</button>}
+      {Number.isFinite(price) && <button type="button" className="btn btn-secondary" onClick={useIt}>{(investLow || multiLow) && taxWarn ? `Use ${fmtMoney(price)} in my buy box anyway (likely high at this down payment and tax rate)` : investLow || multiLow ? `Use ${fmtMoney(price)} in my buy box anyway (likely high at this down payment)` : taxWarn ? `Use ${fmtMoney(price)} in my buy box anyway (likely high until you raise the tax estimate)` : `Use ${fmtMoney(price)} in my buy box`}</button>}
     </div>
   );
 }
@@ -953,7 +963,7 @@ function planText(): string {
   const atSale = path === 'auction' || path === 'certificate';
   if (cash > 0 && path === 'certificate') lines.push(`Investable cash: ${fmtMoney(cash)}. Buying lien certificates, that’s the most you’d tie up: the certificate prices and fees, paid by the county’s deadline, plus any later taxes you pay to protect them.`);
   else if (cash > 0 && (atSale || investorProfile().loan === 'cash')) lines.push(`Investable cash: ${fmtMoney(cash)}. Paying cash, that’s your limit for the price plus closing costs, repairs and reserves${atSale ? '; an auction wants the full amount by its payment deadline, with no loan at the sale' : ''}, so the price itself is less than ${fmtMoney(cash)}.`);
-  else lines.push(cash > 0 ? `Investable cash: ${fmtMoney(cash)}. With ${pa.downPct}% down, ${pa.closingPct}% closing costs and ${pa.reserveMonths} months of reserves, it supports ${Number.isFinite(supports) ? `a price up to about ${fmtMoney(supports)}` : 'any price (these assumptions set no limit)'}.${Number.isFinite(supports) && pa.downPct < 15 && investorProfile().loan === 'yes' && !investorProfile().ownerOccupant ? ' Caution: loans for a property you won’t live in usually need 15% to 25% down,* so this price is likely too high; low-down-payment programs are for homes you live in. Ask your lender.' : Number.isFinite(supports) && pa.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : ''}${taxNote}` : '(not worked out yet)');
+  else lines.push(cash > 0 ? `Investable cash: ${fmtMoney(cash)}. With ${pa.downPct}% down, ${pa.closingPct}% closing costs and ${pa.reserveMonths} months of reserves, it supports ${Number.isFinite(supports) ? `a price up to about ${fmtMoney(supports)}` : 'any price (these assumptions set no limit)'}.${Number.isFinite(supports) && pa.downPct < 15 && investorProfile().loan === 'yes' && !investorProfile().ownerOccupant ? ' Caution: loans for a property you won’t live in usually need 15% to 25% down,* so this price is likely too high; low-down-payment programs are for homes you live in. Ask your lender.' : Number.isFinite(supports) && pa.downPct < 25 && investorProfile().loan === 'yes' && !investorProfile().ownerOccupant && b.types.includes('Duplex to fourplex') ? ` Caution: loans for a duplex to fourplex you won’t live in usually need 25% down,* so for one of those this price is likely too high. Ask your lender.${pa.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included.' : ''}` : Number.isFinite(supports) && pa.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : ''}${taxNote}` : '(not worked out yet)');
   lines.push('', isBlank(b) ? 'BUY BOX: not written yet (My plan → Your buy box)' : buyBoxText(b, STATES.find((x) => x.code === b.state)?.name).replace('\nDeedOwl educational worksheet.', ''), '', `ROADMAP: ${ROADMAP_PATHS[path].label}`);
   for (const s of steps) lines.push(`[${done.includes(s.id) ? 'x' : status[s.id] === 'na' ? '-' : ' '}] ${ROADMAP_PHASES[s.phase]}: ${s.title}${status[s.id] && !done.includes(s.id) ? ` (${STEP_STATUS_LABEL[status[s.id]]})` : ''}`);
   lines.push('', 'TEAM');

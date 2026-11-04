@@ -448,7 +448,7 @@ export const DRILLS: Drill[] = [
           { label: 'First deed of trust that stays', value: '$245,000' },
           { label: 'Repairs and holding for 6 months (example)', value: '$30,000' },
           { label: 'Total', value: '$295,000 for a $360,000 home, before selling costs' },
-          { label: 'If the owner redeems', value: 'You get your $20,000 back plus 8%, but not your holding costs or repairs' },
+          { label: 'If the owner redeems', value: 'You get your $20,000 back plus 8%, and any taxes or assessments you paid, with interest, but not your repairs or other holding costs' },
         ],
         lesson: 'About $65,000 of room before selling costs, a 6-month wait and a loan you must pay off to sell. Thin for the risk.',
       },

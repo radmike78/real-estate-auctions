@@ -409,6 +409,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             saveDeals(loadDeals().map((x) => (x.id === id ? { ...x, practice: undefined, updatedAt: nextStamp(x.updatedAt) } : x)));
             setSaved(loadDeals());
             setDeal((d) => ({ ...d, practice: undefined }));
+            // A real deal ends an earlier "None yet (learning)" choice, as saving a new one does.
+            try { if (localStorage.getItem('deedowl.roadmap.deal.v1') === JSON.stringify('none')) localStorage.setItem('deedowl.roadmap.deal.v1', JSON.stringify('')); } catch { /* storage unavailable */ }
             progressChanged();
             // The note goes away: a short line says what changed, and focus moves there.
             setMadeReal(id);

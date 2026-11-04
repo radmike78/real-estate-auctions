@@ -367,9 +367,10 @@ export function saveDeals(list: Deal[]) {
   let others = 0;
   const kept = list.filter((d) => owned[d.id] || others++ < room);
   try {
-    // A newly saved property ends an earlier "None yet (learning)" choice in My plan, so the plan sees it.
+    // A newly saved property ends an earlier "None yet (learning)" choice in My plan, so the plan sees it (a practice
+    // analysis never becomes the property you're working on, so it doesn't).
     const before = new Set(loadDeals().map((d) => d.id));
-    if (kept.some((d) => !before.has(d.id)) && localStorage.getItem('deedowl.roadmap.deal.v1') === JSON.stringify('none')) localStorage.setItem('deedowl.roadmap.deal.v1', JSON.stringify(''));
+    if (kept.some((d) => !before.has(d.id) && !d.practice) && localStorage.getItem('deedowl.roadmap.deal.v1') === JSON.stringify('none')) localStorage.setItem('deedowl.roadmap.deal.v1', JSON.stringify(''));
     localStorage.setItem(KEY, JSON.stringify(kept));
   } catch {
     /* private mode: kept for this visit only */
