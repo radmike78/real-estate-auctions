@@ -252,7 +252,14 @@ function focusNewPage(backOrForward = false) {
         t.focus({ preventScroll: true });
         if (document.activeElement === t) return;
       }
-      // None in view: the section heading just above the view, so the next Tab continues into what you see.
+      // None in view: a smaller heading or the first link or button in view, so the next Tab continues from where you are.
+      const inViewEl = [...document.querySelectorAll<HTMLElement>('main h3, main a[href], main button')].find((x) => { const r = x.getBoundingClientRect(); return r.height > 0 && r.top >= top && r.top < window.innerHeight * 0.7 && !x.closest('[hidden], [aria-hidden="true"]'); });
+      if (inViewEl) {
+        if (inViewEl.tagName === 'H3' && !inViewEl.hasAttribute('tabindex')) inViewEl.setAttribute('tabindex', '-1');
+        inViewEl.focus({ preventScroll: true });
+        if (document.activeElement === inViewEl) return;
+      }
+      // Else the section heading just above the view.
       const above = [...document.querySelectorAll<HTMLElement>('main h2, main summary')].filter((x) => { const r = x.getBoundingClientRect(); return r.height > 0 && r.top < top; }).pop();
       if (above) {
         if (above.tagName !== 'SUMMARY' && !above.hasAttribute('tabindex')) above.setAttribute('tabindex', '-1');

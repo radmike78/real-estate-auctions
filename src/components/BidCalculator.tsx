@@ -188,7 +188,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   // Only the rules offered for this kind of sale. Some rules share the same numbers (a Texas property tax loan
   // foreclosure repays like a tax sale), so the rule in use is matched among these, never a rule the menu doesn't offer.
   const offered = offeredRedemptionRules(region.state, saleKind);
-  const hintFor = (f: Field) => (commercial && f.k === 'exitValue' ? 'Use the value by income above.' : f.k === 'transferTaxPer500' ? (offer && tax.per500 > 0 ? `${tax.hint} Your contract says who pays: enter 0 if the seller pays it.` : tax.hint) : f.hint);
+  const hintFor = (f: Field) => (f.k === 'redemptionMonths' && choices?.start === 'none' && saleKind && (pickOf() === 'custom' || pickOf() === 'none') ? 'A what-if on this kind of sale: it only adds holding costs.' : commercial && f.k === 'exitValue' ? 'Use the value by income above.' : f.k === 'transferTaxPer500' ? (offer && tax.per500 > 0 ? `${tax.hint} Your contract says who pays: enter 0 if the seller pays it.` : tax.hint) : f.hint);
   const moreFor = (f: Field) => (f.k === 'transferTaxPer500' ? tax.more : f.k === 'holdingMonths' ? (offer ? undefined : !saleKind || saleKind === 'taxSale' ? taxSaleWait(region.state) : 'How long repairs and the resale take. If this sale has no redemption period, count from the day you get the deed; ask a title company early when it will insure the title for your buyer.') : f.more);
   // What a Texas redemption repays, for the kind of sale chosen (every Texas rule when the kind isn't known).
   const txRepaid = (): string => {
@@ -202,6 +202,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     if (saleKind === 'hoa') return hoa;
     return `${taxSale} ${hoa}`;
   };
+  // The rule in use, read when the field renders (ruleNow is worked out further down).
+  const pickOf = () => ruleNow;
   const moreForField = (f: Field) =>
     // A sale that usually has no redemption (a trustee's mortgage foreclosure): the help says a wait is your what-if.
     f.k === 'redemptionMonths' && f.more && choices?.start === 'none' && (ruleNow === 'custom' || ruleNow === 'none') && saleKind ? `${noRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] })} A wait here is your own what-if: it only adds holding costs. The exceptions are the rules in the menu (for example a junior federal tax lien wiped out by the sale, which gives the United States 120 days). Ask an attorney which applies.`
@@ -570,7 +572,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                 : <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
               : <>{offered[ruleNow]?.label}.</>}{' '}
             {ruleNow === choices?.start ? 'Pick the rule under Holding and financing (Detailed), then confirm it here.' : ruleNow === 'custom' ? 'Once the records show which rule applies, pick it under Holding and financing (Detailed) and confirm it here.' : 'Once the records show this rule applies, confirm it here (or pick another under Holding and financing, Detailed).'}
-            <label className="calc-check">
+            <label className="calc-check calc-check-block">
               <input type="checkbox" checked={false} onChange={() => update({ redemptionChecked: 1 })} />
               <span>I’ve checked the records, and the redemption rule set in this calculator is the one that applies.</span>
             </label>

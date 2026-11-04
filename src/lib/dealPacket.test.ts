@@ -134,7 +134,7 @@ describe('the deal packet', () => {
     const flipText = flip.lines.join('\n');
     expect(flipText).toMatch(/If resale value 10% lower: (walk-away price \$[\d,]+|no price works)/);
     expect(flipText).toMatch(/If repairs 25% higher:/);
-    expect(flipText).toMatch(/If takes 3 months longer:/);
+    expect(flipText).toMatch(/If it takes 3 months longer:/);
     expect(flipText).toMatch(/If all three at once:/);
     expect(flip.status).toBe('done');
     localStorage.setItem('fsf.calc.commercial.d1-offer.v1', JSON.stringify({ monthlyRent: 10000 }));

@@ -3005,3 +3005,7 @@ dl.cash-result .cash-main { border-color: var(--accent); }
 /* The guides' part headings are h2 now (heading order); they keep the weight they had as h3. */
 .pro-guide h2.part-head, .pro-guide-stories h2.part-head, .pro-fold > summary h2.part-head { font-weight: 700; }
 main h1[tabindex="-1"]:focus:not(:focus-visible), main h2[tabindex="-1"]:focus:not(:focus-visible), main h3[tabindex="-1"]:focus:not(:focus-visible) { outline: none; }
+
+/* The redemption rule's "I've checked the records" box: on its own line, with a target big enough to tap. */
+.calc-check-block { display: flex; gap: 10px; align-items: flex-start; margin-top: 10px; }
+.calc-check-block input[type="checkbox"] { width: 22px; height: 22px; flex: none; margin: 1px 0 0; }

@@ -220,7 +220,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   // Texas: within 15 days the lender or trustee may rescind a sale for the reasons Property Code 51.016(b) lists (statutory
   // requirements not met, default cured before the sale, a bankruptcy stay in effect, and others).
   if (d.kind === 'trustee' && d.state === 'TX') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),
-    { what: '15-day rescission window', when: 'For a home of 1 to 4 units, a condo or a co-op unit: within 15 days after the sale.', who: 'The lender (mortgagee), the trustee or a substitute trustee', todo: 'Hold off on repairs and new contracts until it passes; the guide lists the reasons a sale can be rescinded.', missed: 'A notice mailed and recorded by day 15 counts even if it reaches you later; after that, the sale can’t be rescinded under that law.*', why: 'Property Code 51.016' },
+    { what: '15-day rescission window', when: 'For a home of 1 to 4 units, a condo or a co-op unit: within 15 days after the sale.', who: 'The lender (mortgagee), the trustee or a substitute trustee', todo: 'Hold off on repairs and new contracts until it passes. The reasons the law lists include: the sale’s legal requirements weren’t met, the default was cured before the sale, or a bankruptcy stay was in effect.', missed: 'A notice mailed and recorded by day 15 counts even if it reaches you later; after that, the sale can’t be rescinded under that law.*', why: 'Property Code 51.016' },
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   if (d.kind === 'trustee' && d.state === 'CA') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),
     { what: '15-day intent-to-bid window', when: 'For a home of 1–4 units: 15 days after the sale.', who: 'Eligible bidders (such as tenants and some buyers who will live there)', todo: 'Watch for a notice that one of them intends to bid; until then your win isn’t final.', missed: 'If none gives notice in time, your win stands, unless an exception applies.*', why: 'Civil Code 2924m, in effect until January 1, 2031' },
@@ -737,10 +737,10 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const living = !!rent && offer && !!profile.ownerOccupant;
   if (rent && living) {
     nums.push(`Your offer (your actual price): ${money(rent.price)} → ${Math.round(Math.abs(rent.monthly)) === 0 ? 'the rent you collect about breaks even with every cost' : rent.monthly < 0 ? `living there costs you about ${money(-rent.monthly)} a month after any rent you collect` : `the rent you collect covers every cost, with about ${money(rent.monthly)} a month to spare`}${rent.mi > 0 ? `, before mortgage insurance (about ${money(rent.mi)} a month on an FHA loan; not counted)` : ''}. Compare that with what you pay to live where you are now; the return target is an investor’s yardstick.`);
-    for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${s.monthly < 0 ? `living there costs about ${money(-s.monthly)} a month` : `${money(s.monthly)} a month to spare`}`);
+    for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase().replace(/^takes /, 'it takes ')}: ${s.monthly < 0 ? `living there costs about ${money(-s.monthly)} a month` : `${money(s.monthly)} a month to spare`}`);
   } else if (rent) {
     nums.push(`${offer ? 'Your offer' : 'Your bid'} (your actual price): ${money(rent.price)} → monthly cash flow ${money(rent.monthly)}${rent.exampleValue ? ` (${refiValueWords(rent.refiValue)})` : rent.refi ? ' after the refinance' : ''}; ${rent.exampleValue && rent.refiValue > 0 ? 'return not shown until you enter the value after repairs' : rent.cashOnCash === null ? 'all your cash back' : `${capText(rent.cashOnCash, rent.target)}% a year on your cash`} (${rent.targetTyped ? 'your' : 'our example'} target ${rent.target}%)${rent.coverageShort ? `; income coverage under ${rent.dscrTyped ? 'your' : 'our example'} ${rent.minDscr}× minimum` : ''}`);
-    for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase()}: ${money(s.monthly)} a month`);
+    for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase().replace(/^takes /, 'it takes ')}: ${money(s.monthly)} a month`);
     if (rent.loanHigh) nums.push('Loans for a property you won’t live in usually need 15% to 25% down,* so this loan may be more than a lender would make: ask your lender for their figure. Mortgage insurance isn’t included in these payments either.');
     else if (rent.miLeftOut) nums.push('Mortgage insurance, which most loans add with under 20% down, isn’t included in these payments: ask your lender for it.');
   }
@@ -756,7 +756,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     const floor = a?.source === 'listed' ? a.price : 0;
     for (const s of bid.stress.slice(1)) {
       const walk = s.maxBid > 0 && floor > 0 && s.maxBid < floor ? `below the ${offer ? 'asking price' : 'opening bid'} (walk-away price ${money(s.maxBid)})` : s.maxBid > 0 ? `walk-away price ${money(s.maxBid)}` : 'no price works';
-      nums.push(`  If ${s.label.toLowerCase()}: ${a && s.profit !== null ? `profit ${money(s.profit)} at ${money(a.price)}; ${walk}` : walk}`);
+      nums.push(`  If ${s.label.toLowerCase().replace(/^takes /, 'it takes ')}: ${a && s.profit !== null ? `profit ${money(s.profit)} at ${money(a.price)}; ${walk}` : walk}`);
     }
   }
   if (commercial?.at) {
@@ -775,7 +775,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     for (const s of commercial.noRealistic ? [] : commercial.stress) {
       // Cash sets both prices: the lower rent doesn't move it, so say so instead of repeating the same figure as news.
       const same = s.limitedBy === 'cash' && commercial.limitedBy === 'cash' && s.maxBid === commercial.maxBid;
-      nums.push(`  If ${s.label.toLowerCase()}: ${s.maxBid !== null && s.maxBid > 0 ? (same ? `still ${money(s.maxBid)}, set by ${cashLimit(offer)}${pct1(s.capOnCost, commercial.capPct) ? ` (return on cost at that price: ${pct1(s.capOnCost, commercial.capPct)})` : ''}` : commercialPriceText(commercial.capPct, s.maxBid, s.limitedBy, s.capOnCost, offer, true, false, !!commercial.capTyped, !!commercial.dscrTyped)) : 'no price works'}`);
+      nums.push(`  If ${s.label.toLowerCase().replace(/^takes /, 'it takes ')}: ${s.maxBid !== null && s.maxBid > 0 ? (same ? `still ${money(s.maxBid)}, set by ${cashLimit(offer)}${pct1(s.capOnCost, commercial.capPct) ? ` (return on cost at that price: ${pct1(s.capOnCost, commercial.capPct)})` : ''}` : commercialPriceText(commercial.capPct, s.maxBid, s.limitedBy, s.capOnCost, offer, true, false, !!commercial.capTyped, !!commercial.dscrTyped)) : 'no price works'}`);
     }
   }
   if (lien) {
