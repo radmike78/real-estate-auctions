@@ -3,6 +3,7 @@ import { lienDealFor, planPath } from '../lib/roadmapState';
 import PathNext from './PathNext';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useRef, useState } from 'react';
+import { readConfirmed } from '../lib/calcConfirmation';
 import { useLastActivity } from '../lib/journey';
 import { replaceAddress } from '../lib/nav';
 import PageHero from './PageHero';
@@ -231,7 +232,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       let open: Deal | null = null;
       try { open = cleanDeal(JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null')); } catch { /* storage unavailable */ }
       // Only the same one: that deal's state and county, with its calculator open (a stale draft elsewhere is replaced).
-      const already = !!open && !open.id && open.kind === 'lien' && open.state === ld0?.state && open.county === ld0?.county && !!open.locationConfirmed;
+      // Or one in that state with numbers you typed in its lien calculator (another county you chose): kept as it is.
+      const typedLien = readConfirmed('fsf.calc.lien.v1').size > 0 || readConfirmed('fsf.calc.lien.az.v1').size > 0;
+      const already = !!open && !open.id && open.kind === 'lien' && open.state === ld0?.state && ((open.county === ld0?.county && !!open.locationConfirmed) || typedLien);
       if (ld0 && !already) {
         const { kept } = startLienDraft(ld0);
         if (kept) { keptNoteOnce = kept; setTimeout(() => { keptNoteOnce = ''; }, 1500); setTimeout(() => setKeptNote(kept), 0); }
@@ -340,6 +343,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
 
   const set = (patch: Partial<Deal>) => setDeal((d) => ({ ...d, ...patch, updatedAt: nextStamp(d.updatedAt) }));
   // A new, unsaved lien certificate in the state of the lien deal your plan is built around (not your own state).
+  // Back to a lien certificate in the lien deal's state and county (no property there): it opens ready again.
+  const certTarget = practiceLienDeal() ?? (movedFrom() && !['NV', 'AZ'].includes(movedFrom()!) ? lienDealFor() : null);
+  const certSpot = !deal.id && !!certTarget && certTarget.state === deal.state && certTarget.county === deal.county;
   const practiceCert = !deal.id && deal.kind === 'lien' && !!mine && ((deal.state !== mine && practiceLienDeal()?.state === deal.state) || (!!movedFrom() && !['NV', 'AZ'].includes(movedFrom()!) && lienDealFor()?.state === deal.state && lienDealFor()?.county === deal.county));
   const st = stateByCode(deal.state)!;
   const kinds = kindsFor(deal.state);
@@ -404,7 +410,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           if (!ld) return null;
           const nm = stateByCode(ld.state)?.name ?? ld.state;
           // The new certificate opened in that deal's state (the lien calculator link, or the button below).
-          if (deal.kind === 'lien' && deal.state === ld.state && deal.county === ld.county && (deal.state !== mine || movedIn)) return <p className="note" role="status" tabIndex={-1} ref={lienNoteRef}>A new, unsaved lien certificate in {nm}, where your saved lien deal is.{savingPractice(deal) ? ` For the practice step, enter the “${deal.state === 'AZ' ? 'Lien amount you pay' : 'Certificate price'}” and “Interest” below, then try “Months until the owner pays” at 6 and at 24.` : ''} Your saved deal “{ld.name}” isn’t changed. <button type="button" className="linkish" onClick={() => {
+          if (deal.kind === 'lien' && deal.state === ld.state && deal.county === ld.county && (deal.state !== mine || movedIn)) return <p className="note" role="status" tabIndex={-1} ref={lienNoteRef}>A new, unsaved lien certificate in {nm}, where your saved lien deal is.{savingPractice(deal) ? ` For the practice step, enter the “${deal.state === 'AZ' ? 'Lien amount you pay' : 'Certificate price'}” and “Interest” below, then try “Months until the owner pays” at 6 and at 24.` : ' Saved, it becomes a real deal in My deals and the property My plan follows.'} Your saved deal “{ld.name}” isn’t changed. <button type="button" className="linkish" onClick={() => {
             // A named or noted certificate is kept in My deals first, as every other way of replacing the draft does.
             // ...and, as with "Price another", the lien deal stays My plan's property (the kept one is newer otherwise).
             const keptDeal = keepUnsavedDraft();
@@ -417,9 +423,12 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
               setSaved(loadDeals());
             }
             clearLienDraftNumbers();
-            setDeal(blank(mine ?? deal.state));
+            // Moved here by the State field: the new deal is in your own state again (and so is the site).
+            const home = movedIn ? (mv as StateCode) : null;
+            if (home && mine) { noteStateMove(mine, home); setMyState(home); }
+            setDeal(blank(home ?? mine ?? deal.state));
             setTimeout(() => document.querySelector<HTMLInputElement>('.deal-fields input')?.focus(), 0);
-          }}>Start a new {stateByCode(mine ?? '')?.name ?? ''} deal instead</button></p>;
+          }}>Start a new {stateByCode(movedIn ? mv ?? '' : mine ?? '')?.name ?? ''} deal instead</button></p>;
           // A new deal in your own state: how to price another lien there, without changing your state for the site.
           if (deal.kind !== 'lien' && deal.state !== ld.state) return <p className="note" role="note">Your saved lien deal is in {nm}. <button type="button" className="linkish" onClick={() => { const { draft, kept } = startLienDraft(ld); if (kept) setKeptNote(kept); setSaved(loadDeals()); setDeal(draft); setTimeout(() => lienNoteRef.current?.focus(), 0); }}>Price another {nm} lien certificate</button></p>;
           return null;
@@ -445,7 +454,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           </label>
           <label className="field kind-field">
             <span>Kind of sale</span>
-            <select value={deal.kind} aria-describedby={deal.state === 'TX' && deal.kind === 'court' ? 'tx-court-note' : deal.state === 'AZ' && deal.kind === 'lien' ? 'az-land-note' : undefined} onChange={(e) => { const k = e.target.value as SaleKind; set({ kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0], ...(practiceCert ? { locationConfirmed: false } : {}) }); /* a new lien certificate starts confirmed (no property); another kind of sale is a property to check */ }}>
+            <select value={deal.kind} aria-describedby={deal.state === 'TX' && deal.kind === 'court' ? 'tx-court-note' : deal.state === 'AZ' && deal.kind === 'lien' ? 'az-land-note' : undefined} onChange={(e) => { const k = e.target.value as SaleKind; set({ kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0], ...(practiceCert ? { locationConfirmed: false } : k === 'lien' && certSpot ? { locationConfirmed: true } : {}) }); /* a new lien certificate starts confirmed (no property); another kind of sale is a property to check */ }}>
               {kinds.map((k) => <option key={k.key} value={k.key}>{kindLabel(k, deal.state)}</option>)}
             </select>
           </label>

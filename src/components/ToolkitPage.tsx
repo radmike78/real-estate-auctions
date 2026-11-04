@@ -962,12 +962,13 @@ function planText(): string {
     const g = proGuideByKey(k);
     // Anything entered for the role counts (a contact or fees with no name yet, a credentials check).
     // Only the core team is listed as still open (the other professionals come in only for some deals).
-    if (!m?.name && !m?.contact && !m?.fees && !m?.licenseChecked) { if (CORE_TEAM.includes(k)) open.push(g?.title ?? k); continue; }
-    lines.push(`${g?.title ?? k}: ${m.name || '(name not entered)'}${m.contact ? `, ${m.contact}` : ''}${m.licenseChecked ? ', credentials checked' : ''}${m.fees ? `. Fees: ${m.fees}` : ''}`);
+    if (!m?.name?.trim() && !m?.contact?.trim() && !m?.fees?.trim() && !m?.licenseChecked) { if (CORE_TEAM.includes(k) || (path === 'certificate' && k === 'cpa')) open.push(g?.title ?? k); continue; }
+    lines.push(`${g?.title ?? k}: ${m.name.trim() || '(name not entered)'}${m.contact ? `, ${m.contact}` : ''}${m.licenseChecked ? ', credentials checked' : ''}${m.fees ? `. Fees: ${m.fees}` : ''}`);
     if (PRO_SCRIPTS[k]) lines.push(`  What to say: ${PRO_SCRIPTS[k].say}`);
   }
   // At an auction or for lien certificates there's no agent, loan or inspection at the sale: those roles aren't listed as open.
-  const skip = path === 'listing' ? [] : ['agent', 'lender', 'inspector'].map((k) => proGuideByKey(k as Parameters<typeof proGuideByKey>[0])?.title ?? k);
+  // (A lien certificate has no property to insure either; its team adds a tax adviser.)
+  const skip = path === 'listing' ? [] : [...['agent', 'lender', 'inspector'], ...(path === 'certificate' ? ['insurance'] : [])].map((k) => proGuideByKey(k as Parameters<typeof proGuideByKey>[0])?.title ?? k);
   const openShown = open.filter((t) => !skip.includes(t));
   if (openShown.length) lines.push(`Not chosen yet: ${openShown.join(', ')}. The Your team page shows who you need for your route and when.`);
   return lines.join('\n');

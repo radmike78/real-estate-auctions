@@ -156,10 +156,19 @@ function guidedWaiting(d: Deal): boolean {
   let guided = false;
   try { guided = JSON.parse(localStorage.getItem('deedowl.mode.v1') ?? 'null') === 'guided'; } catch { /* storage unavailable */ }
   if (!guided || (d.stage && d.stage !== 'researching') || rawDealChoice() === `analyzed:${d.id}`) return false;
-  const done = roadmapDone();
-  let credited: string[] = [];
-  try { credited = readKey(CREDITED_KEY, [] as string[], cleanIds); } catch { /* storage unavailable */ }
-  return !['practice', 'a-practice', 'c-practice'].some((id) => done.includes(id) || credited.includes(id));
+  return !practiceStepSettled();
+}
+
+/**
+ * Practice part 2 settled on any route: its roadmap step (the listed home's "Finish a practice purchase", the auction
+ * or the lien practice) is done or marked "doesn't apply", or the rental case was credited. The one check the route
+ * rule and My plan (planNext.guidedPracticeDone) share, so they never disagree.
+ */
+export function practiceStepSettled(): boolean {
+  const ids = ['practice', 'a-practice', 'c-practice'];
+  const settled = settledFor('');
+  if ((['listing', 'auction', 'certificate'] as RoadmapPath[]).some((p) => roadmapFor(p).some((s) => ids.includes(s.id) && settled(s)))) return true;
+  try { return readKey(CREDITED_KEY, [] as string[], cleanIds).includes('practice'); } catch { return false; }
 }
 
 /** Whether a route is set: one you picked, or Decide's auctions pick (both show as pressed on the roadmap). */

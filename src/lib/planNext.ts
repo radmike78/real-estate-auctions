@@ -12,7 +12,7 @@ import { caseFor, caseResume } from '../practice/rentalCase';
 import { LEARN_MODULES } from './learn';
 import { cleanGoal, GOAL_KEY } from './myPlan';
 import { ROADMAP_PHASES, roadmapFor, type RoadmapPath, type RoadmapStep } from './roadmap';
-import { AUTO_STEPS, cleanStatus, rawDealChoice, focusDealId, lienDealFor, planPath, readKey, roadmapDone, roadmapPath, settledFor, STATUS_KEY } from './roadmapState';
+import { AUTO_STEPS, cleanStatus, rawDealChoice, focusDealId, lienDealFor, planPath, practiceStepSettled, readKey, roadmapDone, roadmapPath, settledFor, STATUS_KEY } from './roadmapState';
 
 export interface PlanNow {
   /** Your goal in one sentence, or '' when it isn't written yet. */
@@ -93,9 +93,9 @@ export function guidedPracticeDone(path: RoadmapPath = planPath()): boolean {
   if (practicePart2Done()) return true;
   const step = routePractice(path);
   if (step && settledFor('')(step)) return true;
-  // Part 2 finished on another route (the auction or lien practice, before a listed home changed the route) counts:
-  // a beginner who did what My plan asked isn't sent back to Step 3.
-  return roadmapFor('auction').concat(roadmapFor('certificate')).some((s) => (s.id === 'a-practice' || s.id === 'c-practice') && settledFor('')(s));
+  // Part 2 settled on any route (done or "doesn't apply", before a listed home changed the route) counts, with the
+  // same check the route rule uses: a beginner who did what My plan asked isn't sent back to Step 3.
+  return practiceStepSettled();
 }
 
 export const roadmapTask = (s: RoadmapStep): PlanTask => ({

@@ -118,6 +118,13 @@ describe('practice part 2 follows your route', () => {
     localStorage.setItem('deedowl.roadmap.v1', JSON.stringify(['a-practice']));
     expect(planPath()).toBe('listing');
     localStorage.setItem('deedowl.roadmap.v1', JSON.stringify([]));
+    // "Doesn't apply" settles it too, for the route and for My plan alike.
+    const { guidedPracticeDone } = await import('./planNext');
+    localStorage.setItem('deedowl.roadmap.status.v1', JSON.stringify({ 'a-practice': 'na' }));
+    expect(planPath()).toBe('listing');
+    expect(guidedPracticeDone()).toBe(true);
+    localStorage.setItem('deedowl.roadmap.status.v1', JSON.stringify({}));
+    expect(guidedPracticeDone('auction')).toBe(false);
     // Self-directed: the property leads at once.
     localStorage.setItem('deedowl.mode.v1', JSON.stringify('explore'));
     expect(planPath()).toBe('listing');
