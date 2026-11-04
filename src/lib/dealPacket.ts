@@ -253,7 +253,7 @@ export function suggestedDates(d: Pick<Deal, 'kind' | 'state'>): string[] {
 
 /** One plain line per detailed date, for the text download. */
 export function dateGuideLines(d: Pick<Deal, 'kind' | 'state'>): string[] {
-  return dateGuide(d).filter((g) => g.when).map((g) => `${g.what}: ${g.when} Who: ${g.who}. To do: ${g.todo} If missed: ${g.missed} (${g.why})`);
+  return dateGuide(d).filter((g) => g.when).map((g) => `${g.what}: ${g.when} Who: ${g.who}. To do: ${g.todo} If missed: ${g.missed}${g.why ? ` (${g.why})` : ''}`);
 }
 
 function read(key: string): unknown {

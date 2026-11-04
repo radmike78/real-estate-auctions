@@ -246,21 +246,27 @@ function focusNewPage(backOrForward = false) {
       // Deep in the page: the first section heading in view below the sticky header (never a card's name), so a screen
       // reader says where you are and the next Tab continues from there; else the title.
       const top = document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0;
-      const inView = [...document.querySelectorAll<HTMLElement>('main h2, main summary')].filter((x) => { const r = x.getBoundingClientRect(); return r.height > 0 && r.top >= top && r.top < window.innerHeight * 0.7; });
-      for (const t of inView.slice(0, 3)) {
-        if (t.tagName !== 'SUMMARY' && !t.hasAttribute('tabindex')) t.setAttribute('tabindex', '-1');
-        t.focus({ preventScroll: true });
-        if (document.activeElement === t) return;
-      }
-      // None in view: a smaller heading or the first link or button in view, so the next Tab continues from where you are.
-      // (Only what's really shown: not inside a closed <details>, hidden or aria-hidden; each tried until focus sticks.)
-      const shownNow = (x: HTMLElement) => (typeof x.checkVisibility === 'function' ? x.checkVisibility() : x.offsetParent !== null) && !x.closest('[hidden], [aria-hidden="true"]');
-      const inViewEls = [...document.querySelectorAll<HTMLElement>('main h3, main a[href], main button')].filter((x) => { const r = x.getBoundingClientRect(); return r.height > 0 && r.top >= top && r.top < window.innerHeight * 0.7 && shownNow(x); });
-      for (const el of inViewEls.slice(0, 5)) {
-        if (el.tagName === 'H3' && !el.hasAttribute('tabindex')) el.setAttribute('tabindex', '-1');
-        el.focus({ preventScroll: true });
-        if (document.activeElement === el) return;
-      }
+      // Only what's really shown and not covered (by the sticky header, say): not inside a closed <details>, hidden or
+      // aria-hidden, and on top at its own spot; each tried until focus sticks.
+      const seen = (x: HTMLElement) => {
+        if (!((typeof x.checkVisibility === 'function' ? x.checkVisibility() : x.offsetParent !== null) && !x.closest('[hidden], [aria-hidden="true"]'))) return false;
+        const r = x.getBoundingClientRect();
+        if (!(r.height > 0 && r.top >= top && r.top < window.innerHeight * 0.7)) return false;
+        const at = document.elementFromPoint(Math.min(r.left + 6, window.innerWidth - 1), r.top + Math.min(r.height / 2, 10));
+        return !!at && (x === at || x.contains(at));
+      };
+      const tryFocus = (els: HTMLElement[]) => {
+        for (const t of els.slice(0, 6)) {
+          if (t.tagName !== 'SUMMARY' && t.tagName !== 'A' && t.tagName !== 'BUTTON' && !t.hasAttribute('tabindex')) t.setAttribute('tabindex', '-1');
+          t.focus({ preventScroll: true });
+          if (document.activeElement === t) return true;
+        }
+        return false;
+      };
+      // A section heading in view, else a smaller heading or the first link or button in view, so the next Tab continues
+      // from where you are.
+      if (tryFocus([...document.querySelectorAll<HTMLElement>('main h2, main summary')].filter(seen))) return;
+      if (tryFocus([...document.querySelectorAll<HTMLElement>('main h3, main a[href], main button')].filter(seen))) return;
       // Else the section heading just above the view.
       const above = [...document.querySelectorAll<HTMLElement>('main h2, main summary')].filter((x) => { const r = x.getBoundingClientRect(); return r.height > 0 && r.top < top; }).pop();
       if (above) {
