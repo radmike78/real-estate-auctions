@@ -19,10 +19,15 @@ type Way = 'offer' | 'auction' | 'lien';
 /** How the property is bought: an offer on a listing, a bid at an auction, or a lien certificate. */
 export const wayOf = (d: Pick<Deal, 'kind'>): Way => (d.kind === 'lien' ? 'lien' : d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? 'offer' : 'auction');
 
-/** A Nevada HOA or sheriff's sale: a certificate of sale first, the deed only after the redemption period (60 days, NRS
- *  116.31166; 1 year, NRS 21.210), if no one redeems. */
-export const certificateFirst = (d: { kind: Deal['kind']; state?: Deal['state'] }): boolean => d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court');
-const waitWord = (d: { kind: Deal['kind'] }) => (d.kind === 'hoa' ? '60 days' : '1 year');
+/** A certificate of sale first, the deed only after the redemption period, if no one redeems: a Nevada HOA sale (60 days,
+ *  NRS 116.31166(3), (7)), a Nevada sheriff's sale (1 year, NRS 21.210, 21.220(4)) and an IRS sale (180 days, 26 U.S.C.
+ *  6337(b), 6338). */
+export const certificateFirst = (d: { kind: Deal['kind']; state?: Deal['state'] }): boolean => d.kind === 'irs' || (d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court'));
+const waitWord = (d: { kind: Deal['kind'] }) => (d.kind === 'hoa' ? '60 days' : d.kind === 'irs' ? '180 days' : '1 year');
+/** The packet's date row for the deed after the wait (dateGuide names it the same). */
+export const DEED_AFTER_WAIT = 'Deed delivered (if no one redeemed)';
+/** A date in the packet with its date entered, passed and marked handled. */
+const handled = (p: PacketData, what: string, now: Date) => p.dates.some((x) => x.what === what && !!x.resolved && !!x.when && x.when <= now.toISOString().slice(0, 10));
 
 /** The stage's name for this kind of sale (you make an offer on a listing, but bid at an auction) and plan. */
 export function stageLabel(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Deal['plan']; state?: Deal['state'] }): string {
@@ -31,7 +36,7 @@ export function stageLabel(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: De
     case 'researching': return 'Researching';
     case 'offer': return w === 'offer' ? 'Preparing an offer' : w === 'lien' && d.state === 'NV' ? 'Preparing for the sale' : 'Preparing to bid';
     case 'contract': return w === 'offer' ? 'Under contract' : w === 'lien' && d.state === 'NV' ? 'Picked: paying' : 'Won: paying and recording';
-    case 'closed': return w === 'offer' ? 'Closed' : w === 'lien' ? 'Certificate in hand' : certificateFirst(d) ? 'Certificate of sale recorded' : 'Deed recorded';
+    case 'closed': return w === 'offer' ? 'Closed' : w === 'lien' ? 'Certificate in hand' : certificateFirst(d) ? (d.kind === 'irs' ? 'Certificate of sale received' : 'Certificate of sale recorded') : 'Deed recorded';
     case 'owned': return w === 'lien' ? 'Holding the certificate' : d.plan === 'flip' ? 'Fixing and selling' : 'Owned and operating';
     case 'passed': return 'Passed';
   }
@@ -41,9 +46,9 @@ export function stageLabel(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: De
 export function stageHint(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Deal['plan']; state?: Deal['state'] }): string {
   const w = wayOf(d);
   switch (stage) {
-    case 'researching': return w === 'offer' ? 'Checking whether it fits, before any offer. Check the listing and the seller’s deadlines while you research.' : w === 'lien' ? 'Checking whether it fits, before you bid. Check the sale’s registration and payment deadlines while you research.' : d.kind === 'trustee' ? 'Checking whether it fits, before any bid. Confirm the sale date and the trustee’s payment terms while you research.' : 'Checking whether it fits, before any bid. Check the sale’s registration deadline while you research.';
-    case 'offer': return w === 'offer' ? 'It checked out: you’re setting your price, the earnest money and your questions before you offer.' : 'It checked out: you’re setting your maximum bid and getting the funds ready.';
-    case 'contract': return w === 'offer' ? 'The seller accepted your offer. The contract’s deadlines are running.' : 'You won the bid. Payment and recording deadlines are running.';
+    case 'researching': return w === 'offer' ? 'Checking whether it fits, before any offer. Check the listing and the seller’s deadlines while you research.' : w === 'lien' ? (d.state === 'NV' ? 'Checking whether it fits, before the sale. Check the sale’s registration and payment deadlines while you research.' : 'Checking whether it fits, before you bid. Check the sale’s registration and payment deadlines while you research.') : d.kind === 'trustee' ? 'Checking whether it fits, before any bid. Confirm the sale date and the trustee’s payment terms while you research.' : 'Checking whether it fits, before any bid. Check the sale’s registration deadline while you research.';
+    case 'offer': return w === 'offer' ? 'It checked out: you’re setting your price, the earnest money and your questions before you offer.' : w === 'lien' && d.state === 'NV' ? 'It checked out: you’re setting the most you’ll put into one certificate and getting the funds ready.' : 'It checked out: you’re setting your maximum bid and getting the funds ready.';
+    case 'contract': return w === 'offer' ? 'The seller accepted your offer. The contract’s deadlines are running.' : w === 'lien' && d.state === 'NV' ? 'You were picked. The payment deadline is running.' : 'You won the bid. Payment and recording deadlines are running.';
     case 'closed': return w === 'offer' ? 'It’s yours: insurance, locks, utilities and repairs come first.' : w === 'lien' ? 'You hold the certificate: track it until it’s paid off.' : certificateFirst(d) ? `Waiting out the redemption period (${waitWord(d)} after the sale): insure and maintain it, and hold off on remodeling.` : 'The deed is yours: check redemption, possession and title before you remodel.';
     case 'owned': return w === 'lien' ? 'Tracking payoffs, interest and what to do with unpaid liens.' : d.plan === 'flip' ? 'Fixing it up and selling it: tracking repair and holding costs against your budget.' : 'Renting or holding it: recording real rent and costs each month.';
     case 'passed': return 'You walked away. A good result when the evidence says no.';
@@ -133,6 +138,7 @@ const L = {
   guides: { label: 'Your sale guide', href: '#/playbooks' },
   findDeals: { label: 'Official sources for your county', href: '#/find-deals' },
   practiceAuction: { label: 'Practice an auction', href: '#/practice' },
+  practiceLien: { label: 'Practice a lien certificate', href: '#/practice/sid-house' },
   buyBox: { label: 'Your buy box', href: '#/toolkit/buy-box' },
   caseStage: (stage: string, title: string) => ({ label: `Practice purchase: ${title}`, href: `#/practice/case/${stage}` }),
   pro: (k: string) => ({ label: `Your team: ${(proGuideByKey(k as never)?.title ?? k).toLowerCase()}`, href: `#/pros/${k}` }),
@@ -185,7 +191,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
   };
   const area = (k: string, label: string, produces: string, support: Support[] = []) => out.push(task({ key: `ev-${k}`, label, produces, href: packetHref(d, 'evidence'), support, done: ev(k) }));
   const fit = () => out.push(task({ key: 'fit', label: `Check ${n} against your buy box`, produces: 'a fits or doesn’t-fit call with the reason, in its deal packet', href: packetHref(d, 'plan'), support: [L.buyBox], done: !!(p.fit && p.fitWhy.trim()) }));
-  const decide = () => out.push(task({ key: 'decide', label: `Decide on ${n}: pass, or go on to ${w === 'offer' ? 'an offer' : 'bidding'}`, produces: 'your decision and the reason, recorded in its evidence log', href: packetHref(d, 'decision'), support: [L.walkAway], done: log.gate === 'pass' || log.gate === 'proceed' }));
+  const decide = () => out.push(task({ key: 'decide', label: `Decide on ${n}: pass, or go on to ${w === 'offer' ? 'an offer' : w === 'lien' && d.state === 'NV' ? 'the sale' : 'bidding'}`, produces: 'your decision and the reason, recorded in its evidence log', href: packetHref(d, 'decision'), support: [L.walkAway], done: log.gate === 'pass' || log.gate === 'proceed' }));
   const findNext = () => out.push(task({ key: 'next', label: d.kind === 'lien' ? 'Find your next lien sale' : 'Find your next property', produces: 'a new candidate saved in Analyze, starting at Researching', href: '#/find-deals', support: [L.findDeals, L.analyze], done: false }));
 
   if (stage === 'researching') {
@@ -211,7 +217,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     if (log.gate !== 'pass') out.push(task({
       key: 'stage',
       label: `Move ${n} to ${stageLabel('offer', d)}`,
-      produces: w === 'offer' ? 'the offer tasks for it: your price, the earnest money and your professionals’ questions' : 'the bidding tasks for it: your maximum bid, the funds the sale requires and the dates',
+      produces: w === 'offer' ? 'the offer tasks for it: your price, the earnest money and your professionals’ questions' : w === 'lien' && d.state === 'NV' ? 'the sale tasks for it: the funds the sale requires and the dates' : 'the bidding tasks for it: your maximum bid, the funds the sale requires and the dates',
       href: packetHref(d, 'decision'),
       setStage: 'offer',
       done: false,
@@ -245,7 +251,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
         produces: w === 'lien' && d.state === 'NV' ? 'your name in for it at the sale (buyers are picked by a drawing or a show of hands), or a clean walk-away. If you’re picked, mark it and the payment deadline appears here' : 'a bid at or below your limit, or a clean walk-away. If you win, mark it won and the payment deadlines appear here',
         href: ROADMAP_HREF,
         advance: { stage: 'contract', label: w === 'lien' && d.state === 'NV' ? 'I was picked: mark it' : 'I won the bid: mark it won' },
-        support: [L.guides, L.practiceAuction],
+        support: [L.guides, w === 'lien' && d.state === 'NV' ? L.practiceLien : L.practiceAuction],
         done: false,
       }));
     }
@@ -274,8 +280,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       }
       // A Nevada HOA or sheriff's sale gives a certificate of sale first; the deed comes only after the redemption period
       // (60 days, NRS 116.31166; 1 year, NRS 21.210), if no one redeems.
-      const certFirst = d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court');
-      out.push(task({ key: 'record', label: w === 'lien' ? `Get the certificate for ${n}` : certFirst ? `Get the certificate of sale for ${n} recorded` : `Get the deed for ${n} recorded`, produces: w === 'lien' ? 'the certificate in your records. Then mark it in hand and the holding tasks appear here' : certFirst ? `the recorded certificate of sale. The deed comes after the redemption period (${d.kind === 'hoa' ? '60 days' : '1 year'} after the sale), if no one redeems. Then mark it recorded and the tasks for the wait appear here` : 'the recorded deed. Then mark it recorded and the new-owner tasks appear here', href: ROADMAP_HREF, advance: { stage: 'closed', label: w === 'lien' ? 'I have the certificate: mark it' : certFirst ? 'The certificate of sale is recorded: mark it' : 'The deed is recorded: mark it' }, support: [L.guides], done: false }));
+      const certFirst = certificateFirst(d);
+      out.push(task({ key: 'record', label: w === 'lien' ? `Get the certificate for ${n}` : certFirst ? (d.kind === 'irs' ? `Get the certificate of sale for ${n}` : `Get the certificate of sale for ${n} recorded`) : `Get the deed for ${n} recorded`, produces: w === 'lien' ? 'the certificate in your records. Then mark it in hand and the holding tasks appear here' : certFirst ? `the ${d.kind === 'irs' ? '' : 'recorded '}certificate of sale. The deed comes after the redemption period (${d.kind === 'hoa' ? '60 days' : '1 year'} after the sale), if no one redeems. Then mark it recorded and the tasks for the wait appear here` : 'the recorded deed. Then mark it recorded and the new-owner tasks appear here', href: ROADMAP_HREF, advance: { stage: 'closed', label: w === 'lien' ? 'I have the certificate: mark it' : certFirst ? (d.kind === 'irs' ? 'I have the certificate of sale: mark it' : 'The certificate of sale is recorded: mark it') : 'The deed is recorded: mark it' }, support: [L.guides], done: false }));
     }
     return out;
   }
@@ -286,18 +292,23 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       out.push(task({ key: 'stage', label: `Mark ${n} as ${stageLabel('owned', d).toLowerCase()}`, produces: 'the holding tasks: payoffs, interest and what to do if it’s never paid', href: ROADMAP_HREF, setStage: 'owned', done: false }));
       return out;
     }
+    // A certificate first: insure it on day one, then the wait, then the deed (each done from the packet's dates).
+    const firstWeek = task({ key: 'first-week', label: `Your first week with ${n}`, produces: certificateFirst(d) ? 'insurance in your name and a dated record of its condition; locks, utilities and possession as your attorney advises while the redemption period runs*' : 'insurance in your name, locks changed, utilities on, and a dated record of its condition', href: ROADMAP_HREF, support: d.plan === 'flip' ? [L.caseStage('after', 'Your first weeks')] : [L.afterClosing, L.caseStage('after', 'Your first weeks')], done: stepDone('first-week') });
+    if (certificateFirst(d)) out.push(firstWeek);
     if (w === 'auction') out.push(task({ key: 'before-remodel', label: `Check redemption, possession and title for ${n} before you remodel`, produces: 'a written answer on any redemption period, lawful possession and title insurance', href: ROADMAP_HREF, support: [L.guides], done: stepDone('a-before-remodel') }));
     // The redemption wait comes first: the end date on its calendar, the property insured and kept up, no remodeling.
-    if (certificateFirst(d)) out.push(task({ key: 'redemption-wait', label: `Wait out ${n}’s redemption period (${waitWord(d)} after the sale)`, produces: 'the end date on its calendar, the property insured and maintained, receipts for the taxes and upkeep you pay, and no remodeling until it ends; then the deed, if no one redeemed', href: packetHref(d, 'dates'), support: [L.pro('attorney')], done: false }));
-    out.push(task({ key: 'first-week', label: `Your first week with ${n}`, produces: certificateFirst(d) ? 'insurance in your name and a dated record of its condition; locks, utilities and possession as your attorney advises while the redemption period runs*' : 'insurance in your name, locks changed, utilities on, and a dated record of its condition', href: ROADMAP_HREF, support: d.plan === 'flip' ? [L.caseStage('after', 'Your first weeks')] : [L.afterClosing, L.caseStage('after', 'Your first weeks')], done: stepDone('first-week') }));
+    if (certificateFirst(d)) {
+      out.push(task({ key: 'redemption-wait', label: `Wait out ${n}’s redemption period (${waitWord(d)} after the sale)`, produces: 'the end date on its calendar, the property insured and maintained, receipts for the taxes and upkeep you pay, and no remodeling until it ends. Once it has passed, mark “Redemption period ends” handled in its dates', href: packetHref(d, 'dates'), support: [L.pro('attorney')], done: handled(p, 'Redemption period ends', now) }));
+      out.push(task({ key: 'deed', label: `Get the deed for ${n} and record it, if no one redeemed`, produces: `the deed from ${d.kind === 'hoa' ? 'whoever conducted the sale' : d.kind === 'irs' ? 'the IRS, for your certificate of sale' : 'the sheriff'}, recorded, then mark “${DEED_AFTER_WAIT}” handled in its dates. If it was redeemed instead, you’re repaid your price plus what the law adds: record the payoff and mark the deal passed`, href: packetHref(d, 'dates'), support: [L.pro('title')], done: handled(p, DEED_AFTER_WAIT, now) }));
+    } else out.push(firstWeek);
     if (d.plan === 'flip') {
       // A flip gets the work and the sale, not rental tasks.
-      out.push(task({ key: 'repairs', label: certificateFirst(d) ? `Get repair bids for ${n}, and start the work once the redemption period ends` : `Get repair bids for ${n} and start the work`, produces: 'written bids, permits where needed, and the work under way', href: ROADMAP_HREF, support: [L.pro('contractor')], done: stepDone('repairs') }));
+      out.push(task({ key: 'repairs', label: certificateFirst(d) ? `Get repair bids for ${n}, and start the work once you have the deed` : `Get repair bids for ${n} and start the work`, produces: 'written bids, permits where needed, and the work under way', href: ROADMAP_HREF, support: [L.pro('contractor')], done: stepDone('repairs') }));
       out.push(task({ key: 'owned', label: `Track ${n}’s repair and holding costs against your budget`, produces: flipBudget(d) ? 'a monthly record of what you pay (with $0 rent), shown against the budget in your Fix and sell numbers (repairs, holding and any loan interest and points)' : 'a monthly record of what you pay (with $0 rent), to compare yourself with the repairs and holding costs in Fix and sell (Analyze)', href: packetHref(d, 'owned'), done: !!owned[d.id] }));
       out.push(task({ key: 'stage', label: `Mark ${n} as ${stageLabel('owned', d).toLowerCase()}`, produces: 'the selling tasks: list it at a price backed by sold comps, and record the sale', href: packetHref(d, 'owned'), setStage: 'owned', done: false }));
       return out;
     }
-    out.push(task({ key: 'rental-repairs', label: certificateFirst(d) ? `Once the redemption period ends, finish the repairs ${n} needs before renting` : `Finish the repairs ${n} needs before renting`, produces: 'required repairs completed and checked, with permits where needed; mark the repairs roadmap task done', href: ROADMAP_HREF, support: [L.pro('contractor')], done: stepDone('repairs') }));
+    out.push(task({ key: 'rental-repairs', label: certificateFirst(d) ? `Once you have the deed, finish the repairs ${n} needs before renting` : `Finish the repairs ${n} needs before renting`, produces: 'required repairs completed and checked, with permits where needed; mark the repairs roadmap task done', href: ROADMAP_HREF, support: [L.pro('contractor')], done: stepDone('repairs') }));
     out.push(task({ key: 'rental-lease', label: `Rent ${n} lawfully, or confirm its existing tenancy`, produces: 'screening, disclosures, a lawful lease and tenant records reviewed with your team; mark the rental roadmap task done', href: ROADMAP_HREF, support: [L.afterClosing], done: stepDone('rent') }));
     out.push(task({ key: 'owned', label: `Start tracking ${n}’s real rent and costs`, produces: 'a monthly record of actual rent and costs, against the cash flow you planned', href: packetHref(d, 'owned'), support: [L.afterClosing], done: !!owned[d.id] }));
     out.push(task({ key: 'stage', label: `Mark ${n} as owned and operating`, produces: 'the monthly tasks: record the rent and costs, and review it against your goal', href: packetHref(d, 'owned'), setStage: 'owned', done: false }));

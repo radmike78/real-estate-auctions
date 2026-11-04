@@ -157,7 +157,7 @@ function noscriptNote(body: string): string {
   const states = ['Nevada', 'California', 'Arizona', 'Utah', 'Texas'].filter((n) => body.includes(n)).length;
   const lines = [
     ...(body.length < 2000 ? ['Parts of this page need JavaScript. The lessons in Learn work without it.'] : []),
-    ...(states > 1 ? ['This copy shows the rules for all five states we cover, each labeled with its state; turn on JavaScript to see only yours.'] : []),
+    ...(states > 1 ? ['This copy shows rules for several of the states we cover, each labeled with its state; turn on JavaScript to see only yours.'] : []),
   ];
   return lines.length ? `<noscript><p>${lines.join(' ')}</p></noscript>` : '';
 }

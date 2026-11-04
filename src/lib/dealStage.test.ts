@@ -266,3 +266,24 @@ it('includes preparation and lawful tenancy before a rental is operating', () =>
   expect(keys.indexOf('rental-lease')).toBeLessThan(keys.indexOf('owned'));
   expect(tasks.find(t => t.key === 'rental-lease')?.done).toBe(false);
 });
+
+it('walks a Nevada HOA sale through the certificate, the redemption wait and the deed (NRS 116.31166)', () => {
+  const hoa: Deal = { ...deal, id: 'dh1', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip' };
+  const keys = (p = EMPTY_PACKET) => stageTasks(hoa, 'closed', p, now).map((t) => [t.key, t.done] as const);
+  const k0 = keys().map(([k]) => k);
+  // Insure it first; then the wait; then the deed; repairs only after.
+  expect(k0.indexOf('first-week')).toBeLessThan(k0.indexOf('redemption-wait'));
+  expect(k0.indexOf('redemption-wait')).toBeLessThan(k0.indexOf('deed'));
+  expect(k0.indexOf('deed')).toBeLessThan(k0.indexOf('repairs'));
+  expect(Object.fromEntries(keys())['redemption-wait']).toBe(false);
+  // The wait is done once its end date has passed and is marked handled; the deed once its row is.
+  const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Redemption period ends', who: 'Owner', resolved: true }, { when: '2026-09-20', what: 'Deed delivered (if no one redeemed)', who: 'HOA agent', resolved: true }] };
+  expect(Object.fromEntries(keys(p))['redemption-wait']).toBe(true);
+  expect(Object.fromEntries(keys(p))['deed']).toBe(true);
+  // A date still ahead isn't done, even if ticked.
+  const ahead = { ...EMPTY_PACKET, dates: [{ when: '2027-01-01', what: 'Redemption period ends', who: 'Owner', resolved: true }] };
+  expect(Object.fromEntries(keys(ahead))['redemption-wait']).toBe(false);
+  // An IRS sale is the same: a certificate of sale, 180 days, then the deed (26 U.S.C. 6337, 6338).
+  expect(stageLabel('closed', { kind: 'irs', state: 'TX' })).toBe('Certificate of sale received');
+  expect(stageTasks({ ...hoa, kind: 'irs' }, 'closed', EMPTY_PACKET, now).find((t) => t.key === 'redemption-wait')?.label).toMatch(/180 days after the sale/);
+});

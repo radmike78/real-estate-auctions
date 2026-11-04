@@ -227,7 +227,7 @@ function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Tas
   const head = (label: string, title: string) => (
     <div className="task-head">
       {showKind && <div className={`task-kind kind-${task.kind}`}>{label}</div>}
-      <h3>{title}{done && <span className="task-done" aria-label="Done"> ✓</span>}</h3>
+      <h3>{title}{done && <><span className="task-done" aria-hidden="true"> ✓</span><span className="sr-only"> (done)</span></>}</h3>
     </div>
   );
 

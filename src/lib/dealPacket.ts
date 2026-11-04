@@ -58,7 +58,9 @@ export interface PacketData {
 export const EMPTY_PACKET: PacketData = { fit: '', fitWhy: '', dates: [], qa: [], earnest: 0, decisionWhy: '', conditions: '' };
 
 /** A count of dates cannot establish that all applicable deadlines have been reviewed. */
-export const calendarComplete = (p: PacketData, stage: string) => p.calendarReviewedFor === stage && p.dates.length > 0 && p.dates.every((d) => !!d.when && !!d.what.trim() && !!d.who.trim());
+/** A date that applies only if something happens (its name says “(if …)”): it can stay undated. */
+const ifOnly = (what: string) => /\(if /.test(what);
+export const calendarComplete = (p: PacketData, stage: string) => p.calendarReviewedFor === stage && p.dates.length > 0 && p.dates.every((d) => !!d.what.trim() && ((!!d.when && !!d.who.trim()) || (!d.when && ifOnly(d.what))));
 
 const KEY = 'deedowl.dealPacket.v1';
 export const PACKET_KEY = KEY;
@@ -267,9 +269,9 @@ function typedWait(d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal[
 
 /** Nevada's own deadlines on a home bought by offer (NRS 113.130, 113.150, 116.4109, leg.state.nv.us). */
 const NV_OFFER_DATES: DateGuide[] = [
-  { what: 'Seller’s disclosure form due', when: 'At least 10 days before closing.', who: 'The seller or the seller’s agent', todo: 'Read it as soon as it arrives.', missed: 'If it never comes, you may cancel before closing without penalty.', why: 'NRS 113.130(1) and 113.150(1)' },
-  { what: 'Defect cancellation deadline', when: '4 working days after you’re told of a defect in writing.', who: 'You', todo: 'To cancel, put it in writing, have it notarized, and serve it on escrow (or the seller if there’s no escrow).', missed: 'You can close and accept the defect as disclosed.', why: 'NRS 113.150(2) and (3)' },
-  { what: 'HOA resale package: cancel by (homes in an HOA)', when: 'Midnight of the 5th calendar day after you receive it.', who: 'You', todo: 'Write down the day it arrives; to cancel, give written notice.', missed: 'The right to cancel under that law ends.', why: 'NRS 116.4109(2)' },
+  { what: 'Seller’s disclosure form due', when: 'At least 10 days before closing (not required for some sales, such as a builder’s first sale, an estate or trust sale, or a sale between relatives; ask your agent).*', who: 'The seller or the seller’s agent', todo: 'Read it as soon as it arrives.', missed: 'If it never comes, you may cancel before closing without penalty.', why: 'NRS 113.130 and 113.150(1)' },
+  { what: 'Defect cancellation deadline (if a defect is disclosed)', when: '4 working days after you’re told of a defect in writing.', who: 'You', todo: 'To cancel, put it in writing, have it notarized, and serve it on escrow (or the seller if there’s no escrow).', missed: 'You can close and accept the defect as disclosed.', why: 'NRS 113.150(2) and (3)' },
+  { what: 'HOA resale package: cancel by (if in an HOA)', when: 'Midnight of the 5th calendar day after you receive it (no package is required on a sale by a government agency, such as HUD or VA, or a court-ordered sale).', who: 'You', todo: 'Write down the day it arrives; to cancel, give written notice.', missed: 'The right to cancel under that law ends.', why: 'NRS 116.4109(2) and 116.4101(2)' },
 ];
 
 /** The dates most deals of this kind need on the calendar, each with how it works where we have it (Texas contracts). */
@@ -324,8 +326,11 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   // (A trustee's sale lists registration only if the trustee requires one: the statutes set no registration step.)
   if (d.kind === 'trustee') return [{ what: 'Registration (if required)', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline', 'Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
-  const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court') ? 'Certificate of sale recorded' : 'Deed or certificate recorded'];
-  const nvCert = d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court')
+  const certFirst = d.kind === 'irs' || (d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court'));
+  const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', d.kind === 'irs' ? 'Certificate of sale received' : certFirst ? 'Certificate of sale recorded' : 'Deed or certificate recorded'];
+  const nvCert = d.kind === 'irs'
+    ? { what: 'Certificate of sale received', when: 'When you pay the full price.', who: 'The IRS', todo: 'Keep it safe: you hand it in for the deed.', missed: 'Ask the IRS sale officer.', why: '26 U.S.C. 6338(a)' }
+    : d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court')
     ? { what: 'Certificate of sale recorded', when: 'After the sale.', who: d.kind === 'hoa' ? 'The person who conducted the sale (the HOA’s agent)' : 'The sheriff', todo: 'Get a recorded copy, and insure the property right away.', missed: 'Ask who conducted the sale when it will be recorded.', why: d.kind === 'hoa' ? 'NRS 116.31166(2)' : 'NRS 21.190' }
     : null;
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
@@ -333,19 +338,24 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   if ((['hoa', 'irs', 'court'].includes(d.kind) || (d.kind === 'taxSale' && d.state === 'TX')) && redemptionChoicesFor(d.state, d.kind).start !== 'none' && savedRule(d) !== 'none') out.push('Redemption period ends');
   // A redemption wait typed in Fix and sell (a what-if the price is built on) puts its end on the calendar too.
   else if (typedWait(d)) out.push('Redemption period ends');
+  // Then the deed, if no one redeemed (NRS 116.31166(7); NRS 21.220(4); 26 U.S.C. 6338(b)).
+  if (certFirst && out.includes('Redemption period ends')) out.push('Deed delivered (if no one redeemed)');
+  const deedRow = certFirst ? { what: 'Deed delivered (if no one redeemed)', when: `After the redemption period, if no one redeemed${d.kind === 'irs' ? ': hand in the certificate of sale for the deed' : ''}.`, who: d.kind === 'hoa' ? 'The person who conducted the sale (the HOA’s agent)' : d.kind === 'irs' ? 'The IRS' : 'The sheriff', todo: 'Record the deed and get title insurance before you remodel or sell. If it was redeemed instead, you’re repaid your price plus what the law adds: record the payoff and mark the deal passed.', missed: 'Ask who conducted the sale when the deed will be delivered.', why: d.kind === 'hoa' ? 'NRS 116.31166(5) and (7)' : d.kind === 'irs' ? '26 U.S.C. 6338(b)' : 'NRS 21.220(4) and (5)' } : null;
   // When the owner's period starts, where the rule says (not under a United States redemption, which has its own).
   const ownerRule = !['usCourt', 'usFederal'].includes(savedRule(d) ?? '');
   // Nevada (leg.state.nv.us): an HOA sale's owner or a junior lienholder may redeem within 60 days (NRS 116.31166(3)), a
   // sheriff's sale's judgment debtor or a later lienholder within 1 year (NRS 21.200, 21.210); a certificate of sale first.
-  const nvEnds = d.state === 'NV' && ownerRule && (d.kind === 'hoa' || d.kind === 'court')
+  const nvEnds = d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court')
     ? { what: 'Redemption period ends', when: d.kind === 'hoa' ? '60 days after the sale.' : '1 year after the sale.', who: d.kind === 'hoa' ? 'The former owner, or a lender whose recorded loan ranked below the HOA’s lien' : 'The former owner (the judgment debtor), or a creditor with a later judgment or mortgage lien', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends. Keep receipts for taxes and upkeep you pay.', missed: 'After it ends, no one can redeem under that law, and the deed can follow if no one redeemed.*', why: d.kind === 'hoa' ? 'NRS 116.31166(2) and (3)' : 'NRS 21.200 and 21.210' }
     : null;
-  const ends = nvEnds ?? (d.state === 'UT' && d.kind === 'court' && ownerRule
+  // An IRS sale: 180 days for the owner or anyone with an interest in it (26 U.S.C. 6337(b)).
+  const irsEnds = d.kind === 'irs' ? { what: 'Redemption period ends', when: '180 days after the sale.', who: 'The owner, or anyone with an interest in the property or a lien on it', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends.', missed: 'After it ends, it can’t be redeemed under that law, and the deed can follow.*', why: '26 U.S.C. 6337(b)' } : null;
+  const ends = nvEnds ?? irsEnds ?? (d.state === 'UT' && d.kind === 'court' && ownerRule
     ? { what: 'Redemption period ends', when: '180 days after the sale.', who: 'The owner, or others the rule lets redeem', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends.', missed: 'After it ends, the owner can no longer redeem under that rule.*', why: 'Utah Rule of Civil Procedure 69C' }
     : d.state === 'TX' && d.kind === 'taxSale' && ownerRule
       ? { what: 'Redemption period ends', when: '180 days, or 2 years for the owner’s home (homestead), land designated for agricultural use or a mineral interest, counted from the day your deed is recorded, not from sale day.', who: 'The former owner', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends.', missed: 'After it ends, the owner can no longer redeem under that law.*', why: 'Tax Code 34.21' }
       : null);
-  return names(out).map((g) => (ends && g.what === 'Redemption period ends' ? ends : nvCert && g.what === nvCert.what ? nvCert : g));
+  return names(out).map((g) => (ends && g.what === 'Redemption period ends' ? ends : nvCert && g.what === nvCert.what ? nvCert : deedRow && g.what === deedRow.what ? deedRow : g));
 }
 
 /** The names of the dates most deals of this kind need on the calendar, to start the list from. */
