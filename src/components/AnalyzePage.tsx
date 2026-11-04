@@ -81,7 +81,8 @@ function startLienDraft(ld: Deal): { draft: Deal; kept: string | null } {
     kept = `Your unsaved ${stateByCode(keptDeal.state)?.name ?? ''} deal “${keptDeal.name}” was saved to My deals.`;
   }
   clearLienDraftNumbers();
-  const draft: Deal = { ...blank(ld.state), county: ld.county, countyChosen: true, kind: 'lien', plan: 'lien' };
+  // There's no property to check the location of: the calculator opens at once.
+  const draft: Deal = { ...blank(ld.state), county: ld.county, countyChosen: true, kind: 'lien', plan: 'lien', locationConfirmed: true };
   try { localStorage.setItem(CURRENT_KEY, JSON.stringify(draft)); localStorage.removeItem(OPENED_KEY); } catch { /* storage unavailable */ }
   return { draft, kept };
 }
@@ -182,6 +183,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const [mine] = useMyState();
   // The investing state before the State field below changed it, for the notice.
   const [stateMoved, setStateMoved] = useState<StateCode | null>(null);
+  // The practice lien certificate's note, focused when the button opens one (it replaces the button).
+  const lienNoteRef = useRef<HTMLParagraphElement>(null);
   // Your own state, from before the State field first moved you (kept across visits until you're back in it).
   const homeState = stateMoved ? (movedFrom() as StateCode | null) : null;
   // (A Nevada or Arizona lien deal priced after the State field moved you from a state without lien sales saves as a
@@ -390,9 +393,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           if (!ld) return null;
           const nm = stateByCode(ld.state)?.name ?? ld.state;
           // The new certificate opened in that deal's state (the lien calculator link, or the button below).
-          if (deal.kind === 'lien' && deal.state === ld.state && deal.state !== mine) return <p className="note" role="note">A new, unsaved lien certificate in {nm}, where your saved lien deal is, for practice payoffs or another certificate. Your saved deal “{ld.name}” isn’t changed; save this one only if you want to keep it.</p>;
+          if (deal.kind === 'lien' && deal.state === ld.state && deal.state !== mine) return <p className="note" role="status" tabIndex={-1} ref={lienNoteRef}>A new, unsaved lien certificate in {nm}, where your saved lien deal is. For the practice step, enter a price and rate below, then try “Months until the owner pays” at 6 and at 24. Your saved deal “{ld.name}” isn’t changed; save this one only if you want to keep it. <button type="button" className="linkish" onClick={() => { clearLienDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new {stateByCode(mine ?? '')?.name ?? ''} deal instead</button></p>;
           // A new deal in your own state: how to price another lien there, without changing your state for the site.
-          if (deal.kind !== 'lien' && deal.state !== ld.state) return <p className="note" role="note">Your saved lien deal is in {nm}. <button type="button" className="linkish" onClick={() => { const { draft, kept } = startLienDraft(ld); if (kept) setKeptNote(kept); setSaved(loadDeals()); setDeal(draft); }}>Price another {nm} lien certificate</button></p>;
+          if (deal.kind !== 'lien' && deal.state !== ld.state) return <p className="note" role="note">Your saved lien deal is in {nm}. <button type="button" className="linkish" onClick={() => { const { draft, kept } = startLienDraft(ld); if (kept) setKeptNote(kept); setSaved(loadDeals()); setDeal(draft); setTimeout(() => lienNoteRef.current?.focus(), 0); }}>Price another {nm} lien certificate</button></p>;
           return null;
         })()}
         {/* The State here is also your investing state for the whole site: say so when it changes it. */}

@@ -778,7 +778,7 @@ function BuyBoxBuilder() {
           </>
         )}
       </div>
-      {lien && lienDeal && (b.state || mine) !== lienDeal.state && <p className="note" role="note">Your lien deal is in {stateByCode(lienDeal.state)?.name ?? lienDeal.state}, where lien certificates are sold: set this buy box’s State to {stateByCode(lienDeal.state)?.name ?? lienDeal.state} so its limits fit that sale.</p>}
+      {lien && lienDeal && (b.state || mine) !== lienDeal.state && <p className="note" role="note">Your lien deal is in {stateByCode(lienDeal.state)?.name ?? lienDeal.state}, where lien certificates are sold: set this buy box’s State to {stateByCode(lienDeal.state)?.name ?? lienDeal.state} so its limits fit that sale. <button type="button" className="linkish" onClick={() => setB({ ...b, state: lienDeal.state, area: '' })}>Set it to {stateByCode(lienDeal.state)?.name ?? lienDeal.state}</button></p>}
       {lien && <p className="muted">A lien certificate isn’t the property: there’s no rent and nothing to repair. Your buy box is the parcels you’ll bid on, what you’ll pay, and how long your money can wait. Property types and deal breakers below describe the land behind each lien.</p>}
       {!b.strategy && suggested && <p className="roadmap-has">Decide suggested: <strong>{suggested}</strong>. <button type="button" className="linkish" onClick={() => set('strategy', suggested)}>Use it</button></p>}
       {!lien && b.priceMax > 0 && b.cashMax > 0 && cashForPrice(b.priceMax, pa).total > b.cashMax && (
@@ -936,12 +936,17 @@ function planText(): string {
   lines.push('', buyBoxText(b, STATES.find((x) => x.code === b.state)?.name), '', `ROADMAP: ${ROADMAP_PATHS[path].label}`);
   for (const s of steps) lines.push(`[${done.includes(s.id) ? 'x' : status[s.id] === 'na' ? '-' : ' '}] ${ROADMAP_PHASES[s.phase]}: ${s.title}${status[s.id] && !done.includes(s.id) ? ` (${STEP_STATUS_LABEL[status[s.id]]})` : ''}`);
   lines.push('', 'TEAM');
+  // The people you've chosen, with what to say to each; the roles still open on one line (a lien or auction plan
+  // doesn't need the listed-home team's scripts).
+  const open: string[] = [];
   for (const k of TEAM_ROLES) {
     const m = team[k];
     const g = proGuideByKey(k);
-    lines.push(`${g?.title ?? k}: ${m?.name || '(not chosen yet)'}${m?.contact ? `, ${m.contact}` : ''}${m?.licenseChecked ? ', credentials checked' : ''}${m?.fees ? `. Fees: ${m.fees}` : ''}`);
+    if (!m?.name) { open.push(g?.title ?? k); continue; }
+    lines.push(`${g?.title ?? k}: ${m.name}${m.contact ? `, ${m.contact}` : ''}${m.licenseChecked ? ', credentials checked' : ''}${m.fees ? `. Fees: ${m.fees}` : ''}`);
     if (PRO_SCRIPTS[k]) lines.push(`  What to say: ${PRO_SCRIPTS[k].say}`);
   }
+  if (open.length) lines.push(`Not chosen yet: ${open.join(', ')}. The Your team page shows who you need for your route and when.`);
   return lines.join('\n');
 }
 
