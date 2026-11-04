@@ -192,7 +192,7 @@ export const STRATEGIES: Strategy[] = [
     },
     risk: {
       worst: 'Vacancy, a tenant who stops paying or a big repair leaves you paying the mortgage yourself. Evictions take a court case.',
-      atRisk: 'The down payment: at least 15% (one unit) to 25% (two to four units) on Fannie Mae investment loans, plus closing costs and reserves.',
+      atRisk: 'The down payment: at least 15% (one unit) to 25% (two to four units) on Fannie Mae investment loans,* plus closing costs and reserves.',
       ongoing: 'You owe every loan payment, tax and insurance bill even when a unit is empty or repairs run over. If you can’t pay, you can lose the property and the equity in it, so you can lose more than the cash you start with.',
       time: 'Months: pre-approval, a search and a closing, then finding a tenant.',
     },

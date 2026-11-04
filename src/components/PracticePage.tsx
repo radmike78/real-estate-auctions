@@ -163,7 +163,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
         </> : <>
         {/* Part 2 already settled on another route (an auction or lien practice): this one is extra now. */}
         <h2 id="practice-case" className="practice-step">{partTwoElsewhere ? 'Optional: Buy a rental (the paperwork)' : 'Practice part 2: Buy a rental (the paperwork)'}</h2>
-        {partTwoElsewhere && <p className="practice-step-intro"><strong>Your practice part 2 is done</strong> (on your earlier route). This rental purchase is extra, if you’d like the paperwork for a listed home too.</p>}
+        {partTwoElsewhere && <p className="practice-step-intro"><strong>Your practice part 2 is done:</strong> you finished the {roadmapDone().includes('c-practice') ? 'lien practice' : 'auction practice'} before you chose a listed home. This rental purchase is extra, if you’d like the paperwork for a listed home too.</p>}
         <p className="practice-step-intro">Part 1 was the decisions; part 2 is the paperwork, on a new fictional house. Work one fictional purchase from your budget to the first months of renting it out. Read teaching versions of the paperwork (comparables, a loan quote, an inspection report, a title commitment, a closing statement), each with a guide to reading the real form, and make the calls when things go wrong. You finish with your own deal packet: a budget, a deadline calendar, an evidence log and your questions for each professional.</p>
         <div className="practice-case-go">
           <a className="btn big" href={`#/practice/case${caseStarted ? `/${caseNext.key}` : ''}`}>{!caseStarted ? 'Start the purchase\u00a0→' : caseNext.packet ? 'See your deal packet\u00a0→' : 'Continue the purchase\u00a0→'}</a>

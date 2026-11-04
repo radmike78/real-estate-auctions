@@ -17,11 +17,11 @@
 .pro-fold { margin: 0; }
 .pro-fold > summary { list-style: none; cursor: pointer; }
 .pro-fold > summary::-webkit-details-marker { display: none; }
-.pro-fold > summary h3.part-head { display: flex; align-items: center; gap: 12px; min-height: 44px; }
-.pro-fold > summary h3.part-head::after { content: 'Show'; margin-left: auto; font: 700 0.95rem var(--font-body); color: var(--accent); border: 1px solid var(--border); border-radius: 999px; padding: 4px 14px; background: var(--surface); }
-.pro-fold[open] > summary h3.part-head::after { content: 'Hide'; }
+.pro-fold > summary h2.part-head { display: flex; align-items: center; gap: 12px; min-height: 44px; }
+.pro-fold > summary h2.part-head::after { content: 'Show'; margin-left: auto; font: 700 0.95rem var(--font-body); color: var(--accent); border: 1px solid var(--border); border-radius: 999px; padding: 4px 14px; background: var(--surface); }
+.pro-fold[open] > summary h2.part-head::after { content: 'Hide'; }
 .pro-fold > summary:focus-visible { outline: none; }
-.pro-fold > summary:focus-visible h3.part-head { outline: 3px solid var(--accent); outline-offset: 2px; }
+.pro-fold > summary:focus-visible h2.part-head { outline: 3px solid var(--accent); outline-offset: 2px; }
 .story-tag.tag-date { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
 .pro-guide .pro-pay-list li { break-inside: avoid; margin-bottom: 8px; }
 

@@ -205,7 +205,7 @@ function GuideBody({ g }: { g: ProGuide }) {
         <strong>What you’ll learn</strong>
         <ul>{learn.map((x) => <li key={x}>{x}</li>)}</ul>
       </div>
-      <h3 className="part-head">The short version</h3>
+      <h2 className="part-head">The short version</h2>
       <div className="pro-guide-cols pro-decide-cols">
         {decide.map((c) => (
           <section key={c.title}>
@@ -216,7 +216,7 @@ function GuideBody({ g }: { g: ProGuide }) {
       </div>
       {(find.length > 0 || checklist.length > 0 || script?.read || lookups) && (
         <>
-          <h3 className="part-head">Finding and checking one</h3>
+          <h2 className="part-head">Finding and checking one</h2>
           <div className="pro-guide-cols pro-find-cols">
             {find.length > 0 && <section><h3>How to find one</h3><ul>{find.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></section>}
             {script?.read && <section><h3>{script.read.title}</h3><ul>{fit(script.read.items).map((x) => <li key={x}>{x}</li>)}</ul></section>}
@@ -227,7 +227,7 @@ function GuideBody({ g }: { g: ProGuide }) {
       )}
       {script && (
         <>
-          <h3 className="part-head">What to say</h3>
+          <h2 className="part-head">What to say</h2>
           <section className="pro-script-say pro-script-wide">
             {/\[/.test(script.say) && (
               <p className="fill-note">Fill in the blanks: the <span className="fill-blank">underlined words</span> are yours to change{Object.keys(fills).length ? ', and some are filled in from your buy box' : ''}.</p>
@@ -241,16 +241,16 @@ function GuideBody({ g }: { g: ProGuide }) {
       {g.directory && script && g.key !== 'eviction' && <div className="pro-ad-row"><FeaturedAds pros={pros} categories={g.directory} placeholder /></div>}
       {money.length > 0 && (
         <>
-          <h3 className="part-head">How they’re paid</h3>
+          <h2 className="part-head">How they’re paid</h2>
           <ul className="pro-pay-list">{money.map((x) => <li key={x}><Cited text={x} /></li>)}</ul>
         </>
       )}
       <p className="pro-next"><a className="btn" href="#/toolkit/team">Add them to your team in My{NBSP}plan{NBSP}→</a></p>
-      {PRO_WHY[g.key] && <h3 className="part-head">Should you hire one?</h3>}
+      {PRO_WHY[g.key] && <h2 className="part-head">Should you hire one?</h2>}
       {PRO_WHY[g.key] && <WhyBlock yes={PRO_WHY[g.key].yes} no={PRO_WHY[g.key].no} yesLabel="Why you would hire one" noLabel="Why you might not, or when to be careful" level={4} />}
       {overview.length > 0 && (
         <details className="pro-fold">
-          <summary><h3 className="part-head">The details: how working with one goes, and the evidence</h3></summary>
+          <summary><h2 className="part-head">The details: how working with one goes, and the evidence</h2></summary>
           {keyed ? (
             <ul className="pro-guide-overview pro-overview-list">
               {overview.map((p) => {
@@ -265,7 +265,7 @@ function GuideBody({ g }: { g: ProGuide }) {
       )}
       {stories.length > 0 && (
         <details className="pro-fold pro-guide-stories">
-          <summary><h3 className="part-head">Real stories: what happened to other buyers ({stories.length})</h3></summary>
+          <summary><h2 className="part-head">Real stories: what happened to other buyers ({stories.length})</h2></summary>
           <p className="muted">True accounts from news reports, court cases and government agencies. Private people aren’t named. Each one is dated: prices, rates and rules may have changed since.</p>
           <ProStories stories={stories} state={st} />
         </details>
@@ -279,7 +279,7 @@ function GuideBody({ g }: { g: ProGuide }) {
           featured={!script}
           header={
             <>
-              <h3 className="part-head">Listed on DeedOwl{st ? ` (${stateByCode(st)?.name})` : ''}</h3>
+              <h2 className="part-head">Listed on DeedOwl{st ? ` (${stateByCode(st)?.name})` : ''}</h2>
             </>
           }
           notice={<Disclaimer kind={g.key === 'lender' || g.key === 'private_lender' ? 'financing' : 'professionals'} compact />}

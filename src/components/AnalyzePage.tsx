@@ -366,6 +366,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     setSaved(next);
     setKeptNote(''); // a note about the last deal (deleted elsewhere, kept) is done once this one is saved
     setDeal(d);
+    // The button is replaced by the saved line: focus (and the screen reader) go there.
+    setTimeout(() => document.getElementById('deal-saved-line')?.focus(), 0);
   };
   const remove = (id: string) => {
     // One click used to wipe the packet, numbers and evidence; My deals asks first, so this does too.
@@ -410,7 +412,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           if (!ld) return null;
           const nm = stateByCode(ld.state)?.name ?? ld.state;
           // The new certificate opened in that deal's state (the lien calculator link, or the button below).
-          if (deal.kind === 'lien' && deal.state === ld.state && (deal.state !== mine || (movedIn && deal.county === ld.county))) return <p className="note" role="status" tabIndex={-1} ref={lienNoteRef}>A new, unsaved lien certificate in {nm}, where your saved lien deal is.{savingPractice(deal) ? ` For the practice step, enter the “${deal.state === 'AZ' ? 'Lien amount you pay' : 'Certificate price'}” and “Interest” below, then try “Months until the owner pays” at 6 and at 24.` : ' Saved, it becomes a real deal in My deals.'} Your saved deal “{ld.name}” isn’t changed. <button type="button" className="linkish" onClick={() => {
+          if (deal.kind === 'lien' && deal.state === ld.state && (deal.state !== mine || (movedIn && deal.county === ld.county && !!deal.locationConfirmed))) return <p className="note" role="status" tabIndex={-1} ref={lienNoteRef}>A new, unsaved lien certificate in {nm}, where your saved lien deal is.{savingPractice(deal) ? ` For the practice step, enter the “${deal.state === 'AZ' ? 'Lien amount you pay' : 'Certificate price'}” and “Interest” below, then try “Months until the owner pays” at 6 and at 24.` : ' Saved, it becomes a real deal in My deals.'} Your saved deal “{ld.name}” isn’t changed. <button type="button" className="linkish" onClick={() => {
             // A named or noted certificate is kept in My deals first, as every other way of replacing the draft does.
             // ...and, as with "Price another", the lien deal stays My plan's property (the kept one is newer otherwise).
             const keptDeal = keepUnsavedDraft();
@@ -428,7 +430,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             if (home && mine) { noteStateMove(mine, home); setMyState(home); }
             setDeal(blank(home ?? mine ?? deal.state));
             setTimeout(() => document.querySelector<HTMLInputElement>('.deal-fields input')?.focus(), 0);
-          }}>Start a new {stateByCode(movedIn ? mv ?? '' : mine ?? '')?.name ?? ''} deal instead</button></p>;
+          }}>{movedIn ? `Start a new ${stateByCode(mv ?? '')?.name ?? ''} deal instead (sets your state back to ${stateByCode(mv ?? '')?.name ?? ''})` : `Start a new ${stateByCode(mine ?? '')?.name ?? ''} deal instead`}</button></p>;
           // A new deal in your own state: how to price another lien there, without changing your state for the site.
           if (deal.kind !== 'lien' && deal.state !== ld.state) return <p className="note" role="note">Your saved lien deal is in {nm}. <button type="button" className="linkish" onClick={() => { const { draft, kept } = startLienDraft(ld); if (kept) setKeptNote(kept); setSaved(loadDeals()); setDeal(draft); setTimeout(() => lienNoteRef.current?.focus(), 0); }}>Price another {nm} lien certificate</button></p>;
           return null;
@@ -479,7 +481,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         <div className="deal-actions">
           {deal.id ? (
             <>
-              <span className="muted">Saved as {deal.practice ? 'the practice analysis ' : ''}“{deal.name}”. Changes save as you go.</span>
+              <span className="muted" role="status" tabIndex={-1} id="deal-saved-line">Saved as {deal.practice ? 'the practice analysis ' : ''}“{deal.name}”. Changes save as you go.</span>
               <a className="btn" href={`#/deals/packet/${deal.id}`}>Deal packet&nbsp;→</a>
               <button type="button" className="btn btn-secondary" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button>
             </>
