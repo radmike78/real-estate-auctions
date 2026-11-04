@@ -7,7 +7,7 @@ import { workStorage as localStorage } from './workStorage';
 // Site rules: tasks never involve contacting a homeowner, an occupant or a former owner. Official sellers, your own
 // team, public records and the county only.
 import { CURRENT_KEY, DEAL_STAGES, isDealStage, loadDeals, saveDeals, type Deal, type DealStage } from './analyze';
-import { loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
+import { roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
 import { areasFor, loadLog, type EvidenceLog } from './evidence';
 import { loadOwned, type Owned } from './owned';
 import { proGuideByKey } from './proGuide';
@@ -331,7 +331,7 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
     }
     const waiting = p.qa.find((x) => x.q && !x.a);
     if (waiting) {
-      const text = `Get an answer from your ${(proGuideByKey(waiting.role as never)?.title ?? 'professional').toLowerCase()}: ${waiting.q}`;
+      const text = `Get an answer from your ${(proGuideByKey(waiting.role as never) ? roleTitleFor(d, waiting.role as never) : 'professional').toLowerCase()}: ${waiting.q}`;
       return { key: 'qa-wait', label: text, produces: 'their answer, with the date, in its deal packet', href: `#/deals/packet/${d.id}/pros`, support: [], done: false, urgent: true, text };
     }
   }

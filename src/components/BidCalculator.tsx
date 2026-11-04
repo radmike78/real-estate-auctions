@@ -203,7 +203,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     return `${taxSale} ${hoa}`;
   };
   const moreForField = (f: Field) =>
-    f.k === 'redemptionMonths' && f.more && region.state === 'TX' ? f.more.replace('Optional remodeling', `${txRepaid()} Optional remodeling`) : moreFor(f);
+    // A sale that usually has no redemption (a trustee's mortgage foreclosure): the help says a wait is your what-if.
+    f.k === 'redemptionMonths' && f.more && choices?.start === 'none' ? `After this kind of sale the owner usually can’t redeem,* so a wait here is your own what-if: it only adds holding costs. The exceptions are the rules in the menu (for example a junior federal tax lien wiped out by the sale, which gives the United States 120 days). Ask an attorney which applies.`
+      : f.k === 'redemptionMonths' && f.more && region.state === 'TX' ? f.more.replace('Optional remodeling', `${txRepaid()} Optional remodeling`) : moreFor(f);
   const uid = useId();
   function save(next: BidInputs) {
     if (!storeId) return;
@@ -286,7 +288,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         if (cur === 'custom' && youTyped) {
           // Kept outside the component too: a first-paint remount runs this again on the already-reset numbers, and
           // the notice and the "typed" cleanup below would be lost with the first instance.
-          pendingWaitClear = { store: storeId ?? '', months: Math.round(nz(v.redemptionMonths)) };
+          pendingWaitClear = { store: storeId ?? '', months: Math.round(nz(v.redemptionMonths) * 10) / 10 };
           try {
             if (storeId) saveConfirmed(KEY(storeId), new Set([...typedKeys].filter((x) => x !== 'redemptionMonths' && x !== 'redemptionRatePct' && !/^rulePick_.*_custom$/.test(x))));
           } catch {
@@ -564,7 +566,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
             <strong>Redemption rule not confirmed.</strong> {ruleNow === choices?.start ? choices?.confirm : (choices?.confirm ?? '').replace(/ ?This calculator starts with [^.]*\. ?/, ' ').trim()} Your walk-away price now uses{' '}
             {ruleNow === 'custom'
               ? choices?.start === 'none' && saleKind
-                ? <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month what-if wait. It only adds holding costs: {noRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] }).replace(/^./, (c) => c.toLowerCase())}</>
+                ? <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month what-if wait. It only adds holding costs{choices?.confirm ? '.' : <>: {noRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] }).replace(/^./, (c) => c.toLowerCase())}</>}</>
                 : <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
               : <>{offered[ruleNow]?.label}.</>}{' '}
             {ruleNow === choices?.start ? 'Pick the rule under Holding and financing (Detailed), then confirm it here.' : ruleNow === 'custom' ? 'Once the records show which rule applies, pick it under Holding and financing (Detailed) and confirm it here.' : 'Once the records show this rule applies, confirm it here (or pick another under Holding and financing, Detailed).'}
@@ -575,7 +577,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </div>
         )}
         {!offer && choices?.confirm && !!i.redemptionChecked && (
-          <p className="small muted">Redemption rule confirmed by you: {ruleNow === 'custom' ? `your own numbers, a ${Math.round(i.redemptionMonths)}-month wait` : offered[ruleNow]?.label}. <button type="button" className="linkish" onClick={() => update({ redemptionChecked: 0 })}>Undo</button></p>
+          <p className="small muted">Redemption rule confirmed by you: {ruleNow === 'custom' ? `your own numbers, a ${Math.round(i.redemptionMonths * 10) / 10}-month wait` : offered[ruleNow]?.label}. <button type="button" className="linkish" onClick={() => update({ redemptionChecked: 0 })}>Undo</button></p>
         )}
         <ExampleResults count={needsValue ? 0 : still.length} />
         {!needsValue && !r.noBidWorks && !cashShort && <PriceHead level={3} kind="target" label="Walk-away price" price={r.noBidWorks || cashShort ? null : r.maxBid} result={r.noBidWorks || cashShort ? null : r.profit} unit="profit" note={r.noBidWorks || cashShort ? undefined : `Not the result at ${yours.toLowerCase()}: this is the most you could pay and still meet ${gw}.`} />}
@@ -676,7 +678,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                 ? 'This isn’t the full Texas payoff: the law also repays the costs you reasonably spent on the property, plus interest on them at the legal judgment rate: property insurance, repairs required by a building code, an ordinance or a lease in effect at the sale, city health-and-safety liens, HOA dues and certain fees (Tax Code 32.06(k)(2), 34.21(g)). Optional remodeling isn’t on that list. Keep every receipt and ask an attorney which of your costs qualify.'
                 : region.state === 'TX' && saleKind === 'taxSale'
                 ? 'This isn’t the full Texas payoff: it leaves out the deed recording fee, the taxes, penalties and interest you paid, and eligible costs, which the law also repays: property insurance, repairs required by a building code, an ordinance or a lease in effect at the sale, city health-and-safety liens, HOA dues and certain fees (Tax Code 34.21(a), (g)). Optional remodeling isn’t on that list. Keep every receipt and ask an attorney which of your costs qualify.'
-                : 'This leaves out other amounts some rules also repay, such as taxes, assessments or costs the law lists; optional remodeling usually isn’t repaid. Ask an attorney what your sale’s rule repays.'}
+                : 'This leaves out other amounts some rules also repay, such as taxes, assessments or costs the law lists; optional remodeling usually isn’t repaid.* Ask an attorney what your sale’s rule repays.'}
             </p>
           </div>
         )}

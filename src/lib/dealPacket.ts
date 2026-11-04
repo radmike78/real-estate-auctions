@@ -217,7 +217,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   // Texas: within 15 days the lender or trustee may rescind a sale for the reasons Property Code 51.016(b) lists (statutory
   // requirements not met, default cured before the sale, a bankruptcy stay in effect, and others).
   if (d.kind === 'trustee' && d.state === 'TX') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),
-    { what: '15-day rescission window', when: 'For a home of 1 to 4 units or a condo: within 15 days after the sale.', who: 'The lender (mortgagee) or the trustee', todo: 'Hold off on repairs and new contracts until it passes; the guide lists the reasons a sale can be rescinded.', missed: 'If no notice of rescission comes by then, the sale can’t be rescinded under that law.*', why: 'Property Code 51.016' },
+    { what: '15-day rescission window', when: 'For a home of 1 to 4 units, a condo or a co-op unit: within 15 days after the sale.', who: 'The lender (mortgagee), the trustee or a substitute trustee', todo: 'Hold off on repairs and new contracts until it passes; the guide lists the reasons a sale can be rescinded.', missed: 'A notice mailed and recorded by day 15 counts even if it reaches you later; after that, the sale can’t be rescinded under that law.*', why: 'Property Code 51.016' },
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   if (d.kind === 'trustee' && d.state === 'CA') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),
     { what: '15-day intent-to-bid window', when: 'For a home of 1–4 units: 15 days after the sale.', who: 'Eligible bidders (such as tenants and some buyers who will live there)', todo: 'Watch for a notice that one of them intends to bid; until then your win isn’t final.', missed: 'If none gives notice in time, your win stands, unless an exception applies.*', why: 'Civil Code 2924m, in effect until January 1, 2031' },
@@ -810,7 +810,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     title: 'Questions for your professionals',
     status: answered.length && !waiting.length ? 'done' : p.qa.length ? 'started' : 'missing',
     lines: p.qa.length
-      ? p.qa.filter((x) => x.q).map((x) => `${proGuideByKey(x.role as never)?.title ?? 'Other'}: ${x.q} → ${x.a ? `${x.a}${x.on ? ` (${x.on})` : ''}` : 'waiting for an answer'}`)
+      ? p.qa.filter((x) => x.q).map((x) => `${proGuideByKey(x.role as never) ? roleTitleFor(d, x.role as never) : 'Other'}: ${x.q} → ${x.a ? `${x.a}${x.on ? ` (${x.on})` : ''}` : 'waiting for an answer'}`)
       : [`Write down the question this deal raises for each of: ${teamRolesFor(d).map((k) => roleTitleFor(d, k)).join(', ')}. Add any other professional you’ll use.`],
   });
 

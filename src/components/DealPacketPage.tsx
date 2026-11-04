@@ -165,7 +165,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <Lines k="dates" />
         {guideRows.length > 0 && (
           <>
-            <details><summary>How each {deal.state === 'TX' ? 'Texas contract ' : ''}date works</summary>
+            <details><summary>How each {deal.state === 'TX' ? (['listing', 'reo', 'short'].includes(deal.kind) ? 'Texas contract ' : 'Texas ') : ''}date works</summary>
             <div className="table-wrap">
               <table className="lesson-table doc-guide-table packet-date-guide">
                 <thead>

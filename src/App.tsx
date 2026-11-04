@@ -252,7 +252,13 @@ function focusNewPage(backOrForward = false) {
         t.focus({ preventScroll: true });
         if (document.activeElement === t) return;
       }
-      // None in view: the title, as near the top.
+      // None in view: the section heading just above the view, so the next Tab continues into what you see.
+      const above = [...document.querySelectorAll<HTMLElement>('main h2, main summary')].filter((x) => { const r = x.getBoundingClientRect(); return r.height > 0 && r.top < top; }).pop();
+      if (above) {
+        if (above.tagName !== 'SUMMARY' && !above.hasAttribute('tabindex')) above.setAttribute('tabindex', '-1');
+        above.focus({ preventScroll: true });
+        if (document.activeElement === above) return;
+      }
     }
     // The section the address names (/toolkit/cash, /playbooks/…/<section>, ?section=…): its heading, whether the page
     // scrolled to it or opened it in place (the title doesn't change then).
@@ -260,7 +266,9 @@ function focusNewPage(backOrForward = false) {
     const segs = window.location.pathname.split('/').filter(Boolean);
     const sec = !backOrForward && (q || segs.length > 1) ? document.getElementById(q ?? segs[segs.length - 1]) : null;
     // (A heading only screen readers see is skipped: the page title already names that section.)
-    const head = sec && sec.closest('main') ? (sec.matches('h2, h3, summary') ? sec : sec.querySelector<HTMLElement>('h2:not(.sr-only), h3:not(.sr-only), summary')) : null;
+    // The section's own first heading; one only screen readers see means the title already names it: the title then.
+    const first = sec && sec.closest('main') ? (sec.matches('h2, h3, summary') ? sec : sec.querySelector<HTMLElement>('h2, h3, summary')) : null;
+    const head = first && !first.classList.contains('sr-only') ? first : null;
     if (head) tries2.push(head);
     // Scrolled to a section with no id of its own: the first section heading in view (never a card's name).
     else if (!backOrForward && window.scrollY > 40) tries2.push(...[...document.querySelectorAll<HTMLElement>('main h2, main summary')].filter((x) => { const r = x.getBoundingClientRect(); return r.height > 0 && r.top >= 0 && r.top < window.innerHeight * 0.6; }).slice(0, 3));
