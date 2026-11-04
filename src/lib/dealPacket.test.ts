@@ -160,6 +160,9 @@ describe('the deal packet', () => {
     expect(dateGuide({ ...court }).map((g) => g.what)).not.toContain('Redemption period ends');
     // Nevada's is confirmed by statute: said plainly, with the statute.
     expect(packetSections({ ...court, state: 'NV', kind: 'trustee' }, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).toMatch(/Nevada trustee sales are made “without equity or right of redemption” \(NRS 107\.080\(5\)\)/);
+    // A Texas trustee sale's dates include the 15-day rescission window (Property Code 51.016).
+    const rescind = dateGuide({ kind: 'trustee', state: 'TX' }).find((g) => g.what === '15-day rescission window');
+    expect(rescind?.why).toBe('Property Code 51.016');
     // A Texas trustee (mortgage) foreclosure has no redemption either, though its menu offers the property tax loan rules.
     const txTrustee: Deal = { ...deal, state: 'TX', kind: 'trustee', plan: 'flip' };
     expect(packetSections(txTrustee, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).toMatch(/wait you typed as a what-if/);

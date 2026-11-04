@@ -563,7 +563,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <div className="caution calc-unconfirmed">
             <strong>Redemption rule not confirmed.</strong> {ruleNow === choices?.start ? choices?.confirm : (choices?.confirm ?? '').replace(/ ?This calculator starts with [^.]*\. ?/, ' ').trim()} Your walk-away price now uses{' '}
             {ruleNow === 'custom'
-              ? <>your own numbers: a {Math.round(i.redemptionMonths)}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
+              ? choices?.start === 'none' && saleKind
+                ? <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month what-if wait. It only adds holding costs: {noRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] }).replace(/^./, (c) => c.toLowerCase())}</>
+                : <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
               : <>{offered[ruleNow]?.label}.</>}{' '}
             {ruleNow === choices?.start ? 'Pick the rule under Holding and financing (Detailed), then confirm it here.' : ruleNow === 'custom' ? 'Once the records show which rule applies, pick it under Holding and financing (Detailed) and confirm it here.' : 'Once the records show this rule applies, confirm it here (or pick another under Holding and financing, Detailed).'}
             <label className="calc-check">
