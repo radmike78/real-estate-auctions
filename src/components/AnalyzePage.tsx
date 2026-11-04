@@ -400,10 +400,10 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <section className="deal-setup" aria-labelledby="setup-head">
         <h2 id="setup-head">1. Tell us about the property you found</h2>
         {deal.id && saved.find((d) => d.id === deal.id)?.stage === 'passed' && (
-          <p className="note" role="status">You passed on “{deal.name}”. Changes here update it in My deals. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button></p>
+          <p className="note">You passed on “{deal.name}”. Changes here update it in My deals. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button></p>
         )}
         {deal.id && deal.practice && !savingPractice() && saved.find((d) => d.id === deal.id)?.stage !== 'passed' && (
-          <p className="note" role="status">This is your practice analysis “{deal.name}”. Changes here update it in My deals, and it stays a practice analysis. Found a real property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button>. Is this one real? <button type="button" className="linkish" onClick={() => {
+          <p className="note">This is your practice analysis “{deal.name}”. Changes here update it in My deals, and it stays a practice analysis. Found a real property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button>. Is this one real? <button type="button" className="linkish" onClick={() => {
             // A real home saved while My plan was on a practice step: it becomes a real deal (My plan can follow it).
             const id = deal.id;
             saveDeals(loadDeals().map((x) => (x.id === id ? { ...x, practice: undefined, updatedAt: nextStamp(x.updatedAt) } : x)));
@@ -615,9 +615,10 @@ function ProfileNote({ deal }: { deal: Deal }) {
   else if (listed && p.loan === 'yes') parts.push('a loan (a common 75% of the price for a listed rental, until your lender quotes)');
   if (!p.ownerOccupant && p.manager === true) parts.push('a property manager (8% of rent)');
   else if (!p.ownerOccupant && p.manager === false) parts.push('managing it yourself');
-  // The same caution as the cash worksheet: an investment-property loan with under 15% down.
+  // The same caution as the cash worksheet: an investment-property loan with under 15% down (a starting figure;
+  // Keep and rent's own note follows the loan you type).
   const wd = worksheetDownPct();
-  if (listed && p.loan === 'yes' && !p.ownerOccupant && wd !== null && wd < 15) parts.push('note that loans for a property you won’t live in usually need 15% to 25% down,* so this loan is likely more than a lender would make; ask your lender');
+  if (listed && p.loan === 'yes' && !p.ownerOccupant && wd !== null && wd < 15) parts.push('note that loans for a property you won’t live in usually need 15% to 25% down,* so that starting loan is likely more than a lender would make; replace it with your lender’s figure');
   if (listed && p.loan === 'cash' && !(p.investable > 0)) parts.push('your investable cash isn’t worked out yet in My plan, so the price that meets your target has no cash limit (work it out to cap it at what you have)');
   if (!parts.length) return null;
   return <p className="muted analyze-profile">From your plan: {parts.join('; ')}. These fill in a new deal’s starting numbers. Change any of them below; they aren’t loan terms anyone approved. <a href="#/toolkit">Edit your plan</a></p>;

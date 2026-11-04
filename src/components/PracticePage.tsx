@@ -71,6 +71,9 @@ export default function PracticePage({ sale }: { sale?: string }) {
   const partTwoElsewhere = !practicePart2Done() && ['a-practice', 'c-practice'].some((id) => roadmapDone().includes(id));
   // Its own step marked done (or "doesn't apply") in My plan by hand: it's done, as My plan says.
   const partTwoMarked = !practicePart2Done() && !partTwoElsewhere && guidedPracticeDone('listing');
+  // The route's own practice (part 2) done or marked "doesn't apply" in My plan: the page says so, and it's optional now.
+  const ownMarked: 'done' | 'na' | null = !ownPractice ? null : roadmapDone().includes(ownPractice.id) ? 'done' : (() => { try { return (JSON.parse(localStorage.getItem('deedowl.roadmap.status.v1') ?? '{}') as Record<string, string>)[ownPractice.id] === 'na' ? 'na' : null; } catch { return null; } })();
+  const ownNote = ownMarked && <p className="practice-step-intro"><strong>{ownMarked === 'done' ? 'This practice is done in My plan.' : 'You marked this practice “doesn’t apply” in My plan.'}</strong> It’s still here if you’d like more practice.</p>;
   const mine = practiceState() === 'NV' ? 'NV' : mineRaw;
   const [cls, setCls] = useState<ClassFilter>('all');
   const chosen = mine === 'NV' && sale && (SALE_ORDER as string[]).includes(sale) ? (sale as SaleKey) : null;
@@ -146,11 +149,13 @@ export default function PracticePage({ sale }: { sale?: string }) {
         {/* On the auction and lien routes, their own practice (part 2) comes first; the rental purchase is extra. */}
         {ownPractice ? <>
         {otherState && <>
-        <h2 id="practice-auction" tabIndex={-1} className="practice-step">Practice part 2: {ownPractice.id === 'c-practice' && practiceState() === 'AZ' ? `${ownPractice.title} (the Arizona tax lien drill)` : `${ownPractice.title} (auction drills for ${stateByCode(mine!)?.name ?? 'your state'})`}</h2>
+        <h2 id="practice-auction" tabIndex={-1} className="practice-step">{ownMarked ? 'Optional' : 'Practice part 2'}: {ownPractice.id === 'c-practice' && practiceState() === 'AZ' ? `${ownPractice.title} (the Arizona tax lien drill)` : `${ownPractice.title} (auction drills for ${stateByCode(mine!)?.name ?? 'your state'})`}</h2>
+        {ownNote}
         <p className="practice-step-intro">{ownPractice.id === 'c-practice' && practiceState() === 'AZ' && mineRaw !== 'AZ' ? 'The lien deal you saved is in Arizona, so your part 2 is the Arizona tax lien drill.' : <>Our auction and lien practice runs follow Nevada rules, so your part 2 is {ownPractice.id === 'c-practice' && practiceState() === 'AZ' ? 'the Arizona tax lien drill' : 'the drills for your own state’s sales, below'}.</>} <a className="btn" href={ownPractice.id === 'c-practice' && practiceState() === 'AZ' ? '#/practice/drills/tax-lien-az' : ownPractice.href} onClick={(e) => { if (ownPractice.id === 'c-practice' && practiceState() === 'AZ') return; if (!sale) return; /* already on the auction drills: scroll to them, don't reload the page */ const el = document.getElementById('practice-drills'); if (el) { e.preventDefault(); el.scrollIntoView({ block: 'start' }); } }}>Open {ownPractice.id === 'c-practice' && practiceState() === 'AZ' ? 'the tax lien drill' : 'the auction drills'} →</a></p>
         </>}
         {!otherState && <>
-        <h2 id="practice-auction" tabIndex={-1} className="practice-step">{ownPractice ? `Practice part 2: ${ownPractice.title} (${lienDealOnly ? 'the Nevada SID lien run' : planPath() === 'certificate' ? 'Nevada auction and lien practice' : 'Nevada auction practice'})` : 'Nevada auction practice: choose a kind of sale'}</h2>
+        <h2 id="practice-auction" tabIndex={-1} className="practice-step">{ownPractice ? `${ownMarked ? 'Optional' : 'Practice part 2'}: ${ownPractice.title} (${lienDealOnly ? 'the Nevada SID lien run' : planPath() === 'certificate' ? 'Nevada auction and lien practice' : 'Nevada auction practice'})` : 'Nevada auction practice: choose a kind of sale'}</h2>
+        {ownNote}
         <p className="practice-step-intro"><strong>{planPath() === 'certificate' ? (mineRaw && mineRaw !== 'NV' ? 'The lien deal you saved is in Nevada, so your part 2 is the Nevada lien certificates (SID) run below.' : 'The first run, Nevada lien certificates (SID), is your part 2; the other runs are extra.') : 'A run at an auction (tax, foreclosure, HOA, sheriff or IRS sale) is part of it; the step also asks for three auction drills, so check its test before you mark it done. The bank-owned, short-sale and SID lien runs are extra.'}</strong></p>
         <p className="practice-step-intro">Buy a fictional property at one kind of sale, step by step, from research to the day after.</p>
         <p className="practice-nv-note" role="note"><strong>Clark County practice.</strong> These sales follow local rules. Check your county’s requirements before a real purchase.</p>
