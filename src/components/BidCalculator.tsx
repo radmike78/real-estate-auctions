@@ -571,20 +571,20 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         <ExampleResults count={needsValue ? 0 : still.length} />
         {!needsValue && !r.noBidWorks && !cashShort && <PriceHead level={headingLevel === 2 ? 3 : 4} kind="target" label="Walk-away price" price={r.noBidWorks || cashShort ? null : r.maxBid} result={r.noBidWorks || cashShort ? null : r.profit} unit="profit" note={r.noBidWorks || cashShort ? undefined : `Not the result at ${yours.toLowerCase()}: this is the most you could pay and still meet ${gw}.`} />}
         {needsValue ? (
-          <div className="calc-max" role="status">
+          <div className="calc-max">
             <span>Walk-away price</span>
             <strong>Enter a resale value</strong>
             <small>{propertyId ? 'We don’t estimate values for listings from the official list. ' : `Start with the ${w.opening} from the listing, then the costs. `}The resale value comes from recent sold prices of similar nearby properties, as they’d be after repairs.</small>
           </div>
         ) : (
           cashShort ? (
-          <div className="calc-max bad" role="status">
+          <div className="calc-max bad">
             <span>Walk-away price</span>
             <strong>No {w.bid} at the {w.opening} fits your cash</strong>
             <small>At the {w.opening} you’d need about {fmtMoney(Math.round(openingCash))}: the {w.bid} plus repairs and every cost until you sell. The deal itself allows {w.bid}s up to {fmtMoney(r.profitBid)}.</small>
           </div>
           ) : (
-          <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`} role="status">
+          <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`}>
             <span>{offer ? 'Walk-away price: your highest offer' : 'Walk-away price: stop bidding here'}</span>
             <strong>{r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
             <small>
@@ -676,7 +676,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         </div>
         {atBid && profit !== null && <PriceHead level={headingLevel === 2 ? 3 : 4} kind="yours" label={yours} price={bid} result={profit} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(cashNeededAtBid(i, bid)))}.${saveAs && !propertyId ? ' Saved with this deal as your price; its deal packet uses it.' : propertyId ? ' Saved for this property in this browser.' : ''}`} />}
         {atBid && profit !== null && !needsValue && (
-          <div className={`calc-verdict ${over || bidShort ? 'bad' : 'good'}`} role="status">
+          <div className={`calc-verdict ${over || bidShort ? 'bad' : 'good'}`}>
             {over ? (
               <><strong>Above your walk-away price.</strong> At {fmtMoney(bid)} this deal no longer meets {r.limitedBy === 'cash' && bid <= r.profitBid ? 'your cash limit' : tw}. Profit would be {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}. Past your walk-away price, this deal no longer meets your own numbers.</>
             ) : bidShort ? (

@@ -1,3 +1,4 @@
+import { ASTERISK_NOTE } from './disclaimers';
 import { readConfirmed } from './calcConfirmation';
 import { workStorage as localStorage } from './workStorage';
 // The deal packet: one page per property you're analyzing that pulls together everything a decision needs and says
@@ -782,5 +783,7 @@ export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     if (s.key === 'dates' && dateGuideLines(d).length) lines.push('How each date works (the signed contract wins):', ...dateGuideLines(d).map((l) => `- ${l}`));
     lines.push('');
   }
+  // A line marked with an asterisk: say what it means (a downloaded file has no page footer).
+  if (lines.some((l) => l.includes('*'))) lines.push(ASTERISK_NOTE);
   return lines.join('\n');
 }

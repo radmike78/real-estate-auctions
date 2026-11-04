@@ -1,3 +1,4 @@
+import { ASTERISK_NOTE } from './disclaimers';
 import { workStorage as localStorage } from './workStorage';
 // One file for a real property you're working on: your goal and cash, the property's numbers at your price with a
 // downside case, what you've verified and what's still open, who's doing what, where you are in the steps, and your
@@ -108,5 +109,7 @@ export function propertyPacketText(d: Deal): string {
   const nextOpen = EVIDENCE_AREAS.map((a) => log.rows[a.key]).find((r) => r && r.open && !r.done);
   const nextUnchecked = EVIDENCE_AREAS.find((a) => !log.rows[a.key]?.done);
   lines.push('NEXT ACTION', nextOpen ? `Get an answer to: ${nextOpen.open}${nextOpen.owner ? ` (${nextOpen.owner})` : ''}` : nextUnchecked ? `Check “${nextUnchecked.title}”: ${nextUnchecked.what}` : 'Every area is checked. Review your decision with your professionals.');
+  // A line marked with an asterisk: say what it means (a downloaded file has no page footer).
+  if (lines.some((l) => l.includes('*'))) lines.push('', ASTERISK_NOTE);
   return lines.join('\n');
 }

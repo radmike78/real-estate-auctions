@@ -2613,7 +2613,7 @@ cite.cite { font-style: normal; font-size: max(0.82em, 15px); color: var(--muted
 .team-member { border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; background: var(--surface); }
 .team-member h3 { margin: 0 0 6px; }
 /* Skip link: hidden until it gets keyboard focus. */
-.skip-link { position: absolute; left: 12px; top: -60px; z-index: 100; background: var(--surface); color: var(--text); padding: 10px 14px; border-radius: 10px; border: 2px solid var(--accent-strong); }
+.skip-link { position: absolute; left: 12px; top: -60px; z-index: 1100; background: var(--surface); color: var(--text); padding: 10px 14px; border-radius: 10px; border: 2px solid var(--accent-strong); }
 .skip-link:focus { top: 12px; }
 /* Phones and tablets: a field you're typing in scrolls clear of the pinned walk-away bar. */
 @media (max-width: 1000px) { .calc input, .calc select { scroll-margin-bottom: 120px; } }

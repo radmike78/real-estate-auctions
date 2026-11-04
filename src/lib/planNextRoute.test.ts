@@ -210,4 +210,31 @@ describe('practice part 2 follows your route', () => {
     expect(JSON.parse(localStorage.getItem(CURRENT_KEY)!).practice).toBeUndefined();
     expect(JSON.parse(localStorage.getItem('deedowl.roadmap.deal.v1')!)).toBe('');
   });
+  it('counts a route practice step done when another practice settled part 2 (rental purchase, or another route)', async () => {
+    const { roadmapNextStep } = await import('./planNext');
+    const { practiceDoneElsewhere, roadmapProgress } = await import('./roadmapState');
+    localStorage.setItem('deedowl.roadmap.path.v1', JSON.stringify('auction'));
+    // Every step before the auction practice done, so it would be next.
+    const { roadmapFor } = await import('./roadmap');
+    const ids = roadmapFor('auction', 'NV').map((x) => x.id);
+    localStorage.setItem('deedowl.roadmap.v1', JSON.stringify(ids.slice(0, ids.indexOf('a-practice'))));
+    expect(roadmapNextStep()?.id).toBe('a-practice');
+    localStorage.setItem('deedowl.roadmap.credited.v1', JSON.stringify(['practice']));
+    expect(practiceDoneElsewhere('a-practice')).toBe('practice');
+    expect(roadmapNextStep()?.id).not.toBe('a-practice');
+    const { savingPractice } = await import('./analyze');
+    expect(savingPractice()).toBe(false);
+    const before = roadmapProgress().done;
+    localStorage.setItem('deedowl.roadmap.credited.v1', JSON.stringify([]));
+    expect(roadmapProgress().done).toBe(before - 1);
+    // Auction practice done, then the agent route: its practice step is counted done too.
+    localStorage.setItem('deedowl.roadmap.v1', JSON.stringify(['a-practice']));
+    localStorage.setItem('deedowl.roadmap.path.v1', JSON.stringify('listing'));
+    expect(practiceDoneElsewhere('practice')).toBe('a-practice');
+    expect(practiceDoneElsewhere('a-practice')).toBeNull();
+    // "Doesn't apply" on another route doesn't settle this one.
+    localStorage.setItem('deedowl.roadmap.v1', JSON.stringify([]));
+    localStorage.setItem('deedowl.roadmap.status.v1', JSON.stringify({ 'a-practice': 'na' }));
+    expect(practiceDoneElsewhere('practice')).toBeNull();
+  });
 });

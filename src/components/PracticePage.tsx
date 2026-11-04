@@ -77,7 +77,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
   const ownOther: 'rental' | 'a-practice' | 'c-practice' = practicePart2Done() || roadmapDone().includes('practice') ? 'rental' : roadmapDone().includes('c-practice') && ownPractice?.id !== 'c-practice' ? 'c-practice' : 'a-practice';
   const ownSettled = !!ownPractice && guidedPracticeDone(planPath());
   const ownMarked: 'done' | 'na' | 'elsewhere' | null = !ownSettled ? null : roadmapDone().includes(ownPractice!.id) ? 'done' : (() => { try { return (JSON.parse(localStorage.getItem('deedowl.roadmap.status.v1') ?? '{}') as Record<string, string>)[ownPractice!.id] === 'na' ? 'na' : 'elsewhere'; } catch { return 'elsewhere'; } })();
-  const ownNote = ownMarked && <p className="practice-step-intro"><strong>{ownMarked === 'done' ? 'This practice is done in My plan.' : ownMarked === 'na' ? 'You marked this practice “doesn’t apply” in My plan.' : `Practice part 2 is already done in My plan, with ${ownOther === 'rental' ? 'the rental purchase' : ownOther === 'c-practice' ? 'the lien practice' : 'the auction practice'}.`}</strong> This one is still here if you’d like more practice.</p>;
+  const ownNote = ownMarked && <p className="practice-step-intro"><strong>{ownMarked === 'done' ? 'Done in My plan.' : ownMarked === 'na' ? 'You marked this “doesn’t apply” in My plan.' : `Practice part 2 is already done in My plan, with ${ownOther === 'rental' ? 'the rental purchase' : ownOther === 'c-practice' ? 'the lien practice' : 'the auction practice'}.`}</strong> It’s still here if you’d like more practice.</p>;
   const p2 = ownMarked ? 'this practice' : 'your part 2';
   const mine = practiceState() === 'NV' ? 'NV' : mineRaw;
   const [cls, setCls] = useState<ClassFilter>('all');

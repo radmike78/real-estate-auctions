@@ -23,7 +23,7 @@ import { toolkitConfig } from '../lib/narrow';
 import DocGuideView from './DocGuideView';
 import { EvidenceArea } from './EvidenceLog';
 import { cleanDealSteps, DEAL_KEY, DEAL_STEPS_KEY, type DealSteps } from '../lib/roadmapDeals';
-import { cleanStatus, creditStep, dealScoped, focusDealId, NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_KEY, ROADMAP_PATH_KEY, roadmapDone, roadmapPath, roadmapProgress, STATUS_KEY } from '../lib/roadmapState';
+import { cleanStatus, creditStep, dealScoped, focusDealId, NO_DEAL, pathForDeal, planPath, practiceDoneElsewhere, PRACTICE_NAME, PROGRESS_EVENT, progressChanged, ROADMAP_KEY, ROADMAP_PATH_KEY, roadmapDone, roadmapPath, roadmapProgress, STATUS_KEY } from '../lib/roadmapState';
 import type { Deal } from '../lib/analyze';
 import { ASTERISK_NOTE } from '../lib/disclaimers';
 import { stageLabel, stageOf, stageOfStep, STAGE_STEPS, DEAL_STAGES } from '../lib/dealStage';
@@ -177,7 +177,7 @@ const linkedStep = (): string | null => {
 };
 
 /** One roadmap step, opened: what you'll have, what to do, what to say, the documents, when to stop, and when it's done. */
-function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: StepStatus | 'done' | 'todo'; setStatus: (v: StepStatus | 'done' | 'todo') => void; deal?: { id: string; name: string; kind?: string } }) {
+function StepBody({ s, status, setStatus, deal, elsewhere }: { s: RoadmapStep; status: StepStatus | 'done' | 'todo'; setStatus: (v: StepStatus | 'done' | 'todo') => void; deal?: { id: string; name: string; kind?: string }; elsewhere?: keyof typeof PRACTICE_NAME | null }) {
   const [myState] = useMyState();
   return (
     <div className="roadmap-step-body">
@@ -215,6 +215,7 @@ function StepBody({ s, status, setStatus, deal }: { s: RoadmapStep; status: Step
       {s.id === 'market' && <AreaLine county what="Your sources, rules and checklists follow it." />}
       {s.stop && forStateText(myState, s.stop) && <p className="roadmap-stop"><strong>When to pause:</strong> {dropStateLead(forStateText(myState, s.stop), myState)}</p>}
       <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
+      {elsewhere && <p className="roadmap-has"><strong>Counted done:</strong> you finished {PRACTICE_NAME[elsewhere]}, which counts as practice part 2. This practice is still there if you’d like it.</p>}
       {status !== 'done' && stepEvidence(s.id) && (
         <p className="roadmap-has" role="status">✓ {stepEvidence(s.id)} <button type="button" className="linkish" onClick={() => setStatus('done')}>Mark it done</button></p>
       )}
@@ -284,10 +285,12 @@ export function FirstDealRoadmap() {
   // On the lien route, a focused lien deal's state decides its practice step (an Arizona deal for a Texas reader).
   const steps = roadmapFor(path, practiceState());
   // A step that doesn't apply (with its stated reason) counts as settled, so it never blocks the next one.
-  const settled = (s: RoadmapStep) => doneOf(s) || statusOf(s) === 'na';
+  // A route's practice step settled by another practice (done on another route, or the rental purchase) counts done.
+  const elsewhere = (s: RoadmapStep) => (scoped(s) ? null : practiceDoneElsewhere(s.id));
+  const settled = (s: RoadmapStep) => doneOf(s) || statusOf(s) === 'na' || !!elsewhere(s);
   const count = steps.filter(settled).length;
-  const naCount = steps.filter((s) => !doneOf(s) && statusOf(s) === 'na').length;
-  const stateOf = (s: RoadmapStep): StepStatus | 'done' | 'todo' => (doneOf(s) ? 'done' : statusOf(s) ?? 'todo');
+  const naCount = steps.filter((s) => !doneOf(s) && statusOf(s) === 'na' && !elsewhere(s)).length;
+  const stateOf = (s: RoadmapStep): StepStatus | 'done' | 'todo' => (doneOf(s) || elsewhere(s) ? 'done' : statusOf(s) ?? 'todo');
   const walked = steps.find((s) => statusOf(s) === 'stopped' && !doneOf(s));
   // With a property chosen, the next step follows its stage: a candidate you're researching gets the "find and check"
   // steps, and the offer, deposit and inspection steps only come once it's at that stage.
@@ -395,7 +398,7 @@ export function FirstDealRoadmap() {
       {(() => {
         const mm = routeMismatch(active, path);
         if (!mm || !active) return null;
-        return <p className="notice" role="note">“{active.name || 'Your property'}” is bought {mm === 'listing' ? 'through an agent' : 'at an auction'}, and the next task at the top of My plan follows that, but this roadmap (and Download my plan) shows the {ROUTE_STEPS_WORD[path]} steps.{' '}
+        return <p className="notice" role="note">“{active.name || 'Your property'}” is bought {mm === 'listing' ? 'through an agent' : 'at an auction'}, but this roadmap (and Download my plan) shows the {ROUTE_STEPS_WORD[path]} steps.{' '}
           <button type="button" className="linkish" onClick={() => { choosePath(mm); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.roadmap-path button[aria-pressed="true"]')?.focus()); }}>Switch the roadmap to {mm === 'listing' ? 'buying through an agent' : 'buying at an auction'}</button>
         </p>;
       })()}
@@ -428,6 +431,8 @@ export function FirstDealRoadmap() {
             ? `Phases 4 to 7 (find, buy, own, then sell, refinance or trade) are tracked for ${deal.name} only, and what you record goes into its evidence log. Phases 1 to 3 are yours, whatever the property.`
             : deals.some((d) => !d.practice)
               ? 'Choose a property to track phases 4 to 7 (find, buy, own and sell) for it. Each property keeps its own progress and evidence.'
+              : deals.length
+              ? 'Practice analyses aren’t tracked here. If one is a real property, choose “Make it a real deal” on its card in My deals once My plan’s practice step is done.'
               : 'To track phases 4 to 7 (find, buy, own and sell) for a real property, save it in Analyze first. Each property keeps its own progress and evidence.'}
         </p>
       </div>
@@ -486,7 +491,7 @@ export function FirstDealRoadmap() {
                       <span className="roadmap-step-title">{s.title}{wait && active && <span className="roadmap-later"> · Later stage: {stageLabel(wait, active)}</span>}</span>
                       <span className={`roadmap-chip ${st}`}>{STEP_STATUS_LABEL[st]}</span>
                     </summary>
-                    <StepBody s={s} status={st} setStatus={(v) => setStatus(s, v)} deal={deal} />
+                    <StepBody s={s} status={st} setStatus={(v) => setStatus(s, v)} deal={deal} elsewhere={elsewhere(s)} />
                   </details>
                 );
               })}
@@ -989,8 +994,8 @@ function planText(): string {
   else if (cash > 0 && (atSale || investorProfile().loan === 'cash')) lines.push(`Investable cash: ${fmtMoney(cash)}. Paying cash, that’s your limit for the price plus closing costs, repairs and reserves${atSale ? '; an auction wants the full amount by its payment deadline, with no loan at the sale' : ''}, so the price itself is less than ${fmtMoney(cash)}.`);
   else lines.push(cash > 0 ? `Investable cash: ${fmtMoney(cash)}. With ${pa.downPct}% down, ${pa.closingPct}% closing costs and ${pa.reserveMonths} months of reserves, it supports ${Number.isFinite(supports) ? `a price up to about ${fmtMoney(supports)}` : 'any price (these assumptions set no limit)'}.${Number.isFinite(supports) && pa.downPct < 15 && investorProfile().loan === 'yes' && !investorProfile().ownerOccupant ? ' Caution: loans for a property you won’t live in usually need 15% to 25% down,* so this price is likely too high; low-down-payment programs are for homes you live in. Ask your lender.' : Number.isFinite(supports) && pa.downPct < 25 && investorProfile().loan === 'yes' && !investorProfile().ownerOccupant && b.types.includes('Duplex to fourplex') ? ` Caution: loans for a duplex to fourplex you won’t live in usually need 25% down,* so for one of those this price is likely too high. Ask your lender.${pa.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included.' : ''}` : Number.isFinite(supports) && pa.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : ''}${taxNote}` : '(not worked out yet)');
   lines.push('', isBlank(b) ? 'BUY BOX: not written yet (My plan → Your buy box)' : buyBoxText(b, STATES.find((x) => x.code === b.state)?.name).replace('\nDeedOwl educational worksheet.', ''), '', `ROADMAP: ${ROADMAP_PATHS[path].label}`);
-  { const mm = routeMismatch(now.deal, path); if (mm && now.deal) lines.push(`Note: ${now.deal.name || 'the property you’re working on'} is bought ${mm === 'listing' ? 'through an agent' : 'at an auction'}, and the next step above follows that, but this plan’s cash, roadmap and team lines are for ${path === 'listing' ? 'buying a listed home' : path === 'auction' ? 'buying at an auction' : 'buying lien certificates'}. Switch the roadmap in My plan if this property is your plan.`); }
-  for (const s of steps) lines.push(`[${done.includes(s.id) ? 'x' : status[s.id] === 'na' ? '-' : ' '}] ${ROADMAP_PHASES[s.phase]}: ${s.title}${status[s.id] && !done.includes(s.id) ? ` (${STEP_STATUS_LABEL[status[s.id]]})` : ''}`);
+  { const mm = routeMismatch(now.deal, path); if (mm && now.deal) lines.push(`Note: ${now.deal.name || 'the property you’re working on'} is bought ${mm === 'listing' ? 'through an agent' : 'at an auction'}, and the next step above follows that, but this plan’s cash, roadmap and team lines are for ${path === 'listing' ? 'buying a listed home' : path === 'auction' ? 'buying at an auction' : 'buying lien certificates'}. Use “Switch the roadmap” in My plan → See my full roadmap if this property is your plan.`); }
+  for (const s of steps) { const el = practiceDoneElsewhere(s.id); lines.push(`[${done.includes(s.id) || el ? 'x' : status[s.id] === 'na' ? '-' : ' '}] ${ROADMAP_PHASES[s.phase]}: ${s.title}${el ? ` (counted done: you finished ${PRACTICE_NAME[el]})` : status[s.id] && !done.includes(s.id) ? ` (${STEP_STATUS_LABEL[status[s.id]]})` : ''}`); }
   lines.push('', 'TEAM');
   // The people you've chosen, with what to say to each; the roles still open on one line (a lien or auction plan
   // doesn't need the listed-home team's scripts).

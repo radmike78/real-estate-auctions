@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { QUESTIONS } from './decide';
 import { CHAPTERS, loadJourney } from '../practice/dealJourney';
 import { trackAction } from './track';
-import { creditStep, routeSet } from './roadmapState';
+import { creditStep, routeSet, setRentalCaseCheck } from './roadmapState';
 import { getMyArea } from './myArea';
 import { getMyState } from './myState';
 import { loadCase } from '../practice/caseProgress';
@@ -25,6 +25,7 @@ export function practicePart2Done(): boolean {
     return false;
   }
 }
+setRentalCaseCheck(practicePart2Done);
 
 export type Mode = 'guided' | 'explore';
 

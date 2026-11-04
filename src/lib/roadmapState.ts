@@ -173,12 +173,35 @@ export function practiceStepSettled(path?: RoadmapPath): boolean {
 
 const PRACTICE_IDS = ['practice', 'a-practice', 'c-practice'];
 
-/** Practice part 2 done (not just "doesn't apply") on any route, or the rental case credited. */
+// The rental purchase finished to its deal packet (journey.ts registers it: that module imports this one).
+let rentalCaseDone: () => boolean = () => false;
+export function setRentalCaseCheck(fn: () => boolean) { rentalCaseDone = fn; }
+function rentalCredited(): boolean {
+  try { if (readKey(CREDITED_KEY, [] as string[], cleanIds).includes('practice')) return true; } catch { /* storage unavailable */ }
+  return rentalCaseDone();
+}
+
+/** Practice part 2 done (not just "doesn't apply") on any route, or the rental case finished or credited. */
 export function practiceStepDoneAnyRoute(): boolean {
   const done = roadmapDone();
   if (PRACTICE_IDS.some((id) => done.includes(id))) return true;
-  try { return readKey(CREDITED_KEY, [] as string[], cleanIds).includes('practice'); } catch { return false; }
+  return rentalCredited();
 }
+
+/** A route's practice step (practice part 2) not ticked itself but settled by another practice: one done on another
+ *  route, or the rental purchase finished. My plan, its roadmap, Download my plan and Practice count it done. The
+ *  practice that did it, else null. */
+export function practiceDoneElsewhere(id: string): 'practice' | 'a-practice' | 'c-practice' | null {
+  if (!PRACTICE_IDS.includes(id)) return null;
+  const done = roadmapDone();
+  if (done.includes(id)) return null;
+  const other = PRACTICE_IDS.find((o) => o !== id && done.includes(o));
+  if (other) return other as 'practice' | 'a-practice' | 'c-practice';
+  return rentalCredited() ? 'practice' : null;
+}
+
+/** How a practice that settled part 2 is named in a sentence. */
+export const PRACTICE_NAME: Record<'practice' | 'a-practice' | 'c-practice', string> = { practice: 'the rental purchase', 'a-practice': 'the auction practice', 'c-practice': 'the lien practice' };
 
 /** The route apart from any saved property: the one you picked, else Decide's auctions pick, else the agent route.
  *  A guided learner's waiting property is judged against it (here and in My plan), so the two always agree. */
@@ -217,7 +240,7 @@ export function settledFor(dealKey: string) {
   const done = roadmapDone();
   const status = readKey(STATUS_KEY, {}, cleanStatus);
   const per = dealKey ? dealProgress(dealKey) : null;
-  return (s: RoadmapStep) => (per && dealScoped(s) ? per.done.includes(s.id) || per.status[s.id] === 'na' : done.includes(s.id) || status[s.id] === 'na');
+  return (s: RoadmapStep) => (per && dealScoped(s) ? per.done.includes(s.id) || per.status[s.id] === 'na' : done.includes(s.id) || status[s.id] === 'na' || !!practiceDoneElsewhere(s.id));
 }
 
 /** Steps done out of the steps on the visitor's path. */
