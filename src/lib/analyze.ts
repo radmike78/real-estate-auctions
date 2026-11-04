@@ -247,34 +247,34 @@ export function setPracticeCheck(f: (d?: SavedKind) => boolean) { practicingNow 
 // The state Analyze's State field moved you from (kept in this browser, across tabs, until you're back in it), so a
 // Nevada or Arizona lien deal priced after moving from a state without lien sales is the real one your lien route is
 // about: on every save path.
-const MOVED_KEY = 'deedowl.analyze.movedFrom.v1';
-export function noteStateMove(from: string | null, to: string) {
+const MOVED_KEY = 'deedowl.analyze.movedFrom.v2';
+/** The move: the state you came from and the one the State field last took you to. */
+function readMove(): { from: string; to: string } | null {
   try {
-    const was = localStorage.getItem(MOVED_KEY);
-    if (was === to) localStorage.removeItem(MOVED_KEY);
-    else if (!was && from && from !== to) localStorage.setItem(MOVED_KEY, from);
-  } catch {
-    /* storage unavailable */
-  }
-}
-/** The state Analyze's State field first moved you from, while you haven't gone back to it. */
-export function movedFrom(): string | null {
-  try {
-    const f = localStorage.getItem(MOVED_KEY);
-    return f && f !== getMyState() ? f : null;
+    const v = JSON.parse(localStorage.getItem(MOVED_KEY) ?? 'null') as { from?: unknown; to?: unknown } | null;
+    if (!v || typeof v.from !== 'string' || typeof v.to !== 'string') return null;
+    // Only while you're still where the State field took you: a change elsewhere (the header) ends it.
+    return getMyState() === v.to ? { from: v.from, to: v.to } : null;
   } catch {
     return null;
   }
 }
-const movedFromNoLienState = () => {
+export function noteStateMove(from: string | null, to: string) {
   try {
-    const f = localStorage.getItem(MOVED_KEY);
-    // Back in that state another way (the header): the move is over.
-    if (f && f === getMyState()) { localStorage.removeItem(MOVED_KEY); return false; }
-    return !!f && f !== 'NV' && f !== 'AZ';
+    const was = readMove();
+    if (was && was.from === to) localStorage.removeItem(MOVED_KEY);
+    else if (was) localStorage.setItem(MOVED_KEY, JSON.stringify({ from: was.from, to }));
+    else if (from && from !== to) localStorage.setItem(MOVED_KEY, JSON.stringify({ from, to }));
+    else localStorage.removeItem(MOVED_KEY);
   } catch {
-    return false;
+    /* storage unavailable */
   }
+}
+/** The state Analyze's State field first moved you from, while you're still where it took you. */
+export const movedFrom = (): string | null => readMove()?.from ?? null;
+const movedFromNoLienState = () => {
+  const f = movedFrom();
+  return !!f && f !== 'NV' && f !== 'AZ';
 };
 export const savingPractice = (d?: SavedKind) =>
   practicingNow(d) && !(d?.kind === 'lien' && (d.state === 'NV' || d.state === 'AZ') && movedFromNoLienState());

@@ -672,9 +672,9 @@ function BuyBoxBuilder() {
   const [switched, setSwitched] = useState('');
   const [b, setB] = useState<BuyBox>(() => read(BUYBOX_KEY, { ...EMPTY_BUY_BOX, state: getMyState() ?? '' }, cleanBuyBox));
   useEffect(() => {
-    // A buy box with nothing in it isn't stored, so its state keeps following yours (a state you only passed through
-    // isn't written into it).
-    if (isBlank(b) && !b.priceAssumptions) {
+    // A buy box with nothing in it (and your own state) isn't stored, so its state keeps following yours (a state you
+    // only passed through isn't written into it). A State you picked for it is kept.
+    if (isBlank(b) && !b.priceAssumptions && (!b.state || b.state === (getMyState() ?? ''))) {
       try { localStorage.removeItem(BUYBOX_KEY); } catch { /* storage unavailable */ }
     } else write(BUYBOX_KEY, b);
     planChanged();
@@ -772,7 +772,7 @@ function BuyBoxBuilder() {
           </>
         )}
       </div>
-      {lien && lienDeal && !liensSoldIn(b.state || mine) && <p className="note" role="note">Your lien deal is in {stateByCode(lienDeal.state)?.name ?? lienDeal.state}, where lien certificates are sold: set this buy box’s State to {stateByCode(lienDeal.state)?.name ?? lienDeal.state} so its limits fit that sale.</p>}
+      {lien && lienDeal && (b.state || mine) !== lienDeal.state && <p className="note" role="note">Your lien deal is in {stateByCode(lienDeal.state)?.name ?? lienDeal.state}, where lien certificates are sold: set this buy box’s State to {stateByCode(lienDeal.state)?.name ?? lienDeal.state} so its limits fit that sale.</p>}
       {lien && <p className="muted">A lien certificate isn’t the property: there’s no rent and nothing to repair. Your buy box is the parcels you’ll bid on, what you’ll pay, and how long your money can wait. Property types and deal breakers below describe the land behind each lien.</p>}
       {!b.strategy && suggested && <p className="roadmap-has">Decide suggested: <strong>{suggested}</strong>. <button type="button" className="linkish" onClick={() => set('strategy', suggested)}>Use it</button></p>}
       {!lien && b.priceMax > 0 && b.cashMax > 0 && cashForPrice(b.priceMax, pa).total > b.cashMax && (

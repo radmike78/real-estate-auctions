@@ -106,4 +106,33 @@ describe('practice part 2 follows your route', () => {
     localStorage.setItem('deedowl.roadmap.path.v1', JSON.stringify('listing'));
     expect(planPath()).toBe('listing');
   });
+
+  it('keeps Decide’s auction route while a saved property is still being researched', async () => {
+    const { planPath } = await import('./roadmapState');
+    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { ready: 'ready', goal: 'income', cash: '10to50', borrow: 'cash', time: 'parttime', hands: 'diy', risk: 'high', market: 'com' } }));
+    const listing = { id: 'dl1', name: '12 Elm St', state: 'NV', county: 'Clark', kind: 'listing', plan: 'rent', notes: '', done: [], stage: 'researching', updatedAt: '2026-11-01T00:00:00.000Z', locationConfirmed: true };
+    localStorage.setItem('deedowl.analyze.v1', JSON.stringify([listing]));
+    expect(planPath()).toBe('auction');
+    // An offer on it is a move: the route follows the property.
+    localStorage.setItem('deedowl.analyze.v1', JSON.stringify([{ ...listing, stage: 'offer' }]));
+    expect(planPath()).toBe('listing');
+  });
+
+  it('tracks where Analyze’s State field moved you from, until you’re elsewhere', async () => {
+    const { noteStateMove, movedFrom } = await import('./analyze');
+    const { setMyState } = await import('./myState');
+    setMyState('CA');
+    noteStateMove('CA', 'NV'); setMyState('NV');
+    expect(movedFrom()).toBe('CA');
+    noteStateMove('NV', 'AZ'); setMyState('AZ');
+    expect(movedFrom()).toBe('CA');
+    // Changed in the header: the move is over, and a new one starts from there.
+    setMyState('TX');
+    expect(movedFrom()).toBeNull();
+    noteStateMove('TX', 'NV'); setMyState('NV');
+    expect(movedFrom()).toBe('TX');
+    // Back home through the State field.
+    noteStateMove('NV', 'TX'); setMyState('TX');
+    expect(movedFrom()).toBeNull();
+  });
 });

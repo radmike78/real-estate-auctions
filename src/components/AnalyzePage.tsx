@@ -368,11 +368,15 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         )}
         <p className="muted">Found a property on an official list, a listing site or from your agent? Enter it here. You’ll get the checklist for that kind of sale in that county, and the calculator for your plan. Save it to come back to it in My deals.</p>
         {(() => {
-          // A new deal on a lien route kept by a Nevada or Arizona lien deal while your own state sells no liens: say
-          // how to price another one there.
-          const ld = !deal.id && deal.kind !== 'lien' ? practiceLienDeal() : null;
-          const nm = ld ? stateByCode(ld.state)?.name ?? ld.state : '';
-          return ld && deal.state !== ld.state ? <p className="note" role="note">Your saved lien deal is in {nm}. To price another {nm} lien certificate, choose {nm} in State below (that also makes {nm} your state for the whole site).</p> : null;
+          // On a lien route kept by a Nevada or Arizona lien deal while your own state sells no liens.
+          const ld = !deal.id ? practiceLienDeal() : null;
+          if (!ld) return null;
+          const nm = stateByCode(ld.state)?.name ?? ld.state;
+          // The new certificate opened in that deal's state (the lien calculator link, or the button below).
+          if (deal.kind === 'lien' && deal.state === ld.state && deal.state !== mine) return <p className="note" role="note">A new, unsaved lien certificate in {nm}, where your saved lien deal is, for practice payoffs or another certificate. Your saved deal “{ld.name}” isn’t changed; save this one only if you want to keep it.</p>;
+          // A new deal in your own state: how to price another lien there, without changing your state for the site.
+          if (deal.kind !== 'lien' && deal.state !== ld.state) return <p className="note" role="note">Your saved lien deal is in {nm}. <button type="button" className="linkish" onClick={() => { const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); } clearDraftNumbers(); setDeal({ ...blank(ld.state), county: ld.county, countyChosen: true, kind: 'lien', plan: 'lien' }); }}>Price another {nm} lien certificate</button></p>;
+          return null;
         })()}
         {/* The State here is also your investing state for the whole site: say so when it changes it. */}
         {stateMoved && mine && homeState && homeState !== mine && <p className="notice" role="status">Your investing state for the whole site is now {stateByCode(mine)?.name ?? mine}, so guides, practice and Find deals follow {stateByCode(mine)?.name ?? mine}. (The State here sets it.) Choosing {stateByCode(homeState)?.name ?? homeState} here again changes it back.</p>}

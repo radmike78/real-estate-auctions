@@ -393,7 +393,7 @@ export default function FindAProPage({ section }: { section?: string }) {
                 return (
                   <p className="note" role="note">
                     This deal is in {nm}, so {nm} law applies (where the list says “your state”). Look for professionals licensed in {nm}, an attorney especially
-                    {bar && 'url' in bar ? <>: <a href={bar.url} target="_blank" rel="noopener noreferrer">{bar.who} lawyer search ↗</a></> : ''}. The “find one” guides below are written for {stateByCode(mine)?.name ?? mine}.
+                    {bar && 'url' in bar ? <>: <a href={bar.url} target="_blank" rel="noopener noreferrer">{bar.who} ↗</a></> : ''}. The “find one” guides below are written for {stateByCode(mine)?.name ?? mine}.
                   </p>
                 );
               })()}

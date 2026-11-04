@@ -138,6 +138,8 @@ function planPathRaw(d: Deal | undefined, deals: Deal[]): RoadmapPath {
   // A route you picked holds while the property in focus is still being researched (a practice analysis, a listing
   // your agent sent): only a deal you've moved on with (an offer, a bid, a contract) changes the route.
   if (d && picked && (!d.stage || d.stage === 'researching')) return roadmapPath();
+  // Decide's auctions pick holds the same way (a property still being researched doesn't change it).
+  if (d && !picked && (!d.stage || d.stage === 'researching') && decideRoute() === 'auction') return 'auction';
   if (d) return pathForDeal(d);
   // No property in focus and no route picked (a state without lien sales offers no lien route button): the lien
   // deal you passed on keeps the lien route.
