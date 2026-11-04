@@ -24,6 +24,8 @@ import DocGuideView from './DocGuideView';
 import { EvidenceArea } from './EvidenceLog';
 import { cleanDealSteps, DEAL_KEY, DEAL_STEPS_KEY, type DealSteps } from '../lib/roadmapDeals';
 import { cleanStatus, creditStep, dealScoped, focusDealId, NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_KEY, ROADMAP_PATH_KEY, roadmapDone, roadmapPath, roadmapProgress, STATUS_KEY } from '../lib/roadmapState';
+import type { Deal } from '../lib/analyze';
+import { ASTERISK_NOTE } from '../lib/disclaimers';
 import { stageLabel, stageOf, stageOfStep, STAGE_STEPS, DEAL_STAGES } from '../lib/dealStage';
 import PlanNext from './PlanNext';
 import { planNow, practiceLienDeal, practiceState } from '../lib/planNext';
@@ -389,6 +391,14 @@ export function FirstDealRoadmap() {
           <button type="button" className="linkish" onClick={() => { choosePath('auction'); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.roadmap-path button[aria-pressed="true"]')?.focus()); }}>Keep the auction route</button>
         </p>
       )}
+      {/* The property you're working on is bought another way than this roadmap: say so, with a one-click switch. */}
+      {(() => {
+        const mm = routeMismatch(active, path);
+        if (!mm || !active) return null;
+        return <p className="notice" role="note">“{active.name || 'Your property'}” is bought {mm === 'listing' ? 'through an agent' : 'at an auction'}, so its next steps and Your team follow that, but this roadmap shows the {ROUTE_STEPS_WORD[path]} steps.{' '}
+          <button type="button" className="linkish" onClick={() => { choosePath(mm); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.roadmap-path button[aria-pressed="true"]')?.focus()); }}>Switch the roadmap to {ROADMAP_PATHS[mm].label}</button>
+        </p>;
+      })()}
       <div className="roadmap-deal">
         <label className="field">
           <span>Property you’re working on</span>
@@ -407,7 +417,8 @@ export function FirstDealRoadmap() {
             }}
           >
             <option value="">None yet (learning)</option>
-            {deals.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : ""}</option>)}
+            {/* A practice analysis isn't a property you work on (Analyze says so): only one already chosen stays listed. */}
+            {deals.filter((d) => !d.practice || (deal && deal.id === `analyzed:${d.id}`)).map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : ""}</option>)}
           </select>
         </label>
         <p className="muted">
@@ -653,7 +664,7 @@ function PriceFromCash({ cash }: { cash: number }) {
         <p className="muted small">These are starting estimates, not loan requirements or an affordability decision. Down payment, interest rate and money kept in reserve depend on the loan and your situation. Confirm financing with your lender, and costs with the relevant providers.</p>
       </details>
       <p className="muted" role="note">Cash-budget estimate—not loan approval or proof you can afford the monthly costs. Check ongoing expenses, repairs and your lender’s requirements before using it as a price limit.</p>
-      {Number.isFinite(price) && <button type="button" className="btn btn-secondary" onClick={useIt}>{(investLow || multiLow) && taxWarn ? `Use ${fmtMoney(price)} in my buy box anyway (likely high at this down payment and tax rate)` : investLow || multiLow ? `Use ${fmtMoney(price)} in my buy box anyway (likely high at this down payment)` : taxWarn ? `Use ${fmtMoney(price)} in my buy box anyway (likely high until you raise the tax estimate)` : `Use ${fmtMoney(price)} in my buy box`}</button>}
+      {Number.isFinite(price) && <button type="button" className="btn btn-secondary" onClick={useIt}>{(investLow || multiLow) && taxWarn ? `Use ${fmtMoney(price)} in my buy box anyway (likely high ${multiLow ? 'for a duplex to fourplex ' : ''}at this down payment and tax rate)` : investLow || multiLow ? `Use ${fmtMoney(price)} in my buy box anyway (likely high ${multiLow ? 'for a duplex to fourplex ' : ''}at this down payment)` : taxWarn ? `Use ${fmtMoney(price)} in my buy box anyway (likely high until you raise the tax estimate)` : `Use ${fmtMoney(price)} in my buy box`}</button>}
     </div>
   );
 }
@@ -931,6 +942,18 @@ function TeamListSection() {
   );
 }
 
+/** How a route's steps are named in a sentence ("the auction steps"). */
+const ROUTE_STEPS_WORD: Record<RoadmapPath, string> = { listing: 'listed-home', auction: 'auction', certificate: 'lien certificate' };
+
+/** The property you're working on is bought another way than the roadmap shows (a listed home while a route you picked
+ * holds, or an auction property on the agent route): its own route, else null. Lien deals aren't counted (outside
+ * Arizona and Nevada the lien route follows auctions). */
+function routeMismatch(d: Deal | undefined, path: RoadmapPath): RoadmapPath | null {
+  if (!d) return null;
+  const dp = pathForDeal(d);
+  return dp !== path && dp !== 'certificate' ? dp : null;
+}
+
 /** Everything in My plan as one text file: goal, cash, buy box, roadmap and team. */
 function planText(): string {
   const path = planPath();
@@ -965,6 +988,7 @@ function planText(): string {
   else if (cash > 0 && (atSale || investorProfile().loan === 'cash')) lines.push(`Investable cash: ${fmtMoney(cash)}. Paying cash, that’s your limit for the price plus closing costs, repairs and reserves${atSale ? '; an auction wants the full amount by its payment deadline, with no loan at the sale' : ''}, so the price itself is less than ${fmtMoney(cash)}.`);
   else lines.push(cash > 0 ? `Investable cash: ${fmtMoney(cash)}. With ${pa.downPct}% down, ${pa.closingPct}% closing costs and ${pa.reserveMonths} months of reserves, it supports ${Number.isFinite(supports) ? `a price up to about ${fmtMoney(supports)}` : 'any price (these assumptions set no limit)'}.${Number.isFinite(supports) && pa.downPct < 15 && investorProfile().loan === 'yes' && !investorProfile().ownerOccupant ? ' Caution: loans for a property you won’t live in usually need 15% to 25% down,* so this price is likely too high; low-down-payment programs are for homes you live in. Ask your lender.' : Number.isFinite(supports) && pa.downPct < 25 && investorProfile().loan === 'yes' && !investorProfile().ownerOccupant && b.types.includes('Duplex to fourplex') ? ` Caution: loans for a duplex to fourplex you won’t live in usually need 25% down,* so for one of those this price is likely too high. Ask your lender.${pa.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included.' : ''}` : Number.isFinite(supports) && pa.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : ''}${taxNote}` : '(not worked out yet)');
   lines.push('', isBlank(b) ? 'BUY BOX: not written yet (My plan → Your buy box)' : buyBoxText(b, STATES.find((x) => x.code === b.state)?.name).replace('\nDeedOwl educational worksheet.', ''), '', `ROADMAP: ${ROADMAP_PATHS[path].label}`);
+  { const mm = routeMismatch(now.deal, path); if (mm && now.deal) lines.push(`Note: ${now.deal.name || 'the property you’re working on'} is bought ${mm === 'listing' ? 'through an agent' : 'at an auction'}, so its next steps and team follow that; this roadmap shows the ${ROUTE_STEPS_WORD[path]} steps. Switch the roadmap in My plan if this property is your plan.`); }
   for (const s of steps) lines.push(`[${done.includes(s.id) ? 'x' : status[s.id] === 'na' ? '-' : ' '}] ${ROADMAP_PHASES[s.phase]}: ${s.title}${status[s.id] && !done.includes(s.id) ? ` (${STEP_STATUS_LABEL[status[s.id]]})` : ''}`);
   lines.push('', 'TEAM');
   // The people you've chosen, with what to say to each; the roles still open on one line (a lien or auction plan
@@ -985,6 +1009,8 @@ function planText(): string {
   const skip = path === 'listing' ? [] : [...['agent', 'lender', 'inspector'], ...(path === 'certificate' ? ['insurance'] : [])].map((k) => proGuideByKey(k as Parameters<typeof proGuideByKey>[0])?.title ?? k);
   const openShown = open.filter((t) => !skip.includes(t));
   if (openShown.length) lines.push(`Not chosen yet: ${openShown.join(', ')}. The Your team page shows who you need for your route and when.`);
+  // A line above marked with an asterisk: say what it means, as every page's footer does.
+  if (lines.some((l) => l.includes('*'))) lines.push('', ASTERISK_NOTE);
   return lines.join('\n');
 }
 

@@ -199,4 +199,15 @@ describe('practice part 2 follows your route', () => {
     saveDeals([{ ...base, id: 'p1', name: 'Practice one', practice: true }, { ...base, id: 'r1', name: 'Real one' }]);
     expect(JSON.parse(localStorage.getItem('deedowl.roadmap.deal.v1')!)).toBe('');
   });
+  it('makes a practice analysis a real deal: clears the flag, ends None yet, and the open draft follows', async () => {
+    const { saveDeals, makeRealDeal, loadDeals, CURRENT_KEY } = await import('./analyze');
+    const d = { state: 'NV' as const, county: 'Washoe', kind: 'listing' as const, plan: 'rent' as const, notes: '', done: [], updatedAt: new Date().toISOString(), id: 'p9', name: 'Real after all', practice: true };
+    saveDeals([d]);
+    localStorage.setItem(CURRENT_KEY, JSON.stringify(d));
+    localStorage.setItem('deedowl.roadmap.deal.v1', JSON.stringify('none'));
+    makeRealDeal('p9');
+    expect(loadDeals()[0].practice).toBeUndefined();
+    expect(JSON.parse(localStorage.getItem(CURRENT_KEY)!).practice).toBeUndefined();
+    expect(JSON.parse(localStorage.getItem('deedowl.roadmap.deal.v1')!)).toBe('');
+  });
 });

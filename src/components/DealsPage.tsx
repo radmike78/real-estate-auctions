@@ -13,7 +13,8 @@ import { daysUntil, whenLabel } from './ResultsList';
 import PageHero from './PageHero';
 import EvidenceLog from './EvidenceLog';
 import { removeLog } from '../lib/evidence';
-import { kindLabel, loadDeals as loadAnalyzed, openDeal, SALE_KINDS, checklistFor, type Deal } from '../lib/analyze';
+import { kindLabel, loadDeals as loadAnalyzed, makeRealDeal, openDeal, savingPractice, SALE_KINDS, checklistFor, type Deal } from '../lib/analyze';
+import { progressChanged } from '../lib/roadmapState';
 import { ownedSummary } from '../lib/owned';
 import { projectedMonthly, useOwned } from './OwnedTracker';
 import { countyName } from '../lib/regions';
@@ -261,7 +262,7 @@ export default function DealsPage() {
                 <li key={d.id} className="deal-card">
                   <div className="deal-head">
                     <div>
-                      <h3><button type="button" className="linkish" onClick={() => openDeal(d)}>{d.name}</button>{d.practice && <span className="muted"> (practice analysis)</span>}</h3>
+                      <h3><button type="button" className="linkish" data-deal-name={d.id} onClick={() => openDeal(d)}>{d.name}</button>{d.practice && <span className="muted"> (practice analysis)</span>}</h3>
                       <p className="muted"><strong>{stageLabel(stageOf(d), d)}</strong> · {kindLabel(k, d.state)} · {countyName(d.county)}, {d.state} · checklist {done} of {all.length} done</p>
                       {(() => {
                         const n = dealNumbers(d);
@@ -283,6 +284,9 @@ export default function DealsPage() {
                     <div className="deal-actions">
                       <a className="btn" href={`#/deals/packet/${d.id}`}>Deal packet&nbsp;→</a>
                       <button type="button" className="btn btn-secondary" onClick={() => openDeal(d)}>Open&nbsp;→</button>
+                      {/* A real property saved as a practice analysis while My plan was on a practice step: once that step is
+                          settled, it can become a real deal here too (as in Analyze). */}
+                      {d.practice && !savingPractice() && stageOf(d) !== 'passed' && <button type="button" className="btn btn-secondary" onClick={() => { makeRealDeal(d.id); setAnalyzed(loadAnalyzed()); progressChanged(); /* the button goes away: focus moves to the deal's name */ setTimeout(() => document.querySelector<HTMLElement>(`[data-deal-name="${d.id}"]`)?.focus(), 0); }}>Make it a real deal</button>}
                     </div>
                   </div>
                   <EvidenceLog dealId={`analyzed:${d.id}`} name={d.name} kind={d.kind} onPass={stageOf(d) === 'passed' ? undefined : () => { setDealStage(d.id, 'passed'); setAnalyzed(loadAnalyzed()); }} />

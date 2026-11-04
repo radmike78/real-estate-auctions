@@ -543,6 +543,17 @@ export function prefillParam(params: URLSearchParams): Prefill | undefined {
  * saved on a device whose clock runs fast). An edit is always newer than the copy it changed, so it's never mistaken
  * for an older copy and dropped.
  */
+/** A practice analysis that's a real property becomes a real deal (My plan can follow it). It ends an earlier "None yet
+ * (learning)" choice, as saving a new real deal does, and the open draft of it follows. The caller fires progressChanged. */
+export function makeRealDeal(id: string) {
+  saveDeals(loadDeals().map((x) => (x.id === id ? { ...x, practice: undefined, updatedAt: nextStamp(x.updatedAt) } : x)));
+  try {
+    if (localStorage.getItem('deedowl.roadmap.deal.v1') === JSON.stringify('none')) localStorage.setItem('deedowl.roadmap.deal.v1', JSON.stringify(''));
+    const cur = JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as Deal | null;
+    if (cur && cur.id === id && cur.practice) { delete cur.practice; localStorage.setItem(CURRENT_KEY, JSON.stringify(cur)); }
+  } catch { /* storage unavailable */ }
+}
+
 export function nextStamp(prev: string): string {
   const now = Date.now();
   const last = Date.parse(prev);

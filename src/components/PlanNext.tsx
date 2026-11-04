@@ -73,6 +73,8 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   const onPlan = variant === 'plan';
   const deals = onPlan ? loadDeals() : [];
   const focus = deal ? `analyzed:${deal.id}` : '';
+  // A practice analysis isn't a property you work on (Analyze says so): only the one already chosen stays listed.
+  const choices = deals.filter((d) => !d.practice || `analyzed:${d.id}` === focus);
   // The property My plan follows (none while a guided learner's property waits), as the roadmap below counts it.
   const prog = roadmapProgress(deal ? `analyzed:${deal.id}` : '');
   const chooseDeal = (v: string) => {
@@ -129,13 +131,13 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           <span className="plan-now-k">Your goal</span>
           {now.goal ? <span>{now.goal}</span> : decidedPick() ? <span>Not written yet. Decide suggests <strong>{decidedPick()}</strong>. <a href="#/toolkit/roadmap?step=goal">Put your goal in one sentence&nbsp;→</a></span> : <span>Not written yet. <a href="#/decide">Choose my goal</a> (a few questions), then write it in a sentence in your roadmap.</span>}
         </p>
-        {onPlan && deals.length > 0 && (
+        {onPlan && choices.length > 0 && (
           <div className="plan-now-deal">
             <label className="field">
               <span>Property you’re working on</span>
               <select value={focus} onChange={(e) => chooseDeal(e.target.value)}>
                 <option value="">None yet (learning)</option>
-                {deals.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : ""}</option>)}
+                {choices.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : ""}</option>)}
               </select>
             </label>
             {(() => {

@@ -13,7 +13,7 @@ import { CalcRegion } from './calcRegion';
 import { useMarkStep, stepEyebrow } from '../lib/path';
 import { dropStateLead, useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { CURRENT_KEY, KEPT_NOTE_KEY, OPENED_KEY, clearLienDraftNumbers, keepUnsavedDraft, movedFrom, noteStateMove, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, nextStamp, restoreDraftNumbers, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
+import { CURRENT_KEY, KEPT_NOTE_KEY, makeRealDeal, OPENED_KEY, clearLienDraftNumbers, keepUnsavedDraft, movedFrom, noteStateMove, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, nextStamp, restoreDraftNumbers, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
 import { worksheetDownPct, investorProfile, commercialLoanStart } from '../lib/myPlan';
@@ -406,11 +406,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           <p className="note">This is your practice analysis “{deal.name}”. Changes here update it in My deals, and it stays a practice analysis. Found a real property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button>. Is this one real? <button type="button" className="linkish" onClick={() => {
             // A real home saved while My plan was on a practice step: it becomes a real deal (My plan can follow it).
             const id = deal.id;
-            saveDeals(loadDeals().map((x) => (x.id === id ? { ...x, practice: undefined, updatedAt: nextStamp(x.updatedAt) } : x)));
+            makeRealDeal(id);
             setSaved(loadDeals());
             setDeal((d) => ({ ...d, practice: undefined }));
-            // A real deal ends an earlier "None yet (learning)" choice, as saving a new one does.
-            try { if (localStorage.getItem('deedowl.roadmap.deal.v1') === JSON.stringify('none')) localStorage.setItem('deedowl.roadmap.deal.v1', JSON.stringify('')); } catch { /* storage unavailable */ }
             progressChanged();
             // The note goes away: a short line says what changed, and focus moves there.
             setMadeReal(id);
@@ -514,6 +512,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           const pt = planNow().task;
           const t = st && ['paper', 'c-paper', 'a-practice', 'c-practice'].includes(st.id) ? { href: st.href ?? '#/toolkit/roadmap', label: st.title } : { href: pt.support[0]?.href ?? pt.href, label: pt.label };
           return <p className="muted" role="note">My plan is on the practice step <a href={t.href}>{t.label}</a>, so a deal saved now is a practice analysis: it won’t become the property you’re working on. Finish that step first to save a real property.</p>; })()}
+        {/* After the save: the way to make a real property a real deal later. */}
+        {deal.id && deal.practice && savingPractice() && <p className="muted" role="note">Is this a real property? Once that practice step is done in My plan, choose “Make it a real deal” for it here or on its card in My deals.</p>}
         {saved.length > 0 && (
           <div className="saved-deals">
             <strong>Your deals</strong>
