@@ -180,4 +180,13 @@ describe('practice part 2 follows your route', () => {
     localStorage.setItem('deedowl.roadmap.status.v1', JSON.stringify({ 'a-practice': 'na' }));
     expect(planNow(new Date('2026-11-03T12:00:00Z')).source).toBe('deal');
   });
+
+  it('lets an auction deal lead once its own route’s practice is marked "doesn’t apply"', async () => {
+    const { planNow } = await import('./planNext');
+    const trustee = { id: 'dt1', name: '5 Elm', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', notes: '', done: [], stage: 'researching', updatedAt: '2026-11-01T00:00:00.000Z', locationConfirmed: true };
+    localStorage.setItem('deedowl.analyze.v1', JSON.stringify([trustee]));
+    expect(planNow(new Date('2026-11-03T12:00:00Z')).source).not.toBe('deal');
+    localStorage.setItem('deedowl.roadmap.status.v1', JSON.stringify({ 'a-practice': 'na' }));
+    expect(planNow(new Date('2026-11-03T12:00:00Z')).source).toBe('deal');
+  });
 });
