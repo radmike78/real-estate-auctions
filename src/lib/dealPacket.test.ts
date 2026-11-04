@@ -174,7 +174,7 @@ describe('the deal packet', () => {
     const shortest = shortestRedemptionMonths(txTax);
     expect(shortest).toBeGreaterThan(1);
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 1, redemptionRatePct: 0 }));
-    expect(packetSections(txTax, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).toContain(`shorter than any redemption period the law sets for this sale (the shortest is ${shortest} months)`);
+    expect(packetSections(txTax, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).toContain('shorter than any redemption period the law sets for this sale (the shortest is 180 days, about 6 months):*');
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 0 }));
     // Compared as shown: 5.96 months reads as 6, not shorter than a 6-month period.
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: shortest - 0.04, redemptionRatePct: 0 }));
@@ -184,6 +184,12 @@ describe('the deal packet', () => {
     // "No redemption" in use.
     for (const k of [{ state: 'CA', kind: 'court' }, { state: 'AZ', kind: 'court' }, { state: 'NV', kind: 'irs' }] as const) expect(shortestRedemptionMonths(k)).toBe(0);
     expect(shortestRedemptionMonths({ state: 'NV', kind: 'court' })).toBeGreaterThan(0);
+    // In the rule's own words, with months where it's days or years; a period already in months as it is.
+    const { shortestRedemptionWords } = await import('./dealPacket');
+    expect(shortestRedemptionWords({ state: 'NV', kind: 'hoa' })).toBe('60 days (about 2 months)');
+    expect(shortestRedemptionWords({ state: 'NV', kind: 'court' }, true)).toBe('1 year, about 12 months');
+    expect(shortestRedemptionWords({ state: 'TX', kind: 'hoa' })).toBe('90 days (about 3 months)');
+    expect(shortestRedemptionWords({ state: 'CA', kind: 'court' })).toBe('');
     localStorage.removeItem('fsf.bid.analyzed-d1.v1');
     expect(dateGuide({ ...deal, state: 'AZ', kind: 'hoa' }).map((g) => g.what)).not.toContain('Redemption period ends');
     expect(dateGuide({ ...deal, state: 'TX', kind: 'hoa' }).map((g) => g.what)).toContain('Redemption period ends');

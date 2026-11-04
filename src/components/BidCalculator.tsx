@@ -1,4 +1,4 @@
-import { monthsWord, noRedemptionWords, shortestRedemptionMonths, shorterThanLaw } from '../lib/dealPacket';
+import { noRedemptionWords, shortestRedemptionMonths, shortestRedemptionWords, shorterThanLaw } from '../lib/dealPacket';
 import type { Deal } from '../lib/analyze';
 import { getMyArea } from '../lib/myArea';
 import { calculatorInputError, parseCalcInput, shownInputError } from './CalcFields';
@@ -419,6 +419,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   // The shortest owner redemption period the law sets for this sale (0: none, or the law may set none), for your own
   // shorter wait; the packet and My deals use the same.
   const shortestOwner = saleKind ? shortestRedemptionMonths({ state: region.state, kind: saleKind as Deal['kind'] }) : 0;
+  // Your own wait under it: one note under the price says so (the caution above then points to it).
+  const shortNote = ruleNow === 'custom' && !!choices && choices.start !== 'none' && shorterThanLaw(i.redemptionMonths, shortestOwner) && i.redemptionMonths > 0;
   const unconfirmed = !offer && !!choices?.confirm && !i.redemptionChecked;
   const r = maxSafeBid(i);
   const grid = stressGrid(i);
@@ -568,11 +570,13 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {waitCleared !== null && <p className="note" role="status">Your typed redemption wait{waitCleared > 0 ? ` (${waitCleared} month${waitCleared === 1 ? '' : 's'})` : ''} was for another kind of sale or state, so it was cleared and this sale’s rule is used. Type it again under Holding and financing (Detailed) if it applies here. <button type="button" className="linkish" onClick={() => setWaitCleared(null)}>Dismiss</button></p>}
         {unconfirmed && (
           <div className="caution calc-unconfirmed">
-            <strong>Redemption rule not confirmed.</strong> {ruleNow === 'custom' && choices?.start === 'none' ? (choices?.confirm ?? '').replace(/^[^.]*\.\*? ?/, '').replace(/ ?This calculator starts with [^.]*\. ?/, ' ').trim() : ruleNow === choices?.start ? choices?.confirm : (choices?.confirm ?? '').replace(/ ?This calculator starts with [^.]*\. ?/, ' ').trim()} Your walk-away price now uses{' '}
+            <strong>Redemption rule not confirmed.</strong> {ruleNow === choices?.start ? choices?.confirm : (choices?.confirm ?? '').replace(/ ?This calculator starts with [^.]*\. ?/, ' ').trim()} Your walk-away price now uses{' '}
             {ruleNow === 'custom'
               ? choices?.start === 'none' && saleKind
                 ? <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month what-if wait (the note below says what it means).</>
-                : <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
+                : shortNote && !needsValue
+                  ? <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month wait (the note under the price says what it means).</>
+                  : <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
               : <>{offered[ruleNow]?.label}.</>}{' '}
             {ruleNow === 'custom' && choices?.start === 'none' ? 'Once you’ve checked the records, confirm below that no redemption rule applies, or pick the one that does under Holding and financing (Detailed).' : ruleNow === choices?.start ? 'Pick the rule under Holding and financing (Detailed), then confirm it here.' : ruleNow === 'custom' ? 'Once the records show which rule applies, pick it under Holding and financing (Detailed) and confirm it here.' : 'Once the records show this rule applies, confirm it here (or pick another under Holding and financing, Detailed).'}
             <label className="calc-check calc-check-block">
@@ -675,8 +679,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <p className="calc-note small"><strong>Your what-if wait.</strong> {noRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] })} The {Math.round(i.redemptionMonths * 10) / 10} months count only in your holding costs; nobody would repay you at their end.</p>
         )}
         {/* Your own wait, shorter than the period this sale usually carries: said here, not only in the "?" help. */}
-        {ruleNow === 'custom' && choices && choices.start !== 'none' && shorterThanLaw(i.redemptionMonths, shortestOwner) && i.redemptionMonths > 0 && !needsValue && (
-          <p className="calc-note small" role="note"><strong>Shorter than any redemption period the law sets for this sale.</strong> Your {Math.round(i.redemptionMonths * 10) / 10}-month wait is a what-if: the shortest period in the menu is {monthsWord(shortestOwner)},* and the owner can still redeem until it ends. Your holding costs run at least that long.</p>
+        {shortNote && !needsValue && (
+          <p className="calc-note small" role="note"><strong>Shorter than the law’s shortest redemption period for this sale.</strong> The shortest is {shortestRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] })},* and the owner can redeem until it ends. Your walk-away price above counts only your {Math.round(i.redemptionMonths * 10) / 10}-month wait: type at least {shortestOwner} months, or pick the rule under Holding and financing, to count the full wait.</p>
         )}
         {redeemed && !needsValue && !(ruleNow === 'custom' && choices?.start === 'none') && (
           <div className="calc-note">

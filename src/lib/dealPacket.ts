@@ -222,6 +222,17 @@ export function shortestRedemptionMonths(d: Pick<Deal, 'state' | 'kind'>): numbe
 /** Your wait, as shown (to a tenth of a month), is under the shortest period the law sets for this sale (0: none). */
 export const shorterThanLaw = (months: number, shortest: number): boolean => shortest > 0 && Math.round(months * 10) / 10 < shortest;
 
+/** The shortest period, in its rule's own words, with months where those are days or years ("180 days (about 6
+ *  months)"); "" when there is none (as shortestRedemptionMonths). */
+export function shortestRedemptionWords(d: Pick<Deal, 'state' | 'kind'>, inParens = false): string {
+  const m = shortestRedemptionMonths(d);
+  if (!m) return '';
+  const r = Object.entries(offeredRedemptionRules(d.state, d.kind)).find(([k, x]) => !['none', 'usFederal', 'usCourt'].includes(k) && x.months === m)?.[1];
+  // (The period in a rule's label: "Tax sale, other property: 180 days, up to +25%…" gives "180 days".)
+  const said = r?.label.split(': ')[1]?.split(', ')[0]?.trim() ?? '';
+  return !said ? monthsWord(m) : /month/.test(said) ? said : inParens ? `${said}, about ${monthsWord(m)}` : `${said} (about ${monthsWord(m)})`;
+}
+
 /** "N months", or "1 month". */
 export const monthsWord = (n: number): string => `${n} month${n === 1 ? '' : 's'}`;
 
@@ -801,7 +812,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     nums.push(bid.none && bid.cashBlocked ? `No bid fits the cash you entered: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that` : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and ${targetW}` : `What-if: walk-away price ${money(bid.maxBid)}, ${bid.limitedBy === 'cash' ? `the most your cash covers with every cost until you sell (${goalW} alone allows ${money(bid.profitBid)})` : `the most you could pay and still meet ${goalW}`} (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : `this deal doesn’t meet ${goalW}`} as entered` : ''}`);
     if (bid.redeem && !bid.redeem.who) nums.push(`Built on a ${bid.redeem.months}-month wait you typed as a what-if. ${noRedemptionWords(d)} Check the sale terms with the official seller or an attorney.`);
     // Your own wait, under every period the law sets for this sale: said once, with the shortest.
-    const shorter = bid?.redeem?.shortest ? ` That’s shorter than any redemption period the law sets for this sale (the shortest is ${monthsWord(bid.redeem.shortest)}):* the owner can still redeem until it ends.` : '';
+    const shorter = bid?.redeem?.shortest ? ` That’s shorter than any redemption period the law sets for this sale (the shortest is ${shortestRedemptionWords(d, true)}):* the owner can still redeem until it ends.` : '';
     if (bid?.redeem && bid.redeem.who && !(bid.redeem.price > 0)) nums.push(bid.redeem.shortest ? `Built on a ${bid.redeem.months}-month redemption wait.${shorter}` : `Built on a ${bid.redeem.months}-month redemption wait: ${bid.redeem.who} can redeem until it ends.`);
     else if (bid.redeem && bid.redeem.who) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait.${shorter} If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* on a ${money(x.price)} ${offer ? 'offer' : 'bid'}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);

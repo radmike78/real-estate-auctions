@@ -1602,7 +1602,7 @@ h1, h2 { letter-spacing: -0.03em; }
 .hero-class .seg button { color: var(--text); }
 .hero-class .seg button[aria-selected='true'], .seg button[aria-pressed='true'] { background: var(--text); color: var(--surface); }
 .simple-search { background: var(--surface); border: 1px solid var(--border); box-shadow: 0 24px 50px -30px rgb(0 0 0 / 0.5); }
-.simple-search:focus-within { box-shadow: 0 0 0 3px rgb(45 85 196 / 0.25); }
+.simple-search:focus-within { outline: 3px solid var(--accent); outline-offset: 2px; }
 .simple-search select { color: var(--text); border-color: var(--border); }
 .simple-search input { color: var(--text); }
 .simple-search input::placeholder { color: var(--muted); }

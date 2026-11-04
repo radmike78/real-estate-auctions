@@ -146,9 +146,9 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <ul className="packet-dates">
           {p.dates.map((x, i) => (
             <li key={i}>
-              <input type="date" aria-label="Date" value={x.when} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, when: e.target.value, resolved: false } : y)) })} />
+              <input type="date" aria-label={`Date: ${x.what || 'new date'}`} value={x.when} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, when: e.target.value, resolved: false } : y)) })} />
               <input aria-label="What" maxLength={200} value={x.what} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, what: e.target.value, resolved: false } : y)) })} />
-              <input aria-label="Who handles it" placeholder="Who" maxLength={120} value={x.who} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, who: e.target.value, resolved: false } : y)) })} />
+              <input aria-label={`Who handles ${x.what || 'this date'}`} placeholder="Who" maxLength={120} value={x.who} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, who: e.target.value, resolved: false } : y)) })} />
               <label><input type="checkbox" checked={!!x.resolved} onChange={(e) => update({ dates: p.dates.map((y, j) => j === i ? { ...y, resolved: e.target.checked } : y) }, false)} /> Handled</label>
               <button type="button" className="linkish" aria-label={`Remove ${x.what || 'date'}`} onClick={() => update({ dates: p.dates.filter((_, j) => j !== i) })}>Remove</button>
             </li>

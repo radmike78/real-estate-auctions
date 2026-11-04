@@ -837,7 +837,7 @@ export function LienCalculator({ storageKey }: { storageKey?: string } = {}) {
           <small>{overCap ? 'The rate entered is above the legal maximum, so the yield it gives isn’t possible.' : 'On the cash you put in, counting the wait until you’re paid. Not a guarantee.'}</small>
         </div>
         <ExampleResults count={still.length} all={!typed} what="yield" />
-        {!overCap && <dl className="calc-kv">
+        {!overCap && <dl className="calc-kv" data-result>
           <div><dt>Interest you’d earn</dt><dd>{fmtMoney(Math.round(y.interest))}</dd></div>
           <div><dt>You’re repaid</dt><dd>{fmtMoney(Math.round(y.payoff))}</dd></div>
           <div><dt>Profit after fees</dt><dd>{fmtMoney(Math.round(y.profit))}</dd></div>
