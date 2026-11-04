@@ -155,20 +155,37 @@ function planPathRaw(d: Deal | undefined, deals: Deal[]): RoadmapPath {
 function guidedWaiting(d: Deal): boolean {
   let guided = false;
   try { guided = JSON.parse(localStorage.getItem('deedowl.mode.v1') ?? 'null') === 'guided'; } catch { /* storage unavailable */ }
-  if (!guided || (d.stage && d.stage !== 'researching') || rawDealChoice() === `analyzed:${d.id}`) return false;
-  return !practiceStepSettled();
+  // (Only a stage saved as researching: an older deal with none may be further along, as My plan works it out.)
+  if (!guided || d.stage !== 'researching' || rawDealChoice() === `analyzed:${d.id}`) return false;
+  return !practiceStepSettled(baseRoute());
 }
 
 /**
- * Practice part 2 settled on any route: its roadmap step (the listed home's "Finish a practice purchase", the auction
- * or the lien practice) is done or marked "doesn't apply", or the rental case was credited. The one check the route
+ * Practice part 2 settled: done on any route (the listed home's "Finish a practice purchase", the auction or the lien
+ * practice, or the rental case credited), or marked "doesn't apply" on the route given. The one check the route
  * rule and My plan (planNext.guidedPracticeDone) share, so they never disagree.
  */
-export function practiceStepSettled(): boolean {
-  const ids = ['practice', 'a-practice', 'c-practice'];
-  const settled = settledFor('');
-  if ((['listing', 'auction', 'certificate'] as RoadmapPath[]).some((p) => roadmapFor(p).some((s) => ids.includes(s.id) && settled(s)))) return true;
+export function practiceStepSettled(path?: RoadmapPath): boolean {
+  // "Doesn't apply" counts only on the route it was marked for; done counts on any route.
+  if (path && roadmapFor(path).some((s) => PRACTICE_IDS.includes(s.id) && settledFor('')(s))) return true;
+  return practiceStepDoneAnyRoute();
+}
+
+const PRACTICE_IDS = ['practice', 'a-practice', 'c-practice'];
+
+/** Practice part 2 done (not just "doesn't apply") on any route, or the rental case credited. */
+export function practiceStepDoneAnyRoute(): boolean {
+  const done = roadmapDone();
+  if (PRACTICE_IDS.some((id) => done.includes(id))) return true;
   try { return readKey(CREDITED_KEY, [] as string[], cleanIds).includes('practice'); } catch { return false; }
+}
+
+/** The route apart from any saved property: the one you picked, else Decide's auctions pick, else the agent route.
+ *  A guided learner's waiting property is judged against it (here and in My plan), so the two always agree. */
+export function baseRoute(): RoadmapPath {
+  let picked = false;
+  try { picked = localStorage.getItem(ROADMAP_PATH_KEY) !== null; } catch { /* storage unavailable */ }
+  return !picked && decideRoute() === 'auction' ? 'auction' : roadmapPath();
 }
 
 /** Whether a route is set: one you picked, or Decide's auctions pick (both show as pressed on the roadmap). */

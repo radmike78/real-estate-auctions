@@ -12,7 +12,7 @@ import { caseFor, caseResume } from '../practice/rentalCase';
 import { LEARN_MODULES } from './learn';
 import { cleanGoal, GOAL_KEY } from './myPlan';
 import { ROADMAP_PHASES, roadmapFor, type RoadmapPath, type RoadmapStep } from './roadmap';
-import { AUTO_STEPS, cleanStatus, rawDealChoice, focusDealId, lienDealFor, planPath, practiceStepSettled, readKey, roadmapDone, roadmapPath, settledFor, STATUS_KEY } from './roadmapState';
+import { AUTO_STEPS, baseRoute, cleanStatus, rawDealChoice, focusDealId, lienDealFor, planPath, practiceStepSettled, readKey, roadmapDone, roadmapPath, settledFor, STATUS_KEY } from './roadmapState';
 
 export interface PlanNow {
   /** Your goal in one sentence, or '' when it isn't written yet. */
@@ -95,7 +95,7 @@ export function guidedPracticeDone(path: RoadmapPath = planPath()): boolean {
   if (step && settledFor('')(step)) return true;
   // Part 2 settled on any route (done or "doesn't apply", before a listed home changed the route) counts, with the
   // same check the route rule uses: a beginner who did what My plan asked isn't sent back to Step 3.
-  return practiceStepSettled();
+  return practiceStepSettled(path);
 }
 
 export const roadmapTask = (s: RoadmapStep): PlanTask => ({
@@ -120,7 +120,8 @@ export function planNow(now = new Date()): PlanNow {
   // Unless you chose that property in My plan: then it's the one you're working on. (Practice analyses saved during
   // paper practice are left out of the focus altogether: roadmapState.focusDealId.)
   const picked = !!deal && rawDealChoice() === `analyzed:${deal.id}`;
-  const guidedLearning = !picked && getMode() === 'guided' && !guidedPracticeDone(planPath(deals)) && researching;
+  // Practice judged on the route apart from the property (as the route rule does: roadmapState.guidedWaiting).
+  const guidedLearning = !picked && getMode() === 'guided' && !guidedPracticeDone(baseRoute()) && researching;
   if (deal && !guidedLearning) {
     const stage = stageOf(deal);
     return { goal, source: 'deal', context: `${deal.name} · ${stageLabel(stage, deal)}`, task: dealNextTask(deal, undefined, now, stage), deal, stage, tasks: stageTasks(deal, stage, undefined, now) };

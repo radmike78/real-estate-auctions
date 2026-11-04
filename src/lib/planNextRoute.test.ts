@@ -122,7 +122,12 @@ describe('practice part 2 follows your route', () => {
     const { guidedPracticeDone } = await import('./planNext');
     localStorage.setItem('deedowl.roadmap.status.v1', JSON.stringify({ 'a-practice': 'na' }));
     expect(planPath()).toBe('listing');
-    expect(guidedPracticeDone()).toBe(true);
+    expect(guidedPracticeDone('auction')).toBe(true);
+    // Marked for the auction route only: it doesn't settle the agent route's practice.
+    expect(guidedPracticeDone('listing')).toBe(false);
+    // My plan agrees: the property leads (not "waits while you finish practice").
+    const { planNow: pn } = await import('./planNext');
+    expect(pn(new Date('2026-11-03T12:00:00Z')).source).toBe('deal');
     localStorage.setItem('deedowl.roadmap.status.v1', JSON.stringify({}));
     expect(guidedPracticeDone('auction')).toBe(false);
     // Self-directed: the property leads at once.

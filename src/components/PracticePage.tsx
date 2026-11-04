@@ -1,7 +1,6 @@
 import { stateByCode } from '../lib/regions';
 import { practiceState, routePractice } from '../lib/planNext';
-import { planPath, settledFor } from '../lib/roadmapState';
-import { roadmapFor } from '../lib/roadmap';
+import { planPath, roadmapDone } from '../lib/roadmapState';
 import { practicePart2Done } from '../lib/journey';
 import NarrowDown from './NarrowDown';
 import { practiceConfig } from '../lib/narrow';
@@ -69,7 +68,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
   // A Nevada lien deal in focus (on the lien route) practices under Nevada rules, whatever your own state.
   const [mineRaw] = useMyState();
   // Practice part 2 settled on the auction or lien route before a listed home changed the route.
-  const partTwoElsewhere = !practicePart2Done() && (['auction', 'certificate'] as const).some((r) => roadmapFor(r).some((x) => (x.id === 'a-practice' || x.id === 'c-practice') && settledFor('')(x)));
+  const partTwoElsewhere = !practicePart2Done() && ['a-practice', 'c-practice'].some((id) => roadmapDone().includes(id));
   const mine = practiceState() === 'NV' ? 'NV' : mineRaw;
   const [cls, setCls] = useState<ClassFilter>('all');
   const chosen = mine === 'NV' && sale && (SALE_ORDER as string[]).includes(sale) ? (sale as SaleKey) : null;
