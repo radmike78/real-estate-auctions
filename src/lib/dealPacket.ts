@@ -7,7 +7,7 @@ import { workStorage as localStorage } from './workStorage';
 // why, the deal's key dates, your questions to professionals and their answers, your earnest money, and the reason
 // for your decision with any conditions still open. Kept only in this browser, like the rest.
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
-import { costsAtBid, maxSafeBid, offerInputs, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, unenteredCosts, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
+import { costsAtBid, maxSafeBid, offerInputs, redemptionOutcome, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, unenteredCosts, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
 import { cleanBuyBox, EMPTY_BUY_BOX, LIEN_STRATEGY, type BuyBox } from './toolkit';
 import { areasFor, GATES, loadLog } from './evidence';
 import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, refiValueWords, withPlanCash, dscrText, capText, noRealisticPrice, noRealisticAdvice, cashAndPropertyWeak, fhaMonthlyMi, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
@@ -165,7 +165,7 @@ const txLoanDates = (short: boolean): DateGuide[] => [
 const names = (xs: string[]): DateGuide[] => xs.map((what) => ({ what }));
 
 /** The dates most deals of this kind need on the calendar, each with how it works where we have it (Texas contracts). */
-export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'] }): DateGuide[] {
+export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan']; id?: string }): DateGuide[] {
   const tx = d.state === 'TX';
   // A commercial building isn't bought on a home contract (Texas: TREC's one-to-four-family form), so no home-form dates.
   if (d.plan === 'commercial' && isOffer(d)) return [
@@ -185,6 +185,8 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
   // Texas execution sale; a Texas tax sale has its own redemption period (Tax Code 34.21).
   if ((['hoa', 'irs', 'court'].includes(d.kind) || (d.kind === 'taxSale' && d.state === 'TX')) && !(d.state === 'TX' && d.kind === 'court')) out.push('Redemption period ends');
+  // A redemption wait typed in Fix and sell (a what-if the price is built on) puts its end on the calendar too.
+  else if (d.id && d.plan === 'flip') { const raw = read(`fsf.bid.analyzed-${d.id}.v1`) as { redemptionMonths?: unknown } | null; if (raw && typeof raw.redemptionMonths === 'number' && raw.redemptionMonths > 0) out.push('Redemption period ends'); }
   return names(out);
 }
 
@@ -298,6 +300,9 @@ export function savedNumbers(d: Deal) {
     cashTyped: boolean;
     /** The result at your own price (your offer or bid, or else the asking price or opening bid); null when none is entered. */
     at: { price: number; source: 'yours' | 'listed'; profit: number; cashOnDay: number; cashPeak: number; cashLeft: number } | null;
+    /** The redemption wait the walk-away price was built on, and what a redemption at its end returns against what you'd
+     *  have spent, at your price (else the walk-away price), as Fix and sell shows it; null with no wait. */
+    redeem?: { months: number; price: number; repaid: number; spent: number; net: number } | null;
     /** Each downside case: the walk-away price, and the profit at your own price (null when no price is entered). */
     stress: { label: string; maxBid: number; profit: number | null }[];
   } | null = null;
@@ -360,7 +365,7 @@ export function savedNumbers(d: Deal) {
         const pp = proposedPriceOf(i);
         const at = pp ? { ...resultAtPrice(i, pp.price), source: pp.source } : null;
         const stress = stressCases(i).map((c) => ({ label: c.label, maxBid: maxSafeBid(c.inputs).maxBid, profit: pp ? resultAtPrice(c.inputs, pp.price).profit : null }));
-        bid = { noTarget: !!i.profitInDollars && !(i.targetProfitMin > 0), targetTyped: (() => { const t = readConfirmed(`fsf.bid.analyzed-${d.id}.v1`); return t.has('targetProfitPct') || t.has('profitInDollars') || !!i.profitInDollars || (t.has('targetProfitMin') && (i.exitValue * i.targetProfitPct) / 100 < i.targetProfitMin); })(), cashBlocked: r.noBidWorks && r.profitBid > 0, profitBid: r.profitBid, maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: !offer && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: !offer && i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer) };
+        bid = { noTarget: !!i.profitInDollars && !(i.targetProfitMin > 0), targetTyped: (() => { const t = readConfirmed(`fsf.bid.analyzed-${d.id}.v1`); return t.has('targetProfitPct') || t.has('profitInDollars') || !!i.profitInDollars || (t.has('targetProfitMin') && (i.exitValue * i.targetProfitPct) / 100 < i.targetProfitMin); })(), cashBlocked: r.noBidWorks && r.profitBid > 0, profitBid: r.profitBid, maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: !offer && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: !offer && i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer), redeem: (() => { const price = at ? at.price : r.noBidWorks ? 0 : r.maxBid; const o = !offer && price > 0 ? redemptionOutcome(i, price) : null; return o ? { months: Math.round(i.redemptionMonths), price, ...o } : null; })() };
       }
     }
   } else if (d.plan === 'commercial' && own) {
@@ -666,7 +671,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const typedNoLimit = !(entered > 0) && (rent?.cashTyped || bid?.cashTyped || commercial?.cashTyped || false);
   const limit = entered > 0 ? entered : typedNoLimit ? 0 : profile.investable;
   const limitWord = entered > 0 ? `the cash you entered in ${strategy}` : 'your investable cash';
-  if (limit > 0 && need > 0) cash.push(need > limit ? `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.` : `${needAt}, that leaves ${money(limit - need)} unallocated from ${limitWord}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
+  if (limit > 0 && need > 0) cash.push(need > limit ? `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.` : `${needAt}, that leaves ${money(limit - Math.round(need))} unallocated from ${limitWord}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
   out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: cash, fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
@@ -688,6 +693,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     if (a) nums.push(`${priceName(a.source, offer, true)} (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'}): ${money(a.price)} → estimated profit ${money(a.profit)} (${bid.noTarget ? 'no profit target set yet' : `${bid.targetTyped ? 'your target' : 'our example target'} ${money(bid.target)}`}${a.profit < bid.target ? (bid.noTarget ? ', below break-even' : ', so it falls short') : ''}), based on a ${money(bid.exitValue)} resale value`);
     const belowOpening = !bid.none && a?.source === 'listed' && bid.maxBid < a.price;
     nums.push(bid.none && bid.cashBlocked ? `No bid fits the cash you entered: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that` : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and ${targetW}` : `What-if: walk-away price ${money(bid.maxBid)}, ${bid.limitedBy === 'cash' ? `the most your cash covers with every cost until you sell (${goalW} alone allows ${money(bid.profitBid)})` : `the most you could pay and still meet ${goalW}`} (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : `this deal doesn’t meet ${goalW}`} as entered` : ''}`);
+    if (bid.redeem) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait. If the owner redeems at its end, you’d get back about ${money(x.repaid)}* on a ${money(x.price)} ${offer ? 'offer' : 'bid'}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
     const floor = a?.source === 'listed' ? a.price : 0;
     for (const s of bid.stress.slice(1)) {

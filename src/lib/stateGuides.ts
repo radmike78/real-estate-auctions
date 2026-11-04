@@ -2984,7 +2984,7 @@ export const STATE_GUIDES: Playbook[] = [
   key: "azcommercial",
   title: "Arizona commercial property",
   short: "Commercial property",
-  oneLine: "Stores, offices, industrial buildings, apartments with 5+ units and commercial land sold in Arizona. They are sold at trustee, sheriff and tax sales, by receivers, and by bank or government sellers.",
+  oneLine: "Stores, offices, industrial buildings, apartments with 5+ units and commercial land in Arizona. They are sold at trustee, sheriff and tax sales, by receivers, and by bank or government sellers.",
   youGet: "The same kind of deed you’d get buying a home the same way. But you don’t get home-buyer protections, and the property often comes with tenants, leases, city rent taxes and environmental history.",
   forSale: true,
   glance: [

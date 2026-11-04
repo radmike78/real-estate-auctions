@@ -195,6 +195,8 @@ function OtherNumbers({ d }: { d: Deal }) {
       const lim = bid.cashLimit > 0 ? bid.cashLimit : bid.cashTyped ? 0 : pc;
       return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash, with the loan (if any) and costs entered in Fix and sell (${bid.cashLimit > 0 ? 'the cash you entered' : 'My plan'}: ${fmtMoney(lim)}).` : '';
     })()}</p>;
+    // The redemption wait the price was built on, and a redemption's result at its end (as the packet says).
+    const redeemClause = bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait (if the owner redeems: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
     const planCash = investorProfile().investable;
     // The same rule as Fix and sell: no warning once a cash limit is entered there (the price is already capped by it).
     const short = !(bid.cashLimit > 0) && !bid.cashTyped && planCash > 0 && bid.cashPeak > planCash;
@@ -209,12 +211,14 @@ function OtherNumbers({ d }: { d: Deal }) {
       return (
         <p className={mine || short || a.profit < bid.target || a.price > bid.maxBid ? 'deal-urgent' : undefined}>
           {at}, {fmtMoney(a.price)}: profit about {fmtMoney(Math.round(a.profit))} · needs about {fmtMoney(Math.round(a.cashPeak))} of your cash{mine ? ` (${bid.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''} · walk-away price {fmtMoney(bid.maxBid)}{short && !mine ? ` (needs about ${fmtMoney(Math.round(bid.cashPeak))} of your cash; My plan: ${fmtMoney(Math.round(planCash))}; ${listed ? 'offer only what fits your cash' : 'enter your cash in Fix and sell to cap it'})` : ''}{mine && bid.cashLimit <= 0 ? ` · even this ${listed ? 'price' : 'bid'} needs more than My plan’s cash: skip this one, or update My plan if you have more` : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
+          {redeemClause}
         </p>
       );
     }
     return (
       <p className={short ? 'deal-urgent' : undefined}>
         Walk-away price {fmtMoney(bid.maxBid)} · needs about {fmtMoney(Math.round(bid.cashPeak))} of your cash at that price{short ? ` (My plan: ${fmtMoney(Math.round(planCash))})` : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
+        {redeemClause}
       </p>
     );
   }

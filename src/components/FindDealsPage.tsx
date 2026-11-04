@@ -1,3 +1,4 @@
+import { workStorage as localStorage } from '../lib/workStorage';
 import { planPath } from '../lib/roadmapState';
 import { practiceLienDeal } from '../lib/planNext';
 import { findDealsAllowsAds } from '../lib/contextAds';
@@ -142,7 +143,10 @@ export default function FindDealsPage() {
           </OwlNote>
         );
       })()}
-      {countyRoute ? <p className="page-starter"><strong>{lienRoute ? 'Buying lien certificates?' : 'Buying at a county sale?'}</strong> Start with the county {lienRoute ? 'lien sales' : 'auctions'} and sale calendars below: they come from the official seller. <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p> : <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box (your written limits: area, property type, price and condition). <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>}
+      {countyRoute ? <p className="page-starter"><strong>{lienRoute ? 'Buying lien certificates?' : 'Buying at a county sale?'}</strong> Start with the county {lienRoute ? 'lien sales' : 'auctions'} and sale calendars below: they come from the official seller. <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p> : (() => { let commercial = false; try { commercial = (JSON.parse(localStorage.getItem('deedowl.buybox.v1') ?? 'null') as { strategy?: string } | null)?.strategy === 'Apartments and commercial property'; } catch { /* storage unavailable */ }
+        return commercial
+          ? <p className="page-starter"><strong>Buying a commercial building?</strong> Ask a commercial broker for listings that match your buy box (area, property type, price and the income you need), and check the bank and government sellers below. <strong>Found one?</strong> Open it in <a href="#/analyze">Analyze</a> (Commercial income) to get its checklist and your numbers, then save it.</p>
+          : <p className="page-starter"><strong>Buying a home listed for sale?</strong> Ask a licensed agent to set up a search of homes on the local listing service (MLS) that match your buy box (your written limits: area, property type, price and condition). <strong>Found a property?</strong> Open it in <a href="#/analyze">Analyze</a> to get its checklist and your numbers, then save it.</p>; })()}
       {/* Trustee's (foreclosure) sales: where their notices are, after the general starting point. */}
       {planPath() === 'auction' && <p className="page-starter"><strong>A trustee’s (foreclosure) sale?</strong> The trustee runs it, not the county. Find its notice of sale (it names the trustee, date and place) at the county records office or clerk below, or in a local paper’s legal notices, and confirm the date with the trustee. <a href={`#/playbooks/${guideKeyFor({ kind: 'trustee', state: st.code })}`}>How trustee sales work in {st.name}&nbsp;→</a></p>}
       <section aria-labelledby="search-routine">

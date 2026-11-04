@@ -31,6 +31,7 @@ import { stageLabel, stageOf, stageOfStep, STAGE_STEPS, DEAL_STAGES } from '../l
 import PlanNext from './PlanNext';
 import { planNow, practiceLienDeal, practiceState } from '../lib/planNext';
 import { CORE_TEAM } from '../lib/proGuide';
+import { COMMERCIAL_OFFER_ROLES } from '../lib/dealPacket';
 import { cashForPrice, cleanGoal, investorProfile, cleanTeamList, GOAL_KEY, PLAN_EVENT, PRICE_DEFAULTS, priceForCash, TEAM_LIST_KEY, TEAM_ROLES, type PriceAssumptions, type TeamList, type TeamMember } from '../lib/myPlan';
 import { currentProgress } from '../lib/journey';
 import { DECIDE_KEY, QUESTIONS, rank, type Answers } from '../lib/decide';
@@ -1005,15 +1006,18 @@ function planText(): string {
   // The people you've chosen, with what to say to each; the roles still open on one line (a lien or auction plan
   // doesn't need the listed-home team's scripts).
   const open: string[] = [];
+  // A commercial building bought through a broker or from a bank: the commercial team, as Your team shows it.
+  const commercialPlan = path === 'listing' && b.strategy === 'Apartments and commercial property';
+  const core: string[] = commercialPlan ? COMMERCIAL_OFFER_ROLES : CORE_TEAM;
   for (const k of TEAM_ROLES) {
     const m = team[k];
     const g = proGuideByKey(k);
     // Anything entered for the role counts (a contact or fees with no name yet, a credentials check).
     // Only the core team is listed as still open (the other professionals come in only for some deals).
-    if (!m?.name?.trim() && !m?.contact?.trim() && !m?.fees?.trim() && !m?.licenseChecked) { if (CORE_TEAM.includes(k) || (path === 'certificate' && k === 'cpa')) open.push(g?.title ?? k); continue; }
+    if (!m?.name?.trim() && !m?.contact?.trim() && !m?.fees?.trim() && !m?.licenseChecked) { if (core.includes(k) || (path === 'certificate' && k === 'cpa')) open.push(g?.title ?? k); continue; }
     lines.push(`${g?.title ?? k}: ${m.name.trim() || '(name not entered)'}${m.contact ? `, ${m.contact}` : ''}${m.licenseChecked ? ', credentials checked' : ''}${m.fees ? `. Fees: ${m.fees}` : ''}`);
     // The scripts are written for a listed home's purchase: not printed on an auction or lien plan.
-    if (PRO_SCRIPTS[k] && path === 'listing') lines.push(`  What to say: ${PRO_SCRIPTS[k].say}`);
+    if (PRO_SCRIPTS[k] && path === 'listing' && !commercialPlan) lines.push(`  What to say: ${PRO_SCRIPTS[k].say}`);
   }
   // At an auction or for lien certificates there's no agent, loan or inspection at the sale: those roles aren't listed as open.
   // (A lien certificate has no property to insure either; its team adds a tax adviser.)

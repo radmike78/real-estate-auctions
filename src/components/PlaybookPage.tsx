@@ -48,6 +48,8 @@ export const hasBlanks = (t: string) => /\[[^\]]+\]/.test(t);
 function withoutState(text: string, name: string) {
   return text
     .replace(new RegExp(`\\b([Aa]) ${name} (?=[AEIOUaeiou])`, 'g'), (_m, a: string) => `${a}n `)
+    // "An Arizona homeowners association" → "A homeowners association" (the article follows the next word).
+    .replace(new RegExp(`\\b([Aa])n ${name} (?=[^AEIOUaeiou])`, 'g'), '$1 ')
     .replace(new RegExp(`\\b([Aa]n?) ${name} `, 'g'), '$1 ')
     .replace(new RegExp(` in ${name}\\b`, 'g'), '')
     .replace(new RegExp(`\\b${name} `, 'g'), '');
@@ -135,7 +137,7 @@ export function sections(p: Playbook): DrillSection[] {
       title: 'What the sale wipes out, and what stays',
       icon: <IconLayers />,
       tone: 'wait',
-      summary: `${p.survives.mayStay.length} things that can stay with the property`,
+      summary: `${p.survives.mayStay.length} ${p.survives.mayStay.length === 1 ? 'thing' : 'things'} that can stay with the property`,
       content: () => (
         <div className="survive-grid">
           <div className="survive-col good"><h3 className="guide-sub">Usually wiped out</h3><ul>{p.survives.wipedOut.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></div>
@@ -149,7 +151,7 @@ export function sections(p: Playbook): DrillSection[] {
       title: 'Costly mistakes, and how to avoid them',
       icon: <IconFlag />,
       tone: 'stop',
-      summary: `${p.mistakes.length} mistakes buyers make, plus a walk-away example`,
+      summary: `${p.mistakes.length} ${p.mistakes.length === 1 ? 'mistake' : 'mistakes'} buyers make, plus a walk-away example`,
       content: () => (
         <>
           <ul className="risk-list">
