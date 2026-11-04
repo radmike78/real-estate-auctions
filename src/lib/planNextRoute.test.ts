@@ -192,7 +192,7 @@ describe('practice part 2 follows your route', () => {
   it('keeps "None yet (learning)" when a practice analysis is saved, and ends it for a real one', async () => {
     const { saveDeals } = await import('./analyze');
     const now = new Date().toISOString();
-    const base = { state: 'NV', county: 'Douglas', kind: 'listing' as const, plan: 'rent' as const, notes: '', done: [], updatedAt: now };
+    const base = { state: 'NV' as const, county: 'Douglas', kind: 'listing' as const, plan: 'rent' as const, notes: '', done: [], updatedAt: now };
     localStorage.setItem('deedowl.roadmap.deal.v1', JSON.stringify('none'));
     saveDeals([{ ...base, id: 'p1', name: 'Practice one', practice: true }]);
     expect(JSON.parse(localStorage.getItem('deedowl.roadmap.deal.v1')!)).toBe('none');
