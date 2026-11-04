@@ -7,7 +7,7 @@ import { workStorage as localStorage } from './workStorage';
 // Site rules: tasks never involve contacting a homeowner, an occupant or a former owner. Official sellers, your own
 // team, public records and the county only.
 import { CURRENT_KEY, DEAL_STAGES, isDealStage, loadDeals, saveDeals, type Deal, type DealStage } from './analyze';
-import { roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
+import { irsWithoutRedemption, roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
 import { areasFor, loadLog, type EvidenceLog } from './evidence';
 import { loadOwned, type Owned } from './owned';
 import { proGuideByKey } from './proGuide';
@@ -22,12 +22,15 @@ export const wayOf = (d: Pick<Deal, 'kind'>): Way => (d.kind === 'lien' ? 'lien'
 /** A certificate of sale first, the deed only after the redemption period, if no one redeems: a Nevada HOA sale (60 days,
  *  NRS 116.31166(3), (7)), a Nevada sheriff's sale (1 year, NRS 21.210, 21.220(4)) and an IRS sale (180 days, 26 U.S.C.
  *  6337(b), 6338). */
-export const certificateFirst = (d: { kind: Deal['kind']; state?: Deal['state'] }): boolean => d.kind === 'irs' || (d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court'));
+export const certificateFirst = (d: { kind: Deal['kind']; state?: Deal['state']; id?: string; plan?: Deal['plan'] }): boolean => (d.kind === 'irs' && !irsWithoutRedemption({ state: d.state ?? 'NV', kind: d.kind, id: d.id, plan: d.plan })) || (d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court'));
 const waitWord = (d: { kind: Deal['kind'] }) => (d.kind === 'hoa' ? '60 days' : d.kind === 'irs' ? '180 days' : '1 year');
 /** The packet's date row for the deed after the wait (dateGuide names it the same). */
 export const DEED_AFTER_WAIT = 'Deed delivered (if no one redeemed)';
 /** A date in the packet with its date entered, passed and marked handled. */
-const handled = (p: PacketData, what: string, now: Date) => p.dates.some((x) => x.what === what && !!x.resolved && !!x.when && x.when <= now.toISOString().slice(0, 10));
+const localDay = (now: Date) => `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+const handled = (p: PacketData, what: string, now: Date) => p.dates.some((x) => x.what === what && !!x.resolved && !!x.when && x.when < localDay(now));
+/** A row marked handled, with or without its date (the deed: you have it). */
+const ticked = (p: PacketData, what: string) => p.dates.some((x) => x.what === what && !!x.resolved);
 
 /** The stage's name for this kind of sale (you make an offer on a listing, but bid at an auction) and plan. */
 export function stageLabel(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Deal['plan']; state?: Deal['state'] }): string {
@@ -43,13 +46,15 @@ export function stageLabel(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: De
 }
 
 /** One line on what the stage means, for the stage picker. */
-export function stageHint(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Deal['plan']; state?: Deal['state'] }): string {
+export function stageHint(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Deal['plan']; state?: Deal['state']; id?: string }): string {
   const w = wayOf(d);
+  // (A certificate first: once its deed is in hand, the hint moves on.)
+  const deedIn = !!d.id && certificateFirst(d) && ticked(loadPacket(`analyzed:${d.id}`), DEED_AFTER_WAIT);
   switch (stage) {
     case 'researching': return w === 'offer' ? 'Checking whether it fits, before any offer. Check the listing and the seller’s deadlines while you research.' : w === 'lien' ? (d.state === 'NV' ? 'Checking whether it fits, before the sale. Check the sale’s registration and payment deadlines while you research.' : 'Checking whether it fits, before you bid. Check the sale’s registration and payment deadlines while you research.') : d.kind === 'trustee' ? 'Checking whether it fits, before any bid. Confirm the sale date and the trustee’s payment terms while you research.' : 'Checking whether it fits, before any bid. Check the sale’s registration deadline while you research.';
     case 'offer': return w === 'offer' ? 'It checked out: you’re setting your price, the earnest money and your questions before you offer.' : w === 'lien' && d.state === 'NV' ? 'It checked out: you’re setting the most you’ll put into one certificate and getting the funds ready.' : 'It checked out: you’re setting your maximum bid and getting the funds ready.';
     case 'contract': return w === 'offer' ? 'The seller accepted your offer. The contract’s deadlines are running.' : w === 'lien' && d.state === 'NV' ? 'You were picked. The payment deadline is running.' : 'You won the bid. Payment and recording deadlines are running.';
-    case 'closed': return w === 'offer' ? 'It’s yours: insurance, locks, utilities and repairs come first.' : w === 'lien' ? 'You hold the certificate: track it until it’s paid off.' : certificateFirst(d) ? `A certificate of sale first: insure and maintain it, and hold off on remodeling until the redemption period (${waitWord(d)} after the sale) ends and you have the deed.` : 'The deed is yours: check redemption, possession and title before you remodel.';
+    case 'closed': return w === 'offer' ? 'It’s yours: insurance, locks, utilities and repairs come first.' : w === 'lien' ? 'You hold the certificate: track it until it’s paid off.' : deedIn ? 'You have the deed: record it, get title insurance, then start the repairs.' : certificateFirst(d) ? `A certificate of sale first: insure and maintain it, and hold off on remodeling until the redemption period (${waitWord(d)} after the sale) ends and you have the deed.` : 'The deed is yours: check redemption, possession and title before you remodel.';
     case 'owned': return w === 'lien' ? 'Tracking payoffs, interest and what to do with unpaid liens.' : d.plan === 'flip' ? 'Fixing it up and selling it: tracking repair and holding costs against your budget.' : 'Renting or holding it: recording real rent and costs each month.';
     case 'passed': return 'You walked away. A good result when the evidence says no.';
   }
@@ -274,8 +279,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     } else {
       // California homes of 1–4 units: a trustee-sale win isn't final until the eligible-bidder windows close (Civil Code 2924m).
       const ca2924m = d.kind === 'trustee' && d.state === 'CA';
-      out.push(task({ key: 'dates', label: w === 'lien' ? `Put ${n}’s payment deadline on its calendar` : `Put ${n}’s payment and recording deadlines on its calendar`, produces: w === 'lien' ? 'the payment deadline and when you’ll receive the certificate, on one calendar' : ca2924m ? 'the payment deadline and when the deed should be recorded, on one calendar; for a home of 1–4 units, also the eligible-bidder windows (15 and 45 days after the sale), since your win isn’t final until they close, unless an exception applies*' : certificateFirst(d) ? 'the payment deadline and when the certificate of sale should be recorded, on one calendar' : 'the payment deadline and when the deed or certificate should be recorded, on one calendar', href: packetHref(d, 'dates'), support: [L.guides], done: calendarComplete(p, stage) }));
-      area('terms', `Pay for ${n} as the sale requires`, 'the receipt, and the deed or certificate you’re owed, in its evidence log', [L.guides]);
+      out.push(task({ key: 'dates', label: w === 'lien' ? `Put ${n}’s payment deadline on its calendar` : `Put ${n}’s payment and recording deadlines on its calendar`, produces: w === 'lien' ? 'the payment deadline and when you’ll receive the certificate, on one calendar' : d.kind === 'irs' && certificateFirst(d) ? 'the payment deadline and when you’ll receive the certificate of sale, on one calendar' : ca2924m ? 'the payment deadline and when the deed should be recorded, on one calendar; for a home of 1–4 units, also the eligible-bidder windows (15 and 45 days after the sale), since your win isn’t final until they close, unless an exception applies*' : certificateFirst(d) ? 'the payment deadline and when the certificate of sale should be recorded, on one calendar' : 'the payment deadline and when the deed or certificate should be recorded, on one calendar', href: packetHref(d, 'dates'), support: [L.guides], done: calendarComplete(p, stage) }));
+      area('terms', `Pay for ${n} as the sale requires`, w === 'lien' ? 'the receipt, and the certificate you’re owed, in its evidence log' : certificateFirst(d) ? 'the receipt, and the certificate of sale you’re owed, in its evidence log' : 'the receipt, and the deed or certificate you’re owed, in its evidence log', [L.guides]);
       if (w === 'auction') {
         if (!ev('insurance')) area('insurance', `Insure ${n} right away`, 'a policy in your name from the day you own it, in its evidence log', [L.pro('insurance')]);
         area('title', certificateFirst(d) ? `Have a title professional review ${n}’s certificate of sale` : `Have a title professional review ${n}’s deed`, certificateFirst(d) ? 'what the certificate gives you, what still stands against it, and when a deed can follow, in its evidence log' : 'what the deed gives you and what still stands against it, in its evidence log', [L.pro('title')]);
@@ -283,7 +288,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       // A Nevada HOA or sheriff's sale gives a certificate of sale first; the deed comes only after the redemption period
       // (60 days, NRS 116.31166; 1 year, NRS 21.210), if no one redeems.
       const certFirst = certificateFirst(d);
-      out.push(task({ key: 'record', label: w === 'lien' ? `Get the certificate for ${n}` : certFirst ? (d.kind === 'irs' ? `Get the certificate of sale for ${n}` : `Get the certificate of sale for ${n} recorded`) : `Get the deed for ${n} recorded`, produces: w === 'lien' ? 'the certificate in your records. Then mark it in hand and the holding tasks appear here' : certFirst ? `the ${d.kind === 'irs' ? '' : 'recorded '}certificate of sale. The deed comes after the redemption period (${d.kind === 'hoa' ? '60 days' : '1 year'} after the sale), if no one redeems. Then mark it recorded and the tasks for the wait appear here` : 'the recorded deed. Then mark it recorded and the new-owner tasks appear here', href: ROADMAP_HREF, advance: { stage: 'closed', label: w === 'lien' ? 'I have the certificate: mark it' : certFirst ? (d.kind === 'irs' ? 'I have the certificate of sale: mark it' : 'The certificate of sale is recorded: mark it') : 'The deed is recorded: mark it' }, support: [L.guides], done: false }));
+      out.push(task({ key: 'record', label: w === 'lien' ? `Get the certificate for ${n}` : certFirst ? (d.kind === 'irs' ? `Get the certificate of sale for ${n}` : `Get the certificate of sale for ${n} recorded`) : `Get the deed for ${n} recorded`, produces: w === 'lien' ? 'the certificate in your records. Then mark it in hand and the holding tasks appear here' : certFirst ? `the ${d.kind === 'irs' ? '' : 'recorded '}certificate of sale. The deed comes after the redemption period (${waitWord(d)} after the sale), if no one redeems. Then mark it ${d.kind === 'irs' ? 'received' : 'recorded'} and the tasks for the wait appear here` : 'the recorded deed. Then mark it recorded and the new-owner tasks appear here', href: ROADMAP_HREF, advance: { stage: 'closed', label: w === 'lien' ? 'I have the certificate: mark it' : certFirst ? (d.kind === 'irs' ? 'I have the certificate of sale: mark it' : 'The certificate of sale is recorded: mark it') : 'The deed is recorded: mark it' }, support: [L.guides], done: false }));
     }
     return out;
   }
@@ -300,8 +305,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     if (w === 'auction') out.push(task({ key: 'before-remodel', label: `Check redemption, possession and title for ${n} before you remodel`, produces: 'a written answer on any redemption period, lawful possession and title insurance', href: stepHref('a-before-remodel'), support: [L.guides], done: stepDone('a-before-remodel') }));
     // The redemption wait comes first: the end date on its calendar, the property insured and kept up, no remodeling.
     if (certificateFirst(d)) {
-      out.push(task({ key: 'redemption-wait', label: `Wait out ${n}’s redemption period (${waitWord(d)} after the sale)`, produces: `the end date on its calendar, the property insured and maintained, receipts for ${d.kind === 'court' ? 'the taxes, assessments and earlier liens you pay (a redemption repays those, not upkeep)' : 'the taxes and upkeep you pay'}, and no remodeling until it ends. Once it has passed, mark “Redemption period ends” handled in its dates`, href: packetHref(d, 'dates'), support: [L.pro('attorney')], done: handled(p, 'Redemption period ends', now) }));
-      out.push(task({ key: 'deed', label: `Get the deed for ${n} and record it, if no one redeemed`, produces: `the deed from ${d.kind === 'hoa' ? 'whoever conducted the sale' : d.kind === 'irs' ? 'the IRS, for your certificate of sale' : 'the sheriff'}, recorded, then mark “${DEED_AFTER_WAIT}” handled in its dates. If it was redeemed instead, you’re repaid your price plus what the law adds: record the payoff and mark the deal passed`, href: packetHref(d, 'dates'), support: [L.pro('title')], done: handled(p, DEED_AFTER_WAIT, now) }));
+      out.push(task({ key: 'redemption-wait', label: `Wait out ${n}’s redemption period (${waitWord(d)} after the sale)`, produces: `the end date on its calendar, the property insured and maintained, ${d.kind === 'court' ? 'receipts for the taxes, assessments and earlier liens you pay (a redemption repays those, not upkeep)' : d.kind === 'irs' ? 'your records of what you pay (a redemption repays your price plus 20% a year, not taxes or upkeep)' : 'receipts for the taxes and upkeep you pay'}, and no remodeling until it ends. Once it has passed, mark “Redemption period ends” handled in its dates`, href: packetHref(d, 'dates'), support: [L.pro('attorney')], done: handled(p, 'Redemption period ends', now) }));
+      out.push(task({ key: 'deed', label: `Get the deed for ${n} and record it, if no one redeemed`, produces: `the deed from ${d.kind === 'hoa' ? 'whoever conducted the sale' : d.kind === 'irs' ? 'the IRS, for your certificate of sale' : 'the sheriff'}, recorded, then enter the date you got it and mark “${DEED_AFTER_WAIT}” handled in its dates. If it was redeemed instead, you’re repaid your price plus what the law adds: record the payoff and mark the deal passed`, href: packetHref(d, 'dates'), support: [L.pro('title')], done: ticked(p, DEED_AFTER_WAIT) }));
     } else out.push(firstWeek);
     if (d.plan === 'flip') {
       // A flip gets the work and the sale, not rental tasks.

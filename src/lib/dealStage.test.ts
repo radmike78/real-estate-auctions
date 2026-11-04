@@ -292,3 +292,15 @@ it('opens the roadmap step a deal task is backed by', () => {
   const hoa: Deal = { ...deal, id: 'dh2', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip' };
   expect(stageTasks(hoa, 'closed', EMPTY_PACKET, now).find((t) => t.key === 'first-week')?.href).toBe('#/toolkit/roadmap?step=first-week');
 });
+
+it('an IRS sale with "No redemption" picked gets the deed at once; a ticked deed row is enough', () => {
+  const irs: Deal = { ...deal, id: 'di1', state: 'NV', county: 'Clark', kind: 'irs', plan: 'flip' };
+  localStorage.setItem('fsf.bid.analyzed-di1.v1', JSON.stringify({ exitValue: 250000, repairs: 20000, redemptionMonths: 0, redemptionRatePct: 0 }));
+  localStorage.setItem('fsf.bid.analyzed-di1.v1.typed.v1', JSON.stringify(['exitValue', 'repairs', 'rulePick_NV_irs_none']));
+  expect(stageLabel('closed', irs)).toBe('Deed recorded');
+  expect(stageTasks(irs, 'closed', EMPTY_PACKET, now).map((t) => t.key)).not.toContain('redemption-wait');
+  localStorage.removeItem('fsf.bid.analyzed-di1.v1'); localStorage.removeItem('fsf.bid.analyzed-di1.v1.typed.v1');
+  const hoa: Deal = { ...deal, id: 'dh3', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip' };
+  const p = { ...EMPTY_PACKET, dates: [{ when: '', what: 'Deed delivered (if no one redeemed)', who: '', resolved: true }] };
+  expect(stageTasks(hoa, 'closed', p, now).find((t) => t.key === 'deed')?.done).toBe(true);
+});

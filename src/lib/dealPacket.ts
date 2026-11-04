@@ -60,7 +60,9 @@ export const EMPTY_PACKET: PacketData = { fit: '', fitWhy: '', dates: [], qa: []
 /** A count of dates cannot establish that all applicable deadlines have been reviewed. */
 /** A date that applies only if something happens (its name says “(if …)”): it can stay undated. */
 const ifOnly = (what: string) => /\(if /.test(what);
-export const calendarComplete = (p: PacketData, stage: string) => p.calendarReviewedFor === stage && p.dates.length > 0 && p.dates.every((d) => !!d.what.trim() && ((!!d.when && !!d.who.trim()) || (!d.when && ifOnly(d.what))));
+/** A date row filled in: its date and who handles it, or (a date that applies only if something happens) left undated. */
+export const dateRowComplete = (d: { when: string; what: string; who: string }) => !!d.what.trim() && ((!!d.when && !!d.who.trim()) || (!d.when && ifOnly(d.what)));
+export const calendarComplete = (p: PacketData, stage: string) => p.calendarReviewedFor === stage && p.dates.length > 0 && p.dates.every(dateRowComplete);
 
 const KEY = 'deedowl.dealPacket.v1';
 export const PACKET_KEY = KEY;
@@ -257,6 +259,9 @@ function savedRule(d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal[
   return rule;
 }
 
+/** An IRS sale with "No redemption" picked in Fix and sell (a court-ordered sale can allow none): a deed, not a certificate first. */
+export const irsWithoutRedemption = (d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal['plan'] }): boolean => d.kind === 'irs' && savedRule(d) === 'none';
+
 /** A redemption wait typed in Fix and sell for this deal (a what-if its price is built on). */
 function typedWait(d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal['plan'] }): boolean {
   if (!d.id || d.plan !== 'flip') return false;
@@ -269,7 +274,7 @@ function typedWait(d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal[
 
 /** Before the deed, a redemption period with no rent you can count on (a certificate of sale first): its words, or null. */
 export function rentWaitNote(state: string | null | undefined, kind: string | null | undefined): string | null {
-  if (state === 'NV' && kind === 'court') return 'After a Nevada sheriff’s sale the owner can redeem for 1 year, and whoever lives there may keep using the property until then (NRS 21.210, 21.240).';
+  if (state === 'NV' && kind === 'court') return 'After a Nevada sheriff’s sale the owner can redeem for 1 year, and whoever lives there may keep using the property until then (NRS 21.210, 21.240). If a tenant rents it, you’re entitled to that rent during the year, but it’s subtracted from what you’re repaid if someone redeems (NRS 21.250).';
   if (state === 'NV' && kind === 'hoa') return 'After a Nevada HOA sale the owner can redeem for 60 days, and you get the deed only after that (NRS 116.31166).';
   if (kind === 'irs') return 'After an IRS sale the owner can redeem for 180 days, and you get the deed only after that (26 U.S.C. 6337(b), 6338).';
   return null;
@@ -334,9 +339,9 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   // (A trustee's sale lists registration only if the trustee requires one: the statutes set no registration step.)
   if (d.kind === 'trustee') return [{ what: 'Registration (if required)', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline', 'Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
-  const certFirst = d.kind === 'irs' || (d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court'));
-  const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', d.kind === 'irs' ? 'Certificate of sale received' : certFirst ? 'Certificate of sale recorded' : 'Deed or certificate recorded'];
-  const nvCert = d.kind === 'irs'
+  const certFirst = d.kind === 'irs' ? savedRule(d) !== 'none' : d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court');
+  const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', d.kind === 'irs' && certFirst ? 'Certificate of sale received' : certFirst ? 'Certificate of sale recorded' : 'Deed or certificate recorded'];
+  const nvCert = d.kind === 'irs' && certFirst
     ? { what: 'Certificate of sale received', when: 'When you pay the full price.', who: 'The IRS', todo: 'Keep it safe: you hand it in for the deed.', missed: 'Ask the IRS sale officer.', why: '26 U.S.C. 6338(a)' }
     : d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court')
     ? { what: 'Certificate of sale recorded', when: 'After the sale.', who: d.kind === 'hoa' ? 'The person who conducted the sale (the HOA’s agent)' : 'The sheriff', todo: 'Get a recorded copy, and insure the property right away.', missed: d.kind === 'hoa' ? 'Ask the HOA’s agent who ran the sale when it will be recorded.' : 'Ask the sheriff’s civil office when it will be recorded.', why: d.kind === 'hoa' ? 'NRS 116.31166(2)' : 'NRS 21.190' }
@@ -357,7 +362,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
     ? { what: 'Redemption period ends', when: d.kind === 'hoa' ? '60 days after the sale.' : '1 year after the sale.', who: d.kind === 'hoa' ? 'The former owner, or a lender whose recorded loan ranked below the HOA’s lien' : 'The former owner (the judgment debtor), or a creditor with a later judgment or mortgage lien', todo: d.kind === 'hoa' ? 'Secure, insure and maintain the property; hold off on remodeling until it ends. Keep receipts for taxes and upkeep you pay.' : 'Secure, insure and maintain the property; hold off on remodeling until it ends. Keep receipts for taxes, assessments and payments on earlier liens you make: a redemption repays those with interest, but not repairs or upkeep.', missed: 'After it ends, no one can redeem under that law, and the deed can follow if no one redeemed.*', why: d.kind === 'hoa' ? 'NRS 116.31166(2) and (3)' : 'NRS 21.200 and 21.210' }
     : null;
   // An IRS sale: 180 days for the owner or anyone with an interest in it (26 U.S.C. 6337(b)).
-  const irsEnds = d.kind === 'irs' ? { what: 'Redemption period ends', when: '180 days after the sale.', who: 'The owner, or anyone with an interest in the property or a lien on it', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends.', missed: 'After it ends, it can’t be redeemed under that law, and the deed can follow.*', why: '26 U.S.C. 6337(b)' } : null;
+  const irsEnds = d.kind === 'irs' ? { what: 'Redemption period ends', when: '180 days after the sale.', who: 'The owner, or anyone with an interest in the property or a lien on it', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends. A redemption repays your price plus 20% a year, not taxes or upkeep you pay.', missed: 'After it ends, it can’t be redeemed under that law, and the deed can follow.*', why: '26 U.S.C. 6337(b)(1) and (2)' } : null;
   const ends = nvEnds ?? irsEnds ?? (d.state === 'UT' && d.kind === 'court' && ownerRule
     ? { what: 'Redemption period ends', when: '180 days after the sale.', who: 'The owner, or others the rule lets redeem', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends.', missed: 'After it ends, the owner can no longer redeem under that rule.*', why: 'Utah Rule of Civil Procedure 69C' }
     : d.state === 'TX' && d.kind === 'taxSale' && ownerRule
@@ -785,7 +790,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
         cash.push(`Repair spending as work is done: ${money(rent.repairs)}, including the contingency. Possession costs, if needed: ${money(rent.possession)}.`);
         cash.push(`Total modeled acquisition, repairs and possession cash: ${money(rent.cashIn)}. This is not the amount to wire at closing.`);
         cash.push('Ask title/escrow and your lender for the actual cash to close and payment dates. Prepaid costs, escrow funding, prorations, credits and costs paid earlier can change it. Repair/lease-up carrying costs also need a separate budget if not included.');
-      } else cash.push(`From sale day until it’s rented, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs)${rentWaitNote(d.state, d.kind) ? `. ${rentWaitNote(d.state, d.kind)} These numbers start the rent right away: add the holding costs for that time, with no rent, before you bid` : ''}`);
+      } else cash.push(`From sale day until it’s rented, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs)${rentWaitNote(d.state, d.kind) ? `. ${rentWaitNote(d.state, d.kind)} These numbers start the rent right away: add the holding costs for that time, with no rent, ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? 'to your budget' : 'before you bid'}` : ''}`);
     }
     cash.push(rent.retained > 0 ? `Retained property reserves: ${money(rent.retained)}, kept separately from the ${money(need)} modeled cash requirement.` : 'Retained property reserves: not entered. Set aside a separate amount for vacancies and unexpected costs.');
     if (rent.retained > 0) need += rent.retained;

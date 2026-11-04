@@ -221,7 +221,7 @@ describe('the deal packet', () => {
     expect(dateGuide({ ...deal, state: 'NV', kind: 'hoa' }).find((g) => g.what === 'Deed delivered (if no one redeemed)')?.why).toBe('NRS 116.31166(5) and (7)');
     const irs = dateGuide({ ...deal, state: 'NV', kind: 'irs' });
     expect(irs.map((g) => g.what)).toEqual(expect.arrayContaining(['Certificate of sale received', 'Redemption period ends', 'Deed delivered (if no one redeemed)']));
-    expect(irs.find((g) => g.what === 'Redemption period ends')?.why).toBe('26 U.S.C. 6337(b)');
+    expect(irs.find((g) => g.what === 'Redemption period ends')?.why).toBe('26 U.S.C. 6337(b)(1) and (2)');
     // No rent you can count on before the deed: said for a Nevada sheriff's or HOA sale and an IRS sale.
     const { rentWaitNote } = await import('./dealPacket');
     expect(rentWaitNote('NV', 'court')).toMatch(/1 year.*NRS 21\.210, 21\.240/);
