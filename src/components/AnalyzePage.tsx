@@ -396,10 +396,18 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           if (!ld) return null;
           const nm = stateByCode(ld.state)?.name ?? ld.state;
           // The new certificate opened in that deal's state (the lien calculator link, or the button below).
-          if (deal.kind === 'lien' && deal.state === ld.state && deal.state !== mine) return <p className="note" role="status" tabIndex={-1} ref={lienNoteRef}>A new, unsaved lien certificate in {nm}, where your saved lien deal is.{savingPractice(deal) ? ' For the practice step, enter a price and rate below, then try “Months until the owner pays” at 6 and at 24.' : ''} Your saved deal “{ld.name}” isn’t changed; save this one only if you want to keep it. <button type="button" className="linkish" onClick={() => {
+          if (deal.kind === 'lien' && deal.state === ld.state && deal.state !== mine) return <p className="note" role="status" tabIndex={-1} ref={lienNoteRef}>A new, unsaved lien certificate in {nm}, where your saved lien deal is.{savingPractice(deal) ? ` For the practice step, enter the “${deal.state === 'AZ' ? 'Lien amount you pay' : 'Certificate price'}” and “Interest” below, then try “Months until the owner pays” at 6 and at 24.` : ''} Your saved deal “{ld.name}” isn’t changed. <button type="button" className="linkish" onClick={() => {
             // A named or noted certificate is kept in My deals first, as every other way of replacing the draft does.
-            const kept = keepUnsaved();
-            if (kept) { setKeptNote(kept); setSaved(loadDeals()); }
+            // ...and, as with "Price another", the lien deal stays My plan's property (the kept one is newer otherwise).
+            const keptDeal = keepUnsavedDraft();
+            if (keptDeal) {
+              if (ld.stage !== 'passed') {
+                const now = nextStamp([ld.updatedAt, keptDeal.updatedAt].sort().pop() ?? ld.updatedAt);
+                saveDeals(loadDeals().map((x) => (x.id === ld.id ? { ...x, updatedAt: now } : x)));
+              }
+              setKeptNote(`Your unsaved ${stateByCode(keptDeal.state)?.name ?? ''} deal “${keptDeal.name}” was saved to My deals.`);
+              setSaved(loadDeals());
+            }
             clearLienDraftNumbers();
             setDeal(blank(mine ?? deal.state));
             setTimeout(() => document.querySelector<HTMLInputElement>('.deal-fields input')?.focus(), 0);

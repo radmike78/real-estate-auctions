@@ -192,7 +192,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       // The cash it needs there, against your limit (as Analyze and the packet say), when that's short too.
       const pc = investorProfile().investable;
       const lim = bid.cashLimit > 0 ? bid.cashLimit : bid.cashTyped ? 0 : pc;
-      return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash (${bid.cashLimit > 0 ? 'the cash you entered' : 'My plan'}: ${fmtMoney(lim)}).` : '';
+      return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash, with the loan (if any) and costs entered in Fix and sell (${bid.cashLimit > 0 ? 'the cash you entered' : 'My plan'}: ${fmtMoney(lim)}).` : '';
     })()}</p>;
     const planCash = investorProfile().investable;
     // The same rule as Fix and sell: no warning once a cash limit is entered there (the price is already capped by it).
