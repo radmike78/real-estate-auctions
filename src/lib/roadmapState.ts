@@ -197,7 +197,8 @@ export function practiceDoneElsewhere(id: string): 'practice' | 'a-practice' | '
   if (done.includes(id)) return null;
   const other = PRACTICE_IDS.find((o) => o !== id && done.includes(o));
   if (other) return other as 'practice' | 'a-practice' | 'c-practice';
-  return rentalCredited() ? 'practice' : null;
+  // The rental purchase settles another route's step; its own step ("Finish a practice purchase") keeps its own tick.
+  return id !== 'practice' && rentalCredited() ? 'practice' : null;
 }
 
 /** How a practice that settled part 2 is named in a sentence. */

@@ -321,7 +321,8 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
       </label>
       {/* My deals and the packet count only a typed rent: say so here, so the pages agree. */}
       {price > 0 && !rentTyped && <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the property’s rent to save these results to My deals and the deal packet.</p>}
-      {/* An investment-property loan over 85% of the price: said here, beside the result it changes. */}
+      {/* An investment-property loan over 85% of the price: said here, beside the result it changes (with no price
+          typed yet, the mortgage-insurance note below says it). */}
       {price > 0 && onPrice && !investorProfile().ownerOccupant && Math.round(v.loanPct * 100) / 100 > 85 && (
         <p className="calc-note small" role="note"><strong>Investment loans usually need 15% to 25% down.*</strong> So {/^(8|1[18](\D|$))/.test(String(Math.round(v.loanPct * 100) / 100)) ? 'an' : 'a'} {(Math.round(v.loanPct * 100) / 100).toLocaleString('en-US')}% loan may not be available for a property you won’t live in: ask your lender, then <button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'loanPct')}>change the loan</button> to their figure.</p>
       )}
@@ -616,7 +617,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
           const mi = f?.monthly ?? 0;
           return <p className="calc-note small" role="note"><strong>Mortgage insurance isn’t counted yet.</strong> {live
             ? <>With under 20% down, most loans add it. An FHA loan (for a home you live in) charges 1.75% of the loan upfront and{long ? <>, on a loan over 15 years, {rate.toFixed(2)}% a year at this loan size and down payment{mi > 0 ? ` (about ${fmtMoney(mi)} a month here)` : ''}, per HUD Mortgagee Letter 2023-05</> : ' a lower yearly rate on a 15-year loan (ask the lender for it)'}; a conventional loan adds private mortgage insurance instead.</>
-            : <>With under 20% down, a conventional loan usually adds private mortgage insurance (FHA loans are for homes the buyer lives in).</>} It isn’t in the monthly cost here, in My deals or in the deal packet: ask your lender for the monthly amount and add it to the cost yourself when you compare.</p>;
+            : <>With under 20% down, a conventional loan usually adds private mortgage insurance (FHA loans are for homes the buyer lives in).</>} It isn’t in the monthly cost here, in My deals or in the deal packet: ask your lender for the monthly amount and add it to the cost yourself when you compare.{!live && !(v.atPrice > 0) && Math.round(v.loanPct * 100) / 100 > 85 ? <> Also, loans for a property you won’t live in usually need 15% to 25% down,* so {/^(8|1[18](\D|$))/.test(String(Math.round(v.loanPct * 100) / 100)) ? 'an' : 'a'} {(Math.round(v.loanPct * 100) / 100).toLocaleString('en-US')}% loan may not be available: ask your lender, then change “Loan, % of the price or value (lower)” to their figure.</> : null}</p>;
         })()}
         {/* An auction rental's later refinance is sized on the value after repairs: say so while that's still our example. */}
         {exampleValue && (

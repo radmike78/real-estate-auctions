@@ -221,7 +221,8 @@ function StepBody({ s, status, setStatus, deal, elsewhere }: { s: RoadmapStep; s
       )}
       {s.skip && <p className="muted roadmap-skip"><strong>Doesn’t apply if:</strong> {s.skip}</p>}
       <div className="roadmap-status" role="group" aria-label={`Status: ${s.title}`}>
-        {(['todo', 'doing', 'waiting', 'done', 'stopped', 'na'] as const).map((k) => (
+        {/* Counted done by another practice: its status follows that practice, so there's nothing to set here. */}
+        {!elsewhere && (['todo', 'doing', 'waiting', 'done', 'stopped', 'na'] as const).map((k) => (
           <button key={k} type="button" aria-pressed={status === k} onClick={() => setStatus(k)}>{STEP_STATUS_LABEL[k]}</button>
         ))}
         {s.href && <a className="btn" href={s.href}>{s.id === 'goal' && currentProgress().decided ? 'Review your Decide results' : s.action ?? 'Open'}&nbsp;→</a>}
@@ -291,7 +292,7 @@ export function FirstDealRoadmap() {
   const count = steps.filter(settled).length;
   const naCount = steps.filter((s) => !doneOf(s) && statusOf(s) === 'na' && !elsewhere(s)).length;
   const stateOf = (s: RoadmapStep): StepStatus | 'done' | 'todo' => (doneOf(s) || elsewhere(s) ? 'done' : statusOf(s) ?? 'todo');
-  const walked = steps.find((s) => statusOf(s) === 'stopped' && !doneOf(s));
+  const walked = steps.find((s) => statusOf(s) === 'stopped' && !doneOf(s) && !elsewhere(s));
   // With a property chosen, the next step follows its stage: a candidate you're researching gets the "find and check"
   // steps, and the offer, deposit and inspection steps only come once it's at that stage.
   const stageNext = stage ? steps.find((s) => STAGE_STEPS[stage].includes(s.id) && !settled(s) && statusOf(s) !== 'stopped') : undefined;

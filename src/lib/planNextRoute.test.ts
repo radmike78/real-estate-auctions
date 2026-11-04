@@ -221,6 +221,8 @@ describe('practice part 2 follows your route', () => {
     expect(roadmapNextStep()?.id).toBe('a-practice');
     localStorage.setItem('deedowl.roadmap.credited.v1', JSON.stringify(['practice']));
     expect(practiceDoneElsewhere('a-practice')).toBe('practice');
+    // The rental purchase is the agent route's own step: it keeps its own tick (it can be unticked).
+    expect(practiceDoneElsewhere('practice')).toBeNull();
     expect(roadmapNextStep()?.id).not.toBe('a-practice');
     const { savingPractice } = await import('./analyze');
     expect(savingPractice()).toBe(false);

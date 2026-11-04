@@ -12,7 +12,7 @@ import { caseFor, caseResume } from '../practice/rentalCase';
 import { LEARN_MODULES } from './learn';
 import { cleanGoal, GOAL_KEY } from './myPlan';
 import { ROADMAP_PHASES, roadmapFor, type RoadmapPath, type RoadmapStep } from './roadmap';
-import { AUTO_STEPS, baseRoute, cleanStatus, rawDealChoice, focusDealId, lienDealFor, planPath, practiceStepSettled, readKey, roadmapDone, roadmapPath, settledFor, STATUS_KEY } from './roadmapState';
+import { AUTO_STEPS, baseRoute, cleanStatus, rawDealChoice, focusDealId, lienDealFor, planPath, practiceDoneElsewhere, practiceStepSettled, readKey, roadmapDone, roadmapPath, settledFor, STATUS_KEY } from './roadmapState';
 
 export interface PlanNow {
   /** Your goal in one sentence, or '' when it isn't written yet. */
@@ -66,7 +66,7 @@ export function roadmapNextStep(): RoadmapStep | null {
   const settled = settledFor('');
   const done = roadmapDone();
   const status = readKey(STATUS_KEY, {}, cleanStatus);
-  return steps.find((s) => status[s.id] === 'stopped' && !done.includes(s.id)) ?? steps.find((s) => !settled(s) && status[s.id] !== 'stopped') ?? null;
+  return steps.find((s) => status[s.id] === 'stopped' && !done.includes(s.id) && !practiceDoneElsewhere(s.id)) ?? steps.find((s) => !settled(s) && status[s.id] !== 'stopped') ?? null;
 }
 
 /** A roadmap step as a plan task: what to do, what you'll have, and the page that helps. */
