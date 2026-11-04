@@ -77,7 +77,7 @@ function stepEvidence(id: string): string | null {
   if (id === 'money') return investableCash() > 0 ? `Your cash worksheet shows ${fmtMoney(investableCash())} of investable cash.` : null;
   if (id === 'buybox') {
     const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);
-    return b.area && b.types.length && b.priceMax && b.dealBreakers.some((t) => dealBreakersFor(b.strategy).includes(t)) ? 'Your buy box has an area, property types, a price limit and deal breakers.' : null;
+    return b.area && b.types.length && b.priceMax && b.dealBreakers.filter((t) => dealBreakersFor(b.strategy).includes(t)).length >= 3 ? 'Your buy box has an area, property types, a price limit and at least three deal breakers.' : null;
   }
   if (id === 'c-buybox') {
     const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);

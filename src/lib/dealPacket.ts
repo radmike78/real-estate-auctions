@@ -219,7 +219,15 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   // California homes of one to four units: a win isn't final until eligible bidders' windows close (Civil Code 2924m).
   // Texas: within 15 days the lender or trustee may rescind a sale for the reasons Property Code 51.016(b) lists (statutory
   // requirements not met, default cured before the sale, a bankruptcy stay in effect, and others).
-  if (d.kind === 'trustee' && d.state === 'TX') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),
+  // Nevada: a sale that didn't substantially follow the law can be voided by a suit filed within 30 days after the trustee's
+  // deed is recorded (90 days after the sale for someone who didn't get proper notice); after that, the failure doesn't
+  // affect a bona fide purchaser (NRS 107.080(5)-(7)).
+  if (d.kind === 'trustee' && d.state === 'NV') return [...names(['Sale day', 'Payment deadline']),
+    { what: 'Registration, if the trustee requires one', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay (usually cashier’s checks for the full bid at the sale).', missed: 'You may not be able to bid.' },
+    { what: '30-day challenge window', when: '30 days after the trustee’s deed is recorded (90 days after the sale for someone who didn’t get proper notice).', who: 'The former owner, or anyone entitled to notice of the sale', todo: 'Record your deed right away, and hold off on repairs and new contracts until it passes; ask your title company whether it will insure before then.', missed: 'After it, a failure to follow the law in the sale no longer affects a bona fide purchaser’s rights.*', why: 'NRS 107.080(5)-(7)' },
+    ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
+  if (d.kind === 'trustee' && d.state === 'TX') return [...names(['Sale day', 'Payment deadline']),
+    { what: 'Registration, if the trustee requires one', when: 'Ask the trustee before the sale.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay (the price is due without delay when your bid is accepted).', missed: 'You may not be able to bid.', why: 'Property Code 51.0075(f)' },
     { what: '15-day rescission window', when: 'For a home of 1 to 4 units, a condo or a co-op unit: within 15 days after the sale.', who: 'The lender (mortgagee), the trustee or a substitute trustee', todo: 'Hold off on repairs and new contracts until it passes. The reasons the law lists include: the sale’s legal requirements weren’t met, the default was cured before the sale, or a bankruptcy stay was in effect.', missed: 'A notice mailed and recorded by day 15 counts even if it reaches you later; after that, the sale can’t be rescinded under that law.*', why: 'Property Code 51.016' },
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   if (d.kind === 'trustee' && d.state === 'CA') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),

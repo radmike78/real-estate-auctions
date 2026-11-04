@@ -160,6 +160,11 @@ describe('the deal packet', () => {
     expect(dateGuide({ ...court }).map((g) => g.what)).not.toContain('Redemption period ends');
     // Nevada's is confirmed by statute: said plainly, with the statute.
     expect(packetSections({ ...court, state: 'NV', kind: 'trustee' }, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).toMatch(/Nevada trustee sales are made “without equity or right of redemption” \(NRS 107\.080\(5\)\)/);
+    // A Nevada trustee sale's dates include the 30-day challenge window (NRS 107.080(5)-(7)), and no bidder registration
+    // deadline (each trustee sets its terms).
+    const nvDates = dateGuide({ kind: 'trustee', state: 'NV' });
+    expect(nvDates.find((g) => g.what === '30-day challenge window')?.why).toBe('NRS 107.080(5)-(7)');
+    expect(nvDates.map((g) => g.what)).not.toContain('Bidder registration deadline');
     // A Texas trustee sale's dates include the 15-day rescission window (Property Code 51.016).
     const rescind = dateGuide({ kind: 'trustee', state: 'TX' }).find((g) => g.what === '15-day rescission window');
     expect(rescind?.why).toBe('Property Code 51.016');

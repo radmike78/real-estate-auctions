@@ -454,7 +454,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const cashShort = !dealFails && i.minimumBid > 0 && i.cashAvailable > 0 && r.limitedBy === 'cash' && r.maxBid < i.minimumBid;
   // Where the state has no transfer tax (and none was entered), the field is left out instead of sitting at $0.
   const noTransferTax = tax.per500 === 0 && !i.transferTaxPer500;
-  const shown = (f: Field) => (mode === 'detailed' || f.quick) && (!f.when || f.when(i)) && !(offer && OFFER_HIDDEN.has(f.k)) && !(noTransferTax && f.k === 'transferTaxPer500');
+  const shown = (f: Field) => (mode === 'detailed' || f.quick) && (!f.when || f.when(i)) && !(f.k === 'redemptionRatePct' && choices?.start === 'none' && (pickOf() === 'custom' || pickOf() === 'none')) && !(offer && OFFER_HIDDEN.has(f.k)) && !(noTransferTax && f.k === 'transferTaxPer500');
   // Which inputs on screen still hold our starting estimates (the listing's own numbers don't count).
   // Only boxes on screen (Quick hides some): a typo left in a hidden box doesn't pause the results.
   const visibleKeys = new Set(GROUPS.flatMap((g) => g.fields.filter(shown)).map((f) => f.k as string));
