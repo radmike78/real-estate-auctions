@@ -396,7 +396,7 @@ export function FirstDealRoadmap() {
         const mm = routeMismatch(active, path);
         if (!mm || !active) return null;
         return <p className="notice" role="note">“{active.name || 'Your property'}” is bought {mm === 'listing' ? 'through an agent' : 'at an auction'}, and the next task at the top of My plan follows that, but this roadmap (and Download my plan) shows the {ROUTE_STEPS_WORD[path]} steps.{' '}
-          <button type="button" className="linkish" onClick={() => { choosePath(mm); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.roadmap-path button[aria-pressed="true"]')?.focus()); }}>Switch the roadmap to {ROADMAP_PATHS[mm].label}</button>
+          <button type="button" className="linkish" onClick={() => { choosePath(mm); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.roadmap-path button[aria-pressed="true"]')?.focus()); }}>Switch the roadmap to {mm === 'listing' ? 'buying through an agent' : 'buying at an auction'}</button>
         </p>;
       })()}
       <div className="roadmap-deal">

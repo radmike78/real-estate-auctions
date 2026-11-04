@@ -230,6 +230,8 @@ export default function DealsPage() {
   const [deals, setDeals] = useState(loadDeals);
   const { properties, loading, known } = useProperties();
   const [analyzed, setAnalyzed] = useState(loadAnalyzed);
+  // A practice analysis just made a real deal here (its id): its card says so once.
+  const [madeReal, setMadeReal] = useState<string | null>(null);
   useEffect(() => onDealsChange(() => setDeals(loadDeals())), []);
   // A decision in an evidence log changes the card's next action: re-read it.
   const [, bump] = useState(0);
@@ -262,7 +264,7 @@ export default function DealsPage() {
                 <li key={d.id} className="deal-card">
                   <div className="deal-head">
                     <div>
-                      <h3><button type="button" className="linkish" data-deal-name={d.id} onClick={() => openDeal(d)}>{d.name}</button>{d.practice && <span className="muted"> (practice analysis)</span>}</h3>
+                      <h3><button type="button" className="linkish" onClick={() => openDeal(d)}>{d.name}</button>{d.practice && <span className="muted"> (practice analysis)</span>}</h3>
                       <p className="muted"><strong>{stageLabel(stageOf(d), d)}</strong> · {kindLabel(k, d.state)} · {countyName(d.county)}, {d.state} · checklist {done} of {all.length} done</p>
                       {(() => {
                         const n = dealNumbers(d);
@@ -279,6 +281,7 @@ export default function DealsPage() {
                         ) : d.plan === 'rent' ? <p className="muted">No numbers yet: open it and type its rent, and the price you’d pay, under Keep and rent (our example rent doesn’t count).</p> : <OtherNumbers d={d} />;
                       })()}
                       {!d.locationConfirmed && <p className="muted">Its location isn’t confirmed: open it in Analyze and confirm it, so its costs follow its state and county.</p>}
+                      {madeReal === d.id && !d.practice && <p className="note" tabIndex={-1} id={`made-real-${d.id}`}>“{d.name}” is now a real deal, so My plan can follow it.</p>}
                       <p><strong>Next action.</strong> {nextAction(d).text}</p>
                     </div>
                     <div className="deal-actions">
@@ -286,7 +289,7 @@ export default function DealsPage() {
                       <button type="button" className="btn btn-secondary" onClick={() => openDeal(d)}>Open&nbsp;→</button>
                       {/* A real property saved as a practice analysis while My plan was on a practice step: once that step is
                           settled, it can become a real deal here too (as in Analyze). */}
-                      {d.practice && !savingPractice() && stageOf(d) !== 'passed' && <button type="button" className="btn btn-secondary" onClick={() => { makeRealDeal(d.id); setAnalyzed(loadAnalyzed()); progressChanged(); /* the button goes away: focus moves to the deal's name */ setTimeout(() => document.querySelector<HTMLElement>(`[data-deal-name="${d.id}"]`)?.focus(), 0); }}>Make it a real deal</button>}
+                      {d.practice && !savingPractice() && stageOf(d) !== 'passed' && <button type="button" className="btn btn-secondary" onClick={() => { makeRealDeal(d.id); setAnalyzed(loadAnalyzed()); progressChanged(); setMadeReal(d.id); /* the button goes away: a short line says what changed, and focus moves there */ setTimeout(() => document.getElementById(`made-real-${d.id}`)?.focus(), 0); }}>Make it a real deal</button>}
                     </div>
                   </div>
                   <EvidenceLog dealId={`analyzed:${d.id}`} name={d.name} kind={d.kind} onPass={stageOf(d) === 'passed' ? undefined : () => { setDealStage(d.id, 'passed'); setAnalyzed(loadAnalyzed()); }} />
