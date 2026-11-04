@@ -1,5 +1,5 @@
 import { planNow, practiceLienDeal, roadmapNextStep } from '../lib/planNext';
-import { chosenRoute } from '../lib/roadmapState';
+import { planPath } from '../lib/roadmapState';
 import PathNext from './PathNext';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useRef, useState } from 'react';
@@ -60,7 +60,8 @@ const lastAuctionKind = (st: StateCode): SaleKind => {
   return k && kindsFor(st).some((x) => x.key === k) ? k : 'trustee';
 };
 // A lien route in a state without lien sales starts the new deal as an auction there (as My plan follows).
-const kindForRoute = (st: StateCode): SaleKind => { const r0 = chosenRoute(); const r = r0 === 'certificate' && st !== 'NV' && st !== 'AZ' ? 'auction' : r0; return r === 'auction' ? lastAuctionKind(st) : r === 'certificate' && (st === 'NV' || st === 'AZ') ? 'lien' : 'listing'; };
+// The route My plan shows (planPath): a property in focus, else the route you picked or Decide's auctions pick.
+const kindForRoute = (st: StateCode): SaleKind => { const r0 = planPath(); const r = r0 === 'certificate' && st !== 'NV' && st !== 'AZ' ? 'auction' : r0; return r === 'auction' ? lastAuctionKind(st) : r === 'certificate' && (st === 'NV' || st === 'AZ') ? 'lien' : 'listing'; };
 
 /**
  * A new, unsaved lien certificate in the state and county of the Nevada or Arizona lien deal your plan is built around

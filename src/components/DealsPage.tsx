@@ -188,7 +188,12 @@ function OtherNumbers({ d }: { d: Deal }) {
     if (bid.none && bid.cashBlocked) return <p className="deal-urgent">No bid fits the cash you entered: the deal itself meets {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your goal' : 'our example profit target'} at bids up to {fmtMoney(bid.profitBid)}, but every cost until you sell needs more than the cash you entered.</p>;
     if (bid.none) return <p className="deal-urgent">No price works at a {fmtMoney(bid.exitValue)} resale value with these costs and {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your profit target' : 'our example profit target'}.</p>;
     // Below the opening bid (or asking price): no bid you'd make works, whatever the walk-away price says.
-    if (bid.at?.source === 'listed' && bid.maxBid < bid.at.price) return <p className="deal-urgent">{bid.at.profit >= bid.target && bid.limitedBy === 'cash' ? 'Your cash doesn’t cover this deal at' : bid.noTarget ? 'Doesn’t break even at' : bid.targetTyped ? 'Doesn’t meet your profit target at' : 'Doesn’t meet our example profit target at'} the {d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? 'asking price' : 'opening bid'} of {fmtMoney(bid.at.price)}.</p>;
+    if (bid.at?.source === 'listed' && bid.maxBid < bid.at.price) return <p className="deal-urgent">{bid.at.profit >= bid.target && bid.limitedBy === 'cash' ? 'Your cash doesn’t cover this deal at' : bid.noTarget ? 'Doesn’t break even at' : bid.targetTyped ? 'Doesn’t meet your profit target at' : 'Doesn’t meet our example profit target at'} the {d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? 'asking price' : 'opening bid'} of {fmtMoney(bid.at.price)}.{(() => {
+      // The cash it needs there, against your limit (as Analyze and the packet say), when that's short too.
+      const pc = investorProfile().investable;
+      const lim = bid.cashLimit > 0 ? bid.cashLimit : bid.cashTyped ? 0 : pc;
+      return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash (${bid.cashLimit > 0 ? 'the cash you entered' : 'My plan'}: ${fmtMoney(lim)}).` : '';
+    })()}</p>;
     const planCash = investorProfile().investable;
     // The same rule as Fix and sell: no warning once a cash limit is entered there (the price is already capped by it).
     const short = !(bid.cashLimit > 0) && !bid.cashTyped && planCash > 0 && bid.cashPeak > planCash;

@@ -107,18 +107,18 @@ describe('practice part 2 follows your route', () => {
     expect(planPath()).toBe('listing');
   });
 
-  it('keeps Decide’s auction route while a saved property is still being researched', async () => {
+  it('follows a saved property’s route over Decide’s pick, and Decide’s pick with none', async () => {
     const { planPath } = await import('./roadmapState');
     localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { ready: 'ready', goal: 'income', cash: '10to50', borrow: 'cash', time: 'parttime', hands: 'diy', risk: 'high', market: 'com' } }));
+    expect(planPath()).toBe('auction');
     const listing = { id: 'dl1', name: '12 Elm St', state: 'NV', county: 'Clark', kind: 'listing', plan: 'rent', notes: '', done: [], stage: 'researching', updatedAt: '2026-11-01T00:00:00.000Z', locationConfirmed: true };
     localStorage.setItem('deedowl.analyze.v1', JSON.stringify([listing]));
-    expect(planPath()).toBe('auction');
-    // A lien deal being researched keeps the lien route.
+    expect(planPath()).toBe('listing');
     localStorage.setItem('deedowl.analyze.v1', JSON.stringify([{ ...listing, kind: 'lien', plan: 'lien' }]));
     expect(planPath()).toBe('certificate');
-    // An offer on it is a move: the route follows the property.
-    localStorage.setItem('deedowl.analyze.v1', JSON.stringify([{ ...listing, stage: 'offer' }]));
-    expect(planPath()).toBe('listing');
+    // "None yet (learning)": Decide's pick again.
+    localStorage.setItem('deedowl.roadmap.deal.v1', JSON.stringify('none'));
+    expect(planPath()).toBe('auction');
   });
 
   it('tracks where Analyze’s State field moved you from, until you’re elsewhere', async () => {

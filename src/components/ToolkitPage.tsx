@@ -925,14 +925,23 @@ function planText(): string {
   const cash = investableCash();
   const now = planNow();
   const lines = ['MY INVESTING PLAN', 'DeedOwl educational worksheet.', '', 'GOAL', read(GOAL_KEY, '', cleanGoal) || '(not written yet)', '', `NEXT STEP (${now.context})`, `${now.task.label}. You’ll have ${now.task.produces}.`, '', 'CASH'];
-  const pa = b.priceAssumptions ?? PRICE_DEFAULTS;
+  // The estimates the cash worksheet uses (the ones you changed there, else the buy box's, else ours).
+  const pa = read(ESTIMATES_KEY, null, cleanAssumptions) ?? b.priceAssumptions ?? PRICE_DEFAULTS;
   const supports = priceForCash(cash, pa);
+  // The worksheet's county tax caution, in words.
+  const taxNote = (() => {
+    const ar = getMyArea();
+    const rate = ar?.county && ar.state !== 'NV' && ar.state !== 'AZ' ? countyTaxRate(ar.state, ar.county) : null;
+    if (!rate || !(rate.pct > pa.taxInsPct - 0.4)) return '';
+    const place = /\bCity$/.test(ar!.county!) ? ar!.county : `${ar!.county} County`;
+    return ` Caution: ${place}’s property tax alone is about ${rate.pct.toLocaleString('en-US', { maximumFractionDigits: 2 })}% of value a year, ${rate.pct >= pa.taxInsPct ? 'more than' : 'nearly all of'} the ${pa.taxInsPct}% this uses for tax and insurance together, so this price is likely too high.`;
+  })();
   // The same as the worksheet on screen: paying cash (an auction, lien certificates, or Decide's "Cash only") has no
   // down-payment price.
   const atSale = path === 'auction' || path === 'certificate';
   if (cash > 0 && path === 'certificate') lines.push(`Investable cash: ${fmtMoney(cash)}. Buying lien certificates, that’s the most you’d tie up: the certificate prices and fees, paid by the county’s deadline, plus any later taxes you pay to protect them.`);
   else if (cash > 0 && (atSale || investorProfile().loan === 'cash')) lines.push(`Investable cash: ${fmtMoney(cash)}. Paying cash, that’s your limit for the price plus closing costs, repairs and reserves${atSale ? '; an auction wants the full amount by its payment deadline, with no loan at the sale' : ''}, so the price itself is less than ${fmtMoney(cash)}.`);
-  else lines.push(cash > 0 ? `Investable cash: ${fmtMoney(cash)}. With ${pa.downPct}% down, ${pa.closingPct}% closing costs and ${pa.reserveMonths} months of reserves, it supports ${Number.isFinite(supports) ? `a price up to about ${fmtMoney(supports)}` : 'any price (these assumptions set no limit)'}.` : '(not worked out yet)');
+  else lines.push(cash > 0 ? `Investable cash: ${fmtMoney(cash)}. With ${pa.downPct}% down, ${pa.closingPct}% closing costs and ${pa.reserveMonths} months of reserves, it supports ${Number.isFinite(supports) ? `a price up to about ${fmtMoney(supports)}` : 'any price (these assumptions set no limit)'}.${taxNote}` : '(not worked out yet)');
   lines.push('', buyBoxText(b, STATES.find((x) => x.code === b.state)?.name), '', `ROADMAP: ${ROADMAP_PATHS[path].label}`);
   for (const s of steps) lines.push(`[${done.includes(s.id) ? 'x' : status[s.id] === 'na' ? '-' : ' '}] ${ROADMAP_PHASES[s.phase]}: ${s.title}${status[s.id] && !done.includes(s.id) ? ` (${STEP_STATUS_LABEL[status[s.id]]})` : ''}`);
   lines.push('', 'TEAM');

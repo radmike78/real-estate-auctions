@@ -138,9 +138,6 @@ function planPathRaw(d: Deal | undefined, deals: Deal[]): RoadmapPath {
   // A route you picked holds while the property in focus is still being researched (a practice analysis, a listing
   // your agent sent): only a deal you've moved on with (an offer, a bid, a contract) changes the route.
   if (d && picked && (!d.stage || d.stage === 'researching')) return roadmapPath();
-  // Decide's auctions pick holds the same way (a property still being researched doesn't change it).
-  // (Only over a listed home: a lien or an auction deal you're researching keeps its own route.)
-  if (d && !picked && (!d.stage || d.stage === 'researching') && pathForDeal(d) === 'listing' && decideRoute() === 'auction') return 'auction';
   if (d) return pathForDeal(d);
   // No property in focus and no route picked (a state without lien sales offers no lien route button): the lien
   // deal you passed on keeps the lien route.
@@ -154,13 +151,6 @@ function planPathRaw(d: Deal | undefined, deals: Deal[]): RoadmapPath {
 export function routeSet(): boolean {
   try { if (localStorage.getItem(ROADMAP_PATH_KEY) !== null) return true; } catch { /* storage unavailable */ }
   return decideRoute() === 'auction';
-}
-
-/** The route you picked, else Decide's auctions pick, else the agent route (not following a property in focus). */
-export function chosenRoute(): RoadmapPath {
-  let picked = false;
-  try { picked = localStorage.getItem(ROADMAP_PATH_KEY) !== null; } catch { /* storage unavailable */ }
-  return !picked && decideRoute() === 'auction' ? 'auction' : roadmapPath();
 }
 
 /** The route of Decide's top strategy, when it's auctions (the other strategies follow the agent route). */
