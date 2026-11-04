@@ -45,13 +45,20 @@ export default function AnnouncedResults({ className, children }: { className?: 
         // sentence (what it is) and the sentences that changed. Not every line again.
         const now = boxes().map((b) => ({ b, w: words(b), was: before.get(b) })).filter((x) => x.w && x.w !== x.was);
         const fresh = now.filter((x) => x.was === undefined).map((x) => x.w);
+        // Each box is capped on its own, so a long one never crowds out another's change; a changed box says its first
+        // sentence (what the box is) when that changed or is short, then the sentences that changed.
         const moved = now.filter((x) => x.was !== undefined).map((x) => {
           const was = new Set(sentences(x.was!));
           const ss = sentences(x.w);
-          return [ss[0], ...ss.slice(1).filter((y) => !was.has(y))].filter(Boolean).join(' ');
+          const changed = ss.slice(1).filter((y) => !was.has(y)).join(' ');
+          const first = ss[0] ?? '';
+          if (!changed) return first;
+          // The first sentence when it changed itself (a new amount), or when it's short enough to say first.
+          return !was.has(first) || first.length < 120 ? `${first} ${changed}` : changed;
         });
-        const all = [...fresh, ...moved].join(' ');
-        if (all) setSaid(`Result updated: ${all.length > 400 ? `${all.slice(0, 397)}…` : all}`);
+        const cap = (x: string, n: number) => (x.length > n ? `${x.slice(0, n - 1)}…` : x);
+        const all = [...fresh.map((x) => cap(x, 300)), ...moved.map((x) => cap(x, 350))].filter(Boolean).join(' ');
+        if (all) setSaid(`Result updated: ${cap(all, 700)}`);
       }, 1200);
     };
     el.addEventListener('input', on);

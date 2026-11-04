@@ -7,7 +7,8 @@ import { workStorage as localStorage } from './workStorage';
 // why, the deal's key dates, your questions to professionals and their answers, your earnest money, and the reason
 // for your decision with any conditions still open. Kept only in this browser, like the rest.
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
-import { costsAtBid, maxSafeBid, offerInputs, redemptionOutcome, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, unenteredCosts, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
+import { costsAtBid, maxSafeBid, offerInputs, redemptionOutcome, ruleOf, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, unenteredCosts, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
+import { offeredRedemptionRules } from './stateCosts';
 import { cleanBuyBox, EMPTY_BUY_BOX, LIEN_STRATEGY, type BuyBox } from './toolkit';
 import { areasFor, GATES, loadLog } from './evidence';
 import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, refiValueWords, withPlanCash, dscrText, capText, noRealisticPrice, noRealisticAdvice, cashAndPropertyWeak, fhaMonthlyMi, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
@@ -236,7 +237,7 @@ export const STRATEGY_LABEL: Record<Deal['plan'], string> = { rent: 'Keep and re
 const lienKey = (d: Deal) => `fsf.calc.lien.${d.id}${d.state === 'AZ' ? '-az' : ''}.v1`;
 
 const GUIDE_FOR: Partial<Record<Deal['kind'], string>> = { trustee: 'foreclosure', taxSale: 'tax', court: 'sheriff', hoa: 'hoa', irs: 'irs', reo: 'reo', short: 'short' };
-const LISTING_ROLES: ProKey[] = ['agent', 'lender', 'inspector', 'title', 'insurance', 'property_manager'];
+const LISTING_ROLES: ProKey[] = ['agent', 'lender', 'inspector', 'title', 'attorney', 'insurance', 'property_manager'];
 /** A commercial building bought by offer (through a broker, or from a bank): no home inspector; environmental, appraisal and tax help. */
 export const COMMERCIAL_OFFER_ROLES: ProKey[] = ['agent', 'lender', 'attorney', 'title', 'environmental', 'appraiser', 'insurance', 'cpa', 'property_manager'];
 
@@ -309,7 +310,7 @@ export function savedNumbers(d: Deal) {
     at: { price: number; source: 'yours' | 'listed'; profit: number; cashOnDay: number; cashPeak: number; cashLeft: number } | null;
     /** The redemption wait the walk-away price was built on, and what a redemption at its end returns against what you'd
      *  have spent, at your price (else the walk-away price), as Fix and sell shows it; null with no wait. */
-    redeem?: { months: number; price: number; repaid: number; spent: number; net: number } | null;
+    redeem?: { months: number; price: number; repaid: number; spent: number; net: number; who: string; source: 'yours' | 'walk' } | null;
     /** Each downside case: the walk-away price, and the profit at your own price (null when no price is entered). */
     stress: { label: string; maxBid: number; profit: number | null }[];
   } | null = null;
@@ -373,7 +374,17 @@ export function savedNumbers(d: Deal) {
         const at = pp ? { ...resultAtPrice(i, pp.price), source: pp.source } : null;
         const stress = stressCases(i).map((c) => ({ label: c.label, maxBid: maxSafeBid(c.inputs).maxBid, profit: pp ? resultAtPrice(c.inputs, pp.price).profit : null }));
         bid = { noTarget: !!i.profitInDollars && !(i.targetProfitMin > 0), targetTyped: (() => { const t = readConfirmed(`fsf.bid.analyzed-${d.id}.v1`); return t.has('targetProfitPct') || t.has('profitInDollars') || !!i.profitInDollars || (t.has('targetProfitMin') && (i.exitValue * i.targetProfitPct) / 100 < i.targetProfitMin); })(), cashBlocked: r.noBidWorks && r.profitBid > 0, profitBid: r.profitBid, maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: !offer && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: !offer && i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer), redeem: (() => { // Your own price, else the walk-away price (as Fix and sell shows it; not the opening bid).
-        const price = at?.source === 'yours' ? at.price : r.noBidWorks ? 0 : r.maxBid; const o = !offer && price > 0 ? redemptionOutcome(i, price) : null; return o ? { months: Math.round(i.redemptionMonths), price, ...o } : null; })() };
+        // None when the walk-away price is below the opening bid (no bid there can be placed; My deals says so instead).
+        const below = at?.source === 'listed' && r.maxBid < at.price;
+        const price = at?.source === 'yours' ? at.price : r.noBidWorks || below ? 0 : r.maxBid;
+        // Who redeems, as Fix and sell names it: the United States after a sale that wiped out a junior federal lien.
+        const pre = `rulePick_${d.state}_${d.kind}_`;
+        const pick = [...readConfirmed(`fsf.bid.analyzed-${d.id}.v1`)].find((x) => x.startsWith(pre));
+        // (A rule picked from the menu counts while the numbers are still that rule's, as in Fix and sell.)
+        const offered = offeredRedemptionRules(d.state, d.kind);
+        const pr = pick ? offered[pick.slice(pre.length)] : undefined;
+        const rule = pr && pr.months === i.redemptionMonths && pr.ratePct === i.redemptionRatePct && pr.daily === (i.redemptionDaily ?? 0) && pr.flat === (i.redemptionFlat ?? 0) ? pick!.slice(pre.length) : ruleOf(i, offered);
+        const who = rule === 'usFederal' || rule === 'usCourt' ? 'the United States' : 'the owner'; const o = !offer && price > 0 ? redemptionOutcome(i, price) : null; return o ? { months: Math.round(i.redemptionMonths), price, ...o, who, source: at?.source === 'yours' ? 'yours' as const : 'walk' as const } : null; })() };
       }
     }
   } else if (d.plan === 'commercial' && own) {
@@ -701,7 +712,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     if (a) nums.push(`${priceName(a.source, offer, true)} (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'}): ${money(a.price)} → estimated profit ${money(a.profit)} (${bid.noTarget ? 'no profit target set yet' : `${bid.targetTyped ? 'your target' : 'our example target'} ${money(bid.target)}`}${a.profit < bid.target ? (bid.noTarget ? ', below break-even' : ', so it falls short') : ''}), based on a ${money(bid.exitValue)} resale value`);
     const belowOpening = !bid.none && a?.source === 'listed' && bid.maxBid < a.price;
     nums.push(bid.none && bid.cashBlocked ? `No bid fits the cash you entered: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that` : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and ${targetW}` : `What-if: walk-away price ${money(bid.maxBid)}, ${bid.limitedBy === 'cash' ? `the most your cash covers with every cost until you sell (${goalW} alone allows ${money(bid.profitBid)})` : `the most you could pay and still meet ${goalW}`} (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : `this deal doesn’t meet ${goalW}`} as entered` : ''}`);
-    if (bid.redeem) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait. If the owner redeems at its end, you’d get back about ${money(x.repaid)}* on a ${money(x.price)} ${offer ? 'offer' : 'bid'}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
+    if (bid.redeem) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait. If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* on a ${money(x.price)} ${offer ? 'offer' : 'bid'}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
     const floor = a?.source === 'listed' ? a.price : 0;
     for (const s of bid.stress.slice(1)) {

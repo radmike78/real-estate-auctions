@@ -225,7 +225,7 @@ function parseHash(): Route {
 /** After an in-app page change, move focus to the new page once it has rendered (a lazy page can take a moment): to
  *  its main heading, or, when the page scrolled to a section, to that section's heading (so the next Tab stays there).
  *  Focus a page set itself (a field, a step) is left alone; focus left behind in the header or footer is moved. */
-function focusNewPage() {
+function focusNewPage(backOrForward = false) {
   let tries = 0;
   let seen = false;
   // The page being left: its heading may still be there for a moment while the new page loads.
@@ -235,11 +235,13 @@ function focusNewPage() {
     if (a && a !== document.body && document.contains(a) && a.closest('main')) return;
     const h = document.querySelector<HTMLElement>('main h1');
     // (The same heading can stay when only the section changes, so it counts after a few tries.)
-    if (!h || (h === old && tries < 6)) { if (tries++ < 20) setTimeout(go, 50); return; }
+    // (Up to about 8 seconds: a page's code can be slow to load on a phone.)
+    if (!h || (h === old && tries < 6)) { if (tries++ < 160) setTimeout(go, 50); return; }
     // One more short wait once the page is there: a page scrolls to its section just after it renders.
     if (!seen) { seen = true; setTimeout(go, 120); return; }
     const tries2: HTMLElement[] = [];
-    if (window.scrollY > 40) {
+    // Back and Forward restore where you were on the page: the title, not whatever section is in view.
+    if (window.scrollY > 40 && !backOrForward) {
       // The section the address names (/toolkit/cash, ?section=…), else the first heading in view.
       const q = new URLSearchParams(window.location.search).get('section');
       const sec = document.getElementById(q ?? window.location.pathname.split('/').filter(Boolean).pop() ?? '');
@@ -272,7 +274,7 @@ export default function App() {
   useEffect(() => { if (nav > 0) releasePrerender(); }, [nav]);
 
   useEffect(() => {
-    const onNav = () => {
+    const onNav = (e?: Event) => {
       releasePrerender(); // the first page's prerendered copy belongs to that page only
       upgradeLegacyHash(); // an old "#/x" address set by anything still writing hashes
       setRoute(parseHash());
@@ -281,7 +283,7 @@ export default function App() {
       window.scrollTo(0, 0);
       // A screen reader or keyboard user lands on the new page's title (focus would otherwise drop to the page body).
       // Pages that move focus themselves (a step or a field in the address) win: only focus still on the body moves.
-      focusNewPage();
+      focusNewPage(e?.type === 'popstate');
     };
     // Links inside the app open without reloading the page.
     const onClick = (e: MouseEvent) => {

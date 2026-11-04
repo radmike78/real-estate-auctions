@@ -154,7 +154,7 @@ describe('the deal packet', () => {
     const flip: Deal = { ...deal, state: 'TX', kind: 'court', plan: 'flip' };
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 0 }));
     const text = packetSections(flip, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
-    expect(text).toMatch(/Built on a 6-month redemption wait\. If the owner redeems at its end, you’d get back about \$[\d,]+\* on a \$[\d,]+ bid, having spent about \$[\d,]+: about \$[\d,]+ short/);
+    expect(text).toMatch(/Built on a 6-month redemption wait\. If the owner redeems at its end, you’d get back about \$[\d,]+\* on a \$[\d,]+ bid(?: \(your walk-away price\))?, having spent about \$[\d,]+: about \$[\d,]+ short/);
     expect(dateGuide({ ...flip }).map((g) => g.what)).toContain('Redemption period ends');
     // With no bid typed, at the walk-away price (as Fix and sell shows it), not the opening bid; with interest.
     const inputs = { minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 12 };
@@ -167,6 +167,13 @@ describe('the deal packet', () => {
     expect(t2).toContain('about ' + usd(Math.abs(o.net)) + ' ' + (o.net < 0 ? 'short' : 'ahead'));
     // A California trustee flip with a typed wait gets the date too.
     expect(dateGuide({ ...flip, state: 'CA', kind: 'trustee' }).map((g) => g.what)).toContain('Redemption period ends');
+    // The United States' right after a sale that wiped out a junior federal lien (its 4 months at 6%): named as such.
+    const nv: Deal = { ...deal, state: 'NV', kind: 'trustee', plan: 'flip' };
+    localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 4, redemptionRatePct: 6 }));
+    expect(packetSections(nv, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).toMatch(/If the United States redeems at its end/);
+    // A walk-away price below the opening bid: no bid there can be placed, so no redemption line.
+    localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 240000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 12 }));
+    expect(packetSections(flip, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).not.toMatch(/redemption wait/);
     // No wait: neither.
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000 }));
     expect(packetSections(flip, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).not.toMatch(/redemption wait/);
