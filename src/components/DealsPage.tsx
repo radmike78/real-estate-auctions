@@ -13,7 +13,7 @@ import { daysUntil, whenLabel } from './ResultsList';
 import PageHero from './PageHero';
 import EvidenceLog from './EvidenceLog';
 import { removeLog } from '../lib/evidence';
-import { noRedemptionShort, usualRedemptionMonths } from '../lib/dealPacket';
+import { noRedemptionShort } from '../lib/dealPacket';
 import { kindLabel, loadDeals as loadAnalyzed, makeRealDeal, openDeal, savingPractice, SALE_KINDS, checklistFor, type Deal } from '../lib/analyze';
 import { progressChanged } from '../lib/roadmapState';
 import { ownedSummary } from '../lib/owned';
@@ -190,7 +190,7 @@ function OtherNumbers({ d }: { d: Deal }) {
     // A typed what-if wait (a sale with no right of redemption) is named even when no bid works, as the packet does.
     const whatIf = bid.redeem && !bid.redeem.who ? ` · built on a ${bid.redeem.months}-month what-if wait you typed (${noRedemptionShort(d)})` : '';
     // A real wait with no price to work it out at (no bid works, or the walk-away is below the opening bid): named too.
-    const waitOnly = bid.redeem && bid.redeem.who && !(bid.redeem.price > 0) ? ` · built on a ${bid.redeem.months}-month redemption wait (${bid.redeem.who} can redeem until it ends)` : '';
+    const waitOnly = bid.redeem && bid.redeem.who && !(bid.redeem.price > 0) ? ` · built on a ${bid.redeem.months}-month redemption wait${bid.redeem.shortest ? `, shorter than any period the law sets (at least ${bid.redeem.shortest} months)*` : ''} (${bid.redeem.who} can redeem until it ends)` : '';
     // (After a line that ends in a full stop, as its own sentence.)
     const whatIfSentence = whatIf || waitOnly ? ` Built on${(whatIf || waitOnly).slice(' · built on'.length)}.` : '';
     if (bid.none && bid.cashBlocked) return <p className="deal-urgent">No bid fits the cash you entered: the deal itself meets {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your goal' : 'our example profit target'} at bids up to {fmtMoney(bid.profitBid)}, but every cost until you sell needs more than the cash you entered.{whatIfSentence}</p>;
@@ -203,7 +203,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash, with the loan (if any) and costs entered in Fix and sell (${bid.cashLimit > 0 ? 'the cash you entered' : 'My plan'}: ${fmtMoney(lim)}).` : '';
     })()}{whatIfSentence}</p>;
     // The redemption wait the price was built on, and a redemption's result at its end (as the packet says).
-    const redeemClause = bid.redeem && !bid.redeem.who ? whatIf : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait${bid.redeem.who === 'the owner' && usualRedemptionMonths(d) > bid.redeem.months ? `, shorter than this sale’s usual ${usualRedemptionMonths(d)} months*` : ''} (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? 'your bid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
+    const redeemClause = bid.redeem && !bid.redeem.who ? whatIf : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait${bid.redeem.shortest ? `, shorter than any period the law sets (at least ${bid.redeem.shortest} months)*` : ''} (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? 'your bid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
     const planCash = investorProfile().investable;
     // The same rule as Fix and sell: no warning once a cash limit is entered there (the price is already capped by it).
     const short = !(bid.cashLimit > 0) && !bid.cashTyped && planCash > 0 && bid.cashPeak > planCash;

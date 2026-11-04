@@ -6,7 +6,8 @@ export default function EmptyState({ title, soon, children }: { title: ReactNode
     <div className="empty-state">
       <img className="owl-empty" src="/logo.svg" alt="" width={112} height={112} />
       {soon && <span className="badge tone-info">Coming soon</span>}
-      <h2>{title}</h2>
+      {/* The title is announced when it appears (a filter that empties a list); not the whole panel. */}
+      <h2><span role="status">{title}</span></h2>
       {children}
     </div>
   );

@@ -182,11 +182,17 @@ const linkedStep = (): string | null => {
  *  the next task changed) the next task's heading, else the roadmap's. */
 function keepFocus(host: HTMLElement | null) {
   setTimeout(() => {
-    const pressed = host && document.contains(host) ? host.querySelector<HTMLElement>('.roadmap-status button[aria-pressed="true"]') : null;
-    const target = pressed ?? document.querySelector<HTMLElement>('#roadmap-next .roadmap-next-label, #roadmap-next h3') ?? document.querySelector<HTMLElement>('.roadmap h2');
-    if (!target) return;
-    if (target.tagName !== 'BUTTON' && !target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
-    target.focus({ preventScroll: !!pressed });
+    // In the next-task card the task itself changes: its label (the new task) then. Elsewhere the pressed status,
+    // if the step is still there and shown; else the next task; else the roadmap's heading. Each tried until focus sticks.
+    const inNext = !!host?.closest('#roadmap-next');
+    const pressed = !inNext && host && document.contains(host) ? host.querySelector<HTMLElement>('.roadmap-status button[aria-pressed="true"]') : null;
+    const shown = (x: HTMLElement | null): x is HTMLElement => !!x && (typeof x.checkVisibility === 'function' ? x.checkVisibility() : x.offsetParent !== null);
+    for (const t of [pressed, document.querySelector<HTMLElement>('#roadmap-next .roadmap-next-label'), document.querySelector<HTMLElement>('#roadmap-next h3'), document.querySelector<HTMLElement>('main h2')]) {
+      if (!shown(t)) continue;
+      if (t.tagName !== 'BUTTON' && !t.hasAttribute('tabindex')) t.setAttribute('tabindex', '-1');
+      t.focus({ preventScroll: t === pressed });
+      if (document.activeElement === t) return;
+    }
   }, 0);
 }
 

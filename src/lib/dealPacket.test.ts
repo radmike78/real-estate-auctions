@@ -150,7 +150,7 @@ describe('the deal packet', () => {
     expect(none.find((s) => s.key === 'cash')!.lines.join('\n')).toMatch(/No price meets our example 9% return on cost/);
   });
 
-  it('names the redemption wait a flip’s price is built on, with what a redemption returns, and its end date', () => {
+  it('names the redemption wait a flip’s price is built on, with what a redemption returns, and its end date', async () => {
     // A Texas court (execution) sale has no owner redemption: a typed wait is your what-if, with no date.
     const court: Deal = { ...deal, state: 'TX', kind: 'court', plan: 'flip' };
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 0 }));
@@ -168,6 +168,14 @@ describe('the deal packet', () => {
     // A Texas trustee sale's dates include the 15-day rescission window (Property Code 51.016).
     const rescind = dateGuide({ kind: 'trustee', state: 'TX' }).find((g) => g.what === 'Rescission window ends');
     expect(rescind?.why).toBe('Property Code 51.016');
+    // Your own wait under every period the law sets for this sale: said once, with the shortest one in the menu.
+    const { shortestRedemptionMonths } = await import('./dealPacket');
+    const txTax: Deal = { ...deal, state: 'TX', kind: 'taxSale', plan: 'flip' };
+    const shortest = shortestRedemptionMonths(txTax);
+    expect(shortest).toBeGreaterThan(1);
+    localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 1, redemptionRatePct: 0 }));
+    expect(packetSections(txTax, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).toContain(`shorter than any redemption period the law sets for this sale (the shortest is ${shortest} months)`);
+    localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 0 }));
     // A Texas trustee (mortgage) foreclosure has no redemption either, though its menu offers the property tax loan rules.
     const txTrustee: Deal = { ...deal, state: 'TX', kind: 'trustee', plan: 'flip' };
     expect(packetSections(txTrustee, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).toMatch(/wait you typed as a what-if/);

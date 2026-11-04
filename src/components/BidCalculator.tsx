@@ -188,7 +188,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   // Only the rules offered for this kind of sale. Some rules share the same numbers (a Texas property tax loan
   // foreclosure repays like a tax sale), so the rule in use is matched among these, never a rule the menu doesn't offer.
   const offered = offeredRedemptionRules(region.state, saleKind);
-  const hintFor = (f: Field) => (f.k === 'redemptionMonths' && choices?.start === 'none' && saleKind && (pickOf() === 'custom' || pickOf() === 'none') ? 'A what-if on this kind of sale: it only adds holding costs.' : commercial && f.k === 'exitValue' ? 'Use the value by income above.' : f.k === 'transferTaxPer500' ? (offer && tax.per500 > 0 ? `${tax.hint} Your contract says who pays: enter 0 if the seller pays it.` : tax.hint) : f.hint);
+  const hintFor = (f: Field) => (f.k === 'redemptionMonths' && choices?.start === 'none' && saleKind && (pickOf() === 'custom' || pickOf() === 'none') ? 'A what-if on this kind of sale (the note under the result says what it means).' : commercial && f.k === 'exitValue' ? 'Use the value by income above.' : f.k === 'transferTaxPer500' ? (offer && tax.per500 > 0 ? `${tax.hint} Your contract says who pays: enter 0 if the seller pays it.` : tax.hint) : f.hint);
   const moreFor = (f: Field) => (f.k === 'transferTaxPer500' ? tax.more : f.k === 'holdingMonths' ? (offer ? undefined : !saleKind || saleKind === 'taxSale' ? taxSaleWait(region.state) : 'How long repairs and the resale take. If this sale has no redemption period, count from the day you get the deed; ask a title company early when it will insure the title for your buyer.') : f.more);
   // What a Texas redemption repays, for the kind of sale chosen (every Texas rule when the kind isn't known).
   const txRepaid = (): string => {
@@ -416,6 +416,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const same = (a: number | undefined, b: number | undefined) => (a ?? 0) === (b ?? 0);
   const ruleNow = picked && pr && same(i.redemptionMonths, pr.months) && same(i.redemptionRatePct, pr.ratePct) && same(i.redemptionDaily, pr.daily) && same(i.redemptionFlat, pr.flat) && same(i.redemptionFlat2Pct, pr.flat2Pct) ? picked : ruleOf(i, offered);
   const taxLoanRule = ruleNow === 'txTaxLoanLong' || ruleNow === 'txTaxLoanOther';
+  // The shortest owner redemption period the law sets for this sale (its menu's rules), for your own shorter wait.
+  const shortestOwner = Math.min(...Object.entries(offered).filter(([k, x]) => !['none', 'usFederal', 'usCourt'].includes(k) && x.months > 0).map(([, x]) => x.months), Infinity);
   const unconfirmed = !offer && !!choices?.confirm && !i.redemptionChecked;
   const r = maxSafeBid(i);
   const grid = stressGrid(i);
@@ -571,7 +573,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                 ? <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month what-if wait (the note below says what it means).</>
                 : <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
               : <>{offered[ruleNow]?.label}.</>}{' '}
-            {ruleNow === choices?.start ? 'Pick the rule under Holding and financing (Detailed), then confirm it here.' : ruleNow === 'custom' ? 'Once the records show which rule applies, pick it under Holding and financing (Detailed) and confirm it here.' : 'Once the records show this rule applies, confirm it here (or pick another under Holding and financing, Detailed).'}
+            {ruleNow === 'custom' && choices?.start === 'none' ? 'Once you’ve checked the records, confirm below that no redemption rule applies, or pick the one that does under Holding and financing (Detailed).' : ruleNow === choices?.start ? 'Pick the rule under Holding and financing (Detailed), then confirm it here.' : ruleNow === 'custom' ? 'Once the records show which rule applies, pick it under Holding and financing (Detailed) and confirm it here.' : 'Once the records show this rule applies, confirm it here (or pick another under Holding and financing, Detailed).'}
             <label className="calc-check calc-check-block">
               <input type="checkbox" checked={false} onChange={() => { update({ redemptionChecked: 1 }); setTimeout(() => document.getElementById(`${uid}-rule-confirmed`)?.focus(), 0); }} />
               <span>{ruleNow === 'custom' && choices?.start === 'none' ? 'I’ve checked the records: no redemption rule applies to this sale.' : 'I’ve checked the records, and the redemption rule set in this calculator is the one that applies.'}</span>
@@ -579,7 +581,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </div>
         )}
         {!offer && choices?.confirm && !!i.redemptionChecked && (
-          <p className="small muted" id={`${uid}-rule-confirmed`} tabIndex={-1}>Redemption rule confirmed by you: {ruleNow === 'custom' ? `your own numbers, a ${Math.round(i.redemptionMonths * 10) / 10}-month wait` : offered[ruleNow]?.label}. <button type="button" className="linkish" onClick={() => { update({ redemptionChecked: 0 }); setTimeout(() => document.querySelector<HTMLInputElement>('.calc-unconfirmed input[type="checkbox"]')?.focus(), 0); }}>Undo</button></p>
+          <p className="small muted" id={`${uid}-rule-confirmed`} tabIndex={-1}>{ruleNow === 'custom' && choices?.start === 'none' ? <>Confirmed by you: no redemption rule applies to this sale (your {Math.round(i.redemptionMonths * 10) / 10}-month wait is a what-if).</> : <>Redemption rule confirmed by you: {ruleNow === 'custom' ? `your own numbers, a ${Math.round(i.redemptionMonths * 10) / 10}-month wait` : offered[ruleNow]?.label}.</>} <button type="button" className="linkish" onClick={() => { update({ redemptionChecked: 0 }); setTimeout(() => document.querySelector<HTMLInputElement>('.calc-unconfirmed input[type="checkbox"]')?.focus(), 0); }}>Undo</button></p>
         )}
         <ExampleResults count={needsValue ? 0 : still.length} />
         {!needsValue && !r.noBidWorks && !cashShort && <PriceHead level={3} kind="target" label="Walk-away price" price={r.noBidWorks || cashShort ? null : r.maxBid} result={r.noBidWorks || cashShort ? null : r.profit} unit="profit" note={r.noBidWorks || cashShort ? undefined : `Not the result at ${yours.toLowerCase()}: this is the most you could pay and still meet ${gw}.`} />}
@@ -672,8 +674,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <p className="calc-note small"><strong>Your what-if wait.</strong> {noRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] })} The {Math.round(i.redemptionMonths * 10) / 10} months count only in your holding costs; nobody would repay you at their end.</p>
         )}
         {/* Your own wait, shorter than the period this sale usually carries: said here, not only in the "?" help. */}
-        {ruleNow === 'custom' && choices && choices.start !== 'none' && (offered[choices.start]?.months ?? 0) > i.redemptionMonths && i.redemptionMonths > 0 && !needsValue && (
-          <p className="calc-note small" role="note"><strong>Shorter than this sale’s usual redemption period.</strong> Your {Math.round(i.redemptionMonths * 10) / 10}-month wait is a what-if: this sale usually carries a {offered[choices.start]!.months}-month period,* and the owner can still redeem until it ends. Your holding costs run at least that long.</p>
+        {ruleNow === 'custom' && choices && choices.start !== 'none' && Number.isFinite(shortestOwner) && shortestOwner > i.redemptionMonths && i.redemptionMonths > 0 && !needsValue && (
+          <p className="calc-note small" role="note"><strong>Shorter than any redemption period the law sets for this sale.</strong> Your {Math.round(i.redemptionMonths * 10) / 10}-month wait is a what-if: the shortest period in the menu is {shortestOwner} months,* and the owner can still redeem until it ends. Your holding costs run at least that long.</p>
         )}
         {redeemed && !needsValue && !(ruleNow === 'custom' && choices?.start === 'none') && (
           <div className="calc-note">
