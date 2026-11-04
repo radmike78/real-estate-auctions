@@ -257,6 +257,15 @@ export function noteStateMove(from: string | null, to: string) {
     /* storage unavailable */
   }
 }
+/** The state Analyze's State field first moved you from, while you haven't gone back to it. */
+export function movedFrom(): string | null {
+  try {
+    const f = localStorage.getItem(MOVED_KEY);
+    return f && f !== getMyState() ? f : null;
+  } catch {
+    return null;
+  }
+}
 const movedFromNoLienState = () => {
   try {
     const f = localStorage.getItem(MOVED_KEY);

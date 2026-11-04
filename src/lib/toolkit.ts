@@ -53,12 +53,15 @@ export const DEAL_BREAKERS = [
 
 // A lien certificate has no rent and nothing to insure: those two don't fit it, and these do.
 const RENTAL_ONLY_BREAKERS = ['Can’t get insurance at a workable price', 'Negative cash flow with realistic rent'];
+// An apartment or commercial building is bought occupied (the tenants are the income) and has no HOA of its own.
+export const COMMERCIAL_DEAL_BREAKERS = ['Rent roll or leases I can’t verify', 'Income coverage below the lender’s minimum', 'Environmental (Phase I) problems'];
 export const LIEN_DEAL_BREAKERS = ['Landlocked or unusable parcel', 'Owner in bankruptcy', 'Interest rate below the minimum in my notes'];
 /** The deal breakers offered for a buy box strategy. */
 export const dealBreakersFor = (strategy: string): string[] =>
   strategy === LIEN_STRATEGY ? [...DEAL_BREAKERS.filter((t) => !RENTAL_ONLY_BREAKERS.includes(t)), ...LIEN_DEAL_BREAKERS]
   // A flip is sold, not rented: no rent to fall short.
   : strategy === 'Fix and flip' ? DEAL_BREAKERS.filter((t) => t !== 'Negative cash flow with realistic rent')
+  : strategy === 'Apartments and commercial property' ? [...DEAL_BREAKERS.filter((t) => t !== 'HOA with special assessments or lawsuits' && t !== 'Occupied, with no clear path to possession'), ...COMMERCIAL_DEAL_BREAKERS]
   : DEAL_BREAKERS;
 
 export const EMPTY_BUY_BOX: BuyBox = { state: '', area: '', types: [], strategy: '', priceMax: 0, repairsMax: 0, cashMax: 0, minCashFlow: 0, beds: '', dealBreakers: [], notes: '' };
@@ -79,7 +82,7 @@ export function cleanBuyBox(v: unknown): BuyBox {
     cashMax: num(o.cashMax),
     minCashFlow: num(o.minCashFlow),
     beds: str(o.beds, 40),
-    dealBreakers: pick(o.dealBreakers, [...DEAL_BREAKERS, ...LIEN_DEAL_BREAKERS]),
+    dealBreakers: pick(o.dealBreakers, [...DEAL_BREAKERS, ...LIEN_DEAL_BREAKERS, ...COMMERCIAL_DEAL_BREAKERS]),
     notes: str(o.notes, 1000),
     ...(cleanAssumptions(o.priceAssumptions) ? { priceAssumptions: cleanAssumptions(o.priceAssumptions) } : {}),
   };

@@ -251,8 +251,11 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const [i, setI] = useState<BidInputs>(() => {
     let v0 = load(storeId, propertyId ? defaults : { ...defaults, transferTaxPer500: tax.per500 });
     const stamped = regionOf();
+    // The region's transfer tax replaces the old one (unless you typed it), and is saved with the stamp: otherwise a
+    // later save of other numbers, or the next load, would carry the old region's rate under the new stamp.
+    let taxMoved = false;
     if (stamped !== regionSig) {
-      if (stamped !== null && !typedKeys.has('transferTaxPer500')) v0 = { ...v0, transferTaxPer500: tax.per500 };
+      if (stamped !== null && !typedKeys.has('transferTaxPer500')) { v0 = { ...v0, transferTaxPer500: tax.per500 }; taxMoved = true; }
       stampRegion();
     }
     // An offer has no auction cash limit, buyer's premium or redemption wait.
@@ -291,6 +294,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         if (cur === 'custom' && youTyped) dropTypedWait.current = true;
       }
     }
+    if (taxMoved) save(offer ? v0 : v); // an offer's view zeroes the auction-only fields: keep them as stored
     return !v.minimumBid && openingBid ? { ...v, minimumBid: openingBid } : v;
   });
   useEffect(() => {

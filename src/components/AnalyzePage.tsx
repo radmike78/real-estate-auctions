@@ -12,7 +12,7 @@ import { CalcRegion } from './calcRegion';
 import { useMarkStep, stepEyebrow } from '../lib/path';
 import { dropStateLead, useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { CURRENT_KEY, KEPT_NOTE_KEY, OPENED_KEY, keepUnsavedDraft, noteStateMove, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, nextStamp, restoreDraftNumbers, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
+import { CURRENT_KEY, KEPT_NOTE_KEY, OPENED_KEY, keepUnsavedDraft, movedFrom, noteStateMove, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, nextStamp, restoreDraftNumbers, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
 import { worksheetDownPct, investorProfile, commercialLoanStart } from '../lib/myPlan';
@@ -158,6 +158,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const [mine] = useMyState();
   // The investing state before the State field below changed it, for the notice.
   const [stateMoved, setStateMoved] = useState<StateCode | null>(null);
+  // Your own state, from before the State field first moved you (kept across visits until you're back in it).
+  const homeState = stateMoved ? (movedFrom() as StateCode | null) : null;
   // (A Nevada or Arizona lien deal priced after the State field moved you from a state without lien sales saves as a
   // real deal: savingPractice reads where you moved from.)
   const practiceSave = (d: Deal) => savingPractice(d);
@@ -373,7 +375,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           return ld && deal.state !== ld.state ? <p className="note" role="note">Your saved lien deal is in {nm}. To price another {nm} lien certificate, choose {nm} in State below (that also makes {nm} your state for the whole site).</p> : null;
         })()}
         {/* The State here is also your investing state for the whole site: say so when it changes it. */}
-        {stateMoved && mine && stateMoved !== mine && <p className="notice" role="status">Your investing state for the whole site is now {stateByCode(mine)?.name ?? mine}, so guides, practice and Find deals follow {stateByCode(mine)?.name ?? mine}. (The State here sets it.) Choosing {stateByCode(stateMoved)?.name ?? stateMoved} here again changes it back.</p>}
+        {stateMoved && mine && homeState && homeState !== mine && <p className="notice" role="status">Your investing state for the whole site is now {stateByCode(mine)?.name ?? mine}, so guides, practice and Find deals follow {stateByCode(mine)?.name ?? mine}. (The State here sets it.) Choosing {stateByCode(homeState)?.name ?? homeState} here again changes it back.</p>}
         <div className="deal-fields">
           <label className="field wide">
             <span>Address or nickname</span>
@@ -381,7 +383,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           </label>
           <label className="field">
             <span>State</span>
-            <select value={deal.state} onChange={(e) => { const s = e.target.value as StateCode; if (mine && s !== mine && !stateMoved) setStateMoved(mine); noteStateMove(mine, s); setMyState(s); /* first, so the starting county is your area's in that state */ const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: startCounty(s), countyChosen: false, locationConfirmed: false, kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); }}>
+            <select value={deal.state} onChange={(e) => { const s = e.target.value as StateCode; if (mine && s !== mine) setStateMoved(mine); noteStateMove(mine, s); setMyState(s); /* first, so the starting county is your area's in that state */ const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: startCounty(s), countyChosen: false, locationConfirmed: false, kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); }}>
               {STATES.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
             </select>
           </label>
