@@ -240,16 +240,18 @@ function focusNewPage(backOrForward = false) {
     // One more short wait once the page is there: a page scrolls to its section just after it renders.
     if (!seen) { seen = true; setTimeout(go, 120); return; }
     const tries2: HTMLElement[] = [];
-    // Back and Forward restore where you were on the page: the title, not whatever section is in view.
-    if (window.scrollY > 40 && !backOrForward) {
-      // The section the address names (/toolkit/cash, ?section=…), else the first heading in view.
-      const q = new URLSearchParams(window.location.search).get('section');
-      const sec = document.getElementById(q ?? window.location.pathname.split('/').filter(Boolean).pop() ?? '');
-      const head = sec && sec.closest('main') ? sec.querySelector<HTMLElement>('h2, h3, summary') : null;
-      if (head) tries2.push(head);
-      const inView = [...document.querySelectorAll<HTMLElement>('main h2, main h3, main summary')].filter((x) => { const r = x.getBoundingClientRect(); return r.height > 0 && r.top >= 0 && r.top < window.innerHeight * 0.6; });
-      tries2.push(...inView.slice(0, 3));
-    }
+    // Back and Forward restore where you were: deep in the page, focus stays put (the title is off screen); near the
+    // top, it goes to the title.
+    if (backOrForward && window.scrollY > 40) return;
+    // The section the address names (/toolkit/cash, /playbooks/…/<section>, ?section=…): its heading, whether the page
+    // scrolled to it or opened it in place (the title doesn't change then).
+    const q = new URLSearchParams(window.location.search).get('section');
+    const segs = window.location.pathname.split('/').filter(Boolean);
+    const sec = !backOrForward && (q || segs.length > 1) ? document.getElementById(q ?? segs[segs.length - 1]) : null;
+    const head = sec && sec.closest('main') ? (sec.matches('h2, h3, summary') ? sec : sec.querySelector<HTMLElement>('h2, h3, summary')) : null;
+    if (head) tries2.push(head);
+    // Scrolled to a section with no id of its own: the first section heading in view (never a card's name).
+    else if (!backOrForward && window.scrollY > 40) tries2.push(...[...document.querySelectorAll<HTMLElement>('main h2, main summary')].filter((x) => { const r = x.getBoundingClientRect(); return r.height > 0 && r.top >= 0 && r.top < window.innerHeight * 0.6; }).slice(0, 3));
     tries2.push(h);
     // The first one that takes focus (a heading can refuse it).
     for (const t of tries2) {
@@ -297,7 +299,14 @@ export default function App() {
         const requestedSection = new URLSearchParams(to.split('?')[1] ?? '').get('section');
         const sec = document.getElementById(requestedSection ?? to.split('?')[0].split('/').pop() ?? '');
         for (let p = sec; p; p = p.parentElement) if (p instanceof HTMLDetailsElement) p.open = true;
-        return sec ? sec.scrollIntoView() : window.scrollTo(0, 0);
+        if (!sec) return window.scrollTo(0, 0);
+        sec.scrollIntoView();
+        // Focus follows: to the section's heading, so the next Tab is there (not back at the link).
+        const head = sec.matches('h2, h3, summary') ? sec : sec.querySelector<HTMLElement>('h2, h3, summary');
+        const t = head ?? sec;
+        if (t.tagName !== 'SUMMARY' && !t.hasAttribute('tabindex')) t.setAttribute('tabindex', '-1');
+        t.focus({ preventScroll: true });
+        return;
       }
       navigate(to);
     };

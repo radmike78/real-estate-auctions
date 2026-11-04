@@ -151,10 +151,18 @@ describe('the deal packet', () => {
   });
 
   it('names the redemption wait a flip’s price is built on, with what a redemption returns, and its end date', () => {
-    const flip: Deal = { ...deal, state: 'TX', kind: 'court', plan: 'flip' };
+    // A Texas court (execution) sale has no owner redemption: a typed wait is your what-if, with no date.
+    const court: Deal = { ...deal, state: 'TX', kind: 'court', plan: 'flip' };
+    localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 0 }));
+    const whatIf = packetSections(court, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
+    expect(whatIf).toMatch(/Built on a 6-month wait you typed as a what-if\. This kind of sale doesn’t usually carry a right of redemption,\*/);
+    expect(whatIf).not.toMatch(/If the owner redeems/);
+    expect(dateGuide({ ...court }).map((g) => g.what)).not.toContain('Redemption period ends');
+    // A Texas tax sale: the owner can redeem (a 25% premium in the first year, Tax Code 34.21).
+    const flip: Deal = { ...deal, state: 'TX', kind: 'taxSale', plan: 'flip' };
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 0 }));
     const text = packetSections(flip, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
-    expect(text).toMatch(/Built on a 6-month redemption wait\. If the owner redeems at its end, you’d get back about \$[\d,]+\* on a \$[\d,]+ bid(?: \(your walk-away price\))?, having spent about \$[\d,]+: about \$[\d,]+ short/);
+    expect(text).toMatch(/Built on a 6-month redemption wait\. If the owner redeems at its end, you’d get back about \$[\d,]+\* on a \$[\d,]+ bid(?: \(your walk-away price\))?, having spent about \$[\d,]+: about \$[\d,]+ (short|ahead)/);
     expect(dateGuide({ ...flip }).map((g) => g.what)).toContain('Redemption period ends');
     // With no bid typed, at the walk-away price (as Fix and sell shows it), not the opening bid; with interest.
     const inputs = { minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 12 };
@@ -165,8 +173,8 @@ describe('the deal packet', () => {
     const usd = (n: number) => '$' + Math.round(n).toLocaleString('en-US');
     expect(t2).toContain('on a ' + usd(walk) + ' bid');
     expect(t2).toContain('about ' + usd(Math.abs(o.net)) + ' ' + (o.net < 0 ? 'short' : 'ahead'));
-    // A California trustee flip with a typed wait gets the date too.
-    expect(dateGuide({ ...flip, state: 'CA', kind: 'trustee' }).map((g) => g.what)).toContain('Redemption period ends');
+    // A California trustee sale has no owner redemption: a typed wait there is a what-if, with no date.
+    expect(dateGuide({ ...flip, state: 'CA', kind: 'trustee' }).map((g) => g.what)).not.toContain('Redemption period ends');
     // The United States' right after a sale that wiped out a junior federal lien (its 4 months at 6%): named as such.
     const nv: Deal = { ...deal, state: 'NV', kind: 'trustee', plan: 'flip' };
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 4, redemptionRatePct: 6 }));
@@ -177,7 +185,7 @@ describe('the deal packet', () => {
     // No wait: neither.
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000 }));
     expect(packetSections(flip, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).not.toMatch(/redemption wait/);
-    expect(dateGuide({ ...flip }).map((g) => g.what)).not.toContain('Redemption period ends');
+    expect(dateGuide({ ...court }).map((g) => g.what)).not.toContain('Redemption period ends');
   });
 
   it('counts loan interest and points in a financed flip’s budget, at your saved price', () => {

@@ -658,7 +658,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         )}
         {redeemed && !needsValue && (
           <div className="calc-note">
-            <strong>If {ruleNow === 'usFederal' || ruleNow === 'usCourt' ? 'the United States' : 'the owner'} redeems: an illustration of your bid and what the law adds</strong>
+            {/* Your own wait on a sale with no owner redemption: a what-if, said so (the packet and My deals say the same). */}
+            <strong>{ruleNow === 'custom' && !Object.entries(offered).some(([k, x]) => !['none', 'usFederal', 'usCourt'].includes(k) && x.months > 0) ? 'Your what-if wait: this kind of sale doesn’t usually carry a right of redemption,* but if someone did redeem, an illustration of your bid' : <>If {ruleNow === 'usFederal' || ruleNow === 'usCourt' ? 'the United States' : 'the owner'} redeems: an illustration of your bid and what the law adds</>}</strong>
             <p className="small">
               {i.redemptionFlat ? <>If the owner redeems {i.redemptionFlat2Pct ? 'in the first year' : 'at any time in the wait'}, {ruleNow === 'txTaxOther' ? <>the law adds a premium of up to {i.redemptionRatePct}% of your price plus the costs the law repays (Tax Code 34.21(e)). This illustration applies the full {i.redemptionRatePct}% to your price only. </> : <>the law adds {i.redemptionRatePct}% of your price{i.redemptionFlat2Pct ? `, or ${i.redemptionFlat2Pct}% in the second year` : ''}, no matter how early. </>}</> : null}At the end of the {Math.round(i.redemptionMonths)}-month wait you’d get back about {fmtMoney(Math.round(redeemed.repaid))} on a {fmtMoney(bid > 0 ? bid : r.maxBid)} bid. By then you’d have spent about {fmtMoney(Math.round(redeemed.spent))}, so you’d {redeemed.net >= 0 ? `come out about ${fmtMoney(Math.round(redeemed.net))} ahead` : `be about ${fmtMoney(Math.round(-redeemed.net))} short`}.{' '}
               {region.state === 'TX' && taxLoanRule

@@ -546,9 +546,9 @@ export function CashWorksheet() {
         <div><dt>Emergency fund</dt><dd>{fmtMoney(fund)}</dd></div>
         <div className="cash-main" data-result><dt>What you can invest</dt><dd>{fmtMoney(investable)}</dd></div>
       </dl>
-      </AnnouncedResults>
       {c.savings > 0 && investable === 0 && <p className="roadmap-stop"><strong>Not yet.</strong> Your choices leave no cash for a deal in this worksheet. Review your savings, emergency fund and debt plan. You can keep learning and practicing while you prepare.</p>}
       {investable > 0 && <PriceFromCash cash={investable} />}
+      </AnnouncedResults>
     </section>
   );
 }
@@ -648,12 +648,12 @@ function PriceFromCash({ cash }: { cash: number }) {
     <div className="price-from-cash">
       <h3>What price your investable cash supports</h3>
       {Number.isFinite(price) ? (<>
-        <p>
+        <p data-result>
           With {a.downPct}% down, closing costs of about {a.closingPct}% and {a.reserveMonths} months of payments kept in reserve, your {fmtMoney(cash)} supports a price up to about <strong>{fmtMoney(price)}</strong>:
           {' '}{fmtMoney(Math.round(c.down))} down, {fmtMoney(Math.round(c.closing))} closing costs and {fmtMoney(Math.round(c.reserves))} in reserve (about {fmtMoney(Math.round(c.monthly))} a month in loan, tax and insurance, at {a.taxInsPct}% of the price a year for tax and insurance). Repairs come out of the same cash, so leave room for them.{a.downPct < 20 && !investLow ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : ''}{investorProfile().ownerOccupant && a.downPct >= 20 ? ` ${a.downPct}% down is common for an investment; a home you’ll live in can need less, so replace it below with your lender’s figure.` : ''}
         </p>
-        {investLow && <p className="caution">Loans for a property you won’t live in usually need 15% to 25% down,* so this price is likely too high: low-down-payment programs are for homes you live in. Raise “Down payment” under Change the planning estimates, or ask your lender. Mortgage insurance, which most loans add with under 20% down, isn’t included either.</p>}
-        {multiLow && <p className="caution">Loans for a duplex to fourplex you won’t live in usually need 25% down,* so for one of those this price is likely too high. Raise “Down payment” under Change the planning estimates, or ask your lender.</p>}
+        {investLow && <p className="caution" data-result>Loans for a property you won’t live in usually need 15% to 25% down,* so this price is likely too high: low-down-payment programs are for homes you live in. Raise “Down payment” under Change the planning estimates, or ask your lender. Mortgage insurance, which most loans add with under 20% down, isn’t included either.</p>}
+        {multiLow && <p className="caution" data-result>Loans for a duplex to fourplex you won’t live in usually need 25% down,* so for one of those this price is likely too high. Raise “Down payment” under Change the planning estimates, or ask your lender.</p>}
         {taxWarn}
       </>) : (
         <p>With no down payment, closing costs or reserves, these assumptions don’t limit the price. Enter what your lender expects below to see a price.</p>
