@@ -235,7 +235,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
             <section className="guide-group" aria-labelledby="lien-deal-guide-head">
               <h2 id="lien-deal-guide-head" className="section-title">For your {name} lien deal</h2>
               <div className="drill-tiles">
-                <Tile href={`#/playbooks/${g.key}`} icon={saleIcon(g.key)} title={`${name}: ${g.short}`} summary={g.teaser ?? g.oneLine} />
+                <Tile level={3} href={`#/playbooks/${g.key}`} icon={saleIcon(g.key)} title={`${name}: ${g.short}`} summary={g.teaser ?? g.oneLine} />
               </div>
             </section>
           );
@@ -245,7 +245,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
             {/* With the lien deal's own section above, your state's guides get their own heading too. */}
             {(!st || lienDealGuide) && <h2 className="section-title">{st ? `${g.name} sale guides` : `${g.name}${g.code === 'NV' ? ' (Clark County)' : ''}`}</h2>}
             <div className="drill-tiles">
-              {guidesFor(g.code).map((x) => <Tile key={x.key} href={`#/playbooks/${x.key}`} icon={saleIcon(x.key)} title={x.short} summary={st ? withoutState(x.teaser ?? x.oneLine, st.name) : x.teaser ?? x.oneLine} />)}
+              {guidesFor(g.code).map((x) => <Tile key={x.key} level={!st || lienDealGuide ? 3 : 2} href={`#/playbooks/${x.key}`} icon={saleIcon(x.key)} title={x.short} summary={st ? withoutState(x.teaser ?? x.oneLine, st.name) : x.teaser ?? x.oneLine} />)}
             </div>
           </section>
         ))}
@@ -266,7 +266,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
   if (mineName) return (
     <main className="page">
       <PageHero compact top={<a href="#/playbooks">← All sale guides</a>} title={`Open the guide for ${mineName}`} />
-      <OwlNote>This link is outside your selected investing state. Choose the matching local guide before reviewing sale procedures.</OwlNote>
+      <OwlNote>This guide follows {stateByCode(stateOf(p))?.name ?? stateOf(p)} law, outside your selected investing state, {mineName}. Choose the matching local guide before reviewing sale procedures.</OwlNote>
       <p><a className="btn" href={mineGuide ? `#/playbooks/${mineGuide.key}` : '#/playbooks'}>{mineGuide ? `Read ${mineGuide.title}` : 'Choose a local sale guide'} →</a></p>
       <section aria-labelledby="guide-state-head">
         <h2 id="guide-state-head">Your investing state</h2>

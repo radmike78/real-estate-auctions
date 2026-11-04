@@ -16,13 +16,14 @@ export interface DrillSection {
 }
 
 /** A clickable section box: icon + large title, a one-line summary, and "Open". */
-export function Tile(props: { href: string; title: string; summary: ReactNode; icon?: ReactNode; tone?: Tone; index?: number }) {
+export function Tile(props: { href: string; title: string; summary: ReactNode; icon?: ReactNode; tone?: Tone; index?: number; /** 3 under a section heading. */ level?: 2 | 3 }) {
   const { href, title, summary, icon, tone } = props;
+  const H = props.level === 3 ? 'h3' : 'h2';
   return (
     <a href={href} className={`drill-tile${tone ? ` tone-${tone}` : ''}`}>
       <span className="drill-head">
         {icon && <span className="drill-icon" aria-hidden>{icon}</span>}
-        <h2 className="drill-title">{title}</h2>
+        <H className="drill-title">{title}</H>
       </span>
       <span className="drill-summary">{summary}</span>
       <span className="drill-chevron" aria-hidden>

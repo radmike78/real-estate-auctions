@@ -109,7 +109,8 @@ function loadCurrent(st: StateCode): Deal {
     // kind of sale that route is about.
     if (v && !v.id && !v.name.trim() && !v.notes.trim() && v.done.length === 0 && !v.locationConfirmed && v.kind === 'listing' && (v.county === startCounty(v.state) || (!v.countyChosen && v.county === DEFAULT_COUNTY[v.state])) && v.plan === planFromBuyBox() && kindForRoute(st || v.state) !== 'listing') return blank(st || v.state);
     // A deal you opened (My deals, the packet) opens in its own state, even when your state is another.
-    if (v && (!st || v.state === st || (!!v.id && opened === v.id))) {
+    // (Or an unsaved lien certificate in the state of the lien deal your plan is built around: see the lien link below.)
+    if (v && (!st || v.state === st || (!!v.id && opened === v.id) || (!v.id && v.kind === 'lien' && practiceLienDeal()?.state === v.state))) {
       // Deleted from My deals since: keep what was typed as a new, unsaved deal (the note says so).
       if (v.id && !stillSaved(v.id)) {
         deletedOnLoad = true;
@@ -150,8 +151,6 @@ const linkPlan = (d: Deal, plan?: Plan): Deal => (plan && plansFor(d.kind).inclu
 
 /** The kept-draft note read this page load (see keptNote below). */
 let keptNoteOnce = '';
-/** The saved lien deal a lien calculator link opened this load (see lienLinked below). */
-let lienLinkOpened = '';
 
 export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: Prefill } = {}) {
   useMarkStep('analyze');
@@ -188,27 +187,26 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const [deal, setDeal] = useState<Deal>(() => {
     if (!prefill) {
       deletedOnLoad = false;
-      // A link to the lien calculator ("Open the lien calculator") from a state without lien sales opens the Nevada or
-      // Arizona lien deal your plan is built around, where the lien calculator is, instead of a blank listing. It
-      // opens as if chosen in My deals (an unsaved draft is kept first).
-      // Not one you passed on: its numbers stay as you left them.
+      // A link to the lien calculator ("Open the lien calculator", a practice step's) from a state without lien sales
+      // opens a new, unsaved lien certificate in the state and county of the Nevada or Arizona lien deal your plan is
+      // built around, where the lien calculator is, instead of a blank listing. Your saved deal isn't touched, so
+      // practice payoffs don't change its numbers. (A started draft is kept in My deals first.)
       const ld0 = plan === 'lien' && !kindsFor(mine ?? 'NV').some((k) => k.key === 'lien') ? practiceLienDeal() : null;
-      let ld = ld0 && ld0.stage !== 'passed' ? ld0 : null;
-      if (ld) {
+      if (ld0) {
         const keptDeal = keepUnsavedDraft();
         if (keptDeal) {
           // As when opening a deal from My deals: the lien deal stays the one you're working on (the kept draft is
-          // newer otherwise, and would take My plan's focus and its route).
-          const now = nextStamp([ld.updatedAt, keptDeal.updatedAt].sort().pop() ?? ld.updatedAt);
-          const id = ld.id;
-          saveDeals(loadDeals().map((x) => (x.id === id ? { ...x, updatedAt: now } : x)));
-          ld = { ...ld, updatedAt: now };
+          // newer otherwise, and would take My plan's focus and its route). Not one you passed on.
+          if (ld0.stage !== 'passed') {
+            const now = nextStamp([ld0.updatedAt, keptDeal.updatedAt].sort().pop() ?? ld0.updatedAt);
+            saveDeals(loadDeals().map((x) => (x.id === ld0.id ? { ...x, updatedAt: now } : x)));
+          }
           const kept = `Your unsaved ${stateByCode(keptDeal.state)?.name ?? ''} deal “${keptDeal.name}” was saved to My deals.`;
           keptNoteOnce = kept; setTimeout(() => { keptNoteOnce = ''; }, 1500); setTimeout(() => setKeptNote(kept), 0);
         }
-        try { localStorage.setItem(CURRENT_KEY, JSON.stringify(ld)); localStorage.setItem(OPENED_KEY, JSON.stringify(ld.id)); } catch { /* storage unavailable */ }
-        lienLinkOpened = ld.id;
-      } else lienLinkOpened = '';
+        const draft: Deal = { ...blank(ld0.state), county: ld0.county, countyChosen: true, kind: 'lien', plan: 'lien' };
+        try { localStorage.setItem(CURRENT_KEY, JSON.stringify(draft)); localStorage.removeItem(OPENED_KEY); } catch { /* storage unavailable */ }
+      }
       const cur = loadCurrent(mine ?? 'NV');
       if (deletedOnLoad) { const n = deletedNote; setTimeout(() => setKeptNote(n), 0); }
       // The working deal is in another state than the one now chosen: keep it in My deals before starting fresh.
@@ -217,13 +215,11 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         // Also into keptNoteOnce: the first-paint remount reads it there, after this instance is thrown away.
         if (kept) { keptNoteOnce = kept; setTimeout(() => { keptNoteOnce = ''; }, 1500); setTimeout(() => setKeptNote(kept), 0); }
       }
-      return ld && cur.id === ld.id ? cur : forLink(cur, plan);
+      return forLink(cur, plan);
     }
     keepUnsaved();
     return linkPlan(fromListing(prefill), plan);
   });
-  // Opened by a lien calculator link (a practice step's): it's your saved deal, so numbers tried here change it.
-  const [lienLinked] = useState(() => lienLinkOpened);
   // A property opened from a DeedOwl listing arrives filled in; the address then goes back to plain /analyze.
   useEffect(() => {
     if (!prefill) return;
@@ -300,9 +296,10 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     window.addEventListener('storage', on);
     return () => window.removeEventListener('storage', on);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  // Choosing a state elsewhere on the site moves a new, unsaved deal to it.
+  // Choosing a state elsewhere on the site moves a new, unsaved deal to it (not a lien certificate in the state of the
+  // lien deal your plan is built around: the lien calculator link opens one there).
   useEffect(() => {
-    if (mine && !deal.id && mine !== deal.state) {
+    if (mine && !deal.id && mine !== deal.state && !(deal.kind === 'lien' && practiceLienDeal()?.state === deal.state)) {
       const kept = keepUnsaved();
       if (kept) {
         setKeptNote(kept);
@@ -368,13 +365,12 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           <p className="note" role="status">This is your practice analysis “{deal.name}”. Changes here update it in My deals, and it stays a practice analysis. Found a real property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button></p>
         )}
         <p className="muted">Found a property on an official list, a listing site or from your agent? Enter it here. You’ll get the checklist for that kind of sale in that county, and the calculator for your plan. Save it to come back to it in My deals.</p>
-        {lienLinked && deal.id === lienLinked && <p className="notice" role="note"><strong>This is your saved lien deal “{deal.name}”.</strong> Numbers you try in its lien calculator change it in My deals and its packet. To try practice payoffs (paid in 6 months, in 2 years), note its own numbers first and put them back afterward.</p>}
         {(() => {
           // A new deal on a lien route kept by a Nevada or Arizona lien deal while your own state sells no liens: say
           // how to price another one there.
           const ld = !deal.id && deal.kind !== 'lien' ? practiceLienDeal() : null;
           const nm = ld ? stateByCode(ld.state)?.name ?? ld.state : '';
-          return ld && deal.state !== ld.state ? <p className="note" role="note">Your saved lien deal is in {nm}. To price another {nm} lien certificate, choose {nm} in State below.</p> : null;
+          return ld && deal.state !== ld.state ? <p className="note" role="note">Your saved lien deal is in {nm}. To price another {nm} lien certificate, choose {nm} in State below (that also makes {nm} your state for the whole site).</p> : null;
         })()}
         {/* The State here is also your investing state for the whole site: say so when it changes it. */}
         {stateMoved && mine && stateMoved !== mine && <p className="notice" role="status">Your investing state for the whole site is now {stateByCode(mine)?.name ?? mine}, so guides, practice and Find deals follow {stateByCode(mine)?.name ?? mine}. (The State here sets it.) Choosing {stateByCode(stateMoved)?.name ?? stateMoved} here again changes it back.</p>}

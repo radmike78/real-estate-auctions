@@ -136,7 +136,7 @@ export default function FindDealsPage() {
         const nm = stateByCode(ld.state)?.name ?? ld.state;
         return (
           <OwlNote>
-            Your saved lien deal is in {countyName(ld.county)}, {nm}{page ? ', where lien certificates are sold' : ''}. The sources below are for {place}.{' '}
+            Your saved lien deal is in {countyName(ld.county)}, {nm}{page ? ', where lien certificates are sold' : ''}. The sources below are for {place}{area.state !== 'NV' && area.state !== 'AZ' ? ', where county and foreclosure sales sell the property itself, not lien certificates' : ''}.{' '}
             {page && <><a href={page.url} target="_blank" rel="noopener noreferrer">{countyName(ld.county)}’s lien sale page ↗</a> · </>}
             <a href={`#/playbooks/${ld.state === 'NV' ? 'sid' : 'aztaxlien'}`}>The {nm} lien guide →</a>
           </OwlNote>

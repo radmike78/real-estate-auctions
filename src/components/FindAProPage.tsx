@@ -386,9 +386,17 @@ export default function FindAProPage({ section }: { section?: string }) {
                 {book ? <a href={`#/playbooks/${book.key}`}>Read the guide: {book.short}{NBSP}→</a> : sale === 'commercial-offer' ? <a href="#/learn/strategies/apartments-and-commercial">Read about apartments and commercial property{NBSP}→</a> : <a href="#/practice/case">Practice a listed purchase, start to finish{NBSP}→</a>}
               </p>
               {/* The lien team for a Nevada or Arizona lien deal while your own state is another: that state's law applies. */}
-              {book && mine && !guidesFor(mine).includes(book) && (
-                <p className="note" role="note">This deal is in {stateByCode(stateOf(book))?.name ?? stateOf(book)}, so {stateByCode(stateOf(book))?.name ?? stateOf(book)} law applies (where the list says “your state”). Look for professionals licensed in {stateByCode(stateOf(book))?.name ?? stateOf(book)}, an attorney especially; the ones shown advertise in your own area.</p>
-              )}
+              {book && mine && !guidesFor(mine).includes(book) && (() => {
+                const ds = stateOf(book) as StateCode;
+                const nm = stateByCode(ds)?.name ?? ds;
+                const bar = LICENSE_LOOKUPS.attorney?.[ds];
+                return (
+                  <p className="note" role="note">
+                    This deal is in {nm}, so {nm} law applies (where the list says “your state”). Look for professionals licensed in {nm}, an attorney especially
+                    {bar && 'url' in bar ? <>: <a href={bar.url} target="_blank" rel="noopener noreferrer">{bar.who} lawyer search ↗</a></> : ''}. The “find one” guides below are written for {stateByCode(mine)?.name ?? mine}.
+                  </p>
+                );
+              })()}
               <TeamList team={team} />
             </>
           )}
