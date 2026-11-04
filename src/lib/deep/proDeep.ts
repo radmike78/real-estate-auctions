@@ -1440,7 +1440,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Legal and court costs to get a judgment. In California, Arizona and Texas, the recovery fund pays only after a court judgment."
     ],
     money: [
-      "Ask how the manager is paid: flat fee or share of rent, leasing fees, repair markups. Get it in the management agreement. No reliable sourced typical-fee data was found for these states.",
+      "Ask how the manager is paid: flat fee or share of rent, leasing fees, repair markups. Get it in the management agreement. We didn’t find a reliable source for typical fees, so compare written fee schedules from two or three managers.",
       "Make sure rent and deposits go into a separate trust account. You should get monthly statements you can check against your own bank deposits."
     ],
     checklist: [

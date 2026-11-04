@@ -172,7 +172,9 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
           </OwlNote>
         </div>
       )}
-      {!loading && results.length === 0 && pros.length > 0 && !error && <div className="empty"><OwlNote>No advertisers match yet. Try another city or filter.</OwlNote></div>}
+      {!loading && results.length === 0 && pros.length > 0 && !error && (q.service !== 'any' || q.creditProfile !== 'any' || q.language !== 'any' || wide || !local
+        ? <div className="empty"><OwlNote>No advertisers match these choices yet. Try another city or filter.</OwlNote></div>
+        : <div className="empty"><OwlNote><strong>No {who} advertise in {area ? areaLong(area) : 'your area'} yet.</strong>{' '}<button type="button" className="linkish" onClick={() => setWide(true)}>Show all of {stName}</button></OwlNote></div>)}
       <ul className="pro-grid">{results.map((p) => <ProCard key={p.id} p={p} />)}</ul>
     </div>
   );

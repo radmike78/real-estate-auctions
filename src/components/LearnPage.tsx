@@ -148,7 +148,7 @@ export default function LearnPage() {
       </details>
       {/* Above the sale guides, so an ad never sits under the tax-sale, trustee and sheriff guides. */}
       <AdSpot spot="learn" />
-      <details className="plan-section"><summary>Sale guides for your selected state</summary><StatePicker label="Show rules for" /><SaleGuides /></details>
+      <details className="plan-section"><summary>{mine === 'NV' ? 'Nevada sale guides: trustee, tax, HOA, SID lien, sheriff and IRS sales' : mine ? `${stateByCode(mine)?.name ?? 'Your state’s'} sale guides` : 'Sale guides for your selected state'}</summary><StatePicker label="Show rules for" /><SaleGuides /></details>
       <PathNext step="learn" />
     </main>
   );

@@ -1108,7 +1108,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Leasing costs: building out space for new tenants, broker commissions and free rent, often large sums before any rent comes in.",
       "Vacancy: the Gas Company Tower in Los Angeles was only 57% leased in 2024.",
       "Property taxes and insurance. In California, a purchase triggers reassessment to market value (Board of Equalization).",
-      "Transfer taxes: in the City of Los Angeles, Measure ULA can add a 5.5% tax on high-priced sales. Commercial Observer reported it would have applied to the $200 million Gas Company Tower sale, had the buyer not been a government agency.",
+      "Transfer taxes. In Nevada, the county charges a real property transfer tax when the deed is recorded; Analyze shows your county’s rate. In California, the City of Los Angeles’s Measure ULA can add a 5.5% tax on high-priced sales; Commercial Observer reported it would have applied to the $200 million Gas Company Tower sale, had the buyer not been a government agency.",
       "SBA 504 loans charge fees of about 3% of the debt, which can be financed (SBA).",
       "Building systems: elevators, HVAC, roofs and, in older buildings, seismic upgrades (required in some California cities)."
     ],
@@ -1470,7 +1470,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Vacancy in the storefront: you carry the building’s mortgage, taxes and insurance with no retail rent while you look for a tenant.",
       "Tenant improvements and build-out. New business tenants often need plumbing, electrical, venting or accessibility work before they can open.",
       "Commercial-grade insurance and code compliance (fire separation between the shop and homes, accessibility for the public area).",
-      "City charges where they exist. San Francisco supervisors looked at a vacancy tax or fee on owners who leave storefronts empty (2017)."
+      "City charges where they exist. In California, San Francisco supervisors looked at a vacancy tax or fee on owners who leave storefronts empty (2017)."
     ],
     money: [
       "Fannie Mae buys loans on homes with a business space (such as a day care, barber shop or doctor’s office) only if the borrower lives there as a principal residence, owns and runs the business, and the property is mainly residential.",
@@ -2008,7 +2008,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     costs: [
       "Property taxes every year, with no rent to pay them.",
       "Getting legal and physical access (an easement or a road) if the parcel is landlocked.",
-      "Utilities: extending power lines, drilling a well, or connecting water and sewer. In Rio Verde Foothills, hauled water was projected to cost $20 per 1,000 gallons, versus about $1.65 in Scottsdale.",
+      "Utilities: extending power lines, drilling a well, or connecting water and sewer. In Arizona, Rio Verde Foothills residents were projected to pay $20 per 1,000 gallons of hauled water, versus about $1.65 in Scottsdale.",
       "Survey, title insurance, soil and percolation (septic) tests, and flood-zone checks.",
       "Quiet-title or legal costs after a tax-sale purchase if the title is unclear."
     ],
