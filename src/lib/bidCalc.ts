@@ -329,7 +329,8 @@ export const REDEMPTION_RULES = {
 type RuleShape = { months: number; ratePct: number; daily: number; flat?: number; flat2Pct?: number };
 export const ruleOf = (i: BidInputs, rules: Record<string, RuleShape> = REDEMPTION_RULES): string => {
   // No wait is no redemption, whatever rate is left in the interest field (it's hidden then, and counts for nothing).
-  if (nz(i.redemptionMonths) === 0 && 'none' in rules) return 'none';
+  // (A wait shown as 0, to a tenth of a month, counts as none too.)
+  if (Math.round(nz(i.redemptionMonths) * 10) === 0 && 'none' in rules) return 'none';
   for (const [k, r] of Object.entries(rules))
     if (nz(i.redemptionMonths) === r.months && nz(i.redemptionRatePct) === r.ratePct && nz(i.redemptionDaily) === r.daily && nz(i.redemptionFlat) === (r.flat ?? 0) && nz(i.redemptionFlat2Pct) === (r.flat2Pct ?? 0)) return k;
   return 'custom';

@@ -427,7 +427,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const slower = maxSafeBid({ ...i, holdingMonths: i.holdingMonths + 3 }).profitBid;
   // At your bid, else the walk-away price; none when that's below the opening bid (no bid there can be placed), as My
   // deals and the packet say.
-  const redeemed = bid > 0 ? redemptionOutcome(i, bid) : i.minimumBid > 0 && r.maxBid < i.minimumBid ? null : redemptionOutcome(i, r.maxBid);
+  // (No illustration for a wait that shows as 0 months, as the packet and My deals say none.)
+  const redeemed = Math.round(i.redemptionMonths * 10) === 0 ? null : bid > 0 ? redemptionOutcome(i, bid) : i.minimumBid > 0 && r.maxBid < i.minimumBid ? null : redemptionOutcome(i, r.maxBid);
   // No resale value yet (e.g. a listing with no estimate): ask for one instead of saying "no bid works".
   const needsValue = !(i.exitValue > 0);
   const atBid = bid > 0 ? costsAtBid(i, bid) : null;

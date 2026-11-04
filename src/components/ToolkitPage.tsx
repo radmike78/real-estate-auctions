@@ -763,10 +763,10 @@ function BuyBoxBuilder() {
   const set = <K extends keyof BuyBox>(k: K, v: BuyBox[K]) => setB((x) => ({ ...x, [k]: v }));
   // The cash check uses the assumptions saved with a price from the cash worksheet, else our usual ones.
   const pa = b.priceAssumptions ?? PRICE_DEFAULTS;
-  // Buying at an auction (this strategy, else My plan's route), or paying cash (Decide): no loan at the price.
-  const buyAuction = b.strategy ? b.strategy === 'Tax and foreclosure auctions' : planPath() === 'auction';
-  // (The lien route with no strategy picked pays cash too, as the cash worksheet says.)
-  const buyCash = buyAuction || (!b.strategy && planPath() === 'certificate') || investorProfile().loan === 'cash';
+  // Paying cash, as the cash worksheet and Download my plan read it: My plan's route at an auction or lien sale, or
+  // Decide's "Cash only" (no loan at the price).
+  const buyAuction = planPath() === 'auction';
+  const buyCash = buyAuction || planPath() === 'certificate' || investorProfile().loan === 'cash';
   // A cash buyer's price and repairs both come from the cash (closing and holding costs on top).
   const cashNeed = b.priceMax + Math.max(0, b.repairsMax || 0);
   const toggle = (k: 'types' | 'dealBreakers', v: string) => set(k, b[k].includes(v) ? b[k].filter((x) => x !== v) : [...b[k], v]);

@@ -203,7 +203,16 @@ describe('the deal packet', () => {
     expect(dateGuide({ ...deal, state: 'TX', kind: 'hoa' }).map((g) => g.what)).toContain('Redemption period ends');
     expect(dateGuide({ ...deal, state: 'CA', kind: 'court', plan: 'flip' }).map((g) => g.what)).toContain('Redemption period ends');
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 0, redemptionRatePct: 0 }));
+    // An untouched stored 0 isn't "No redemption" chosen: Fix and sell starts from the sale's rule, and so do the dates.
+    localStorage.setItem('fsf.bid.analyzed-d1.v1.typed.v1', JSON.stringify(['exitValue']));
+    expect(dateGuide({ ...deal, state: 'CA', kind: 'court', plan: 'flip' }).map((g) => g.what)).toContain('Redemption period ends');
+    // Picked (or confirmed) "No redemption": no such date.
+    localStorage.setItem('fsf.bid.analyzed-d1.v1.typed.v1', JSON.stringify(['exitValue', 'rulePick_CA_court_none']));
     expect(dateGuide({ ...deal, state: 'CA', kind: 'court', plan: 'flip' }).map((g) => g.what)).not.toContain('Redemption period ends');
+    localStorage.removeItem('fsf.bid.analyzed-d1.v1.typed.v1');
+    // A wait that shows as 0 is no wait: no "0-month" lines.
+    localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 0.04, redemptionRatePct: 0 }));
+    expect(packetSections({ ...deal, state: 'TX', kind: 'taxSale', plan: 'flip' }, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).not.toMatch(/0-month/);
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 2, redemptionRatePct: 0 }));
     expect(dateGuide({ ...deal, state: 'AZ', kind: 'hoa', plan: 'flip' }).map((g) => g.what)).not.toContain('Redemption period ends');
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 0 }));

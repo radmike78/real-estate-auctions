@@ -220,7 +220,7 @@ export function shortestRedemptionMonths(d: Pick<Deal, 'state' | 'kind'>): numbe
 }
 
 /** Your wait, as shown (to a tenth of a month), is under the shortest period the law sets for this sale (0: none). */
-export const shorterThanLaw = (months: number, shortest: number): boolean => shortest > 0 && Math.round(months * 10) / 10 < shortest;
+export const shorterThanLaw = (months: number, shortest: number): boolean => { const m = Math.round(months * 10) / 10; return shortest > 0 && m > 0 && m < shortest; };
 
 /** The shortest period, in its rule's own words, with months where those are days or years ("180 days (about 6
  *  months)"); "" when there is none (as shortestRedemptionMonths). */
@@ -240,7 +240,16 @@ export const monthsWord = (n: number): string => `${n} month${n === 1 ? '' : 's'
 function savedRule(d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal['plan'] }): string | null {
   if (!d.id || d.plan !== 'flip') return null;
   const raw = read(`fsf.bid.analyzed-${d.id}.v1`);
-  return raw && typeof raw === 'object' ? redemptionRule(d, sanitizeInputs(raw, BLANK_INPUTS)) : null;
+  if (!raw || typeof raw !== 'object') return null;
+  const i = sanitizeInputs(raw, BLANK_INPUTS);
+  const rule = redemptionRule(d, i);
+  // "No redemption" you didn't choose (no wait typed, not confirmed, not picked) isn't set yet: Fix and sell starts
+  // from the rule you last picked for this kind of sale, else the sale's own, as it does when it opens.
+  const choices = redemptionChoicesFor(d.state, d.kind);
+  const typed = readConfirmed(`fsf.bid.analyzed-${d.id}.v1`);
+  const pickedHere = choices.keys.find((k) => typed.has(`rulePick_${d.state}_${d.kind}_${k}`));
+  if (rule === 'none' && !i.redemptionChecked && !typed.has(`rulePick_${d.state}_${d.kind}_custom`) && (pickedHere ? pickedHere !== 'none' : choices.start !== 'none')) return pickedHere ?? choices.start;
+  return rule;
 }
 
 /** A redemption wait typed in Fix and sell for this deal (a what-if its price is built on). */
@@ -250,7 +259,7 @@ function typedWait(d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal[
   if (!raw || typeof raw !== 'object') return false;
   const i = sanitizeInputs(raw, BLANK_INPUTS);
   // Only a wait someone can actually redeem in (not your what-if on a sale with no right of redemption).
-  return i.redemptionMonths > 0 && redemptionWho(d, i) !== null;
+  return Math.round(i.redemptionMonths * 10) > 0 && redemptionWho(d, i) !== null;
 }
 
 /** The dates most deals of this kind need on the calendar, each with how it works where we have it (Texas contracts). */
@@ -489,7 +498,7 @@ export function savedNumbers(d: Deal) {
         const below = at?.source === 'listed' && r.maxBid < at.price;
         const price = at?.source === 'yours' ? at.price : r.noBidWorks || below ? 0 : r.maxBid;
         // Who redeems, as Fix and sell names it (null: your what-if on a sale with no right of redemption).
-        const who = redemptionWho(d, i); const shortest = who === 'the owner' && redemptionRule(d, i) === 'custom' && shorterThanLaw(i.redemptionMonths, shortestRedemptionMonths(d)) ? shortestRedemptionMonths(d) : 0; const o = !offer && price > 0 ? redemptionOutcome(i, price) : null; if (!o) return !offer && i.redemptionMonths > 0 ? { months: Math.round(i.redemptionMonths * 10) / 10, price: 0, repaid: 0, spent: 0, net: 0, who, source: 'walk' as const, shortest } : null; return { months: Math.round(i.redemptionMonths * 10) / 10, price, ...o, who, source: at?.source === 'yours' ? 'yours' as const : 'walk' as const, shortest }; })() };
+        const who = redemptionWho(d, i); const shortest = who === 'the owner' && redemptionRule(d, i) === 'custom' && shorterThanLaw(i.redemptionMonths, shortestRedemptionMonths(d)) ? shortestRedemptionMonths(d) : 0; const o = !offer && price > 0 && Math.round(i.redemptionMonths * 10) > 0 ? redemptionOutcome(i, price) : null; if (!o) return !offer && Math.round(i.redemptionMonths * 10) > 0 ? { months: Math.round(i.redemptionMonths * 10) / 10, price: 0, repaid: 0, spent: 0, net: 0, who, source: 'walk' as const, shortest } : null; return { months: Math.round(i.redemptionMonths * 10) / 10, price, ...o, who, source: at?.source === 'yours' ? 'yours' as const : 'walk' as const, shortest }; })() };
       }
     }
   } else if (d.plan === 'commercial' && own) {
