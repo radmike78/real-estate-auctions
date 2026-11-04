@@ -181,11 +181,17 @@ const linkedStep = (): string | null => {
 /** After a step's status changes, keep the keyboard in place: its pressed status button, else (the step moved away, e.g.
  *  the next task changed) the next task's heading, else the roadmap's. */
 function keepFocus(host: HTMLElement | null) {
+  // (Read now, before React shows the new status: which task the next-task card holds.)
+  const taskOf = () => document.querySelector('#roadmap-next h3')?.textContent ?? null;
+  const before = taskOf();
   setTimeout(() => {
-    // In the next-task card the task itself changes: its label (the new task) then. Elsewhere the pressed status,
-    // if the step is still there and shown; else the next task; else the roadmap's heading. Each tried until focus sticks.
+    // In the next-task card, a status that moves the task on (Done, Stopped) shows a new one: its label then. A status
+    // that keeps it there (Working on it, Waiting) keeps the pressed button, as elsewhere: the pressed status, if the
+    // step is still there and shown; else the next task; else the roadmap's heading. Each tried until focus sticks.
     const inNext = !!host?.closest('#roadmap-next');
-    const pressed = !inNext && host && document.contains(host) ? host.querySelector<HTMLElement>('.roadmap-status button[aria-pressed="true"]') : null;
+    const sameTask = inNext && before !== null && taskOf() === before;
+    const pressed = sameTask ? document.querySelector<HTMLElement>('#roadmap-next .roadmap-status button[aria-pressed="true"]')
+      : !inNext && host && document.contains(host) ? host.querySelector<HTMLElement>('.roadmap-status button[aria-pressed="true"]') : null;
     const shown = (x: HTMLElement | null): x is HTMLElement => !!x && (typeof x.checkVisibility === 'function' ? x.checkVisibility() : x.offsetParent !== null);
     for (const t of [pressed, document.querySelector<HTMLElement>('#roadmap-next .roadmap-next-label'), document.querySelector<HTMLElement>('#roadmap-next h3'), document.querySelector<HTMLElement>('main h2')]) {
       if (!shown(t)) continue;

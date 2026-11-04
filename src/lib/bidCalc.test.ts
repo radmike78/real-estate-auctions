@@ -5,6 +5,13 @@ import { daysUntil, whenLabel } from '../components/ResultsList';
 
 const base: BidInputs = { ...BLANK_INPUTS, exitValue: 400_000, repairs: 40_000, buyerPremiumPct: 5, financedPct: 70 };
 
+describe('ruleOf with no wait', () => {
+  it('reads a 0-month wait as no redemption, whatever rate is left in the hidden interest field', () => {
+    expect(ruleOf({ ...BLANK_INPUTS, redemptionMonths: 0, redemptionRatePct: 5 })).toBe('none');
+    expect(ruleOf({ ...BLANK_INPUTS, redemptionMonths: 0, redemptionRatePct: 5 }, { sheriff: REDEMPTION_RULES.sheriff })).toBe('custom');
+  });
+});
+
 describe('maximum safe bid', () => {
   it('leaves exactly the target profit at the max bid, after every cost', () => {
     const r = maxSafeBid(base);

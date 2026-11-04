@@ -211,10 +211,25 @@ export function redemptionRule(d: Pick<Deal, 'state' | 'kind'> & { id?: string }
   return rule;
 }
 
-/** The shortest owner redemption period the law sets for this kind of sale (in its menu), in months; 0 when there is none. */
+/** The shortest owner redemption period the law sets for this kind of sale (in its menu), in months; 0 when there is none,
+ *  or when the menu also offers "No redemption" (a California or Arizona court sale, an IRS sale: the law may set none). */
 export function shortestRedemptionMonths(d: Pick<Deal, 'state' | 'kind'>): number {
+  if (redemptionChoicesFor(d.state, d.kind).keys.includes('none')) return 0;
   const ms = Object.entries(offeredRedemptionRules(d.state, d.kind)).filter(([k, r]) => !['none', 'usFederal', 'usCourt'].includes(k) && r.months > 0).map(([, r]) => r.months);
   return ms.length ? Math.min(...ms) : 0;
+}
+
+/** Your wait, as shown (to a tenth of a month), is under the shortest period the law sets for this sale (0: none). */
+export const shorterThanLaw = (months: number, shortest: number): boolean => shortest > 0 && Math.round(months * 10) / 10 < shortest;
+
+/** "N months", or "1 month". */
+export const monthsWord = (n: number): string => `${n} month${n === 1 ? '' : 's'}`;
+
+/** The redemption rule this deal's saved Fix and sell numbers follow, or null with none saved. */
+function savedRule(d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal['plan'] }): string | null {
+  if (!d.id || d.plan !== 'flip') return null;
+  const raw = read(`fsf.bid.analyzed-${d.id}.v1`);
+  return raw && typeof raw === 'object' ? redemptionRule(d, sanitizeInputs(raw, BLANK_INPUTS)) : null;
 }
 
 /** A redemption wait typed in Fix and sell for this deal (a what-if its price is built on). */
@@ -264,7 +279,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
   // Texas execution sale; a Texas tax sale has its own redemption period (Tax Code 34.21).
-  if ((['hoa', 'irs', 'court'].includes(d.kind) || (d.kind === 'taxSale' && d.state === 'TX')) && !(d.state === 'TX' && d.kind === 'court')) out.push('Redemption period ends');
+  if ((['hoa', 'irs', 'court'].includes(d.kind) || (d.kind === 'taxSale' && d.state === 'TX')) && redemptionChoicesFor(d.state, d.kind).start !== 'none' && savedRule(d) !== 'none') out.push('Redemption period ends');
   // A redemption wait typed in Fix and sell (a what-if the price is built on) puts its end on the calendar too.
   else if (typedWait(d)) out.push('Redemption period ends');
   return names(out);
@@ -456,7 +471,7 @@ export function savedNumbers(d: Deal) {
         const below = at?.source === 'listed' && r.maxBid < at.price;
         const price = at?.source === 'yours' ? at.price : r.noBidWorks || below ? 0 : r.maxBid;
         // Who redeems, as Fix and sell names it (null: your what-if on a sale with no right of redemption).
-        const who = redemptionWho(d, i); const shortest = who === 'the owner' && redemptionRule(d, i) === 'custom' && shortestRedemptionMonths(d) > i.redemptionMonths ? shortestRedemptionMonths(d) : 0; const o = !offer && price > 0 ? redemptionOutcome(i, price) : null; if (!o) return !offer && i.redemptionMonths > 0 ? { months: Math.round(i.redemptionMonths * 10) / 10, price: 0, repaid: 0, spent: 0, net: 0, who, source: 'walk' as const, shortest } : null; return { months: Math.round(i.redemptionMonths * 10) / 10, price, ...o, who, source: at?.source === 'yours' ? 'yours' as const : 'walk' as const, shortest }; })() };
+        const who = redemptionWho(d, i); const shortest = who === 'the owner' && redemptionRule(d, i) === 'custom' && shorterThanLaw(i.redemptionMonths, shortestRedemptionMonths(d)) ? shortestRedemptionMonths(d) : 0; const o = !offer && price > 0 ? redemptionOutcome(i, price) : null; if (!o) return !offer && i.redemptionMonths > 0 ? { months: Math.round(i.redemptionMonths * 10) / 10, price: 0, repaid: 0, spent: 0, net: 0, who, source: 'walk' as const, shortest } : null; return { months: Math.round(i.redemptionMonths * 10) / 10, price, ...o, who, source: at?.source === 'yours' ? 'yours' as const : 'walk' as const, shortest }; })() };
       }
     }
   } else if (d.plan === 'commercial' && own) {
@@ -786,7 +801,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     nums.push(bid.none && bid.cashBlocked ? `No bid fits the cash you entered: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that` : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and ${targetW}` : `What-if: walk-away price ${money(bid.maxBid)}, ${bid.limitedBy === 'cash' ? `the most your cash covers with every cost until you sell (${goalW} alone allows ${money(bid.profitBid)})` : `the most you could pay and still meet ${goalW}`} (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : `this deal doesn’t meet ${goalW}`} as entered` : ''}`);
     if (bid.redeem && !bid.redeem.who) nums.push(`Built on a ${bid.redeem.months}-month wait you typed as a what-if. ${noRedemptionWords(d)} Check the sale terms with the official seller or an attorney.`);
     // Your own wait, under every period the law sets for this sale: said once, with the shortest.
-    const shorter = bid?.redeem?.shortest ? ` That’s shorter than any redemption period the law sets for this sale (the shortest is ${bid.redeem.shortest} months):* the owner can still redeem until it ends.` : '';
+    const shorter = bid?.redeem?.shortest ? ` That’s shorter than any redemption period the law sets for this sale (the shortest is ${monthsWord(bid.redeem.shortest)}):* the owner can still redeem until it ends.` : '';
     if (bid?.redeem && bid.redeem.who && !(bid.redeem.price > 0)) nums.push(bid.redeem.shortest ? `Built on a ${bid.redeem.months}-month redemption wait.${shorter}` : `Built on a ${bid.redeem.months}-month redemption wait: ${bid.redeem.who} can redeem until it ends.`);
     else if (bid.redeem && bid.redeem.who) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait.${shorter} If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* on a ${money(x.price)} ${offer ? 'offer' : 'bid'}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
