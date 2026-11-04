@@ -206,6 +206,10 @@ describe('the deal packet', () => {
     expect(nvHoa.map((g) => g.what)).toContain('Certificate of sale recorded');
     expect(nvHoa.find((g) => g.what === 'Redemption period ends')).toMatchObject({ when: '60 days after the sale.', why: 'NRS 116.31166(2) and (3)' });
     expect(dateGuide({ ...deal, state: 'NV', kind: 'court' }).find((g) => g.what === 'Redemption period ends')).toMatchObject({ when: '1 year after the sale.', why: 'NRS 21.200 and 21.210' });
+    // Nevada: the trustee's deed (NRS 107.080(10)-(12)), a tax sale's 2-year window (361.600), an offer's own deadlines.
+    expect(dateGuide({ ...deal, state: 'NV', kind: 'trustee' }).find((g) => g.what === 'Deed recorded')?.why).toBe('NRS 107.080(10) to (12)');
+    expect(dateGuide({ ...deal, state: 'NV', kind: 'taxSale' }).find((g) => g.what === 'Recovery-suit window ends')).toMatchObject({ when: '2 years after the treasurer’s deed is delivered to you.', why: 'NRS 361.600' });
+    expect(dateGuide({ ...deal, state: 'NV', kind: 'listing' }).map((g) => g.what)).toEqual(expect.arrayContaining(['Seller’s disclosure form due', 'Defect cancellation deadline', 'HOA resale package: cancel by', 'Closing']));
     // An auction's dates follow the official notice (a contract only on an offer).
     const { dealPacketText } = await import('./dealPacket');
     expect(dealPacketText({ ...deal, state: 'CA', kind: 'trustee' }, EMPTY_PACKET, now)).toContain('What the less familiar dates mean (the official notice wins):');

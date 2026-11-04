@@ -209,6 +209,18 @@ function StagePrompts({ tasks }: { tasks: Task[] }) {
   );
 }
 
+/** A card's "Got it" (or similar) button goes away once pressed: focus moves to the card's heading, so the next Tab goes on
+ *  from there instead of from the top of the page. */
+function keepCardFocus(btn: HTMLElement) {
+  const card = btn.closest<HTMLElement>('.task-card');
+  setTimeout(() => {
+    const h = card && document.contains(card) ? card.querySelector<HTMLElement>('h3') : null;
+    if (!h) return;
+    h.setAttribute('tabindex', '-1');
+    h.focus();
+  }, 0);
+}
+
 /** `showKind`: label each card (Learn, Decide, Numbers…) only when a step mixes kinds of task; otherwise it just repeats the step. */
 function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Task; k: string; progress: ScenarioProgress; update: (fn: (p: ScenarioProgress) => ScenarioProgress) => void; markDone: (k: string) => void; showKind: boolean }) {
   const done = progress.done.includes(k);
@@ -225,7 +237,7 @@ function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Tas
         <article className={`task-card${done ? ' is-done' : ''}`}>
           {head('Learn', task.title)}
           {task.body.map((b, i) => <p key={i}>{b}</p>)}
-          {!done && <button className="btn btn-secondary" onClick={() => markDone(k)}>Got it</button>}
+          {!done && <button className="btn btn-secondary" onClick={(e) => { keepCardFocus(e.currentTarget); markDone(k); }}>Got it</button>}
         </article>
       );
     case 'event':
@@ -233,7 +245,7 @@ function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Tas
         <article className={`task-card event${done ? ' is-done' : ''}`}>
           {head('What happens', task.title)}
           {task.body.map((b, i) => <p key={i}>{b}</p>)}
-          {!done && <button className="btn btn-secondary" onClick={() => markDone(k)}>Continue</button>}
+          {!done && <button className="btn btn-secondary" onClick={(e) => { keepCardFocus(e.currentTarget); markDone(k); }}>Continue</button>}
         </article>
       );
     case 'checklist':
@@ -288,7 +300,7 @@ function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Tas
             </table>
             {task.note && <p className="small muted doc-note">{task.note}</p>}
           </div>
-          {!done && <button className="btn btn-secondary" onClick={() => markDone(k)}>{task.from === 'You' || task.from.startsWith('You ') ? 'Prepared' : 'Reviewed'}</button>}
+          {!done && <button className="btn btn-secondary" onClick={(e) => { keepCardFocus(e.currentTarget); markDone(k); }}>{task.from === 'You' || task.from.startsWith('You ') ? 'Prepared' : 'Reviewed'}</button>}
         </article>
       );
     case 'numbers':
@@ -321,7 +333,7 @@ function TaskCard({ task, k, progress, update, markDone, showKind }: { task: Tas
           </table>
           <p>{task.lesson}</p>
           <p className="small muted">Practice numbers, not market data.{!cash && ' A real pre-approval comes from a licensed loan officer.'}</p>
-          {!done && <button className="btn btn-secondary" onClick={() => markDone(k)}>I understand my budget</button>}
+          {!done && <button className="btn btn-secondary" onClick={(e) => { keepCardFocus(e.currentTarget); markDone(k); }}>I understand my budget</button>}
         </article>
       );
     }
@@ -462,7 +474,7 @@ function NumbersTask({ task, k, done, head, markDone }: { task: Extract<Task, { 
       {two && <p>Selling as-is means less work, less cash tied up and a quicker exit, for a smaller profit. Fixing it up can earn more, but your money is tied up longer, and you carry the risk of repairs running over, a slow sale or a lower price. {fix.maxBid ? `This practice buyer plans to fix and sell, so the maximum is ${fmtMoney(fix.maxBid)}.` : 'Here, no price leaves the target profit either way.'}</p>}
       <p>{task.lesson}</p>
       <p className="small muted">Practice numbers, not market data. <a href="#/analyze?plan=flip">Try your own in Analyze a deal (Fix and sell)</a>.</p>
-      {!done && <button className="btn btn-secondary" onClick={() => markDone(k)}>I understand my maximum</button>}
+      {!done && <button className="btn btn-secondary" onClick={(e) => { keepCardFocus(e.currentTarget); markDone(k); }}>I understand my maximum</button>}
     </article>
   );
 }

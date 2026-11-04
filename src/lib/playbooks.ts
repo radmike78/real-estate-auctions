@@ -104,7 +104,7 @@ const NEVADA: Playbook[] = [
     key: 'sid',
     title: 'Nevada lien certificates',
     short: 'Lien certificates',
-    oneLine: 'The Clark County Treasurer sells the lien for unpaid special improvement district (SID) assessments. You buy a debt that earns interest, not the property.',
+    oneLine: 'The county or city treasurer sells the lien for unpaid special improvement district (SID) assessments. You buy a debt that earns interest, not the property.',
     youGet: 'A certificate of sale: the right to be repaid plus 1% a month. You can ask for a deed only if the owner never redeems, and the certificate expires if you wait too long.',
     plain: 'Not the house. You get the right to be repaid what you paid plus 1% a month. You can ask for the deed only if the owner never pays. That right runs out if you wait too long.',
     forSale: true,
@@ -179,7 +179,7 @@ const NEVADA: Playbook[] = [
       { title: 'Set your maximum bid', detail: 'Include surviving debts, repairs, eviction and holding costs. Use Analyze a deal (Fix and sell) to find your walk-away price.' },
       { title: 'Confirm the sale is on', detail: 'Call the trustee the day before. Sales are often postponed or cancelled when owners reinstate, sell or file bankruptcy.' },
       { title: 'Bid with certified funds', detail: "Bring cashier's checks in amounts that let you pay exactly your bid. Follow the trustee's terms." },
-      { title: 'After you win', detail: 'Get the trustee’s deed recorded and insure the property. If anyone lives there, serve the right notices.' },
+      { title: 'After you win', detail: 'Get the trustee’s deed recorded and insure the property. If the trustee gives you the deed, record it within 10 days (NRS 107.080(10)). If anyone lives there, serve the right notices.' },
     ],
     survives: {
       wipedOut: ['The loan being foreclosed', 'In most cases, liens recorded after it (junior liens)'],
