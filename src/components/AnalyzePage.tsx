@@ -333,6 +333,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   }, [mine]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const set = (patch: Partial<Deal>) => setDeal((d) => ({ ...d, ...patch, updatedAt: nextStamp(d.updatedAt) }));
+  // A new, unsaved lien certificate in the state of the lien deal your plan is built around (not your own state).
+  const practiceCert = !deal.id && deal.kind === 'lien' && !!mine && deal.state !== mine && practiceLienDeal()?.state === deal.state;
   const st = stateByCode(deal.state)!;
   const kinds = kindsFor(deal.state);
   const plans = PLANS.filter((p) => plansFor(deal.kind).includes(p.key));
@@ -394,7 +396,14 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           if (!ld) return null;
           const nm = stateByCode(ld.state)?.name ?? ld.state;
           // The new certificate opened in that deal's state (the lien calculator link, or the button below).
-          if (deal.kind === 'lien' && deal.state === ld.state && deal.state !== mine) return <p className="note" role="status" tabIndex={-1} ref={lienNoteRef}>A new, unsaved lien certificate in {nm}, where your saved lien deal is. For the practice step, enter a price and rate below, then try “Months until the owner pays” at 6 and at 24. Your saved deal “{ld.name}” isn’t changed; save this one only if you want to keep it. <button type="button" className="linkish" onClick={() => { clearLienDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new {stateByCode(mine ?? '')?.name ?? ''} deal instead</button></p>;
+          if (deal.kind === 'lien' && deal.state === ld.state && deal.state !== mine) return <p className="note" role="status" tabIndex={-1} ref={lienNoteRef}>A new, unsaved lien certificate in {nm}, where your saved lien deal is.{savingPractice(deal) ? ' For the practice step, enter a price and rate below, then try “Months until the owner pays” at 6 and at 24.' : ''} Your saved deal “{ld.name}” isn’t changed; save this one only if you want to keep it. <button type="button" className="linkish" onClick={() => {
+            // A named or noted certificate is kept in My deals first, as every other way of replacing the draft does.
+            const kept = keepUnsaved();
+            if (kept) { setKeptNote(kept); setSaved(loadDeals()); }
+            clearLienDraftNumbers();
+            setDeal(blank(mine ?? deal.state));
+            setTimeout(() => document.querySelector<HTMLInputElement>('.deal-fields input')?.focus(), 0);
+          }}>Start a new {stateByCode(mine ?? '')?.name ?? ''} deal instead</button></p>;
           // A new deal in your own state: how to price another lien there, without changing your state for the site.
           if (deal.kind !== 'lien' && deal.state !== ld.state) return <p className="note" role="note">Your saved lien deal is in {nm}. <button type="button" className="linkish" onClick={() => { const { draft, kept } = startLienDraft(ld); if (kept) setKeptNote(kept); setSaved(loadDeals()); setDeal(draft); setTimeout(() => lienNoteRef.current?.focus(), 0); }}>Price another {nm} lien certificate</button></p>;
           return null;
@@ -436,10 +445,11 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         {deal.id && mine && mine !== deal.state && <p className="notice" role="note">This saved deal is in {stateByCode(deal.state)?.name ?? deal.state}; your chosen state is {stateByCode(mine)?.name ?? mine}. Its numbers and checklist follow {stateByCode(deal.state)?.name ?? deal.state}’s rules.</p>}
         {deal.state === 'AZ' && deal.kind === 'lien' && <p className="muted small" id="az-land-note">Buying land the county already took by tax deed, at the board of supervisors’ auction? That’s the property, not a lien, and this list has no checklist for it yet: follow the county’s own sale terms (A.R.S. 42-18301 to 42-18303) and ask a title company before you bid.</p>}
         {deal.state === 'TX' && deal.kind === 'court' && <p className="muted small" id="tx-court-note">Buying at a Texas tax sale? The sheriff or a constable holds those too: choose “County tax sale (the property)” so the owner’s right to buy it back is counted.</p>}
-        <label className="check">
+        {/* Not for a new lien certificate in the lien deal's state (the lien calculator link): there's no property yet. */}
+        {!(practiceCert && deal.locationConfirmed) && <label className="check">
           <input type="checkbox" checked={!!deal.locationConfirmed} onChange={(e) => set({ locationConfirmed: e.target.checked })} />
           I checked that this property is in {countyName(deal.county)}, {st.name}.
-        </label>
+        </label>}
         {!deal.locationConfirmed && <p className="muted" role="status">Choose the property’s county, kind of sale and your plan, then tick the box above to confirm the location. Starting choices are placeholders, not recommendations.</p>}
         <div className="deal-actions">
           {deal.id ? (

@@ -685,7 +685,10 @@ function BuyBoxBuilder() {
   useEffect(() => {
     if (lastMine.current === mine) return;
     lastMine.current = mine;
-    if (mine && isBlank(b) && !b.priceAssumptions && b.state !== mine) setB({ ...b, state: mine });
+    // A blank box you set a State for is stored: it keeps that State.
+    let stored = false;
+    try { stored = localStorage.getItem(BUYBOX_KEY) !== null; } catch { /* storage unavailable */ }
+    if (mine && isBlank(b) && !b.priceAssumptions && !stored && b.state !== mine) setB({ ...b, state: mine });
   }, [mine]); // eslint-disable-line react-hooks/exhaustive-deps
   // The cash helper can fill in the price and cash: pick that up.
   useEffect(() => {
@@ -735,7 +738,7 @@ function BuyBoxBuilder() {
       <div className="buybox-grid">
         <label className="field">
           <span>State</span>
-          <select value={b.state} onChange={(e) => set('state', e.target.value)}>
+          <select id="buybox-state" value={b.state} onChange={(e) => set('state', e.target.value)}>
             <option value="">Choose</option>
             {STATES.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
           </select>
@@ -778,7 +781,7 @@ function BuyBoxBuilder() {
           </>
         )}
       </div>
-      {lien && lienDeal && (b.state || mine) !== lienDeal.state && <p className="note" role="note">Your lien deal is in {stateByCode(lienDeal.state)?.name ?? lienDeal.state}, where lien certificates are sold: set this buy box’s State to {stateByCode(lienDeal.state)?.name ?? lienDeal.state} so its limits fit that sale. <button type="button" className="linkish" onClick={() => setB({ ...b, state: lienDeal.state, area: '' })}>Set it to {stateByCode(lienDeal.state)?.name ?? lienDeal.state}</button></p>}
+      {lien && lienDeal && (b.state || mine) !== lienDeal.state && <p className="note" role="note">Your lien deal is in {stateByCode(lienDeal.state)?.name ?? lienDeal.state}, where lien certificates are sold: set this buy box’s State to {stateByCode(lienDeal.state)?.name ?? lienDeal.state} so its limits fit that sale. <button type="button" className="linkish" onClick={() => { setB({ ...b, state: lienDeal.state, area: '' }); setTimeout(() => document.getElementById('buybox-state')?.focus(), 0); }}>Set it to {stateByCode(lienDeal.state)?.name ?? lienDeal.state}</button></p>}
       {lien && <p className="muted">A lien certificate isn’t the property: there’s no rent and nothing to repair. Your buy box is the parcels you’ll bid on, what you’ll pay, and how long your money can wait. Property types and deal breakers below describe the land behind each lien.</p>}
       {!b.strategy && suggested && <p className="roadmap-has">Decide suggested: <strong>{suggested}</strong>. <button type="button" className="linkish" onClick={() => set('strategy', suggested)}>Use it</button></p>}
       {!lien && b.priceMax > 0 && b.cashMax > 0 && cashForPrice(b.priceMax, pa).total > b.cashMax && (
@@ -930,8 +933,13 @@ function planText(): string {
   const supports = priceForCash(cash, pa);
   // The worksheet's county tax caution, in words.
   const taxNote = (() => {
+    // No limit from these estimates: no price to call too high (the worksheet shows no caution then either).
+    if (!Number.isFinite(supports)) return '';
     const ar = getMyArea();
     const rate = ar?.county && ar.state !== 'NV' && ar.state !== 'AZ' ? countyTaxRate(ar.state, ar.county) : null;
+    // No county yet: the state's middle county, as on screen.
+    const mid = !ar?.county && ar?.state && ar.state !== 'NV' && ar.state !== 'AZ' ? stateMedianTaxRate(ar.state) : null;
+    if (!rate && mid !== null && mid > pa.taxInsPct - 0.4) return ` Caution: in ${stateByCode(ar!.state)?.name}, property tax alone is about ${mid.toLocaleString('en-US', { maximumFractionDigits: 2 })}% of value a year in the middle county, ${mid >= pa.taxInsPct ? 'more than' : 'nearly all of'} the ${pa.taxInsPct}% this uses for tax and insurance together, so this price is likely too high. Choosing your county gives its rate.`;
     if (!rate || !(rate.pct > pa.taxInsPct - 0.4)) return '';
     const place = /\bCity$/.test(ar!.county!) ? ar!.county : `${ar!.county} County`;
     return ` Caution: ${place}’s property tax alone is about ${rate.pct.toLocaleString('en-US', { maximumFractionDigits: 2 })}% of value a year, ${rate.pct >= pa.taxInsPct ? 'more than' : 'nearly all of'} the ${pa.taxInsPct}% this uses for tax and insurance together, so this price is likely too high.`;
@@ -941,7 +949,7 @@ function planText(): string {
   const atSale = path === 'auction' || path === 'certificate';
   if (cash > 0 && path === 'certificate') lines.push(`Investable cash: ${fmtMoney(cash)}. Buying lien certificates, that’s the most you’d tie up: the certificate prices and fees, paid by the county’s deadline, plus any later taxes you pay to protect them.`);
   else if (cash > 0 && (atSale || investorProfile().loan === 'cash')) lines.push(`Investable cash: ${fmtMoney(cash)}. Paying cash, that’s your limit for the price plus closing costs, repairs and reserves${atSale ? '; an auction wants the full amount by its payment deadline, with no loan at the sale' : ''}, so the price itself is less than ${fmtMoney(cash)}.`);
-  else lines.push(cash > 0 ? `Investable cash: ${fmtMoney(cash)}. With ${pa.downPct}% down, ${pa.closingPct}% closing costs and ${pa.reserveMonths} months of reserves, it supports ${Number.isFinite(supports) ? `a price up to about ${fmtMoney(supports)}` : 'any price (these assumptions set no limit)'}.${taxNote}` : '(not worked out yet)');
+  else lines.push(cash > 0 ? `Investable cash: ${fmtMoney(cash)}. With ${pa.downPct}% down, ${pa.closingPct}% closing costs and ${pa.reserveMonths} months of reserves, it supports ${Number.isFinite(supports) ? `a price up to about ${fmtMoney(supports)}` : 'any price (these assumptions set no limit)'}.${Number.isFinite(supports) && pa.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : ''}${taxNote}` : '(not worked out yet)');
   lines.push('', buyBoxText(b, STATES.find((x) => x.code === b.state)?.name), '', `ROADMAP: ${ROADMAP_PATHS[path].label}`);
   for (const s of steps) lines.push(`[${done.includes(s.id) ? 'x' : status[s.id] === 'na' ? '-' : ' '}] ${ROADMAP_PHASES[s.phase]}: ${s.title}${status[s.id] && !done.includes(s.id) ? ` (${STEP_STATUS_LABEL[status[s.id]]})` : ''}`);
   lines.push('', 'TEAM');
@@ -955,7 +963,10 @@ function planText(): string {
     lines.push(`${g?.title ?? k}: ${m.name}${m.contact ? `, ${m.contact}` : ''}${m.licenseChecked ? ', credentials checked' : ''}${m.fees ? `. Fees: ${m.fees}` : ''}`);
     if (PRO_SCRIPTS[k]) lines.push(`  What to say: ${PRO_SCRIPTS[k].say}`);
   }
-  if (open.length) lines.push(`Not chosen yet: ${open.join(', ')}. The Your team page shows who you need for your route and when.`);
+  // At an auction or for lien certificates there's no agent, loan or inspection at the sale: those roles aren't listed as open.
+  const skip = path === 'listing' ? [] : ['agent', 'lender', 'inspector'].map((k) => proGuideByKey(k as Parameters<typeof proGuideByKey>[0])?.title ?? k);
+  const openShown = open.filter((t) => !skip.includes(t));
+  if (openShown.length) lines.push(`Not chosen yet: ${openShown.join(', ')}. The Your team page shows who you need for your route and when.`);
   return lines.join('\n');
 }
 
