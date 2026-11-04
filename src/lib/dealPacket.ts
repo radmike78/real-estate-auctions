@@ -272,6 +272,9 @@ function typedWait(d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal[
   return Math.round(i.redemptionMonths * 10) > 0 && redemptionWho(d, i) !== null;
 }
 
+/** What to do about it, the same in Analyze and the packet. */
+export const RENT_WAIT_ADVICE = 'These numbers start the rent right away: count that time’s holding costs, with no rent, in your budget (for example under Possession costs)';
+
 /** Before the deed, a redemption period with no rent you can count on (a certificate of sale first): its words, or null. */
 export function rentWaitNote(state: string | null | undefined, kind: string | null | undefined): string | null {
   if (state === 'NV' && kind === 'court') return 'After a Nevada sheriff’s sale the owner can redeem for 1 year, and whoever lives there may keep using the property until then (NRS 21.210, 21.240). If a tenant rents it, you’re entitled to that rent during the year, but it’s subtracted from what you’re repaid if someone redeems (NRS 21.250).';
@@ -741,12 +744,13 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   // 3. Key dates
   const nd = nextDate(p, now);
   const dated = p.dates.filter((x) => x.when);
+  const undatedDone = p.dates.filter((x) => !x.when && x.resolved && x.what.trim());
   out.push({
     key: 'dates',
     title: 'Key dates',
     status: calendarComplete(p, stageOf(d)) ? 'done' : dated.length ? 'started' : 'missing',
-    lines: dated.length
-      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), nd ? `Next: ${nd.what}, ${nd.days < 0 ? `overdue by ${-nd.days} days` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : 'All dated items are marked handled.']
+    lines: dated.length || undatedDone.length
+      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 ? `overdue by ${-nd.days} days` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : 'All dated items are marked handled.']
       : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' ? 'official notice (the eligible-bidder windows count from the sale day, for homes of 1–4 units)' : d.kind === 'trustee' && d.state === 'NV' ? 'official notice (the challenge window counts from the day the trustee’s deed is recorded)' : d.kind === 'trustee' && d.state === 'TX' ? 'official notice (the rescission window counts from the sale day)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
   });
 
@@ -790,7 +794,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
         cash.push(`Repair spending as work is done: ${money(rent.repairs)}, including the contingency. Possession costs, if needed: ${money(rent.possession)}.`);
         cash.push(`Total modeled acquisition, repairs and possession cash: ${money(rent.cashIn)}. This is not the amount to wire at closing.`);
         cash.push('Ask title/escrow and your lender for the actual cash to close and payment dates. Prepaid costs, escrow funding, prorations, credits and costs paid earlier can change it. Repair/lease-up carrying costs also need a separate budget if not included.');
-      } else cash.push(`From sale day until it’s rented, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs)${rentWaitNote(d.state, d.kind) ? `. ${rentWaitNote(d.state, d.kind)} These numbers start the rent right away: add the holding costs for that time, with no rent, ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? 'to your budget' : 'before you bid'}` : ''}`);
+      } else cash.push(`From sale day until it’s rented, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs)${rentWaitNote(d.state, d.kind) ? `. ${rentWaitNote(d.state, d.kind)} ${RENT_WAIT_ADVICE}` : ''}`);
     }
     cash.push(rent.retained > 0 ? `Retained property reserves: ${money(rent.retained)}, kept separately from the ${money(need)} modeled cash requirement.` : 'Retained property reserves: not entered. Set aside a separate amount for vacancies and unexpected costs.');
     if (rent.retained > 0) need += rent.retained;

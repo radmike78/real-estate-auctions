@@ -304,3 +304,12 @@ it('an IRS sale with "No redemption" picked gets the deed at once; a ticked deed
   const p = { ...EMPTY_PACKET, dates: [{ when: '', what: 'Deed delivered (if no one redeemed)', who: '', resolved: true }] };
   expect(stageTasks(hoa, 'closed', p, now).find((t) => t.key === 'deed')?.done).toBe(true);
 });
+
+it('says "Deed recorded" once the deed row is ticked, and counts the wait as over', () => {
+  const hoa: Deal = { ...deal, id: 'dh4', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip' };
+  expect(stageLabel('closed', hoa)).toBe('Certificate of sale recorded');
+  const p = { ...EMPTY_PACKET, dates: [{ when: '', what: 'Deed delivered (if no one redeemed)', who: '', resolved: true }] };
+  savePacket('analyzed:dh4', p);
+  expect(stageLabel('closed', hoa)).toBe('Deed recorded');
+  expect(stageTasks(hoa, 'closed', p, now).find((t) => t.key === 'redemption-wait')?.done).toBe(true);
+});

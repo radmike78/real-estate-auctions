@@ -10,7 +10,7 @@ import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
 import { useCalcRegion } from './calcRegion';
-import { rentWaitNote } from '../lib/dealPacket';
+import { RENT_WAIT_ADVICE, rentWaitNote } from '../lib/dealPacket';
 import { ExampleInputs, ExampleResults, PriceHead, exampleLabels } from './CalcLabels';
 
 /** The fields on screen, in order. */
@@ -599,7 +599,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
       </div>
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
-        {!offer && rentWaitNote(region.state, saleKind) && <p className="caution" role="note"><strong>No rent you can count on during the redemption period.</strong> {rentWaitNote(region.state, saleKind)} These numbers start the rent right away: add the holding costs for that time, with no rent, before you bid.</p>}
+        {!offer && rentWaitNote(region.state, saleKind) && <p className="caution" role="note"><strong>No rent you can count on during the redemption period.</strong> {rentWaitNote(region.state, saleKind)} {RENT_WAIT_ADVICE}.</p>}
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
         {offer && investorProfile().ownerOccupant && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
         <AtThisPrice v={v} start={noReal ? NaN : r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} targetTyped={typedKeys.has('targetCocPct')} dscrTyped={typedKeys.has('minDscr')} rentTyped={!exactKey || typedKeys.has('monthlyRent')} />
@@ -677,7 +677,8 @@ const COMMERCIAL_GROUPS: CalcGroup<CommercialInputs>[] = [
   },
 ];
 
-export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', exactKey = false, start = {}, regional = false, offer = false }: { storageKey?: string; exactKey?: boolean; start?: Partial<CommercialInputs>; regional?: boolean; offer?: boolean }) {
+export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', exactKey = false, start = {}, regional = false, offer = false, saleKind }: { /** The kind of sale (a redemption wait before the deed is said). */ saleKind?: string; storageKey?: string; exactKey?: boolean; start?: Partial<CommercialInputs>; regional?: boolean; offer?: boolean }) {
+  const commRegion = useCalcRegion();
   const ct = useRegionTax(COMMERCIAL_GROUPS);
   const [saved, set, typed, typedKeys] = useSaved<CommercialInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...COMMERCIAL_DEFAULTS, ...start }, regional ? { transferTaxPer500: ct.per500 } : {});
   const v = offer ? { ...saved, buyerPremiumPct: 0 } : saved;
@@ -700,6 +701,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
     <div className="calc">
       <div className="calc-inputs"><ExampleInputs labels={still} all={allExample} /><CalcFields groups={groups} values={v} onChange={set} /></div>
       <div className="calc-results">
+        {!offer && rentWaitNote(commRegion.state, saleKind) && <p className="caution" role="note"><strong>No rent you can count on during the redemption period.</strong> {rentWaitNote(commRegion.state, saleKind)} {RENT_WAIT_ADVICE}.</p>}
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         <CommercialAtPrice v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={noReal ? NaN : r.maxBid} cashTyped={cashTyped} capTyped={typedKeys.has('targetCapPct')} rentTyped={!exactKey || typedKeys.has('monthlyRent')} dscrTyped={typedKeys.has('minDscr')} />
         {n.byLine && (() => {

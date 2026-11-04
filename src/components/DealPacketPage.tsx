@@ -1,7 +1,7 @@
 import { investorProfile } from '../lib/myPlan';
 import { analyzeAllowsAds } from '../lib/contextAds';
 import NumInput from './NumInput';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import PageHero from './PageHero';
 import EvidenceLog, { DecisionGate } from './EvidenceLog';
 import { kindLabel, loadDeals, openDeal, SALE_KINDS } from '../lib/analyze';
@@ -25,9 +25,15 @@ const STATUS_LABEL: Record<SectionStatus, string> = { done: 'Complete', started:
  * complete, in progress or missing, with the one next action at the top. Fill the gaps here or where each part lives.
  */
 /** A one-line textarea that grows to show all of its text (where CSS field-sizing isn't supported). */
-const growToFit = (el: HTMLTextAreaElement | null) => { if (!el) return; el.style.height = 'auto'; el.style.height = `${el.scrollHeight + 2}px`; };
+const fieldSizing = typeof CSS !== 'undefined' && typeof CSS.supports === 'function' && CSS.supports('field-sizing', 'content');
+const growToFit = (el: HTMLTextAreaElement | null) => { if (!el || fieldSizing) return; el.style.height = 'auto'; el.style.height = `${el.scrollHeight + 2}px`; };
+/** Every date name re-measured (after a Remove or a resize the rows' text moves), where CSS can't size them. */
+const growAll = () => document.querySelectorAll<HTMLTextAreaElement>('.packet-what').forEach(growToFit);
 
 export default function DealPacketPage({ dealId, section }: { dealId: string; section?: string }) {
+  // (Date names: re-measured after each render and on resize, where CSS field-sizing isn't supported.)
+  useLayoutEffect(() => { growAll(); });
+  useEffect(() => { if (fieldSizing) return; window.addEventListener('resize', growAll); return () => window.removeEventListener('resize', growAll); }, []);
   const deal = loadDeals().find((d) => d.id === dealId);
   const key = `analyzed:${dealId}`;
   const [p, setP] = useState<PacketData>(() => loadPacket(key));
@@ -159,10 +165,15 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         </ul>
         <div className="row">
           {p.dates.length === 0 && <button type="button" className="btn" onClick={() => { update({ dates: suggestedDates(deal).map((what) => ({ when: '', what, who: '' })) }); setTimeout(() => document.querySelector<HTMLInputElement>('#dates input, [data-section="dates"] input, .packet-dates input')?.focus(), 0); }}>Start with the usual dates for this sale</button>}
+          {(() => {
+            // Usual dates removed (or added since the packet was started): add back only those, at the end.
+            const missing = p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => x.what === w)) : [];
+            return missing.length ? <button type="button" className="btn btn-secondary" onClick={() => { const at = p.dates.length; update({ dates: [...p.dates, ...missing.map((what) => ({ when: '', what, who: '' }))] }); setTimeout(() => document.querySelectorAll<HTMLInputElement>('.packet-dates input[type="date"]')[at]?.focus(), 0); }}>Add the usual dates that are missing ({missing.length})</button> : null;
+          })()}
           <button type="button" className="btn btn-secondary" onClick={() => update({ dates: [...p.dates, { when: '', what: '', who: '' }] })}>Add a date</button>
         </div>
         <label className="field">
-          <span><input type="checkbox" checked={p.calendarReviewedFor === stageOf(deal)} disabled={!p.dates.length || !p.dates.every(dateRowComplete)} onChange={(e) => update({ calendarReviewedFor: e.target.checked ? stageOf(deal) : undefined })} /> I checked every applicable deadline for this stage against the signed contract or official notice, including who acts and how notice must be delivered.{(!p.dates.length || p.dates.some((d) => !d.when || !d.what.trim() || !d.who.trim())) && <span className="muted"> (Fill in the date, task and who handles it for every entry first.)</span>}</span>
+          <span><input type="checkbox" checked={p.calendarReviewedFor === stageOf(deal)} disabled={!p.dates.length || !p.dates.every(dateRowComplete)} onChange={(e) => update({ calendarReviewedFor: e.target.checked ? stageOf(deal) : undefined })} /> I checked every applicable deadline for this stage against the signed contract or official notice, including who acts and how notice must be delivered.{(!p.dates.length || !p.dates.every(dateRowComplete)) && <span className="muted"> (Fill in the date, task and who handles it for every entry first; a date marked “(if …)” can stay blank until it applies.)</span>}</span>
         </label>
         <p className="muted small">Past dates stay open until you mark them handled. Confirm completion or an agreed resolution with your team. Fill in the date, task and responsible person for each applicable deadline; remove entries that do not apply. Ask your agent or attorney to confirm the calendar. Adding or changing a date requires another review.</p>
         <Lines k="dates" />
