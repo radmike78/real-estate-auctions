@@ -548,7 +548,7 @@ export function CashWorksheet() {
         <div><dt>Emergency fund</dt><dd>{fmtMoney(fund)}</dd></div>
         <div className="cash-main" data-result><dt>What you can invest</dt><dd>{fmtMoney(investable)}</dd></div>
       </dl>
-      {c.savings > 0 && investable === 0 && <p className="roadmap-stop"><strong>Not yet.</strong> Your choices leave no cash for a deal in this worksheet. Review your savings, emergency fund and debt plan. You can keep learning and practicing while you prepare.</p>}
+      {c.savings > 0 && investable === 0 && <p className="roadmap-stop" data-result><strong>Not yet.</strong> Your choices leave no cash for a deal in this worksheet. Review your savings, emergency fund and debt plan. You can keep learning and practicing while you prepare.</p>}
       {investable > 0 && <PriceFromCash cash={investable} />}
       </AnnouncedResults>
     </section>

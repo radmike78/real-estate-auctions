@@ -259,7 +259,8 @@ function focusNewPage(backOrForward = false) {
     const q = new URLSearchParams(window.location.search).get('section');
     const segs = window.location.pathname.split('/').filter(Boolean);
     const sec = !backOrForward && (q || segs.length > 1) ? document.getElementById(q ?? segs[segs.length - 1]) : null;
-    const head = sec && sec.closest('main') ? (sec.matches('h2, h3, summary') ? sec : sec.querySelector<HTMLElement>('h2, h3, summary')) : null;
+    // (A heading only screen readers see is skipped: the page title already names that section.)
+    const head = sec && sec.closest('main') ? (sec.matches('h2, h3, summary') ? sec : sec.querySelector<HTMLElement>('h2:not(.sr-only), h3:not(.sr-only), summary')) : null;
     if (head) tries2.push(head);
     // Scrolled to a section with no id of its own: the first section heading in view (never a card's name).
     else if (!backOrForward && window.scrollY > 40) tries2.push(...[...document.querySelectorAll<HTMLElement>('main h2, main summary')].filter((x) => { const r = x.getBoundingClientRect(); return r.height > 0 && r.top >= 0 && r.top < window.innerHeight * 0.6; }).slice(0, 3));

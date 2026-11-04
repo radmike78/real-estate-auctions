@@ -401,7 +401,7 @@ export function savedNumbers(d: Deal) {
         const below = at?.source === 'listed' && r.maxBid < at.price;
         const price = at?.source === 'yours' ? at.price : r.noBidWorks || below ? 0 : r.maxBid;
         // Who redeems, as Fix and sell names it (null: your what-if on a sale with no right of redemption).
-        const who = redemptionWho(d, i); const o = !offer && price > 0 ? redemptionOutcome(i, price) : null; if (!o) return !offer && i.redemptionMonths > 0 && who === null ? { months: Math.round(i.redemptionMonths), price: 0, repaid: 0, spent: 0, net: 0, who, source: 'walk' as const } : null; return { months: Math.round(i.redemptionMonths), price, ...o, who, source: at?.source === 'yours' ? 'yours' as const : 'walk' as const }; })() };
+        const who = redemptionWho(d, i); const o = !offer && price > 0 ? redemptionOutcome(i, price) : null; if (!o) return !offer && i.redemptionMonths > 0 && who === null ? { months: Math.round(i.redemptionMonths * 10) / 10, price: 0, repaid: 0, spent: 0, net: 0, who, source: 'walk' as const } : null; return { months: Math.round(i.redemptionMonths * 10) / 10, price, ...o, who, source: at?.source === 'yours' ? 'yours' as const : 'walk' as const }; })() };
       }
     }
   } else if (d.plan === 'commercial' && own) {

@@ -186,15 +186,17 @@ function OtherNumbers({ d }: { d: Deal }) {
     return <p className={short ? 'deal-urgent' : undefined}>{commercial.limitedBy === 'cash' ? 'Walk-away price, set by the cash you entered' : commercial.limitedBy === 'dscr' ? `Walk-away price, set by ${commercial.dscrTyped ? 'your' : 'our example'} minimum income coverage` : `Highest price for ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost`}: {fmtMoney(commercial.maxBid)} · {fmtMoney(Math.round(commercial.noi))} a year of net operating income{short ? ` · needs about ${fmtMoney(Math.round(need))} of your cash at that price (${commercial.cashLimit && commercial.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</p>;
   }
   if (bid) {
-    if (bid.none && bid.cashBlocked) return <p className="deal-urgent">No bid fits the cash you entered: the deal itself meets {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your goal' : 'our example profit target'} at bids up to {fmtMoney(bid.profitBid)}, but every cost until you sell needs more than the cash you entered.</p>;
-    if (bid.none) return <p className="deal-urgent">No price works at a {fmtMoney(bid.exitValue)} resale value with these costs and {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your profit target' : 'our example profit target'}.</p>;
+    // A typed what-if wait (a sale with no right of redemption) is named even when no bid works, as the packet does.
+    const whatIf = bid.redeem && !bid.redeem.who ? ` · built on a ${bid.redeem.months}-month what-if wait you typed (this kind of sale doesn’t usually carry a right of redemption*)` : '';
+    if (bid.none && bid.cashBlocked) return <p className="deal-urgent">No bid fits the cash you entered: the deal itself meets {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your goal' : 'our example profit target'} at bids up to {fmtMoney(bid.profitBid)}, but every cost until you sell needs more than the cash you entered.{whatIf}</p>;
+    if (bid.none) return <p className="deal-urgent">No price works at a {fmtMoney(bid.exitValue)} resale value with these costs and {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your profit target' : 'our example profit target'}.{whatIf}</p>;
     // Below the opening bid (or asking price): no bid you'd make works, whatever the walk-away price says.
     if (bid.at?.source === 'listed' && bid.maxBid < bid.at.price) return <p className="deal-urgent">{bid.at.profit >= bid.target && bid.limitedBy === 'cash' ? 'Your cash doesn’t cover this deal at' : bid.noTarget ? 'Doesn’t break even at' : bid.targetTyped ? 'Doesn’t meet your profit target at' : 'Doesn’t meet our example profit target at'} the {d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short' ? 'asking price' : 'opening bid'} of {fmtMoney(bid.at.price)}.{(() => {
       // The cash it needs there, against your limit (as Analyze and the packet say), when that's short too.
       const pc = investorProfile().investable;
       const lim = bid.cashLimit > 0 ? bid.cashLimit : bid.cashTyped ? 0 : pc;
       return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash, with the loan (if any) and costs entered in Fix and sell (${bid.cashLimit > 0 ? 'the cash you entered' : 'My plan'}: ${fmtMoney(lim)}).` : '';
-    })()}</p>;
+    })()}{whatIf}</p>;
     // The redemption wait the price was built on, and a redemption's result at its end (as the packet says).
     const redeemClause = bid.redeem && !bid.redeem.who ? ` · built on a ${bid.redeem.months}-month what-if wait you typed (this kind of sale doesn’t usually carry a right of redemption*)` : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? 'your bid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
     const planCash = investorProfile().investable;

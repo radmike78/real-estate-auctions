@@ -44,21 +44,21 @@ export default function AnnouncedResults({ className, children }: { className?: 
         // Every box that changed: one that just appeared (a new verdict) first, in full; then each changed box's first
         // sentence (what it is) and the sentences that changed. Not every line again.
         const now = boxes().map((b) => ({ b, w: words(b), was: before.get(b) })).filter((x) => x.w && x.w !== x.was);
-        const fresh = now.filter((x) => x.was === undefined).map((x) => x.w);
-        // Each box is capped on its own, so a long one never crowds out another's change; a changed box says its first
-        // sentence (what the box is) when that changed or is short, then the sentences that changed.
-        const moved = now.filter((x) => x.was !== undefined).map((x) => {
-          const was = new Set(sentences(x.was!));
+        // Cut at a word, never mid-word.
+        const cap = (x: string, n: number) => (x.length > n ? `${x.slice(0, x.lastIndexOf(' ', n - 1) > n / 2 ? x.lastIndexOf(' ', n - 1) : n - 1)}…` : x);
+        // In page order, as the reader meets them ("What you can invest" before the price it supports), each box capped on
+        // its own so a long one never crowds out another's change. A box that just appeared is read in full; a changed one
+        // says its first sentence (what the box is) when that changed or is short, then the sentences that changed.
+        const parts = now.map((x) => {
+          if (x.was === undefined) return cap(x.w, 300);
+          const was = new Set(sentences(x.was));
           const ss = sentences(x.w);
           const changed = ss.slice(1).filter((y) => !was.has(y)).join(' ');
           const first = ss[0] ?? '';
-          if (!changed) return first;
-          // The first sentence when it changed itself (a new amount), or when it's short enough to say first.
-          return !was.has(first) || first.length < 120 ? `${first} ${changed}` : changed;
+          return cap(!changed ? first : !was.has(first) || first.length < 120 ? `${first} ${changed}` : changed, 350);
         });
-        // Cut at a word, never mid-word.
-        const cap = (x: string, n: number) => (x.length > n ? `${x.slice(0, x.lastIndexOf(' ', n - 1) > n / 2 ? x.lastIndexOf(' ', n - 1) : n - 1)}…` : x);
-        const all = [...fresh.map((x) => cap(x, 300)), ...moved.map((x) => cap(x, 350))].filter(Boolean).join(' ');
+        // (Boxes read as separate sentences: "…invest: $90,000. With 5% down…".)
+        const all = parts.filter(Boolean).reduce((acc, x) => (!acc ? x : `${acc}${/[.!?…]$/.test(acc) ? ' ' : '. '}${x}`), '');
         if (all) setSaid(`Result updated: ${cap(all, 700)}`);
       }, 1200);
     };
