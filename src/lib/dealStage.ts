@@ -267,7 +267,10 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
         if (!ev('insurance')) area('insurance', `Insure ${n} right away`, 'a policy in your name from the day you own it, in its evidence log', [L.pro('insurance')]);
         area('title', `Have a title professional review ${n}’s deed`, 'what the deed gives you and what still stands against it, in its evidence log', [L.pro('title')]);
       }
-      out.push(task({ key: 'record', label: w === 'lien' ? `Get the certificate for ${n}` : `Get the deed for ${n} recorded`, produces: w === 'lien' ? 'the certificate in your records. Then mark it in hand and the holding tasks appear here' : 'the recorded deed. Then mark it recorded and the new-owner tasks appear here', href: ROADMAP_HREF, advance: { stage: 'closed', label: w === 'lien' ? 'I have the certificate: mark it' : 'The deed is recorded: mark it' }, support: [L.guides], done: false }));
+      // A Nevada HOA or sheriff's sale gives a certificate of sale first; the deed comes only after the redemption period
+      // (60 days, NRS 116.31166; 1 year, NRS 21.210), if no one redeems.
+      const certFirst = d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court');
+      out.push(task({ key: 'record', label: w === 'lien' ? `Get the certificate for ${n}` : certFirst ? `Get the certificate of sale for ${n} recorded` : `Get the deed for ${n} recorded`, produces: w === 'lien' ? 'the certificate in your records. Then mark it in hand and the holding tasks appear here' : certFirst ? `the recorded certificate of sale. The deed comes after the redemption period (${d.kind === 'hoa' ? '60 days' : '1 year'} after the sale), if no one redeems. Then mark it recorded and the tasks for the wait appear here` : 'the recorded deed. Then mark it recorded and the new-owner tasks appear here', href: ROADMAP_HREF, advance: { stage: 'closed', label: w === 'lien' ? 'I have the certificate: mark it' : certFirst ? 'The certificate of sale is recorded: mark it' : 'The deed is recorded: mark it' }, support: [L.guides], done: false }));
     }
     return out;
   }

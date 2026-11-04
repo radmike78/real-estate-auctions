@@ -200,6 +200,12 @@ describe('the deal packet', () => {
     expect(nvLien.find((g) => g.what === 'Certificate expires')).toMatchObject({ when: expect.stringMatching(/^3 years after the redemption period ends/), why: 'NRS 271.595(6) and (7)' });
     expect(nvLien.find((g) => g.what === 'Earliest you may act (unpaid lien)')?.when).toMatch(/120 days after the certificate of sale, or 2 years/);
     expect(dateGuide({ ...deal, state: 'AZ', kind: 'lien' }).map((g) => g.what)).not.toContain('Certificate expires');
+    // Nevada HOA and sheriff's sales: a certificate of sale first, and when the redemption period ends (NRS 116.31166, 21.210).
+    localStorage.removeItem('fsf.bid.analyzed-d1.v1');
+    const nvHoa = dateGuide({ ...deal, state: 'NV', kind: 'hoa' });
+    expect(nvHoa.map((g) => g.what)).toContain('Certificate of sale recorded');
+    expect(nvHoa.find((g) => g.what === 'Redemption period ends')).toMatchObject({ when: '60 days after the sale.', why: 'NRS 116.31166(2) and (3)' });
+    expect(dateGuide({ ...deal, state: 'NV', kind: 'court' }).find((g) => g.what === 'Redemption period ends')).toMatchObject({ when: '1 year after the sale.', why: 'NRS 21.200 and 21.210' });
     // An auction's dates follow the official notice (a contract only on an offer).
     const { dealPacketText } = await import('./dealPacket');
     expect(dealPacketText({ ...deal, state: 'CA', kind: 'trustee' }, EMPTY_PACKET, now)).toContain('What the less familiar dates mean (the official notice wins):');

@@ -305,7 +305,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   // (A trustee's sale lists registration only if the trustee requires one: the statutes set no registration step.)
   if (d.kind === 'trustee') return [{ what: 'Registration (if required)', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline', 'Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
-  const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
+  const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court') ? 'Certificate of sale recorded' : 'Deed or certificate recorded'];
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
   // Texas execution sale; a Texas tax sale has its own redemption period (Tax Code 34.21).
   if ((['hoa', 'irs', 'court'].includes(d.kind) || (d.kind === 'taxSale' && d.state === 'TX')) && redemptionChoicesFor(d.state, d.kind).start !== 'none' && savedRule(d) !== 'none') out.push('Redemption period ends');
@@ -313,11 +313,16 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   else if (typedWait(d)) out.push('Redemption period ends');
   // When the owner's period starts, where the rule says (not under a United States redemption, which has its own).
   const ownerRule = !['usCourt', 'usFederal'].includes(savedRule(d) ?? '');
-  const ends = d.state === 'UT' && d.kind === 'court' && ownerRule
+  // Nevada (leg.state.nv.us): an HOA sale's owner or a junior lienholder may redeem within 60 days (NRS 116.31166(3)), a
+  // sheriff's sale's judgment debtor or a later lienholder within 1 year (NRS 21.200, 21.210); a certificate of sale first.
+  const nvEnds = d.state === 'NV' && ownerRule && (d.kind === 'hoa' || d.kind === 'court')
+    ? { what: 'Redemption period ends', when: d.kind === 'hoa' ? '60 days after the sale.' : '1 year after the sale.', who: d.kind === 'hoa' ? 'The former owner, or a lender whose recorded loan ranked below the HOA’s lien' : 'The former owner (the judgment debtor), or a creditor with a later judgment or mortgage lien', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends. Keep receipts for taxes and upkeep you pay.', missed: 'After it ends, no one can redeem under that law, and the deed can follow if no one redeemed.*', why: d.kind === 'hoa' ? 'NRS 116.31166(2) and (3)' : 'NRS 21.200 and 21.210' }
+    : null;
+  const ends = nvEnds ?? (d.state === 'UT' && d.kind === 'court' && ownerRule
     ? { what: 'Redemption period ends', when: '180 days after the sale.', who: 'The owner, or others the rule lets redeem', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends.', missed: 'After it ends, the owner can no longer redeem under that rule.*', why: 'Utah Rule of Civil Procedure 69C' }
     : d.state === 'TX' && d.kind === 'taxSale' && ownerRule
       ? { what: 'Redemption period ends', when: '180 days, or 2 years for the owner’s home (homestead), land designated for agricultural use or a mineral interest, counted from the day your deed is recorded, not from sale day.', who: 'The former owner', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends.', missed: 'After it ends, the owner can no longer redeem under that law.*', why: 'Tax Code 34.21' }
-      : null;
+      : null);
   return names(out).map((g) => (ends && g.what === 'Redemption period ends' ? ends : g));
 }
 
@@ -553,7 +558,7 @@ export function savedNumbers(d: Deal) {
     }
   }
   // A lien certificate: its yield at the wait you entered, then paid later, from the Lien certificate calculator.
-  let lien: { overCap: boolean; price: number; fees: number; months: number; yearly: number | null; profit: number; later: { months: number; yearly: number | null; profit: number } | null } | null = null;
+  let lien: { overCap: boolean; price: number; fees: number; months: number; yearly: number | null; profit: number; later: { months: number; yearly: number | null; profit: number } | null; /** Washoe doesn't prorate its 1% a month, and these months include a part month. */ partMonth?: boolean } | null = null;
   if (d.plan === 'lien' && own) {
     const raw = read(lienKey(d)) as Partial<LienInputs> | null;
     if (raw && typeof raw === 'object' && typeof raw.price === 'number' && raw.price > 0) {
@@ -563,7 +568,7 @@ export function savedNumbers(d: Deal) {
       // building), or Arizona's 3 years before a holder can go to court. Past that you're enforcing, not waiting.
       const laterMonths = d.state === 'NV' ? 24 : 36;
       const l = laterMonths > v.monthsToRedeem ? lienYield({ ...v, monthsToRedeem: laterMonths }) : null;
-      lien = { overCap: v.ratePctMonth > (d.state === 'AZ' ? 16 / 12 : 1) + 0.001, price: v.price, fees: v.fees, months: v.monthsToRedeem, yearly: y.yearlyYield, profit: y.profit, later: l ? { months: laterMonths, yearly: l.yearlyYield, profit: l.profit } : null };
+      lien = { overCap: v.ratePctMonth > (d.state === 'AZ' ? 16 / 12 : 1) + 0.001, price: v.price, fees: v.fees, months: v.monthsToRedeem, yearly: y.yearlyYield, profit: y.profit, later: l ? { months: laterMonths, yearly: l.yearlyYield, profit: l.profit } : null, partMonth: d.state === 'NV' && d.county === 'Washoe' && !Number.isInteger(Math.round(v.monthsToRedeem * 100) / 100) };
     }
   }
   return { rent, bid, commercial, lien };
@@ -869,7 +874,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   if (lien) {
     const yr = (y: number | null) => (y === null ? 'no yield' : `${(y * 100).toFixed(1)}% a year`);
     if (lien.overCap) nums.push(`The interest rate entered is more than ${d.state === 'AZ' ? 'Arizona’s legal maximum of 16% a year (1.33% a month)' : 'Nevada’s 1% a month'}, so no yield is shown: enter the monthly rate in Lien certificate.`);
-    if (!lien.overCap) nums.push(`Certificate ${money(lien.price)}: if paid off in ${lien.months} months, ${yr(lien.yearly)} on your cash (profit after fees ${money(lien.profit)})`);
+    if (!lien.overCap) nums.push(`Certificate ${money(lien.price)}: if paid off in ${lien.months} months, ${yr(lien.yearly)} on your cash (profit after fees ${money(lien.profit)})${lien.partMonth ? '. Washoe County says its 1% a month “will not be prorated”, so the part month may not earn its share: ask the Treasurer how it’s counted' : ''}`);
     nums.push('  Downside, if it’s never paid off: no payoff comes; your cash stays in until you enforce the lien, which usually takes an attorney and more cost.*');
     if (lien.later && !lien.overCap) nums.push(`  If it takes longer, to ${lien.later.months} months: your ${money(lien.price)} is tied up ${lien.later.months - lien.months} months more, earning ${yr(lien.later.yearly)} (profit after fees ${money(lien.later.profit)}; the yearly rate can read higher because the fees and the wait to be paid are spread over more months, but your money is tied up longer); add any later taxes or assessments you pay to protect the lien.`);
   }
