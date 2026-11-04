@@ -6,9 +6,8 @@ import PageHero from './PageHero';
 import EvidenceLog, { DecisionGate } from './EvidenceLog';
 import { kindLabel, loadDeals, openDeal, SALE_KINDS } from '../lib/analyze';
 import { countyName } from '../lib/regions';
-import { dateGuide, dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus, teamRolesFor } from '../lib/dealPacket';
+import { roleTitleFor, dateGuide, dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus, teamRolesFor } from '../lib/dealPacket';
 import { TEAM_ROLES } from '../lib/myPlan';
-import { proGuideByKey } from '../lib/proGuide';
 import { downloadText, fileName } from '../lib/download';
 import { EVIDENCE_EVENT } from '../lib/evidence';
 import AdSpot from './AdSpot';
@@ -222,7 +221,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           {p.qa.map((x, i) => (
             <li key={i}>
               <select aria-label="Professional" value={x.role} onChange={(e) => update({ qa: p.qa.map((y, j) => (j === i ? { ...y, role: e.target.value } : y)) })}>
-                {TEAM_ROLES.map((r) => <option key={r} value={r}>{proGuideByKey(r)?.title ?? r}</option>)}
+                {TEAM_ROLES.map((r) => <option key={r} value={r}>{roleTitleFor(deal, r)}</option>)}
                 <option value="other">Other</option>
               </select>
               <textarea aria-label="Your question" rows={2} maxLength={500} placeholder="Your question" value={x.q} onChange={(e) => update({ qa: p.qa.map((y, j) => (j === i ? { ...y, q: e.target.value } : y)) })} />

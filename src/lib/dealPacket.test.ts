@@ -155,9 +155,11 @@ describe('the deal packet', () => {
     const court: Deal = { ...deal, state: 'TX', kind: 'court', plan: 'flip' };
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 0 }));
     const whatIf = packetSections(court, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
-    expect(whatIf).toMatch(/Built on a 6-month wait you typed as a what-if\. This kind of sale doesn’t usually carry a right of redemption,\*/);
+    expect(whatIf).toMatch(/Built on a 6-month wait you typed as a what-if\. This kind of sale doesn’t usually carry a right of redemption\.\*/);
     expect(whatIf).not.toMatch(/If the owner redeems/);
     expect(dateGuide({ ...court }).map((g) => g.what)).not.toContain('Redemption period ends');
+    // Nevada's is confirmed by statute: said plainly, with the statute.
+    expect(packetSections({ ...court, state: 'NV', kind: 'trustee' }, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).toMatch(/Nevada trustee sales are made “without equity or right of redemption” \(NRS 107\.080\(5\)\)/);
     // A Texas trustee (mortgage) foreclosure has no redemption either, though its menu offers the property tax loan rules.
     const txTrustee: Deal = { ...deal, state: 'TX', kind: 'trustee', plan: 'flip' };
     expect(packetSections(txTrustee, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).toMatch(/wait you typed as a what-if/);

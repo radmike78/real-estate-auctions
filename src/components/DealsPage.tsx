@@ -187,7 +187,7 @@ function OtherNumbers({ d }: { d: Deal }) {
   }
   if (bid) {
     // A typed what-if wait (a sale with no right of redemption) is named even when no bid works, as the packet does.
-    const whatIf = bid.redeem && !bid.redeem.who ? ` · built on a ${bid.redeem.months}-month what-if wait you typed (this kind of sale doesn’t usually carry a right of redemption*)` : '';
+    const whatIf = bid.redeem && !bid.redeem.who ? ` · built on a ${bid.redeem.months}-month what-if wait you typed (${d.state === 'NV' && d.kind === 'trustee' ? 'Nevada trustee sales carry no right of redemption' : 'this kind of sale doesn’t usually carry a right of redemption*'})` : '';
     if (bid.none && bid.cashBlocked) return <p className="deal-urgent">No bid fits the cash you entered: the deal itself meets {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your goal' : 'our example profit target'} at bids up to {fmtMoney(bid.profitBid)}, but every cost until you sell needs more than the cash you entered.{whatIf}</p>;
     if (bid.none) return <p className="deal-urgent">No price works at a {fmtMoney(bid.exitValue)} resale value with these costs and {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your profit target' : 'our example profit target'}.{whatIf}</p>;
     // Below the opening bid (or asking price): no bid you'd make works, whatever the walk-away price says.
@@ -198,7 +198,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash, with the loan (if any) and costs entered in Fix and sell (${bid.cashLimit > 0 ? 'the cash you entered' : 'My plan'}: ${fmtMoney(lim)}).` : '';
     })()}{whatIf}</p>;
     // The redemption wait the price was built on, and a redemption's result at its end (as the packet says).
-    const redeemClause = bid.redeem && !bid.redeem.who ? ` · built on a ${bid.redeem.months}-month what-if wait you typed (this kind of sale doesn’t usually carry a right of redemption*)` : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? 'your bid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
+    const redeemClause = bid.redeem && !bid.redeem.who ? whatIf : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? 'your bid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
     const planCash = investorProfile().investable;
     // The same rule as Fix and sell: no warning once a cash limit is entered there (the price is already capped by it).
     const short = !(bid.cashLimit > 0) && !bid.cashTyped && planCash > 0 && bid.cashPeak > planCash;

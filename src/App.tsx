@@ -252,7 +252,7 @@ function focusNewPage(backOrForward = false) {
         t.focus({ preventScroll: true });
         if (document.activeElement === t) return;
       }
-      return;
+      // None in view: the title, as near the top.
     }
     // The section the address names (/toolkit/cash, /playbooks/…/<section>, ?section=…): its heading, whether the page
     // scrolled to it or opened it in place (the title doesn't change then).

@@ -54,7 +54,7 @@
 @media print { .deal-outline, .deal-page-footer, .deal-workbook-actions, .page section.deal-entry { display: none; }.deal-workbook-list details::details-content { display: block; content-visibility: visible; }.deal-workbook-summary { box-shadow: none; } }
 
 /* The chapter title takes focus when a chapter opens (screen readers hear it); no ring for that programmatic focus. */
-.deal-journey .page-hero h1 > span:focus { outline: none; }
+.deal-journey .page-hero h1 > span:focus:not(:focus-visible) { outline: none; }
 .deal-builds-on, .deal-lesson-first { margin: 0 0 12px; }
 .deal-builds-on { padding: 10px 14px; border-radius: 10px; background: var(--surface-2); border-left: 4px solid var(--accent-strong); }
 .deal-practice-note { color: var(--muted); font-size: 0.9rem; line-height: 1.55; margin: 0 0 12px; }

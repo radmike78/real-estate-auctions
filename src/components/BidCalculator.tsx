@@ -1,3 +1,5 @@
+import { noRedemptionWords } from '../lib/dealPacket';
+import type { Deal } from '../lib/analyze';
 import { getMyArea } from '../lib/myArea';
 import { calculatorInputError, parseCalcInput, shownInputError } from './CalcFields';
 import { workStorage as localStorage } from '../lib/workStorage';
@@ -658,12 +660,16 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {!r.noBidWorks && !needsValue && r.yearlyReturn !== null && totalMonths(i) > 12 && (
           <p className="calc-note small">This deal ties up your cash for {Math.round(totalMonths(i))} months, so compare the return per year with your other options, not just the profit.</p>
         )}
-        {redeemed && !needsValue && (
+        {/* Your own wait on a sale with no owner redemption: a what-if, said so, with no payout worked out (nobody would
+            repay you at its end); the packet and My deals say the same. */}
+        {i.redemptionMonths > 0 && !needsValue && ruleNow === 'custom' && choices?.start === 'none' && saleKind && (
+          <p className="calc-note small"><strong>Your what-if wait.</strong> {noRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] })} The {Math.round(i.redemptionMonths * 10) / 10} months count only in your holding costs; nobody would repay you at their end.</p>
+        )}
+        {redeemed && !needsValue && !(ruleNow === 'custom' && choices?.start === 'none') && (
           <div className="calc-note">
-            {/* Your own wait on a sale with no owner redemption: a what-if, said so (the packet and My deals say the same). */}
-            <strong>{ruleNow === 'custom' && choices?.start === 'none' ? 'Your what-if wait: this kind of sale doesn’t usually carry a right of redemption,* but if someone did redeem, an illustration of your price' : <>If {ruleNow === 'usFederal' || ruleNow === 'usCourt' ? 'the United States' : 'the owner'} redeems: an illustration of your price and what the law adds</>}</strong>
+            <strong>If {ruleNow === 'usFederal' || ruleNow === 'usCourt' ? 'the United States' : 'the owner'} redeems: an illustration of your price and what the law adds</strong>
             <p className="small">
-              {i.redemptionFlat ? <>If the owner redeems {i.redemptionFlat2Pct ? 'in the first year' : 'at any time in the wait'}, {ruleNow === 'txTaxOther' ? <>the law adds a premium of up to {i.redemptionRatePct}% of your price plus the costs the law repays (Tax Code 34.21(e)). This illustration applies the full {i.redemptionRatePct}% to your price only. </> : <>the law adds {i.redemptionRatePct}% of your price{i.redemptionFlat2Pct ? `, or ${i.redemptionFlat2Pct}% in the second year` : ''}, no matter how early. </>}</> : null}At the end of the {Math.round(i.redemptionMonths * 10) / 10}-month wait you’d get back about {fmtMoney(Math.round(redeemed.repaid))} on {bid > 0 ? <>a {fmtMoney(bid)} {w.bid}</> : <>your walk-away price, {fmtMoney(r.maxBid)}</>}. By then you’d have spent about {fmtMoney(Math.round(redeemed.spent))}, so you’d {redeemed.net >= 0 ? `come out about ${fmtMoney(Math.round(redeemed.net))} ahead` : `be about ${fmtMoney(Math.round(-redeemed.net))} short`}.{' '}
+              {i.redemptionFlat ? <>If the owner redeems {i.redemptionFlat2Pct ? 'in the first year' : 'at any time in the wait'}, {ruleNow === 'txTaxOther' ? <>the law adds a premium of up to {i.redemptionRatePct}% of your price plus the costs the law repays (Tax Code 34.21(e)). This illustration applies the full {i.redemptionRatePct}% to your price only. </> : <>the law adds {i.redemptionRatePct}% of your price{i.redemptionFlat2Pct ? `, or ${i.redemptionFlat2Pct}% in the second year` : ''}, no matter how early. </>}</> : null}At the end of the {Math.round(i.redemptionMonths * 10) / 10}-month wait you’d get back about {fmtMoney(Math.round(redeemed.repaid))}* on {bid > 0 ? <>a {fmtMoney(bid)} {w.bid}</> : <>your walk-away price, {fmtMoney(r.maxBid)}</>}. By then you’d have spent about {fmtMoney(Math.round(redeemed.spent))}, so you’d {redeemed.net >= 0 ? `come out about ${fmtMoney(Math.round(redeemed.net))} ahead` : `be about ${fmtMoney(Math.round(-redeemed.net))} short`}.{' '}
               {region.state === 'TX' && taxLoanRule
                 ? 'This isn’t the full Texas payoff: the law also repays the costs you reasonably spent on the property, plus interest on them at the legal judgment rate: property insurance, repairs required by a building code, an ordinance or a lease in effect at the sale, city health-and-safety liens, HOA dues and certain fees (Tax Code 32.06(k)(2), 34.21(g)). Optional remodeling isn’t on that list. Keep every receipt and ask an attorney which of your costs qualify.'
                 : region.state === 'TX' && saleKind === 'taxSale'

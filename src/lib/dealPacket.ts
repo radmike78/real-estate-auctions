@@ -166,6 +166,12 @@ const txLoanDates = (short: boolean): DateGuide[] => [
 const names = (xs: string[]): DateGuide[] => xs.map((what) => ({ what }));
 
 /** The dates most deals of this kind need on the calendar, each with how it works where we have it (Texas contracts). */
+/** A sale with no owner redemption, in words: Nevada's trustee sale is confirmed by statute; others carry an asterisk. */
+export function noRedemptionWords(d: Pick<Deal, 'state' | 'kind'>): string {
+  if (d.state === 'NV' && d.kind === 'trustee') return 'Nevada trustee sales are made “without equity or right of redemption” (NRS 107.080(5)).';
+  return 'This kind of sale doesn’t usually carry a right of redemption.*';
+}
+
 /**
  * Who can redeem after this deal's sale, for the wait in its Fix and sell numbers, as Fix and sell names it: the United
  * States after a sale that wiped out a junior federal lien, else the owner. Null when the wait is your own what-if on a
@@ -272,6 +278,12 @@ export const COMMERCIAL_OFFER_ROLES: ProKey[] = ['agent', 'lender', 'attorney', 
 export function guideKeyFor(d: Pick<Deal, 'kind' | 'state'>): string {
   const pre = d.state === 'NV' ? '' : d.state.toLowerCase();
   return d.kind === 'lien' ? (d.state === 'NV' ? 'sid' : 'aztaxlien') : GUIDE_FOR[d.kind] ? `${pre}${GUIDE_FOR[d.kind]}` : '';
+}
+
+/** A professional's name for this deal: a commercial building bought by offer has a commercial broker, as Your team says. */
+export function roleTitleFor(d: Pick<Deal, 'plan' | 'kind'>, k: ProKey): string {
+  if (k === 'agent' && d.plan === 'commercial' && isOffer(d as Deal)) return 'Commercial real estate broker';
+  return proGuideByKey(k)?.title ?? k;
 }
 
 export function teamRolesFor(d: Deal): ProKey[] {
@@ -729,7 +741,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     if (a) nums.push(`${priceName(a.source, offer, true)} (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'}): ${money(a.price)} → estimated profit ${money(a.profit)} (${bid.noTarget ? 'no profit target set yet' : `${bid.targetTyped ? 'your target' : 'our example target'} ${money(bid.target)}`}${a.profit < bid.target ? (bid.noTarget ? ', below break-even' : ', so it falls short') : ''}), based on a ${money(bid.exitValue)} resale value`);
     const belowOpening = !bid.none && a?.source === 'listed' && bid.maxBid < a.price;
     nums.push(bid.none && bid.cashBlocked ? `No bid fits the cash you entered: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that` : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and ${targetW}` : `What-if: walk-away price ${money(bid.maxBid)}, ${bid.limitedBy === 'cash' ? `the most your cash covers with every cost until you sell (${goalW} alone allows ${money(bid.profitBid)})` : `the most you could pay and still meet ${goalW}`} (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : `this deal doesn’t meet ${goalW}`} as entered` : ''}`);
-    if (bid.redeem && !bid.redeem.who) nums.push(`Built on a ${bid.redeem.months}-month wait you typed as a what-if. This kind of sale doesn’t usually carry a right of redemption,* so check the sale terms with the official seller or an attorney.`);
+    if (bid.redeem && !bid.redeem.who) nums.push(`Built on a ${bid.redeem.months}-month wait you typed as a what-if. ${noRedemptionWords(d)} Check the sale terms with the official seller or an attorney.`);
     else if (bid.redeem) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait. If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* on a ${money(x.price)} ${offer ? 'offer' : 'bid'}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
     const floor = a?.source === 'listed' ? a.price : 0;
@@ -794,7 +806,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     status: answered.length && !waiting.length ? 'done' : p.qa.length ? 'started' : 'missing',
     lines: p.qa.length
       ? p.qa.filter((x) => x.q).map((x) => `${proGuideByKey(x.role as never)?.title ?? 'Other'}: ${x.q} → ${x.a ? `${x.a}${x.on ? ` (${x.on})` : ''}` : 'waiting for an answer'}`)
-      : [`Write down the question this deal raises for each of: ${teamRolesFor(d).map((k) => proGuideByKey(k)?.title ?? k).join(', ')}. Add any other professional you’ll use.`],
+      : [`Write down the question this deal raises for each of: ${teamRolesFor(d).map((k) => roleTitleFor(d, k)).join(', ')}. Add any other professional you’ll use.`],
   });
 
   // 8. Decision

@@ -338,7 +338,7 @@ export default function FindAProPage({ section }: { section?: string }) {
           // Worded for buying through an agent: the attorney for contract and title questions (not a forced sale's
           // quiet-title case), and the commercial team's broker by that name, as Find deals calls them.
           role: sale === 'commercial-offer' && g.key === 'agent' ? 'Commercial real estate broker' : g.title,
-          when: sale === 'listing' && g.key === 'attorney' ? 'Reviews the contract, title problems or disclosures when they raise questions, before you sign or close.' : sale === 'commercial-offer' && g.key === 'agent' ? 'Finds and prices commercial buildings, current rents and cap rates, writes offers and negotiates for you.' : g.summary,
+          when: (sale === 'listing' || sale === 'commercial-offer') && g.key === 'attorney' ? 'Reviews the contract, title problems or disclosures when they raise questions, before you sign or close.' : sale === 'commercial-offer' && g.key === 'agent' ? 'Finds and prices commercial buildings, current rents and cap rates, writes offers and negotiates for you.' : g.summary,
           href: `#/pros/${g.key}`,
         }))
       : null;
