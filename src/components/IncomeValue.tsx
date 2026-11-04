@@ -63,14 +63,14 @@ export default function IncomeValue({ propertyId, onUse }: { propertyId: string;
           ))}
           </div>
         </fieldset>
-        <div className="income-result" aria-live="polite">
+        <div className="income-result">
           <dl className="mini">
             <div><dt>Gross rent a year</dt><dd>{fmtMoney(r.grossAnnual)}</dd></div>
             <div><dt>Collected after vacancy</dt><dd>{fmtMoney(r.collected)}</dd></div>
             <div><dt>Operating costs</dt><dd>−{fmtMoney(r.expenses)}</dd></div>
             <div className="total"><dt>Net operating income</dt><dd>{fmtMoney(r.noi)}</dd></div>
           </dl>
-          <div className="income-value">
+          <div className="income-value" data-result>
             <span>{i.capRatePct ? `Value at a ${i.capRatePct}% cap rate` : 'Value (enter a cap rate)'}</span>
             <strong>{r.value ? fmtMoney(r.value) : '—'}</strong>
           </div>

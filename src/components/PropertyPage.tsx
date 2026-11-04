@@ -20,6 +20,7 @@ import { checklistForProperty, CHECKLISTS, forCommercial, forLand } from '../lib
 import { classOfType } from '../lib/propertyClass';
 import IncomeValue from './IncomeValue';
 import StrategyTabs from './StrategyTabs';
+import AnnouncedResults from './AnnouncedResults';
 import { buyFromBid, CommercialCalculator, RentCalculator } from './HoldCalculators';
 import DrillDown, { type DrillSection } from './DrillDown';
 import PageHero from './PageHero';
@@ -311,13 +312,15 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       content: () => (
         <>
           {commercial && (
-            <IncomeValue
-              propertyId={p.id}
-              onUse={(v) => {
-                setSavedExitValue(p.id, bidDefaults, v);
-                setCalcVersion((n) => n + 1);
-              }}
-            />
+            <AnnouncedResults>
+              <IncomeValue
+                propertyId={p.id}
+                onUse={(v) => {
+                  setSavedExitValue(p.id, bidDefaults, v);
+                  setCalcVersion((n) => n + 1);
+                }}
+              />
+            </AnnouncedResults>
           )}
           <StrategyTabs
             strategies={[

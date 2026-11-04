@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { routePractice } from '../lib/planNext';
-import { markStepDone, planPath, practiceDoneElsewhere, roadmapDone } from '../lib/roadmapState';
+import { markStepDone, planPath, practiceDoneElsewhere, PRACTICE_NAME, roadmapDone } from '../lib/roadmapState';
 
 /**
  * On the auction and lien routes, a finished practice run or drill can be My plan's practice part 2: says so, and lets
@@ -24,7 +24,7 @@ export default function RoutePracticeDone({ fits, what }: { fits: (stepId: strin
         <button type="button" className="btn btn-secondary" onClick={() => { markStepDone(own.id); setMarked(ownDone()); setJustMarked(true); }}>Mark it done in My plan</button>
       </p>}
       {/* One status line, kept on the page, so the change is announced. */}
-      <p role="status" className={marked ? undefined : 'sr-only'}>{marked ? <>Practice part 2, “{own.title}”, is done in My plan. <a ref={back} href="#/toolkit">Back to My plan</a></> : null}</p>
+      <p role="status" className={marked ? undefined : 'sr-only'}>{marked ? <>{(() => { const el = practiceDoneElsewhere(own.id); return el ? <>Practice part 2 is done in My plan, with {PRACTICE_NAME[el]}.</> : <>Practice part 2, “{own.title}”, is done in My plan.</>; })()} <a ref={back} href="#/toolkit">Back to My plan</a></> : null}</p>
     </div>
   );
 }

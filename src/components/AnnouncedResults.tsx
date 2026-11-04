@@ -19,7 +19,9 @@ export default function AnnouncedResults({ className, children }: { className?: 
     // The results as they were when you started typing: the one that changed is announced.
     let before = new Map<HTMLElement, string>();
     const on = (e: Event) => {
+      // Typing (input events), or a menu choice; not the change event a text field fires when you click away.
       if (!(e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement)) return;
+      if (e.type === 'change' && !(e.target instanceof HTMLSelectElement)) return;
       if (t) clearTimeout(t);
       else before = new Map(boxes().map((b) => [b, words(b)]));
       t = setTimeout(() => {
