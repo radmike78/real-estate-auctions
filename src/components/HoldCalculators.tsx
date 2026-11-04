@@ -839,7 +839,7 @@ export function LienCalculator({ storageKey }: { storageKey?: string } = {}) {
         </div>
         <ExampleResults count={still.length} all={!typed} what="yield" />
         {/* Washoe County Treasurer (Special Assessments): "The monthly interest of one percent will not be prorated." */}
-        {!az && region.county === 'Washoe' && !Number.isInteger(v.monthsToRedeem) && <p className="note small" role="note">Washoe County says its 1% a month “will not be prorated”, so a part month may not earn its share. This counts {Math.round(v.monthsToRedeem * 10) / 10} months; ask the Treasurer how a part month is counted.</p>}
+        {!az && region.county === 'Washoe' && !Number.isInteger(Math.round(v.monthsToRedeem * 100) / 100) && <p className="note small" role="note">Washoe County says its 1% a month “will not be prorated”, so a part month may not earn its share. This counts {Math.round(v.monthsToRedeem * 100) / 100} months; ask the Treasurer how a part month is counted.</p>}
         {!overCap && <dl className="calc-kv" data-result>
           <div><dt>Interest you’d earn</dt><dd>{fmtMoney(Math.round(y.interest))}</dd></div>
           <div><dt>You’re repaid</dt><dd>{fmtMoney(Math.round(y.payoff))}</dd></div>

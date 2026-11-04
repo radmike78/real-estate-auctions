@@ -57,7 +57,7 @@ const RENTAL_ONLY_BREAKERS = ['Can’t get insurance at a workable price', 'Nega
 export const COMMERCIAL_DEAL_BREAKERS = ['Rent roll or leases I can’t verify', 'Income coverage below the lender’s minimum', 'Environmental (Phase I) problems'];
 export const LIEN_DEAL_BREAKERS = ['Landlocked or unusable parcel', 'Owner in bankruptcy', 'Interest rate below the minimum in my notes'];
 // Nevada's rate is set by law, 1% a month (NRS 271.610): nothing to bid, so the wait is the choice instead.
-const NV_LIEN_DEAL_BREAKERS = ['Landlocked or unusable parcel', 'Owner in bankruptcy', 'Redemption period longer than my notes allow (2 years with a building)'];
+export const NV_LIEN_DEAL_BREAKERS = ['Landlocked or unusable parcel', 'Owner in bankruptcy', 'Redemption period longer than my notes allow (2 years with a building)'];
 /** The deal breakers offered for a buy box strategy (in its state, for lien certificates). */
 export const dealBreakersFor = (strategy: string, state?: string): string[] =>
   strategy === LIEN_STRATEGY ? [...DEAL_BREAKERS.filter((t) => !RENTAL_ONLY_BREAKERS.includes(t)), ...(state === 'NV' ? NV_LIEN_DEAL_BREAKERS : LIEN_DEAL_BREAKERS)]
@@ -84,7 +84,7 @@ export function cleanBuyBox(v: unknown): BuyBox {
     cashMax: num(o.cashMax),
     minCashFlow: num(o.minCashFlow),
     beds: str(o.beds, 40),
-    dealBreakers: pick(o.dealBreakers, [...DEAL_BREAKERS, ...LIEN_DEAL_BREAKERS, ...COMMERCIAL_DEAL_BREAKERS]),
+    dealBreakers: pick(o.dealBreakers, [...DEAL_BREAKERS, ...LIEN_DEAL_BREAKERS, ...NV_LIEN_DEAL_BREAKERS, ...COMMERCIAL_DEAL_BREAKERS]),
     notes: str(o.notes, 1000),
     ...(cleanAssumptions(o.priceAssumptions) ? { priceAssumptions: cleanAssumptions(o.priceAssumptions) } : {}),
   };

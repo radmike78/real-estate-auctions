@@ -1,4 +1,4 @@
-import { noRedemptionWords, shortestRedemptionMonths, shortestRedemptionWords, shorterThanLaw } from '../lib/dealPacket';
+import { noRedemptionWords, shortestRedemptionMonths, shortestRedemptionWords, shorterThanLaw, waitWords } from '../lib/dealPacket';
 import type { Deal } from '../lib/analyze';
 import { getMyArea } from '../lib/myArea';
 import { calculatorInputError, parseCalcInput, shownInputError } from './CalcFields';
@@ -420,7 +420,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   // shorter wait; the packet and My deals use the same.
   const shortestOwner = saleKind ? shortestRedemptionMonths({ state: region.state, kind: saleKind as Deal['kind'] }) : 0;
   // Your own wait under it: one note under the price says so (the caution above then points to it).
-  const shortNote = ruleNow === 'custom' && !!choices && choices.start !== 'none' && shorterThanLaw(i.redemptionMonths, shortestOwner) && i.redemptionMonths > 0;
+  const shortNote = ruleNow === 'custom' && !!choices && choices.start !== 'none' && shorterThanLaw(i.redemptionMonths, shortestOwner);
   const unconfirmed = !offer && !!choices?.confirm && !i.redemptionChecked;
   const r = maxSafeBid(i);
   const grid = stressGrid(i);
@@ -576,8 +576,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
               ? choices?.start === 'none' && saleKind
                 ? <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month what-if wait (the note below says what it means).</>
                 : shortNote && !needsValue
-                  ? <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month wait (the note under the price says what it means).</>
-                  : <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
+                  ? <>your own numbers: {waitWords(Math.round(i.redemptionMonths * 10) / 10)} (the note under the price says what it means).</>
+                  : <>your own numbers: {waitWords(Math.round(i.redemptionMonths * 10) / 10)}. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
               : <>{offered[ruleNow]?.label}.</>}{' '}
             {ruleNow === 'custom' && choices?.start === 'none' ? 'Once you’ve checked the records, confirm below that no redemption rule applies, or pick the one that does under Holding and financing (Detailed).' : ruleNow === choices?.start ? 'Pick the rule under Holding and financing (Detailed), then confirm it here.' : ruleNow === 'custom' ? 'Once the records show which rule applies, pick it under Holding and financing (Detailed) and confirm it here.' : 'Once the records show this rule applies, confirm it here (or pick another under Holding and financing, Detailed).'}
             <label className="calc-check calc-check-block">
@@ -587,7 +587,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </div>
         )}
         {!offer && choices?.confirm && !!i.redemptionChecked && (
-          <p className="small muted" id={`${uid}-rule-confirmed`} tabIndex={-1}>{ruleNow === 'custom' && choices?.start === 'none' ? <>Confirmed by you: no redemption rule applies to this sale (your {Math.round(i.redemptionMonths * 10) / 10}-month wait is a what-if).</> : <>Redemption rule confirmed by you: {ruleNow === 'custom' ? `your own numbers, a ${Math.round(i.redemptionMonths * 10) / 10}-month wait` : offered[ruleNow]?.label}.</>} <button type="button" className="linkish" onClick={() => { update({ redemptionChecked: 0 }); setTimeout(() => document.querySelector<HTMLInputElement>('.calc-unconfirmed input[type="checkbox"]')?.focus(), 0); }}>Undo</button></p>
+          <p className="small muted" id={`${uid}-rule-confirmed`} tabIndex={-1}>{ruleNow === 'custom' && choices?.start === 'none' ? <>Confirmed by you: no redemption rule applies to this sale (your {Math.round(i.redemptionMonths * 10) / 10}-month wait is a what-if).</> : <>Redemption rule confirmed by you: {ruleNow === 'custom' ? `your own numbers, ${waitWords(Math.round(i.redemptionMonths * 10) / 10)}` : offered[ruleNow]?.label}.</>} <button type="button" className="linkish" onClick={() => { update({ redemptionChecked: 0 }); setTimeout(() => document.querySelector<HTMLInputElement>('.calc-unconfirmed input[type="checkbox"]')?.focus(), 0); }}>Undo</button></p>
         )}
         <ExampleResults count={needsValue ? 0 : still.length} />
         {!needsValue && !r.noBidWorks && !cashShort && <PriceHead level={3} kind="target" label="Walk-away price" price={r.noBidWorks || cashShort ? null : r.maxBid} result={r.noBidWorks || cashShort ? null : r.profit} unit="profit" note={r.noBidWorks || cashShort ? undefined : `Not the result at ${yours.toLowerCase()}: this is the most you could pay and still meet ${gw}.`} />}
@@ -681,7 +681,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         )}
         {/* Your own wait, shorter than the period this sale usually carries: said here, not only in the "?" help. */}
         {shortNote && !needsValue && (
-          <p className="calc-note small" role="note"><strong>Shorter than the law’s shortest redemption period for this sale.</strong> The shortest is {shortestRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] })},* and the owner can redeem until it ends. These numbers count only your {Math.round(i.redemptionMonths * 10) / 10}-month wait: type at least {shortestOwner} months, or pick the rule under Holding and financing, to count the full wait.</p>
+          <p className="calc-note small" role="note"><strong>Shorter than the law’s shortest redemption period for this sale.</strong> The shortest is {shortestRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] })},* and the owner can redeem until it ends. These numbers count only {Math.round(i.redemptionMonths * 10) === 0 ? 'no wait' : <>your {Math.round(i.redemptionMonths * 10) / 10}-month wait</>}: type at least {shortestOwner} months, or pick the rule under Holding and financing, to count the full wait.</p>
         )}
         {redeemed && !needsValue && !(ruleNow === 'custom' && choices?.start === 'none') && (
           <div className="calc-note">

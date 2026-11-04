@@ -63,6 +63,13 @@ export { roadmapDone, roadmapPath, roadmapProgress };
 
 /** Fired when the cash, buy box or team changes, so the roadmap can offer to mark their steps done. */
 const PLAN_CHANGED = 'deedowl:plan-changed';
+/** Paying cash at the price (no loan): My plan's route at an auction or lien sale, an auction strategy in the buy box, or
+ *  Decide's "Cash only". The buy box, the cash worksheet and Download my plan all use this. */
+function paysCash(strategy = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox).strategy): { auction: boolean; cash: boolean } {
+  const route = planPath();
+  const auction = route === 'auction' || strategy === 'Tax and foreclosure auctions';
+  return { auction, cash: auction || route === 'certificate' || investorProfile().loan === 'cash' };
+}
 const planChanged = () => window.dispatchEvent(new CustomEvent(PLAN_CHANGED));
 
 /** The investable cash from the worksheet, or 0. */
@@ -77,7 +84,7 @@ function stepEvidence(id: string): string | null {
   if (id === 'money') return investableCash() > 0 ? `Your cash worksheet shows ${fmtMoney(investableCash())} of investable cash.` : null;
   if (id === 'buybox') {
     const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);
-    return b.area && b.types.length && b.priceMax && b.dealBreakers.filter((t) => dealBreakersFor(b.strategy, b.state).includes(t)).length >= 3 ? 'Your buy box has an area, property types, a price limit and at least three deal breakers.' : null;
+    return b.area && b.types.length && b.priceMax && b.dealBreakers.filter((t) => dealBreakersFor(b.strategy, b.state || getMyState() || '').includes(t)).length >= 3 ? 'Your buy box has an area, property types, a price limit and at least three deal breakers.' : null;
   }
   if (id === 'c-buybox') {
     const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);
@@ -634,11 +641,13 @@ function PriceFromCash({ cash }: { cash: number }) {
   useEffect(() => {
     const on = () => setTick((n) => n + 1);
     window.addEventListener(PROGRESS_EVENT, on);
-    return () => window.removeEventListener(PROGRESS_EVENT, on);
+    // (The buy box's strategy counts too: an auction strategy pays cash.)
+    window.addEventListener(PLAN_CHANGED, on);
+    return () => { window.removeEventListener(PROGRESS_EVENT, on); window.removeEventListener(PLAN_CHANGED, on); };
   }, []);
   const route = planPath();
-  const atSale = route === 'auction' || route === 'certificate';
-  const payingCash = atSale || investorProfile().loan === 'cash';
+  const atSale = paysCash().auction || route === 'certificate';
+  const payingCash = paysCash().cash;
   const [savedNote, setSavedNote] = useState('');
   const useCash = () => {
     const b = read(BUYBOX_KEY, { ...EMPTY_BUY_BOX, state: getMyState() ?? '' }, cleanBuyBox);
@@ -765,8 +774,7 @@ function BuyBoxBuilder() {
   const pa = b.priceAssumptions ?? PRICE_DEFAULTS;
   // Paying cash, as the cash worksheet and Download my plan read it: My plan's route at an auction or lien sale, or
   // Decide's "Cash only" (no loan at the price).
-  const buyAuction = planPath() === 'auction';
-  const buyCash = buyAuction || planPath() === 'certificate' || investorProfile().loan === 'cash';
+  const { auction: buyAuction, cash: buyCash } = paysCash(b.strategy);
   // A cash buyer's price and repairs both come from the cash (closing and holding costs on top).
   const cashNeed = b.priceMax + Math.max(0, b.repairsMax || 0);
   // With a loan: the down payment, closing costs and reserves, and repairs from the same cash.
@@ -783,7 +791,7 @@ function BuyBoxBuilder() {
   const state = STATES.find((s) => s.code === b.state);
   const lien = b.strategy === LIEN_STRATEGY;
   // Ones ticked under another strategy that this one doesn't offer stay saved, but aren't shown.
-  const shownBreakers = b.dealBreakers.filter((t) => dealBreakersFor(b.strategy, b.state).includes(t));
+  const shownBreakers = b.dealBreakers.filter((t) => dealBreakersFor(b.strategy, b.state || getMyState() || '').includes(t));
   // A flip is sold, not rented: no rental cash-flow target. Flips and auctions set a price to bid or pay, not a loan size.
   const flip = b.strategy === 'Fix and flip';
   const bidPrice = flip || b.strategy === 'Tax and foreclosure auctions';
@@ -885,11 +893,11 @@ function BuyBoxBuilder() {
       </fieldset>
       <fieldset className="buybox-checks">
         <legend>Deal breakers: I walk away if…</legend>
-        {dealBreakersFor(b.strategy, b.state).map((t) => <label key={t}><input type="checkbox" checked={b.dealBreakers.includes(t)} onChange={() => toggle('dealBreakers', t)} /> {t}</label>)}
+        {dealBreakersFor(b.strategy, b.state || getMyState() || '').map((t) => <label key={t}><input type="checkbox" checked={b.dealBreakers.includes(t)} onChange={() => toggle('dealBreakers', t)} /> {t}</label>)}
       </fieldset>
       <label className="field">
         <span>Notes</span>
-        <textarea maxLength={1000} rows={3} value={b.notes} onChange={(e) => set('notes', e.target.value)} placeholder={lien ? (b.state === 'NV' ? 'e.g. the longest wait I’ll accept, and the parcels I’ll skip' : 'e.g. the lowest interest rate I’ll accept, and the counties I’ll bid in') : undefined} />
+        <textarea maxLength={1000} rows={3} value={b.notes} onChange={(e) => set('notes', e.target.value)} placeholder={lien ? ((b.state || getMyState()) === 'NV' ? 'e.g. the longest wait I’ll accept, and the parcels I’ll skip' : 'e.g. the lowest interest rate I’ll accept, and the counties I’ll bid in') : undefined} />
       </label>
       <div className="buybox-summary">
         <h3>My buy box</h3>
@@ -936,7 +944,7 @@ function buyBoxText(b: BuyBox, stateName?: string): string {
           `Cash I can put in, all in: ${money(b.cashMax)}`,
           ...(b.strategy === 'Fix and flip' ? [] : [`Least cash flow per month: ${money(b.minCashFlow)}`]),
         ]),
-    `I walk away if: ${b.dealBreakers.filter((t) => dealBreakersFor(b.strategy, b.state).includes(t)).join('; ')}`,
+    `I walk away if: ${b.dealBreakers.filter((t) => dealBreakersFor(b.strategy, b.state || getMyState() || '').includes(t)).join('; ')}`,
     `Notes: ${b.notes}`,
   ]
     // A field left blank says so, instead of a bare label.
@@ -1045,9 +1053,9 @@ function planText(): string {
   })();
   // The same as the worksheet on screen: paying cash (an auction, lien certificates, or Decide's "Cash only") has no
   // down-payment price.
-  const atSale = path === 'auction' || path === 'certificate';
+  const atSale = paysCash(b.strategy).auction || path === 'certificate';
   if (cash > 0 && path === 'certificate') lines.push(`Investable cash: ${fmtMoney(cash)}. Buying lien certificates, that’s the most you’d tie up: the certificate prices and fees, paid by the county’s deadline, plus any later taxes you pay to protect them.`);
-  else if (cash > 0 && (atSale || investorProfile().loan === 'cash')) lines.push(`Investable cash: ${fmtMoney(cash)}. Paying cash, that’s your limit for the price plus closing costs, repairs and reserves${atSale ? '; an auction wants the full amount by its payment deadline, with no loan at the sale' : ''}, so the price itself is less than ${fmtMoney(cash)}.`);
+  else if (cash > 0 && paysCash(b.strategy).cash) lines.push(`Investable cash: ${fmtMoney(cash)}. Paying cash, that’s your limit for the price plus closing costs, repairs and reserves${atSale ? '; an auction wants the full amount by its payment deadline, with no loan at the sale' : ''}, so the price itself is less than ${fmtMoney(cash)}.`);
   else lines.push(cash > 0 ? `Investable cash: ${fmtMoney(cash)}. With ${pa.downPct}% down, ${pa.closingPct}% closing costs and ${pa.reserveMonths} months of reserves, it supports ${Number.isFinite(supports) ? `a price up to about ${fmtMoney(supports)}` : 'any price (these assumptions set no limit)'}.${Number.isFinite(supports) && pa.downPct < 15 && investorProfile().loan === 'yes' && !investorProfile().ownerOccupant ? ' Caution: loans for a property you won’t live in usually need 15% to 25% down,* so this price is likely too high; low-down-payment programs are for homes you live in. Ask your lender. Mortgage insurance, which most loans add with under 20% down, isn’t included either.' : Number.isFinite(supports) && pa.downPct < 25 && investorProfile().loan === 'yes' && !investorProfile().ownerOccupant && b.types.includes('Duplex to fourplex') ? ` Caution: loans for a duplex to fourplex you won’t live in usually need 25% down,* so for one of those this price is likely too high. Ask your lender.${pa.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included.' : ''}` : Number.isFinite(supports) && pa.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : Number.isFinite(supports) && investorProfile().ownerOccupant ? ` ${pa.downPct}% down is common for an investment; a home you’ll live in can need less, so replace it in the cash worksheet with your lender’s figure.` : ''}${taxNote}` : '(not worked out yet)');
   lines.push('', isBlank(b) ? 'BUY BOX: not written yet (My plan → Your buy box)' : buyBoxText(b, STATES.find((x) => x.code === b.state)?.name).replace('\nDeedOwl educational worksheet.', ''), '', `ROADMAP: ${ROADMAP_PATHS[path].label}`);
   { const mm = routeMismatch(now.deal, path); if (mm && now.deal) lines.push(`Note: ${now.deal.name || 'the property you’re working on'} is bought ${mm === 'listing' ? 'through an agent' : 'at an auction'}, and the next step above follows that, but this plan’s cash, roadmap and team lines are for ${path === 'listing' ? 'buying a listed home' : path === 'auction' ? 'buying at an auction' : 'buying lien certificates'}. Use “Switch the roadmap” in My plan → See my full roadmap if this property is your plan.`); }

@@ -198,7 +198,7 @@ describe('the deal packet', () => {
     // A Nevada SID lien: when you may act, and when the certificate expires (NRS 271.595).
     const nvLien = dateGuide({ ...deal, state: 'NV', kind: 'lien' });
     expect(nvLien.find((g) => g.what === 'Certificate expires')).toMatchObject({ when: expect.stringMatching(/^3 years after the redemption period ends/), why: 'NRS 271.595(6) and (7)' });
-    expect(nvLien.find((g) => g.what === 'Earliest date you may act on an unpaid lien')?.when).toMatch(/120 days after the certificate of sale, or 2 years/);
+    expect(nvLien.find((g) => g.what === 'Earliest you may act (unpaid lien)')?.when).toMatch(/120 days after the certificate of sale, or 2 years/);
     expect(dateGuide({ ...deal, state: 'AZ', kind: 'lien' }).map((g) => g.what)).not.toContain('Certificate expires');
     // An auction's dates follow the official notice (a contract only on an offer).
     const { dealPacketText } = await import('./dealPacket');
@@ -214,6 +214,13 @@ describe('the deal packet', () => {
     // Picked (or confirmed) "No redemption": no such date.
     localStorage.setItem('fsf.bid.analyzed-d1.v1.typed.v1', JSON.stringify(['exitValue', 'rulePick_CA_court_none']));
     expect(dateGuide({ ...deal, state: 'CA', kind: 'court', plan: 'flip' }).map((g) => g.what)).not.toContain('Redemption period ends');
+    localStorage.removeItem('fsf.bid.analyzed-d1.v1.typed.v1');
+    // A typed 0 on a sale the law gives a period (a Nevada sheriff's sale, 1 year): said, without "0-month".
+    localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 0, redemptionRatePct: 0 }));
+    localStorage.setItem('fsf.bid.analyzed-d1.v1.typed.v1', JSON.stringify(['exitValue', 'redemptionMonths']));
+    const nvCourt = packetSections({ ...deal, state: 'NV', kind: 'court', plan: 'flip' }, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
+    expect(nvCourt).toContain('Built on no redemption wait. That’s shorter than any redemption period the law sets for this sale (the shortest is 1 year, about 12 months)');
+    expect(nvCourt).not.toMatch(/0-month/);
     localStorage.removeItem('fsf.bid.analyzed-d1.v1.typed.v1');
     // A wait that shows as 0 is no wait: no "0-month" lines.
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 0.04, redemptionRatePct: 0 }));
@@ -254,6 +261,7 @@ describe('the deal packet', () => {
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 240000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 12 }));
     expect(packetSections(flip, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).toMatch(/Built on a 6-month redemption wait: the owner can redeem until it ends\./);
     // No wait: neither.
+    localStorage.removeItem('fsf.bid.analyzed-d1.v1.typed.v1');
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000 }));
     expect(packetSections(flip, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).not.toMatch(/redemption wait/);
     expect(dateGuide({ ...court }).map((g) => g.what)).not.toContain('Redemption period ends');

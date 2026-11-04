@@ -220,7 +220,10 @@ export function shortestRedemptionMonths(d: Pick<Deal, 'state' | 'kind'>): numbe
 }
 
 /** Your wait, as shown (to a tenth of a month), is under the shortest period the law sets for this sale (0: none). */
-export const shorterThanLaw = (months: number, shortest: number): boolean => { const m = Math.round(months * 10) / 10; return shortest > 0 && m > 0 && m < shortest; };
+export const shorterThanLaw = (months: number, shortest: number): boolean => shortest > 0 && Math.round(months * 10) / 10 < shortest;
+
+/** Your wait in words: "a 3-month redemption wait", or "no redemption wait" for one that shows as 0. */
+export const waitWords = (months: number): string => (months > 0 ? `a ${months}-month redemption wait` : 'no redemption wait');
 
 /** The shortest period, in its rule's own words, with months where those are days or years ("180 days (about 6
  *  months)"); "" when there is none (as shortestRedemptionMonths). */
@@ -277,8 +280,8 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   // improvement, else 120 days, after the certificate of sale (1); a deed only after notice, given after that period, and
   // 60 days with no redemption (3)-(4); the certificate expires 3 years after the period ends (6), with no deed after (7).
   if (d.kind === 'lien' && d.state === 'NV') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),
-    { what: 'Earliest date you may act on an unpaid lien', when: 'When the redemption period ends: 120 days after the certificate of sale, or 2 years if there was a home or other significant permanent improvement on the property. A deed can follow only after the notice the law requires, given after that, and 60 days with no redemption.', who: 'You, with your attorney', todo: 'Ask your attorney how to demand the deed: the law sets the notice and how it’s given.', missed: 'Nothing happens on its own: watch the date the certificate expires.', why: 'NRS 271.595(1), (3) and (4)' },
-    { what: 'Certificate expires', when: '3 years after the redemption period ends (longer only while a court order or stay prevents a deed).', who: 'You, with the county treasurer', todo: 'If the lien isn’t paid, demand the deed from the treasurer before then.', missed: 'The certificate is void, and no deed can be issued to you.', why: 'NRS 271.595(6) and (7)' }];
+    { what: 'Earliest you may act (unpaid lien)', when: 'When the redemption period ends: 120 days after the certificate of sale, or 2 years if there was a home or other significant permanent improvement on the property. A deed can follow only after the notice the law requires, given after that, and 60 days with no redemption.', who: 'You, with your attorney', todo: 'Ask your attorney how to demand the deed: the law sets the notice and how it’s given.', missed: 'Nothing happens on its own: watch the date the certificate expires.', why: 'NRS 271.595(1), (3) and (4)' },
+    { what: 'Certificate expires', when: '3 years after the redemption period ends (longer only while a court order or stay prevents a deed).', who: 'You, with the treasurer who sold the certificate', todo: 'If the lien isn’t paid, demand the deed from that treasurer before then.', missed: 'The certificate is void, and no deed can be issued to you.', why: 'NRS 271.595(6) and (7)' }];
   if (d.kind === 'lien') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien']);
   // California homes of one to four units: a win isn't final until eligible bidders' windows close (Civil Code 2924m).
   // Texas: within 15 days the lender or trustee may rescind a sale for the reasons Property Code 51.016(b) lists (statutory
@@ -504,7 +507,7 @@ export function savedNumbers(d: Deal) {
         const below = at?.source === 'listed' && r.maxBid < at.price;
         const price = at?.source === 'yours' ? at.price : r.noBidWorks || below ? 0 : r.maxBid;
         // Who redeems, as Fix and sell names it (null: your what-if on a sale with no right of redemption).
-        const who = redemptionWho(d, i); const shortest = who === 'the owner' && redemptionRule(d, i) === 'custom' && shorterThanLaw(i.redemptionMonths, shortestRedemptionMonths(d)) ? shortestRedemptionMonths(d) : 0; const o = !offer && price > 0 && Math.round(i.redemptionMonths * 10) > 0 ? redemptionOutcome(i, price) : null; if (!o) return !offer && Math.round(i.redemptionMonths * 10) > 0 ? { months: Math.round(i.redemptionMonths * 10) / 10, price: 0, repaid: 0, spent: 0, net: 0, who, source: 'walk' as const, shortest } : null; return { months: Math.round(i.redemptionMonths * 10) / 10, price, ...o, who, source: at?.source === 'yours' ? 'yours' as const : 'walk' as const, shortest }; })() };
+        const who = redemptionWho(d, i); const typedNone = (() => { const t = readConfirmed(`fsf.bid.analyzed-${d.id}.v1`); return t.has('redemptionMonths') || t.has(`rulePick_${d.state}_${d.kind}_custom`); })(); const shortest = who === 'the owner' && redemptionRule(d, i) === 'custom' && shorterThanLaw(i.redemptionMonths, shortestRedemptionMonths(d)) && (Math.round(i.redemptionMonths * 10) > 0 || typedNone) ? shortestRedemptionMonths(d) : 0; const o = !offer && price > 0 && Math.round(i.redemptionMonths * 10) > 0 ? redemptionOutcome(i, price) : null; if (!o) return !offer && (Math.round(i.redemptionMonths * 10) > 0 || shortest > 0) ? { months: Math.round(i.redemptionMonths * 10) / 10, price: 0, repaid: 0, spent: 0, net: 0, who, source: 'walk' as const, shortest } : null; return { months: Math.round(i.redemptionMonths * 10) / 10, price, ...o, who, source: at?.source === 'yours' ? 'yours' as const : 'walk' as const, shortest }; })() };
       }
     }
   } else if (d.plan === 'commercial' && own) {
@@ -835,7 +838,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     if (bid.redeem && !bid.redeem.who) nums.push(`Built on a ${bid.redeem.months}-month wait you typed as a what-if. ${noRedemptionWords(d)} Check the sale terms with the official seller or an attorney.`);
     // Your own wait, under every period the law sets for this sale: said once, with the shortest.
     const shorter = bid?.redeem?.shortest ? ` That’s shorter than any redemption period the law sets for this sale (the shortest is ${shortestRedemptionWords(d, true)}):* the owner can still redeem until it ends.` : '';
-    if (bid?.redeem && bid.redeem.who && !(bid.redeem.price > 0)) nums.push(bid.redeem.shortest ? `Built on a ${bid.redeem.months}-month redemption wait.${shorter}` : `Built on a ${bid.redeem.months}-month redemption wait: ${bid.redeem.who} can redeem until it ends.`);
+    if (bid?.redeem && bid.redeem.who && !(bid.redeem.price > 0)) nums.push(bid.redeem.shortest ? `Built on ${waitWords(bid.redeem.months)}.${shorter}` : `Built on a ${bid.redeem.months}-month redemption wait: ${bid.redeem.who} can redeem until it ends.`);
     else if (bid.redeem && bid.redeem.who) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait.${shorter} If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* on a ${money(x.price)} ${offer ? 'offer' : 'bid'}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
     const floor = a?.source === 'listed' ? a.price : 0;
@@ -929,7 +932,7 @@ export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   lines.push(`STAGE: ${stageLabel(stageOf(d), d)}`, `NEXT ACTION: ${nextAction(d, p, now).text}`, '');
   for (const s of packetSections(d, p, now)) {
     lines.push(`${s.title.toUpperCase()} [${s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines);
-    if (s.key === 'dates' && dateGuideLines(d).length) lines.push(`What the less familiar dates mean (${isOffer(d) ? 'the signed contract wins' : 'the official notice wins'}):`, ...dateGuideLines(d).map((l) => `- ${l}`));
+    if (s.key === 'dates' && dateGuideLines(d).length) lines.push(`What the less familiar ${d.state === 'TX' ? (isOffer(d) ? 'Texas contract ' : 'Texas ') : ''}dates mean (${isOffer(d) ? 'the signed contract wins' : 'the official notice wins'}):`, ...dateGuideLines(d).map((l) => `- ${l}`));
     lines.push('');
   }
   // A line marked with an asterisk: say what it means (a downloaded file has no page footer).
