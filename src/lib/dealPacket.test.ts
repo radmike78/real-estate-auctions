@@ -163,10 +163,10 @@ describe('the deal packet', () => {
     // A Nevada trustee sale's dates include the 30-day challenge window (NRS 107.080(5)-(7)), and no bidder registration
     // deadline (each trustee sets its terms).
     const nvDates = dateGuide({ kind: 'trustee', state: 'NV' });
-    expect(nvDates.find((g) => g.what === '30-day challenge window')?.why).toBe('NRS 107.080(5)-(7)');
+    expect(nvDates.find((g) => g.what === 'Challenge window ends')?.why).toBe('NRS 107.080(5)-(7)');
     expect(nvDates.map((g) => g.what)).not.toContain('Bidder registration deadline');
     // A Texas trustee sale's dates include the 15-day rescission window (Property Code 51.016).
-    const rescind = dateGuide({ kind: 'trustee', state: 'TX' }).find((g) => g.what === '15-day rescission window');
+    const rescind = dateGuide({ kind: 'trustee', state: 'TX' }).find((g) => g.what === 'Rescission window ends');
     expect(rescind?.why).toBe('Property Code 51.016');
     // A Texas trustee (mortgage) foreclosure has no redemption either, though its menu offers the property tax loan rules.
     const txTrustee: Deal = { ...deal, state: 'TX', kind: 'trustee', plan: 'flip' };

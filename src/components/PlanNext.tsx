@@ -213,7 +213,8 @@ function PlanStepAd({ deal, stage, inline = false }: { deal?: Deal; stage?: Deal
   // The stage's first open step that names someone to call ("Find a property" names no one).
   const open = deal && stage ? roadmapFor(path, practiceState()).filter((s) => STAGE_STEPS[stage].includes(s.id) && !settled(s)) : [];
   const step = deal && stage ? open.find((s) => stepAllowsAds(s, path) && stepAdCategories(s, path).length > 0) ?? open[0] ?? null : roadmapNextStep();
-  const cats = useSpotCategories('toolkit', step ? stepAdCategories(step, path) : []);
+  // (A commercial building's task names a commercial broker: no home-buyer agent ad beside it.)
+  const cats = useSpotCategories('toolkit', step ? stepAdCategories(step, path).filter((c) => !(deal?.plan === 'commercial' && c === 'agent')) : []);
   const allowed = step && stepAllowsAds(step, path) ? cats : [];
   const { pros } = useDirectory();
   const shows = useAdShows(allowed, pros);

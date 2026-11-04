@@ -155,7 +155,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           ))}
         </ul>
         <div className="row">
-          {p.dates.length === 0 && <button type="button" className="btn" onClick={() => update({ dates: suggestedDates(deal).map((what) => ({ when: '', what, who: '' })) })}>Start with the usual dates for this sale</button>}
+          {p.dates.length === 0 && <button type="button" className="btn" onClick={() => { update({ dates: suggestedDates(deal).map((what) => ({ when: '', what, who: '' })) }); setTimeout(() => document.querySelector<HTMLInputElement>('#dates input, [data-section="dates"] input, .packet-dates input')?.focus(), 0); }}>Start with the usual dates for this sale</button>}
           <button type="button" className="btn btn-secondary" onClick={() => update({ dates: [...p.dates, { when: '', what: '', who: '' }] })}>Add a date</button>
         </div>
         <label className="field">

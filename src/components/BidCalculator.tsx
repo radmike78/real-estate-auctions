@@ -565,21 +565,21 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {waitCleared !== null && <p className="note" role="status">Your typed redemption wait{waitCleared > 0 ? ` (${waitCleared} month${waitCleared === 1 ? '' : 's'})` : ''} was for another kind of sale or state, so it was cleared and this sale’s rule is used. Type it again under Holding and financing (Detailed) if it applies here. <button type="button" className="linkish" onClick={() => setWaitCleared(null)}>Dismiss</button></p>}
         {unconfirmed && (
           <div className="caution calc-unconfirmed">
-            <strong>Redemption rule not confirmed.</strong> {ruleNow === choices?.start ? choices?.confirm : (choices?.confirm ?? '').replace(/ ?This calculator starts with [^.]*\. ?/, ' ').trim()} Your walk-away price now uses{' '}
+            <strong>Redemption rule not confirmed.</strong> {ruleNow === 'custom' && choices?.start === 'none' ? (choices?.confirm ?? '').replace(/^[^.]*\.\*? ?/, '').replace(/ ?This calculator starts with [^.]*\. ?/, ' ').trim() : ruleNow === choices?.start ? choices?.confirm : (choices?.confirm ?? '').replace(/ ?This calculator starts with [^.]*\. ?/, ' ').trim()} Your walk-away price now uses{' '}
             {ruleNow === 'custom'
               ? choices?.start === 'none' && saleKind
-                ? <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month what-if wait. It only adds holding costs.</>
+                ? <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month what-if wait (the note below says what it means).</>
                 : <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
               : <>{offered[ruleNow]?.label}.</>}{' '}
             {ruleNow === choices?.start ? 'Pick the rule under Holding and financing (Detailed), then confirm it here.' : ruleNow === 'custom' ? 'Once the records show which rule applies, pick it under Holding and financing (Detailed) and confirm it here.' : 'Once the records show this rule applies, confirm it here (or pick another under Holding and financing, Detailed).'}
             <label className="calc-check calc-check-block">
-              <input type="checkbox" checked={false} onChange={() => update({ redemptionChecked: 1 })} />
-              <span>I’ve checked the records, and the redemption rule set in this calculator is the one that applies.</span>
+              <input type="checkbox" checked={false} onChange={() => { update({ redemptionChecked: 1 }); setTimeout(() => document.getElementById(`${uid}-rule-confirmed`)?.focus(), 0); }} />
+              <span>{ruleNow === 'custom' && choices?.start === 'none' ? 'I’ve checked the records: no redemption rule applies to this sale.' : 'I’ve checked the records, and the redemption rule set in this calculator is the one that applies.'}</span>
             </label>
           </div>
         )}
         {!offer && choices?.confirm && !!i.redemptionChecked && (
-          <p className="small muted">Redemption rule confirmed by you: {ruleNow === 'custom' ? `your own numbers, a ${Math.round(i.redemptionMonths * 10) / 10}-month wait` : offered[ruleNow]?.label}. <button type="button" className="linkish" onClick={() => update({ redemptionChecked: 0 })}>Undo</button></p>
+          <p className="small muted" id={`${uid}-rule-confirmed`} tabIndex={-1}>Redemption rule confirmed by you: {ruleNow === 'custom' ? `your own numbers, a ${Math.round(i.redemptionMonths * 10) / 10}-month wait` : offered[ruleNow]?.label}. <button type="button" className="linkish" onClick={() => { update({ redemptionChecked: 0 }); setTimeout(() => document.querySelector<HTMLInputElement>('.calc-unconfirmed input[type="checkbox"]')?.focus(), 0); }}>Undo</button></p>
         )}
         <ExampleResults count={needsValue ? 0 : still.length} />
         {!needsValue && !r.noBidWorks && !cashShort && <PriceHead level={3} kind="target" label="Walk-away price" price={r.noBidWorks || cashShort ? null : r.maxBid} result={r.noBidWorks || cashShort ? null : r.profit} unit="profit" note={r.noBidWorks || cashShort ? undefined : `Not the result at ${yours.toLowerCase()}: this is the most you could pay and still meet ${gw}.`} />}

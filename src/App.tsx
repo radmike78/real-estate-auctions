@@ -263,10 +263,9 @@ function focusNewPage(backOrForward = false) {
         }
         return false;
       };
-      // A section heading in view, else a smaller heading or the first link or button in view, so the next Tab continues
-      // from where you are.
-      if (tryFocus([...document.querySelectorAll<HTMLElement>('main h2, main summary')].filter(seen))) return;
-      if (tryFocus([...document.querySelectorAll<HTMLElement>('main h3, main a[href], main button')].filter(seen))) return;
+      // The topmost heading, link or button in view, so the next Tab continues from where you are (not below it).
+      const topOf = (x: HTMLElement) => x.getBoundingClientRect().top;
+      if (tryFocus([...document.querySelectorAll<HTMLElement>('main h2, main summary, main h3, main a[href], main button')].filter(seen).sort((x, y) => topOf(x) - topOf(y)))) return;
       // Else the section heading just above the view.
       const above = [...document.querySelectorAll<HTMLElement>('main h2, main summary')].filter((x) => { const r = x.getBoundingClientRect(); return r.height > 0 && r.top < top; }).pop();
       if (above) {
