@@ -386,7 +386,7 @@ export function FirstDealRoadmap() {
         <span className="muted">{dropStateLead(forStateText(getMyState(), ROADMAP_PATHS[path].hint), getMyState())}</span>
       </div>
       {/* After a switch to a state that doesn't sell lien certificates, the plan follows the auction route there: say why. */}
-      {path === 'auction' && roadmapPath() === 'certificate' && mine && !liensSoldIn(mine) && (
+      {path === 'auction' && roadmapPath() === 'certificate' && mine && !liensSoldIn(mine) && !routeMismatch(active, path) && (
         <p className="notice" role="status">Lien certificates are sold in Arizona and Nevada, not {STATES.find((x) => x.code === mine)?.name ?? mine}, so your plan follows buying at an auction here.{' '}
           <button type="button" className="linkish" onClick={() => { choosePath('auction'); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.roadmap-path button[aria-pressed="true"]')?.focus()); }}>Keep the auction route</button>
         </p>
@@ -395,7 +395,7 @@ export function FirstDealRoadmap() {
       {(() => {
         const mm = routeMismatch(active, path);
         if (!mm || !active) return null;
-        return <p className="notice" role="note">“{active.name || 'Your property'}” is bought {mm === 'listing' ? 'through an agent' : 'at an auction'}, so its next steps and Your team follow that, but this roadmap shows the {ROUTE_STEPS_WORD[path]} steps.{' '}
+        return <p className="notice" role="note">“{active.name || 'Your property'}” is bought {mm === 'listing' ? 'through an agent' : 'at an auction'}, and the next task at the top of My plan follows that, but this roadmap (and Download my plan) shows the {ROUTE_STEPS_WORD[path]} steps.{' '}
           <button type="button" className="linkish" onClick={() => { choosePath(mm); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.roadmap-path button[aria-pressed="true"]')?.focus()); }}>Switch the roadmap to {ROADMAP_PATHS[mm].label}</button>
         </p>;
       })()}
@@ -426,7 +426,7 @@ export function FirstDealRoadmap() {
             ? `Phases 4 to 7 (find, buy, own and sell) start for ${focused.name || 'your saved property'} once you choose it here or at the top of My plan.`
             : deal
             ? `Phases 4 to 7 (find, buy, own, then sell, refinance or trade) are tracked for ${deal.name} only, and what you record goes into its evidence log. Phases 1 to 3 are yours, whatever the property.`
-            : deals.length
+            : deals.some((d) => !d.practice)
               ? 'Choose a property to track phases 4 to 7 (find, buy, own and sell) for it. Each property keeps its own progress and evidence.'
               : 'To track phases 4 to 7 (find, buy, own and sell) for a real property, save it in Analyze first. Each property keeps its own progress and evidence.'}
         </p>
@@ -949,7 +949,8 @@ const ROUTE_STEPS_WORD: Record<RoadmapPath, string> = { listing: 'listed-home', 
  * holds, or an auction property on the agent route): its own route, else null. Lien deals aren't counted (outside
  * Arizona and Nevada the lien route follows auctions). */
 function routeMismatch(d: Deal | undefined, path: RoadmapPath): RoadmapPath | null {
-  if (!d) return null;
+  // A property you passed on, or a practice analysis, isn't one you'll buy: no mismatch to point out.
+  if (!d || d.practice || d.stage === 'passed') return null;
   const dp = pathForDeal(d);
   return dp !== path && dp !== 'certificate' ? dp : null;
 }
@@ -988,7 +989,7 @@ function planText(): string {
   else if (cash > 0 && (atSale || investorProfile().loan === 'cash')) lines.push(`Investable cash: ${fmtMoney(cash)}. Paying cash, that’s your limit for the price plus closing costs, repairs and reserves${atSale ? '; an auction wants the full amount by its payment deadline, with no loan at the sale' : ''}, so the price itself is less than ${fmtMoney(cash)}.`);
   else lines.push(cash > 0 ? `Investable cash: ${fmtMoney(cash)}. With ${pa.downPct}% down, ${pa.closingPct}% closing costs and ${pa.reserveMonths} months of reserves, it supports ${Number.isFinite(supports) ? `a price up to about ${fmtMoney(supports)}` : 'any price (these assumptions set no limit)'}.${Number.isFinite(supports) && pa.downPct < 15 && investorProfile().loan === 'yes' && !investorProfile().ownerOccupant ? ' Caution: loans for a property you won’t live in usually need 15% to 25% down,* so this price is likely too high; low-down-payment programs are for homes you live in. Ask your lender.' : Number.isFinite(supports) && pa.downPct < 25 && investorProfile().loan === 'yes' && !investorProfile().ownerOccupant && b.types.includes('Duplex to fourplex') ? ` Caution: loans for a duplex to fourplex you won’t live in usually need 25% down,* so for one of those this price is likely too high. Ask your lender.${pa.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included.' : ''}` : Number.isFinite(supports) && pa.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : ''}${taxNote}` : '(not worked out yet)');
   lines.push('', isBlank(b) ? 'BUY BOX: not written yet (My plan → Your buy box)' : buyBoxText(b, STATES.find((x) => x.code === b.state)?.name).replace('\nDeedOwl educational worksheet.', ''), '', `ROADMAP: ${ROADMAP_PATHS[path].label}`);
-  { const mm = routeMismatch(now.deal, path); if (mm && now.deal) lines.push(`Note: ${now.deal.name || 'the property you’re working on'} is bought ${mm === 'listing' ? 'through an agent' : 'at an auction'}, so its next steps and team follow that; this roadmap shows the ${ROUTE_STEPS_WORD[path]} steps. Switch the roadmap in My plan if this property is your plan.`); }
+  { const mm = routeMismatch(now.deal, path); if (mm && now.deal) lines.push(`Note: ${now.deal.name || 'the property you’re working on'} is bought ${mm === 'listing' ? 'through an agent' : 'at an auction'}, and the next step above follows that, but this plan’s cash, roadmap and team lines are for ${path === 'listing' ? 'buying a listed home' : path === 'auction' ? 'buying at an auction' : 'buying lien certificates'}. Switch the roadmap in My plan if this property is your plan.`); }
   for (const s of steps) lines.push(`[${done.includes(s.id) ? 'x' : status[s.id] === 'na' ? '-' : ' '}] ${ROADMAP_PHASES[s.phase]}: ${s.title}${status[s.id] && !done.includes(s.id) ? ` (${STEP_STATUS_LABEL[status[s.id]]})` : ''}`);
   lines.push('', 'TEAM');
   // The people you've chosen, with what to say to each; the roles still open on one line (a lien or auction plan

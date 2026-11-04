@@ -513,7 +513,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           const t = st && ['paper', 'c-paper', 'a-practice', 'c-practice'].includes(st.id) ? { href: st.href ?? '#/toolkit/roadmap', label: st.title } : { href: pt.support[0]?.href ?? pt.href, label: pt.label };
           return <p className="muted" role="note">My plan is on the practice step <a href={t.href}>{t.label}</a>, so a deal saved now is a practice analysis: it won’t become the property you’re working on. Finish that step first to save a real property.</p>; })()}
         {/* After the save: the way to make a real property a real deal later. */}
-        {deal.id && deal.practice && savingPractice() && <p className="muted" role="note">Is this a real property? Once that practice step is done in My plan, choose “Make it a real deal” for it here or on its card in My deals.</p>}
+        {deal.id && deal.practice && savingPractice() && <p className="muted" role="note">Is this a real property? Once My plan’s practice step is done, choose “Make it a real deal” on its card in My deals.</p>}
         {saved.length > 0 && (
           <div className="saved-deals">
             <strong>Your deals</strong>
