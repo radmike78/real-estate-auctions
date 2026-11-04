@@ -429,7 +429,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           </label>
           <label className="field kind-field">
             <span>Kind of sale</span>
-            <select value={deal.kind} aria-describedby={deal.state === 'TX' && deal.kind === 'court' ? 'tx-court-note' : deal.state === 'AZ' && deal.kind === 'lien' ? 'az-land-note' : undefined} onChange={(e) => { const k = e.target.value as SaleKind; set({ kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); }}>
+            <select value={deal.kind} aria-describedby={deal.state === 'TX' && deal.kind === 'court' ? 'tx-court-note' : deal.state === 'AZ' && deal.kind === 'lien' ? 'az-land-note' : undefined} onChange={(e) => { const k = e.target.value as SaleKind; set({ kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0], ...(practiceCert ? { locationConfirmed: false } : {}) }); /* a new lien certificate starts confirmed (no property); another kind of sale is a property to check */ }}>
               {kinds.map((k) => <option key={k.key} value={k.key}>{kindLabel(k, deal.state)}</option>)}
             </select>
           </label>

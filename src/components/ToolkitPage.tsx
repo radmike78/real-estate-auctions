@@ -781,7 +781,7 @@ function BuyBoxBuilder() {
           </>
         )}
       </div>
-      {lien && lienDeal && (b.state || mine) !== lienDeal.state && <p className="note" role="note">Your lien deal is in {stateByCode(lienDeal.state)?.name ?? lienDeal.state}, where lien certificates are sold: set this buy box’s State to {stateByCode(lienDeal.state)?.name ?? lienDeal.state} so its limits fit that sale. <button type="button" className="linkish" onClick={() => { setB({ ...b, state: lienDeal.state, area: '' }); setTimeout(() => document.getElementById('buybox-state')?.focus(), 0); }}>Set it to {stateByCode(lienDeal.state)?.name ?? lienDeal.state}</button></p>}
+      {lien && lienDeal && (b.state || mine) !== lienDeal.state && <p className="note" role="note">Your lien deal is in {stateByCode(lienDeal.state)?.name ?? lienDeal.state}, where lien certificates are sold: set this buy box’s State to {stateByCode(lienDeal.state)?.name ?? lienDeal.state} so its limits fit that sale. <button type="button" className="linkish" onClick={() => { const nm = stateByCode(lienDeal.state)?.name ?? lienDeal.state; setSwitched(b.area ? `Switched to ${nm}. Your area (${b.area}) was cleared: add one there.` : `Switched to ${nm}.`); setB({ ...b, state: lienDeal.state, area: '' }); setTimeout(() => document.getElementById('buybox-state')?.focus(), 0); }}>Set it to {stateByCode(lienDeal.state)?.name ?? lienDeal.state}</button></p>}
       {lien && <p className="muted">A lien certificate isn’t the property: there’s no rent and nothing to repair. Your buy box is the parcels you’ll bid on, what you’ll pay, and how long your money can wait. Property types and deal breakers below describe the land behind each lien.</p>}
       {!b.strategy && suggested && <p className="roadmap-has">Decide suggested: <strong>{suggested}</strong>. <button type="button" className="linkish" onClick={() => set('strategy', suggested)}>Use it</button></p>}
       {!lien && b.priceMax > 0 && b.cashMax > 0 && cashForPrice(b.priceMax, pa).total > b.cashMax && (
@@ -959,8 +959,9 @@ function planText(): string {
   for (const k of TEAM_ROLES) {
     const m = team[k];
     const g = proGuideByKey(k);
-    if (!m?.name) { open.push(g?.title ?? k); continue; }
-    lines.push(`${g?.title ?? k}: ${m.name}${m.contact ? `, ${m.contact}` : ''}${m.licenseChecked ? ', credentials checked' : ''}${m.fees ? `. Fees: ${m.fees}` : ''}`);
+    // Anything entered for the role counts (a contact or fees with no name yet, a credentials check).
+    if (!m?.name && !m?.contact && !m?.fees && !m?.licenseChecked) { open.push(g?.title ?? k); continue; }
+    lines.push(`${g?.title ?? k}: ${m.name || '(name not entered)'}${m.contact ? `, ${m.contact}` : ''}${m.licenseChecked ? ', credentials checked' : ''}${m.fees ? `. Fees: ${m.fees}` : ''}`);
     if (PRO_SCRIPTS[k]) lines.push(`  What to say: ${PRO_SCRIPTS[k].say}`);
   }
   // At an auction or for lien certificates there's no agent, loan or inspection at the sale: those roles aren't listed as open.

@@ -107,13 +107,21 @@ describe('practice part 2 follows your route', () => {
     expect(planPath()).toBe('listing');
   });
 
-  it('follows a saved property’s route over Decide’s pick, and Decide’s pick with none', async () => {
+  it('follows a saved property’s route over Decide’s pick once it leads, and Decide’s pick while it waits or with none', async () => {
     const { planPath } = await import('./roadmapState');
     localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { ready: 'ready', goal: 'income', cash: '10to50', borrow: 'cash', time: 'parttime', hands: 'diy', risk: 'high', market: 'com' } }));
     expect(planPath()).toBe('auction');
     const listing = { id: 'dl1', name: '12 Elm St', state: 'NV', county: 'Clark', kind: 'listing', plan: 'rent', notes: '', done: [], stage: 'researching', updatedAt: '2026-11-01T00:00:00.000Z', locationConfirmed: true };
     localStorage.setItem('deedowl.analyze.v1', JSON.stringify([listing]));
+    // A guided learner's listing waits (My plan: "None yet (learning)"): Decide's pick holds until practice part 2.
+    expect(planPath()).toBe('auction');
+    localStorage.setItem('deedowl.roadmap.v1', JSON.stringify(['a-practice']));
     expect(planPath()).toBe('listing');
+    localStorage.setItem('deedowl.roadmap.v1', JSON.stringify([]));
+    // Self-directed: the property leads at once.
+    localStorage.setItem('deedowl.mode.v1', JSON.stringify('explore'));
+    expect(planPath()).toBe('listing');
+    localStorage.setItem('deedowl.mode.v1', JSON.stringify('guided'));
     localStorage.setItem('deedowl.analyze.v1', JSON.stringify([{ ...listing, kind: 'lien', plan: 'lien' }]));
     expect(planPath()).toBe('certificate');
     // "None yet (learning)": Decide's pick again.

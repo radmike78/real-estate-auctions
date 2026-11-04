@@ -138,6 +138,10 @@ function planPathRaw(d: Deal | undefined, deals: Deal[]): RoadmapPath {
   // A route you picked holds while the property in focus is still being researched (a practice analysis, a listing
   // your agent sent): only a deal you've moved on with (an offer, a bid, a contract) changes the route.
   if (d && picked && (!d.stage || d.stage === 'researching')) return roadmapPath();
+  // A guided beginner's listed home that waits while they finish the lessons and practice (My plan shows "None yet
+  // (learning)" then) doesn't set the route yet: Decide's auctions pick does, so practice part 2 stays the auction one.
+  // Once it leads (practice done, or you chose it), the route follows it.
+  if (d && !picked && pathForDeal(d) === 'listing' && decideRoute() === 'auction' && guidedWaiting(d)) return 'auction';
   if (d) return pathForDeal(d);
   // No property in focus and no route picked (a state without lien sales offers no lien route button): the lien
   // deal you passed on keeps the lien route.
@@ -145,6 +149,17 @@ function planPathRaw(d: Deal | undefined, deals: Deal[]): RoadmapPath {
   if (lien) return 'certificate';
   // Nothing picked yet: Decide's top strategy decides when it's auctions (so its practice part 2 is the auction one).
   return !picked && decideRoute() === 'auction' ? 'auction' : roadmapPath();
+}
+
+/** A guided learner's saved property still waiting (being researched, not chosen, no practice part 2 done yet). */
+function guidedWaiting(d: Deal): boolean {
+  let guided = false;
+  try { guided = JSON.parse(localStorage.getItem('deedowl.mode.v1') ?? 'null') === 'guided'; } catch { /* storage unavailable */ }
+  if (!guided || (d.stage && d.stage !== 'researching') || rawDealChoice() === `analyzed:${d.id}`) return false;
+  const done = roadmapDone();
+  let credited: string[] = [];
+  try { credited = readKey(CREDITED_KEY, [] as string[], cleanIds); } catch { /* storage unavailable */ }
+  return !['practice', 'a-practice', 'c-practice'].some((id) => done.includes(id) || credited.includes(id));
 }
 
 /** Whether a route is set: one you picked, or Decide's auctions pick (both show as pressed on the roadmap). */
