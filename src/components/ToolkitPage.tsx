@@ -339,7 +339,8 @@ export function FirstDealRoadmap() {
         // Open it and everything around it now (the phase may not have re-rendered open yet): a closed one can't take focus.
         for (let x: HTMLElement | null = el; x; x = x.parentElement) if (x instanceof HTMLDetailsElement) x.open = true;
         el.scrollIntoView({ block: 'start' });
-        el.querySelector<HTMLElement>('.roadmap-step-body textarea, .roadmap-step-body input, .roadmap-step-body select')?.focus({ preventScroll: true });
+        // Its field, or (a step with none) the step itself.
+        (el.querySelector<HTMLElement>('.roadmap-step-body textarea, .roadmap-step-body input, .roadmap-step-body select') ?? el.querySelector<HTMLElement>('summary'))?.focus({ preventScroll: true });
       }, 0);
     };
     go();
@@ -424,7 +425,8 @@ export function FirstDealRoadmap() {
           >
             <option value="">None yet (learning)</option>
             {/* A practice analysis isn't a property you work on (Analyze says so): only one already chosen stays listed. */}
-            {deals.filter((d) => !d.practice || (deal && deal.id === `analyzed:${d.id}`)).map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : ""}</option>)}
+            {/* Nor one you passed on (none of its tasks are next), unless it's the one shown. */}
+            {deals.filter((d) => (!d.practice && d.stage !== 'passed') || (deal && deal.id === `analyzed:${d.id}`)).map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : ""}</option>)}
           </select>
         </label>
         <p className="muted">

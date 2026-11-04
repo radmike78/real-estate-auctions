@@ -55,8 +55,9 @@ export function ContinueButton({ task, dealId, onPlan, label }: { task: PlanTask
     const d = loadDeals().find((x) => x.id === dealId);
     if (d) return <a className="btn big" href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(d); }}>{label ?? 'Continue'}&nbsp;→</a>;
   }
-  // On My plan, a roadmap task is further down this page: the link scrolls there.
-  const href = task.href === ROADMAP_TASK_HREF && !onPlan ? '#/toolkit/roadmap' : task.href;
+  // A roadmap task opens that step in the roadmap (further down My plan), with the cursor in it.
+  const step = task.key.startsWith('roadmap-') ? task.key.slice('roadmap-'.length) : '';
+  const href = task.href === ROADMAP_TASK_HREF ? `#/toolkit/roadmap${step ? `?step=${encodeURIComponent(step)}` : ''}` : task.href;
   return <a className="btn big" href={href}>{label ?? 'Continue'}{task.href === ROADMAP_TASK_HREF && onPlan ? '\u00a0↓' : '\u00a0→'}</a>;
 }
 
@@ -74,7 +75,8 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   const deals = onPlan ? loadDeals() : [];
   const focus = deal ? `analyzed:${deal.id}` : '';
   // A practice analysis isn't a property you work on (Analyze says so): only the one already chosen stays listed.
-  const choices = deals.filter((d) => !d.practice || `analyzed:${d.id}` === focus);
+  // (Nor one you passed on: none of its tasks are next.)
+  const choices = deals.filter((d) => (!d.practice && d.stage !== 'passed') || `analyzed:${d.id}` === focus);
   // The property My plan follows (none while a guided learner's property waits), as the roadmap below counts it.
   const prog = roadmapProgress(deal ? `analyzed:${deal.id}` : '');
   const chooseDeal = (v: string) => {
