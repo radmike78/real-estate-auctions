@@ -56,9 +56,11 @@ const RENTAL_ONLY_BREAKERS = ['Can’t get insurance at a workable price', 'Nega
 // An apartment or commercial building is bought occupied (the tenants are the income) and has no HOA of its own.
 export const COMMERCIAL_DEAL_BREAKERS = ['Rent roll or leases I can’t verify', 'Income coverage below the lender’s minimum', 'Environmental (Phase I) problems'];
 export const LIEN_DEAL_BREAKERS = ['Landlocked or unusable parcel', 'Owner in bankruptcy', 'Interest rate below the minimum in my notes'];
-/** The deal breakers offered for a buy box strategy. */
-export const dealBreakersFor = (strategy: string): string[] =>
-  strategy === LIEN_STRATEGY ? [...DEAL_BREAKERS.filter((t) => !RENTAL_ONLY_BREAKERS.includes(t)), ...LIEN_DEAL_BREAKERS]
+// Nevada's rate is set by law, 1% a month (NRS 271.610): nothing to bid, so the wait is the choice instead.
+const NV_LIEN_DEAL_BREAKERS = ['Landlocked or unusable parcel', 'Owner in bankruptcy', 'Redemption period longer than my notes allow (2 years with a building)'];
+/** The deal breakers offered for a buy box strategy (in its state, for lien certificates). */
+export const dealBreakersFor = (strategy: string, state?: string): string[] =>
+  strategy === LIEN_STRATEGY ? [...DEAL_BREAKERS.filter((t) => !RENTAL_ONLY_BREAKERS.includes(t)), ...(state === 'NV' ? NV_LIEN_DEAL_BREAKERS : LIEN_DEAL_BREAKERS)]
   // A flip is sold, not rented: no rent to fall short.
   : strategy === 'Fix and flip' ? DEAL_BREAKERS.filter((t) => t !== 'Negative cash flow with realistic rent')
   : strategy === 'Apartments and commercial property' ? [...DEAL_BREAKERS.filter((t) => t !== 'HOA with special assessments or lawsuits' && t !== 'Occupied, with no clear path to possession'), ...COMMERCIAL_DEAL_BREAKERS]

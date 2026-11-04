@@ -195,6 +195,11 @@ describe('the deal packet', () => {
     expect(dateGuide({ ...deal, state: 'UT', kind: 'court' }).find((g) => g.what === 'Redemption period ends')).toMatchObject({ when: '180 days after the sale.', why: 'Utah Rule of Civil Procedure 69C' });
     expect(dateGuide({ ...deal, state: 'TX', kind: 'taxSale' }).find((g) => g.what === 'Redemption period ends')?.when).toMatch(/counted from the day your deed is recorded/);
     expect(dateGuide({ ...deal, state: 'CA', kind: 'trustee' }).map((g) => g.what)).toEqual(expect.arrayContaining(['Intent-to-bid window ends', 'Eligible bid deadline (45 days)']));
+    // A Nevada SID lien: when you may act, and when the certificate expires (NRS 271.595).
+    const nvLien = dateGuide({ ...deal, state: 'NV', kind: 'lien' });
+    expect(nvLien.find((g) => g.what === 'Certificate expires')).toMatchObject({ when: expect.stringMatching(/^3 years after the redemption period ends/), why: 'NRS 271.595(6) and (7)' });
+    expect(nvLien.find((g) => g.what === 'Earliest date you may act on an unpaid lien')?.when).toMatch(/120 days after the certificate of sale, or 2 years/);
+    expect(dateGuide({ ...deal, state: 'AZ', kind: 'lien' }).map((g) => g.what)).not.toContain('Certificate expires');
     // An auction's dates follow the official notice (a contract only on an offer).
     const { dealPacketText } = await import('./dealPacket');
     expect(dealPacketText({ ...deal, state: 'CA', kind: 'trustee' }, EMPTY_PACKET, now)).toContain('What the less familiar dates mean (the official notice wins):');

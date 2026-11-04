@@ -816,7 +816,8 @@ const AZ_LIEN_GROUPS: CalcGroup<LienInputs>[] = [
 const AZ_LIEN_DEFAULTS: LienInputs = { price: 2_000, fees: 10, ratePctMonth: 0.75, monthsToRedeem: 12, payoutDelayMonths: 1 };
 
 export function LienCalculator({ storageKey }: { storageKey?: string } = {}) {
-  const az = useCalcRegion().state === 'AZ';
+  const region = useCalcRegion();
+  const az = region.state === 'AZ';
   // A saved deal keeps its own numbers; an unsaved one uses the draft key, which moves to the deal when it's saved.
   const [v, set, typed, typedKeys] = useSaved<LienInputs>(storageKey ?? (az ? 'fsf.calc.lien.az.v1' : 'fsf.calc.lien.v1'), az ? AZ_LIEN_DEFAULTS : LIEN_DEFAULTS);
   const y = lienYield(v);
@@ -837,6 +838,8 @@ export function LienCalculator({ storageKey }: { storageKey?: string } = {}) {
           <small>{overCap ? 'The rate entered is above the legal maximum, so the yield it gives isn’t possible.' : 'On the cash you put in, counting the wait until you’re paid. Not a guarantee.'}</small>
         </div>
         <ExampleResults count={still.length} all={!typed} what="yield" />
+        {/* Washoe County Treasurer (Special Assessments): "The monthly interest of one percent will not be prorated." */}
+        {!az && region.county === 'Washoe' && !Number.isInteger(v.monthsToRedeem) && <p className="note small" role="note">Washoe County says its 1% a month “will not be prorated”, so a part month may not earn its share. This counts {Math.round(v.monthsToRedeem * 10) / 10} months; ask the Treasurer how a part month is counted.</p>}
         {!overCap && <dl className="calc-kv" data-result>
           <div><dt>Interest you’d earn</dt><dd>{fmtMoney(Math.round(y.interest))}</dd></div>
           <div><dt>You’re repaid</dt><dd>{fmtMoney(Math.round(y.payoff))}</dd></div>

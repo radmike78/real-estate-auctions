@@ -77,7 +77,7 @@ function stepEvidence(id: string): string | null {
   if (id === 'money') return investableCash() > 0 ? `Your cash worksheet shows ${fmtMoney(investableCash())} of investable cash.` : null;
   if (id === 'buybox') {
     const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);
-    return b.area && b.types.length && b.priceMax && b.dealBreakers.filter((t) => dealBreakersFor(b.strategy).includes(t)).length >= 3 ? 'Your buy box has an area, property types, a price limit and at least three deal breakers.' : null;
+    return b.area && b.types.length && b.priceMax && b.dealBreakers.filter((t) => dealBreakersFor(b.strategy, b.state).includes(t)).length >= 3 ? 'Your buy box has an area, property types, a price limit and at least three deal breakers.' : null;
   }
   if (id === 'c-buybox') {
     const b = read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox);
@@ -769,6 +769,9 @@ function BuyBoxBuilder() {
   const buyCash = buyAuction || planPath() === 'certificate' || investorProfile().loan === 'cash';
   // A cash buyer's price and repairs both come from the cash (closing and holding costs on top).
   const cashNeed = b.priceMax + Math.max(0, b.repairsMax || 0);
+  // With a loan: the down payment, closing costs and reserves, and repairs from the same cash.
+  const repairsIn = Math.max(0, b.repairsMax || 0);
+  const loanNeed = cashForPrice(b.priceMax, pa).total;
   const toggle = (k: 'types' | 'dealBreakers', v: string) => set(k, b[k].includes(v) ? b[k].filter((x) => x !== v) : [...b[k], v]);
   const money = (k: 'priceMax' | 'repairsMax' | 'cashMax' | 'minCashFlow', label: string, hint?: string) => (
     <label className="field">
@@ -780,7 +783,7 @@ function BuyBoxBuilder() {
   const state = STATES.find((s) => s.code === b.state);
   const lien = b.strategy === LIEN_STRATEGY;
   // Ones ticked under another strategy that this one doesn't offer stay saved, but aren't shown.
-  const shownBreakers = b.dealBreakers.filter((t) => dealBreakersFor(b.strategy).includes(t));
+  const shownBreakers = b.dealBreakers.filter((t) => dealBreakersFor(b.strategy, b.state).includes(t));
   // A flip is sold, not rented: no rental cash-flow target. Flips and auctions set a price to bid or pay, not a loan size.
   const flip = b.strategy === 'Fix and flip';
   const bidPrice = flip || b.strategy === 'Tax and foreclosure auctions';
@@ -853,15 +856,20 @@ function BuyBoxBuilder() {
       {lien && lienDeal && (b.state || mine) !== lienDeal.state && <p className="note" role="note">Your lien deal is in {stateByCode(lienDeal.state)?.name ?? lienDeal.state}, where lien certificates are sold: set this buy box’s State to {stateByCode(lienDeal.state)?.name ?? lienDeal.state} so its limits fit that sale. <button type="button" className="linkish" onClick={() => { const nm = stateByCode(lienDeal.state)?.name ?? lienDeal.state; const area = countyName(lienDeal.county); setSwitched(`Switched to ${nm}, with your lien deal’s county (${area}) as the area.`); setB({ ...b, state: lienDeal.state, area }); setTimeout(() => document.getElementById('buybox-state')?.focus(), 0); }}>Set it to {stateByCode(lienDeal.state)?.name ?? lienDeal.state}</button></p>}
       {lien && <p className="muted">A lien certificate isn’t the property: there’s no rent and nothing to repair. Your buy box is the parcels you’ll bid on, what you’ll pay, and how long your money can wait. Property types and deal breakers below describe the land behind each lien.</p>}
       {!b.strategy && suggested && <p className="roadmap-has">Decide suggested: <strong>{suggested}</strong>. <button type="button" className="linkish" onClick={() => set('strategy', suggested)}>Use it</button></p>}
+      {lien && b.priceMax > 0 && b.cashMax > 0 && b.priceMax > b.cashMax && (
+        <p className="caution" role="status">
+          <strong>Your per-certificate limit is more than your cash.</strong> A certificate’s full price, plus any fees, is due by the sale’s payment deadline. Your {fmtMoney(b.cashMax)} can’t cover {fmtMoney(b.priceMax)} for one certificate. Lower the most for one certificate to what your cash covers, leaving room for later taxes you may pay to protect it.
+        </p>
+      )}
       {/* Paying cash (an auction, or Decide's "Cash only"): the whole price comes from your cash, with no loan. */}
       {!lien && b.priceMax > 0 && b.cashMax > 0 && buyCash && cashNeed > b.cashMax && (
         <p className="caution" role="status">
           <strong>{b.priceMax > b.cashMax ? 'Your price limit is more than your cash.' : 'Your price and repair limits are more than your cash.'}</strong> Your {fmtMoney(b.cashMax)} can’t cover {fmtMoney(b.priceMax)} for the {buyAuction ? 'bid' : 'price'}{b.priceMax > b.cashMax ? '' : <> plus {fmtMoney(b.repairsMax)} of repairs</>}, and holding costs come on top{buyAuction ? '' : ' (paying cash, the whole price comes from your cash)'}. Lower the {b.priceMax > b.cashMax ? 'price' : 'price or repairs'} to what your cash covers{buyAuction ? ', or line up funding that’s in hand before the sale' : ''}.
         </p>
       )}
-      {!lien && !buyCash && b.priceMax > 0 && b.cashMax > 0 && cashForPrice(b.priceMax, pa).total > b.cashMax && (
+      {!lien && !buyCash && b.priceMax > 0 && b.cashMax > 0 && loanNeed + repairsIn > b.cashMax && (
         <p className="caution" role="status">
-          <strong>Your price limit needs more cash than you have.</strong> At {fmtMoney(b.priceMax)}, {pa.downPct}% down, about {pa.closingPct}% closing costs and {pa.reserveMonths} months of reserves take about {fmtMoney(Math.round(cashForPrice(b.priceMax, pa).total))}, more than your {fmtMoney(b.cashMax)}. Lower the price, or check a lower down payment with your lender.
+          <strong>{repairsIn > 0 ? 'Your price and repair limits need more cash than you have.' : 'Your price limit needs more cash than you have.'}</strong> At {fmtMoney(b.priceMax)}, {pa.downPct}% down, about {pa.closingPct}% closing costs and {pa.reserveMonths} months of reserves take about {fmtMoney(Math.round(loanNeed))}{repairsIn > 0 ? <>; with {fmtMoney(repairsIn)} of repairs that’s about {fmtMoney(Math.round(loanNeed + repairsIn))}</> : ''}, more than your {fmtMoney(b.cashMax)}. Lower the price{repairsIn > 0 ? ' or the repairs' : ''}, or check a lower down payment with your lender.
         </p>
       )}
       {(() => {
@@ -877,11 +885,11 @@ function BuyBoxBuilder() {
       </fieldset>
       <fieldset className="buybox-checks">
         <legend>Deal breakers: I walk away if…</legend>
-        {dealBreakersFor(b.strategy).map((t) => <label key={t}><input type="checkbox" checked={b.dealBreakers.includes(t)} onChange={() => toggle('dealBreakers', t)} /> {t}</label>)}
+        {dealBreakersFor(b.strategy, b.state).map((t) => <label key={t}><input type="checkbox" checked={b.dealBreakers.includes(t)} onChange={() => toggle('dealBreakers', t)} /> {t}</label>)}
       </fieldset>
       <label className="field">
         <span>Notes</span>
-        <textarea maxLength={1000} rows={3} value={b.notes} onChange={(e) => set('notes', e.target.value)} placeholder={lien ? 'e.g. the lowest interest rate I’ll accept, and the counties I’ll bid in' : undefined} />
+        <textarea maxLength={1000} rows={3} value={b.notes} onChange={(e) => set('notes', e.target.value)} placeholder={lien ? (b.state === 'NV' ? 'e.g. the longest wait I’ll accept, and the parcels I’ll skip' : 'e.g. the lowest interest rate I’ll accept, and the counties I’ll bid in') : undefined} />
       </label>
       <div className="buybox-summary">
         <h3>My buy box</h3>
@@ -928,9 +936,12 @@ function buyBoxText(b: BuyBox, stateName?: string): string {
           `Cash I can put in, all in: ${money(b.cashMax)}`,
           ...(b.strategy === 'Fix and flip' ? [] : [`Least cash flow per month: ${money(b.minCashFlow)}`]),
         ]),
-    `I walk away if: ${b.dealBreakers.filter((t) => dealBreakersFor(b.strategy).includes(t)).join('; ')}`,
+    `I walk away if: ${b.dealBreakers.filter((t) => dealBreakersFor(b.strategy, b.state).includes(t)).join('; ')}`,
     `Notes: ${b.notes}`,
-  ].join('\n');
+  ]
+    // A field left blank says so, instead of a bare label.
+    .map((l) => (/^[^:]+: *$/.test(l) && !/^(My buy box|DeedOwl)/.test(l) ? `${l.trimEnd()} not set` : l))
+    .join('\n');
 }
 
 /** Required credentials depend on the service and location; qualifications do not replace a required license. */
