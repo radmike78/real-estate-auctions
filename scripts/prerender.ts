@@ -151,6 +151,17 @@ export function pages(): Page[] {
   return out;
 }
 
+/** The no-JavaScript note under a page's title: a thin page says parts need JavaScript; a page that names more than
+ *  one of our states says why it shows them all. Nothing when neither applies. */
+function noscriptNote(body: string): string {
+  const states = ['Nevada', 'California', 'Arizona', 'Utah', 'Texas'].filter((n) => body.includes(n)).length;
+  const lines = [
+    ...(body.length < 2000 ? ['Parts of this page need JavaScript. The lessons in Learn work without it.'] : []),
+    ...(states > 1 ? ['This copy shows the rules for all five states we cover, each labeled with its state; turn on JavaScript to see only yours.'] : []),
+  ];
+  return lines.length ? `<noscript><p>${lines.join(' ')}</p></noscript>` : '';
+}
+
 export function render(template: string, p: Page): string {
   const canonical = `${SITE}${p.path}`;
   const nav = `<a class="skip-link" href="#content">Skip to content</a><nav class="pre-nav"><a class="pre-logo" href="/"><img src="/logo.svg" alt="" width="32" height="32"> DeedOwl</a><ul>${NAV.map(([h, t]) => `<li>${link(h, t)}</li>`).join('')}</ul></nav>`;
@@ -159,7 +170,7 @@ export function render(template: string, p: Page): string {
     .replace(/(src|href)="\.?\/?(?!\/|https?:)([^"]+)"/g, (_m, attr: string, f: string) => `${attr}="/${f}"`)
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(p.title)}</title>\n    <link rel="canonical" href="${esc(canonical)}" />\n    <meta property="og:title" content="${esc(p.title)}" />\n    <meta property="og:description" content="${esc(p.description)}" />\n    <meta property="og:url" content="${esc(canonical)}" />`)
     .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${esc(p.description)}" />`)
-    .replace('<div id="root"></div>', `<div id="root">${nav}<main id="content" style="min-height:100vh">${p.body.length < 2000 ? p.body.replace(/(<\/h1>)/, '$1<noscript><p>Parts of this page need JavaScript. The lessons in Learn work without it. This copy shows the rules for all five states we cover, each labeled with its state; turn on JavaScript to see only yours.</p></noscript>') : p.body}</main></div>`);
+    .replace('<div id="root"></div>', `<div id="root">${nav}<main id="content" style="min-height:100vh">${p.body.replace(/(<\/h1>)/, `$1${noscriptNote(p.body)}`)}</main></div>`);
 }
 
 export function sitemap(all: Page[]): string {

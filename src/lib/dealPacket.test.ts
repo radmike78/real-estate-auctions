@@ -209,7 +209,14 @@ describe('the deal packet', () => {
     // Nevada: the trustee's deed (NRS 107.080(10)-(12)), a tax sale's 2-year window (361.600), an offer's own deadlines.
     expect(dateGuide({ ...deal, state: 'NV', kind: 'trustee' }).find((g) => g.what === 'Deed recorded')?.why).toBe('NRS 107.080(10) to (12)');
     expect(dateGuide({ ...deal, state: 'NV', kind: 'taxSale' }).find((g) => g.what === 'Recovery-suit window ends')).toMatchObject({ when: '2 years after the treasurer’s deed is delivered to you.', why: 'NRS 361.600' });
-    expect(dateGuide({ ...deal, state: 'NV', kind: 'listing' }).map((g) => g.what)).toEqual(expect.arrayContaining(['Seller’s disclosure form due', 'Defect cancellation deadline', 'HOA resale package: cancel by', 'Closing']));
+    expect(dateGuide({ ...deal, state: 'NV', kind: 'listing' }).map((g) => g.what)).toEqual(expect.arrayContaining(['Seller’s disclosure form due', 'Defect cancellation deadline', 'HOA resale package: cancel by (homes in an HOA)', 'Closing']));
+    // A Nevada short sale gets Nevada's offer deadlines too; the HOA one says it's for homes in an HOA; who records a certificate.
+    expect(dateGuide({ ...deal, state: 'NV', kind: 'short' }).map((g) => g.what)).toEqual(expect.arrayContaining(['Seller’s disclosure form due', 'HOA resale package: cancel by (homes in an HOA)']));
+    expect(dateGuide({ ...deal, state: 'NV', kind: 'court' }).find((g) => g.what === 'Certificate of sale recorded')).toMatchObject({ who: 'The sheriff', why: 'NRS 21.190' });
+    const { stageLabel, stageHint } = await import('./dealStage');
+    expect(stageLabel('closed', { kind: 'hoa', state: 'NV' })).toBe('Certificate of sale recorded');
+    expect(stageHint('closed', { kind: 'court', state: 'NV' })).toMatch(/1 year after the sale/);
+    expect(stageLabel('closed', { kind: 'hoa', state: 'TX' })).toBe('Deed recorded');
     // An auction's dates follow the official notice (a contract only on an offer).
     const { dealPacketText } = await import('./dealPacket');
     expect(dealPacketText({ ...deal, state: 'CA', kind: 'trustee' }, EMPTY_PACKET, now)).toContain('What the less familiar dates mean (the official notice wins):');

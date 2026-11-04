@@ -265,6 +265,13 @@ function typedWait(d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal[
   return Math.round(i.redemptionMonths * 10) > 0 && redemptionWho(d, i) !== null;
 }
 
+/** Nevada's own deadlines on a home bought by offer (NRS 113.130, 113.150, 116.4109, leg.state.nv.us). */
+const NV_OFFER_DATES: DateGuide[] = [
+  { what: 'Seller’s disclosure form due', when: 'At least 10 days before closing.', who: 'The seller or the seller’s agent', todo: 'Read it as soon as it arrives.', missed: 'If it never comes, you may cancel before closing without penalty.', why: 'NRS 113.130(1) and 113.150(1)' },
+  { what: 'Defect cancellation deadline', when: '4 working days after you’re told of a defect in writing.', who: 'You', todo: 'To cancel, put it in writing, have it notarized, and serve it on escrow (or the seller if there’s no escrow).', missed: 'You can close and accept the defect as disclosed.', why: 'NRS 113.150(2) and (3)' },
+  { what: 'HOA resale package: cancel by (homes in an HOA)', when: 'Midnight of the 5th calendar day after you receive it.', who: 'You', todo: 'Write down the day it arrives; to cancel, give written notice.', missed: 'The right to cancel under that law ends.', why: 'NRS 116.4109(2)' },
+];
+
 /** The dates most deals of this kind need on the calendar, each with how it works where we have it (Texas contracts). */
 export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan']; id?: string }): DateGuide[] {
   const tx = d.state === 'TX';
@@ -274,14 +281,12 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   ];
   // Utah's state-approved purchase contract (REPC, section 24) has its own named deadlines.
   if (isOffer(d) && d.state === 'UT') return names([...(d.kind === 'short' ? ['Lienholder approval deadline (from the short sale addendum)'] : []), 'Acceptance (Day 0)', 'Earnest Money Deposit due (4 calendar days after Acceptance, unless the contract says otherwise)', 'Seller Disclosure Deadline', 'Due Diligence Deadline', 'Financing & Appraisal Deadline', 'Settlement Deadline', ...(d.kind === 'reo' ? ['Any dates the bank’s addendum changes (it can replace the REPC’s)'] : [])]);
-  if (d.kind === 'short') return [...names(['Contract signed']), ...(tx ? TX_DEPOSIT_DATES : []), ...names(['Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)']), ...(tx ? [TX_SHORT_OPTION_END, txDisclosureDate(true), txHoaDate(true), TX_TITLE_DATE, txWaterDate(true), txAppraisalDate(true), ...txLoanDates(true)] : names(['Inspection period ends', 'Loan approval deadline'])), ...names(['Closing'])];
+  if (d.kind === 'short') return [...names(['Contract signed']), ...(tx ? TX_DEPOSIT_DATES : []), ...names(['Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)']), ...(d.state === 'NV' ? NV_OFFER_DATES : []), ...(tx ? [TX_SHORT_OPTION_END, txDisclosureDate(true), txHoaDate(true), TX_TITLE_DATE, txWaterDate(true), txAppraisalDate(true), ...txLoanDates(true)] : names(['Inspection period ends', 'Loan approval deadline'])), ...names(['Closing'])];
   // Nevada (leg.state.nv.us): the seller's disclosure form at least 10 days before conveyance (NRS 113.130(1)); rescission
   // if it isn't served (113.150(1)), or within 4 working days, notarized, after a disclosed defect (113.150(2)-(3)); and 5
   // calendar days to cancel after an HOA's resale package arrives (116.4109(2)).
   if (isOffer(d) && d.state === 'NV') return [...names(['Offer accepted (Day 0)', 'Earnest money due', 'Inspection period ends']),
-    { what: 'Seller’s disclosure form due', when: 'At least 10 days before closing.', who: 'The seller or the seller’s agent', todo: 'Read it as soon as it arrives.', missed: 'If it never comes, you may cancel before closing without penalty.', why: 'NRS 113.130(1) and 113.150(1)' },
-    { what: 'Defect cancellation deadline', when: '4 working days after you’re told of a defect in writing.', who: 'You', todo: 'To cancel, put it in writing, have it notarized, and serve it on escrow (or the seller if there’s no escrow).', missed: 'You can close and accept the defect as disclosed.', why: 'NRS 113.150(2) and (3)' },
-    { what: 'HOA resale package: cancel by', when: 'Midnight of the 5th calendar day after you receive it.', who: 'You', todo: 'Write down the day it arrives; to cancel, give written notice.', missed: 'The right to cancel under that law ends.', why: 'NRS 116.4109(2)' },
+    ...NV_OFFER_DATES,
     ...names(['Appraisal deadline', 'Loan approval deadline', 'Closing'])];
   if (isOffer(d)) return [...names(['Offer accepted (Day 0)']), ...(tx ? TX_DEPOSIT_DATES : names(['Earnest money due'])), ...(tx ? [TX_OPTION_END, txDisclosureDate(false), txHoaDate(false), TX_TITLE_DATE, txWaterDate(false), txAppraisalDate(false), ...txLoanDates(false)] : names(['Inspection period ends', 'Appraisal deadline', 'Loan approval deadline'])), ...names(['Closing'])];
   // Nevada tax sale (leg.state.nv.us): the treasurer gives a quitclaim deed and records it at the purchaser's expense (NRS
@@ -320,6 +325,9 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   // (A trustee's sale lists registration only if the trustee requires one: the statutes set no registration step.)
   if (d.kind === 'trustee') return [{ what: 'Registration (if required)', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline', 'Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court') ? 'Certificate of sale recorded' : 'Deed or certificate recorded'];
+  const nvCert = d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court')
+    ? { what: 'Certificate of sale recorded', when: 'After the sale.', who: d.kind === 'hoa' ? 'The person who conducted the sale (the HOA’s agent)' : 'The sheriff', todo: 'Get a recorded copy, and insure the property right away.', missed: 'Ask who conducted the sale when it will be recorded.', why: d.kind === 'hoa' ? 'NRS 116.31166(2)' : 'NRS 21.190' }
+    : null;
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
   // Texas execution sale; a Texas tax sale has its own redemption period (Tax Code 34.21).
   if ((['hoa', 'irs', 'court'].includes(d.kind) || (d.kind === 'taxSale' && d.state === 'TX')) && redemptionChoicesFor(d.state, d.kind).start !== 'none' && savedRule(d) !== 'none') out.push('Redemption period ends');
@@ -337,7 +345,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
     : d.state === 'TX' && d.kind === 'taxSale' && ownerRule
       ? { what: 'Redemption period ends', when: '180 days, or 2 years for the owner’s home (homestead), land designated for agricultural use or a mineral interest, counted from the day your deed is recorded, not from sale day.', who: 'The former owner', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends.', missed: 'After it ends, the owner can no longer redeem under that law.*', why: 'Tax Code 34.21' }
       : null);
-  return names(out).map((g) => (ends && g.what === 'Redemption period ends' ? ends : g));
+  return names(out).map((g) => (ends && g.what === 'Redemption period ends' ? ends : nvCert && g.what === nvCert.what ? nvCert : g));
 }
 
 /** The names of the dates most deals of this kind need on the calendar, to start the list from. */

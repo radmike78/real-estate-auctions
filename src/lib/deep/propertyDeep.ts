@@ -1470,7 +1470,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
       "Vacancy in the storefront: you carry the building’s mortgage, taxes and insurance with no retail rent while you look for a tenant.",
       "Tenant improvements and build-out. New business tenants often need plumbing, electrical, venting or accessibility work before they can open.",
       "Commercial-grade insurance and code compliance (fire separation between the shop and homes, accessibility for the public area).",
-      "City charges where they exist. In California, San Francisco supervisors looked at a vacancy tax or fee on owners who leave storefronts empty (2017)."
+      "City charges where they exist: ask the city about business licenses and other local charges. In California, San Francisco supervisors looked at a vacancy tax or fee on owners who leave storefronts empty (2017)."
     ],
     money: [
       "Fannie Mae buys loans on homes with a business space (such as a day care, barber shop or doctor’s office) only if the borrower lives there as a principal residence, owns and runs the business, and the property is mainly residential.",
