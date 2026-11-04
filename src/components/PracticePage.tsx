@@ -1,5 +1,5 @@
 import { stateByCode } from '../lib/regions';
-import { practiceState, routePractice } from '../lib/planNext';
+import { practiceState, routePractice, guidedPracticeDone } from '../lib/planNext';
 import { planPath, roadmapDone } from '../lib/roadmapState';
 import { practicePart2Done } from '../lib/journey';
 import NarrowDown from './NarrowDown';
@@ -69,6 +69,8 @@ export default function PracticePage({ sale }: { sale?: string }) {
   const [mineRaw] = useMyState();
   // Practice part 2 settled on the auction or lien route before a listed home changed the route.
   const partTwoElsewhere = !practicePart2Done() && ['a-practice', 'c-practice'].some((id) => roadmapDone().includes(id));
+  // Its own step marked done (or "doesn't apply") in My plan by hand: it's done, as My plan says.
+  const partTwoMarked = !practicePart2Done() && !partTwoElsewhere && guidedPracticeDone('listing');
   const mine = practiceState() === 'NV' ? 'NV' : mineRaw;
   const [cls, setCls] = useState<ClassFilter>('all');
   const chosen = mine === 'NV' && sale && (SALE_ORDER as string[]).includes(sale) ? (sale as SaleKey) : null;
@@ -162,7 +164,8 @@ export default function PracticePage({ sale }: { sale?: string }) {
         </div>
         </> : <>
         {/* Part 2 already settled on another route (an auction or lien practice): this one is extra now. */}
-        <h2 id="practice-case" className="practice-step">{partTwoElsewhere ? 'Optional: Buy a rental (the paperwork)' : 'Practice part 2: Buy a rental (the paperwork)'}</h2>
+        <h2 id="practice-case" className="practice-step">{partTwoElsewhere || partTwoMarked ? 'Optional: Buy a rental (the paperwork)' : 'Practice part 2: Buy a rental (the paperwork)'}</h2>
+        {partTwoMarked && <p className="practice-step-intro"><strong>You marked practice part 2 done in My plan.</strong> The rental purchase is still here if you’d like the paperwork practice.</p>}
         {partTwoElsewhere && <p className="practice-step-intro"><strong>Your practice part 2 is done:</strong> you finished the {roadmapDone().includes('c-practice') ? 'lien practice' : 'auction practice'} before you chose a listed home. This rental purchase is extra, if you’d like the paperwork for a listed home too.</p>}
         <p className="practice-step-intro">Part 1 was the decisions; part 2 is the paperwork, on a new fictional house. Work one fictional purchase from your budget to the first months of renting it out. Read teaching versions of the paperwork (comparables, a loan quote, an inspection report, a title commitment, a closing statement), each with a guide to reading the real form, and make the calls when things go wrong. You finish with your own deal packet: a budget, a deadline calendar, an evidence log and your questions for each professional.</p>
         <div className="practice-case-go">

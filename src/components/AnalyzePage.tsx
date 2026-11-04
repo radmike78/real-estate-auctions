@@ -1,5 +1,5 @@
 import { planNow, practiceLienDeal, roadmapNextStep } from '../lib/planNext';
-import { lienDealFor, planPath } from '../lib/roadmapState';
+import { lienDealFor, planPath, progressChanged } from '../lib/roadmapState';
 import PathNext from './PathNext';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useRef, useState } from 'react';
@@ -401,7 +401,14 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           <p className="note" role="status">You passed on “{deal.name}”. Changes here update it in My deals. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button></p>
         )}
         {deal.id && deal.practice && !savingPractice() && saved.find((d) => d.id === deal.id)?.stage !== 'passed' && (
-          <p className="note" role="status">This is your practice analysis “{deal.name}”. Changes here update it in My deals, and it stays a practice analysis. Found a real property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button></p>
+          <p className="note" role="status">This is your practice analysis “{deal.name}”. Changes here update it in My deals, and it stays a practice analysis. Found a real property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button>{' '}or, if this one is a real property, <button type="button" className="linkish" onClick={() => {
+            // A real home saved while My plan was on a practice step: it becomes a real deal (My plan can follow it).
+            const id = deal.id;
+            saveDeals(loadDeals().map((x) => (x.id === id ? { ...x, practice: undefined, updatedAt: nextStamp(x.updatedAt) } : x)));
+            setSaved(loadDeals());
+            setDeal((d) => ({ ...d, practice: undefined }));
+            progressChanged();
+          }}>make it a real deal</button>.</p>
         )}
         <p className="muted">Found a property on an official list, a listing site or from your agent? Enter it here. You’ll get the checklist for that kind of sale in that county, and the calculator for your plan. Save it to come back to it in My deals.</p>
         {(() => {

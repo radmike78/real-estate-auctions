@@ -161,4 +161,12 @@ describe('practice part 2 follows your route', () => {
     noteStateMove('NV', 'TX'); setMyState('TX');
     expect(movedFrom()).toBeNull();
   });
+
+  it('counts the rental purchase step marked done in My plan as practice part 2 done', async () => {
+    const { planNow } = await import('./planNext');
+    localStorage.setItem('deedowl.roadmap.path.v1', JSON.stringify('listing'));
+    expect(planNow(new Date('2026-11-03T12:00:00Z')).context).toBe('Step 3 · Practice part 2: Buy a rental (the paperwork)');
+    localStorage.setItem('deedowl.roadmap.v1', JSON.stringify(['practice']));
+    expect(planNow(new Date('2026-11-03T12:00:00Z')).context).not.toMatch(/Practice part 2/);
+  });
 });
