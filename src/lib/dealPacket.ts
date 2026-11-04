@@ -165,6 +165,13 @@ const txLoanDates = (short: boolean): DateGuide[] => [
 const names = (xs: string[]): DateGuide[] => xs.map((what) => ({ what }));
 
 /** The dates most deals of this kind need on the calendar, each with how it works where we have it (Texas contracts). */
+/** A redemption wait typed in Fix and sell for this deal (a what-if its price is built on). */
+function typedWait(d: { id?: string; plan?: Deal['plan'] }): boolean {
+  if (!d.id || d.plan !== 'flip') return false;
+  const raw = read(`fsf.bid.analyzed-${d.id}.v1`) as { redemptionMonths?: unknown } | null;
+  return !!raw && typeof raw.redemptionMonths === 'number' && raw.redemptionMonths > 0;
+}
+
 export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan']; id?: string }): DateGuide[] {
   const tx = d.state === 'TX';
   // A commercial building isn't bought on a home contract (Texas: TREC's one-to-four-family form), so no home-form dates.
@@ -180,13 +187,13 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   if (d.kind === 'trustee' && d.state === 'CA') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),
     { what: '15-day intent-to-bid window', when: 'For a home of 1–4 units: 15 days after the sale.', who: 'Eligible bidders (such as tenants and some buyers who will live there)', todo: 'Watch for a notice that one of them intends to bid; until then your win isn’t final.', missed: 'If none gives notice in time, your win stands, unless an exception applies.*', why: 'Civil Code 2924m, in effect until January 1, 2031' },
     { what: '45-day eligible bid deadline', when: 'For a home of 1–4 units: 45 days after the sale, if one gave notice of intent.', who: 'The eligible bidder who gave notice', todo: 'Plan for the chance that a higher eligible bid replaces yours.', missed: 'If no qualifying bid arrives in time, your win stands.', why: 'Civil Code 2924m, in effect until January 1, 2031' },
-    ...names(['Deed recorded'])];
+    ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
   // Texas execution sale; a Texas tax sale has its own redemption period (Tax Code 34.21).
   if ((['hoa', 'irs', 'court'].includes(d.kind) || (d.kind === 'taxSale' && d.state === 'TX')) && !(d.state === 'TX' && d.kind === 'court')) out.push('Redemption period ends');
   // A redemption wait typed in Fix and sell (a what-if the price is built on) puts its end on the calendar too.
-  else if (d.id && d.plan === 'flip') { const raw = read(`fsf.bid.analyzed-${d.id}.v1`) as { redemptionMonths?: unknown } | null; if (raw && typeof raw.redemptionMonths === 'number' && raw.redemptionMonths > 0) out.push('Redemption period ends'); }
+  else if (typedWait(d)) out.push('Redemption period ends');
   return names(out);
 }
 
@@ -365,7 +372,8 @@ export function savedNumbers(d: Deal) {
         const pp = proposedPriceOf(i);
         const at = pp ? { ...resultAtPrice(i, pp.price), source: pp.source } : null;
         const stress = stressCases(i).map((c) => ({ label: c.label, maxBid: maxSafeBid(c.inputs).maxBid, profit: pp ? resultAtPrice(c.inputs, pp.price).profit : null }));
-        bid = { noTarget: !!i.profitInDollars && !(i.targetProfitMin > 0), targetTyped: (() => { const t = readConfirmed(`fsf.bid.analyzed-${d.id}.v1`); return t.has('targetProfitPct') || t.has('profitInDollars') || !!i.profitInDollars || (t.has('targetProfitMin') && (i.exitValue * i.targetProfitPct) / 100 < i.targetProfitMin); })(), cashBlocked: r.noBidWorks && r.profitBid > 0, profitBid: r.profitBid, maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: !offer && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: !offer && i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer), redeem: (() => { const price = at ? at.price : r.noBidWorks ? 0 : r.maxBid; const o = !offer && price > 0 ? redemptionOutcome(i, price) : null; return o ? { months: Math.round(i.redemptionMonths), price, ...o } : null; })() };
+        bid = { noTarget: !!i.profitInDollars && !(i.targetProfitMin > 0), targetTyped: (() => { const t = readConfirmed(`fsf.bid.analyzed-${d.id}.v1`); return t.has('targetProfitPct') || t.has('profitInDollars') || !!i.profitInDollars || (t.has('targetProfitMin') && (i.exitValue * i.targetProfitPct) / 100 < i.targetProfitMin); })(), cashBlocked: r.noBidWorks && r.profitBid > 0, profitBid: r.profitBid, maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: !offer && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: !offer && i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer), redeem: (() => { // Your own price, else the walk-away price (as Fix and sell shows it; not the opening bid).
+        const price = at?.source === 'yours' ? at.price : r.noBidWorks ? 0 : r.maxBid; const o = !offer && price > 0 ? redemptionOutcome(i, price) : null; return o ? { months: Math.round(i.redemptionMonths), price, ...o } : null; })() };
       }
     }
   } else if (d.plan === 'commercial' && own) {

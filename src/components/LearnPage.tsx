@@ -27,6 +27,8 @@ function withoutState(text: string, st: StateCode): string {
   return text
     .replace(new RegExp(`^${name} (\\S)`), (_m, c: string) => c.toUpperCase())
     .replace(new RegExp(`\\b(A|a) ${name} ([aeiou])`, 'g'), '$1n $2')
+    // "An Arizona homeowners association" → "A homeowners association".
+    .replace(new RegExp(`\\b(A|a)n ${name} (?=[^aeiouAEIOU])`, 'g'), '$1 ')
     .replace(new RegExp(`\\b(a|A|an|An|the|The|Most|most|each|Each) ${name} (?=[a-z])`, 'g'), '$1 ');
 }
 

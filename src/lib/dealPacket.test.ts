@@ -4,7 +4,7 @@ import { teamRolesFor, cleanPacket, savedNumbers, dealPacketText, EMPTY_PACKET, 
 import { saveLog, cleanLog } from './evidence';
 import { stageTasks } from './dealStage';
 import { dealNumbers } from './propertyPacket';
-import { cashNeededAtBid, offerInputs, profitAtBid, sanitizeInputs, BLANK_INPUTS } from './bidCalc';
+import { cashNeededAtBid, maxSafeBid, offerInputs, profitAtBid, redemptionOutcome, sanitizeInputs, BLANK_INPUTS } from './bidCalc';
 
 // Numbers a test stores for a deal's calculator count as typed by the reader (as they would be in the app), unless the
 // test stores its own typed list.
@@ -156,6 +156,17 @@ describe('the deal packet', () => {
     const text = packetSections(flip, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
     expect(text).toMatch(/Built on a 6-month redemption wait\. If the owner redeems at its end, you’d get back about \$[\d,]+\* on a \$[\d,]+ bid, having spent about \$[\d,]+: about \$[\d,]+ short/);
     expect(dateGuide({ ...flip }).map((g) => g.what)).toContain('Redemption period ends');
+    // With no bid typed, at the walk-away price (as Fix and sell shows it), not the opening bid; with interest.
+    const inputs = { minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 12 };
+    localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify(inputs));
+    const walk = maxSafeBid(sanitizeInputs(inputs, BLANK_INPUTS)).maxBid;
+    const o = redemptionOutcome(sanitizeInputs(inputs, BLANK_INPUTS), walk)!;
+    const t2 = packetSections(flip, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
+    const usd = (n: number) => '$' + Math.round(n).toLocaleString('en-US');
+    expect(t2).toContain('on a ' + usd(walk) + ' bid');
+    expect(t2).toContain('about ' + usd(Math.abs(o.net)) + ' ' + (o.net < 0 ? 'short' : 'ahead'));
+    // A California trustee flip with a typed wait gets the date too.
+    expect(dateGuide({ ...flip, state: 'CA', kind: 'trustee' }).map((g) => g.what)).toContain('Redemption period ends');
     // No wait: neither.
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000 }));
     expect(packetSections(flip, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).not.toMatch(/redemption wait/);

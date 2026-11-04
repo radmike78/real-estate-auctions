@@ -3004,4 +3004,4 @@ dl.cash-result .cash-main { border-color: var(--accent); }
 }
 /* The guides' part headings are h2 now (heading order); they keep the weight they had as h3. */
 .pro-guide h2.part-head, .pro-guide-stories h2.part-head, .pro-fold > summary h2.part-head { font-weight: 700; }
-main h1[tabindex="-1"]:focus:not(:focus-visible) { outline: none; }
+main h1[tabindex="-1"]:focus:not(:focus-visible), main h2[tabindex="-1"]:focus:not(:focus-visible), main h3[tabindex="-1"]:focus:not(:focus-visible) { outline: none; }

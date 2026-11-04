@@ -26,7 +26,7 @@ export default function AnnouncedResults({ className, children }: { className?: 
       pieces(b, out, cur); if (cur.s.trim()) out.push(cur.s);
       // (A sentence run into the next one in the markup, "guarantee.Still", gets its space.)
       const parts = out.map((p) => p.replace(/\s+/g, ' ').replace(/([.!?])(?=[A-Z])/g, '$1 ').trim()).filter(Boolean);
-      return parts.reduce((acc, p, k) => (k === 0 ? p : `${acc}${/[.:!?]$/.test(acc) ? ' ' : parts[k - 1].length < 40 && !/^[$\d−-]/.test(parts[k - 1]) ? ': ' : '. '}${p}`), '');
+      return parts.reduce((acc, p, k) => (k === 0 ? p : `${acc}${/[.:!?]$/.test(acc) ? ' ' : parts[k - 1].length < 40 && !/^[$\d−—–-]/.test(parts[k - 1]) ? ': ' : '. '}${p}`), '');
     };
     const sentences = (x: string) => x.split(/(?<=[.!?])\s+/).filter(Boolean);
     const boxes = () => [...el.querySelectorAll<HTMLElement>('.calc-verdict, .calc-max, [data-result]')].filter((b) => b.getClientRects().length > 0);
