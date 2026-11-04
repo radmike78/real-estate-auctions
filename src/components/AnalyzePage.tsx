@@ -12,7 +12,7 @@ import { CalcRegion } from './calcRegion';
 import { useMarkStep, stepEyebrow } from '../lib/path';
 import { dropStateLead, useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { CURRENT_KEY, KEPT_NOTE_KEY, OPENED_KEY, keepUnsavedDraft, movedFrom, noteStateMove, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, nextStamp, restoreDraftNumbers, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
+import { CURRENT_KEY, KEPT_NOTE_KEY, OPENED_KEY, clearLienDraftNumbers, keepUnsavedDraft, movedFrom, noteStateMove, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, nextStamp, restoreDraftNumbers, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
 import { worksheetDownPct, investorProfile, commercialLoanStart } from '../lib/myPlan';
@@ -61,6 +61,30 @@ const lastAuctionKind = (st: StateCode): SaleKind => {
 };
 // A lien route in a state without lien sales starts the new deal as an auction there (as My plan follows).
 const kindForRoute = (st: StateCode): SaleKind => { const r0 = chosenRoute(); const r = r0 === 'certificate' && st !== 'NV' && st !== 'AZ' ? 'auction' : r0; return r === 'auction' ? lastAuctionKind(st) : r === 'certificate' && (st === 'NV' || st === 'AZ') ? 'lien' : 'listing'; };
+
+/**
+ * A new, unsaved lien certificate in the state and county of the Nevada or Arizona lien deal your plan is built around
+ * (for a reader whose own state sells no liens): the lien calculator link and "Price another … lien certificate".
+ * A started draft is kept in My deals first, the lien deal stays My plan's property, and the lien calculator starts
+ * clean. Returns the new draft and the kept-draft note, if any.
+ */
+function startLienDraft(ld: Deal): { draft: Deal; kept: string | null } {
+  const keptDeal = keepUnsavedDraft();
+  let kept: string | null = null;
+  if (keptDeal) {
+    // As when opening a deal from My deals: the lien deal stays the one you're working on (the kept draft is newer
+    // otherwise, and would take My plan's focus and its route). Not one you passed on.
+    if (ld.stage !== 'passed') {
+      const now = nextStamp([ld.updatedAt, keptDeal.updatedAt].sort().pop() ?? ld.updatedAt);
+      saveDeals(loadDeals().map((x) => (x.id === ld.id ? { ...x, updatedAt: now } : x)));
+    }
+    kept = `Your unsaved ${stateByCode(keptDeal.state)?.name ?? ''} deal “${keptDeal.name}” was saved to My deals.`;
+  }
+  clearLienDraftNumbers();
+  const draft: Deal = { ...blank(ld.state), county: ld.county, countyChosen: true, kind: 'lien', plan: 'lien' };
+  try { localStorage.setItem(CURRENT_KEY, JSON.stringify(draft)); localStorage.removeItem(OPENED_KEY); } catch { /* storage unavailable */ }
+  return { draft, kept };
+}
 
 function blank(st: StateCode): Deal {
   const kind = kindForRoute(st);
@@ -194,20 +218,13 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       // built around, where the lien calculator is, instead of a blank listing. Your saved deal isn't touched, so
       // practice payoffs don't change its numbers. (A started draft is kept in My deals first.)
       const ld0 = plan === 'lien' && !kindsFor(mine ?? 'NV').some((k) => k.key === 'lien') ? practiceLienDeal() : null;
-      if (ld0) {
-        const keptDeal = keepUnsavedDraft();
-        if (keptDeal) {
-          // As when opening a deal from My deals: the lien deal stays the one you're working on (the kept draft is
-          // newer otherwise, and would take My plan's focus and its route). Not one you passed on.
-          if (ld0.stage !== 'passed') {
-            const now = nextStamp([ld0.updatedAt, keptDeal.updatedAt].sort().pop() ?? ld0.updatedAt);
-            saveDeals(loadDeals().map((x) => (x.id === ld0.id ? { ...x, updatedAt: now } : x)));
-          }
-          const kept = `Your unsaved ${stateByCode(keptDeal.state)?.name ?? ''} deal “${keptDeal.name}” was saved to My deals.`;
-          keptNoteOnce = kept; setTimeout(() => { keptNoteOnce = ''; }, 1500); setTimeout(() => setKeptNote(kept), 0);
-        }
-        const draft: Deal = { ...blank(ld0.state), county: ld0.county, countyChosen: true, kind: 'lien', plan: 'lien' };
-        try { localStorage.setItem(CURRENT_KEY, JSON.stringify(draft)); localStorage.removeItem(OPENED_KEY); } catch { /* storage unavailable */ }
+      // (Not again on a reload of the same link: an unsaved certificate already open there stays as you left it.)
+      let open: Deal | null = null;
+      try { open = cleanDeal(JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null')); } catch { /* storage unavailable */ }
+      const already = !!open && !open.id && open.kind === 'lien' && open.state === ld0?.state;
+      if (ld0 && !already) {
+        const { kept } = startLienDraft(ld0);
+        if (kept) { keptNoteOnce = kept; setTimeout(() => { keptNoteOnce = ''; }, 1500); setTimeout(() => setKeptNote(kept), 0); }
       }
       const cur = loadCurrent(mine ?? 'NV');
       if (deletedOnLoad) { const n = deletedNote; setTimeout(() => setKeptNote(n), 0); }
@@ -375,7 +392,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           // The new certificate opened in that deal's state (the lien calculator link, or the button below).
           if (deal.kind === 'lien' && deal.state === ld.state && deal.state !== mine) return <p className="note" role="note">A new, unsaved lien certificate in {nm}, where your saved lien deal is, for practice payoffs or another certificate. Your saved deal “{ld.name}” isn’t changed; save this one only if you want to keep it.</p>;
           // A new deal in your own state: how to price another lien there, without changing your state for the site.
-          if (deal.kind !== 'lien' && deal.state !== ld.state) return <p className="note" role="note">Your saved lien deal is in {nm}. <button type="button" className="linkish" onClick={() => { const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); } clearDraftNumbers(); setDeal({ ...blank(ld.state), county: ld.county, countyChosen: true, kind: 'lien', plan: 'lien' }); }}>Price another {nm} lien certificate</button></p>;
+          if (deal.kind !== 'lien' && deal.state !== ld.state) return <p className="note" role="note">Your saved lien deal is in {nm}. <button type="button" className="linkish" onClick={() => { const { draft, kept } = startLienDraft(ld); if (kept) setKeptNote(kept); setSaved(loadDeals()); setDeal(draft); }}>Price another {nm} lien certificate</button></p>;
           return null;
         })()}
         {/* The State here is also your investing state for the whole site: say so when it changes it. */}

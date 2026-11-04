@@ -253,8 +253,9 @@ function readMove(): { from: string; to: string } | null {
   try {
     const v = JSON.parse(localStorage.getItem(MOVED_KEY) ?? 'null') as { from?: unknown; to?: unknown } | null;
     if (!v || typeof v.from !== 'string' || typeof v.to !== 'string') return null;
-    // Only while you're still where the State field took you: a change elsewhere (the header) ends it.
-    return getMyState() === v.to ? { from: v.from, to: v.to } : null;
+    // Only while you're still where the State field took you: a change elsewhere (the header) ends it for good.
+    if (getMyState() !== v.to) { localStorage.removeItem(MOVED_KEY); return null; }
+    return { from: v.from, to: v.to };
   } catch {
     return null;
   }
@@ -401,6 +402,20 @@ export function forgetDeal(id: string) {
   }
   try {
     for (const k of dealCalcKeys(id)) localStorage.removeItem(k);
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+/** Forget only the lien calculator's unsaved numbers (a new lien certificate starts clean; other typed numbers stay). */
+export function clearLienDraftNumbers() {
+  try {
+    for (const k of ['fsf.calc.lien.v1', 'fsf.calc.lien.az.v1']) {
+      localStorage.removeItem(k);
+      localStorage.removeItem(`${k}.region`);
+      localStorage.removeItem(`${k}.typed.v1`);
+      localStorage.removeItem(k.replace(/\.v1$/, '.typed.v1'));
+    }
   } catch {
     /* storage unavailable */
   }

@@ -680,7 +680,13 @@ function BuyBoxBuilder() {
     planChanged();
   }, [b]);
   // Still blank: it moves with your state.
-  useEffect(() => { if (mine && isBlank(b) && !b.priceAssumptions && b.state !== mine) setB({ ...b, state: mine }); }, [mine]); // eslint-disable-line react-hooks/exhaustive-deps
+  // (Only when your state changes, not on opening the page: a State you picked for it stays.)
+  const lastMine = useRef(mine);
+  useEffect(() => {
+    if (lastMine.current === mine) return;
+    lastMine.current = mine;
+    if (mine && isBlank(b) && !b.priceAssumptions && b.state !== mine) setB({ ...b, state: mine });
+  }, [mine]); // eslint-disable-line react-hooks/exhaustive-deps
   // The cash helper can fill in the price and cash: pick that up.
   useEffect(() => {
     const on = () => setB(read(BUYBOX_KEY, { ...EMPTY_BUY_BOX, state: getMyState() ?? '' }, cleanBuyBox));

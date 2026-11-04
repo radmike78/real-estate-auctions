@@ -113,6 +113,9 @@ describe('practice part 2 follows your route', () => {
     const listing = { id: 'dl1', name: '12 Elm St', state: 'NV', county: 'Clark', kind: 'listing', plan: 'rent', notes: '', done: [], stage: 'researching', updatedAt: '2026-11-01T00:00:00.000Z', locationConfirmed: true };
     localStorage.setItem('deedowl.analyze.v1', JSON.stringify([listing]));
     expect(planPath()).toBe('auction');
+    // A lien deal being researched keeps the lien route.
+    localStorage.setItem('deedowl.analyze.v1', JSON.stringify([{ ...listing, kind: 'lien', plan: 'lien' }]));
+    expect(planPath()).toBe('certificate');
     // An offer on it is a move: the route follows the property.
     localStorage.setItem('deedowl.analyze.v1', JSON.stringify([{ ...listing, stage: 'offer' }]));
     expect(planPath()).toBe('listing');
@@ -126,9 +129,12 @@ describe('practice part 2 follows your route', () => {
     expect(movedFrom()).toBe('CA');
     noteStateMove('NV', 'AZ'); setMyState('AZ');
     expect(movedFrom()).toBe('CA');
-    // Changed in the header: the move is over, and a new one starts from there.
+    // Changed in the header: the move is over (for good, even back in Arizona), and a new one starts from there.
     setMyState('TX');
     expect(movedFrom()).toBeNull();
+    setMyState('AZ');
+    expect(movedFrom()).toBeNull();
+    setMyState('TX');
     noteStateMove('TX', 'NV'); setMyState('NV');
     expect(movedFrom()).toBe('TX');
     // Back home through the State field.
