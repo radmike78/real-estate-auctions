@@ -610,15 +610,11 @@ function ProfileNote({ deal }: { deal: Deal }) {
   const parts: string[] = [];
   if (listed && p.investable > 0) parts.push(`${fmtMoney(p.investable)} of investable cash (your limit for a listed home)`);
   if (listed && p.loan === 'cash') parts.push('paying cash');
-  else if (listed && p.loan === 'yes' && worksheetDownPct() !== null) parts.push(`a loan for ${Math.round((100 - worksheetDownPct()!) * 100) / 100}% of the price (the ${worksheetDownPct()}% down payment in your cash worksheet; replace it with your lender’s figure)${p.ownerOccupant ? '; no property manager, since you’d live there' : ''}`);
+  else if (listed && p.loan === 'yes' && worksheetDownPct() !== null) parts.push(`a starting loan for ${Math.round((100 - worksheetDownPct()!) * 100) / 100}% of the price (the ${worksheetDownPct()}% down payment in your cash worksheet; ${!p.ownerOccupant && worksheetDownPct()! < 15 ? 'loans for a property you won’t live in usually need 15% to 25% down,* so ' : ''}replace it with your lender’s figure)${p.ownerOccupant ? '; no property manager, since you’d live there' : ''}`);
   else if (listed && p.loan === 'yes' && p.ownerOccupant) parts.push('a home loan you’d live in (the loan field starts at the 75% investor example; owner-occupant loans can need less down, so replace it with your lender’s figure); no property manager, since you’d live there');
   else if (listed && p.loan === 'yes') parts.push('a loan (a common 75% of the price for a listed rental, until your lender quotes)');
   if (!p.ownerOccupant && p.manager === true) parts.push('a property manager (8% of rent)');
   else if (!p.ownerOccupant && p.manager === false) parts.push('managing it yourself');
-  // The same caution as the cash worksheet: an investment-property loan with under 15% down (a starting figure;
-  // Keep and rent's own note follows the loan you type).
-  const wd = worksheetDownPct();
-  if (listed && p.loan === 'yes' && !p.ownerOccupant && wd !== null && wd < 15) parts.push('note that loans for a property you won’t live in usually need 15% to 25% down,* so that starting loan is likely more than a lender would make; replace it with your lender’s figure');
   if (listed && p.loan === 'cash' && !(p.investable > 0)) parts.push('your investable cash isn’t worked out yet in My plan, so the price that meets your target has no cash limit (work it out to cap it at what you have)');
   if (!parts.length) return null;
   return <p className="muted analyze-profile">From your plan: {parts.join('; ')}. These fill in a new deal’s starting numbers. Change any of them below; they aren’t loan terms anyone approved. <a href="#/toolkit">Edit your plan</a></p>;
