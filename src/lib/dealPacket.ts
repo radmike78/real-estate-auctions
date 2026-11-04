@@ -166,9 +166,12 @@ const txLoanDates = (short: boolean): DateGuide[] => [
 const names = (xs: string[]): DateGuide[] => xs.map((what) => ({ what }));
 
 /** The dates most deals of this kind need on the calendar, each with how it works where we have it (Texas contracts). */
-/** A sale with no owner redemption, in words: Nevada's trustee sale is confirmed by statute; others carry an asterisk. */
+
+/** A sale with no owner redemption, in words: Nevada's trustee sale is confirmed by statute; a Texas mortgage foreclosure
+ *  as Fix and sell's rule note says it; others carry an asterisk. */
 export function noRedemptionWords(d: Pick<Deal, 'state' | 'kind'>): string {
   if (d.state === 'NV' && d.kind === 'trustee') return 'Nevada trustee sales are made “without equity or right of redemption” (NRS 107.080(5)).';
+  if (d.state === 'TX' && d.kind === 'trustee') return 'A Texas mortgage foreclosure has no redemption.';
   return 'This kind of sale doesn’t usually carry a right of redemption.*';
 }
 
@@ -418,7 +421,7 @@ export function savedNumbers(d: Deal) {
         const below = at?.source === 'listed' && r.maxBid < at.price;
         const price = at?.source === 'yours' ? at.price : r.noBidWorks || below ? 0 : r.maxBid;
         // Who redeems, as Fix and sell names it (null: your what-if on a sale with no right of redemption).
-        const who = redemptionWho(d, i); const o = !offer && price > 0 ? redemptionOutcome(i, price) : null; if (!o) return !offer && i.redemptionMonths > 0 && who === null ? { months: Math.round(i.redemptionMonths * 10) / 10, price: 0, repaid: 0, spent: 0, net: 0, who, source: 'walk' as const } : null; return { months: Math.round(i.redemptionMonths * 10) / 10, price, ...o, who, source: at?.source === 'yours' ? 'yours' as const : 'walk' as const }; })() };
+        const who = redemptionWho(d, i); const o = !offer && price > 0 ? redemptionOutcome(i, price) : null; if (!o) return !offer && i.redemptionMonths > 0 ? { months: Math.round(i.redemptionMonths * 10) / 10, price: 0, repaid: 0, spent: 0, net: 0, who, source: 'walk' as const } : null; return { months: Math.round(i.redemptionMonths * 10) / 10, price, ...o, who, source: at?.source === 'yours' ? 'yours' as const : 'walk' as const }; })() };
       }
     }
   } else if (d.plan === 'commercial' && own) {
@@ -747,6 +750,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     const belowOpening = !bid.none && a?.source === 'listed' && bid.maxBid < a.price;
     nums.push(bid.none && bid.cashBlocked ? `No bid fits the cash you entered: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that` : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and ${targetW}` : `What-if: walk-away price ${money(bid.maxBid)}, ${bid.limitedBy === 'cash' ? `the most your cash covers with every cost until you sell (${goalW} alone allows ${money(bid.profitBid)})` : `the most you could pay and still meet ${goalW}`} (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : `this deal doesn’t meet ${goalW}`} as entered` : ''}`);
     if (bid.redeem && !bid.redeem.who) nums.push(`Built on a ${bid.redeem.months}-month wait you typed as a what-if. ${noRedemptionWords(d)} Check the sale terms with the official seller or an attorney.`);
+    else if (bid.redeem && !(bid.redeem.price > 0)) nums.push(`Built on a ${bid.redeem.months}-month redemption wait: ${bid.redeem.who} can redeem until it ends.`);
     else if (bid.redeem) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait. If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* on a ${money(x.price)} ${offer ? 'offer' : 'bid'}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
     const floor = a?.source === 'listed' ? a.price : 0;

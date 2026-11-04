@@ -204,7 +204,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   };
   const moreForField = (f: Field) =>
     // A sale that usually has no redemption (a trustee's mortgage foreclosure): the help says a wait is your what-if.
-    f.k === 'redemptionMonths' && f.more && choices?.start === 'none' ? `After this kind of sale the owner usually can’t redeem,* so a wait here is your own what-if: it only adds holding costs. The exceptions are the rules in the menu (for example a junior federal tax lien wiped out by the sale, which gives the United States 120 days). Ask an attorney which applies.`
+    f.k === 'redemptionMonths' && f.more && choices?.start === 'none' && (ruleNow === 'custom' || ruleNow === 'none') && saleKind ? `${noRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] })} A wait here is your own what-if: it only adds holding costs. The exceptions are the rules in the menu (for example a junior federal tax lien wiped out by the sale, which gives the United States 120 days). Ask an attorney which applies.`
       : f.k === 'redemptionMonths' && f.more && region.state === 'TX' ? f.more.replace('Optional remodeling', `${txRepaid()} Optional remodeling`) : moreFor(f);
   const uid = useId();
   function save(next: BidInputs) {
@@ -566,7 +566,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
             <strong>Redemption rule not confirmed.</strong> {ruleNow === choices?.start ? choices?.confirm : (choices?.confirm ?? '').replace(/ ?This calculator starts with [^.]*\. ?/, ' ').trim()} Your walk-away price now uses{' '}
             {ruleNow === 'custom'
               ? choices?.start === 'none' && saleKind
-                ? <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month what-if wait. It only adds holding costs{choices?.confirm ? '.' : <>: {noRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] }).replace(/^./, (c) => c.toLowerCase())}</>}</>
+                ? <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month what-if wait. It only adds holding costs.</>
                 : <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month wait. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
               : <>{offered[ruleNow]?.label}.</>}{' '}
             {ruleNow === choices?.start ? 'Pick the rule under Holding and financing (Detailed), then confirm it here.' : ruleNow === 'custom' ? 'Once the records show which rule applies, pick it under Holding and financing (Detailed) and confirm it here.' : 'Once the records show this rule applies, confirm it here (or pick another under Holding and financing, Detailed).'}

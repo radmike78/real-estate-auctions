@@ -187,9 +187,11 @@ function OtherNumbers({ d }: { d: Deal }) {
   }
   if (bid) {
     // A typed what-if wait (a sale with no right of redemption) is named even when no bid works, as the packet does.
-    const whatIf = bid.redeem && !bid.redeem.who ? ` · built on a ${bid.redeem.months}-month what-if wait you typed (${d.state === 'NV' && d.kind === 'trustee' ? 'Nevada trustee sales carry no right of redemption' : 'this kind of sale doesn’t usually carry a right of redemption*'})` : '';
+    const whatIf = bid.redeem && !bid.redeem.who ? ` · built on a ${bid.redeem.months}-month what-if wait you typed (${d.state === 'NV' && d.kind === 'trustee' ? 'Nevada trustee sales carry no right of redemption' : d.state === 'TX' && d.kind === 'trustee' ? 'a Texas mortgage foreclosure has no redemption' : 'this kind of sale doesn’t usually carry a right of redemption*'})` : '';
+    // A real wait with no price to work it out at (no bid works, or the walk-away is below the opening bid): named too.
+    const waitOnly = bid.redeem && bid.redeem.who && !(bid.redeem.price > 0) ? ` · built on a ${bid.redeem.months}-month redemption wait (${bid.redeem.who} can redeem until it ends)` : '';
     // (After a line that ends in a full stop, as its own sentence.)
-    const whatIfSentence = whatIf ? ` Built on${whatIf.slice(' · built on'.length)}.` : '';
+    const whatIfSentence = whatIf || waitOnly ? ` Built on${(whatIf || waitOnly).slice(' · built on'.length)}.` : '';
     if (bid.none && bid.cashBlocked) return <p className="deal-urgent">No bid fits the cash you entered: the deal itself meets {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your goal' : 'our example profit target'} at bids up to {fmtMoney(bid.profitBid)}, but every cost until you sell needs more than the cash you entered.{whatIfSentence}</p>;
     if (bid.none) return <p className="deal-urgent">No price works at a {fmtMoney(bid.exitValue)} resale value with these costs and {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your profit target' : 'our example profit target'}.{whatIfSentence}</p>;
     // Below the opening bid (or asking price): no bid you'd make works, whatever the walk-away price says.

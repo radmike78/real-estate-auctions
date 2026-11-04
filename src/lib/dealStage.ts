@@ -219,7 +219,9 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     if (w === 'offer') {
       area('terms', `Line up the money for ${n}`, 'a pre-approval letter or proof of funds, and the loan’s conditions, in its evidence log', [L.pro('lender')]);
       out.push(task({ key: 'earnest', label: `Set the earnest money you’ll offer on ${n}`, produces: 'the deposit amount in its deal packet, so the cash it needs is complete', href: packetHref(d, 'cash'), support: [L.negotiate], done: p.earnest > 0 }));
-      out.push(task({ key: 'qa', label: `Ask your agent and lender your questions about ${n}`, produces: 'their answers, with dates, in its deal packet', href: packetHref(d, 'pros'), support: [L.pro('agent'), L.pro('lender')], done: p.qa.some((x) => x.q.trim() && x.a.trim()) }));
+      // (A commercial building bought by offer has a commercial broker, as Your team and the packet name it.)
+      const agentName = roleTitleFor(d, 'agent');
+      out.push(task({ key: 'qa', label: `Ask your ${d.plan === 'commercial' ? 'broker' : 'agent'} and lender your questions about ${n}`, produces: 'their answers, with dates, in its deal packet', href: packetHref(d, 'pros'), support: [{ label: `Your team: ${agentName.toLowerCase()}`, href: '#/pros/agent' }, L.pro('lender')], done: p.qa.some((x) => x.q.trim() && x.a.trim()) }));
       out.push(task({
         key: 'offer',
         label: `Make your offer on ${n}`,

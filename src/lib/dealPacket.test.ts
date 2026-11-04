@@ -192,9 +192,9 @@ describe('the deal packet', () => {
     const nv: Deal = { ...deal, state: 'NV', kind: 'trustee', plan: 'flip' };
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 4, redemptionRatePct: 6 }));
     expect(packetSections(nv, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).toMatch(/If the United States redeems at its end/);
-    // A walk-away price below the opening bid: no bid there can be placed, so no redemption line.
+    // A walk-away price below the opening bid: no bid there can be placed, so the wait is named with no payout.
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 240000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 12 }));
-    expect(packetSections(flip, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).not.toMatch(/redemption wait/);
+    expect(packetSections(flip, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).toMatch(/Built on a 6-month redemption wait: the owner can redeem until it ends\./);
     // No wait: neither.
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000 }));
     expect(packetSections(flip, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).not.toMatch(/redemption wait/);
