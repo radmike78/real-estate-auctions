@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { routePractice } from '../lib/planNext';
-import { markStepDone, planPath, roadmapDone } from '../lib/roadmapState';
+import { markStepDone, planPath, practiceDoneElsewhere, roadmapDone } from '../lib/roadmapState';
 
 /**
  * On the auction and lien routes, a finished practice run or drill can be My plan's practice part 2: says so, and lets
@@ -10,7 +10,8 @@ import { markStepDone, planPath, roadmapDone } from '../lib/roadmapState';
 export default function RoutePracticeDone({ fits, what }: { fits: (stepId: string) => boolean; what: string }) {
   const own = routePractice(planPath());
   // Done means the route's own step is ticked in My plan (not the rental case or "doesn't apply").
-  const ownDone = () => !!own && roadmapDone().includes(own.id);
+  // (Or counted done by another practice, as My plan counts it.)
+  const ownDone = () => !!own && (roadmapDone().includes(own.id) || !!practiceDoneElsewhere(own.id));
   const [marked, setMarked] = useState(ownDone);
   const [justMarked, setJustMarked] = useState(false);
   const back = useRef<HTMLAnchorElement>(null);

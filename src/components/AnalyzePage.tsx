@@ -9,6 +9,7 @@ import { replaceAddress } from '../lib/nav';
 import PageHero from './PageHero';
 import { Calculators } from './CalculatorPage';
 import { SellerFinanceCalculator } from './HoldCalculators';
+import AnnouncedResults from './AnnouncedResults';
 import { CalcRegion } from './calcRegion';
 import { useMarkStep, stepEyebrow } from '../lib/path';
 import { dropStateLead, useMyState, setMyState } from '../lib/myState';
@@ -571,7 +572,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           <details className="plan-section" id="seller-financing">
             <summary>If the seller offers financing</summary>
             <p>The payment, the balloon you’d owe, and the cash it saves against a bank loan.</p>
-            <SellerFinanceCalculator sticky={false} />
+            <AnnouncedResults><SellerFinanceCalculator sticky={false} /></AnnouncedResults>
           </details>
         )}
       </CalcRegion.Provider>
