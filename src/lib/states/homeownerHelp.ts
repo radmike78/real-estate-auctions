@@ -10,6 +10,7 @@ const CALASSIST_OPEN = Date.now() < Date.parse('2026-11-03T08:00:00Z');
 export const HELP: ByStateLines = {
   NV: [
     { topic: 'Foreclosure mediation', text: 'In Nevada, if you live in the home, you can ask the district court for foreclosure mediation, a meeting with your lender and a neutral mediator. File your petition within 30 days after the notice of default is served (NRS 107.086). It costs a $25 filing fee plus your half of the mediation fee, and the law caps the total mediation fee at $500. In Clark County, the Eighth Judicial District Court runs it.', links: [['Foreclosure mediation (Clark County courts)', 'https://www.clarkcountycourts.us/departments/adr/foreclosure-mediation/']] },
+    { topic: 'HOA foreclosure', text: 'In Nevada, after an HOA sale you can still buy the home back within 60 days, by paying the buyer’s price plus 1% a month and certain costs the buyer paid (NRS 116.31166). Money left from the sale after the HOA’s lien and later liens are paid goes to you (NRS 116.31164): ask whoever conducted the sale. Free legal help can walk you through both.' },
     { topic: 'Free legal help', text: 'In Nevada, Nevada Legal Services covers the whole state at no cost. In Clark County, also try the Legal Aid Center of Southern Nevada and the Civil Law Self-Help Center at the court.', links: [['Nevada Legal Services', 'https://nevadalegalservices.org/'], ['Legal Aid Center of Southern Nevada', 'https://www.lacsn.org/'], ['Civil Law Self-Help Center', 'https://www.civillawselfhelpcenter.org/']] },
   ],
   CA: [

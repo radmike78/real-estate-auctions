@@ -187,7 +187,7 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'c-practice', phase: 3, path: LIEN, title: 'Practice a lien purchase',
-    text: 'A lien certificate earns interest until the owner pays; you don’t get the property or any rent. Practice the parts that decide whether it pays: the price, the wait, the costs while you wait, and what happens if it’s never paid.',
+    text: 'A lien certificate earns interest until the owner pays; you don’t get the property or any rent unless it’s never paid and you later demand a deed. Practice the parts that decide whether it pays: the price, the wait, the costs while you wait, and what happens if it’s never paid.',
     outcome: 'A practice record: the certificate price and interest rate, a holding budget, two payoff results and a never-paid plan, and when you’d bring in an attorney.',
     steps: [
       'In Nevada, work the special assessment (SID) lien practice in Practice, from the notice to the wait for redemption.', 'In Arizona, do the tax lien drill in Practice, then read your county’s tax lien guide. Arizona sales are auctions where the lowest interest-rate bid wins.',

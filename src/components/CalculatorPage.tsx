@@ -18,7 +18,7 @@ export function Calculators({ initial, onTab, state, offer = false, dealId, onAn
         hideTabs={onAnalyze}
         strategies={[
           { key: 'flip', label: 'Fix and flip (fix and sell)', about: `The most you can ${bid} and still make your profit when you fix it up and sell it.`, render: () => <BidCalculator headingLevel={2} offer={offer} saleKind={saleKind} saveAs={dealId ? `analyzed-${dealId}` : onAnalyze ? 'analyze-draft' : undefined} /> },
-          { key: 'rent', label: 'Buy and hold (keep and rent)', about: `The most you can ${bid} and still get your return on the cash you leave in, with or without a loan afterward.`, render: () => <RentCalculator regional={!!state} offer={offer} storageKey={k('rent')} exactKey={!!dealId} start={onAnalyze ? profileStart(investorProfile(), offer) : undefined} /> },
+          { key: 'rent', label: 'Buy and hold (keep and rent)', about: `The most you can ${bid} and still get your return on the cash you leave in, with or without a loan afterward.`, render: () => <RentCalculator saleKind={saleKind} regional={!!state} offer={offer} storageKey={k('rent')} exactKey={!!dealId} start={onAnalyze ? profileStart(investorProfile(), offer) : undefined} /> },
           { key: 'commercial', label: 'Commercial income', about: `The most you can ${bid} for a building’s income, counting the months it takes to lease it up.`, render: () => <CommercialCalculator regional={!!state} offer={offer} storageKey={k('commercial')} exactKey={!!dealId} start={onAnalyze ? commercialProfileStart(investorProfile(), offer) : undefined} /> },
           { key: 'seller', label: 'Seller financing', about: 'When the seller is the lender: the payment, the balloon you’ll have to pay off, and the cash it saves against a bank loan.', render: () => <SellerFinanceCalculator /> },
           { key: 'lien', label: 'Lien certificate', about: 'What a special assessment (SID) lien certificate earns per year, counting the wait to be paid.', render: () => <LienCalculator storageKey={dealId ? `fsf.calc.lien.${dealId}${state === 'AZ' ? '-az' : ''}.v1` : undefined} /> },
@@ -62,13 +62,13 @@ function BeforeYouCommit({ plan, state, saleKind }: { plan?: string; state?: Sta
     <section className="before-commit" aria-labelledby="before-commit-head">
       <h3 id="before-commit-head">Before you commit, check these</h3>
       <ul>
-        <li><strong>The county’s bidder rules and payment deadline,</strong> from the treasurer’s own sale page.</li>
+        <li><strong>The county’s {state === 'NV' ? 'sale rules' : 'bidder rules'} and payment deadline,</strong> from the treasurer’s own sale page.</li>
         <li><strong>Later years’ taxes</strong> you may pay to protect the lien, in your holding budget.</li>
         <li><strong>The parcel itself:</strong> would you accept owning it if the lien is never paid?</li>
         <li><strong>When you’d call an attorney</strong> to enforce an unpaid lien, and what that would cost.</li>
-        <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney and tax advisor before you bid.</li>
+        <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney and tax advisor before {state === 'NV' ? 'the sale' : 'you bid'}.</li>
       </ul>
-      <p className="muted small">Can’t check one yet? Get the answer before you bid.</p>
+      <p className="muted small">Can’t check one yet? Get the answer before {state === 'NV' ? 'the sale' : 'you bid'}.</p>
     </section>
   );
   return (

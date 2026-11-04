@@ -222,6 +222,12 @@ describe('the deal packet', () => {
     const irs = dateGuide({ ...deal, state: 'NV', kind: 'irs' });
     expect(irs.map((g) => g.what)).toEqual(expect.arrayContaining(['Certificate of sale received', 'Redemption period ends', 'Deed delivered (if no one redeemed)']));
     expect(irs.find((g) => g.what === 'Redemption period ends')?.why).toBe('26 U.S.C. 6337(b)');
+    // No rent you can count on before the deed: said for a Nevada sheriff's or HOA sale and an IRS sale.
+    const { rentWaitNote } = await import('./dealPacket');
+    expect(rentWaitNote('NV', 'court')).toMatch(/1 year.*NRS 21\.210, 21\.240/);
+    expect(rentWaitNote('NV', 'hoa')).toMatch(/60 days/);
+    expect(rentWaitNote('TX', 'irs')).toMatch(/180 days/);
+    expect(rentWaitNote('NV', 'trustee')).toBeNull();
     // An auction's dates follow the official notice (a contract only on an offer).
     const { dealPacketText } = await import('./dealPacket');
     expect(dealPacketText({ ...deal, state: 'CA', kind: 'trustee' }, EMPTY_PACKET, now)).toContain('What the less familiar dates mean (the official notice wins):');

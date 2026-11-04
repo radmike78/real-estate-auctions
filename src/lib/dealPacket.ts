@@ -267,6 +267,14 @@ function typedWait(d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal[
   return Math.round(i.redemptionMonths * 10) > 0 && redemptionWho(d, i) !== null;
 }
 
+/** Before the deed, a redemption period with no rent you can count on (a certificate of sale first): its words, or null. */
+export function rentWaitNote(state: string | null | undefined, kind: string | null | undefined): string | null {
+  if (state === 'NV' && kind === 'court') return 'After a Nevada sheriff’s sale the owner can redeem for 1 year, and whoever lives there may keep using the property until then (NRS 21.210, 21.240).';
+  if (state === 'NV' && kind === 'hoa') return 'After a Nevada HOA sale the owner can redeem for 60 days, and you get the deed only after that (NRS 116.31166).';
+  if (kind === 'irs') return 'After an IRS sale the owner can redeem for 180 days, and you get the deed only after that (26 U.S.C. 6337(b), 6338).';
+  return null;
+}
+
 /** Nevada's own deadlines on a home bought by offer (NRS 113.130, 113.150, 116.4109, leg.state.nv.us). */
 const NV_OFFER_DATES: DateGuide[] = [
   { what: 'Seller’s disclosure form due', when: 'At least 10 days before closing (not required for some sales, such as a builder’s first sale, an estate or trust sale, or a sale between relatives; ask your agent).*', who: 'The seller or the seller’s agent', todo: 'Read it as soon as it arrives.', missed: 'If it never comes, you may cancel before closing without penalty.', why: 'NRS 113.130 and 113.150(1)' },
@@ -299,7 +307,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   // Nevada (NRS 271.595, leg.state.nv.us): redemption within 2 years with a home or other significant permanent
   // improvement, else 120 days, after the certificate of sale (1); a deed only after notice, given after that period, and
   // 60 days with no redemption (3)-(4); the certificate expires 3 years after the period ends (6), with no deed after (7).
-  if (d.kind === 'lien' && d.state === 'NV') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),
+  if (d.kind === 'lien' && d.state === 'NV') return [...names(['Registration (check the notice)', 'Sale day', 'Payment deadline']),
     { what: 'Earliest you may act (unpaid lien)', when: 'When the redemption period ends: 120 days after the certificate of sale, or 2 years if there was a home or other significant permanent improvement on the property. A deed can follow only after the notice the law requires, given after that, and 60 days with no redemption.', who: 'You, with your attorney', todo: 'Ask your attorney how to demand the deed: the law sets the notice and how it’s given.', missed: 'Nothing happens on its own: watch the date the certificate expires.', why: 'NRS 271.595(1), (3) and (4)' },
     { what: 'Certificate expires', when: '3 years after the redemption period ends (longer only while a court order or stay prevents a deed).', who: 'You, with the treasurer who sold the certificate', todo: 'If the lien isn’t paid, demand the deed from that treasurer before then.', missed: 'The certificate is void, and no deed can be issued to you.', why: 'NRS 271.595(6) and (7)' }];
   if (d.kind === 'lien') return names(['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Earliest date you may act on an unpaid lien']);
@@ -346,7 +354,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   // Nevada (leg.state.nv.us): an HOA sale's owner or a junior lienholder may redeem within 60 days (NRS 116.31166(3)), a
   // sheriff's sale's judgment debtor or a later lienholder within 1 year (NRS 21.200, 21.210); a certificate of sale first.
   const nvEnds = d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court')
-    ? { what: 'Redemption period ends', when: d.kind === 'hoa' ? '60 days after the sale.' : '1 year after the sale.', who: d.kind === 'hoa' ? 'The former owner, or a lender whose recorded loan ranked below the HOA’s lien' : 'The former owner (the judgment debtor), or a creditor with a later judgment or mortgage lien', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends. Keep receipts for taxes and upkeep you pay.', missed: 'After it ends, no one can redeem under that law, and the deed can follow if no one redeemed.*', why: d.kind === 'hoa' ? 'NRS 116.31166(2) and (3)' : 'NRS 21.200 and 21.210' }
+    ? { what: 'Redemption period ends', when: d.kind === 'hoa' ? '60 days after the sale.' : '1 year after the sale.', who: d.kind === 'hoa' ? 'The former owner, or a lender whose recorded loan ranked below the HOA’s lien' : 'The former owner (the judgment debtor), or a creditor with a later judgment or mortgage lien', todo: d.kind === 'hoa' ? 'Secure, insure and maintain the property; hold off on remodeling until it ends. Keep receipts for taxes and upkeep you pay.' : 'Secure, insure and maintain the property; hold off on remodeling until it ends. Keep receipts for taxes, assessments and payments on earlier liens you make: a redemption repays those with interest, but not repairs or upkeep.', missed: 'After it ends, no one can redeem under that law, and the deed can follow if no one redeemed.*', why: d.kind === 'hoa' ? 'NRS 116.31166(2) and (3)' : 'NRS 21.200 and 21.210' }
     : null;
   // An IRS sale: 180 days for the owner or anyone with an interest in it (26 U.S.C. 6337(b)).
   const irsEnds = d.kind === 'irs' ? { what: 'Redemption period ends', when: '180 days after the sale.', who: 'The owner, or anyone with an interest in the property or a lien on it', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends.', missed: 'After it ends, it can’t be redeemed under that law, and the deed can follow.*', why: '26 U.S.C. 6337(b)' } : null;
@@ -777,7 +785,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
         cash.push(`Repair spending as work is done: ${money(rent.repairs)}, including the contingency. Possession costs, if needed: ${money(rent.possession)}.`);
         cash.push(`Total modeled acquisition, repairs and possession cash: ${money(rent.cashIn)}. This is not the amount to wire at closing.`);
         cash.push('Ask title/escrow and your lender for the actual cash to close and payment dates. Prepaid costs, escrow funding, prorations, credits and costs paid earlier can change it. Repair/lease-up carrying costs also need a separate budget if not included.');
-      } else cash.push(`From sale day until it’s rented, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs)`);
+      } else cash.push(`From sale day until it’s rented, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs)${rentWaitNote(d.state, d.kind) ? `. ${rentWaitNote(d.state, d.kind)} These numbers start the rent right away: add the holding costs for that time, with no rent, before you bid` : ''}`);
     }
     cash.push(rent.retained > 0 ? `Retained property reserves: ${money(rent.retained)}, kept separately from the ${money(need)} modeled cash requirement.` : 'Retained property reserves: not entered. Set aside a separate amount for vacancies and unexpected costs.');
     if (rent.retained > 0) need += rent.retained;
@@ -850,7 +858,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const typedNoLimit = !(entered > 0) && (rent?.cashTyped || bid?.cashTyped || commercial?.cashTyped || false);
   const limit = entered > 0 ? entered : typedNoLimit ? 0 : profile.investable;
   const limitWord = entered > 0 ? `the cash you entered in ${strategy}` : 'your investable cash';
-  if (limit > 0 && need > 0) cash.push(need > limit ? `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.` : `${needAt}, that leaves ${money(limit - Math.round(need))} unallocated from ${limitWord}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
+  if (limit > 0 && need > 0) cash.push(need > limit ? `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? `Check that you have it, or ${entered > 0 ? `update the cash in ${strategy}` : 'update My plan'}.` : `Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.`}` : `${needAt}, that leaves ${money(limit - Math.round(need))} unallocated from ${limitWord}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
   out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: cash, fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 

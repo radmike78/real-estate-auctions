@@ -394,7 +394,7 @@ function ContactTask({ task, k, done, head, progress, update }: { task: Extract<
       </div>
       <div className="row">
         {task.messages.map((m, i) => (
-          <button key={i} className="btn btn-secondary" disabled={typing !== null || sent.includes(i)} onClick={() => send(i)}>{m.label}</button>
+          <button key={i} className="btn btn-secondary" disabled={typing !== null || sent.includes(i)} onClick={(e) => { keepCardFocus(e.currentTarget); send(i); }}>{m.label}</button>
         ))}
       </div>
     </article>

@@ -287,3 +287,8 @@ it('walks a Nevada HOA sale through the certificate, the redemption wait and the
   expect(stageLabel('closed', { kind: 'irs', state: 'TX' })).toBe('Certificate of sale received');
   expect(stageTasks({ ...hoa, kind: 'irs' }, 'closed', EMPTY_PACKET, now).find((t) => t.key === 'redemption-wait')?.label).toMatch(/180 days after the sale/);
 });
+
+it('opens the roadmap step a deal task is backed by', () => {
+  const hoa: Deal = { ...deal, id: 'dh2', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip' };
+  expect(stageTasks(hoa, 'closed', EMPTY_PACKET, now).find((t) => t.key === 'first-week')?.href).toBe('#/toolkit/roadmap?step=first-week');
+});

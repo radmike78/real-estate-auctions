@@ -67,9 +67,9 @@ const NEVADA: Playbook[] = [
       { title: 'Narrow the list', detail: 'Match every parcel number on the Assessor map. Throw out strips, common areas, landlocked lots and anything you can’t use or sell.' },
       { title: 'Research each finalist', detail: 'Search the Recorder for liens (IRS, city, sewer, special assessments). Check zoning with the city or county. Look for occupants from the street. Don’t go onto the property: it’s privately owned until the new deed is recorded, and the county warns you may be trespassing. The county makes no promises about the condition or the liens.' },
       { title: 'Set a maximum bid for each', detail: 'Count every cost: a quiet title action (a court case that confirms you own the property free of old claims), liens that may stay, repairs, holding costs and possession. For an uncontested quiet title, attorneys often quote about $1,500–$5,000 or more; a contested one costs far more.* Get a quote. Use Analyze a deal (Fix and sell) to find your walk-away price.' },
-      { title: 'Register and pay the deposit', detail: 'Register online or at the Treasurer’s office by the deadline, with the $5,000 certified-funds deposit. The deed will be issued to exactly the name on your form, so decide that first.' },
+      { title: 'Register and pay the deposit', detail: 'In Clark County, register online or at the Treasurer’s office by the deadline, with the $5,000 certified-funds deposit (other counties set their own; see the note above). The deed will be issued to exactly the name on your form, so decide that first.' },
       { title: 'Auction day', detail: 'Only the registered bidder can bid, by showing their bidder card. Parcels are offered one at a time in the published order. The auctioneer reads the parcel number and minimum bid. Arrive early. The notice has the day’s rules.' },
-      { title: 'Pay by 1:00 p.m.', detail: 'Pay in full for every parcel you win. If you don’t, you lose the deposit and are banned from future sales. Unsold or unpaid parcels may be re-auctioned at 2:00 p.m.' },
+      { title: 'Pay by the deadline', detail: 'In Clark County, pay by 1:00 p.m.: pay in full for every parcel you win. If you don’t, you lose the deposit and are banned from future sales. Unsold or unpaid parcels may be re-auctioned at 2:00 p.m.' },
       { title: 'After you win', detail: 'Insure the property and secure it. If anyone lives there, plan possession with an attorney (the county won’t help). Ask a title company when they can insure. Many need a quiet title action first.' },
     ],
     survives: {
@@ -228,8 +228,9 @@ const NEVADA: Playbook[] = [
       { title: 'Check whether the lender paid', detail: 'Search the Recorder for a recorded payment of the super-priority amount. It must be recorded at least 2 days before the sale. Also listen for the auctioneer’s announcement. If the lender paid at least 5 days before the sale, you take the home with the first mortgage. Also check whether Fannie Mae or Freddie Mac owned the loan. If so, it usually survives.' },
       { title: 'Get a professional opinion', detail: 'After the SFR Investments decision (2014), Nevada HOA sales ended up in court again and again. Have a title professional or attorney review the sale before you bid.' },
       { title: 'Set your maximum bid', detail: 'If the first mortgage may survive, add it to your costs. Use Analyze a deal (Fix and sell) to find your walk-away price.' },
-      { title: 'Bid and pay', detail: 'Bring certified funds, following the foreclosure agent’s terms.' },
+      { title: 'Bid and pay', detail: 'Bring certified funds, following the foreclosure agent’s terms. You get a certificate of sale, which is recorded (NRS 116.31166(2)).' },
       { title: 'Wait out the 60 days', detail: 'The former owner can redeem during this time. So can a lender whose loan ranked below the HOA lien. They pay your price plus 1% a month. They also repay taxes and assessments you paid, and reasonable spending needed to maintain and repair the unit to the HOA’s standards (NRS 116.31166). Upgrades and renovations aren’t repaid, so save those until the period ends.' },
+      { title: 'Get the deed', detail: 'If no one redeems within 60 days, whoever conducted the sale gives you a deed without warranty (NRS 116.31166(7)). Record it and get title insurance. If anyone lives there, plan possession with an attorney.' },
     ],
     survives: {
       wipedOut: ['The HOA lien being foreclosed', 'The first mortgage, only if three things are true. The lender did not pay the priority amount. The loan wasn’t owned by Fannie Mae or Freddie Mac. And the sale was proper'],
@@ -273,6 +274,8 @@ const NEVADA: Playbook[] = [
       { title: 'Check for a homestead', detail: 'Does the debtor live there and have a recorded declaration of homestead? Then up to $605,000 of equity is protected from a judgment creditor’s execution (NRS 21.090, NRS 115). It doesn’t protect against a mortgage or deed of trust the owner signed, taxes or mechanic’s liens (NRS 115.010). If the home is sold because equity is over the limit, no bid under $605,000 can be accepted (NRS 115.050). Check the Recorder, and have an attorney review the sale.' },
       { title: 'Plan for a year of waiting', detail: 'The debtor, or a creditor with a later lien, can redeem for a year. It can take longer if creditors redeem from each other. Your money is tied up. If someone redeems, taxes and payments on earlier liens are repaid with interest. Repairs aren’t, so don’t improve the property until then.' },
       { title: 'Set your maximum bid', detail: 'Include a year or more of holding costs. Use Analyze a deal (Fix and sell) to find your walk-away price.' },
+      { title: 'Bid and pay', detail: 'Pay in certified funds as the notice says. You get a certificate of sale; the sheriff records a copy (NRS 21.190).' },
+      { title: 'After the year', detail: 'If no one redeems, the sheriff gives you a deed (NRS 21.220(4)). Until then whoever lives there may keep using the property (NRS 21.240): plan possession after the deed, with an attorney.' },
     ],
     survives: {
       wipedOut: ['The judgment lien being enforced', 'Junior liens, in most cases'],
