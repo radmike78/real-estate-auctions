@@ -153,13 +153,13 @@ export function pages(): Page[] {
 
 export function render(template: string, p: Page): string {
   const canonical = `${SITE}${p.path}`;
-  const nav = `<nav class="pre-nav"><a class="pre-logo" href="/"><img src="/logo.svg" alt="" width="32" height="32"> DeedOwl</a><ul>${NAV.map(([h, t]) => `<li>${link(h, t)}</li>`).join('')}</ul></nav>`;
+  const nav = `<a class="skip-link" href="#content">Skip to content</a><nav class="pre-nav"><a class="pre-logo" href="/"><img src="/logo.svg" alt="" width="32" height="32"> DeedOwl</a><ul>${NAV.map(([h, t]) => `<li>${link(h, t)}</li>`).join('')}</ul></nav>`;
   return template
     // Pages live in sub-folders, so every local file the template loads must be addressed from the site root.
     .replace(/(src|href)="\.?\/?(?!\/|https?:)([^"]+)"/g, (_m, attr: string, f: string) => `${attr}="/${f}"`)
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(p.title)}</title>\n    <link rel="canonical" href="${esc(canonical)}" />\n    <meta property="og:title" content="${esc(p.title)}" />\n    <meta property="og:description" content="${esc(p.description)}" />\n    <meta property="og:url" content="${esc(canonical)}" />`)
     .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${esc(p.description)}" />`)
-    .replace('<div id="root"></div>', `<div id="root">${nav}<main style="min-height:100vh">${p.body.length < 2000 ? p.body.replace(/(<\/h1>)/, '$1<noscript><p>Parts of this page need JavaScript. The lessons in Learn work without it.</p></noscript>') : p.body}</main></div>`);
+    .replace('<div id="root"></div>', `<div id="root">${nav}<main id="content" style="min-height:100vh">${p.body.length < 2000 ? p.body.replace(/(<\/h1>)/, '$1<noscript><p>Parts of this page need JavaScript. The lessons in Learn work without it.</p></noscript>') : p.body}</main></div>`);
 }
 
 export function sitemap(all: Page[]): string {

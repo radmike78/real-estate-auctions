@@ -281,21 +281,21 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   // deed is recorded (90 days after the sale for someone who didn't get proper notice); after that, the failure doesn't
   // affect a bona fide purchaser (NRS 107.080(5)-(7)).
   if (d.kind === 'trustee' && d.state === 'NV') return [
-    { what: 'Registration, if the trustee requires one', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay (usually cashier’s checks for the full bid at the sale).', missed: 'You may not be able to bid.' },
+    { what: 'Registration (if required)', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay (usually cashier’s checks for the full bid at the sale).', missed: 'You may not be able to bid.' },
     ...names(['Sale day', 'Payment deadline', 'Deed recorded']),
     { what: 'Challenge window ends', when: '30 days after the trustee’s deed is recorded (90 days after the sale for someone who didn’t get proper notice).', who: 'The former owner, or anyone entitled to notice of the sale', todo: 'Record your deed right away, and hold off on repairs and new contracts until it passes; ask your title company whether it will insure before then.', missed: 'After it, a failure to follow the law in the sale no longer affects a bona fide purchaser’s rights.*', why: 'NRS 107.080(5)-(7)' },
     ...names([...(typedWait(d) ? ['Redemption period ends'] : [])])];
   if (d.kind === 'trustee' && d.state === 'TX') return [
-    { what: 'Registration, if the trustee requires one', when: 'Ask the trustee before the sale.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay (the price is due without delay when your bid is accepted).', missed: 'You may not be able to bid.' },
+    { what: 'Registration (if required)', when: 'Ask the trustee before the sale.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay (the price is due without delay when your bid is accepted).', missed: 'You may not be able to bid.' },
     ...names(['Sale day', 'Payment deadline']),
     { what: 'Rescission window ends', when: 'For a home of 1 to 4 units, a condo or a co-op unit: within 15 days after the sale.', who: 'The lender (mortgagee), the trustee or a substitute trustee', todo: 'Hold off on repairs and new contracts until it passes. The reasons the law lists include: the sale’s legal requirements weren’t met, the default was cured before the sale, or a bankruptcy stay was in effect.', missed: 'A notice mailed and recorded by day 15 counts even if it reaches you later; after that, the sale can’t be rescinded under that law.*', why: 'Property Code 51.016' },
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
-  if (d.kind === 'trustee' && d.state === 'CA') return [{ what: 'Registration, if the trustee requires one', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline']),
+  if (d.kind === 'trustee' && d.state === 'CA') return [{ what: 'Registration (if required)', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline']),
     { what: 'Intent-to-bid window ends', when: 'For a home of 1–4 units: 15 days after the sale.', who: 'Eligible bidders (such as tenants and some buyers who will live there)', todo: 'Watch for a notice that one of them intends to bid; until then your win isn’t final.', missed: 'If none gives notice in time, your win stands, unless an exception applies.*', why: 'Civil Code 2924m, in effect until January 1, 2031' },
     { what: 'Eligible bid deadline (45 days)', when: 'For a home of 1–4 units: 45 days after the sale, if one gave notice of intent.', who: 'The eligible bidder who gave notice', todo: 'Plan for the chance that a higher eligible bid replaces yours.', missed: 'If no qualifying bid arrives in time, your win stands.', why: 'Civil Code 2924m, in effect until January 1, 2031' },
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   // (A trustee's sale lists registration only if the trustee requires one: the statutes set no registration step.)
-  if (d.kind === 'trustee') return [{ what: 'Registration, if the trustee requires one', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline', 'Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
+  if (d.kind === 'trustee') return [{ what: 'Registration (if required)', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline', 'Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
   // Texas execution sale; a Texas tax sale has its own redemption period (Tax Code 34.21).
@@ -923,7 +923,7 @@ export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   lines.push(`STAGE: ${stageLabel(stageOf(d), d)}`, `NEXT ACTION: ${nextAction(d, p, now).text}`, '');
   for (const s of packetSections(d, p, now)) {
     lines.push(`${s.title.toUpperCase()} [${s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines);
-    if (s.key === 'dates' && dateGuideLines(d).length) lines.push(`How each date works (${isOffer(d) ? 'the signed contract wins' : 'the official notice wins'}):`, ...dateGuideLines(d).map((l) => `- ${l}`));
+    if (s.key === 'dates' && dateGuideLines(d).length) lines.push(`What the less familiar dates mean (${isOffer(d) ? 'the signed contract wins' : 'the official notice wins'}):`, ...dateGuideLines(d).map((l) => `- ${l}`));
     lines.push('');
   }
   // A line marked with an asterisk: say what it means (a downloaded file has no page footer).

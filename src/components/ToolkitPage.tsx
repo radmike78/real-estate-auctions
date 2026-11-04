@@ -185,7 +185,7 @@ function keepFocus(host: HTMLElement | null) {
   const taskOf = () => document.querySelector('#roadmap-next h3')?.textContent ?? null;
   const before = taskOf();
   setTimeout(() => {
-    // In the next-task card, a status that moves the task on (Done, Stopped) shows a new one: its label then. A status
+    // In the next-task card, a status that moves the task on (Done, Stopped) shows a new one: its name then. A status
     // that keeps it there (Working on it, Waiting) keeps the pressed button, as elsewhere: the pressed status, if the
     // step is still there and shown; else the next task; else the roadmap's heading. Each tried until focus sticks.
     const inNext = !!host?.closest('#roadmap-next');
@@ -193,7 +193,7 @@ function keepFocus(host: HTMLElement | null) {
     const pressed = sameTask ? document.querySelector<HTMLElement>('#roadmap-next .roadmap-status button[aria-pressed="true"]')
       : !inNext && host && document.contains(host) ? host.querySelector<HTMLElement>('.roadmap-status button[aria-pressed="true"]') : null;
     const shown = (x: HTMLElement | null): x is HTMLElement => !!x && (typeof x.checkVisibility === 'function' ? x.checkVisibility() : x.offsetParent !== null);
-    for (const t of [pressed, document.querySelector<HTMLElement>('#roadmap-next .roadmap-next-label'), document.querySelector<HTMLElement>('#roadmap-next h3'), document.querySelector<HTMLElement>('main h2')]) {
+    for (const t of [pressed, document.querySelector<HTMLElement>('#roadmap-next h3'), document.querySelector<HTMLElement>('#roadmap-next .roadmap-next-label'), document.querySelector<HTMLElement>('main h2')]) {
       if (!shown(t)) continue;
       if (t.tagName !== 'BUTTON' && !t.hasAttribute('tabindex')) t.setAttribute('tabindex', '-1');
       t.focus({ preventScroll: t === pressed });
@@ -238,7 +238,7 @@ function StepBody({ s, status, setStatus, deal, elsewhere }: { s: RoadmapStep; s
       {deal && s.evidence && dealScoped(s) && <EvidenceArea key={`${deal.id}|${s.evidence}`} dealId={deal.id} dealName={deal.name} area={s.evidence} askFinding={status === 'done'} kind={deal.kind} />}
       {!deal && s.evidence && dealScoped(s) && <p className="muted">Working on a real property? Save it in <a href="#/analyze">Analyze</a> (it becomes the property you’re working on, shown above) to record what you find here.</p>}
       {s.id === 'goal' && <GoalField markedDone={status === 'done'} />}
-      {(s.id === 'buybox' || s.id === 'c-buybox') && status === 'done' && isBlank(read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox)) && <p className="note small" role="note">This step shows Done, but no buy box is saved yet. <button type="button" className="linkish" onClick={showBuyBox}>Fill it in</button> so your deal packets can check each property against it.</p>}
+      {(s.id === 'buybox' || s.id === 'c-buybox') && status === 'done' && isBlank(read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox)) && <p className="note small" role="note">This step shows Done, but no buy box is saved yet. <button type="button" className="linkish" onClick={showBuyBox}>Fill it in</button> so you can judge each property against it in its deal packet.</p>}
       {s.id === 'market' && <AreaLine county what="Your sources, rules and checklists follow it." />}
       {s.stop && forStateText(myState, s.stop) && <p className="roadmap-stop"><strong>When to pause:</strong> {dropStateLead(forStateText(myState, s.stop), myState)}</p>}
       <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
@@ -856,7 +856,7 @@ function BuyBoxBuilder() {
       {/* Paying cash (an auction, or Decide's "Cash only"): the whole price comes from your cash, with no loan. */}
       {!lien && b.priceMax > 0 && b.cashMax > 0 && buyCash && cashNeed > b.cashMax && (
         <p className="caution" role="status">
-          <strong>{b.priceMax > b.cashMax ? 'Your price limit is more than your cash.' : 'Your price and repair limits are more than your cash.'}</strong> {buyAuction ? 'At an auction the whole price is due by the sale’s payment deadline' : 'Paying cash, the whole price comes from your cash'}, and repairs and holding costs come on top. Your {fmtMoney(b.cashMax)} can’t cover {fmtMoney(b.priceMax)} for the {buyAuction ? 'bid' : 'price'}{b.priceMax > b.cashMax ? '' : <> plus {fmtMoney(b.repairsMax)} of repairs</>}. Lower the {b.priceMax > b.cashMax ? 'price' : 'price or repairs'} to what your cash covers{buyAuction ? ', or line up funding that’s in hand before the sale' : ''}.
+          <strong>{b.priceMax > b.cashMax ? 'Your price limit is more than your cash.' : 'Your price and repair limits are more than your cash.'}</strong> Your {fmtMoney(b.cashMax)} can’t cover {fmtMoney(b.priceMax)} for the {buyAuction ? 'bid' : 'price'}{b.priceMax > b.cashMax ? '' : <> plus {fmtMoney(b.repairsMax)} of repairs</>}, and holding costs come on top{buyAuction ? '' : ' (paying cash, the whole price comes from your cash)'}. Lower the {b.priceMax > b.cashMax ? 'price' : 'price or repairs'} to what your cash covers{buyAuction ? ', or line up funding that’s in hand before the sale' : ''}.
         </p>
       )}
       {!lien && !buyCash && b.priceMax > 0 && b.cashMax > 0 && cashForPrice(b.priceMax, pa).total > b.cashMax && (

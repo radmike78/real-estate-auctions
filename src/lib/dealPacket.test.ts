@@ -197,7 +197,7 @@ describe('the deal packet', () => {
     expect(dateGuide({ ...deal, state: 'CA', kind: 'trustee' }).map((g) => g.what)).toEqual(expect.arrayContaining(['Intent-to-bid window ends', 'Eligible bid deadline (45 days)']));
     // An auction's dates follow the official notice (a contract only on an offer).
     const { dealPacketText } = await import('./dealPacket');
-    expect(dealPacketText({ ...deal, state: 'CA', kind: 'trustee' }, EMPTY_PACKET, now)).toContain('How each date works (the official notice wins):');
+    expect(dealPacketText({ ...deal, state: 'CA', kind: 'trustee' }, EMPTY_PACKET, now)).toContain('What the less familiar dates mean (the official notice wins):');
     localStorage.removeItem('fsf.bid.analyzed-d1.v1');
     expect(dateGuide({ ...deal, state: 'AZ', kind: 'hoa' }).map((g) => g.what)).not.toContain('Redemption period ends');
     expect(dateGuide({ ...deal, state: 'TX', kind: 'hoa' }).map((g) => g.what)).toContain('Redemption period ends');

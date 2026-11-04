@@ -168,7 +168,7 @@ export default function GuidesPage({ initialQuery }: { initialQuery: string }) {
         Results are passages from DeedOwl’s own guides, matched to your words. Nothing is pulled from other websites or generated when you search, and we don’t keep what you search for. Rules, fees and dates change: always confirm in the current official notice.
       </p>
       {/* No ads beside results from forced-sale, lien or homeowner guides. */}
-      <AdSpot spot="guides" allow={!results || results.hits.every((h) => !/^#\/(playbooks|learn\/forced-sales|homeowner|pre-foreclosures|business-assets|surplus)/.test(h.doc.href))} />
+      <AdSpot spot="guides" allow={!results || results.hits.every((h) => !/^#\/(playbooks|learn\/forced-sales|homeowner|pre-foreclosures|business-assets|surplus)/.test(h.doc.href) && !/trustee|tax sale|tax deed|sheriff|foreclos|\blien|redemption|redeem|bought back|surplus|seiz/i.test(`${h.doc.title} ${h.snippet}`))} />
     </main>
   );
 }

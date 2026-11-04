@@ -535,7 +535,7 @@ export default function DrillPage({ id }: { id: string }) {
         // above marks it done).
         const own = routePractice(planPath());
         if (own && plan.task.key === `roadmap-${own.id}` && fitsPractice(own.id)) return allDone && verdict ? null : (
-          <nav className="path-next" aria-label="Next step"><span className="muted">You’re on your next step: {plan.task.label}. When you have {plan.task.produces}, mark it done at the end of a drill or in My plan.</span></nav>
+          <p className="path-next" role="note"><span className="muted">You’re on your next step: {plan.task.label}. Its test is in My plan; once you’ve met it, mark it done at the end of a drill.</span></p>
         );
         return plan.task.href !== here && !plan.task.support.some((x) => x.href === here) ? (
           <nav className="path-next" aria-label="Next step">
