@@ -270,6 +270,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     replaceAddress('/analyze');
   }, [plan]);
   const [saved, setSaved] = useState<Deal[]>(loadDeals);
+  // The practice analysis just made a real deal (its id): a short line says so.
+  const [madeReal, setMadeReal] = useState<string | null>(null);
   // The saved deals as stored (another tab or page may have changed them), or this page's copy when storage can't be
   // read at all (blocked storage).
   const storedDeals = (): Deal[] => {
@@ -401,16 +403,20 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           <p className="note" role="status">You passed on “{deal.name}”. Changes here update it in My deals. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button></p>
         )}
         {deal.id && deal.practice && !savingPractice() && saved.find((d) => d.id === deal.id)?.stage !== 'passed' && (
-          <p className="note" role="status">This is your practice analysis “{deal.name}”. Changes here update it in My deals, and it stays a practice analysis. Found a real property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button>{' '}or, if this one is a real property, <button type="button" className="linkish" onClick={() => {
+          <p className="note" role="status">This is your practice analysis “{deal.name}”. Changes here update it in My deals, and it stays a practice analysis. Found a real property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button>. Is this one real? <button type="button" className="linkish" onClick={() => {
             // A real home saved while My plan was on a practice step: it becomes a real deal (My plan can follow it).
             const id = deal.id;
             saveDeals(loadDeals().map((x) => (x.id === id ? { ...x, practice: undefined, updatedAt: nextStamp(x.updatedAt) } : x)));
             setSaved(loadDeals());
             setDeal((d) => ({ ...d, practice: undefined }));
             progressChanged();
-            // The note goes away: focus moves to the saved line.
-            setTimeout(() => document.getElementById('deal-saved-line')?.focus(), 0);
-          }}>make it a real deal</button>.</p>
+            // The note goes away: a short line says what changed, and focus moves there.
+            setMadeReal(id);
+            setTimeout(() => document.getElementById('made-real-line')?.focus(), 0);
+          }}>Make it a real deal</button>.</p>
+        )}
+        {deal.id && madeReal === deal.id && !deal.practice && (
+          <p className="note" tabIndex={-1} id="made-real-line">“{deal.name}” is now a real deal in My deals, so My plan can follow it.</p>
         )}
         <p className="muted">Found a property on an official list, a listing site or from your agent? Enter it here. You’ll get the checklist for that kind of sale in that county, and the calculator for your plan. Save it to come back to it in My deals.</p>
         {(() => {
