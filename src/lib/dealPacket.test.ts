@@ -190,6 +190,14 @@ describe('the deal packet', () => {
     expect(shortestRedemptionWords({ state: 'NV', kind: 'court' }, true)).toBe('1 year, about 12 months');
     expect(shortestRedemptionWords({ state: 'TX', kind: 'hoa' })).toBe('90 days (about 3 months)');
     expect(shortestRedemptionWords({ state: 'CA', kind: 'court' })).toBe('');
+    // When the owner's period starts: Utah's sheriff's sale from the sale (URCP 69C), a Texas tax sale from the deed.
+    localStorage.removeItem('fsf.bid.analyzed-d1.v1');
+    expect(dateGuide({ ...deal, state: 'UT', kind: 'court' }).find((g) => g.what === 'Redemption period ends')).toMatchObject({ when: '180 days after the sale.', why: 'Utah Rule of Civil Procedure 69C' });
+    expect(dateGuide({ ...deal, state: 'TX', kind: 'taxSale' }).find((g) => g.what === 'Redemption period ends')?.when).toMatch(/counted from the day your deed is recorded/);
+    expect(dateGuide({ ...deal, state: 'CA', kind: 'trustee' }).map((g) => g.what)).toEqual(expect.arrayContaining(['Intent-to-bid window ends', 'Eligible bid deadline (45 days)']));
+    // An auction's dates follow the official notice (a contract only on an offer).
+    const { dealPacketText } = await import('./dealPacket');
+    expect(dealPacketText({ ...deal, state: 'CA', kind: 'trustee' }, EMPTY_PACKET, now)).toContain('How each date works (the official notice wins):');
     localStorage.removeItem('fsf.bid.analyzed-d1.v1');
     expect(dateGuide({ ...deal, state: 'AZ', kind: 'hoa' }).map((g) => g.what)).not.toContain('Redemption period ends');
     expect(dateGuide({ ...deal, state: 'TX', kind: 'hoa' }).map((g) => g.what)).toContain('Redemption period ends');

@@ -8,7 +8,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { shuffled } from '../lib/shuffle';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useJourney, useLastActivity } from '../lib/journey';
-import { planNow, practiceState } from '../lib/planNext';
+import { planNow, practiceState, routePractice } from '../lib/planNext';
 import PageHero from './PageHero';
 import StatePicker from './StatePicker';
 import EmptyState from './EmptyState';
@@ -480,6 +480,8 @@ export default function DrillPage({ id }: { id: string }) {
   const ownState = myState && drillState(d) === myState ? myState : null;
   const local = (t: string) => (ownState ? withoutState(t, ownState) : t);
   const verdict = d.verdict.choices.find((c) => c.label === mine.verdict);
+  // On the lien route the Arizona tax lien drill is part 2; on the auction route, the auction drills.
+  const fitsPractice = (id: string) => (drillState(d) === null || drillState(d) === getMyState() || drillState(d) === practiceState()) && (id === 'c-practice' ? d.id === 'tax-lien-az' : drillCard(d).group === 'auctions' && !/^(tax-lien|sid)/.test(d.id));
   return (
     <main className="page drill">
       <p className="drill-back-top"><a className="btn btn-secondary" href="#/practice/drills">← All practice</a></p>
@@ -517,7 +519,7 @@ export default function DrillPage({ id }: { id: string }) {
       )}
       {/* Only once the verdict and the expert's view are shown, outside the missions and their feedback. */}
       {/* On the lien route the Arizona tax lien drill is part 2; on the auction route, the auction drills. */}
-      {allDone && verdict && <RoutePracticeDone what="drill" fits={(id) => (drillState(d) === null || drillState(d) === getMyState() || drillState(d) === practiceState()) && (id === 'c-practice' ? d.id === 'tax-lien-az' : drillCard(d).group === 'auctions' && !/^(tax-lien|sid)/.test(d.id))} />}
+      {allDone && verdict && <RoutePracticeDone what="drill" fits={fitsPractice} />}
       {allDone && verdict && <TopicAd drill={d.id} />}
       <div className="decide-nav">
         <a className="btn btn-secondary" href="#/practice/drills">← All practice</a>
@@ -529,6 +531,12 @@ export default function DrillPage({ id }: { id: string }) {
         const plan = planNow();
         // This drill is the task (or the task's own link): no Next link that sends you to My plan and back here.
         const here = `#/practice/drills/${d.id}`;
+        // This drill counts for the plan's practice part 2, its next task: you're on it (once it's finished, the note
+        // above marks it done).
+        const own = routePractice(planPath());
+        if (own && plan.task.key === `roadmap-${own.id}` && fitsPractice(own.id)) return allDone && verdict ? null : (
+          <nav className="path-next" aria-label="Next step"><span className="muted">You’re on your next step: {plan.task.label}. When you have {plan.task.produces}, mark it done at the end of a drill or in My plan.</span></nav>
+        );
         return plan.task.href !== here && !plan.task.support.some((x) => x.href === here) ? (
           <nav className="path-next" aria-label="Next step">
             <span className="muted">Next: {plan.context}</span>

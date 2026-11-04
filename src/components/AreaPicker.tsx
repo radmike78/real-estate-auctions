@@ -176,7 +176,8 @@ export function AreaDialog({ onClose }: { onClose: () => void }) {
   const box = useRef<HTMLDivElement>(null);
   useModal(box, onClose);
   useEffect(() => {
-    box.current?.querySelector<HTMLElement>('button')?.focus();
+    // On your state (its pressed button), else the first.
+    (box.current?.querySelector<HTMLElement>('button[aria-pressed="true"]') ?? box.current?.querySelector<HTMLElement>('button'))?.focus();
   }, []);
   // Rendered on the page body: the header's blur effect would otherwise trap the dialog inside the header bar.
   return createPortal(

@@ -283,7 +283,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   if (d.kind === 'trustee' && d.state === 'CA') return [{ what: 'Registration, if the trustee requires one', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline']),
     { what: 'Intent-to-bid window ends', when: 'For a home of 1–4 units: 15 days after the sale.', who: 'Eligible bidders (such as tenants and some buyers who will live there)', todo: 'Watch for a notice that one of them intends to bid; until then your win isn’t final.', missed: 'If none gives notice in time, your win stands, unless an exception applies.*', why: 'Civil Code 2924m, in effect until January 1, 2031' },
-    { what: '45-day eligible bid deadline', when: 'For a home of 1–4 units: 45 days after the sale, if one gave notice of intent.', who: 'The eligible bidder who gave notice', todo: 'Plan for the chance that a higher eligible bid replaces yours.', missed: 'If no qualifying bid arrives in time, your win stands.', why: 'Civil Code 2924m, in effect until January 1, 2031' },
+    { what: 'Eligible bid deadline (45 days)', when: 'For a home of 1–4 units: 45 days after the sale, if one gave notice of intent.', who: 'The eligible bidder who gave notice', todo: 'Plan for the chance that a higher eligible bid replaces yours.', missed: 'If no qualifying bid arrives in time, your win stands.', why: 'Civil Code 2924m, in effect until January 1, 2031' },
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   // (A trustee's sale lists registration only if the trustee requires one: the statutes set no registration step.)
   if (d.kind === 'trustee') return [{ what: 'Registration, if the trustee requires one', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline', 'Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
@@ -293,7 +293,14 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   if ((['hoa', 'irs', 'court'].includes(d.kind) || (d.kind === 'taxSale' && d.state === 'TX')) && redemptionChoicesFor(d.state, d.kind).start !== 'none' && savedRule(d) !== 'none') out.push('Redemption period ends');
   // A redemption wait typed in Fix and sell (a what-if the price is built on) puts its end on the calendar too.
   else if (typedWait(d)) out.push('Redemption period ends');
-  return names(out);
+  // When the owner's period starts, where the rule says (not under a United States redemption, which has its own).
+  const ownerRule = !['usCourt', 'usFederal'].includes(savedRule(d) ?? '');
+  const ends = d.state === 'UT' && d.kind === 'court' && ownerRule
+    ? { what: 'Redemption period ends', when: '180 days after the sale.', who: 'The owner, or others the rule lets redeem', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends.', missed: 'After it ends, the owner can no longer redeem under that rule.*', why: 'Utah Rule of Civil Procedure 69C' }
+    : d.state === 'TX' && d.kind === 'taxSale' && ownerRule
+      ? { what: 'Redemption period ends', when: '180 days, or 2 years for the owner’s home (homestead), land designated for agricultural use or a mineral interest, counted from the day your deed is recorded, not from sale day.', who: 'The former owner', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends.', missed: 'After it ends, the owner can no longer redeem under that law.*', why: 'Tax Code 34.21' }
+      : null;
+  return names(out).map((g) => (ends && g.what === 'Redemption period ends' ? ends : g));
 }
 
 /** The names of the dates most deals of this kind need on the calendar, to start the list from. */
@@ -907,7 +914,7 @@ export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   lines.push(`STAGE: ${stageLabel(stageOf(d), d)}`, `NEXT ACTION: ${nextAction(d, p, now).text}`, '');
   for (const s of packetSections(d, p, now)) {
     lines.push(`${s.title.toUpperCase()} [${s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines);
-    if (s.key === 'dates' && dateGuideLines(d).length) lines.push('How each date works (the signed contract wins):', ...dateGuideLines(d).map((l) => `- ${l}`));
+    if (s.key === 'dates' && dateGuideLines(d).length) lines.push(`How each date works (${isOffer(d) ? 'the signed contract wins' : 'the official notice wins'}):`, ...dateGuideLines(d).map((l) => `- ${l}`));
     lines.push('');
   }
   // A line marked with an asterisk: say what it means (a downloaded file has no page footer).
