@@ -165,13 +165,13 @@ const txLoanDates = (short: boolean): DateGuide[] => [
 
 const names = (xs: string[]): DateGuide[] => xs.map((what) => ({ what }));
 
-/** The dates most deals of this kind need on the calendar, each with how it works where we have it (Texas contracts). */
-
-/** A sale with no owner redemption, in words: Nevada's trustee sale is confirmed by statute; a Texas mortgage foreclosure
- *  as Fix and sell's rule note says it; others carry an asterisk. */
+/** A sale with no owner redemption, in words: Nevada's and Utah's trustee sales are confirmed by statute; others
+ *  carry an asterisk. */
 export function noRedemptionWords(d: Pick<Deal, 'state' | 'kind'>): string {
   if (d.state === 'NV' && d.kind === 'trustee') return 'Nevada trustee sales are made “without equity or right of redemption” (NRS 107.080(5)).';
-  if (d.state === 'TX' && d.kind === 'trustee') return 'A Texas mortgage foreclosure has no redemption.';
+  // Utah Code 57-1-28(3) (le.utah.gov): the trustee's deed conveys the title "without right of redemption".
+  if (d.state === 'UT' && d.kind === 'trustee') return 'Utah trustee sales convey the title “without right of redemption” (Utah Code 57-1-28(3)).';
+  if (d.state === 'TX' && d.kind === 'trustee') return 'A Texas mortgage foreclosure has no redemption.*';
   return 'This kind of sale doesn’t usually carry a right of redemption.*';
 }
 
@@ -205,6 +205,7 @@ function typedWait(d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal[
   return i.redemptionMonths > 0 && redemptionWho(d, i) !== null;
 }
 
+/** The dates most deals of this kind need on the calendar, each with how it works where we have it (Texas contracts). */
 export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan']; id?: string }): DateGuide[] {
   const tx = d.state === 'TX';
   // A commercial building isn't bought on a home contract (Texas: TREC's one-to-four-family form), so no home-form dates.
@@ -222,12 +223,14 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   // Nevada: a sale that didn't substantially follow the law can be voided by a suit filed within 30 days after the trustee's
   // deed is recorded (90 days after the sale for someone who didn't get proper notice); after that, the failure doesn't
   // affect a bona fide purchaser (NRS 107.080(5)-(7)).
-  if (d.kind === 'trustee' && d.state === 'NV') return [...names(['Sale day', 'Payment deadline']),
+  if (d.kind === 'trustee' && d.state === 'NV') return [
     { what: 'Registration, if the trustee requires one', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay (usually cashier’s checks for the full bid at the sale).', missed: 'You may not be able to bid.' },
+    ...names(['Sale day', 'Payment deadline']),
     { what: '30-day challenge window', when: '30 days after the trustee’s deed is recorded (90 days after the sale for someone who didn’t get proper notice).', who: 'The former owner, or anyone entitled to notice of the sale', todo: 'Record your deed right away, and hold off on repairs and new contracts until it passes; ask your title company whether it will insure before then.', missed: 'After it, a failure to follow the law in the sale no longer affects a bona fide purchaser’s rights.*', why: 'NRS 107.080(5)-(7)' },
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
-  if (d.kind === 'trustee' && d.state === 'TX') return [...names(['Sale day', 'Payment deadline']),
-    { what: 'Registration, if the trustee requires one', when: 'Ask the trustee before the sale.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay (the price is due without delay when your bid is accepted).', missed: 'You may not be able to bid.', why: 'Property Code 51.0075(f)' },
+  if (d.kind === 'trustee' && d.state === 'TX') return [
+    { what: 'Registration, if the trustee requires one', when: 'Ask the trustee before the sale.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay (the price is due without delay when your bid is accepted).', missed: 'You may not be able to bid.' },
+    ...names(['Sale day', 'Payment deadline']),
     { what: '15-day rescission window', when: 'For a home of 1 to 4 units, a condo or a co-op unit: within 15 days after the sale.', who: 'The lender (mortgagee), the trustee or a substitute trustee', todo: 'Hold off on repairs and new contracts until it passes. The reasons the law lists include: the sale’s legal requirements weren’t met, the default was cured before the sale, or a bankruptcy stay was in effect.', missed: 'A notice mailed and recorded by day 15 counts even if it reaches you later; after that, the sale can’t be rescinded under that law.*', why: 'Property Code 51.016' },
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   if (d.kind === 'trustee' && d.state === 'CA') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),

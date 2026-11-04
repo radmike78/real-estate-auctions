@@ -187,7 +187,7 @@ function OtherNumbers({ d }: { d: Deal }) {
   }
   if (bid) {
     // A typed what-if wait (a sale with no right of redemption) is named even when no bid works, as the packet does.
-    const whatIf = bid.redeem && !bid.redeem.who ? ` · built on a ${bid.redeem.months}-month what-if wait you typed (${d.state === 'NV' && d.kind === 'trustee' ? 'Nevada trustee sales carry no right of redemption' : d.state === 'TX' && d.kind === 'trustee' ? 'a Texas mortgage foreclosure has no redemption' : 'this kind of sale doesn’t usually carry a right of redemption*'})` : '';
+    const whatIf = bid.redeem && !bid.redeem.who ? ` · built on a ${bid.redeem.months}-month what-if wait you typed (${d.state === 'NV' && d.kind === 'trustee' ? 'Nevada trustee sales carry no right of redemption' : d.state === 'UT' && d.kind === 'trustee' ? 'Utah trustee sales carry no right of redemption' : d.state === 'TX' && d.kind === 'trustee' ? 'a Texas mortgage foreclosure has no redemption*' : 'this kind of sale doesn’t usually carry a right of redemption*'})` : '';
     // A real wait with no price to work it out at (no bid works, or the walk-away is below the opening bid): named too.
     const waitOnly = bid.redeem && bid.redeem.who && !(bid.redeem.price > 0) ? ` · built on a ${bid.redeem.months}-month redemption wait (${bid.redeem.who} can redeem until it ends)` : '';
     // (After a line that ends in a full stop, as its own sentence.)

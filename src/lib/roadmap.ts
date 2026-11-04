@@ -137,9 +137,9 @@ export const ROADMAP: RoadmapStep[] = [
   {
     id: 'buybox', phase: 2, path: PROPERTY, title: 'Write your buy box',
     text: 'Set your limits before you look, so a property can’t talk you into it.',
-    outcome: 'A saved buy box: area, property type, price limit, repair limit, return target and deal breakers.',
+    outcome: 'A saved buy box: area, property type, price limit and deal breakers (a repair limit and a return target too, if you set them).',
     steps: ['Fill in the buy box below.', 'Add at least three deal breakers, things that end a deal no matter the price.', 'Print or download it.'],
-    doneWhen: 'Your buy box has an area, a property type, a price limit and deal breakers.',
+    doneWhen: 'Your buy box has an area, a property type, a price limit and at least three deal breakers.',
     action: 'Fill in your buy box', href: '#/toolkit/buy-box',
   },
   // Lien certificates: you judge a county's sale and a lien's risk, not a market's rents or a property's repairs.

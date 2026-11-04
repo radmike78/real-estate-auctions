@@ -33,10 +33,10 @@ export function stageLabel(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: De
 }
 
 /** One line on what the stage means, for the stage picker. */
-export function stageHint(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Deal['plan'] }): string {
+export function stageHint(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Deal['plan']; state?: Deal['state'] }): string {
   const w = wayOf(d);
   switch (stage) {
-    case 'researching': return w === 'offer' ? 'Checking whether it fits, before any offer. Check the listing and the seller’s deadlines while you research.' : w === 'lien' ? 'Checking whether it fits, before you bid. Check the sale’s registration and payment deadlines while you research.' : d.kind === 'trustee' ? 'Checking whether it fits, before any bid. Confirm the sale date and the trustee’s payment terms while you research.' : 'Checking whether it fits, before any bid. Check the sale’s registration deadline while you research.';
+    case 'researching': return w === 'offer' ? 'Checking whether it fits, before any offer. Check the listing and the seller’s deadlines while you research.' : w === 'lien' ? 'Checking whether it fits, before you bid. Check the sale’s registration and payment deadlines while you research.' : d.kind === 'trustee' && (d.state === 'TX' || d.state === 'NV') ? 'Checking whether it fits, before any bid. Confirm the sale date and the trustee’s payment terms while you research.' : 'Checking whether it fits, before any bid. Check the sale’s registration deadline while you research.';
     case 'offer': return w === 'offer' ? 'It checked out: you’re setting your price, the earnest money and your questions before you offer.' : 'It checked out: you’re setting your maximum bid and getting the funds ready.';
     case 'contract': return w === 'offer' ? 'The seller accepted your offer. The contract’s deadlines are running.' : 'You won the bid. Payment and recording deadlines are running.';
     case 'closed': return w === 'offer' ? 'It’s yours: insurance, locks, utilities and repairs come first.' : w === 'lien' ? 'You hold the certificate: track it until it’s paid off.' : 'The deed is yours: check redemption, possession and title before you remodel.';

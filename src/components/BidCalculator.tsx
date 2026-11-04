@@ -78,7 +78,7 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
     title: 'Holding and financing',
     redemption: true,
     fields: [
-      { k: 'redemptionMonths', label: 'Redemption wait', unit: 'mo', hint: 'Secure and maintain it; hold off on remodeling until it ends.', more: 'After some sales the former owner (and sometimes lenders) can buy the property back by repaying your price plus what the law adds. What’s repaid depends on the rule. Some repay reasonable upkeep and repairs. Optional remodeling usually isn’t repaid,* so most buyers only secure, insure and maintain the property while they wait. Ask an attorney what you may do and what is repaid. This is the legal wait; your own plan can be longer. A shorter number here is only a what-if: the owner can still redeem until the legal deadline.' },
+      { k: 'redemptionMonths', label: 'Redemption wait', unit: 'mo', hint: 'Secure and maintain it; hold off on remodeling until it ends.', more: 'After some sales the former owner (and sometimes lenders) can buy the property back by repaying your price plus what the law adds. What’s repaid depends on the rule. Some repay reasonable upkeep and repairs. Optional remodeling usually isn’t repaid,* so most buyers only secure, insure and maintain the property while they wait. Ask an attorney what you may do and what is repaid. This is the legal wait; your own plan can be longer. A shorter number here is only a what-if: whoever holds the right can still redeem until the legal deadline.' },
       { k: 'redemptionRatePct', label: 'Interest a redemption pays you', unit: '%/yr', hint: 'Set by the kind of sale.', when: (i) => i.redemptionMonths > 0 },
       { k: 'holdingMonths', label: 'Months to fix and sell', unit: 'mo', hint: 'After any redemption wait.', more: 'After a tax sale, resale may wait for a quiet title action. In Nevada, that’s the 2-year window after the Treasurer’s deed (NRS 361.600); other states’ waits are in their sale guides.' },
       { k: 'monthlyCarry', label: 'Monthly holding costs', unit: '$', hint: 'Taxes, insurance, utilities and any HOA dues, each month you own it. A listed property’s estimate leaves out HOA dues: add them.' },
@@ -207,7 +207,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const moreForField = (f: Field) =>
     // A sale that usually has no redemption (a trustee's mortgage foreclosure): the help says a wait is your what-if.
     f.k === 'redemptionMonths' && f.more && choices?.start === 'none' && (ruleNow === 'custom' || ruleNow === 'none') && saleKind ? `${noRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] })} A wait here is your own what-if: it only adds holding costs. The exceptions are the rules in the menu (for example a junior federal tax lien wiped out by the sale, which gives the United States 120 days). Ask an attorney which applies.`
-      : f.k === 'redemptionMonths' && f.more && region.state === 'TX' ? f.more.replace('Optional remodeling', `${txRepaid()} Optional remodeling`) : moreFor(f);
+      : f.k === 'redemptionMonths' && f.more && region.state === 'TX' && pickOf() !== 'usFederal' && pickOf() !== 'usCourt' ? f.more.replace('Optional remodeling', `${txRepaid()} Optional remodeling`) : moreFor(f);
   const uid = useId();
   function save(next: BidInputs) {
     if (!storeId) return;
