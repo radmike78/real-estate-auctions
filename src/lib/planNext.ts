@@ -92,7 +92,10 @@ export function practiceLienDeal(): Deal | null {
 export function guidedPracticeDone(path: RoadmapPath = planPath()): boolean {
   if (practicePart2Done()) return true;
   const step = routePractice(path);
-  return !!step && settledFor('')(step);
+  if (step && settledFor('')(step)) return true;
+  // Part 2 finished on another route (the auction or lien practice, before a listed home changed the route) counts:
+  // a beginner who did what My plan asked isn't sent back to Step 3.
+  return roadmapFor('auction').concat(roadmapFor('certificate')).some((s) => (s.id === 'a-practice' || s.id === 'c-practice') && settledFor('')(s));
 }
 
 export const roadmapTask = (s: RoadmapStep): PlanTask => ({

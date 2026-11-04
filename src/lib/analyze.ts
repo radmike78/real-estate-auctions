@@ -277,8 +277,9 @@ const movedFromNoLienState = () => {
   const f = movedFrom();
   return !!f && f !== 'NV' && f !== 'AZ';
 };
+// (Only the first: once a real Nevada or Arizona lien deal is saved, more certificates priced during practice are practice.)
 export const savingPractice = (d?: SavedKind) =>
-  practicingNow(d) && !(d?.kind === 'lien' && (d.state === 'NV' || d.state === 'AZ') && movedFromNoLienState());
+  practicingNow(d) && !(d?.kind === 'lien' && (d.state === 'NV' || d.state === 'AZ') && movedFromNoLienState() && !loadDeals().some((x) => !x.practice && x.kind === 'lien' && (x.state === 'NV' || x.state === 'AZ')));
 
 /** An unsaved, started deal in Analyze, saved to My deals before something replaces it. Returns it, or null. */
 export function keepUnsavedDraft(): Deal | null {

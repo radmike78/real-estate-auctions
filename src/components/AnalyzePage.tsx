@@ -1,5 +1,5 @@
 import { planNow, practiceLienDeal, roadmapNextStep } from '../lib/planNext';
-import { planPath } from '../lib/roadmapState';
+import { lienDealFor, planPath } from '../lib/roadmapState';
 import PathNext from './PathNext';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useRef, useState } from 'react';
@@ -56,7 +56,9 @@ function planFromBuyBox(): Plan {
 // On the auction route, the kind of auction you last saved in this state (a Texas tax-sale buyer keeps tax sales),
 // else a trustee's sale.
 const lastAuctionKind = (st: StateCode): SaleKind => {
-  const k = loadDeals().filter((d) => d.state === st && !d.practice && d.kind !== 'lien' && d.kind !== 'listing' && d.kind !== 'reo' && d.kind !== 'short').sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))[0]?.kind;
+  // A real deal's kind first, else the kind you practiced (a practice analysis), else a trustee's sale.
+  const auctions = loadDeals().filter((d) => d.state === st && d.kind !== 'lien' && d.kind !== 'listing' && d.kind !== 'reo' && d.kind !== 'short').sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  const k = (auctions.find((d) => !d.practice) ?? auctions[0])?.kind;
   return k && kindsFor(st).some((x) => x.key === k) ? k : 'trustee';
 };
 // A lien route in a state without lien sales starts the new deal as an auction there (as My plan follows).
@@ -221,11 +223,15 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       // opens a new, unsaved lien certificate in the state and county of the Nevada or Arizona lien deal your plan is
       // built around, where the lien calculator is, instead of a blank listing. Your saved deal isn't touched, so
       // practice payoffs don't change its numbers. (A started draft is kept in My deals first.)
-      const ld0 = plan === 'lien' && !kindsFor(mine ?? 'NV').some((k) => k.key === 'lien') ? practiceLienDeal() : null;
+      // (Also for a reader Analyze's State field moved into that deal's state from one without lien sales.)
+      const moved = movedFrom();
+      const own = moved && moved !== 'NV' && moved !== 'AZ' ? lienDealFor() : null;
+      const ld0 = plan !== 'lien' ? null : !kindsFor(mine ?? 'NV').some((k) => k.key === 'lien') ? practiceLienDeal() : own && own.state === mine ? own : null;
       // (Not again on a reload of the same link: an unsaved certificate already open there stays as you left it.)
       let open: Deal | null = null;
       try { open = cleanDeal(JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null')); } catch { /* storage unavailable */ }
-      const already = !!open && !open.id && open.kind === 'lien' && open.state === ld0?.state;
+      // Only the same one: that deal's state and county, with its calculator open (a stale draft elsewhere is replaced).
+      const already = !!open && !open.id && open.kind === 'lien' && open.state === ld0?.state && open.county === ld0?.county && !!open.locationConfirmed;
       if (ld0 && !already) {
         const { kept } = startLienDraft(ld0);
         if (kept) { keptNoteOnce = kept; setTimeout(() => { keptNoteOnce = ''; }, 1500); setTimeout(() => setKeptNote(kept), 0); }
@@ -334,7 +340,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
 
   const set = (patch: Partial<Deal>) => setDeal((d) => ({ ...d, ...patch, updatedAt: nextStamp(d.updatedAt) }));
   // A new, unsaved lien certificate in the state of the lien deal your plan is built around (not your own state).
-  const practiceCert = !deal.id && deal.kind === 'lien' && !!mine && deal.state !== mine && practiceLienDeal()?.state === deal.state;
+  const practiceCert = !deal.id && deal.kind === 'lien' && !!mine && ((deal.state !== mine && practiceLienDeal()?.state === deal.state) || (!!movedFrom() && !['NV', 'AZ'].includes(movedFrom()!) && lienDealFor()?.state === deal.state && lienDealFor()?.county === deal.county));
   const st = stateByCode(deal.state)!;
   const kinds = kindsFor(deal.state);
   const plans = PLANS.filter((p) => plansFor(deal.kind).includes(p.key));
@@ -392,11 +398,13 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         <p className="muted">Found a property on an official list, a listing site or from your agent? Enter it here. You’ll get the checklist for that kind of sale in that county, and the calculator for your plan. Save it to come back to it in My deals.</p>
         {(() => {
           // On a lien route kept by a Nevada or Arizona lien deal while your own state sells no liens.
-          const ld = !deal.id ? practiceLienDeal() : null;
+          const mv = movedFrom();
+          const movedIn = !!mv && mv !== 'NV' && mv !== 'AZ';
+          const ld = !deal.id ? practiceLienDeal() ?? (movedIn ? lienDealFor() : null) : null;
           if (!ld) return null;
           const nm = stateByCode(ld.state)?.name ?? ld.state;
           // The new certificate opened in that deal's state (the lien calculator link, or the button below).
-          if (deal.kind === 'lien' && deal.state === ld.state && deal.state !== mine) return <p className="note" role="status" tabIndex={-1} ref={lienNoteRef}>A new, unsaved lien certificate in {nm}, where your saved lien deal is.{savingPractice(deal) ? ` For the practice step, enter the “${deal.state === 'AZ' ? 'Lien amount you pay' : 'Certificate price'}” and “Interest” below, then try “Months until the owner pays” at 6 and at 24.` : ''} Your saved deal “{ld.name}” isn’t changed. <button type="button" className="linkish" onClick={() => {
+          if (deal.kind === 'lien' && deal.state === ld.state && deal.county === ld.county && (deal.state !== mine || movedIn)) return <p className="note" role="status" tabIndex={-1} ref={lienNoteRef}>A new, unsaved lien certificate in {nm}, where your saved lien deal is.{savingPractice(deal) ? ` For the practice step, enter the “${deal.state === 'AZ' ? 'Lien amount you pay' : 'Certificate price'}” and “Interest” below, then try “Months until the owner pays” at 6 and at 24.` : ''} Your saved deal “{ld.name}” isn’t changed. <button type="button" className="linkish" onClick={() => {
             // A named or noted certificate is kept in My deals first, as every other way of replacing the draft does.
             // ...and, as with "Price another", the lien deal stays My plan's property (the kept one is newer otherwise).
             const keptDeal = keepUnsavedDraft();

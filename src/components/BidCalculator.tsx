@@ -432,7 +432,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const twCap = tw.charAt(0).toUpperCase() + tw.slice(1);
   // A dollar target left at $0: no target yet, not a $0 goal.
   const noDollarTarget = !!i.profitInDollars && !(i.targetProfitMin > 0);
-  const steps0 = maxBidSteps(i);
+  // An offer on a listed home has no quiet title: its line reads as the field does.
+  const steps0 = maxBidSteps(i).map((x) => (offer && x.label === 'Title, attorney, quiet title' ? { ...x, label: 'Title, escrow, attorney' } : x));
   const steps = targetIsExample || (!!i.profitInDollars && !(nz(i.targetProfitMin) > 0)) ? steps0.map((x) => ({ ...x, label: !!i.profitInDollars && !(nz(i.targetProfitMin) > 0) ? x.label.replace(/^Profit (left|you want).*$/, 'Profit left (no profit target set yet)') : x.label.replace('your target:', 'our example target:') })) : steps0;
   const atOpening = i.minimumBid > 0 ? profitAtBid(i, i.minimumBid) : 0;
   // The deal itself fails at the opening bid, or only the cash you entered falls short of it.
