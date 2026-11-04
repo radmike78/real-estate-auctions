@@ -2731,10 +2731,13 @@ cite.cite { font-style: normal; font-size: max(0.82em, 15px); color: var(--muted
 .packet-lines { margin: 8px 0; padding-left: 1.2em; }
 .packet-fit { border: 0; padding: 0; margin: 8px 0; display: flex; flex-wrap: wrap; gap: 6px 18px; }
 .packet-dates, .packet-qa { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 8px; }
-.packet-dates li { display: grid; grid-template-columns: minmax(150px, 180px) 1fr minmax(120px, 220px) auto; gap: 8px; align-items: center; }
+.packet-dates li { display: grid; grid-template-columns: minmax(150px, 180px) minmax(0, 2fr) minmax(120px, 1fr) auto auto; gap: 8px; align-items: center; }
 .packet-qa li { display: grid; grid-template-columns: minmax(240px, 270px) 1fr 1fr minmax(150px, 180px) auto; gap: 8px; align-items: start; }
 .packet-qa textarea { font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; width: 100%; resize: vertical; }
-@media (max-width: 760px) { .packet-dates li, .packet-qa li { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .packet-qa li { grid-template-columns: 1fr; } }
+@media (max-width: 1000px) { .packet-dates li { grid-template-columns: 1fr; } }
+/* A date's name wraps instead of being cut off (a long one on a phone). */
+.packet-dates .packet-what { font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; width: 100%; resize: none; field-sizing: content; min-height: 46px; overflow: hidden; }
 
 /* Admin → Ad spots: one row per Mentor Connect spot; the category choices open under a spot that's on. */
 .ad-spot-list { list-style: none; padding: 0; margin: 12px 0 16px; display: grid; gap: 10px; }

@@ -12,7 +12,7 @@
 //  - Every number is a practice number. Investor max bids use the same calculator as the real tool.
 
 import { maxSafeBid, BLANK_INPUTS, type BidInputs } from '../lib/bidCalc';
-import { CHECKLISTS, forCommercial, forLand, type BuyerChecklist } from '../lib/buyerChecklists';
+import { CHECKLISTS, detailForState, forCommercial, forLand, type BuyerChecklist } from '../lib/buyerChecklists';
 import { playbookByKey, type Playbook } from '../lib/playbooks';
 import { fmtMoney } from '../lib/status';
 import { incomeValue, PRACTICE_PROPERTIES, type PracticeProperty } from './properties';
@@ -1321,7 +1321,7 @@ export function buildScenario(sale: SaleKey, p: PracticeProperty): Scenario | nu
       key: 'prepare',
       title: 'Documents and money',
       summary: 'Everything ready before the sale.',
-      tasks: [{ kind: 'checklist', id: 'buyer-checklist', title: checklist.title, intro: checklist.intro, items: checklist.items }, ...flow.documents(p, n, a)],
+      tasks: [{ kind: 'checklist', id: 'buyer-checklist', title: checklist.title, intro: checklist.intro, items: checklist.items.map((it) => ({ text: it.text, detail: detailForState(it, 'NV') })) }, ...flow.documents(p, n, a)],
     },
     { key: 'sale', ...flow.saleDay(p, n, a) },
     { key: 'after', title: 'After the sale', summary: 'Deed, waiting periods, possession and insurance.', tasks: flow.after(p, n, pb) },

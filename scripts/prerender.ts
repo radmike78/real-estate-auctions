@@ -154,10 +154,11 @@ export function pages(): Page[] {
 /** The no-JavaScript note under a page's title: a thin page says parts need JavaScript; a page that names more than
  *  one of our states says why it shows them all. Nothing when neither applies. */
 function noscriptNote(body: string): string {
-  const states = ['Nevada', 'California', 'Arizona', 'Utah', 'Texas'].filter((n) => body.includes(n)).length;
+  // (Nevada is the launch state: a page naming any other state's rules says why.)
+  const states = ['California', 'Arizona', 'Utah', 'Texas'].filter((n) => body.includes(n)).length;
   const lines = [
     ...(body.length < 2000 ? ['Parts of this page need JavaScript. The lessons in Learn work without it.'] : []),
-    ...(states > 1 ? ['This copy shows rules for several of the states we cover, each labeled with its state; turn on JavaScript to see only yours.'] : []),
+    ...(states >= 1 ? ['This copy shows rules for the states we cover, each labeled with its state; turn on JavaScript to see only yours.'] : []),
   ];
   return lines.length ? `<noscript><p>${lines.join(' ')}</p></noscript>` : '';
 }

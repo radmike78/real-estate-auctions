@@ -4,7 +4,7 @@ import searchLib from '../lib/search.ts?raw';
 import tracker from '../../server/tracker.ts?raw';
 import { describe, expect, it } from 'vitest';
 import { maxSafeBid } from '../lib/bidCalc';
-import { CHECKLISTS, forCommercial, forLand } from '../lib/buyerChecklists';
+import { CHECKLISTS, detailForState, forCommercial, forLand } from '../lib/buyerChecklists';
 import { playbookByKey } from '../lib/playbooks';
 import { PRACTICE_PROPERTIES, incomeValue } from './properties';
 import { allScenarios, buildScenario, FLOWS, HOME_ONLY_FACTS, SALE_ORDER, scenarioById, stepsFor } from './scenarios';
@@ -69,12 +69,13 @@ describe('practice scenarios', () => {
     }
   });
 
-  it('use the reviewed buyer checklist, with commercial wording for commercial property', () => {
+  it('use the reviewed buyer checklist in its Nevada wording, with commercial wording for commercial property', () => {
     for (const s of ALL) {
       const list = tasks(s).find((t) => t.id === 'buyer-checklist') as Extract<Task, { kind: 'checklist' }>;
       const base = CHECKLISTS[FLOWS[s.sale].checklist];
       const worded = s.property.cls === 'commercial' ? forCommercial(base) : base;
-      expect(list.items, s.id).toEqual((s.property.hasBuilding ? worded : forLand(worded)).items);
+      // (Practice sales are Nevada's: each item in its Nevada wording.)
+      expect(list.items, s.id).toEqual((s.property.hasBuilding ? worded : forLand(worded)).items.map((it) => ({ text: it.text, detail: detailForState(it, 'NV') })));
     }
   });
 
@@ -265,4 +266,11 @@ describe('manufactured home and land drills', () => {
     expect(DRILLS.filter((d) => d.land).length).toBeGreaterThanOrEqual(3);
     for (const d of DRILLS) expect([d.commercial, d.flipBrrrr, d.manufactured, d.land].filter(Boolean).length, d.id).toBeLessThanOrEqual(1);
   });
+});
+
+it('shows no other state’s redemption rules in a Nevada sheriff or IRS practice checklist', () => {
+  for (const s of ALL.filter((x) => x.sale === 'sheriff' || x.sale === 'irs')) {
+    const list = tasks(s).find((t) => t.id === 'buyer-checklist') as Extract<Task, { kind: 'checklist' }>;
+    expect(list.items.map((i) => i.detail ?? '').join(' '), s.id).not.toMatch(/Arizona|Utah|California|Texas/);
+  }
 });

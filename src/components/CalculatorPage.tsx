@@ -43,7 +43,11 @@ function BeforeYouCommit({ plan, state, saleKind }: { plan?: string; state?: Sta
       <ul>
         <li><strong>The sale’s payment rules:</strong> the form, amount and deadline, paid to the officer or trustee, from the official notice.</li>
         <li><strong>Liens and taxes that survive this sale,</strong> from a title search.</li>
-        <li><strong>Any right to buy it back (redemption)</strong> and how long it lasts for this kind of sale in your state.*</li>
+        {/* Nevada's own periods, from statute (leg.state.nv.us; 26 U.S.C. 6337(b) for the IRS): no asterisk there. */}
+        {state === 'NV' && saleKind === 'court' ? <li><strong>The owner’s right to buy it back:</strong> 1 year after a sheriff’s sale, at your price plus 1% a month (NRS 21.210). You get a certificate of sale first.</li>
+          : state === 'NV' && saleKind === 'hoa' ? <li><strong>The owner’s right to buy it back:</strong> 60 days after an HOA sale, at your price plus 1% a month (NRS 116.31166). You get a certificate of sale first.</li>
+          : saleKind === 'irs' ? <li><strong>The owner’s right to buy it back:</strong> 180 days after an IRS sale (26 U.S.C. 6337(b)). You get a certificate of sale first.</li>
+          : <li><strong>Any right to buy it back (redemption)</strong> and how long it lasts for this kind of sale in your state.*</li>}
         <li><strong>Who lives there,</strong> and the court process to get possession.</li>
         <li><strong>Insurance from the day it’s yours.</strong> <a href="#/learn/analyze">What to ask</a></li>
         <li><strong>Your tax bill, not the last owner’s.</strong> It can change when you buy or rent it out. <a href={`#/learn/analyze?section=your-tax-bill-after-you-buy${state ? `&state=${state}` : ''}`}>{name ? `${name} property tax rules` : 'Property tax rules by state'}</a></li>

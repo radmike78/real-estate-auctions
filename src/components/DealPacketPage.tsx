@@ -105,7 +105,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         </label>
         <p className="muted">{stageHint(stage, deal)} The stage picks the next action here and in My plan.</p>
       </div>
-      <div className="packet-next" role="status">
+      <div className="packet-next">
         <strong>Your next action</strong>
         <p>{next.label}{next.urgent ? '' : <>. <span className="muted">You’ll have {next.produces}.</span></>}{' '}
           {next.openDeal ? <a href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(deal); }}>Open in Analyze&nbsp;→</a>
@@ -147,7 +147,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           {p.dates.map((x, i) => (
             <li key={i}>
               <input type="date" aria-label={`Date: ${x.what || 'new date'}`} value={x.when} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, when: e.target.value, resolved: false } : y)) })} />
-              <input aria-label="What" maxLength={200} value={x.what} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, what: e.target.value, resolved: false } : y)) })} />
+              <textarea className="packet-what" rows={1} aria-label="What" maxLength={200} value={x.what} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, what: e.target.value.replace(/\n/g, ' '), resolved: false } : y)) })} />
               <input aria-label={`Who handles ${x.what || 'this date'}`} placeholder="Who" maxLength={120} value={x.who} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, who: e.target.value, resolved: false } : y)) })} />
               <label><input type="checkbox" checked={!!x.resolved} onChange={(e) => update({ dates: p.dates.map((y, j) => j === i ? { ...y, resolved: e.target.checked } : y) }, false)} /> Handled</label>
               <button type="button" className="linkish" aria-label={`Remove ${x.what || 'date'}`} onClick={() => update({ dates: p.dates.filter((_, j) => j !== i) })}>Remove</button>
