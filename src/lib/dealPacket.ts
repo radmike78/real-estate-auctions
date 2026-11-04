@@ -8,7 +8,7 @@ import { workStorage as localStorage } from './workStorage';
 // for your decision with any conditions still open. Kept only in this browser, like the rest.
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
 import { costsAtBid, maxSafeBid, offerInputs, redemptionOutcome, ruleOf, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, unenteredCosts, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
-import { offeredRedemptionRules } from './stateCosts';
+import { offeredRedemptionRules, redemptionChoicesFor } from './stateCosts';
 import { cleanBuyBox, EMPTY_BUY_BOX, LIEN_STRATEGY, type BuyBox } from './toolkit';
 import { areasFor, GATES, loadLog } from './evidence';
 import { commercialAtPrice, commercialMaxBid, COMMERCIAL_DEFAULTS, rentAtPrice, rentStress, RENT_DEFAULTS, LIEN_DEFAULTS, lienYield, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, refiValueWords, withPlanCash, dscrText, capText, noRealisticPrice, noRealisticAdvice, cashAndPropertyWeak, fhaMonthlyMi, type CommercialInputs, type LienInputs, type RentInputs } from './holdCalc';
@@ -180,8 +180,10 @@ export function redemptionWho(d: Pick<Deal, 'state' | 'kind'> & { id?: string },
   // (A rule picked from the menu counts while the numbers are still that rule's, as in Fix and sell.)
   const rule = pr && pr.months === i.redemptionMonths && pr.ratePct === i.redemptionRatePct && pr.daily === (i.redemptionDaily ?? 0) && pr.flat === (i.redemptionFlat ?? 0) ? pick!.slice(pre.length) : ruleOf(i, offered);
   if (rule === 'usFederal' || rule === 'usCourt') return 'the United States';
-  const ownerRule = Object.entries(offered).some(([k, r]) => !['none', 'usFederal', 'usCourt'].includes(k) && r.months > 0);
-  return rule === 'custom' && !ownerRule ? null : 'the owner';
+  // A sale that usually carries no redemption (the rule it starts from is "none": a trustee's mortgage foreclosure, a
+  // Texas execution sale) makes a typed wait your what-if; the special rules it also offers (Texas property tax loans)
+  // apply only when picked.
+  return rule === 'custom' && redemptionChoicesFor(d.state, d.kind).start === 'none' ? null : 'the owner';
 }
 
 /** A redemption wait typed in Fix and sell for this deal (a what-if its price is built on). */
@@ -399,7 +401,7 @@ export function savedNumbers(d: Deal) {
         const below = at?.source === 'listed' && r.maxBid < at.price;
         const price = at?.source === 'yours' ? at.price : r.noBidWorks || below ? 0 : r.maxBid;
         // Who redeems, as Fix and sell names it (null: your what-if on a sale with no right of redemption).
-        const who = redemptionWho(d, i); const o = !offer && price > 0 ? redemptionOutcome(i, price) : null; return o ? { months: Math.round(i.redemptionMonths), price, ...o, who, source: at?.source === 'yours' ? 'yours' as const : 'walk' as const } : null; })() };
+        const who = redemptionWho(d, i); const o = !offer && price > 0 ? redemptionOutcome(i, price) : null; if (!o) return !offer && i.redemptionMonths > 0 && who === null ? { months: Math.round(i.redemptionMonths), price: 0, repaid: 0, spent: 0, net: 0, who, source: 'walk' as const } : null; return { months: Math.round(i.redemptionMonths), price, ...o, who, source: at?.source === 'yours' ? 'yours' as const : 'walk' as const }; })() };
       }
     }
   } else if (d.plan === 'commercial' && own) {

@@ -158,6 +158,14 @@ describe('the deal packet', () => {
     expect(whatIf).toMatch(/Built on a 6-month wait you typed as a what-if\. This kind of sale doesn’t usually carry a right of redemption,\*/);
     expect(whatIf).not.toMatch(/If the owner redeems/);
     expect(dateGuide({ ...court }).map((g) => g.what)).not.toContain('Redemption period ends');
+    // A Texas trustee (mortgage) foreclosure has no redemption either, though its menu offers the property tax loan rules.
+    const txTrustee: Deal = { ...deal, state: 'TX', kind: 'trustee', plan: 'flip' };
+    expect(packetSections(txTrustee, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).toMatch(/wait you typed as a what-if/);
+    expect(dateGuide({ ...txTrustee }).map((g) => g.what)).not.toContain('Redemption period ends');
+    // With the walk-away price below the opening bid, the what-if note still shows.
+    localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 240000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 0 }));
+    expect(packetSections(txTrustee, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n')).toMatch(/wait you typed as a what-if/);
+    localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 0 }));
     // A Texas tax sale: the owner can redeem (a 25% premium in the first year, Tax Code 34.21).
     const flip: Deal = { ...deal, state: 'TX', kind: 'taxSale', plan: 'flip' };
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 0 }));

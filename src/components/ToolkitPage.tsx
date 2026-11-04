@@ -426,7 +426,7 @@ export function FirstDealRoadmap() {
             <option value="">None yet (learning)</option>
             {/* A practice analysis isn't a property you work on (Analyze says so): only one already chosen stays listed. */}
             {/* Nor one you passed on (none of its tasks are next), unless it's the one shown. */}
-            {deals.filter((d) => (!d.practice && d.stage !== 'passed') || (deal && deal.id === `analyzed:${d.id}`)).map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : ""}</option>)}
+            {deals.filter((d) => (!d.practice && d.stage !== 'passed') || (deal && deal.id === `analyzed:${d.id}`)).map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : d.stage === 'passed' ? ' (passed)' : ''}</option>)}
           </select>
         </label>
         <p className="muted">
@@ -641,10 +641,10 @@ function PriceFromCash({ cash }: { cash: number }) {
           const rate = area?.county && area.state !== 'NV' && area.state !== 'AZ' ? countyTaxRate(area.state, area.county) : null;
           // No county yet: the state's middle county, so a Texas reader isn't handed a 1.2% price before choosing one.
           const mid = !area?.county && area?.state && area.state !== 'NV' && area.state !== 'AZ' ? stateMedianTaxRate(area.state) : null;
-          if (!rate && mid !== null && mid > a.taxInsPct - 0.4) return <p className="caution">In {stateByCode(area!.state)?.name}, property tax alone is about {mid.toLocaleString('en-US', { maximumFractionDigits: 2 })}% of value a year in the middle county, {mid >= a.taxInsPct ? 'more than' : 'nearly all of'} the {a.taxInsPct}% this uses for tax and insurance together, so this price is likely too high. Choose your county with the area button at the top of the page (it shows your state) for its rate, or raise “Property tax and insurance” under Change the planning estimates.</p>;
+          if (!rate && mid !== null && mid > a.taxInsPct - 0.4) return <p className="caution" data-result>In {stateByCode(area!.state)?.name}, property tax alone is about {mid.toLocaleString('en-US', { maximumFractionDigits: 2 })}% of value a year in the middle county, {mid >= a.taxInsPct ? 'more than' : 'nearly all of'} the {a.taxInsPct}% this uses for tax and insurance together, so this price is likely too high. Choose your county with the area button at the top of the page (it shows your state) for its rate, or raise “Property tax and insurance” under Change the planning estimates.</p>;
           if (!rate || !(rate.pct > a.taxInsPct - 0.4)) return null;
           const place = /\bCity$/.test(area!.county!) ? area!.county : `${area!.county} County`;
-          return <p className="caution">{place}’s property tax alone is about {rate.pct.toLocaleString('en-US', { maximumFractionDigits: 2 })}% of value a year, {rate.pct >= a.taxInsPct ? 'more than' : 'nearly all of'} the {a.taxInsPct}% this uses for tax and insurance together, so this price is likely too high. Raise “Property tax and insurance” under Change the planning estimates.</p>;
+          return <p className="caution" data-result>{place}’s property tax alone is about {rate.pct.toLocaleString('en-US', { maximumFractionDigits: 2 })}% of value a year, {rate.pct >= a.taxInsPct ? 'more than' : 'nearly all of'} the {a.taxInsPct}% this uses for tax and insurance together, so this price is likely too high. Raise “Property tax and insurance” under Change the planning estimates.</p>;
   })();
   return (
     <div className="price-from-cash">

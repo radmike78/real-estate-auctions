@@ -242,7 +242,18 @@ function focusNewPage(backOrForward = false) {
     const tries2: HTMLElement[] = [];
     // Back and Forward restore where you were: deep in the page, focus stays put (the title is off screen); near the
     // top, it goes to the title.
-    if (backOrForward && window.scrollY > 40) return;
+    if (backOrForward && window.scrollY > 40) {
+      // Deep in the page: the first section heading in view below the sticky header (never a card's name), so a screen
+      // reader says where you are and the next Tab continues from there; else the title.
+      const top = document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0;
+      const inView = [...document.querySelectorAll<HTMLElement>('main h2, main summary')].filter((x) => { const r = x.getBoundingClientRect(); return r.height > 0 && r.top >= top && r.top < window.innerHeight * 0.7; });
+      for (const t of inView.slice(0, 3)) {
+        if (t.tagName !== 'SUMMARY' && !t.hasAttribute('tabindex')) t.setAttribute('tabindex', '-1');
+        t.focus({ preventScroll: true });
+        if (document.activeElement === t) return;
+      }
+      return;
+    }
     // The section the address names (/toolkit/cash, /playbooks/…/<section>, ?section=…): its heading, whether the page
     // scrolled to it or opened it in place (the title doesn't change then).
     const q = new URLSearchParams(window.location.search).get('section');
@@ -296,6 +307,8 @@ export default function App() {
       const to = toPath(a.getAttribute('href')!);
       if (to === `${window.location.pathname}${window.location.search}`) {
         // Already here: a link to a section of this page (e.g. /toolkit/buy-box) scrolls to it; others go to the top.
+        // A link to a roadmap step on this page (Continue again): the roadmap opens the step and focuses it.
+        if (new URLSearchParams(to.split('?')[1] ?? '').get('step')) { window.dispatchEvent(new CustomEvent('deedowl:navigate')); return; }
         const requestedSection = new URLSearchParams(to.split('?')[1] ?? '').get('section');
         const sec = document.getElementById(requestedSection ?? to.split('?')[0].split('/').pop() ?? '');
         for (let p = sec; p; p = p.parentElement) if (p instanceof HTMLDetailsElement) p.open = true;

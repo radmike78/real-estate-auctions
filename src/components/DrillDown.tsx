@@ -33,10 +33,10 @@ export function Tile(props: { href: string; title: string; summary: ReactNode; i
   );
 }
 
-function Body({ s, titled = false }: { s: DrillSection; titled?: boolean }) {
-  if (s.bare) return <div className="drill-bare">{s.content()}</div>;
+function Body({ s, titled = false, id }: { s: DrillSection; titled?: boolean; /** The open section: its key, so a link to it can take focus there. */ id?: string }) {
+  if (s.bare) return <div className="drill-bare" id={id}>{s.content()}</div>;
   return (
-    <section className="drill-section">
+    <section className="drill-section" id={id}>
       {/* When the page title already names the open section, don't show the name a second time. */}
       <h2 className={titled ? 'sr-only' : undefined}>{s.title}</h2>
       {s.content()}
@@ -123,7 +123,7 @@ export default function DrillDown(props: { sections: DrillSection[]; active?: st
   return (
     <div className="drill-view">
       {!titled && all}
-      <Body s={cur} titled={titled} />
+      <Body s={cur} titled={titled} id={cur.key} />
       <div className="drill-pager no-print">
         {prev ? <a href={`${baseHref}/${prev.key}`}>← {prev.title}</a> : <a href={baseHref}>← {overviewLabel ?? 'Overview'}</a>}
         {next ? <a href={`${baseHref}/${next.key}`}>{next.title}&nbsp;→</a> : <a href={baseHref}>{overviewLabel ? `${overviewLabel}\u00a0→` : 'Back to overview'}</a>}

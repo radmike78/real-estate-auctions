@@ -56,7 +56,8 @@ export default function AnnouncedResults({ className, children }: { className?: 
           // The first sentence when it changed itself (a new amount), or when it's short enough to say first.
           return !was.has(first) || first.length < 120 ? `${first} ${changed}` : changed;
         });
-        const cap = (x: string, n: number) => (x.length > n ? `${x.slice(0, n - 1)}…` : x);
+        // Cut at a word, never mid-word.
+        const cap = (x: string, n: number) => (x.length > n ? `${x.slice(0, x.lastIndexOf(' ', n - 1) > n / 2 ? x.lastIndexOf(' ', n - 1) : n - 1)}…` : x);
         const all = [...fresh.map((x) => cap(x, 300)), ...moved.map((x) => cap(x, 350))].filter(Boolean).join(' ');
         if (all) setSaid(`Result updated: ${cap(all, 700)}`);
       }, 1200);

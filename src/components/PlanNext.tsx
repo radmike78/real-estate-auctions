@@ -139,7 +139,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
               <span>Property you’re working on</span>
               <select value={focus} onChange={(e) => chooseDeal(e.target.value)}>
                 <option value="">None yet (learning)</option>
-                {choices.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : ""}</option>)}
+                {choices.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : d.stage === 'passed' ? ' (passed)' : ''}</option>)}
               </select>
             </label>
             {(() => {
