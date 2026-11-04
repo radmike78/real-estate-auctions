@@ -2169,7 +2169,7 @@ export const STATE_GUIDES: Playbook[] = [
       url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1102.2"
     }
   ],
-  team: [TEAM.agent, TEAM.mortgage, TEAM.offerTitle, TEAM.attorney, TEAM.offerInspector, TEAM.offerInsurance],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.offerTitle, TEAM.offerInspector, TEAM.offerAttorney, TEAM.offerInsurance],
   lastReviewed: "2026-10-03",
   state: 'CA'
 },
@@ -2976,7 +2976,7 @@ export const STATE_GUIDES: Playbook[] = [
       url: "#/short-sales"
     }
   ],
-  team: [TEAM.agent, TEAM.mortgage, TEAM.offerTitle, TEAM.offerInspector, TEAM.attorney, TEAM.offerInsurance],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.offerTitle, TEAM.offerInspector, TEAM.offerAttorney, TEAM.offerInsurance],
   lastReviewed: "2026-10-03",
   state: 'AZ'
 },
@@ -3797,7 +3797,7 @@ export const STATE_GUIDES: Playbook[] = [
       url: "#/short-sales"
     }
   ],
-  team: [TEAM.agent, TEAM.mortgage, TEAM.offerTitle, TEAM.offerInspector, TEAM.attorney, TEAM.offerInsurance],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.offerTitle, TEAM.offerInspector, TEAM.offerAttorney, TEAM.offerInsurance],
   lastReviewed: "2026-10-03",
   state: 'UT'
 },

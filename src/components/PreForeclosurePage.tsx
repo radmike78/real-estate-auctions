@@ -246,7 +246,7 @@ export default function PreForeclosurePage({ initialQuery = '', section }: { ini
         </EmptyState>
       )}
 
-      <div className="caution pre-no-contact" role="alert">
+      <div className="caution pre-no-contact" role="note">
         {myState && myState !== 'NV' ? (
           <p><strong>Do not contact homeowners in foreclosure.</strong> Being behind on payments doesn’t mean the home is for sale.</p>
         ) : (

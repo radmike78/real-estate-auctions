@@ -324,7 +324,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
       {/* An investment-property loan over 85% of the price: said here, beside the result it changes (with no price
           typed yet, the mortgage-insurance note below says it). */}
       {price > 0 && onPrice && !investorProfile().ownerOccupant && Math.round(v.loanPct * 100) / 100 > 85 && (
-        <p className="calc-note small" role="note"><strong>Investment loans usually need 15% to 25% down.*</strong> So {/^(8|1[18](\D|$))/.test(String(Math.round(v.loanPct * 100) / 100)) ? 'an' : 'a'} {(Math.round(v.loanPct * 100) / 100).toLocaleString('en-US')}% loan may not be available for a property you won’t live in: ask your lender, then <button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'loanPct')}>change the loan</button> to their figure.</p>
+        <p className="calc-note small" role="note"><strong>Investment loans usually need 15% to 25% down.*</strong> So {/^(8|1[18](\D|$))/.test(String(Math.round(v.loanPct * 100) / 100)) ? 'an' : 'a'} {(Math.round(v.loanPct * 100) / 100).toLocaleString('en-US')}% loan may not be available for a property you won’t live in: ask your lender and use their figure.{' '}<button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'loanPct')}>Change the loan</button></p>
       )}
       {price > 0 && (
         <p className={`calc-verdict ${rentVerdict({ coverageShort: covShort, cashFlow: a.cashFlow, cashOnCash: coc, targetPct: v.targetCocPct, cashShort, exampleRefi, living: livingThere })}`}>
@@ -701,7 +701,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
           const blank = ([['opTaxYear', 'property tax'], ['opInsuranceYear', 'insurance'], ['opRepairsYear', 'repairs'], ['opUtilitiesYear', 'utilities'], ['opManagementPct', 'management']] as const).filter(([k]) => !(Number(v[k]) > 0)).map(([, label]) => label);
           if (!blank.length) return null;
           const estimate = Math.round((n.collected * Math.min(Number(v.expensePct) || 0, 100)) / 100);
-          return <p className="verify" role="status"><strong>Check your cost lines.</strong> Once you enter any line, the lines replace the {v.expensePct}% estimate, and blank lines count as $0. Still blank: {blank.join(', ')}. Your lines total {fmtMoney(Math.round(n.expenses))} a year; the % estimate was {fmtMoney(estimate)}.</p>;
+          return <p className="verify" role="note"><strong>Check your cost lines.</strong> Once you enter any line, the lines replace the {v.expensePct}% estimate, and blank lines count as $0. Still blank: {blank.join(', ')}. Your lines total {fmtMoney(Math.round(n.expenses))} a year; the % estimate was {fmtMoney(estimate)}.</p>;
         })()}
         {/* An auction purchase's later loan is sized on the value: with no value entered, no loan is counted. */}
         {!offer && v.loanPct > 0 && !(v.value > 0) && <p className="calc-note small" role="note"><strong>No loan is counted yet: the value is blank.</strong> A loan after an auction is sized on the value an appraisal would support. Enter it (under the loan terms) to include the loan in the cash and the walk-away price.</p>}
@@ -749,7 +749,7 @@ function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capT
       {Number.isFinite(target) && target > 0 && <button type="button" className="linkish" onClick={() => setPrice(target)}>Use the walk-away price ({fmtMoney(target)})</button>}
       {!a ? <p>{offer ? 'Enter the asking price or your proposed price to compare this property with your targets.' : 'Enter the bid you plan to make to compare this property with your targets.'}</p> : <>
         {!rentTyped && <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the building’s rent to save these results to My deals and the deal packet.</p>}
-        <p className={meets && !planShort && !(v.cashAvailable > 0 && need > v.cashAvailable) ? 'notice' : 'caution'}>{commercialVerdict(v, a, capTyped, planShort || (v.cashAvailable > 0 && need > v.cashAvailable), dscrTyped)} Verify the income, costs and loan terms before relying on this result.</p>
+        <p data-result className={meets && !planShort && !(v.cashAvailable > 0 && need > v.cashAvailable) ? 'notice' : 'caution'}>{commercialVerdict(v, a, capTyped, planShort || (v.cashAvailable > 0 && need > v.cashAvailable), dscrTyped)} Verify the income, costs and loan terms before relying on this result.</p>
         {v.cashAvailable > 0 && need > v.cashAvailable && <p className="caution">Your entered cash does not cover this price and the modeled costs.</p>}
         {planShort && <p className="caution">It needs about {fmtMoney(Math.round(need))} of your cash, more than the {fmtMoney(Math.round(planCash))} of investable cash in My plan. <button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>Enter your cash</button></p>}
         {!offer && a.loan > 0 && <p className="caution">The loan is a later refinance, not cash available at the auction. Until it closes, the full purchase and costs are your cash.</p>}

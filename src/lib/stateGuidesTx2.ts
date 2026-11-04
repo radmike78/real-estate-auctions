@@ -506,7 +506,7 @@ export const TX_GUIDES_2: Playbook[] = [
       url: "#/short-sales"
     }
   ],
-  team: [TEAM.agent, TEAM.mortgage, TEAM.offerTitle, TEAM.offerInspector, TEAM.attorney, TEAM.offerInsurance],
+  team: [TEAM.agent, TEAM.mortgage, TEAM.offerTitle, TEAM.offerInspector, TEAM.offerAttorney, TEAM.offerInsurance],
   lastReviewed: "2026-10-05",
   state: 'TX'
 },

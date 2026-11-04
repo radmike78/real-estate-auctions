@@ -16,6 +16,7 @@ export const TEAM = {
   offerInspector: { role: 'Home inspector and contractors', when: 'Inspection and written repair bids before your inspection deadline, with the access the seller allows; ask the listing agent to turn on utilities for it', href: '#/pros/inspector', pro: 'inspector' },
   /** For an offer on a listed home: title and insurance come during escrow, not before a bid. */
   offerTitle: { role: 'Title or escrow company', when: 'A preliminary title report or title commitment during escrow, and an owner’s title policy at closing', href: '#/pros/title', pro: 'title' },
+  offerAttorney: { role: 'Real estate attorney', when: 'Reviewing the short-sale contract and the lender’s approval letter, and which liens and judgments are released at closing', href: '#/pros/attorney', pro: 'attorney' },
   offerInsurance: { role: 'Insurance agent', when: 'A quote early in escrow, and coverage in force by closing (vacant-property coverage if no one will live there yet)', href: '#/pros/insurance', pro: 'insurance' },
   /** Lien certificates: you buy a lien, not the property (no insurance, repairs or rent). */
   lienTitle: { role: 'Title company or title researcher', when: 'A title report on a parcel before you bid; title insurance matters only if you later take the property', href: '#/pros/title', pro: 'title' },

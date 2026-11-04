@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
-/** A calculator area whose result boxes (.calc-verdict, .calc-max) aren't live regions (they'd be re-read on every
+/** A calculator area whose result boxes (.calc-verdict, .calc-max, [data-result]) aren't live regions (they'd be re-read on every
  *  keystroke): once you stop typing, the result that changed is announced once, in a short summary. */
 export default function AnnouncedResults({ className, children }: { className?: string; children: ReactNode }) {
   const root = useRef<HTMLDivElement>(null);
@@ -14,7 +14,7 @@ export default function AnnouncedResults({ className, children }: { className?: 
       const parts = [...b.childNodes].map((n) => (n.textContent ?? '').replace(/\s+/g, ' ').trim()).filter(Boolean);
       return parts.reduce((acc, p, k) => (k === 0 ? p : `${acc}${/[.:!?]$/.test(acc) ? ' ' : parts[k - 1].length < 40 && !parts[k - 1].includes(':') && !/^[$\d−-]/.test(parts[k - 1]) ? ': ' : '. '}${p}`), '');
     };
-    const boxes = () => [...el.querySelectorAll<HTMLElement>('.calc-verdict, .calc-max')].filter((b) => b.getClientRects().length > 0);
+    const boxes = () => [...el.querySelectorAll<HTMLElement>('.calc-verdict, .calc-max, [data-result]')].filter((b) => b.getClientRects().length > 0);
     let t: ReturnType<typeof setTimeout> | undefined;
     // The results as they were when you started typing: the one that changed is announced.
     let before = new Map<HTMLElement, string>();
