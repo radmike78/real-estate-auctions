@@ -671,6 +671,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {i.redemptionMonths > 0 && !needsValue && ruleNow === 'custom' && choices?.start === 'none' && saleKind && (
           <p className="calc-note small"><strong>Your what-if wait.</strong> {noRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] })} The {Math.round(i.redemptionMonths * 10) / 10} months count only in your holding costs; nobody would repay you at their end.</p>
         )}
+        {/* Your own wait, shorter than the period this sale usually carries: said here, not only in the "?" help. */}
+        {ruleNow === 'custom' && choices && choices.start !== 'none' && (offered[choices.start]?.months ?? 0) > i.redemptionMonths && i.redemptionMonths > 0 && !needsValue && (
+          <p className="calc-note small" role="note"><strong>Shorter than this sale’s usual redemption period.</strong> Your {Math.round(i.redemptionMonths * 10) / 10}-month wait is a what-if: this sale usually carries a {offered[choices.start]!.months}-month period,* and the owner can still redeem until it ends. Your holding costs run at least that long.</p>
+        )}
         {redeemed && !needsValue && !(ruleNow === 'custom' && choices?.start === 'none') && (
           <div className="calc-note">
             <strong>If {ruleNow === 'usFederal' || ruleNow === 'usCourt' ? 'the United States' : 'the owner'} redeems: an illustration of your price and what the law adds</strong>

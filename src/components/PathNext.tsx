@@ -41,7 +41,7 @@ export default function PathNext({ step }: { step: StepKey }) {
         <nav className="path-next" aria-label="Next step">
           {/* A property's task is recorded in its deal packet (evidence log); a roadmap task is ticked in My plan. */}
           <span className="muted">You’re on your next step: {plan.task.label}. When you have {plan.task.produces}, {plan.source === 'deal' ? 'record it in its deal packet' : 'mark it done in My plan'}.</span>
-          <a className="btn btn-secondary" href={plan.task.href}>{plan.source === 'deal' ? 'Record it in the deal packet' : 'Mark it done in My plan'}&nbsp;→</a>
+          <a className="btn btn-secondary" href={plan.source !== 'deal' && plan.task.key.startsWith('roadmap-') ? `#/toolkit/roadmap?step=${encodeURIComponent(plan.task.key.slice('roadmap-'.length))}` : plan.task.href}>{plan.source === 'deal' ? 'Record it in the deal packet' : 'Mark it done in My plan'}&nbsp;→</a>
         </nav>
       );
     }

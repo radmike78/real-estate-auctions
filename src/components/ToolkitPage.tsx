@@ -178,6 +178,18 @@ const linkedStep = (): string | null => {
   }
 };
 
+/** After a step's status changes, keep the keyboard in place: its pressed status button, else (the step moved away, e.g.
+ *  the next task changed) the next task's heading, else the roadmap's. */
+function keepFocus(host: HTMLElement | null) {
+  setTimeout(() => {
+    const pressed = host && document.contains(host) ? host.querySelector<HTMLElement>('.roadmap-status button[aria-pressed="true"]') : null;
+    const target = pressed ?? document.querySelector<HTMLElement>('#roadmap-next .roadmap-next-label, #roadmap-next h3') ?? document.querySelector<HTMLElement>('.roadmap h2');
+    if (!target) return;
+    if (target.tagName !== 'BUTTON' && !target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+    target.focus({ preventScroll: !!pressed });
+  }, 0);
+}
+
 /** One roadmap step, opened: what you'll have, what to do, what to say, the documents, when to stop, and when it's done. */
 function StepBody({ s, status, setStatus, deal, elsewhere }: { s: RoadmapStep; status: StepStatus | 'done' | 'todo'; setStatus: (v: StepStatus | 'done' | 'todo') => void; deal?: { id: string; name: string; kind?: string }; elsewhere?: keyof typeof PRACTICE_NAME | null }) {
   const [myState] = useMyState();
@@ -219,13 +231,13 @@ function StepBody({ s, status, setStatus, deal, elsewhere }: { s: RoadmapStep; s
       <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
       {elsewhere && <p className="roadmap-has"><strong>Counted done:</strong> {PRACTICE_NAME[elsewhere].replace(/^t/, 'T')} is done in My plan, which counts as practice part 2. This practice is still there if you’d like it.</p>}
       {status !== 'done' && stepEvidence(s.id) && (
-        <p className="roadmap-has">✓ {stepEvidence(s.id)} <button type="button" className="linkish" onClick={() => setStatus('done')}>Mark it done</button></p>
+        <p className="roadmap-has">✓ {stepEvidence(s.id)} <button type="button" className="linkish" onClick={(e) => { const host = e.currentTarget.closest<HTMLElement>('.roadmap-step-body'); setStatus('done'); keepFocus(host); }}>Mark it done</button></p>
       )}
       {s.skip && <p className="muted roadmap-skip"><strong>Doesn’t apply if:</strong> {s.skip}</p>}
       <div className="roadmap-status" role="group" aria-label={`Status: ${s.title}`}>
         {/* Counted done by another practice: its status follows that practice, so there's nothing to set here. */}
         {!elsewhere && (['todo', 'doing', 'waiting', 'done', 'stopped', 'na'] as const).map((k) => (
-          <button key={k} type="button" aria-pressed={status === k} onClick={() => setStatus(k)}>{STEP_STATUS_LABEL[k]}</button>
+          <button key={k} type="button" aria-pressed={status === k} onClick={(e) => { const host = e.currentTarget.closest<HTMLElement>('.roadmap-step-body'); setStatus(k); keepFocus(host); }}>{STEP_STATUS_LABEL[k]}</button>
         ))}
         {s.href && <a className="btn" href={s.href}>{s.id === 'goal' && currentProgress().decided ? 'Review your Decide results' : s.action ?? 'Open'}&nbsp;→</a>}
         {s.also && <a className="btn btn-secondary" href={s.also.href}>{s.also.label}&nbsp;→</a>}

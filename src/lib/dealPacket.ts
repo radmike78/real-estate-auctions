@@ -171,8 +171,17 @@ export function noRedemptionWords(d: Pick<Deal, 'state' | 'kind'>): string {
   if (d.state === 'NV' && d.kind === 'trustee') return 'Nevada trustee sales are made “without equity or right of redemption” (NRS 107.080(5)).';
   // Utah Code 57-1-28(3) (le.utah.gov): the trustee's deed conveys the title "without right of redemption".
   if (d.state === 'UT' && d.kind === 'trustee') return 'Utah trustee sales convey the title “without right of redemption” (Utah Code 57-1-28(3)).';
+  // A.R.S. 33-811(E) (azleg.gov): the trustee's deed conveys title "absolute without right of redemption".
+  if (d.state === 'AZ' && d.kind === 'trustee') return 'Arizona trustee sales convey the title “absolute without right of redemption” (A.R.S. 33-811(E)).';
   if (d.state === 'TX' && d.kind === 'trustee') return 'A Texas mortgage foreclosure has no redemption.*';
   return 'This kind of sale doesn’t usually carry a right of redemption.*';
+}
+
+/** The same, short, for a line in My deals. */
+export function noRedemptionShort(d: Pick<Deal, 'state' | 'kind'>): string {
+  if (d.kind === 'trustee' && (d.state === 'NV' || d.state === 'UT' || d.state === 'AZ')) return `${d.state === 'NV' ? 'Nevada' : d.state === 'UT' ? 'Utah' : 'Arizona'} trustee sales carry no right of redemption`;
+  if (d.kind === 'trustee' && d.state === 'TX') return 'a Texas mortgage foreclosure has no redemption*';
+  return 'this kind of sale doesn’t usually carry a right of redemption*';
 }
 
 /**
@@ -181,6 +190,12 @@ export function noRedemptionWords(d: Pick<Deal, 'state' | 'kind'>): string {
  * sale with no owner redemption (a Nevada trustee sale, for one: NRS 107.080(5) sells "without equity or right of
  * redemption").
  */
+/** The months of the rule a sale's redemption usually follows (the menu's starting rule), or 0 when it has none. */
+export function usualRedemptionMonths(d: Pick<Deal, 'state' | 'kind'>): number {
+  const start = redemptionChoicesFor(d.state, d.kind).start;
+  return start === 'none' ? 0 : offeredRedemptionRules(d.state, d.kind)[start]?.months ?? 0;
+}
+
 export function redemptionWho(d: Pick<Deal, 'state' | 'kind'> & { id?: string }, i: BidInputs): string | null {
   const offered = offeredRedemptionRules(d.state, d.kind);
   const pre = `rulePick_${d.state}_${d.kind}_`;
@@ -233,10 +248,12 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
     ...names(['Sale day', 'Payment deadline']),
     { what: 'Rescission window ends', when: 'For a home of 1 to 4 units, a condo or a co-op unit: within 15 days after the sale.', who: 'The lender (mortgagee), the trustee or a substitute trustee', todo: 'Hold off on repairs and new contracts until it passes. The reasons the law lists include: the sale’s legal requirements weren’t met, the default was cured before the sale, or a bankruptcy stay was in effect.', missed: 'A notice mailed and recorded by day 15 counts even if it reaches you later; after that, the sale can’t be rescinded under that law.*', why: 'Property Code 51.016' },
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
-  if (d.kind === 'trustee' && d.state === 'CA') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),
+  if (d.kind === 'trustee' && d.state === 'CA') return [{ what: 'Registration, if the trustee requires one', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline']),
     { what: '15-day intent-to-bid window', when: 'For a home of 1–4 units: 15 days after the sale.', who: 'Eligible bidders (such as tenants and some buyers who will live there)', todo: 'Watch for a notice that one of them intends to bid; until then your win isn’t final.', missed: 'If none gives notice in time, your win stands, unless an exception applies.*', why: 'Civil Code 2924m, in effect until January 1, 2031' },
     { what: '45-day eligible bid deadline', when: 'For a home of 1–4 units: 45 days after the sale, if one gave notice of intent.', who: 'The eligible bidder who gave notice', todo: 'Plan for the chance that a higher eligible bid replaces yours.', missed: 'If no qualifying bid arrives in time, your win stands.', why: 'Civil Code 2924m, in effect until January 1, 2031' },
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
+  // (A trustee's sale lists registration only if the trustee requires one: the statutes set no registration step.)
+  if (d.kind === 'trustee') return [{ what: 'Registration, if the trustee requires one', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline', 'Deed or certificate recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   const out = ['Bidder registration deadline', 'Sale day', 'Payment deadline', 'Deed or certificate recorded'];
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
   // Texas execution sale; a Texas tax sale has its own redemption period (Tax Code 34.21).
@@ -311,7 +328,9 @@ export function teamRolesFor(d: Deal): ProKey[] {
   const book = key ? PLAYBOOKS.find((p) => p.key === key) : undefined;
   const roles = book ? [...new Set(book.team.map((t) => t.pro).filter((k): k is ProKey => !!k))] : d.plan === 'commercial' && isOffer(d) ? COMMERCIAL_OFFER_ROLES : LISTING_ROLES;
   const cash = investorProfile().loan === 'cash';
-  return roles.filter((k) => !(cash && (k === 'lender' || k === 'private_lender')));
+  // (Managing it yourself, from Decide: no property-manager question.)
+  const self = investorProfile().manager === false;
+  return roles.filter((k) => !(cash && (k === 'lender' || k === 'private_lender')) && !(self && k === 'property_manager'));
 }
 
 export function ownNumbers(d: Deal): boolean {
@@ -761,8 +780,9 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     const belowOpening = !bid.none && a?.source === 'listed' && bid.maxBid < a.price;
     nums.push(bid.none && bid.cashBlocked ? `No bid fits the cash you entered: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that` : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and ${targetW}` : `What-if: walk-away price ${money(bid.maxBid)}, ${bid.limitedBy === 'cash' ? `the most your cash covers with every cost until you sell (${goalW} alone allows ${money(bid.profitBid)})` : `the most you could pay and still meet ${goalW}`} (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : `this deal doesn’t meet ${goalW}`} as entered` : ''}`);
     if (bid.redeem && !bid.redeem.who) nums.push(`Built on a ${bid.redeem.months}-month wait you typed as a what-if. ${noRedemptionWords(d)} Check the sale terms with the official seller or an attorney.`);
-    else if (bid.redeem && !(bid.redeem.price > 0)) nums.push(`Built on a ${bid.redeem.months}-month redemption wait: ${bid.redeem.who} can redeem until it ends.`);
-    else if (bid.redeem) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait. If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* on a ${money(x.price)} ${offer ? 'offer' : 'bid'}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
+    const shorter = bid?.redeem && bid.redeem.who === 'the owner' && usualRedemptionMonths(d) > bid.redeem.months ? ` That’s shorter than this sale’s usual ${usualRedemptionMonths(d)}-month redemption period: the owner can still redeem until it ends.*` : '';
+    if (bid?.redeem && bid.redeem.who && !(bid.redeem.price > 0)) nums.push(`Built on a ${bid.redeem.months}-month redemption wait: ${bid.redeem.who} can redeem until it ends.${shorter}`);
+    else if (bid.redeem && bid.redeem.who) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait.${shorter} If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* on a ${money(x.price)} ${offer ? 'offer' : 'bid'}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
     const floor = a?.source === 'listed' ? a.price : 0;
     for (const s of bid.stress.slice(1)) {

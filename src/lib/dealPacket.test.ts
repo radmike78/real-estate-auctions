@@ -180,7 +180,7 @@ describe('the deal packet', () => {
     const flip: Deal = { ...deal, state: 'TX', kind: 'taxSale', plan: 'flip' };
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 0 }));
     const text = packetSections(flip, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
-    expect(text).toMatch(/Built on a 6-month redemption wait\. If the owner redeems at its end, you’d get back about \$[\d,]+\* on a \$[\d,]+ bid(?: \(your walk-away price\))?, having spent about \$[\d,]+: about \$[\d,]+ (short|ahead)/);
+    expect(text).toMatch(/Built on a 6-month redemption wait\.(?: That’s shorter than this sale’s usual \d+-month redemption period: the owner can still redeem until it ends\.\*)? If the owner redeems at its end, you’d get back about \$[\d,]+\* on a \$[\d,]+ bid(?: \(your walk-away price\))?, having spent about \$[\d,]+: about \$[\d,]+ (short|ahead)/);
     expect(dateGuide({ ...flip }).map((g) => g.what)).toContain('Redemption period ends');
     // With no bid typed, at the walk-away price (as Fix and sell shows it), not the opening bid; with interest.
     const inputs = { minimumBid: 100000, exitValue: 250000, repairs: 20000, holdingMonths: 6, monthlyCarry: 1100, redemptionMonths: 6, redemptionRatePct: 12 };
