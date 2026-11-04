@@ -26,6 +26,7 @@ import { cleanDealSteps, DEAL_KEY, DEAL_STEPS_KEY, type DealSteps } from '../lib
 import { cleanStatus, creditStep, dealScoped, focusDealId, NO_DEAL, pathForDeal, planPath, practiceDoneElsewhere, PRACTICE_NAME, PROGRESS_EVENT, progressChanged, ROADMAP_KEY, ROADMAP_PATH_KEY, roadmapDone, roadmapPath, roadmapProgress, STATUS_KEY } from '../lib/roadmapState';
 import type { Deal } from '../lib/analyze';
 import { ASTERISK_NOTE } from '../lib/disclaimers';
+import AnnouncedResults from './AnnouncedResults';
 import { stageLabel, stageOf, stageOfStep, STAGE_STEPS, DEAL_STAGES } from '../lib/dealStage';
 import PlanNext from './PlanNext';
 import { planNow, practiceLienDeal, practiceState } from '../lib/planNext';
@@ -217,7 +218,7 @@ function StepBody({ s, status, setStatus, deal, elsewhere }: { s: RoadmapStep; s
       <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
       {elsewhere && <p className="roadmap-has"><strong>Counted done:</strong> {PRACTICE_NAME[elsewhere].replace(/^t/, 'T')} is done in My plan, which counts as practice part 2. This practice is still there if you’d like it.</p>}
       {status !== 'done' && stepEvidence(s.id) && (
-        <p className="roadmap-has" role="status">✓ {stepEvidence(s.id)} <button type="button" className="linkish" onClick={() => setStatus('done')}>Mark it done</button></p>
+        <p className="roadmap-has">✓ {stepEvidence(s.id)} <button type="button" className="linkish" onClick={() => setStatus('done')}>Mark it done</button></p>
       )}
       {s.skip && <p className="muted roadmap-skip"><strong>Doesn’t apply if:</strong> {s.skip}</p>}
       <div className="roadmap-status" role="group" aria-label={`Status: ${s.title}`}>
@@ -531,6 +532,8 @@ export function CashWorksheet() {
     <section id="cash" aria-labelledby="cash-head">
       <h2 id="cash-head">Your investable cash</h2>
       <p>Start with money you could use, then subtract what you want to protect for emergencies, other goals and debt payments. This is a planning worksheet, not a loan approval. Numbers stay in this browser.</p>
+      {/* What you can invest is announced once after you stop typing. */}
+      <AnnouncedResults>
       <div className="deal-fields cash-fields">
         {field('savings', 'Savings and investments you could sell')}
         {field('spending', 'Household spending each month')}
@@ -540,8 +543,9 @@ export function CashWorksheet() {
       </div>
       <dl className="cash-result">
         <div><dt>Emergency fund</dt><dd>{fmtMoney(fund)}</dd></div>
-        <div className="cash-main"><dt>What you can invest</dt><dd>{fmtMoney(investable)}</dd></div>
+        <div className="cash-main" data-result><dt>What you can invest</dt><dd>{fmtMoney(investable)}</dd></div>
       </dl>
+      </AnnouncedResults>
       {c.savings > 0 && investable === 0 && <p className="roadmap-stop"><strong>Not yet.</strong> Your choices leave no cash for a deal in this worksheet. Review your savings, emergency fund and debt plan. You can keep learning and practicing while you prepare.</p>}
       {investable > 0 && <PriceFromCash cash={investable} />}
     </section>
@@ -839,7 +843,7 @@ function BuyBoxBuilder() {
         <span>Notes</span>
         <textarea maxLength={1000} rows={3} value={b.notes} onChange={(e) => set('notes', e.target.value)} placeholder={lien ? 'e.g. the lowest interest rate I’ll accept, and the counties I’ll bid in' : undefined} />
       </label>
-      <div className="buybox-summary" aria-live="polite">
+      <div className="buybox-summary">
         <h3>My buy box</h3>
         <p>
           {lien ? `Lien certificates on ${b.types.length ? b.types.join(', ').toLowerCase() : 'any kind of parcel'}` : b.types.length ? b.types.join(', ') : b.strategy === 'Apartments and commercial property' ? 'Apartments or commercial property' : 'Any property type'}

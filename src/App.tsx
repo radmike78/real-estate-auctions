@@ -222,6 +222,21 @@ function parseHash(): Route {
   return { page: 'notFound' };
 }
 
+/** After an in-app page change, move focus to the new page's main heading once it has rendered (a lazy page can take a
+ *  moment), unless something on the page already took focus. */
+function focusNewPage() {
+  let tries = 0;
+  const go = () => {
+    const a = document.activeElement;
+    if (a && a !== document.body && document.contains(a) && !a.closest('.site-header')) return;
+    const h = document.querySelector<HTMLElement>('main h1');
+    if (!h) { if (tries++ < 20) setTimeout(go, 50); return; }
+    if (!h.hasAttribute('tabindex')) h.setAttribute('tabindex', '-1');
+    h.focus({ preventScroll: true });
+  };
+  setTimeout(go, 60);
+}
+
 export default function App() {
   const features = useSiteFeatures();
   const account = useAccountRuntime(!!features?.accounts);
@@ -242,6 +257,9 @@ export default function App() {
       setPath(hashPath());
       setNav((n) => n + 1);
       window.scrollTo(0, 0);
+      // A screen reader or keyboard user lands on the new page's title (focus would otherwise drop to the page body).
+      // Pages that move focus themselves (a step or a field in the address) win: only focus still on the body moves.
+      focusNewPage();
     };
     // Links inside the app open without reloading the page.
     const onClick = (e: MouseEvent) => {
