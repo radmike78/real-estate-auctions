@@ -680,7 +680,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         )}
         {/* Your own wait, shorter than the period this sale usually carries: said here, not only in the "?" help. */}
         {shortNote && !needsValue && (
-          <p className="calc-note small" role="note"><strong>Shorter than the law’s shortest redemption period for this sale.</strong> The shortest is {shortestRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] })},* and the owner can redeem until it ends. Your walk-away price above counts only your {Math.round(i.redemptionMonths * 10) / 10}-month wait: type at least {shortestOwner} months, or pick the rule under Holding and financing, to count the full wait.</p>
+          <p className="calc-note small" role="note"><strong>Shorter than the law’s shortest redemption period for this sale.</strong> The shortest is {shortestRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] })},* and the owner can redeem until it ends. These numbers count only your {Math.round(i.redemptionMonths * 10) / 10}-month wait: type at least {shortestOwner} months, or pick the rule under Holding and financing, to count the full wait.</p>
         )}
         {redeemed && !needsValue && !(ruleNow === 'custom' && choices?.start === 'none') && (
           <div className="calc-note">

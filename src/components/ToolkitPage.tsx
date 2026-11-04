@@ -238,7 +238,7 @@ function StepBody({ s, status, setStatus, deal, elsewhere }: { s: RoadmapStep; s
       {deal && s.evidence && dealScoped(s) && <EvidenceArea key={`${deal.id}|${s.evidence}`} dealId={deal.id} dealName={deal.name} area={s.evidence} askFinding={status === 'done'} kind={deal.kind} />}
       {!deal && s.evidence && dealScoped(s) && <p className="muted">Working on a real property? Save it in <a href="#/analyze">Analyze</a> (it becomes the property you’re working on, shown above) to record what you find here.</p>}
       {s.id === 'goal' && <GoalField markedDone={status === 'done'} />}
-      {(s.id === 'buybox' || s.id === 'c-buybox') && status === 'done' && isBlank(read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox)) && <p className="note small" role="note">This step shows Done, but no buy box is saved yet. <button type="button" className="linkish" onClick={showBuyBox}>Fill it in</button> so Analyze and your packets can check deals against it.</p>}
+      {(s.id === 'buybox' || s.id === 'c-buybox') && status === 'done' && isBlank(read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox)) && <p className="note small" role="note">This step shows Done, but no buy box is saved yet. <button type="button" className="linkish" onClick={showBuyBox}>Fill it in</button> so your deal packets can check each property against it.</p>}
       {s.id === 'market' && <AreaLine county what="Your sources, rules and checklists follow it." />}
       {s.stop && forStateText(myState, s.stop) && <p className="roadmap-stop"><strong>When to pause:</strong> {dropStateLead(forStateText(myState, s.stop), myState)}</p>}
       <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
@@ -765,7 +765,10 @@ function BuyBoxBuilder() {
   const pa = b.priceAssumptions ?? PRICE_DEFAULTS;
   // Buying at an auction (this strategy, else My plan's route), or paying cash (Decide): no loan at the price.
   const buyAuction = b.strategy ? b.strategy === 'Tax and foreclosure auctions' : planPath() === 'auction';
-  const buyCash = buyAuction || investorProfile().loan === 'cash';
+  // (The lien route with no strategy picked pays cash too, as the cash worksheet says.)
+  const buyCash = buyAuction || (!b.strategy && planPath() === 'certificate') || investorProfile().loan === 'cash';
+  // A cash buyer's price and repairs both come from the cash (closing and holding costs on top).
+  const cashNeed = b.priceMax + Math.max(0, b.repairsMax || 0);
   const toggle = (k: 'types' | 'dealBreakers', v: string) => set(k, b[k].includes(v) ? b[k].filter((x) => x !== v) : [...b[k], v]);
   const money = (k: 'priceMax' | 'repairsMax' | 'cashMax' | 'minCashFlow', label: string, hint?: string) => (
     <label className="field">
@@ -851,9 +854,9 @@ function BuyBoxBuilder() {
       {lien && <p className="muted">A lien certificate isn’t the property: there’s no rent and nothing to repair. Your buy box is the parcels you’ll bid on, what you’ll pay, and how long your money can wait. Property types and deal breakers below describe the land behind each lien.</p>}
       {!b.strategy && suggested && <p className="roadmap-has">Decide suggested: <strong>{suggested}</strong>. <button type="button" className="linkish" onClick={() => set('strategy', suggested)}>Use it</button></p>}
       {/* Paying cash (an auction, or Decide's "Cash only"): the whole price comes from your cash, with no loan. */}
-      {!lien && b.priceMax > 0 && b.cashMax > 0 && buyCash && b.priceMax > b.cashMax && (
+      {!lien && b.priceMax > 0 && b.cashMax > 0 && buyCash && cashNeed > b.cashMax && (
         <p className="caution" role="status">
-          <strong>Your price limit is more than your cash.</strong> {buyAuction ? 'At an auction the whole price is due by the sale’s payment deadline' : 'Paying cash, the whole price comes from your cash'}, and repairs and holding costs come on top. Your {fmtMoney(b.cashMax)} can’t cover a {fmtMoney(b.priceMax)} {buyAuction ? 'bid' : 'price'}. Lower the price to what your cash covers{buyAuction ? ', or line up funding that’s in hand before the sale' : ''}.
+          <strong>{b.priceMax > b.cashMax ? 'Your price limit is more than your cash.' : 'Your price and repair limits are more than your cash.'}</strong> {buyAuction ? 'At an auction the whole price is due by the sale’s payment deadline' : 'Paying cash, the whole price comes from your cash'}, and repairs and holding costs come on top. Your {fmtMoney(b.cashMax)} can’t cover {fmtMoney(b.priceMax)} for the {buyAuction ? 'bid' : 'price'}{b.priceMax > b.cashMax ? '' : <> plus {fmtMoney(b.repairsMax)} of repairs</>}. Lower the {b.priceMax > b.cashMax ? 'price' : 'price or repairs'} to what your cash covers{buyAuction ? ', or line up funding that’s in hand before the sale' : ''}.
         </p>
       )}
       {!lien && !buyCash && b.priceMax > 0 && b.cashMax > 0 && cashForPrice(b.priceMax, pa).total > b.cashMax && (
