@@ -114,7 +114,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           <span className="decide-bar" role="progressbar" aria-label="Investing roadmap" aria-valuemin={0} aria-valuemax={prog.total} aria-valuenow={prog.done}><span style={{ width: `${Math.round((prog.done / Math.max(1, prog.total)) * 100)}%` }} /></span>
         </p>
       )}
-      {(() => { const o = loadDeals().find((x) => x.id !== deal?.id && !x.practice && stageOf(x) !== 'passed' && !finishedDeal(x) && deadlinePassed(dealNextTask(x))); return o ? <p className="caution" role="note"><strong>Another property needs an answer:</strong> {o.name}: {dealNextTask(o).label.split(/: /)[0]}. <button type="button" className="linkish" onClick={() => chooseDeal(`analyzed:${o.id}`)}>Work on it now&nbsp;→</button></p> : null; })()}
+      {(() => { const o = loadDeals().find((x) => x.id !== deal?.id && !x.practice && stageOf(x) !== 'passed' && !finishedDeal(x) && deadlinePassed(dealNextTask(x))); return o ? <p className="caution" role="note"><strong>Another property needs {dealNextTask(o).answer ? 'an answer' : 'your attention'}:</strong> {o.name}. {dealNextTask(o).label.split(/(?<=\.)\s/)[0].replace(/([^.?!])$/, '$1.')} <button type="button" className="linkish" onClick={() => { chooseDeal(`analyzed:${o.id}`); setTimeout(() => focusTaskIn(document.querySelector('.plan-now-actions')?.parentElement), 0); }}>Work on it now&nbsp;→</button></p> : null; })()}
       {deal && now.tasks && stage ? (
         <>
           <h4>{stageLabel(stage, deal)}: {deal.name}</h4>

@@ -1,4 +1,4 @@
-import { sameDate, type PacketData } from '../lib/dealPacket';
+import { clearsOnPostpone, sameDate, type PacketData } from '../lib/dealPacket';
 import { setDealStage, type PlanTask } from '../lib/dealStage';
 
 /**
@@ -39,6 +39,9 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
           setDealStage(dealId, task.advance2!.stage);
           after(el, task.advance2!.stage === 'passed');
         }}>{task.advance2.label}</button>
+      )}
+      {task.postpone && (
+        <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; edit((p) => ({ ...p, postponedSale: true, calendarReviewedFor: undefined, dates: p.dates.map((x) => (clearsOnPostpone(x.what) ? { ...x, when: '', resolved: undefined } : x)) })); after(el); }}>{task.postpone.label}</button>
       )}
       {task.undo && (
         <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const u = task.undo!; edit((p) => { const kept = p.dates.filter((x) => !sameDate(x.what, u.removeRow)); return { ...p, dates: [...kept, ...(u.addRow && !kept.some((x) => sameDate(x.what, u.addRow!.what)) ? [{ ...u.addRow }] : [])] }; }); after(el); }}>{task.undo.label}</button>

@@ -136,8 +136,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
       {rentCovers && (
         <fieldset className="packet-fit">
           <legend>Rent now covers this home’s costs. Do you still live there?</legend>
-          <label className="check"><input type="radio" name={`still-home-${deal.id}`} onChange={() => setDealHome(deal.id, 'live')} /> Yes, it’s my home</label>
-          <label className="check"><input type="radio" name={`still-home-${deal.id}`} onChange={() => setDealHome(deal.id, 'rent')} /> No, it’s a rental now</label>
+          <label className="check"><input type="radio" name={`still-home-${deal.id}`} onChange={() => { setDealHome(deal.id, 'live'); setTimeout(() => { const h = document.getElementById('packet-owned'); if (h) { h.setAttribute('tabindex', '-1'); h.focus(); } }, 0); }} /> Yes, it’s my home</label>
+          <label className="check"><input type="radio" name={`still-home-${deal.id}`} onChange={() => { setDealHome(deal.id, 'rent'); setTimeout(() => { const h = document.getElementById('packet-owned'); if (h) { h.setAttribute('tabindex', '-1'); h.focus(); } }, 0); }} /> No, it’s a rental now</label>
         </fieldset>
       )}
       {!o.sold && <p className="muted">{flip ? (budgetLine ?? 'Record what you pay each month, with $0 rent, and compare it yourself with the repairs and holding costs under Fix and flip in Analyze.') : liveIn(deal) && projected === null ? 'Record what your home costs each month (and any rent from a room or unit). Save its numbers in Analyze to compare with your plan.' : projected === null ? 'Renting it out? Save this deal’s numbers in Buy and hold to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : liveIn(deal) ? `You planned on about ${signed(-projected)} a month to live there (after any rent you collect).` : `You planned on ${signed(projected)} a month of cash flow.`}</p>}
@@ -156,8 +156,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <>
           <dl className="calc-kv">
             <div><dt>Months recorded</dt><dd>{s.months}</dd></div>
-            <div><dt>{liveIn(deal) ? 'What it cost, in total (after any rent)' : 'Actual cash flow, in total'}</dt><dd>{signed(liveIn(deal) ? -s.actual : s.actual)}</dd></div>
-            <div><dt>{liveIn(deal) ? 'Average cost a month' : 'Average month'}</dt><dd>{signed(liveIn(deal) ? -s.averageMonthly : s.averageMonthly)}</dd></div>
+            <div><dt>{liveIn(deal) ? 'What it cost, in total (after any rent)' : 'Actual cash flow, in total'}</dt><dd>{liveIn(deal) && s.actual > 0 ? `${fmtMoney(Math.round(s.actual))} to spare (the rent covers your home’s costs)` : signed(liveIn(deal) ? -s.actual : s.actual)}</dd></div>
+            <div><dt>{liveIn(deal) ? 'Average cost a month' : 'Average month'}</dt><dd>{liveIn(deal) && s.averageMonthly > 0 ? `${fmtMoney(Math.round(s.averageMonthly))} to spare` : signed(liveIn(deal) ? -s.averageMonthly : s.averageMonthly)}</dd></div>
             {flip && budget && <div><dt>Paid so far, against your {fmtMoney(Math.round(budget.total))} budget</dt><dd>{fmtMoney(Math.round(s.costs))} {s.costs > budget.total ? `(${fmtMoney(Math.round(s.costs - budget.total))} over)` : `(${fmtMoney(Math.round(budget.total - s.costs))} left)`}</dd></div>}
             {s.gapMonthly !== null && <div><dt>Against your plan, a month</dt><dd>{signed(s.gapMonthly)} {s.gapMonthly < 0 ? '(behind)' : '(ahead)'}</dd></div>}
           </dl>

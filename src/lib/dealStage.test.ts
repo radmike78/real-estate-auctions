@@ -760,8 +760,13 @@ describe('Nevada round 4 flow', () => {
     // A sale day that went by: "postponed" clears the date.
     const past = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'Trustee' }] };
     const t = dealNextTask(nvFlip, past, now, 'offer');
-    expect(t.undo).toEqual({ label: 'It was postponed: clear the sale date to enter the new one', removeRow: 'Sale day', addRow: { when: '', what: 'Sale day', who: 'Trustee' } });
-    expect(dealNextTask(nvFlip, past, now, 'researching').undo?.removeRow).toBe('Sale day');
+    expect(t.postpone?.label).toBe('It was postponed: clear its dates to enter the new ones');
+    expect(dealNextTask(nvFlip, past, now, 'researching').postpone).toBeDefined();
+    // Once postponed (dates cleared): the new date comes first.
+    const pp = { ...EMPTY_PACKET, postponedSale: true, dates: [{ when: '', what: 'Sale day', who: 'Trustee' }, { when: '', what: 'Bidder registration (if required)', who: 'me' }] };
+    expect(dealNextTask(nvFlip, pp, now, 'offer').label).toBe('Enter the new sale date for 2210 Mesa Verde Ln');
+    // The sale day itself can be postponed too.
+    expect(dealNextTask(nvFlip, { ...EMPTY_PACKET, dates: [{ when: '2026-10-06', what: 'Sale day', who: 'Trustee' }] }, now, 'offer').postpone).toBeDefined();
     // A reader buying a home: each property can be the home or a rental.
     localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { borrow: 'live' } }));
     saveDeals([{ ...listing, stage: 'contract' }]);
@@ -793,6 +798,12 @@ describe('Nevada round 4 flow', () => {
     expect(t.redate?.label).toBe('Wait for the 90-day limit: move the end to Nov 18, 2026');
     expect(t.tick?.label).toBe('My attorney or title company confirmed proper notice and no suit*: mark it handled');
     expect(t.days).toBeLessThan(0);
+    // The same wording with the window's row dated by the reader.
+    const dated = { ...tg, dates: [...tg.dates, { when: '2026-10-01', what: 'Challenge window ends', who: 'Title' }] };
+    const dt = dealNextTask(nvFlip, dated, now, 'closed');
+    expect(dt.label).toMatch(/Anyone who wasn’t can still sue until Nov 18, 2026/);
+    expect(dt.tick?.label).toBe('My attorney or title company confirmed proper notice and no suit*: mark it handled');
+    expect(dt.redate?.label).toBe('Wait for the 90-day limit: move the end to Nov 18, 2026');
     // Before the 30 days end, Key dates show the 90-day limit too.
     const early = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-20', what: 'Deed recorded', who: 'Me', resolved: true }] };
     saveDeals([{ ...nvFlip, stage: 'closed' }]);
@@ -825,7 +836,15 @@ describe('Nevada round 4 flow', () => {
     const late = { ...EMPTY_PACKET, dates: [...base, { when: '2026-10-03', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City', resolved: true }] };
     const lt = dealNextTask(tax, late, now, 'contract');
     expect(lt.label).toMatch(/after the 20-day deadline \(Sep 30, 2026\): ask the Treasurer in writing whether the sale stands\*/);
-    expect(lt.advance2?.stage).toBe('passed');
+    expect(lt.undo?.label).toBe('The Treasurer said the sale is void: mark it');
+    // Void: collect the rest of what you paid.
+    const voided = { ...late, dates: [...late.dates, { when: '2026-10-05', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }] };
+    const vt = dealNextTask(tax, voided, now, 'contract');
+    expect(vt.label).toMatch(/is void: ask the Treasurer in writing for the rest of what you paid\*/);
+    expect(vt.tick).toMatchObject({ label: 'I got the refund: mark it passed', then: 'passed' });
+    // Before the deadline, "I paid it" on a later-dated row records today.
+    const ahead = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-21', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-10-08', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City' }] };
+    expect(dealNextTask(tax, ahead, now, 'contract').tick).toMatchObject({ label: 'I paid it: mark it handled', setWhen: '2026-10-06' });
     saveDeals([{ ...tax, stage: 'contract' }]);
     expect(packetSections({ ...tax, stage: 'contract' }, late, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/— handled, after the 20-day deadline \(ask the Treasurer whether the sale stands\*\)/);
     const stands = { ...late, dates: [...late.dates, { when: '2026-10-05', what: 'Treasurer confirmed the sale stands', who: 'The county treasurer', resolved: true }] };

@@ -17,6 +17,9 @@ import StrategyTabs from './StrategyTabs';
 export function Calculators({ initial, onTab, state, offer = false, dealId, onAnalyze = false, lien = true, saleKind }: { /** The kind of sale chosen in Analyze. */ saleKind?: string; initial?: string; onTab?: (key: string) => void; state?: StateCode; offer?: boolean; /** Show the lien tab (Analyze shows it only for lien sales). */ lien?: boolean; /** A deal saved in Analyze: its numbers are kept with it. */ dealId?: string; /** On Analyze before the deal is saved: numbers are kept as a draft and move to the deal when it's saved. */ onAnalyze?: boolean } = {}) {
   const k = (kind: string) => (dealId ? `fsf.calc.${kind}.${dealId}${offer ? '-offer' : ''}.v1` : undefined);
   const bid = offer ? 'offer' : 'bid';
+  // ("Will you live in this property?" changes the Buy and hold description.)
+  const [, setHomeTick] = useState(0);
+  useEffect(() => { const on = () => setHomeTick((n) => n + 1); window.addEventListener(PROGRESS_EVENT, on); return () => window.removeEventListener(PROGRESS_EVENT, on); }, []);
   return (
     <>
       <StrategyTabs

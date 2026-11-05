@@ -5,6 +5,7 @@ import { lienDealFor, planPath, progressChanged } from '../lib/roadmapState';
 import PathNext from './PathNext';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useRef, useState } from 'react';
+import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { readConfirmed } from '../lib/calcConfirmation';
 import { useLastActivity } from '../lib/journey';
 import { replaceAddress } from '../lib/nav';
@@ -207,7 +208,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   useEffect(() => { try { localStorage.removeItem(KEPT_NOTE_KEY); } catch { /* storage unavailable */ } }, []);
   // A rule saved in Fix and sell (an IRS sale's "No redemption") changes the checklist: re-read it.
   const [, setRuleTick] = useState(0);
-  useEffect(() => { const on = () => setRuleTick((n) => n + 1); window.addEventListener(CONFIRMED_EVENT, on); return () => window.removeEventListener(CONFIRMED_EVENT, on); }, []);
+  useEffect(() => { const on = () => setRuleTick((n) => n + 1); window.addEventListener(CONFIRMED_EVENT, on); window.addEventListener(PROGRESS_EVENT, on); return () => { window.removeEventListener(CONFIRMED_EVENT, on); window.removeEventListener(PROGRESS_EVENT, on); }; }, []);
   const [keptNote, setKeptNote] = useState(() => {
     // Left by openDeal when a started deal was saved before another was opened elsewhere on the site.
     try {
@@ -316,7 +317,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         // The stage is changed in My plan or the deal packet, not here: keep the one stored with the deal.
         const list = storedDeals();
         const stage = list.find((d) => d.id === deal.id)?.stage ?? deal.stage;
-        const next = list.map((d) => (d.id === deal.id ? { ...deal, ...(stage ? { stage } : {}) } : d));
+        // So is "Will you live in this property?" (answered in Buy and hold or the deal packet).
+        const home = list.find((d) => d.id === deal.id)?.home ?? deal.home;
+        const next = list.map((d) => (d.id === deal.id ? { ...deal, ...(stage ? { stage } : {}), ...(home ? { home } : {}) } : d));
         saveDeals(next);
         return next;
       });
@@ -597,7 +600,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <section className="analyze-next" aria-labelledby="analyze-next-head">
         <h2 id="analyze-next-head">4. What’s next</h2>
         <p>{!deal.id && practiceSave(deal) ? 'Practicing without buying? Save this as a practice analysis so you can compare it with the next ones, and mark the practice step done in My plan when you’ve finished it.' : ['paper', 'c-paper'].includes(roadmapNextStep()?.id ?? '') ? 'Practicing without buying? Save this analysis so you can compare it with the next ones, and mark the task done in My plan when you’ve analyzed enough.' : 'Numbers work, and every checklist item above has an answer? Save the deal so you can come back to it, then follow the “Buy it” steps for this kind of sale in My plan.'}</p>
-        <p><strong>Reasons to pause, revise or pass:</strong> {calcTabFor(deal.plan) === 'flip' ? 'the price you’d have to pay leaves no profit after repairs, holding and selling costs, or the profit is smaller than your goal' : calcTabFor(deal.plan) === 'lien' ? 'the interest you’d earn, after the wait to be paid, misses your goal' : deal.plan === 'rent' && liveIn(deal) ? 'the monthly cost of living there (after any rent you collect) is more than you can comfortably pay alongside your other bills, or it leaves too little cash for repairs and emergencies' : 'the monthly cash flow is negative after reserves, or the long-term return misses your goal'}. Compare the tradeoffs with your goals and risk tolerance, and record your reasoning. Get appropriate professional guidance before committing. <a href="#/learn/walk-away">When to walk away</a></p>
+        <p><strong>Reasons to pause, revise or pass:</strong> {calcTabFor(deal.plan) === 'flip' ? 'the price you’d have to pay leaves no profit after repairs, holding and selling costs, or the profit is smaller than your goal' : calcTabFor(deal.plan) === 'lien' ? 'the interest you’d earn, after the wait to be paid, misses your goal' : deal.plan === 'rent' && (deal.id ? liveIn(deal) : !!investorProfile().ownerOccupant && (deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short')) ? 'the monthly cost of living there (after any rent you collect) is more than you can comfortably pay alongside your other bills, or it leaves too little cash for repairs and emergencies' : 'the monthly cash flow is negative after reserves, or the long-term return misses your goal'}. Compare the tradeoffs with your goals and risk tolerance, and record your reasoning. Get appropriate professional guidance before committing. <a href="#/learn/walk-away">When to walk away</a></p>
         <div className="row">
           {!deal.id ? <button type="button" className="btn" onClick={saveNew}>{practiceSave(deal) ? 'Save as a practice analysis' : 'Save this deal'}</button> : <a className="btn" href="#/deals">Open My deals</a>}
           <a href="#/toolkit">Your buying steps in My plan&nbsp;→</a>
