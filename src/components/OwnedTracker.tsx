@@ -95,7 +95,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   if (!o && redeemingNow(deal)) return <p className="muted">It was redeemed: nothing to track here. Keep the receipt for your payoff.</p>;
   if (!o && (stageOf(deal) === 'passed' || finishedDeal(deal))) return <p className="muted">{finishedDeal(deal) ? 'It was repaid: nothing more to track here.' : 'You passed on it: nothing to track here.'}</p>;
   if (!o && ['researching', 'offer'].includes(stageOf(deal)) && wayOf(deal) !== 'offer') return <p className="muted">Won it? Answer “did you win?” in Your next action above once the sale is over, and the steps after the sale appear here.</p>;
-  if (!o && sidState(deal) === 'void') return <p className="muted">Not needed: the Treasurer said the sale is void.</p>;
+  if (sidState(deal) === 'void') return <p className="muted">Not needed: the Treasurer said the sale is void.</p>;
   if (!o && stageOf(deal) === 'contract' && wayOf(deal) !== 'offer') return <p className="muted">Once you’ve paid and the {certificateFirst(deal) ? 'certificate of sale' : 'deed'} is {certificateFirst(deal) && deal.kind === 'irs' ? 'in hand' : 'recorded'}, mark it in Your next action above; then start tracking its costs here.</p>;
   // An offer before it's under contract: nothing is bought yet.
   if (!o && ['researching', 'offer'].includes(stageOf(deal)) && wayOf(deal) === 'offer') return <p className="muted">Once your offer is accepted and it closes, start tracking it here.</p>;

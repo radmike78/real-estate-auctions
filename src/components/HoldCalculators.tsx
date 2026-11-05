@@ -332,7 +332,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
       </label>
       {/* My deals and the packet count only a typed rent: say so here, so the pages agree. */}
-      {price > 0 && !rentTyped && (living ? <p className="calc-note small" role="note"><strong>No rent is counted.</strong> Type 0 in Monthly rent (or the rent from a room or unit you’ll rent out) to save these results to My deals and the deal packet.</p> : <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the property’s rent to save these results to My deals and the deal packet.</p>)}
+      {price > 0 && !rentTyped && (living ? <p className="calc-note small" role="note"><strong>No rent is counted.</strong> These results save to My deals and the deal packet. Renting out a room or unit? Type its rent in Monthly rent.</p> : <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the property’s rent to save these results to My deals and the deal packet.</p>)}
       {/* An investment-property loan over 85% of the price: said here, beside the result it changes (with no price
           typed yet, the mortgage-insurance note below says it). */}
       {price > 0 && onPrice && !living && Math.round(v.loanPct * 100) / 100 > 85 && (
@@ -565,8 +565,6 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500, ...stateForce } : {}, regional ? `${rt.per500}|${region.state}` : '{}');
   // A home you'll live in: no example rent is counted (only rent you type, from a room or unit you'll rent out).
   const savedL = livesHere && !typedKeys.has('monthlyRent') && !('monthlyRent' in start) ? { ...saved, monthlyRent: 0 } : saved;
-  // A home with its price in: the 0 rent shown counts as yours, so the results save (no retyping).
-  useEffect(() => { if (livesHere && exactKey && typedKeys.has('atPrice') && !typedKeys.has('monthlyRent') && !('monthlyRent' in start)) set('monthlyRent', 0); }, [livesHere, exactKey, typedKeys.has('atPrice'), typedKeys.has('monthlyRent')]);
   const v = offer ? { ...withPlanCash(withoutOldValueExample(savedL, true, typedKeys), true, typedKeys, investorProfile().investable), buyerPremiumPct: 0 } : savedL;
   const r = rentMaxBid(v, offer);
   // No realistic price fits your cash (only the cash is short): the panels and buttons don't use the capped price.

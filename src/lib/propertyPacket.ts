@@ -5,7 +5,7 @@ import { workStorage as localStorage } from './workStorage';
 // downside case, what you've verified and what's still open, who's doing what, where you are in the steps, and your
 // decision. Built from what's already saved in this browser; nothing new is stored.
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
-import { ownNumbers } from './dealPacket';
+import { ownNumbers, homeRent } from './dealPacket';
 import { EVIDENCE_AREAS, GATES, loadLog } from './evidence';
 import { fhaMonthlyMi, rentAtPrice, rentStress, RENT_DEFAULTS, sanitizeNumbers, withoutOldValueExample, refiOnExampleValue, withPlanCash, capMisses, capText, type RentInputs } from './holdCalc';
 import { readConfirmed } from './calcConfirmation';
@@ -36,7 +36,7 @@ export function dealNumbers(d: Deal): { /** FHA mortgage insurance a month, not 
   const raw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
   if (!raw) return null;
   const typed = readConfirmed(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
-  const v = withPlanCash(withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, typed), offer, typed, investorProfile().investable);
+  const v = homeRent(d, withPlanCash(withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, typed), offer, typed, investorProfile().investable), typed);
   if (!(v.atPrice > 0)) return null;
   const a = rentAtPrice(v, v.atPrice, offer);
   // A live-in buyer's FHA mortgage insurance, which the monthly figure doesn't include (Keep and rent says so too).
@@ -57,7 +57,7 @@ export function propertyPacketText(d: Deal): string {
   const raw = read(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`);
   lines.push('THE NUMBERS (estimates from your inputs)');
   if (raw) {
-    const v = withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, readConfirmed(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`));
+    const v = homeRent(d, withoutOldValueExample(sanitizeNumbers(raw, RENT_DEFAULTS) as RentInputs, offer, readConfirmed(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`)), readConfirmed(`fsf.calc.rent.${d.id}${offer ? '-offer' : ''}.v1`));
     if (v.atPrice > 0) {
       const a = rentAtPrice(v, v.atPrice, offer);
       lines.push(

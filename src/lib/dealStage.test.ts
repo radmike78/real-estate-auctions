@@ -645,7 +645,7 @@ describe('Nevada round 4 flow', () => {
     saveDeals([{ ...nvFlip, stage: 'closed' }]);
     const tl = packetSections({ ...nvFlip, stage: 'closed' }, tr, now).find((x) => x.key === 'dates')!.lines.join(' | ');
     expect(tl).toMatch(/Jul 5, 2026: Deed recorded \(Me\) — passed/);
-    expect(tl).toMatch(/Next: Challenge window ends, ended 63 days ago \(Aug 4, 2026\): see Your next action/);
+    expect(tl).toMatch(/Next: the challenge window ended 63 days ago \(Aug 4, 2026\): see Your next action\./);
     const tax = { ...nvFlip, kind: 'taxSale' as const };
     const sid = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-30', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
     saveDeals([{ ...tax, stage: 'contract' }]);
@@ -1016,6 +1016,34 @@ describe('Nevada round 4 flow', () => {
     // (Dates well ahead: the hint reads the real clock.)
     savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2030-01-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2030-01-05', what: 'Deed recorded', who: 'Me', resolved: true }, { when: '2030-02-04', what: 'Challenge window ends', who: 'Title' }] });
     expect(stageHint('closed', nvFlip)).toMatch(/ends Feb 4, 2030, or Apr 1, 2030 for anyone not properly notified/);
+  });
+
+  it('round 13 verifier: no question for an investor rental; a home rent of 0; paid calendar; void owned', async () => {
+    const { asksHome, forCalendar } = await import('./dealStage');
+    const { ownNumbers } = await import('./dealPacket');
+    const rental = { ...nvFlip, kind: 'listing' as const, plan: 'rent' as const };
+    saveDeals([{ ...rental, stage: 'contract' }]);
+    setDealStage('f1', 'owned');
+    expect(loadDeals()[0]).toMatchObject({ home: 'rent', homeFrom: 'plan' });
+    expect(asksHome(loadDeals()[0])).toBe(false);
+    // A home: its price alone counts as its numbers (no rent typed).
+    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { borrow: 'live' } }));
+    saveDeals([{ ...rental, stage: 'offer' }]);
+    localStorage.setItem('fsf.calc.rent.f1-offer.v1', JSON.stringify({ atPrice: 300000, monthlyRent: 2200 }));
+    localStorage.setItem('fsf.calc.rent.f1-offer.v1.typed.v1', JSON.stringify(['atPrice']));
+    expect(ownNumbers(loadDeals()[0])).toBe(true);
+    localStorage.removeItem('deedowl.decide.v1');
+    expect(ownNumbers(loadDeals()[0])).toBe(false);
+    // A paid win: the undated payment row doesn't block the calendar.
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    saveLog('analyzed:f1', cleanLog({ rows: { terms: { done: true } } }));
+    const pp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'A', resolved: true }, { when: '', what: 'Payment deadline', who: '' }] };
+    expect(forCalendar(hoa, pp, 'contract').dates.some((x) => x.what === 'Payment deadline')).toBe(false);
+    saveLog('analyzed:f1', cleanLog({ rows: {} }));
+    // A void tax sale at Owned: the hint says void.
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }] });
+    expect(stageHint('owned', tax)).toMatch(/^The Treasurer said the sale is void/);
   });
 
   it('says so when the deed row is ticked at a win', () => {
