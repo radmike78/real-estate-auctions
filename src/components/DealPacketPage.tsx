@@ -86,14 +86,16 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
 
   // Bought (closed or owned), or finished: the decision parts are records now.
   const pastSale = ['closed', 'owned'].includes(stageOf(deal)) || finishedDeal(deal);
+  // The parts from before you bought: records now, not homework.
+  const RECORD_PARTS = ['plan', 'property', 'cash', 'decision'];
   const Head = ({ k }: { k: string }) => {
     const s = sec(k);
     return (
       <>
         <h2 id={`packet-${k}`}>
-          {s.title} <span className={`packet-status ${s.status}`}>{s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>
+          {s.title} {pastSale && RECORD_PARTS.includes(k) && s.status !== 'done' ? <span className="packet-status record">Not recorded</span> : <span className={`packet-status ${s.status}`}>{s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>}
         </h2>
-        {pastSale && ['plan', 'cash', 'decision'].includes(k) && <p className="muted small">From before you bought: kept as your records.</p>}
+        {pastSale && RECORD_PARTS.includes(k) && <p className="muted small">From before you bought: kept as your records.</p>}
       </>
     );
   };
@@ -113,7 +115,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         title={<>Deal <span className="grad">packet</span></>}
         sub={`${deal.name} · ${kind ? kindLabel(kind, deal.state) : deal.kind} · ${countyName(deal.county)}, ${deal.state}`}
       />
-      <p>{pastSale ? <>Everything about this property, on one page: its dates, costs and results, with the records from before you bought it. {done} of {sections.length} parts are filled in.</> : <>Everything this decision needs, on one page: your plan, the dates, the cash and when it’s due, your numbers with a downside case, what you’ve verified, your professionals’ answers and your decision. {done} of {sections.length} parts are complete.</>} Every number is your estimate until a source backs it.</p>
+      <p>{pastSale ? <>Everything about this property, on one page: its dates, costs and results, with the records from before you bought it. {sections.filter((x) => !RECORD_PARTS.includes(x.key) && x.status === 'done').length} of {sections.filter((x) => !RECORD_PARTS.includes(x.key)).length} parts after the sale are filled in.</> : <>Everything this decision needs, on one page: your plan, the dates, the cash and when it’s due, your numbers with a downside case, what you’ve verified, your professionals’ answers and your decision. {done} of {sections.length} parts are complete.</>} Every number is your estimate until a source backs it.</p>
 
       <div className="packet-stage">
         <label className="field">
@@ -130,7 +132,8 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           {next.openDeal ? <a href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(deal); }}>Open in Analyze&nbsp;→</a>
             : next.setStage ? <button type="button" className="linkish" onClick={() => { setDealStage(deal.id, next.setStage!); focusNext(); }}>Do it now&nbsp;→</button>
             : next.key === 'qa-wait' ? <button type="button" className="linkish" onClick={() => { const i = p.qa.findIndex((x) => x.q && !x.a); const el = document.querySelectorAll<HTMLElement>('textarea[aria-label="Their answer"]')[i]; el?.scrollIntoView({ block: 'center' }); el?.focus(); }}>Record their answer&nbsp;↓</button>
-            : !next.answer && !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there&nbsp;→</a> : null}
+            : !next.answer && !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there&nbsp;→</a>
+            : !next.answer && /\/(plan|dates|cash|evidence|pros|decision|owned)$/.test(next.href) ? (() => { const sec = /\/(\w+)$/.exec(next.href)![1]; return <button type="button" className="linkish" onClick={() => { const h = document.getElementById(`packet-${sec}`); h?.setAttribute('tabindex', '-1'); h?.scrollIntoView({ block: 'start' }); h?.focus(); }}>Go to {sec === 'dates' ? 'Key dates' : sec === 'evidence' ? 'the evidence log' : sec === 'owned' ? 'After you buy' : sec === 'decision' ? 'Your decision' : sec === 'pros' ? 'the questions' : sec === 'cash' ? 'the cash' : 'your plan'}&nbsp;↓</button>; })() : null}
         </p>
         {(next.advance || next.advance2 || next.tick || next.undo) && <div className="packet-next-actions">
           <TaskActions task={next} dealId={deal.id} edit={(f) => setP((cur) => { const n = f(cur); savePacket(key, n); return n; })} after={() => focusNext()} />

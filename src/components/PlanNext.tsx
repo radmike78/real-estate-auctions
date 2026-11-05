@@ -3,7 +3,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
 import { DEAL_STAGES, loadDeals, openDeal, type Deal, type DealStage } from '../lib/analyze';
-import { finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
+import { dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
@@ -98,7 +98,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   // Working on a property doesn't finish the groundwork: the goal, cash, buy box and payment plan still open stay in view.
   const settledOwn = settledFor('');
   // (Not on a finished deal, sold or passed: nothing is running on it.)
-  const finished = !!deal && (stage === 'passed' || finishedDeal(deal));
+  const finished = !!deal && (stage === 'passed' || finishedDeal(deal) || stage === 'closed' || stage === 'owned');
   const foundations = deal && !finished ? roadmapFor(planPath(), practiceState()).filter((s) => s.phase <= 2 && !settledOwn(s)) : [];
 
   // The same label My plan's roadmap uses: "Next roadmap task · Get ready".
@@ -177,7 +177,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           <p className="plan-now-produces"><strong>You’ll have:</strong> {task.produces}.</p>
           <div className="plan-now-actions">
             {!(task.answer && deal) && <ContinueButton task={task} dealId={deal?.id} onPlan={onPlan} label={planStarted(now) ? undefined : 'Start'} />}
-            {deal && <TaskActions task={task} dealId={deal.id} big edit={(f) => { const k = `analyzed:${deal.id}`; savePacket(k, f(loadPacket(k))); progressChanged(); }} after={(el, done) => { if (done) { setFinishedNote(finishedDeal(deal) ? `${deal.name} is finished: ${stageLabel('passed', deal).toLowerCase().replace(/ \((.*)\)$/, ', $1')}. My plan has moved on to what’s next.` : `You marked ${deal.name} passed. My plan has moved on to what’s next.`); setTimeout(() => document.getElementById('plan-finished-note')?.focus(), 0); } else { setFinishedNote(''); /* (stays on the deal just answered) */ write(DEAL_KEY, `analyzed:${deal.id}`); progressChanged(); focusTaskIn(el.closest('.plan-now-actions')?.parentElement); } }} />}
+            {deal && <TaskActions task={task} dealId={deal.id} big edit={(f) => { const k = `analyzed:${deal.id}`; savePacket(k, f(loadPacket(k))); progressChanged(); }} after={(el, done) => { if (done) { /* It leaves the plan: the next property comes up (one with a deadline first). */ write(DEAL_KEY, ''); progressChanged(); const others = loadDeals().filter((x) => x.id !== deal.id && !x.practice && stageOf(x) !== 'passed'); const due = others.find((x) => dealNextTask(x).urgent); const nextOne = due ?? others[0]; if (due) write(DEAL_KEY, `analyzed:${due.id}`); setFinishedNote(`${finishedDeal(deal) ? `${deal.name} is finished.` : `You marked ${deal.name} passed.`} ${nextOne ? `Next: ${nextOne.name}${due ? ', which has a date due soon' : ''}.` : 'Find your next property, or pick one above.'}`); setTimeout(() => document.getElementById('plan-finished-note')?.focus(), 0); } else { setFinishedNote(''); /* (stays on the deal just answered) */ write(DEAL_KEY, `analyzed:${deal.id}`); progressChanged(); focusTaskIn(el.closest('.plan-now-actions')?.parentElement); } }} />}
           </div>
           {task.support.length > 0 && (
             <details className="plan-now-support"><summary>Help with this step</summary><p>

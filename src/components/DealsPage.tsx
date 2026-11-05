@@ -24,7 +24,7 @@ import { dealNumbers } from '../lib/propertyPacket';
 import { flipNeedsRepairs, nextAction, savedNumbers } from '../lib/dealPacket';
 import { investorProfile } from '../lib/myPlan';
 import { capMisses, capText, dscrText, refiValueWords, rentVerdict } from '../lib/holdCalc';
-import { finishedDeal, liveIn, soldOf, stageLabel, stageOf, setDealStage } from '../lib/dealStage';
+import { dealNextTask, finishedDeal, liveIn, soldOf, stageLabel, stageOf, setDealStage } from '../lib/dealStage';
 import AdSpot from './AdSpot';
 
 function DealCard({ d, p, loading, known }: { d: SavedDeal; p: Property | undefined; loading: boolean; known: boolean }) {
@@ -268,7 +268,8 @@ export default function DealsPage() {
         <section className="analyzed-deals" aria-labelledby="analyzed-head">
           <h2 id="analyzed-head">Deals you’ve analyzed</h2>
           <ul className="deal-list">
-            {analyzed.map((d) => {
+            {/* Deadlines within a week first, then deals in progress, then finished or passed ones. */}
+            {[...analyzed].map((d, i) => ({ d, i, r: stageOf(d) === 'passed' || finishedDeal(d) ? 2 : dealNextTask(d).urgent ? 0 : 1 })).sort((a, b) => a.r - b.r || a.i - b.i).map(({ d }) => {
               const k = SALE_KINDS.find((x) => x.key === d.kind)!;
               const all = checklistFor(d, { liveIn: liveIn(d) }).flatMap((g) => g.items);
               const done = all.filter((i) => d.done.includes(i.id)).length;

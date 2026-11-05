@@ -328,7 +328,7 @@ it('asks whether you won once sale day has passed, ahead of later dates, and cou
   const hoa: Deal = { ...deal, id: 'dh6', state: 'NV', county: 'Washoe', kind: 'hoa', plan: 'rent', stage: 'offer' };
   const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'HOA agent', resolved: true }, { when: '2026-10-08', what: 'Certificate of sale recorded', who: 'HOA agent' }] };
   const t = dealNextTask(hoa, p, now, 'offer');
-  expect(t.label).toMatch(/Sale day has passed: did you win/);
+  expect(t.label).toMatch(/Sale day has passed for 123 Main St: did you win\?/);
   expect(t.advance?.stage).toBe('contract');
   // Before the sale, a post-sale row isn't a reminder.
   const before = { ...EMPTY_PACKET, dates: [{ when: '2026-10-08', what: 'Certificate of sale recorded', who: 'HOA agent' }] };
@@ -360,7 +360,7 @@ it('round 4: researching past sale day, two answers, deed ends the redemption re
   const hoa: Deal = { ...deal, id: 'dh9', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip' };
   const past = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'HOA agent' }] };
   const r = dealNextTask(hoa, past, now, 'researching');
-  expect(r.label).toMatch(/did you bid and win/);
+  expect(r.label).toMatch(/: did you win\?$/);
   expect(r.advance2?.stage).toBe('passed');
   expect(dealNextTask(hoa, past, now, 'offer').advance2?.stage).toBe('passed');
   // A future sale day ticked handled isn't over.
