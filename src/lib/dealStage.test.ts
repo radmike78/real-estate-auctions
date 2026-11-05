@@ -1003,8 +1003,12 @@ describe('Nevada round 4 flow', () => {
 
   it('round 13 flow: paid at the win: no overdue payment; a typed bid can be marked; trustee hint keeps the 90 days', async () => {
     const hoa = { ...nvFlip, kind: 'hoa' as const };
+    // The pre-sale "funds ready" tick isn't payment: the reminder stays until the payment is marked.
     saveLog('analyzed:f1', cleanLog({ rows: { terms: { done: true } } }));
-    const pp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'A', resolved: true }, { when: '2026-09-01', what: 'Payment deadline', who: 'Me' }] };
+    const unpaid = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'A', resolved: true }, { when: '2026-09-01', what: 'Payment deadline', who: 'Me' }] };
+    expect(dealNextTask(hoa, unpaid, now, 'contract').label).toMatch(/Overdue by .* Payment deadline/);
+    const pp = { ...EMPTY_PACKET, dates: [unpaid.dates[0], { ...unpaid.dates[1], resolved: true }] };
+    savePacket('analyzed:f1', pp);
     expect(dealNextTask(hoa, pp, now, 'contract').label).not.toMatch(/Overdue by .* Payment deadline/);
     expect(stageTasks(hoa, 'contract', pp, now).find((x) => x.key === 'dates')!.label).toBe('Put 2210 Mesa Verde Ln’s recording date on its calendar');
     saveLog('analyzed:f1', cleanLog({ rows: {} }));
@@ -1036,14 +1040,37 @@ describe('Nevada round 4 flow', () => {
     expect(ownNumbers(loadDeals()[0])).toBe(false);
     // A paid win: the undated payment row doesn't block the calendar.
     const hoa = { ...nvFlip, kind: 'hoa' as const };
-    saveLog('analyzed:f1', cleanLog({ rows: { terms: { done: true } } }));
-    const pp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'A', resolved: true }, { when: '', what: 'Payment deadline', who: '' }] };
+    const pp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'A', resolved: true }, { when: '', what: 'Payment deadline', who: '', resolved: true }] };
+    savePacket('analyzed:f1', pp);
     expect(forCalendar(hoa, pp, 'contract').dates.some((x) => x.what === 'Payment deadline')).toBe(false);
     saveLog('analyzed:f1', cleanLog({ rows: {} }));
     // A void tax sale at Owned: the hint says void.
     const tax = { ...nvFlip, kind: 'taxSale' as const };
     savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }] });
     expect(stageHint('owned', tax)).toMatch(/^The Treasurer said the sale is void/);
+  });
+
+  it('round 14 code: paying is marked by its own answer; void labels; refund done; Feb 29', async () => {
+    const { packetSections, redemptionEndFrom } = await import('./dealPacket').then(async (m) => ({ ...m, ...(await import('./dealStage')) }));
+    // The pay task's own answer marks the payment row.
+    const pay = stageTasks(nvFlip, 'contract', EMPTY_PACKET, now).find((x) => x.key === 'ev-terms')!;
+    expect(pay.tick).toMatchObject({ label: 'I paid: mark it handled', row: 'Payment deadline' });
+    expect(pay.done).toBe(false);
+    saveLog('analyzed:f1', cleanLog({ rows: { terms: { done: true } } }));
+    expect(stageTasks(nvFlip, 'contract', EMPTY_PACKET, now).find((x) => x.key === 'ev-terms')!.done).toBe(false);
+    saveLog('analyzed:f1', cleanLog({ rows: {} }));
+    // A void sale's label, and the refund received.
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    const vd = { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }, { when: '2026-10-06', what: 'Refund received from the Treasurer', who: 'The county treasurer', resolved: true }] };
+    savePacket('analyzed:f1', vd);
+    expect(stageLabel('owned', tax)).toBe('Void: refund due');
+    expect(stageLabel('passed', tax)).not.toBe('Void: refund due');
+    saveDeals([{ ...tax, stage: 'passed' }]);
+    expect(packetSections({ ...tax, stage: 'passed' }, vd, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/The refund is received: nothing else is due\./);
+    expect(stageTasks(tax, 'owned', vd, now).map((x) => x.key)).not.toContain('list');
+    // A sheriff sale on Feb 29: a year later is Feb 28.
+    const court = { ...nvFlip, kind: 'court' as const };
+    expect(redemptionEndFrom(court, { ...EMPTY_PACKET, dates: [{ when: '2028-02-29', what: 'Sale day', who: 'S', resolved: true }] })).toBe('2029-02-28');
   });
 
   it('says so when the deed row is ticked at a win', () => {

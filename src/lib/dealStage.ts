@@ -135,7 +135,7 @@ const redemptionEnd = (d: Pick<Deal, 'kind' | 'state'> & { id?: string; plan?: D
   const sd = p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when;
   if (!sd || !(d.kind === 'irs' || (d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court')))) return '';
   const t = new Date(`${sd}T12:00:00`);
-  if (d.kind === 'court') t.setFullYear(t.getFullYear() + 1); else t.setDate(t.getDate() + (d.kind === 'hoa' ? 60 : 180));
+  if (d.kind === 'court') { const m = t.getMonth(); t.setFullYear(t.getFullYear() + 1); if (t.getMonth() !== m) t.setDate(0); } else t.setDate(t.getDate() + (d.kind === 'hoa' ? 60 : 180));
   return localDay(t);
 };
 /** A deal's dated "Challenge window ends" row. */
@@ -149,7 +149,7 @@ export const WON_BID_ROW = 'Winning bid entered in Analyze';
 /** The packet as the calendar review sees it: a paid win's undated payment row is behind you. */
 export const forCalendar = (d: { id?: string; kind: Deal['kind']; state?: Deal['state']; plan?: Deal['plan'] }, p: PacketData, stage: string): PacketData => (stage === 'contract' && wayOf(d) !== 'offer' && paidAtWin(d) ? { ...p, dates: p.dates.filter((x) => !(sameEvent(x.what, 'Payment deadline') && !x.when)) } : p);
 /** At a won auction, the payment is made (its evidence ticked, or its row handled). */
-export const paidAtWin = (d: { id?: string }) => !!d.id && (!!loadLog(`analyzed:${d.id}`).rows.terms?.done || loadPacket(`analyzed:${d.id}`).dates.some((x) => sameEvent(x.what, 'Payment deadline') && !!x.resolved));
+export const paidAtWin = (d: { id?: string }) => !!d.id && loadPacket(`analyzed:${d.id}`).dates.some((x) => sameEvent(x.what, 'Payment deadline') && !!x.resolved);
 /** A Nevada tax sale's SID payoff after its 20 days: 'late' (no answer from the Treasurer yet), 'void', or ''. */
 export const sidState = (d: { id?: string; state?: Deal['state']; kind: Deal['kind'] }): '' | 'late' | 'void' => {
   if (!d.id || d.state !== 'NV' || d.kind !== 'taxSale') return '';
@@ -183,6 +183,7 @@ export const deedInHand = (d: { kind: Deal['kind']; state?: Deal['state']; id?: 
 /** The stage's name for this kind of sale (you make an offer on a listing, but bid at an auction) and plan. */
 export function stageLabel(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Deal['plan']; state?: Deal['state']; id?: string }): string {
   const w = wayOf(d);
+  if (stage !== 'passed' && sidState(d) === 'void') return 'Void: refund due';
   switch (stage) {
     case 'researching': return 'Researching';
     case 'offer': return w === 'offer' ? 'Preparing an offer' : w === 'lien' && d.state === 'NV' ? 'Preparing for the sale' : 'Preparing to bid';
@@ -250,7 +251,7 @@ export function setDealStage(id: string, stage: DealStage) {
   try {
     // The deal open in Analyze is kept separately: change its copy too, so it doesn't write the old stage back.
     const cur = JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as Deal | null;
-    if (cur && cur.id === id) localStorage.setItem(CURRENT_KEY, JSON.stringify({ ...cur, stage }));
+    if (cur && cur.id === id) { const st = loadDeals().find((x) => x.id === id); localStorage.setItem(CURRENT_KEY, JSON.stringify({ ...cur, stage, ...(st?.home ? { home: st.home, homeFrom: st.homeFrom } : {}) })); }
   } catch {
     /* storage unavailable */
   }
@@ -376,6 +377,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       doneLabel: 'Calculated: verify the inputs',
     }));
   };
+  // Paying at a win: done once the payment is marked (its row handled), not by the pre-sale "funds ready" tick.
+  const payTask = (label: string, produces: string) => out.push(task({ key: 'ev-terms', label, produces, href: packetHref(d, 'dates'), tick: { label: 'I paid: mark it handled', row: 'Payment deadline', who: 'Me' }, support: [L.guides], done: p.dates.some((x) => sameEvent(x.what, 'Payment deadline') && !!x.resolved) }));
   const area = (k: string, label: string, produces: string, support: Support[] = [], also = false) => { const t = areasFor(d.kind).find((x) => x.key === k)?.title; out.push(task({ key: `ev-${k}`, label, produces: t ? `${produces} (tick “${t}”)` : produces, href: packetHref(d, 'evidence'), support, done: ev(k) || also })); };
   const fit = () => out.push(task({ key: 'fit', label: `Check ${n} against your buy box`, produces: 'a fits or doesn’t-fit call with the reason, in its deal packet', href: packetHref(d, 'plan'), support: [L.buyBox], done: !!(p.fit && p.fitWhy.trim()) }));
   const decide = () => out.push(task({ key: 'decide', label: `Decide on ${n}: pass, or go on to ${w === 'offer' ? 'an offer' : w === 'lien' && d.state === 'NV' ? 'the sale' : 'bidding'}`, produces: 'your decision and the reason, recorded in its evidence log', href: packetHref(d, 'decision'), support: [L.walkAway], done: log.gate === 'pass' || log.gate === 'proceed' }));
@@ -466,7 +469,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     } else {
       // California homes of 1–4 units: a trustee-sale win isn't final until the eligible-bidder windows close (Civil Code 2924m).
       const ca2924m = d.kind === 'trustee' && d.state === 'CA';
-      area('terms', `Pay for ${n} as the sale requires`, w === 'lien' ? 'the receipt, and the certificate you’re owed, in its evidence log' : d.state === 'NV' && d.kind === 'trustee' ? 'the receipt, and the trustee’s deed you’re owed, in its evidence log' : d.state === 'NV' && d.kind === 'taxSale' ? 'the receipt, and the Treasurer’s deed you’re owed, in its evidence log' : certificateFirst(d) ? 'the receipt, and the certificate of sale you’re owed, in its evidence log' : 'the receipt, and the deed or certificate you’re owed, in its evidence log', [L.guides], p.dates.some((x) => sameDate(x.what, 'Payment deadline') && !!x.resolved));
+      payTask(`Pay for ${n} as the sale requires`, w === 'lien' ? 'the receipt, and the certificate you’re owed, in its evidence log' : d.state === 'NV' && d.kind === 'trustee' ? 'the receipt, and the trustee’s deed you’re owed, in its evidence log' : d.state === 'NV' && d.kind === 'taxSale' ? 'the receipt, and the Treasurer’s deed you’re owed, in its evidence log' : certificateFirst(d) ? 'the receipt, and the certificate of sale you’re owed, in its evidence log' : 'the receipt, and the deed or certificate you’re owed, in its evidence log');
       if (d.state === 'NV' && d.kind === 'taxSale') out.push(task({ key: 'sid-affidavit', ...(sidDeadline(p) && sidDeadline(p) < localDay(now) && !(p.dates.some((x) => (sameDate(x.what, 'SID certificate payoff') && (!!x.when || !!x.resolved)) || sameDate(x.what, NO_SID_ROW))) ? { days: -1 } : {}), label: p.dates.some((x) => (sameDate(x.what, 'SID certificate payoff') && (!!x.when || !!x.resolved)) || sameDate(x.what, NO_SID_ROW)) ? `Asked the Treasurer about an SID affidavit for ${n}` : sidDeadline(p) && sidDeadline(p) < localDay(now) ? `The 20 days for any SID payoff on ${n} ended ${prettyDay(sidDeadline(p))}: ask the Treasurer today whether a city or county filed an SID affidavit` : `Ask the Treasurer today whether a city or county filed an SID affidavit for ${n}`, produces: sidDeadline(p) && sidDeadline(p) < localDay(now) ? 'a written yes or no. If one was filed and it wasn’t paid by then, the sale is void and the Treasurer may keep up to 10% of what you paid (NRS 361.595(6)); if you paid it, enter the payoff’s date in Key dates and mark it handled' : `a written yes or no. If yes, the amount owed, paid to that city or county by ${sidDeadline(p) ? prettyDay(sidDeadline(p)) : 'the 20th day after the sale'}${sidDeadline(p) ? ' (20 days after the sale)' : ''}, or the sale is void (NRS 361.595(6)), with its date in Key dates`, href: packetHref(d, 'dates'), tick: { label: 'The Treasurer confirmed no SID affidavit', row: NO_SID_ROW, who: 'The county treasurer', drops: 'SID certificate payoff' }, ...(sidDeadline(p) && sidDeadline(p) < localDay(now) ? { undo: { label: 'An affidavit was filed and I didn’t pay it in time: the sale is void', removeRow: SID_VOID_ROW, addRow: { when: localDay(now), what: SID_VOID_ROW, who: 'The county treasurer', resolved: true } } } : {}), support: [L.guides], done: p.dates.some((x) => (sameDate(x.what, 'SID certificate payoff') && (!!x.when || !!x.resolved)) || sameDate(x.what, NO_SID_ROW) || sameDate(x.what, SID_VOID_ROW)) }));
       out.push(...sidTasks(d, p, now, n));
       if (d.state === 'NV' && d.kind === 'taxSale' && p.dates.some((x) => sameDate(x.what, SID_VOID_ROW))) return out;
@@ -554,6 +557,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
   }
 
   if (stage === 'owned') {
+    if (d.state === 'NV' && d.kind === 'taxSale') { const st = sidTasks(d, p, now, n).filter((t) => !t.done); if (st.length) { out.push(...st); return out; } }
     if (w === 'lien') {
       if (d.state === 'NV' && redeemedIn(p)) { out.push(lienPayoff(d, p)); return out; }
       out.push(task({ key: 'hold', label: `Track ${n}’s payoff, interest and later taxes`, produces: 'an up-to-date record of what you’re owed', href: stepHref('c-hold'), support: [L.guides], ...(d.state === 'NV' ? { advance2: lienPaidButton(d, stage) } : {}), done: stepDone('c-hold') }));

@@ -628,9 +628,9 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         {offer && ownDeal && asksHome({ ...ownDeal, plan: 'rent' }) && (
           <fieldset className="packet-fit">
             <legend>Will you live in this property?</legend>
-            {!ownDeal.home && <p className="muted small">From your plan: {livesHere ? 'a home you’ll live in' : 'a rental'}. Confirm it for this property.</p>}
-            <label className="check"><input type="radio" name={`home-${ownDeal.id}`} checked={ownDeal.home === 'live'} onChange={() => { setDealHome(ownDeal.id, 'live'); bumpHome((n) => n + 1); }} /> Yes, it’s my home</label>
-            <label className="check"><input type="radio" name={`home-${ownDeal.id}`} checked={ownDeal.home === 'rent'} onChange={() => { setDealHome(ownDeal.id, 'rent'); bumpHome((n) => n + 1); }} /> No, it’s a rental</label>
+            {(!ownDeal.home || ownDeal.homeFrom === 'plan') && <p className="muted small">From your plan: {livesHere ? 'a home you’ll live in' : 'a rental'}. Confirm it for this property.</p>}
+            <label className="check"><input type="radio" name={`home-${ownDeal.id}`} checked={ownDeal.home === 'live' && ownDeal.homeFrom !== 'plan'} onChange={() => { setDealHome(ownDeal.id, 'live'); bumpHome((n) => n + 1); }} /> Yes, it’s my home</label>
+            <label className="check"><input type="radio" name={`home-${ownDeal.id}`} checked={ownDeal.home === 'rent' && ownDeal.homeFrom !== 'plan'} onChange={() => { setDealHome(ownDeal.id, 'rent'); bumpHome((n) => n + 1); }} /> No, it’s a rental</label>
           </fieldset>
         )}
         {livesHere && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}

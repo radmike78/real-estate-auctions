@@ -318,8 +318,11 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         const list = storedDeals();
         const stage = list.find((d) => d.id === deal.id)?.stage ?? deal.stage;
         // So is "Will you live in this property?" (answered in Buy and hold or the deal packet).
-        const home = list.find((d) => d.id === deal.id)?.home ?? deal.home;
-        const next = list.map((d) => (d.id === deal.id ? { ...deal, ...(stage ? { stage } : {}), ...(home ? { home } : {}) } : d));
+        const stored = list.find((d) => d.id === deal.id);
+        const home = stored?.home ?? deal.home;
+        const homeFrom = stored?.home ? stored.homeFrom : deal.homeFrom;
+        const mine = (): Deal => { const { home: _h, homeFrom: _f, ...rest } = deal; return { ...rest, ...(stage ? { stage } : {}), ...(home ? { home, ...(homeFrom ? { homeFrom } : {}) } : {}) }; };
+        const next = list.map((d) => (d.id === deal.id ? mine() : d));
         saveDeals(next);
         return next;
       });
