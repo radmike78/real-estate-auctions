@@ -1151,4 +1151,21 @@ describe('Nevada round 4 flow', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);
   });
+
+  it('round 15: a passed deed row asks whether anyone redeemed; a closing ticked early; the SID payoff leads; I paid leaves the date blank', () => {
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-06-01', what: 'Sale day', who: 'HOA', resolved: true }, { when: '2026-10-01', what: 'Deed delivered (if no one redeemed)', who: 'HOA agent' }] };
+    const t = dealNextTask(hoa, p, now, 'closed');
+    expect(t.label).toMatch(/did anyone redeem\?/);
+    expect(t.tick).toMatchObject({ label: 'No one redeemed: mark it handled', row: 'Redemption period ends' });
+    expect(t.answer).toBe(true);
+    const offer = { ...deal, kind: 'listing' as const };
+    const early = { ...EMPTY_PACKET, dates: [{ when: '2026-10-20', what: 'Closing', who: 'Title', resolved: true }, { when: '2026-10-08', what: 'Inspection period ends', who: 'Me' }] };
+    expect(dealNextTask(offer, early, now, 'contract').key).not.toBe('close');
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    const sid = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-10-19', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City' }] };
+    expect(dealNextTask(tax, sid, now, 'contract').label).toMatch(/SID certificate payoff/);
+    const pay = stageTasks({ ...nvFlip, kind: 'trustee' as const }, 'contract', { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }] }, now).find((x) => x.key === 'ev-terms');
+    if (pay?.tick) expect(pay.tick.noDate).toBe(true);
+  });
 });

@@ -36,9 +36,9 @@ export function Tile(props: { href: string; title: string; summary: ReactNode; i
 function Body({ s, titled = false, id }: { s: DrillSection; titled?: boolean; /** The open section: its key, so a link to it can take focus there. */ id?: string }) {
   if (s.bare) return <div className="drill-bare" id={id}>{s.content()}</div>;
   return (
-    <section className="drill-section" id={id}>
-      {/* When the page title already names the open section, don't show the name a second time. */}
-      <h2 className={titled ? 'sr-only' : undefined}>{s.title}</h2>
+    <section className="drill-section" id={id} aria-label={titled ? s.title : undefined}>
+      {/* When the page title (the h1) already names the open section, don't repeat it as a heading. */}
+      {!titled && <h2>{s.title}</h2>}
       {s.content()}
     </section>
   );

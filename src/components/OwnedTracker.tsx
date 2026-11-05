@@ -75,6 +75,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const [month, setMonth] = useState(() => { const t = new Date(); const last = new Date(t.getFullYear(), t.getMonth() - 1, 1); const lm = `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, '0')}`; const b = o?.boughtOn?.slice(0, 7) ?? ''; return b && lm < b ? b : lm; });
   // (A flip collects no rent: it starts at 0.)
   const [rent, setRent] = useState(deal.plan === 'flip' ? '0' : '');
+  // Tracking just started (or the purchase date moved later): the month can't be before the purchase.
+  useEffect(() => { const b = o?.boughtOn?.slice(0, 7); if (b && month < b) setMonth(b); }, [o?.boughtOn]);
   const [focusBox, setFocusBox] = useState<'rent' | 'costs' | null>(null);
   const [costs, setCosts] = useState('');
   const [note, setNote] = useState('');

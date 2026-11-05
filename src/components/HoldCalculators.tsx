@@ -367,7 +367,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
           {!(livingThere && !(v.monthlyRent > 0)) && <tr className={`sum${a.noi < 0 ? ' neg' : ''}`}><th scope="row">Net operating income (NOI)</th><td>{a.noi < 0 ? `−${fmtMoney(Math.round(-a.noi / 12))}` : mo(a.noi)}</td></tr>}
           {!(livingThere && !(v.monthlyRent > 0)) && <tr><th scope="row">Reserves for big replacements ({v.capexPct}%)</th><td>{neg(a.reserves)}</td></tr>}
           <tr><th scope="row">Debt service: the loan payment{a.debtService > 0 ? '' : ' (no loan)'}</th><td>{neg(a.debtService)}</td></tr>
-          <tr className={`sum${a.cashFlow < 0 ? ' neg' : ''}`}><th scope="row">{livingThere && !(v.monthlyRent > 0) ? 'What living there costs each month' : 'Cash flow'}</th><td>{a.cashFlow < 0 ? `−${fmtMoney(Math.round(-a.cashFlow / 12))}` : mo(a.cashFlow)}</td></tr>
+          <tr className={`sum${a.cashFlow < 0 ? ' neg' : ''}`}><th scope="row">{livingThere && !(v.monthlyRent > 0) ? 'What living there costs each month' : 'Cash flow'}</th><td>{livingThere && !(v.monthlyRent > 0) ? fmtMoney(Math.round(-a.cashFlow / 12)) : a.cashFlow < 0 ? `−${fmtMoney(Math.round(-a.cashFlow / 12))}` : mo(a.cashFlow)}</td></tr>
           {livingThere && !(v.monthlyRent > 0) && <tr><th scope="row">Upkeep you budget yourself (not counted above): about 1% of the price a year*</th><td>{`about ${fmtMoney(Math.round(price * 0.01 / 12))}`}</td></tr>}
         </tbody>
       </table>
