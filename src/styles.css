@@ -2736,6 +2736,9 @@ cite.cite { font-style: normal; font-size: max(0.82em, 15px); color: var(--muted
 .packet-next .packet-next-head { font-size: 1.05rem; margin: 0; padding: 0; border: 0; background: none; }
 .packet-next a, .packet-next .linkish { display: inline-flex; align-items: center; min-height: 44px; }
 .deal-actions .btn { white-space: nowrap; }
+/* A saved deal's buttons: one column of equal widths on every card. */
+.deal-card .deal-actions { flex-direction: column; flex-wrap: nowrap; align-items: stretch; margin-top: 0; }
+.deal-card .deal-actions .btn { text-align: center; justify-content: center; }
 .packet-next-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .owned-sold-head { margin: 20px 0 8px; }
 .packet-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }

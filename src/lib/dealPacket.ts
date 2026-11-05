@@ -106,11 +106,22 @@ const CONTRACT_ROWS = ['Offer accepted', 'Acceptance', 'Contract signed', 'Earne
 /** The most dates a packet keeps. */
 export const MAX_DATES = 60;
 /** A Nevada trustee sale's 90-day limit (NRS 107.080(6)) still ahead of the challenge window's own end, and of today. */
-export const challenge90Ahead = (p: PacketData, now: Date): string => {
+/** A Nevada trustee sale's 90-day limit for anyone not properly notified (NRS 107.080(6)): 90 days after the sale; '' without a sale day. */
+export const sale90 = (p: PacketData): string => {
   const sd = p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when;
   if (!sd) return '';
   const t = new Date(`${sd}T12:00:00`); t.setDate(t.getDate() + 90);
-  const s90 = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+  return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+};
+/** The ended challenge window's next step and answer: once the 90-day limit is over too, name its end instead of asking whether it still runs. */
+export const challengeEnded = (p: PacketData, now: Date, then: string, tick?: string): { then: string; tick?: string } => {
+  if (challenge90Ahead(p, now)) return { then, tick };
+  const s90 = sale90(p);
+  return s90 ? { then: `ask your title company or attorney whether any suit was filed in time. The 90-day limit for anyone not properly notified (NRS 107.080(6)) ended ${prettyDay(s90)}. If none was filed, mark it handled`, tick: 'No suit was filed: mark it handled' } : { then: then.replace('If it does, move the end date; if not, mark it handled', 'If none was filed, mark it handled'), tick };
+};
+export const challenge90Ahead = (p: PacketData, now: Date): string => {
+  const s90 = sale90(p);
+  if (!s90) return '';
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   return s90 > (p.dates.find((x) => sameDate(x.what, 'Challenge window ends'))?.when ?? '') && s90 >= today ? s90 : '';
 };
@@ -744,7 +755,7 @@ export function flipSaleLine(d: Deal): string | null {
   const i = isOffer(d) ? offerInputs(saved) : saved;
   const proposed = proposedPriceOf(i);
   const planned = i.exitValue > 0 ? ` (you planned a ${money(i.exitValue)} resale)` : '';
-  if (!proposed || proposed.source !== 'yours') return `${head}${planned}. Type the price you paid in “Check ${isOffer(d) ? 'an offer' : 'a bid'}” under Fix and sell (Analyze) to see your rough profit; keep the closing statement for your taxes.`;
+  if (!proposed || proposed.source !== 'yours') return `${head}${planned}. Type the price you paid in “Check ${isOffer(d) ? 'an offer' : 'a bid'}” under Fix and flip (fix and sell) in Analyze to see your rough profit; keep the closing statement for your taxes.`;
   const c = costsAtBid(i, proposed.price);
   const buy = c.premium + c.transferTax + c.survivingLiens + c.titleLegal + c.possession;
   const o = loadOwned()[d.id];
@@ -858,7 +869,13 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const closingDone = stageOf(d) === 'contract' && isOffer(d) && p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved);
   const nd = stageOf(d) === 'passed' || finishedDeal(d) || closingDone ? null : nextDate(remindable(capSid(pk, d), now, early, behindStage(d, stageOf(d))), now);
   // Rows the stage has put behind you read "passed", not "open" (the sale day once won; the offer once accepted).
-  const pastRow = (what: string) => !['researching', 'offer'].includes(stageOf(d)) && ['Sale day', 'Bidder registration', 'Registration', 'Offer accepted', 'Acceptance', 'Contract signed'].some((n) => sameDate(what, n));
+  const behind = behindStage(d, stageOf(d));
+  const localDayOf = (t: Date) => `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+  const pastRow = (x: { what: string; when: string }) => !['researching', 'offer'].includes(stageOf(d)) && (['Sale day', 'Bidder registration', 'Registration', 'Offer accepted', 'Acceptance', 'Contract signed'].some((n) => sameDate(x.what, n)) || behind.some((n) => sameDate(x.what, n)) || (sameDate(x.what, 'Approval notice received') && !!x.when && x.when <= localDayOf(now)));
+  // UX-2: an SID payoff dated after its 20-day deadline says so on its own row.
+  const sidDl = d.state === 'NV' && d.kind === 'taxSale' ? sidDeadline(p) : '';
+  // UX-3: nothing is due, but the contract still has undated rows (a short sale's, once the lender approves): name them.
+  const toAdd = stageOf(d) === 'contract' && isOffer(d) && !closingDone ? calendarRows(p, 'contract').filter((x) => !x.when && !x.resolved && x.what.trim()) : [];
   const openAfter = early && p.dates.some((x) => x.when && !x.resolved && afterSale(x.what));
   const dated = pk.dates.filter((x) => x.when);
   const undatedDone = p.dates.filter((x) => !x.when && x.resolved && x.what.trim());
@@ -868,7 +885,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     // (A deal you passed on, or that was redeemed and repaid, has no stage left to review its calendar for.)
     status: calendarComplete(p, stageOf(d)) || (stageOf(d) === 'passed' && calendarReady(p, 'passed')) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length || undatedDone.length
-      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${prettyDay(x.when)}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : pastRow(x.what) ? ' — passed' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days, d.kind) ? `${windowEnded(nd.what, -nd.days, d.kind)!.short} (${d.state === 'NV' && d.kind === 'trustee' && !challenge90Ahead(p, now) ? windowEnded(nd.what, -nd.days, d.kind)!.then.replace('If it does, move the end date; if not, mark it handled', 'If none was filed, mark it handled') : windowEnded(nd.what, -nd.days, d.kind)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}${nd && sameDate(nd.what, 'SID certificate payoff') && p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && x.when > nd.when) ? ` (the 20-day deadline, ${prettyDay(nd.when)}; your date is later)` : ''}${''}` : (closingDone ? 'Next: the closing is marked handled: mark the deal closed (“It closed”).' : openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
+      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${prettyDay(x.when)}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : pastRow(x) ? ' — passed' : sidDl && sameDate(x.what, 'SID certificate payoff') && x.when > sidDl ? ' — open, after the 20-day deadline' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days, d.kind) ? `${windowEnded(nd.what, -nd.days, d.kind)!.short} (${d.state === 'NV' && d.kind === 'trustee' && sameDate(nd.what, 'Challenge window ends') ? challengeEnded(p, now, windowEnded(nd.what, -nd.days, d.kind)!.then).then : windowEnded(nd.what, -nd.days, d.kind)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}${nd && sameDate(nd.what, 'SID certificate payoff') && p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && x.when > nd.when) ? ` (the 20-day deadline, ${prettyDay(nd.when)}; your date is later)` : ''}${''}` : (closingDone ? 'Next: the closing is marked handled: mark the deal closed (“It closed”).' : openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : toAdd.length ? `Still to add: the date${toAdd.length === 1 ? '' : 's'} for ${toAdd.map((x) => x.what.replace(/\s*\([^)]*\)$/, '')).join('; ')}.` : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
       : p.dates.length ? [`Fill in each date from the ${offer ? 'contract' : 'official notice'}; leave a date marked “(if …)” blank if it doesn’t apply.`] : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' ? 'official notice (the eligible-bidder windows count from the sale day, for homes of 1–4 units)' : d.kind === 'trustee' && d.state === 'NV' ? 'official notice (the challenge window counts from the day the trustee’s deed is recorded)' : d.kind === 'trustee' && d.state === 'TX' ? 'official notice (the rescission window counts from the sale day)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
   });
 

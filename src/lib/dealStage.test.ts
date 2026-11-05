@@ -118,8 +118,7 @@ describe('the next action follows the stage', () => {
     expect(dealNextTask(deal, EMPTY_PACKET, now, 'contract').label).toBe('Send the earnest money for 123 Main St and confirm receipt');
     const t = stageTasks(deal, 'contract', EMPTY_PACKET, now).find((x) => x.key === 'dates')!;
     expect(t.label).toBe('Put 123 Main St’s contract deadlines on its calendar');
-    expect(t.produces).toMatch(/Offer accepted/);
-    expect(t.produces).toMatch(/Option period ends/);
+    expect(t.produces).toMatch(/the date rows under Key dates/);
     expect(stageTasks(deal, 'contract', EMPTY_PACKET, now).some((x) => /option period/.test(x.label))).toBe(true);
     expect(stageTasks({ ...deal, state: 'NV' }, 'contract', EMPTY_PACKET, now).some((x) => /inspection period/.test(x.label))).toBe(true);
   });
@@ -632,6 +631,42 @@ describe('Nevada round 4 flow', () => {
     const { sameEvent } = await import('./dealPacket');
     expect(sameEvent('Closing date', 'Closing')).toBe(true);
     expect(sameEvent('Closing Disclosure received', 'Closing')).toBe(false);
+  });
+
+  it('round 10 UX: a 90-day limit that ended is named; passed rows; the SID row; undated contract rows; a ticked closing; no one redeemed', async () => {
+    const { packetSections } = await import('./dealPacket');
+    // now = Oct 6, 2026. Sale Jul 1 + 90 = Sep 29 (over); the window ended Aug 4.
+    const tr = { ...EMPTY_PACKET, dates: [{ when: '2026-07-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-07-05', what: 'Deed recorded', who: 'Me' }, { when: '2026-08-04', what: 'Challenge window ends', who: 'Me' }] };
+    const t = dealNextTask(nvFlip, tr, now, 'closed');
+    expect(t.label).toMatch(/ended Sep 29, 2026\. If none was filed, mark it handled/);
+    expect(t.label).not.toMatch(/still runs/);
+    expect(t.tick?.label).toBe('No suit was filed: mark it handled');
+    expect(t.redate).toBeUndefined();
+    saveDeals([{ ...nvFlip, stage: 'closed' }]);
+    const tl = packetSections({ ...nvFlip, stage: 'closed' }, tr, now).find((x) => x.key === 'dates')!.lines.join(' | ');
+    expect(tl).toMatch(/Jul 5, 2026: Deed recorded \(Me\) — passed/);
+    expect(tl).toMatch(/ended Sep 29, 2026/);
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    const sid = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-30', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
+    saveDeals([{ ...tax, stage: 'contract' }]);
+    const sl = packetSections({ ...tax, stage: 'contract' }, sid, now).find((x) => x.key === 'dates')!.lines.join(' | ');
+    expect(sl).toMatch(/Nov 30, 2026: SID certificate payoff .* — open, after the 20-day deadline/);
+    expect(sl).toMatch(/the 20-day deadline, Oct 10, 2026; your date is later/);
+    const short = { ...nvFlip, kind: 'short' as const };
+    const sp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Contract signed', who: 'Me' }, { when: '2026-10-02', what: 'Approval notice received (dates count from here)', who: 'Lender' }, { when: '', what: 'Inspection period ends', who: '' }, { when: '', what: 'Closing', who: '' }] };
+    saveDeals([{ ...short, stage: 'contract' }]);
+    const shl = packetSections({ ...short, stage: 'contract' }, sp, now).find((x) => x.key === 'dates')!.lines.join(' | ');
+    expect(shl).toMatch(/Approval notice received \(dates count from here\) \(Lender\) — passed/);
+    expect(shl).toMatch(/Still to add: the dates for Inspection period ends; Closing\./);
+    expect(shl).not.toMatch(/Nothing else is due now/);
+    const listing = { ...nvFlip, kind: 'listing' as const };
+    const lp = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Closing', who: 'Escrow', resolved: true }] };
+    savePacket('analyzed:f1', lp);
+    expect(stageTasks(listing, 'contract', lp, now).find((x) => x.key === 'close')!.label).toBe('The closing is marked handled: mark 2210 Mesa Verde Ln closed');
+    expect(stageHint('contract', listing)).toMatch(/closing is marked handled/);
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-09-30', what: 'Redemption period ends', who: 'A', resolved: true }] });
+    expect(stageHint('closed', hoa)).toMatch(/^No one redeemed: get the deed from the person who conducted the sale/);
   });
 
   it('says so when the deed row is ticked at a win', () => {

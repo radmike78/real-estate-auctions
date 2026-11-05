@@ -95,7 +95,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
     return (
       <>
         <h2 id={`packet-${k}`}>
-          {s.title} {pastSale && RECORD_PARTS.includes(k) && s.status !== 'done' ? <span className="packet-status record">Not recorded</span> : <span className={`packet-status ${s.status}`}>{s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>}
+          {s.title} {pastSale && RECORD_PARTS.includes(k) && s.status !== 'done' ? <span className="packet-status record">Left blank</span> : <span className={`packet-status ${s.status}`}>{s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>}
         </h2>
         {pastSale && RECORD_PARTS.includes(k) && <p className="muted small">From before you bought: kept as your records.</p>}
       </>

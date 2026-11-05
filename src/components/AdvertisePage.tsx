@@ -76,6 +76,7 @@ export default function AdvertisePage() {
         the counties you serve, and your ads show to buyers looking in that state.
         {st ? ` Each line below explains the verification checks in ${stateByCode(st)?.name}.` : ''}
       </p>
+      <p>Who reads it: {st ? `${stateByCode(st)?.name} ` : ''}buyers and investors comparing listed, bank-owned and short-sale homes and official sales, county by county{st === 'NV' ? ', from Clark and Washoe to the rural counties' : ''}. Along the way, they look for the professionals they’ll need.</p>
       <div className="options-grid ad-who">
         {GROUPS.map((g) => (
           <div key={g} className="option-card">
@@ -109,7 +110,6 @@ export default function AdvertisePage() {
       </ol>
 
       <h2>Where your category appears</h2>
-      <p>Who reads it: buyers and investors working through listed, bank-owned and short-sale homes and official sales, county by county, and the professionals they need along the way.</p>
       <p>Spotlight and Mentor Connect advertisers get a Featured ad on their category’s page, after “What to say”, and also show at the placements below for their kind of professional (the ones that are on today). Rotating advertisers take turns in the ad at the top of Your team (not beside a forced sale’s team).</p>
       <p>No ads appear on pages about forced sales (tax, trustee, HOA, sheriff and IRS sales) or lien certificates, or on pages for homeowners and business closures, so an ad is never placed beside owners in distress.</p>
       <div className="table-wrap"><table className="lesson-table where-cats">
