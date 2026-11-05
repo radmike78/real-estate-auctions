@@ -36,6 +36,9 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
           after(el, task.advance2!.stage === 'passed');
         }}>{task.advance2.label}</button>
       )}
+      {task.redate && (
+        <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const r = task.redate!; edit((p) => ({ ...p, dates: p.dates.map((x) => (sameDate(x.what, r.row) ? { ...x, when: r.when, resolved: false } : x)) })); after(el); }}>{task.redate.label}</button>
+      )}
       {task.undo && (
         <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const u = task.undo!; edit((p) => ({ ...p, dates: p.dates.filter((x) => !sameDate(x.what, u.removeRow)) })); after(el); }}>{task.undo.label}</button>
       )}

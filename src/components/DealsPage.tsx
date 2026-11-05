@@ -151,7 +151,7 @@ function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
           ))}
         </tbody>
       </table>
-      <p className="muted">Monthly rent minus costs recorded so far, across all of them: <strong>{signed(total)}</strong>{rows.some((r) => r.o.sold) ? ' (sales not included: each sold property’s packet shows a rough profit against the one you planned)' : ''}. Add each month on the property’s deal packet.</p>
+      <p className="muted">{rows.every((r) => liveIn(r.d)) ? 'Costs minus any rent recorded so far' : 'Monthly rent minus costs recorded so far, across all of them'}: <strong>{signed(total)}</strong>{rows.some((r) => r.o.sold) ? ' (sales not included: each sold property’s packet shows a rough profit against the one you planned)' : ''}. Add each month on the property’s deal packet.</p>
     </section>
   );
 }

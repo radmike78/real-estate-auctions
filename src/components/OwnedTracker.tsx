@@ -145,12 +145,12 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <>
           <dl className="calc-kv">
             <div><dt>Months recorded</dt><dd>{s.months}</dd></div>
-            <div><dt>Actual cash flow, in total</dt><dd>{signed(s.actual)}</dd></div>
+            <div><dt>{liveIn(deal) ? 'What it cost, in total' : 'Actual cash flow, in total'}</dt><dd>{signed(s.actual)}</dd></div>
             <div><dt>Average month</dt><dd>{signed(s.averageMonthly)}</dd></div>
             {flip && budget && <div><dt>Paid so far, against your {fmtMoney(Math.round(budget.total))} budget</dt><dd>{fmtMoney(Math.round(s.costs))} {s.costs > budget.total ? `(${fmtMoney(Math.round(s.costs - budget.total))} over)` : `(${fmtMoney(Math.round(budget.total - s.costs))} left)`}</dd></div>}
             {s.gapMonthly !== null && <div><dt>Against your plan, a month</dt><dd>{signed(s.gapMonthly)} {s.gapMonthly < 0 ? '(behind)' : '(ahead)'}</dd></div>}
           </dl>
-          {s.gapMonthly !== null && s.gapMonthly < -50 && <p className="caution small" role="note">It’s earning less than you planned. Look at which costs ran over, whether the rent matches new leases nearby, and whether your repair savings can carry it. Review it before you buy the next one.</p>}
+          {s.gapMonthly !== null && s.gapMonthly < -50 && <p className="caution small" role="note">{liveIn(deal) ? 'It’s costing more than you planned. Look at which costs ran over and whether your savings can carry it.' : <>It’s earning less than you planned. Look at which costs ran over, whether the rent matches new leases nearby, and whether your repair savings can carry it. Review it before you buy the next one.</>}</p>}
           <table className="lesson-table owned-table">
             <thead><tr><th>Month</th><th>Rent</th><th>Paid</th><th>Cash flow</th><th>Note</th><th><span className="sr-only">Remove</span></th></tr></thead>
             <tbody>

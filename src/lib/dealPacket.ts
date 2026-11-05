@@ -83,7 +83,7 @@ export const calendarRows = (p: PacketData, stage: string) => {
   // A short sale's dates count from the lender's approval: until it's dated, it and the rows after it can wait.
   const approval = p.dates.findIndex((x) => sameDate(x.what, 'Approval notice received'));
   const waiting = approval >= 0 && !p.dates[approval].when;
-  return p.dates.filter((x, i) => x.when || !(LATER.some((n) => sameDate(x.what, n)) || (stage === 'contract' && RECORDED_ROWS.some((n) => sameDate(x.what, n))) || (waiting && i >= approval)));
+  return p.dates.filter((x, i) => x.when || !(LATER.some((n) => sameDate(x.what, n)) || (stage === 'contract' && RECORDED_ROWS.some((n) => sameDate(x.what, n))) || /^(bidder )?registration/i.test(x.what.trim()) || (waiting && i >= approval)));
 };
 /** A row the calendar review lets wait for a later event (filling it in later needs no new review). */
 export const laterRow = (what: string) => LATER.some((n) => sameDate(what, n)) || RECORDED_ROWS.some((n) => sameDate(what, n)) || sameDate(what, 'Redemption money collected');
@@ -93,7 +93,7 @@ export const RECORDED_ROWS = ['Deed recorded', 'Deed or certificate recorded', '
 const WINDOWS: { name: string; what: string; then: (kind?: string) => string; tick?: string }[] = [
   { name: 'Redemption period ends', what: 'the redemption period', tick: 'No one redeemed: mark it handled',
     then: (k) => `ask ${k === 'court' ? 'the sheriff’s civil office' : k === 'hoa' ? 'the HOA’s foreclosure agent' : k === 'irs' ? 'the IRS sale officer' : 'whoever ran the sale'} in writing whether anyone redeemed. If no one did, mark it handled and ask for the deed` },
-  { name: 'Challenge window ends', what: 'the challenge window', tick: 'No suit was filed, and the 90-day limit doesn’t apply: mark it handled', then: () => 'ask your title company or attorney whether any suit was filed, and whether the 90-day limit for anyone not properly notified (NRS 107.080(6)) still runs. If not, mark it handled' },
+  { name: 'Challenge window ends', what: 'the challenge window', tick: 'No suit was filed, and the 90-day limit doesn’t apply: mark it handled', then: () => 'ask your title company or attorney whether any suit was filed, and whether the 90-day limit for anyone not properly notified (NRS 107.080(6)) still runs. If it does, move the end date; if not, mark it handled' },
   { name: 'Recovery-suit window ends', what: 'the recovery-suit window', tick: 'No suit was filed: mark it handled', then: () => 'ask your title company or attorney whether any suit was filed. If not, mark it handled' },
   { name: 'Earliest you may act (unpaid lien)', what: 'the wait before you may act on an unpaid lien', then: () => 'if it’s still unpaid, ask your attorney about your next step, or mark it handled' },
 ];
@@ -363,7 +363,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   // Nevada tax sale (leg.state.nv.us): the treasurer gives a quitclaim deed and records it at the purchaser's expense (NRS
   // 361.595(5), (7)); no action to recover the land lies unless brought within 2 years after its delivery (361.600).
   if (d.kind === 'taxSale' && d.state === 'NV') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),
-    { what: 'SID certificate payoff (if the sale notice lists one)', when: 'Within 20 days after the sale, if a city or county filed notice with the treasurer that the parcel has an unpaid special assessment (SID) certificate of sale (it sold one, or holds one).', who: 'You, with that city or county', todo: 'Pay what the certificate is owed; the treasurer can’t issue your deed until you do.', missed: 'The tax sale is void, and the treasurer may keep up to 10% of what you paid.', why: 'NRS 361.595(6)' },
+    { what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', when: 'Within 20 days after the sale, if a city or county gave the treasurer an affidavit, by 3 business days before the sale, that the parcel has an unpaid special assessment (SID) certificate of sale. Ask the treasurer after the sale.', who: 'You, with that city or county', todo: 'Pay what the certificate is owed; the treasurer can’t issue your deed until you do.', missed: 'The tax sale is void, and the treasurer may keep up to 10% of what you paid.', why: 'NRS 361.595(6)' },
     { what: 'Treasurer’s deed recorded', when: 'The county treasurer records the quitclaim deed at your expense after you pay.', who: 'The county treasurer', todo: 'Get a recorded copy, and insure the property right away.', missed: 'Ask the treasurer when it will be recorded.', why: 'NRS 361.595(5) and (7)' },
     { what: 'Recovery-suit window ends', when: '2 years after the treasurer’s deed is delivered to you.', who: 'The former owner, or anyone claiming the land', todo: 'Ask your title company when it will insure the title; a quiet title action may let you sell sooner.', missed: 'After it, no action to recover the land lies under that law.', why: 'NRS 361.600' }];
   // Nevada (NRS 271.595, leg.state.nv.us): redemption within 2 years with a home or other significant permanent
