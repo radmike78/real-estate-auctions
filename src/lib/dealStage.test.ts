@@ -603,6 +603,20 @@ describe('Nevada round 4 flow', () => {
     expect(behindStage(nvFlip, 'contract')).toContain('Sale day');
   });
 
+  it('round 9 verifier: no "did anyone redeem?" after the deed; the worked-out end in the summary; a capped SID date names the deadline', async () => {
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const deedP = { ...EMPTY_PACKET, dates: [{ when: '2026-08-01', what: 'Sale day', who: 'A', resolved: true }, { when: '2026-10-02', what: 'Deed delivered (if no one redeemed)', who: 'A', resolved: true }] };
+    expect(dealNextTask(hoa, deedP, now, 'closed').label).not.toMatch(/did anyone redeem|ended \d+ days ago/);
+    const { packetSections } = await import('./dealPacket');
+    saveDeals([{ ...hoa, stage: 'closed' }]);
+    const open = { ...EMPTY_PACKET, dates: [{ when: '2026-08-01', what: 'Sale day', who: 'A', resolved: true }] };
+    const lines = packetSections({ ...hoa, stage: 'closed' }, open, now).find((x) => x.key === 'dates')!.lines.join(' | ');
+    expect(lines).toMatch(/Sep 30, 2026: Redemption period ends \(worked out from the sale day; confirm it\) — open/);
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    const sid = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-30', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
+    expect(dealNextTask(tax, sid, now, 'contract').label).toMatch(/The deadline is Oct 10, 2026, 20 days after the sale; your date, Nov 30, 2026, is later/);
+  });
+
   it('says so when the deed row is ticked at a win', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);

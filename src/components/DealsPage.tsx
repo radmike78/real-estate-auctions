@@ -24,7 +24,7 @@ import { dealNumbers } from '../lib/propertyPacket';
 import { flipNeedsRepairs, nextAction, savedNumbers } from '../lib/dealPacket';
 import { investorProfile } from '../lib/myPlan';
 import { capMisses, capText, dscrText, refiValueWords, rentVerdict } from '../lib/holdCalc';
-import { deedInHand, dealNextTask, finishedDeal, prettyDay, liveIn, soldOf, stageLabel, stageOf, setDealStage } from '../lib/dealStage';
+import { redemptionOver, dealNextTask, finishedDeal, prettyDay, liveIn, soldOf, stageLabel, stageOf, setDealStage } from '../lib/dealStage';
 import AdSpot from './AdSpot';
 
 function DealCard({ d, p, loading, known }: { d: SavedDeal; p: Property | undefined; loading: boolean; known: boolean }) {
@@ -143,9 +143,9 @@ function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
           {rows.map(({ d, o, s }) => (
             <tr key={d.id}>
               <td><a href={`#/deals/packet/${d.id}`}>{d.name}</a>{o.sold ? <span className="muted"> · sold {prettyDay(o.sold.on)} for {fmtMoney(o.sold.price)}</span> : null}</td>
-              <td data-label="Bought">{o.boughtOn}</td>
+              <td data-label="Bought">{prettyDay(o.boughtOn)}</td>
               <td data-label="Months recorded">{s.months}</td>
-              <td data-label="Average month">{s.months ? signed(s.averageMonthly) : '—'}</td>
+              <td data-label="Average month">{s.months ? signed(liveIn(d) ? -s.averageMonthly : s.averageMonthly) : '—'}</td>
               <td data-label="Against your plan">{s.gapMonthly === null ? '—' : `${signed(s.gapMonthly)} a month`}</td>
             </tr>
           ))}
@@ -204,7 +204,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash, with the loan (if any) and costs entered in Fix and sell (${bid.cashLimit > 0 ? 'the cash you entered' : 'My plan'}: ${fmtMoney(lim)}).` : '';
     })()}{whatIfSentence}</p>;
     // The redemption wait the price was built on, and a redemption's result at its end (as the packet says).
-    const redeemClause = deedInHand(d) ? '' : bid.redeem && !bid.redeem.who ? whatIf : bid.redeem && !(bid.redeem.price > 0) ? waitOnly : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait${bid.redeem.shortest ? `, shorter than any period the law sets (at least ${shortestRedemptionWords(d, true)})*` : ''} (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? 'your bid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
+    const redeemClause = redemptionOver(d) ? '' : bid.redeem && !bid.redeem.who ? whatIf : bid.redeem && !(bid.redeem.price > 0) ? waitOnly : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait${bid.redeem.shortest ? `, shorter than any period the law sets (at least ${shortestRedemptionWords(d, true)})*` : ''} (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? 'your bid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
     const planCash = investorProfile().investable;
     // The same rule as Fix and sell: no warning once a cash limit is entered there (the price is already capped by it).
     const short = !(bid.cashLimit > 0) && !bid.cashTyped && planCash > 0 && bid.cashPeak > planCash;

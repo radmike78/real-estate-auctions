@@ -17,7 +17,7 @@ import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
-import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, deedInHand } from './dealStage';
+import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -142,7 +142,7 @@ const obj = (x: unknown) => (x && typeof x === 'object' && !Array.isArray(x) ? (
 export function cleanPacket(v: unknown): PacketData {
   const o = obj(v);
   const fit = (['fits', 'no', 'more'] as const).find((f) => f === o.fit) ?? '';
-  const dates = (Array.isArray(o.dates) ? o.dates : []).slice(0, MAX_DATES).map((d) => {
+  const dates = (Array.isArray(o.dates) ? o.dates : []).slice(0, MAX_DATES + 40).map((d) => {
     const r = obj(d);
     const when = str(r.when, 10);
     return { when: DATE.test(when) ? when : '', what: str(r.what, 200), who: str(r.who, 120), ...(r.resolved === true ? { resolved: true } : {}) };
@@ -851,13 +851,16 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
 
   // 3. Key dates
   const early = ['researching', 'offer'].includes(stageOf(d));
-  const nd = stageOf(d) === 'passed' || finishedDeal(d) ? null : nextDate(remindable(capSid(p, d), now, early, behindStage(d, stageOf(d))), now);
+  // A redemption end worked out from the sale day, while its row is blank (and nothing has settled it).
+  const workedEnd = stageOf(d) === 'closed' && !p.dates.some((x) => sameDate(x.what, 'Redemption period ends') && (x.when || x.resolved)) && !p.dates.some((x) => (sameDate(x.what, DEED_AFTER_WAIT) || sameDate(x.what, 'Redemption money collected')) && (x.resolved || sameDate(x.what, 'Redemption money collected'))) ? redemptionEndFrom(d, p) : '';
+  const pk: PacketData = workedEnd ? { ...p, dates: [...p.dates.filter((x) => !(sameDate(x.what, 'Redemption period ends') && !x.when)), { when: workedEnd, what: 'Redemption period ends (worked out from the sale day; confirm it)', who: '' }] } : p;
+  // An offer's closing marked handled: the deal is ready to be marked closed.
+  const closingDone = stageOf(d) === 'contract' && isOffer(d) && p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved);
+  const nd = stageOf(d) === 'passed' || finishedDeal(d) || closingDone ? null : nextDate(remindable(capSid(pk, d), now, early, behindStage(d, stageOf(d))), now);
   // Rows the stage has put behind you read "passed", not "open" (the sale day once won; the offer once accepted).
   const pastRow = (what: string) => !['researching', 'offer'].includes(stageOf(d)) && ['Sale day', 'Bidder registration', 'Registration', 'Offer accepted', 'Acceptance', 'Contract signed'].some((n) => sameDate(what, n));
-  // A redemption end worked out from the sale day, while its row is blank.
-  const workedEnd = stageOf(d) === 'closed' && !p.dates.some((x) => sameDate(x.what, 'Redemption period ends') && x.when) ? redemptionEndFrom(d, p) : '';
   const openAfter = early && p.dates.some((x) => x.when && !x.resolved && afterSale(x.what));
-  const dated = p.dates.filter((x) => x.when);
+  const dated = pk.dates.filter((x) => x.when);
   const undatedDone = p.dates.filter((x) => !x.when && x.resolved && x.what.trim());
   out.push({
     key: 'dates',
@@ -865,7 +868,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     // (A deal you passed on, or that was redeemed and repaid, has no stage left to review its calendar for.)
     status: calendarComplete(p, stageOf(d)) || (stageOf(d) === 'passed' && calendarReady(p, 'passed')) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length || undatedDone.length
-      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${prettyDay(x.when)}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : pastRow(x.what) ? ' — passed' : ' — open'}`), ...(workedEnd ? [`${prettyDay(workedEnd)} (worked out from the sale day; confirm it): Redemption period ends — open`] : []), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days, d.kind) ? `${windowEnded(nd.what, -nd.days, d.kind)!.short} (${d.state === 'NV' && d.kind === 'trustee' && !challenge90Ahead(p, now) ? windowEnded(nd.what, -nd.days, d.kind)!.then.replace('If it does, move the end date; if not, mark it handled', 'If none was filed, mark it handled') : windowEnded(nd.what, -nd.days, d.kind)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : (openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
+      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${prettyDay(x.when)}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : pastRow(x.what) ? ' — passed' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days, d.kind) ? `${windowEnded(nd.what, -nd.days, d.kind)!.short} (${d.state === 'NV' && d.kind === 'trustee' && !challenge90Ahead(p, now) ? windowEnded(nd.what, -nd.days, d.kind)!.then.replace('If it does, move the end date; if not, mark it handled', 'If none was filed, mark it handled') : windowEnded(nd.what, -nd.days, d.kind)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : (closingDone ? 'Next: the closing is marked handled: mark the deal closed (“It closed”).' : openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
       : p.dates.length ? [`Fill in each date from the ${offer ? 'contract' : 'official notice'}; leave a date marked “(if …)” blank if it doesn’t apply.`] : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' ? 'official notice (the eligible-bidder windows count from the sale day, for homes of 1–4 units)' : d.kind === 'trustee' && d.state === 'NV' ? 'official notice (the challenge window counts from the day the trustee’s deed is recorded)' : d.kind === 'trustee' && d.state === 'TX' ? 'official notice (the rescission window counts from the sale day)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
   });
 
@@ -1007,8 +1010,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     if (bid.redeem && !bid.redeem.who) nums.push(`Built on a ${bid.redeem.months}-month wait you typed as a what-if. ${noRedemptionWords(d)} Check the sale terms with the official seller or an attorney.`);
     // Your own wait, under every period the law sets for this sale: said once, with the shortest.
     const shorter = bid?.redeem?.shortest ? ` That’s shorter than any redemption period the law sets for this sale (the shortest is ${shortestRedemptionWords(d, true)}):* the owner can still redeem until it ends.` : '';
-    if (bid?.redeem && bid.redeem.who && !(bid.redeem.price > 0)) nums.push(bid.redeem.shortest ? `Built on ${waitWords(bid.redeem.months)}.${shorter}` : `Built on a ${bid.redeem.months}-month redemption wait: ${bid.redeem.who} can redeem until it ends.`);
-    else if (bid.redeem && bid.redeem.who && !deedInHand(d)) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait.${shorter} If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* on a ${money(x.price)} ${offer ? 'offer' : 'bid'}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
+    if (bid?.redeem && bid.redeem.who && !(bid.redeem.price > 0) && !redemptionOver(d)) nums.push(bid.redeem.shortest ? `Built on ${waitWords(bid.redeem.months)}.${shorter}` : `Built on a ${bid.redeem.months}-month redemption wait: ${bid.redeem.who} can redeem until it ends.`);
+    else if (bid.redeem && bid.redeem.who && !redemptionOver(d)) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait.${shorter} If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* on a ${money(x.price)} ${offer ? 'offer' : 'bid'}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
     const floor = a?.source === 'listed' ? a.price : 0;
     for (const s of bid.stress.slice(1)) {
