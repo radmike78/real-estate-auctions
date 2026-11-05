@@ -17,7 +17,7 @@ import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
-import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver } from './dealStage';
+import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, saleOver } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -79,7 +79,7 @@ const LATER = ['Redemption money collected', 'Challenge window ends', 'Recovery-
 /** The rows this stage's calendar needs filled in: before the sale, only the dates before it; after, all but those
  *  counted from a later event (they can wait for it). */
 export const calendarRows = (p: PacketData, stage: string) => {
-  if (['researching', 'offer'].includes(stage)) return p.dates.filter((x) => !afterSale(x.what) && !CONTRACT_ROWS.some((n) => sameDate(x.what, n)));
+  if (['researching', 'offer'].includes(stage)) return p.dates.filter((x) => !afterSale(x.what) && !CONTRACT_ROWS.some((n) => sameDate(x.what, n)) && !(/^(bidder )?registration/i.test(x.what.trim()) && !x.when && saleOver(p, new Date())));
   // A short sale's dates count from the lender's approval: until it's dated, it and the rows after it can wait.
   const approvalRow = p.dates.find((x) => sameDate(x.what, 'Approval notice received'));
   const waiting = !!approvalRow && !approvalRow.when;
@@ -755,7 +755,7 @@ export function flipSaleLine(d: Deal): string | null {
   const i = isOffer(d) ? offerInputs(saved) : saved;
   const proposed = proposedPriceOf(i);
   const planned = i.exitValue > 0 ? ` (you planned a ${money(i.exitValue)} resale)` : '';
-  if (!proposed || proposed.source !== 'yours') return `${head}${planned}. Type the price you paid in “Check ${isOffer(d) ? 'an offer' : 'a bid'}” under Fix and flip (fix and sell) in Analyze to see your rough profit; keep the closing statement for your taxes.`;
+  if (!proposed || proposed.source !== 'yours') return `${head}${planned}. In Analyze, under Fix and flip (fix and sell), enter the resale value and costs, then the price you paid in “Check ${isOffer(d) ? 'an offer' : 'a bid'}”, to see your rough profit; keep the closing statement for your taxes.`;
   const c = costsAtBid(i, proposed.price);
   const buy = c.premium + c.transferTax + c.survivingLiens + c.titleLegal + c.possession;
   const o = loadOwned()[d.id];
@@ -774,7 +774,7 @@ export function flipBudgetLine(d: Deal): string | null {
   const loan = b.financing > 0
     ? b.price > 0
       ? `, loan interest and points about ${money(b.financing)} ${at}`
-      : `, loan interest and points on the repairs only (about ${money(b.financing)}); enter your price in Fix and sell to include the purchase loan`
+      : `, loan interest and points on the repairs only (about ${money(b.financing)}); enter your price in Fix and flip (fix and sell) to include the purchase loan`
     : '';
   return `Your budget: repairs with contingency ${money(b.repairs)}, holding ${money(b.monthly)} a month for ${b.months} ${b.months === 1 ? 'month' : 'months'} (about ${money(b.holding)})${loan}: ${money(b.total)} in all.`;
 }
@@ -864,10 +864,18 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const early = ['researching', 'offer'].includes(stageOf(d));
   // A redemption end worked out from the sale day, while its row is blank (and nothing has settled it).
   const workedEnd = stageOf(d) === 'closed' && !p.dates.some((x) => sameDate(x.what, 'Redemption period ends') && (x.when || x.resolved)) && !p.dates.some((x) => (sameDate(x.what, DEED_AFTER_WAIT) || sameDate(x.what, 'Redemption money collected')) && (x.resolved || sameDate(x.what, 'Redemption money collected'))) ? redemptionEndFrom(d, p) : '';
-  const pk: PacketData = workedEnd ? { ...p, dates: [...p.dates.filter((x) => !(sameDate(x.what, 'Redemption period ends') && !x.when)), { when: workedEnd, what: 'Redemption period ends (worked out from the sale day; confirm it)', who: '' }] } : p;
+  const pk0: PacketData = workedEnd ? { ...p, dates: [...p.dates.filter((x) => !(sameDate(x.what, 'Redemption period ends') && !x.when)), { when: workedEnd, what: 'Redemption period ends (worked out from the sale day; confirm it)', who: '' }] } : p;
+  // FLOW-1: a Nevada tax sale's SID payoff deadline, worked out from the sale day, until it's dated or the Treasurer says there's no affidavit.
+  const sidWorked = d.state === 'NV' && d.kind === 'taxSale' && stageOf(d) === 'contract' && !p.dates.some((x) => (sameDate(x.what, 'SID certificate payoff') && (x.when || x.resolved)) || sameDate(x.what, 'Treasurer confirmed no SID affidavit')) ? sidDeadline(p) : '';
+  // FLOW-14: a Nevada trustee sale's challenge window, 30 days after the deed was recorded, until its row is dated.
+  const deedOn = d.state === 'NV' && d.kind === 'trustee' && stageOf(d) === 'closed' && !p.dates.some((x) => sameDate(x.what, 'Challenge window ends') && (x.when || x.resolved)) ? p.dates.find((x) => sameDate(x.what, 'Deed recorded') && x.when)?.when ?? '' : '';
+  const winWorked = deedOn ? (() => { const t = new Date(`${deedOn}T12:00:00`); t.setDate(t.getDate() + 30); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })() : '';
+  const pk: PacketData = sidWorked || winWorked ? { ...pk0, dates: [...pk0.dates.filter((x) => !(sidWorked && sameDate(x.what, 'SID certificate payoff') && !x.when) && !(winWorked && sameDate(x.what, 'Challenge window ends') && !x.when)), ...(sidWorked ? [{ when: sidWorked, what: 'SID certificate payoff deadline, if there’s an SID affidavit (worked out from the sale day; confirm it with the Treasurer)', who: '' }] : []), ...(winWorked ? [{ when: winWorked, what: 'Challenge window ends (worked out from the deed’s recording; confirm it with your title company)', who: '' }] : [])] } : pk0;
   // An offer's closing marked handled: the deal is ready to be marked closed.
   const closingDone = stageOf(d) === 'contract' && isOffer(d) && p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved);
-  const nd = stageOf(d) === 'passed' || finishedDeal(d) || closingDone ? null : nextDate(remindable(capSid(pk, d), now, early, behindStage(d, stageOf(d))), now);
+  // FLOW-4: before you win, a sale day that has passed asks "did you win?" (no countdown to the rows after the sale).
+  const saleDone = early && !isOffer(d) && saleOver(p, now);
+  const nd = stageOf(d) === 'passed' || finishedDeal(d) || closingDone || saleDone ? null : nextDate(remindable(capSid(pk, d), now, early, behindStage(d, stageOf(d))), now);
   // Rows the stage has put behind you read "passed", not "open" (the sale day once won; the offer once accepted).
   const behind = behindStage(d, stageOf(d));
   const localDayOf = (t: Date) => `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
@@ -885,7 +893,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     // (A deal you passed on, or that was redeemed and repaid, has no stage left to review its calendar for.)
     status: calendarComplete(p, stageOf(d)) || (stageOf(d) === 'passed' && calendarReady(p, 'passed')) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length || undatedDone.length
-      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${prettyDay(x.when)}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : pastRow(x) ? ' — passed' : sidDl && sameDate(x.what, 'SID certificate payoff') && x.when > sidDl ? ' — open, after the 20-day deadline' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days, d.kind) ? `${windowEnded(nd.what, -nd.days, d.kind)!.short} (${d.state === 'NV' && d.kind === 'trustee' && sameDate(nd.what, 'Challenge window ends') ? challengeEnded(p, now, windowEnded(nd.what, -nd.days, d.kind)!.then).then : windowEnded(nd.what, -nd.days, d.kind)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}${nd && sameDate(nd.what, 'SID certificate payoff') && p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && x.when > nd.when) ? ` (the 20-day deadline, ${prettyDay(nd.when)}; your date is later)` : ''}${''}` : (closingDone ? 'Next: the closing is marked handled: mark the deal closed (“It closed”).' : openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : toAdd.length ? `Still to add: the date${toAdd.length === 1 ? '' : 's'} for ${toAdd.map((x) => x.what.replace(/\s*\([^)]*\)$/, '')).join('; ')}.` : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
+      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${prettyDay(x.when)}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : pastRow(x) ? ' — passed' : sidDl && sameDate(x.what, 'SID certificate payoff') && x.when > sidDl ? ' — open, after the 20-day deadline' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days, d.kind) ? `${windowEnded(nd.what, -nd.days, d.kind)!.short} (${d.state === 'NV' && d.kind === 'trustee' && sameDate(nd.what, 'Challenge window ends') ? challengeEnded(p, now, windowEnded(nd.what, -nd.days, d.kind)!.then).then : windowEnded(nd.what, -nd.days, d.kind)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}${nd && sameDate(nd.what, 'SID certificate payoff') && p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && x.when > nd.when) ? ` (the 20-day deadline, ${prettyDay(nd.when)}; your date is later)` : ''}${''}` : (saleDone ? `Next: the sale day has passed: answer “${d.kind === 'lien' && d.state === 'NV' ? 'were you picked?' : 'did you win?'}” in Your next action.` : closingDone ? 'Next: the closing is marked handled: mark the deal closed (“It closed”).' : openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : toAdd.length ? `Still to add: the date${toAdd.length === 1 ? '' : 's'} for ${toAdd.map((x) => x.what.replace(/\s*\([^)]*\)$/, '')).join('; ')}.` : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
       : p.dates.length ? [`Fill in each date from the ${offer ? 'contract' : 'official notice'}; leave a date marked “(if …)” blank if it doesn’t apply.`] : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' ? 'official notice (the eligible-bidder windows count from the sale day, for homes of 1–4 units)' : d.kind === 'trustee' && d.state === 'NV' ? 'official notice (the challenge window counts from the day the trustee’s deed is recorded)' : d.kind === 'trustee' && d.state === 'TX' ? 'official notice (the rescission window counts from the sale day)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
   });
 
@@ -894,7 +902,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const cash: string[] = [];
   if (offer) {
     cash.push(p.earnest ? `By the contract's deposit deadline: ${money(p.earnest)} earnest money` : 'By the contract’s deposit deadline: earnest money (enter it below)');
-    if (p.optionFee) cash.push(`By the contract's fee deadline, if applicable: ${money(p.optionFee)} option fee, recorded separately from earnest money.`);
+    if (p.optionFee && d.state === 'TX') cash.push(`By the contract's fee deadline, if applicable: ${money(p.optionFee)} option fee, recorded separately from earnest money.`);
     cash.push('A deposit or fee may be credited toward the purchase. Confirm its treatment with your title or escrow professional; do not add an amount twice.');
   }
   else if (p.earnest) cash.push(`Before the sale: ${money(p.earnest)} bidder deposit`);

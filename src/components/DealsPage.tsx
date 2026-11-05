@@ -151,7 +151,7 @@ function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
           ))}
         </tbody>
       </table>
-      <p className="muted">{rows.every((r) => liveIn(r.d)) ? 'What they cost, after any rent, recorded so far' : 'Monthly rent minus costs recorded so far, across all of them'}: <strong>{signed(rows.every((r) => liveIn(r.d)) ? -total : total)}</strong>{rows.some((r) => r.o.sold) ? ' (sales not included: each sold property’s packet shows a rough profit against the one you planned)' : ''}. Add each month on the property’s deal packet.</p>
+      <p className="muted">{rows.every((r) => liveIn(r.d)) ? `What ${rows.length === 1 ? 'it' : 'they'} cost, after any rent, recorded so far` : rows.every((r) => r.d.plan === 'flip') ? 'What you’ve paid in repairs and holding costs, recorded so far' : `Rent minus costs recorded so far${rows.length === 1 ? '' : ', across all of them'}`}: <strong>{signed(rows.every((r) => liveIn(r.d) || r.d.plan === 'flip') ? -total : total)}</strong>{rows.some((r) => r.o.sold) ? ' (sales not included: each sold property’s packet shows a rough profit against the one you planned)' : ''}. Add each month on the property’s deal packet.</p>
     </section>
   );
 }
@@ -295,7 +295,7 @@ export default function DealsPage() {
                       })()}
                       {!d.locationConfirmed && <p className="muted">Its location isn’t confirmed: open it in Analyze and confirm it, so its costs follow its state and county.</p>}
                       {madeReal === d.id && !d.practice && <p className="note" tabIndex={-1} id={`made-real-${d.id}`}>“{d.name}” is now a real deal, so My plan can follow it.</p>}
-                      <p><strong>Next action.</strong> {nextAction(d).text}</p>
+                      <p><strong>Next action.</strong> {nextAction(d).text}{(() => { const t = dealNextTask(d); return t.tick || t.advance || t.advance2 || t.undo || t.redate ? <> <a href={`#/deals/packet/${d.id}`}>{t.answer ? 'Answer it in its deal packet' : 'Mark it in its deal packet'}&nbsp;→</a></> : null; })()}</p>
                     </div>
                     <div className="deal-actions">
                       <a className="btn" href={`#/deals/packet/${d.id}`}>Deal packet&nbsp;→</a>

@@ -669,6 +669,50 @@ describe('Nevada round 4 flow', () => {
     expect(stageHint('closed', hoa)).toMatch(/^No one redeemed: get the deed from the person who conducted the sale/);
   });
 
+  it('round 10 flow: the SID deadline named; pay early; did you win in the summary; lienholder deadline; first week; deed first; worked-out window', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    // now = Oct 6. Sale Sep 20 -> deadline Oct 10 (ahead); sale Sep 10 -> Sep 30 (passed).
+    const ahead = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-21', what: 'Payment deadline', who: 'Me', resolved: true }] };
+    const sa = stageTasks(tax, 'contract', ahead, now).find((x) => x.key === 'sid-affidavit')!;
+    expect(sa.produces).toMatch(/by Oct 10, 2026 \(20 days after the sale\)/);
+    saveDeals([{ ...tax, stage: 'contract' }]);
+    expect(packetSections({ ...tax, stage: 'contract' }, ahead, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Oct 10, 2026: SID certificate payoff deadline, if there’s an SID affidavit \(worked out/);
+    const past = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-11', what: 'Payment deadline', who: 'Me', resolved: true }] };
+    expect(stageTasks(tax, 'contract', past, now).find((x) => x.key === 'sid-affidavit')!.label).toMatch(/The 20 days for any SID payoff on 2210 Mesa Verde Ln ended Sep 30, 2026/);
+    const late = { ...past, dates: [...past.dates, { when: '2026-10-02', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
+    expect(dealNextTask(tax, late, now, 'contract').label).toMatch(/ended Sep 30, 2026\. If it wasn’t paid by then, the sale is void and the Treasurer may keep up to 10%/);
+    const early = { ...ahead, dates: [...ahead.dates, { when: '2026-10-08', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
+    const et = dealNextTask(tax, early, now, 'contract');
+    expect(et.tick?.label).toBe('I paid it: mark it handled');
+    expect(et.undo?.label).toBe('No SID affidavit after all: remove the payoff row');
+    // Researching after the sale: the summary asks too.
+    const r = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'T' }, { when: '2026-09-02', what: 'Payment deadline', who: 'Me' }, { when: '', what: 'Bidder registration (if required)', who: '' }] };
+    saveDeals([{ ...nvFlip, stage: 'researching' }]);
+    const rl = packetSections({ ...nvFlip, stage: 'researching' }, r, now).find((x) => x.key === 'dates')!.lines.join(' | ');
+    expect(rl).toMatch(/Next: the sale day has passed: answer “did you win\?”/);
+    expect(rl).not.toMatch(/overdue/);
+    const { calendarRows } = await import('./dealPacket');
+    expect(calendarRows(r, 'researching').some((x) => /registration/i.test(x.what))).toBe(false);
+    // A short sale approved: the lienholder deadline is behind.
+    const short = { ...nvFlip, kind: 'short' as const };
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Approval notice received (dates count from here)', who: 'Lender' }, { when: '2026-10-20', what: 'Lienholder approval deadline (from the short sale addendum)', who: 'Lender' }] });
+    const { behindStage } = await import('./dealStage');
+    expect(behindStage(short, 'contract')).toContain('Lienholder approval deadline');
+    // First week: no locks promised before lawful possession.
+    expect(stageTasks(nvFlip, 'closed', EMPTY_PACKET, now).find((x) => x.key === 'first-week')!.produces).toMatch(/once you lawfully have possession of a vacant home, locks changed/);
+    // No one redeemed: the deed first.
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const nr = { ...EMPTY_PACKET, dates: [{ when: '2026-08-01', what: 'Sale day', who: 'A', resolved: true }, { when: '2026-09-30', what: 'Redemption period ends', who: 'A', resolved: true }] };
+    const keys = stageTasks(hoa, 'closed', nr, now).map((x) => x.key);
+    expect(keys.indexOf('deed')).toBeLessThan(keys.indexOf('first-week'));
+    expect(stageTasks(hoa, 'closed', nr, now).find((x) => x.key === 'first-week')!.label).toBe('Secure and insure 2210 Mesa Verde Ln');
+    // Trustee: the challenge window worked out from the deed's recording.
+    const tr = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-01', what: 'Deed recorded', who: 'Me', resolved: true }] };
+    saveDeals([{ ...nvFlip, stage: 'closed' }]);
+    expect(packetSections({ ...nvFlip, stage: 'closed' }, tr, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Oct 31, 2026: Challenge window ends \(worked out from the deed’s recording/);
+  });
+
   it('says so when the deed row is ticked at a win', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);

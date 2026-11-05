@@ -372,7 +372,7 @@ describe('the deal packet', () => {
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ exitValue: 250000, repairs: 20000, contingencyPct: 15, holdingMonths: 4, monthlyCarry: 500 }));
     expect(flipBudget(flip)).toEqual({ repairs: 23000, monthly: 500, months: 4, holding: 2000, financing: 0, price: 0, source: null, total: 25000 });
     expect(flipBudget({ ...flip, plan: 'rent' })).toBeNull();
-    const closed = (b: boolean) => stageTasks(flip, 'closed', EMPTY_PACKET, now).find((t) => t.key === 'owned')!.produces.includes(b ? 'against the budget in your Fix and sell numbers' : 'compare yourself');
+    const closed = (b: boolean) => stageTasks(flip, 'closed', EMPTY_PACKET, now).find((t) => t.key === 'owned')!.produces.includes(b ? 'against the budget in your Fix and flip (fix and sell) numbers' : 'compare yourself');
     expect(closed(true)).toBe(true);
     localStorage.removeItem('fsf.bid.analyzed-d1.v1');
     expect(closed(false)).toBe(true);
@@ -528,7 +528,7 @@ describe('the deal packet', () => {
       expect(b.source).toBeNull();
       expect(b.financing).toBeGreaterThan(0);
       const line = flipBudgetLine(flip)!;
-      expect(line).toMatch(/loan interest and points on the repairs only \(about \$[\d,]+\); enter your price in Fix and sell to include the purchase loan/);
+      expect(line).toMatch(/loan interest and points on the repairs only \(about \$[\d,]+\); enter your price in Fix and flip \(fix and sell\) to include the purchase loan/);
       expect(line).not.toMatch(/ at (a|the|your) \$/);
     });
 

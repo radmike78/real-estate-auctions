@@ -244,10 +244,10 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           <span>{deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short' ? 'Earnest money deposit' : 'Bidder deposit, if the sale requires one'}</span>
           <NumInput blank value={p.earnest} onValue={(n) => update({ earnest: n ?? 0 })} />
         </label>
-        {(deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short') && <details><summary>Separate fees and confirmed deposit credits</summary>
-          <p className="muted small">If your saved amount combined earnest money and an option fee, split them here. Enter only credits your title or escrow professional has confirmed. Include any uncredited fee once in your calculator’s acquisition costs; this field does not add it automatically.</p>
-          <label className="field"><span>Option fee, if applicable</span><NumInput blank max={1e9} value={p.optionFee} onValue={(n) => update({ optionFee: n ?? 0 })} /></label>
-          <label className="field"><span>Confirmed deposit/fee credits toward closing</span><NumInput blank max={1e9} value={p.depositCredit} onValue={(n) => update({ depositCredit: n ?? 0 })} /></label>
+        {(deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short') && <details><summary>{deal.state === 'TX' ? 'Separate fees and confirmed deposit credits' : 'Confirmed deposit credits'}</summary>
+          {deal.state === 'TX' ? <p className="muted small">If your saved amount combined earnest money and an option fee, split them here. Enter only credits your title or escrow professional has confirmed. Include any uncredited fee once in your calculator’s acquisition costs; this field does not add it automatically.</p> : <p className="muted small">Enter only credits your title or escrow professional has confirmed toward closing.</p>}
+          {deal.state === 'TX' && <label className="field"><span>Option fee, if applicable</span><NumInput blank max={1e9} value={p.optionFee} onValue={(n) => update({ optionFee: n ?? 0 })} /></label>}
+          <label className="field"><span>{deal.state === 'TX' ? 'Confirmed deposit/fee credits toward closing' : 'Confirmed deposit credits toward closing'}</span><NumInput blank max={1e9} value={p.depositCredit} onValue={(n) => update({ depositCredit: n ?? 0 })} /></label>
           <p className="muted small"><a href="https://www.consumerfinance.gov/owning-a-home/closing-disclosure/" target="_blank" rel="noopener noreferrer">CFPB: understand cash to close ↗</a>. This consumer-mortgage example may use different documents from your purchase{investorProfile().ownerOccupant && deal?.plan === 'rent' ? '' : ' of an investment property'}.</p>
         </details>}
         <Lines k="cash" />
