@@ -534,6 +534,19 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(lien, paying, now, 'owned').key).toBe('payoff');
   });
 
+  it('round 7 verifier: a dated payoff row keeps the payoff task; earnest money marked sent; NV roadmap wording', async () => {
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const red = { ...EMPTY_PACKET, dates: [{ when: '2026-10-08', what: 'Redemption money collected', who: 'x' }] };
+    expect(dealNextTask(hoa, red, now, 'closed').key).toBe('payoff');
+    const reo = { ...nvFlip, kind: 'reo' as const };
+    const em = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Earnest money due', who: 'Me', resolved: true }] };
+    expect(stageTasks(reo, 'contract', em, now).find((x) => x.key === 'deposit-sent')!.label).toMatch(/^Confirm escrow received/);
+    const { roadmapFor } = await import('./roadmap');
+    const step = roadmapFor('auction', 'NV').find((x) => x.id === 'a-before-remodel')!;
+    expect(JSON.stringify(step)).not.toMatch(/Texas/);
+    expect(step.stop).toMatch(/challenge or recovery-suit window/);
+  });
+
   it('says so when the deed row is ticked at a win', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);

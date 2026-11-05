@@ -17,7 +17,7 @@ import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
-import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage } from './dealStage';
+import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -363,7 +363,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   // Nevada tax sale (leg.state.nv.us): the treasurer gives a quitclaim deed and records it at the purchaser's expense (NRS
   // 361.595(5), (7)); no action to recover the land lies unless brought within 2 years after its delivery (361.600).
   if (d.kind === 'taxSale' && d.state === 'NV') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),
-    { what: 'SID certificate payoff (if the sale notice lists one)', when: 'Within 20 days after the sale, if a city or county told the treasurer it holds a certificate of sale for a special assessment (SID) on the parcel.', who: 'You, with that city or county', todo: 'Pay what the certificate is owed; the treasurer can’t issue your deed until you do.', missed: 'The tax sale is void, and the treasurer may keep up to 10% of what you paid.', why: 'NRS 361.595(6)' },
+    { what: 'SID certificate payoff (if the sale notice lists one)', when: 'Within 20 days after the sale, if a city or county filed notice with the treasurer that the parcel has an unpaid special assessment (SID) certificate of sale (it sold one, or holds one).', who: 'You, with that city or county', todo: 'Pay what the certificate is owed; the treasurer can’t issue your deed until you do.', missed: 'The tax sale is void, and the treasurer may keep up to 10% of what you paid.', why: 'NRS 361.595(6)' },
     { what: 'Treasurer’s deed recorded', when: 'The county treasurer records the quitclaim deed at your expense after you pay.', who: 'The county treasurer', todo: 'Get a recorded copy, and insure the property right away.', missed: 'Ask the treasurer when it will be recorded.', why: 'NRS 361.595(5) and (7)' },
     { what: 'Recovery-suit window ends', when: '2 years after the treasurer’s deed is delivered to you.', who: 'The former owner, or anyone claiming the land', todo: 'Ask your title company when it will insure the title; a quiet title action may let you sell sooner.', missed: 'After it, no action to recover the land lies under that law.', why: 'NRS 361.600' }];
   // Nevada (NRS 271.595, leg.state.nv.us): redemption within 2 years with a home or other significant permanent
@@ -825,7 +825,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
 
   // 3. Key dates
   const early = ['researching', 'offer'].includes(stageOf(d));
-  const nd = stageOf(d) === 'passed' ? null : nextDate(remindable(p, now, early, behindStage(d, stageOf(d))), now);
+  const nd = stageOf(d) === 'passed' || finishedDeal(d) ? null : nextDate(remindable(p, now, early, behindStage(d, stageOf(d))), now);
   const openAfter = early && p.dates.some((x) => x.when && !x.resolved && afterSale(x.what));
   const dated = p.dates.filter((x) => x.when);
   const undatedDone = p.dates.filter((x) => !x.when && x.resolved && x.what.trim());

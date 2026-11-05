@@ -87,7 +87,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
   // Bought (closed or owned), or finished: the decision parts are records now.
   const pastSale = ['closed', 'owned'].includes(stageOf(deal)) || finishedDeal(deal);
   // The parts from before you bought: records now, not homework.
-  const RECORD_PARTS = ['plan', 'property', 'cash', 'decision'];
+  const RECORD_PARTS = ['plan', 'property', 'cash', 'numbers', 'decision'];
   const Head = ({ k }: { k: string }) => {
     const s = sec(k);
     return (
@@ -298,7 +298,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <section className="deal-setup packet-section" aria-labelledby="packet-owned">
         <h2 id="packet-owned">After you buy: actual results</h2>
         {/* A lien certificate earns interest, not rent: no monthly rent tracker. */}
-        {deal.kind === 'lien' ? <p>{finishedDeal(deal) ? 'Paid off: keep the Treasurer’s payoff receipt with the certificate record for your taxes.' : 'Holding the certificate? Keep the county’s certificate record, any later taxes you pay to protect it, and the payoff when the owner redeems, with your notes and the county’s receipts.'}</p> : <OwnedTracker deal={deal} />}
+        {deal.kind === 'lien' ? <p>{finishedDeal(deal) ? 'Paid off: keep the Treasurer’s payoff receipt with the certificate record for your taxes.' : redeemingNow(deal) ? 'Paid off: collect the Treasurer’s payoff and keep the receipt with the certificate record.' : 'Holding the certificate? Keep the county’s certificate record, any later taxes you pay to protect it, and the payoff when the owner redeems, with your notes and the county’s receipts.'}</p> : <OwnedTracker deal={deal} />}
       </section>
       <AdSpot spot="dealPacket" allow={analyzeAllowsAds(deal.kind)} />
       <p className="muted">This packet is not included in account saves. Download it to keep a copy; guest packets also stay in this browser. This packet records your own review; it doesn’t clear title or certify a deal.</p>

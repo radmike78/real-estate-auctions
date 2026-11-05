@@ -30,7 +30,7 @@
 
 .plan-now-goal { display: grid; gap: 4px; margin: 0; padding: 12px 16px; border-left: 4px solid var(--info, var(--accent)); background: var(--info-bg, var(--surface-2)); border-radius: 10px; font-size: 1.05rem; }
 
-.plan-now-deal { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 10px 16px; align-items: end; }
+.plan-now-deal { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px 16px; align-items: end; }
 .plan-now-deal .field { margin: 0; }
 .plan-now-deal select { min-height: 44px; }
 .plan-now-hint { grid-column: 1 / -1; margin: 0; }

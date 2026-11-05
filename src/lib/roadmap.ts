@@ -690,6 +690,15 @@ const ROUTE_WORDING: Record<string, Partial<Record<RoadmapPath, Partial<RoadmapS
 };
 
 export const roadmapFor = (path: RoadmapPath, state: StateCode | null = getMyState()) => ROADMAP.filter((s) => (!s.path || s.path.includes(path)) && !(state && s.notIn?.includes(state))).map((s) => (ROUTE_WORDING[s.id]?.[path] ? { ...s, ...ROUTE_WORDING[s.id]![path] } : s))
+  // Before you remodel: Texas's own sentences only in Texas; Nevada's redemption periods and windows by kind of sale.
+  .map((s) => (s.id !== 'a-before-remodel' || state === 'TX' ? s : state === 'NV' ? { ...s,
+    text: 'Secure, insure and maintain the property right away, and fix what it needs to stay safe. Hold off on remodeling until any redemption period (HOA, sheriff or IRS sale) has ended or your title company or attorney has answered on the challenge window (trustee sale) or recovery-suit window (tax sale), you have lawful possession, and a title company will insure the title.',
+    outcome: 'The end of any redemption period or window on your calendar, lawful possession, and a written answer from your title company or attorney before you remodel.',
+    steps: s.steps.map((x) => x.replace(/ In Texas, a tax sale’s period is counted from the day the deed is filed for record\./, '').replace('counted the way your sale guide says', 'as your Nevada sale guide says: 60 days after an HOA sale, 1 year after a sheriff’s sale, 180 days after an IRS sale; after a trustee’s sale, the challenge window; after a tax sale, the 2-year recovery-suit window')),
+    say: { to: 'Title company or attorney', script: '“I bought [address] at a [kind of sale] on [date]. When does any redemption period or challenge window end, which of my costs would a redemption repay, and when would you insure the title so I can start remodeling?”' },
+    stop: 'Don’t remodel or resell before any redemption period ends (a redemption undoes your purchase), before your title company or attorney answers on the challenge or recovery-suit window, or before you have lawful possession.',
+    doneWhen: 'The end of any redemption period or window is on your calendar, you have lawful possession, and your title company or attorney has said remodeling can start.',
+  } : { ...s, steps: s.steps.map((x) => x.replace(/ In Texas, a tax sale’s period is counted from the day the deed is filed for record\./, '')), stop: s.stop?.replace(/ After a Texas HOA sale[^.]*\./, '') }))
   // Arizona's lien practice is its own tax lien drill (the practice runs follow Nevada).
   .map((s) => (s.id === 'c-practice' && state === 'AZ' ? { ...s, action: 'Open the Arizona tax lien drill', href: '#/practice/drills/tax-lien-az', steps: s.steps.filter((x) => !/^In Nevada\b/.test(x)) } : s.id === 'c-practice' && state === 'NV' ? { ...s, steps: s.steps.filter((x) => !/^In Arizona\b/.test(x)) } : s));
 
