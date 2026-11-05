@@ -456,7 +456,7 @@ describe('Nevada round 4 flow', () => {
   it('asks for the challenge window’s end after a Nevada trustee sale, and shows a sold flip’s rough profit', async () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     const w = stageTasks(nvFlip, 'closed', p, now).find((x) => x.key === 'window')!;
-    expect(w.produces).toMatch(/2026-10-20/);
+    expect(w.produces).toMatch(/Oct 20, 2026/);
     expect(w.done).toBe(false);
     const { flipSaleLine } = await import('./dealPacket');
     localStorage.setItem('fsf.bid.analyzed-f1.v1', JSON.stringify({ exitValue: 340000, proposedPrice: 180000, sellingCostPct: 6 }));
@@ -499,8 +499,8 @@ describe('Nevada round 4 flow', () => {
   it('round 6 flow: work after the challenge window, SID payoff, paid tick, calendar review, deed tick', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'Trustee', resolved: true }, { when: '2026-09-20', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     const rep = stageTasks(nvFlip, 'closed', p, now).find((x) => x.key === 'repairs')!;
-    expect(rep.label).toMatch(/start the work after the challenge window ends \(2026-10-20, or 2026-11-30 if anyone wasn’t properly notified/);
-    expect(stageTasks(nvFlip, 'closed', p, now).find((x) => x.key === 'window')!.produces).toMatch(/90 days after the sale \(2026-11-30\)/);
+    expect(rep.label).toMatch(/start the work after the challenge window ends \(Oct 20, 2026, or Nov 30, 2026 if anyone wasn’t properly notified/);
+    expect(stageTasks(nvFlip, 'closed', p, now).find((x) => x.key === 'window')!.produces).toMatch(/90 days after the sale \(Nov 30, 2026\)/);
     const lien = { ...nvFlip, kind: 'lien' as const, plan: 'lien' as const };
     const hold = stageTasks(lien, 'owned', EMPTY_PACKET, now).find((x) => x.key === 'hold')!;
     expect(hold.advance2?.addRow?.who).toMatch(/Treasurer/);

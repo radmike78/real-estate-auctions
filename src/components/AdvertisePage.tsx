@@ -56,8 +56,8 @@ export default function AdvertisePage() {
       <section className="options-grid" aria-label="What you get">
         {[
           ['Your own profile page', 'A dedicated page with your photo or logo, services, service areas, languages and a Verified badge.'],
-          ['Leads sent to you', 'Buyers send contact requests straight to your inbox. Each one agrees to share their details with you only.'],
-          ['Proof it works', 'A dashboard and monthly report of profile views, phone taps, email and website clicks, and leads.'],
+          ['Leads sent to you', `${open ? '' : 'When sign-up opens: '}buyers send contact requests straight to your inbox. Each one agrees to share their details with you only.`.replace(/^b/, open ? 'B' : 'b')],
+          ['Proof it works', `${open ? 'A' : 'When sign-up opens: a'} dashboard and monthly report of profile views, phone taps, email and website clicks, and leads.`],
           ['Verified', `We check identity and required licenses or registrations. Where no state license applies, we check relevant qualifications and insurance. We re-check every ${REVERIFY_DAYS} days.`],
         ].map(([t, d]) => (
           <div key={t} className="option-card"><h3>{t}</h3><p>{d}</p></div>

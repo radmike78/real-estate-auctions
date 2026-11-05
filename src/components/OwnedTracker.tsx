@@ -133,7 +133,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
       {o.sold ? <p className="muted">Bought on {o.boughtOn}. Sold: the months you recorded are below.</p> : <div className="row owned-add">
         <label className="field"><span>Bought on</span><input id="owned-bought-on" type="date" value={o.boughtOn} max={today()} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
         <label className="field"><span>Month</span><input id="owned-month" type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></label>
-        <label className="field"><span>Rent collected ($)</span><input type="text" inputMode="decimal" value={rent} aria-invalid={showBad(rent, 'rent') || undefined} onFocus={() => setFocusBox('rent')} onBlur={() => setFocusBox(null)} onChange={(e) => setRent(e.target.value)} /></label>
+        <label className="field"><span>{liveIn(deal) ? 'Rent from a room or unit ($)' : 'Rent collected ($)'}</span><input type="text" inputMode="decimal" value={rent} aria-invalid={showBad(rent, 'rent') || undefined} onFocus={() => setFocusBox('rent')} onBlur={() => setFocusBox(null)} onChange={(e) => setRent(e.target.value)} /></label>
         <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} aria-invalid={showBad(costs, 'costs') || undefined} onFocus={() => setFocusBox('costs')} onBlur={() => setFocusBox(null)} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
         <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
@@ -164,7 +164,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
           </table>
         </>
       ) : (
-        <p>{flip ? 'No months recorded yet. Add the first month’s costs, with $0 rent.' : liveIn(deal) ? 'No months recorded yet. Add last month’s costs, with any rent from space you rent out (or $0).' : 'No months recorded yet. Add the first one when the rent comes in.'}</p>
+        <p>{flip ? 'No months recorded yet. Add the first month’s costs, with $0 rent.' : liveIn(deal) ? 'No months recorded yet. After your first full month in the home, add what it cost, plus any rent from a room or unit (or $0).' : 'No months recorded yet. Add the first one when the rent comes in.'}</p>
       )}
       {flip && stageOf(deal) === 'owned' && (
         <>

@@ -278,7 +278,7 @@ export default function DealsPage() {
                   <div className="deal-head">
                     <div>
                       <h3><button type="button" className="linkish" onClick={() => openDeal(d)}>{d.name}</button>{d.practice && <span className="muted"> (practice analysis)</span>}</h3>
-                      <p className="muted"><strong>{stageLabel(stageOf(d), d)}</strong> · {kindLabel(k, d.state)} · {countyName(d.county)}, {d.state}{finishedDeal(d) ? '' : ` · checklist ${done} of ${all.length} done`}</p>
+                      <p className="muted"><strong>{stageLabel(stageOf(d), d)}</strong> · {kindLabel(k, d.state)} · {countyName(d.county)}, {d.state}{finishedDeal(d) ? '' : ` · Analyze checklist: ${done} of ${all.length}`}</p>
                       {(() => {
                         const n = dealNumbers(d);
                         // The same check as Keep and rent: the cash it needs against My plan's, unless a limit was entered there.

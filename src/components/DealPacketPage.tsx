@@ -14,7 +14,7 @@ import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
 import { DEAL_STAGES, type DealStage } from '../lib/analyze';
-import { behindStage, redeemingNow, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
+import { behindStage, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { planNow } from '../lib/planNext';
 import TaskActions from './TaskActions';
@@ -85,7 +85,9 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
   const guideRows = dateGuide(deal).filter((g) => g.when);
 
   // Bought (closed or owned), or finished: the decision parts are records now.
-  const pastSale = ['closed', 'owned'].includes(stageOf(deal)) || finishedDeal(deal);
+  // (A won auction counts too: only payment and recording are left.)
+  const wonAuction = stageOf(deal) === 'contract' && wayOf(deal) !== 'offer';
+  const pastSale = ['closed', 'owned'].includes(stageOf(deal)) || finishedDeal(deal) || wonAuction;
   // The parts from before you bought: records now, not homework.
   const RECORD_PARTS = ['plan', 'property', 'cash', 'numbers', 'decision'];
   const Head = ({ k }: { k: string }) => {
@@ -115,7 +117,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         title={<>Deal <span className="grad">packet</span></>}
         sub={`${deal.name} · ${kind ? kindLabel(kind, deal.state) : deal.kind} · ${countyName(deal.county)}, ${deal.state}`}
       />
-      <p>{redeemingNow(deal) ? <>Everything about this property, on one page: its dates, the payoff and your records from the sale.</> : pastSale ? <>Everything about this property, on one page: its dates, costs and results, with the records from before you bought it. {sections.filter((x) => !RECORD_PARTS.includes(x.key) && x.status === 'done').length} of {sections.filter((x) => !RECORD_PARTS.includes(x.key)).length} parts after the sale are filled in.</> : <>Everything this decision needs, on one page: your plan, the dates, the cash and when it’s due, your numbers with a downside case, what you’ve verified, your professionals’ answers and your decision. {done} of {sections.length} parts are complete.</>} Every number is your estimate until a source backs it.</p>
+      <p>{wonAuction ? <>You won the bid: pay and record it on time. The parts from before the sale are kept as your records.</> : redeemingNow(deal) ? <>Everything about this property, on one page: its dates, the payoff and your records from the sale.</> : pastSale ? <>Everything about this property, on one page: its dates, costs and results, with the records from before you bought it. {sections.filter((x) => !RECORD_PARTS.includes(x.key) && x.status === 'done').length} of {sections.filter((x) => !RECORD_PARTS.includes(x.key)).length} parts after the sale are filled in.</> : <>Everything this decision needs, on one page: your plan, the dates, the cash and when it’s due, your numbers with a downside case, what you’ve verified, your professionals’ answers and your decision. {done} of {sections.length} parts are complete.</>} Every number is your estimate until a source backs it.</p>
 
       <div className="packet-stage">
         <label className="field">
@@ -127,7 +129,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <p className="muted">{stageHint(stage, deal)} {(() => { const plan = planNow(); return plan.source === 'deal' && plan.deal?.id === deal.id ? 'The stage picks the next action here and in My plan.' : stage === 'passed' || soldOf(deal) ? 'The stage picks the next action here.' : <>The stage picks the next action here. <a href="#/toolkit">My plan</a> {plan.source === 'deal' ? 'is working on another property' : 'shows the lessons and practice first'}; choose this property there to work on it now.</>; })()}</p>
       </div>
       <div className="packet-next">
-        <strong id="packet-next-head" tabIndex={-1}>Your next action</strong>
+        <h2 id="packet-next-head" className="packet-next-head" tabIndex={-1}>Your next action</h2>
         <p aria-live="polite">{next.label}{next.urgent ? '' : <>{/[?.!]$/.test(next.label) ? '' : '.'} <span className="muted">You’ll have {next.produces}.</span></>}{' '}
           {next.openDeal ? <a href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(deal); }}>Open in Analyze&nbsp;→</a>
             : next.setStage ? <button type="button" className="linkish" onClick={() => { setDealStage(deal.id, next.setStage!); focusNext(); }}>Do it now&nbsp;→</button>

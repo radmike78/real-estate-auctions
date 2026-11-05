@@ -2733,6 +2733,9 @@ cite.cite { font-style: normal; font-size: max(0.82em, 15px); color: var(--muted
 .packet-status.missing { background: var(--caution-bg); color: var(--caution); }
 .packet-next { border-left: 4px solid var(--accent); background: var(--surface-2); border-radius: 8px; padding: 12px 16px; margin: 0 0 16px; }
 .packet-next p { margin: 4px 0 0; }
+.packet-next .packet-next-head { font-size: 1.05rem; margin: 0; padding: 0; border: 0; background: none; }
+.packet-next a, .packet-next .linkish { display: inline-flex; align-items: center; min-height: 44px; }
+.deal-actions .btn { white-space: nowrap; }
 .packet-next-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .owned-sold-head { margin: 20px 0 8px; }
 .packet-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }

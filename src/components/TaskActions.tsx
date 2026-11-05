@@ -27,7 +27,7 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
           after(el, tick.then === 'passed');
         }}>{tick.label}</button>
       )}
-      {task.advance && <button type="button" className={task.answer ? main : 'btn btn-secondary'} onClick={(e) => { const el = e.currentTarget; const ticks = task.advance!.ticks; if (ticks?.length) edit((p) => ({ ...p, dates: p.dates.map((x) => (ticks.some((n) => sameDate(x.what, n)) ? { ...x, resolved: true } : x)) })); setDealStage(dealId, task.advance!.stage); after(el, task.advance!.stage === 'passed'); }}>{task.advance.label}</button>}
+      {task.advance && <button type="button" className={task.answer ? main : 'btn btn-secondary'} onClick={(e) => { const el = e.currentTarget; const ticks = task.advance!.ticks; const who = task.advance!.tickWho ?? ''; if (ticks?.length) edit((p) => { const has = p.dates.some((x) => ticks.some((n) => sameDate(x.what, n))); const rows = p.dates.map((x) => (ticks.some((n) => sameDate(x.what, n)) ? { ...x, resolved: true, when: x.when || today(), who: x.who || who } : x)); return { ...p, dates: has ? rows : [...rows, { what: ticks[0], when: today(), who, resolved: true }] }; }); setDealStage(dealId, task.advance!.stage); after(el, task.advance!.stage === 'passed'); }}>{task.advance.label}</button>}
       {task.advance2 && (
         <button type="button" className="btn btn-secondary" onClick={(e) => {
           const el = e.currentTarget;
