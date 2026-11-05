@@ -3,7 +3,7 @@ import { getMyState } from './myState';
 import type { SaleType } from '../types';
 import { removeLog } from './evidence';
 import { forgetRoadmapDeal } from './roadmapDeals';
-import { removePacket } from './dealPacket';
+import { irsWithoutRedemption, removePacket } from './dealPacket';
 import { loadOwned, saveOwned } from './owned';
 // Analyze a Deal (step 6): the visitor describes a deal (state, county, kind of sale, plan) and gets the checklist for
 // that sale in that state. Every rule here comes from the Learn lessons and their sources. Deals are kept in this browser.
@@ -170,7 +170,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     sale.push({ id: 'tx-hoa-type', text: 'Texas: read the recorded declaration first. It decides whether this is a subdivision HOA (Property Code 209) or a condominium association (82); a townhome can be either.', href: '#/playbooks/txhoa' });
     sale.push({ id: 'tx-hoa-redeem', text: 'Subdivision: the owner, or a lender after 90 days, can redeem until 180 days after the HOA mails notice of the sale, and you can’t sell to anyone else until then (209.011). Condominium: the owner can redeem until 90 days after the sale and repays your bid plus 6% a year, and you can’t sell to anyone else until then either (82.113(g)). Ask a title company whether the first loan survives.' });
   }
-  if (d.kind === 'irs') sale.push({ id: 'irs-redeem', text: 'IRS sales: for 180 days the owner can buy it back by paying your price plus 20% a year, so you can’t count on keeping it until then.', href: '#/learn/forced-sales' });
+  if (d.kind === 'irs') sale.push(irsWithoutRedemption(d) ? { id: 'irs-redeem', text: 'A court-ordered IRS sale follows its order, which may allow no redemption.* Confirm it in the order and the notice of sale.', href: '#/learn/forced-sales' } : { id: 'irs-redeem', text: 'IRS sales: for 180 days the owner can buy it back by paying your price plus 20% a year, so you can’t count on keeping it until then.', href: '#/learn/forced-sales' });
   if (offices?.taxSale && d.kind === 'taxSale') sale.push({ id: 'county-sale-page', text: `Read ${place}’s tax sale page: dates, deposit, payment deadline and what the deed promises.`, href: offices.taxSale.url });
   // A lien certificate: the county's special assessment sale page (not its tax sale, which sells deeds), else ask.
   if (d.kind === 'lien' && offices?.specialAssessment) sale.push({ id: 'county-sale-page', text: `Read ${place}’s special assessment sale page: sale dates, how a buyer is chosen, the payment deadline and the owner’s time to redeem.`, href: offices.specialAssessment.url });

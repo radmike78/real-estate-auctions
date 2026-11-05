@@ -284,7 +284,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       <PageHero
         compact={open}
         top={<a href={open ? base : '#/playbooks'}>{open ? `← ${stateByCode(stateOf(p))?.name ?? ''} ${p.short.replace(/^[A-Z](?=[a-z])/, (c) => c.toLowerCase())}` : '← All sale guides'}</a>}
-        eyebrow={<span className="eyebrow">{stateOf(p) === 'NV' ? 'Nevada · Clark County · ' : ''}Reviewed {fmtDate(p.lastReviewed)}</span>}
+        eyebrow={<span className="eyebrow">{stateOf(p) === 'NV' ? (['tax', 'sid', 'sheriff'].includes(p.key) ? 'Nevada · Clark County · ' : 'Nevada · ') : ''}Reviewed {fmtDate(p.lastReviewed)}</span>}
         title={open ? <a className="title-link" href={base}>{p.title}</a> : p.title}
         sub={open ? undefined : p.oneLine}
       />
@@ -305,21 +305,26 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
         const a = ld ? { state: ld.state, county: ld.county } : myArea;
         // Only the county-run sales (tax, SID, sheriff) follow Clark County's own rules here; the others follow state or
         // federal law, the same in every county, so they need no note.
-        if (stateOf(p) !== 'NV' || !['tax', 'sid', 'sheriff'].includes(p.key) || a?.state !== 'NV' || !a.county || a.county === 'Clark') return null;
+        // (The state- and federal-law guides, too, for their own county's recorder.)
+        if (stateOf(p) !== 'NV' || !['tax', 'sid', 'sheriff', 'hoa', 'trustee', 'irs'].includes(p.key) || a?.state !== 'NV' || !a.county || a.county === 'Clark') return null;
         const place = a.county === 'Carson City' ? 'Carson City' : `${a.county} County`;
         const offices = COUNTY_OFFICES[`NV/${a.county}`];
-        const page = p.key === 'sid' ? offices?.specialAssessment ?? offices?.treasurer : p.key === 'tax' ? offices?.taxSale : p.key === 'sheriff' ? offices?.sheriff : undefined;
+        const page = p.key === 'sid' ? offices?.specialAssessment ?? offices?.treasurer : p.key === 'tax' ? offices?.taxSale : p.key === 'sheriff' ? offices?.sheriff : p.key === 'hoa' || p.key === 'trustee' ? offices?.recorder : undefined;
         return (
           <p className="other-state-guide" role="note">
-            This guide follows Clark County.{' '}
+            {['tax', 'sid', 'sheriff'].includes(p.key) ? 'This guide follows Clark County. ' : ''}
             {a.county === 'Washoe' && p.key === 'tax'
               ? 'Washoe County’s tax sale differs. It’s held once a year, usually in April. Register in person at the Treasurer’s office, starting at 9:00 a.m. two business days before the sale, with photo ID and a $500 pre-bid deposit in certified funds. Registration closes at 5:00 p.m. on a date the sale notice gives (the Treasurer’s FAQ calls it the Tuesday deadline).* The opening bid is what’s owed or the assessed value, whichever is greater. If you win, the FAQ lists a $500 non-refundable deposit (it doesn’t say whether that’s the pre-bid deposit)* and the balance due by 5:00 p.m. the day after the sale.'
               : a.county === 'Washoe' && p.key === 'sid'
                 ? 'Washoe County runs its own SID sale. Its Treasurer’s page says the parcel goes to the first person willing to pay, chosen by a show of hands, with buyer numbers drawn when more than one wants it, and payment is due by 10:00 a.m. the following day. The redemption period is 2 years with a home or other significant improvement, else 120 days, and the 1% monthly interest isn’t prorated. Confirm each sale’s terms in its notice.'
+              : p.key === 'sid' && !offices?.specialAssessment
+                ? `Lien certificates are sold by Clark and Washoe counties and some cities. Ask ${place}’s treasurer whether it holds a special assessment (SID) lien sale before you plan on one.`
+              : p.key === 'tax' && offices?.taxSale?.note && /online/i.test(offices.taxSale.note)
+                ? `${place}’s ${offices.taxSale.note.replace(/^Recent/, 'recent')} Its dates, deposits and payment rules also differ from Clark’s: confirm them with its treasurer before a real sale.`
               : ['tax', 'sid', 'sheriff'].includes(p.key)
                 ? `${place}’s own dates, deposits and payment rules may differ: confirm them with ${p.key === 'sheriff' ? 'its sheriff' : 'its treasurer'} before a real sale.`
                 : p.key === 'irs' ? 'IRS sales follow federal law, the same in every county; each sale’s terms come from the IRS notice of sale, so read it for the one you’re buying.' : 'This kind of sale follows the same Nevada law in every county; each sale’s own terms come from its notice or the seller, so read them for the one you’re buying.'}
-            {page && <> <a href={page.url} target="_blank" rel="noopener noreferrer">{place}’s page ↗</a></>}
+            {page && <> <a href={page.url} target="_blank" rel="noopener noreferrer">{p.key === 'hoa' || p.key === 'trustee' ? `${place} Recorder` : `${place}’s page`} ↗</a></>}
           </p>
         );
       })()}

@@ -321,3 +321,25 @@ it('counts a renamed wait or deed row as that date', () => {
   expect(t['redemption-wait']).toBe(true);
   expect(t['deed']).toBe(true);
 });
+
+it('asks whether you won once sale day has passed, ahead of later dates, and counts a handled payment as paid', () => {
+  const hoa: Deal = { ...deal, id: 'dh6', state: 'NV', county: 'Washoe', kind: 'hoa', plan: 'rent', stage: 'offer' };
+  const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'HOA agent', resolved: true }, { when: '2026-10-08', what: 'Certificate of sale recorded', who: 'HOA agent' }] };
+  const t = dealNextTask(hoa, p, now, 'offer');
+  expect(t.label).toMatch(/Sale day has passed: did you win/);
+  expect(t.advance?.stage).toBe('contract');
+  // Before the sale, a post-sale row isn't a reminder.
+  const before = { ...EMPTY_PACKET, dates: [{ when: '2026-10-08', what: 'Certificate of sale recorded', who: 'HOA agent' }] };
+  expect(dealNextTask(hoa, before, now, 'offer').key).not.toBe('date');
+  const paid = { ...EMPTY_PACKET, dates: [{ when: '2026-10-02', what: 'Payment deadline', who: 'Me', resolved: true }] };
+  expect(stageTasks({ ...hoa, stage: 'contract' }, 'contract', paid, now).find((x) => x.key === 'ev-terms')?.done).toBe(true);
+});
+
+it('gives a home you’ll live in no rental tasks', () => {
+  localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { borrow: 'live' } }));
+  const home: Deal = { ...deal, id: 'dl7', state: 'NV', county: 'Washoe', kind: 'reo', plan: 'rent' };
+  const keys = stageTasks(home, 'closed', EMPTY_PACKET, now).map((t) => `${t.key}:${t.label}`).join(' | ');
+  expect(keys).not.toMatch(/rental-lease|before renting/);
+  expect(keys).toMatch(/as your home/);
+  localStorage.removeItem('deedowl.decide.v1');
+});

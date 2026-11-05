@@ -599,6 +599,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
       </div>
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
+        {saleKind === 'hoa' && !(v.hoaMonthly > 0) && <p className="caution" role="note"><strong>This home is in an HOA.</strong> Enter its monthly assessment under “HOA dues, per month” (from the HOA’s notice or its foreclosure agent): the owner pays it from the sale on, and these numbers count $0 until you do.</p>}
         {!offer && rentWaitNote(region.state, saleKind) && <p className="caution" role="note"><strong>Plan for little or no rent until the redemption period ends.</strong> {rentWaitNote(region.state, saleKind)} {RENT_WAIT_ADVICE}.</p>}
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
         {offer && investorProfile().ownerOccupant && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}

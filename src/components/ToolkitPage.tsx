@@ -371,8 +371,9 @@ export function FirstDealRoadmap() {
         // Open it and everything around it now (the phase may not have re-rendered open yet): a closed one can't take focus.
         for (let x: HTMLElement | null = el; x; x = x.parentElement) if (x instanceof HTMLDetailsElement) x.open = true;
         el.scrollIntoView({ block: 'start' });
-        // Its field, or (a step with none) the step itself.
-        (el.querySelector<HTMLElement>('.roadmap-step-body textarea, .roadmap-step-body input, .roadmap-step-body select') ?? el.querySelector<HTMLElement>('summary'))?.focus({ preventScroll: true });
+        // The goal step's field is its task: the cursor goes there. Any other step: its summary, so its instructions come
+        // first (an evidence field sits below them).
+        (s.id === 'goal' ? el.querySelector<HTMLElement>('.roadmap-step-body textarea, .roadmap-step-body input') ?? el.querySelector<HTMLElement>('summary') : el.querySelector<HTMLElement>('summary'))?.focus({ preventScroll: true });
       }, 0);
     };
     go();

@@ -290,6 +290,11 @@ function GuideBody({ g }: { g: ProGuide }) {
 }
 
 /** "Your deal team" (the Your team tab): who helps with a forced-sale purchase, when you need each one, and how to find them. */
+/** The deal open in Analyze is a rental (keep and rent): an auction team adds the refinance and management roles. */
+const rentalInAnalyze = () => {
+  try { return (JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as { plan?: string } | null)?.plan === 'rent'; } catch { return false; }
+};
+
 export default function FindAProPage({ section }: { section?: string }) {
   useMarkStep('team');
   const open = !!section && !!proGuideByKey(section);
@@ -404,7 +409,7 @@ export default function FindAProPage({ section }: { section?: string }) {
                   </p>
                 );
               })()}
-              <TeamList team={team} />
+              <TeamList team={book && !book.team.some((x) => /property_manager/.test(x.href ?? '')) && rentalInAnalyze() ? [...team, { role: 'Loan officer', when: 'If you’ll refinance once it’s rented: ask about waiting periods and what the lender needs, before the sale.', href: '#/pros/lender' }, { role: 'Property manager', when: 'If you’ll hire one to run the rental: their fee is part of your numbers.', href: '#/pros/property_manager' }] : team} />
             </>
           )}
         </section>

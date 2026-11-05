@@ -60,7 +60,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     return (
       <div>
         <p>{flip ? (budgetLine ? `Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, against your budget from Fix and sell. ${budgetLine}` : 'Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : 'Did you buy it? Mark it as yours to track the real rent and costs each month against the cash flow you planned.'}</p>
-        <button type="button" className="btn btn-secondary" onClick={() => { put({ boughtOn: today(), months: [] }); if (!['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'closed'); }}>I bought this property</button>
+        <button type="button" className="btn btn-secondary" onClick={() => { put({ boughtOn: today(), months: [] }); if (!['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'closed'); setTimeout(() => document.getElementById('owned-bought-on')?.focus(), 0); }}>I bought this property</button>
       </div>
     );
   }
@@ -71,6 +71,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   // Each box's message waits while you're still typing a comma number in it ("1,25" on the way to 1,250).
   const showBad = (t: string, box: 'rent' | 'costs') => t.trim() !== '' && !!calculatorInputError(t, '$') && !(focusBox === box && midNumber(t));
   const add = () => {
+    // (The button goes away while the fields clear: the cursor goes back to the month, for the next one.)
+    setTimeout(() => document.getElementById('owned-month')?.focus(), 0);
     const r = parseCalcInput(rent);
     const c = parseCalcInput(costs);
     if (unreadable || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || !Number.isFinite(r) || !Number.isFinite(c) || r < 0 || c < 0) return;
@@ -86,8 +88,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     <div>
       <p className="muted">{flip ? (budgetLine ?? 'Record what you pay each month, with $0 rent, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : projected === null ? 'Renting it out? Save this deal’s numbers in Keep and rent to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : `You planned on ${signed(projected)} a month of cash flow.`}</p>
       <div className="row owned-add">
-        <label className="field"><span>Bought on</span><input type="date" value={o.boughtOn} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
-        <label className="field"><span>Month</span><input type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></label>
+        <label className="field"><span>Bought on</span><input id="owned-bought-on" type="date" value={o.boughtOn} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
+        <label className="field"><span>Month</span><input id="owned-month" type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></label>
         <label className="field"><span>Rent collected ($)</span><input type="text" inputMode="decimal" value={rent} aria-invalid={showBad(rent, 'rent') || undefined} onFocus={() => setFocusBox('rent')} onBlur={() => setFocusBox(null)} onChange={(e) => setRent(e.target.value)} /></label>
         <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} aria-invalid={showBad(costs, 'costs') || undefined} onFocus={() => setFocusBox('costs')} onBlur={() => setFocusBox(null)} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>

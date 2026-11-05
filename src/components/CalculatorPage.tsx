@@ -1,3 +1,4 @@
+import { irsWithoutRedemption } from '../lib/dealPacket';
 import { stateByCode, type StateCode } from '../lib/regions';
 import { investorProfile, profileStart, commercialProfileStart } from '../lib/myPlan';
 import BidCalculator from './BidCalculator';
@@ -25,13 +26,15 @@ export function Calculators({ initial, onTab, state, offer = false, dealId, onAn
         ].filter((s) => (s.key !== 'lien' || (lien && (!state || state === 'NV' || state === 'AZ'))) && (s.key !== 'seller' || offer || !state)).map((s) => (s.key === 'lien' && state === 'AZ' ? { ...s, label: 'Tax lien', about: 'What an Arizona tax lien certificate earns per year at the rate you win, counting the wait to be paid.' } : s))}
       />
       <p className="muted small">The results are only as good as the numbers you enter; they aren’t a guarantee of profit.</p>
-      <BeforeYouCommit plan={initial} state={state} saleKind={saleKind} />
+      <BeforeYouCommit plan={initial} state={state} saleKind={saleKind} dealId={dealId} />
     </>
   );
 }
 
 /** The checks that most often change a beginner's numbers, shown where the decision is made. */
-function BeforeYouCommit({ plan, state, saleKind }: { plan?: string; state?: StateCode; saleKind?: string }) {
+function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; state?: StateCode; saleKind?: string; dealId?: string }) {
+  // An IRS sale with "No redemption" picked (a court-ordered sale): no 180-day line.
+  const irsNone = saleKind === 'irs' && !!dealId && !!state && irsWithoutRedemption({ state, kind: 'irs', id: dealId, plan: 'flip' });
   const name = state ? stateByCode(state)?.name : undefined;
   // Renting rules matter only when you'd keep it and rent it out.
   const renting = plan !== 'flip' && plan !== 'lien';
@@ -44,9 +47,9 @@ function BeforeYouCommit({ plan, state, saleKind }: { plan?: string; state?: Sta
         <li><strong>The sale’s payment rules:</strong> the form, amount and deadline, paid to the officer or trustee, from the official notice.</li>
         <li><strong>Liens and taxes that survive this sale,</strong> from a title search.</li>
         {/* Nevada's own periods, from statute (leg.state.nv.us; 26 U.S.C. 6337(b) for the IRS): no asterisk there. */}
-        {state === 'NV' && saleKind === 'court' ? <li><strong>The owner’s right to buy it back:</strong> 1 year after a sheriff’s sale, at your price plus 1% a month (NRS 21.210). You get a certificate of sale first.</li>
-          : state === 'NV' && saleKind === 'hoa' ? <li><strong>The owner’s right to buy it back:</strong> 60 days after an HOA sale, at your price plus 1% a month (NRS 116.31166). You get a certificate of sale first.</li>
-          : saleKind === 'irs' ? <li><strong>The owner’s right to buy it back:</strong> 180 days after an IRS sale (26 U.S.C. 6337(b)). You get a certificate of sale first.</li>
+        {state === 'NV' && saleKind === 'court' ? <li><strong>The owner’s right to buy it back:</strong> 1 year after a sheriff’s sale, at your price plus 1% a month, plus taxes, assessments and earlier liens you paid (NRS 21.210). You get a certificate of sale first.</li>
+          : state === 'NV' && saleKind === 'hoa' ? <li><strong>The owner’s right to buy it back:</strong> 60 days after an HOA sale, at your price plus 1% a month, plus the taxes, assessments and needed upkeep you paid (NRS 116.31166(3)). You get a certificate of sale first.</li>
+          : saleKind === 'irs' && !irsNone ? <li><strong>The owner’s right to buy it back:</strong> 180 days after an IRS sale, at your price plus 20% a year (26 U.S.C. 6337(b)). You get a certificate of sale first.</li>
           : <li><strong>Any right to buy it back (redemption)</strong> and how long it lasts for this kind of sale in your state.*</li>}
         <li><strong>Who lives there,</strong> and the court process to get possession.</li>
         <li><strong>Insurance from the day it’s yours.</strong> <a href="#/learn/analyze">What to ask</a></li>

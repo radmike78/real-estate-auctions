@@ -7,6 +7,7 @@ import { workStorage as localStorage } from './workStorage';
 // Site rules: tasks never involve contacting a homeowner, an occupant or a former owner. Official sellers, your own
 // team, public records and the county only.
 import { CURRENT_KEY, DEAL_STAGES, isDealStage, loadDeals, saveDeals, type Deal, type DealStage } from './analyze';
+import { investorProfile } from './myPlan';
 import { irsWithoutRedemption, sameDate, roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
 import { areasFor, loadLog, type EvidenceLog } from './evidence';
 import { loadOwned, type Owned } from './owned';
@@ -29,6 +30,20 @@ export const DEED_AFTER_WAIT = 'Deed delivered (if no one redeemed)';
 /** A date in the packet with its date entered, passed and marked handled. */
 const localDay = (now: Date) => `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 const handled = (p: PacketData, what: string, now: Date) => p.dates.some((x) => sameDate(x.what, what) && !!x.resolved && !!x.when && x.when < localDay(now));
+/** A home you'll live in (Decide: a home loan you'd live in), bought by offer, with no rent typed for it: no rental tasks. */
+function liveIn(d: Deal): boolean {
+  if (d.plan !== 'rent' || wayOf(d) !== 'offer' || !investorProfile().ownerOccupant) return false;
+  try {
+    const r = JSON.parse(localStorage.getItem(`fsf.calc.rent.${d.id}-offer.v1`) ?? 'null') as { monthlyRent?: unknown } | null;
+    return !(typeof r?.monthlyRent === 'number' && r.monthlyRent > 0);
+  } catch { return true; }
+}
+
+/** Dates that only matter once you've won (they come after the sale): no reminder for them before then. */
+const AFTER_SALE = ['Certificate of sale recorded', 'Certificate of sale received', 'Redemption period ends', DEED_AFTER_WAIT, 'Deed recorded', 'Deed or certificate recorded', 'Treasurer’s deed recorded', 'Recovery-suit window ends', 'Challenge window ends', 'Rescission window ends', 'Intent-to-bid window ends', 'Eligible bid deadline (45 days)', 'Earliest you may act (unpaid lien)', 'Certificate expires'];
+const afterSale = (what: string) => AFTER_SALE.some((n) => sameDate(what, n));
+/** Sale day is marked handled, or its date has passed: time to say whether you won. */
+const saleOver = (p: PacketData, now: Date) => p.dates.some((x) => sameDate(x.what, 'Sale day') && (!!x.resolved || (!!x.when && x.when < localDay(now))));
 /** A row marked handled, with or without its date (the deed: you have it). */
 const ticked = (p: PacketData, what: string) => p.dates.some((x) => sameDate(x.what, what) && !!x.resolved);
 /** A certificate-first deal whose deed row is ticked in its packet. */
@@ -188,8 +203,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     const verb = w === 'offer' ? 'pay' : 'bid';
     out.push(task({
       key: 'numbers',
-      label: d.plan === 'rent' ? `Run the rental numbers for ${n} at the price you’d ${verb}` : d.plan === 'flip' ? `Set your walk-away price for ${n} (fix and sell)` : `Run the income numbers for ${n}`,
-      produces: d.plan === 'rent' ? 'its own rent typed in (not our example), its monthly cash flow, the cash it needs and downside cases, saved with the deal' : d.plan === 'flip' ? 'the most you can pay and still make your profit from your resale value and repairs (enter title, possession and holding costs, or 0, before you rely on it)' : 'the most its income supports at your target return',
+      label: liveIn(d) ? `Run the numbers for ${n} at the price you’d pay` : d.plan === 'rent' ? `Run the rental numbers for ${n} at the price you’d ${verb}` : d.plan === 'flip' ? `Set your walk-away price for ${n} (fix and sell)` : `Run the income numbers for ${n}`,
+      produces: liveIn(d) ? 'its monthly cost and the cash it needs, saved with the deal (rent 0, or only the rent from space you’ll rent out)' : d.plan === 'rent' ? 'its own rent typed in (not our example), its monthly cash flow, the cash it needs and downside cases, saved with the deal' : d.plan === 'flip' ? 'the most you can pay and still make your profit from your resale value and repairs (enter title, possession and holding costs, or 0, before you rely on it)' : 'the most its income supports at your target return',
       href: '#/analyze',
       openDeal: true,
       support: d.plan === 'rent' ? [L.analyze, L.rentMission] : [L.analyze],
@@ -198,7 +213,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       doneLabel: 'Calculated: verify the inputs',
     }));
   };
-  const area = (k: string, label: string, produces: string, support: Support[] = []) => out.push(task({ key: `ev-${k}`, label, produces, href: packetHref(d, 'evidence'), support, done: ev(k) }));
+  const area = (k: string, label: string, produces: string, support: Support[] = [], also = false) => out.push(task({ key: `ev-${k}`, label, produces, href: packetHref(d, 'evidence'), support, done: ev(k) || also }));
   const fit = () => out.push(task({ key: 'fit', label: `Check ${n} against your buy box`, produces: 'a fits or doesn’t-fit call with the reason, in its deal packet', href: packetHref(d, 'plan'), support: [L.buyBox], done: !!(p.fit && p.fitWhy.trim()) }));
   const decide = () => out.push(task({ key: 'decide', label: `Decide on ${n}: pass, or go on to ${w === 'offer' ? 'an offer' : w === 'lien' && d.state === 'NV' ? 'the sale' : 'bidding'}`, produces: 'your decision and the reason, recorded in its evidence log', href: packetHref(d, 'decision'), support: [L.walkAway], done: log.gate === 'pass' || log.gate === 'proceed' }));
   const findNext = () => out.push(task({ key: 'next', label: d.kind === 'lien' ? 'Find your next lien sale' : 'Find your next property', produces: 'a new candidate saved in Analyze, starting at Researching', href: '#/find-deals', support: [L.findDeals, L.analyze], done: false }));
@@ -210,6 +225,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     if (w === 'offer') {
       area('sale', `Confirm who is selling ${n}, and what exactly is sold`, 'the listing or official notice in its evidence log, with the source and the date you checked', [L.findDeals]);
       if (d.plan === 'flip') area('exit', `Check what ${n} would sell for after repairs`, 'recent sales of similar homes nearby, saved in its evidence log', [L.analyze]);
+      else if (liveIn(d)) area('income', `Compare ${n}’s monthly cost with what you pay now`, 'its loan payment, tax, insurance and any HOA dues against your rent or payment now, in its evidence log', [L.analyze]);
       else area('income', `Verify the rent for ${n}`, '3 comparable rents from leases signed nearby, saved in its evidence log', d.plan === 'rent' ? [L.analyze, L.rentMission] : [L.analyze]);
       area('insurance', `Get an insurance quote and the flood zone for ${n}`, 'a written quote for this property and its FEMA flood zone, in its evidence log', [L.pro('insurance')]);
     } else if (w === 'auction') {
@@ -254,15 +270,17 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     } else {
       area('terms', `Have the funds the sale requires for ${n}`, 'the money ready in the form the sale requires before sale day, noted in its evidence log', [L.guides]);
       out.push(task({ key: 'dates', label: `Put ${n}’s sale dates on its calendar`, produces: `${suggestedDates(d).slice(0, 3).join(', ').toLowerCase()} on one calendar, with the next one shown here`, href: packetHref(d, 'dates'), support: [L.guides], done: calendarComplete(p, stage) }));
-      out.push(task({
+      const bidTask = task({
         key: 'bid',
-        label: w === 'lien' ? (d.state === 'NV' ? `Sign up for ${n} at the county’s sale` : `Bid on ${n} at the county’s sale`) : `Register and bid on ${n}, up to your maximum`,
-        produces: w === 'lien' && d.state === 'NV' ? 'your name in for it at the sale (buyers are picked by a drawing or a show of hands), or a clean walk-away. If you’re picked, mark it and the payment deadline appears here' : 'a bid at or below your limit, or a clean walk-away. If you win, mark it won and the payment deadlines appear here',
+        label: saleOver(p, now) ? (w === 'lien' && d.state === 'NV' ? `Sale day has passed: were you picked for ${n}?` : `Sale day has passed: did you win ${n}?`) : w === 'lien' ? (d.state === 'NV' ? `Sign up for ${n} at the county’s sale` : `Bid on ${n} at the county’s sale`) : `Register and bid on ${n}, up to your maximum`,
+        produces: saleOver(p, now) ? `your answer. If you ${w === 'lien' && d.state === 'NV' ? 'were picked' : 'won'}, mark it and the payment and recording steps appear here; if not, move it to Passed in its packet` : w === 'lien' && d.state === 'NV' ? 'your name in for it at the sale (buyers are picked by a drawing or a show of hands), or a clean walk-away. If you’re picked, mark it and the payment deadline appears here' : 'a bid at or below your limit, or a clean walk-away. If you win, mark it won and the payment deadlines appear here',
         href: ROADMAP_HREF,
         advance: { stage: 'contract', label: w === 'lien' && d.state === 'NV' ? 'I was picked: mark it' : 'I won the bid: mark it won' },
         support: [L.guides, w === 'lien' && d.state === 'NV' ? L.practiceLien : L.practiceAuction],
         done: false,
-      }));
+      });
+      if (saleOver(p, now)) out.unshift(bidTask);
+      if (!saleOver(p, now)) out.push(bidTask);
     }
     return out;
   }
@@ -282,7 +300,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       // California homes of 1–4 units: a trustee-sale win isn't final until the eligible-bidder windows close (Civil Code 2924m).
       const ca2924m = d.kind === 'trustee' && d.state === 'CA';
       out.push(task({ key: 'dates', label: w === 'lien' ? `Put ${n}’s payment deadline on its calendar` : `Put ${n}’s payment and recording deadlines on its calendar`, produces: w === 'lien' ? 'the payment deadline and when you’ll receive the certificate, on one calendar' : d.kind === 'irs' && certificateFirst(d) ? 'the payment deadline and when you’ll receive the certificate of sale, on one calendar' : ca2924m ? 'the payment deadline and when the deed should be recorded, on one calendar; for a home of 1–4 units, also the eligible-bidder windows (15 and 45 days after the sale), since your win isn’t final until they close, unless an exception applies*' : certificateFirst(d) ? 'the payment deadline and when the certificate of sale should be recorded, on one calendar' : 'the payment deadline and when the deed or certificate should be recorded, on one calendar', href: packetHref(d, 'dates'), support: [L.guides], done: calendarComplete(p, stage) }));
-      area('terms', `Pay for ${n} as the sale requires`, w === 'lien' ? 'the receipt, and the certificate you’re owed, in its evidence log' : certificateFirst(d) ? 'the receipt, and the certificate of sale you’re owed, in its evidence log' : 'the receipt, and the deed or certificate you’re owed, in its evidence log', [L.guides]);
+      area('terms', `Pay for ${n} as the sale requires`, w === 'lien' ? 'the receipt, and the certificate you’re owed, in its evidence log' : certificateFirst(d) ? 'the receipt, and the certificate of sale you’re owed, in its evidence log' : 'the receipt, and the deed or certificate you’re owed, in its evidence log', [L.guides], p.dates.some((x) => sameDate(x.what, 'Payment deadline') && !!x.resolved));
       if (w === 'auction') {
         if (!ev('insurance')) area('insurance', `Insure ${n} right away`, 'a policy in your name from the day you own it, in its evidence log', [L.pro('insurance')]);
         area('title', certificateFirst(d) ? `Have a title professional review ${n}’s certificate of sale` : `Have a title professional review ${n}’s deed`, certificateFirst(d) ? 'what the certificate gives you, what still stands against it, and when a deed can follow, in its evidence log' : 'what the deed gives you and what still stands against it, in its evidence log', [L.pro('title')]);
@@ -315,6 +333,12 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       out.push(task({ key: 'repairs', label: certificateFirst(d) ? `Get repair bids for ${n}, and start the work once you have the deed` : `Get repair bids for ${n} and start the work`, produces: 'written bids, permits where needed, and the work under way', href: stepHref('repairs'), support: [L.pro('contractor')], done: stepDone('repairs') }));
       out.push(task({ key: 'owned', label: `Track ${n}’s repair and holding costs against your budget`, produces: flipBudget(d) ? 'a monthly record of what you pay (with $0 rent), shown against the budget in your Fix and sell numbers (repairs, holding and any loan interest and points)' : 'a monthly record of what you pay (with $0 rent), to compare yourself with the repairs and holding costs in Fix and sell (Analyze)', href: packetHref(d, 'owned'), done: !!owned[d.id] }));
       out.push(task({ key: 'stage', label: `Mark ${n} as ${stageLabel('owned', d).toLowerCase()}`, produces: 'the selling tasks: list it at a price backed by sold comps, and record the sale', href: packetHref(d, 'owned'), setStage: 'owned', done: false }));
+      return out;
+    }
+    if (liveIn(d)) {
+      out.push(task({ key: 'rental-repairs', label: `Finish the repairs ${n} needs`, produces: 'required repairs completed and checked, with permits where needed; mark the repairs roadmap task done', href: stepHref('repairs'), support: [L.pro('contractor')], done: stepDone('repairs') }));
+      out.push(task({ key: 'owned', label: `Start tracking ${n}’s real costs`, produces: 'a monthly record of what your home actually costs, against what you planned', href: packetHref(d, 'owned'), support: [L.afterClosing], done: !!owned[d.id] }));
+      out.push(task({ key: 'stage', label: `Mark ${n} as your home`, produces: 'the monthly tasks: record your costs, and review them against your goal', href: packetHref(d, 'owned'), setStage: 'owned', done: false }));
       return out;
     }
     out.push(task({ key: 'rental-repairs', label: certificateFirst(d) ? `Once you have the deed, finish the repairs ${n} needs before renting` : `Finish the repairs ${n} needs before renting`, produces: 'required repairs completed and checked, with permits where needed; mark the repairs roadmap task done', href: stepHref('repairs'), support: [L.pro('contractor')], done: stepDone('repairs') }));
@@ -350,7 +374,14 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
  */
 export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date(), stage: DealStage = stageOf(d)): PlanTask {
   if (stage !== 'passed') {
-    const nd = nextDate(p, now);
+    // Sale day has passed with the deal still before the sale: whether you won comes first.
+    if (stage === 'offer' && wayOf(d) !== 'offer' && saleOver(p, now)) {
+      const t = stageTasks(d, stage, p, now).find((x) => x.key === 'bid');
+      if (t) return t;
+    }
+    // Before you've won, a date that only matters after the sale isn't a reminder yet.
+    const early = stage === 'researching' || stage === 'offer';
+    const nd = nextDate(early ? { ...p, dates: p.dates.filter((x) => !afterSale(x.what)) } : p, now);
     if (nd && nd.days <= 7) {
       const text = nd.days < 0 && nd.what === 'Redemption period ends' ? `The redemption period ended ${-nd.days} day${nd.days === -1 ? '' : 's'} ago: if no one redeemed, mark it handled and ask for the deed.` : `${nd.days < 0 ? `Overdue by ${-nd.days} days` : nd.days === 0 ? 'Today' : nd.days === 1 ? 'Tomorrow' : `In ${nd.days} days`}: ${nd.what}.${nd.who ? ` Who: ${nd.who}.` : ''}`;
       return { key: 'date', label: text, produces: 'the deadline met, with what you did noted in its deal packet', href: `#/deals/packet/${d.id}/dates`, support: [], done: false, urgent: true, text };

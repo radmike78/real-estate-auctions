@@ -456,7 +456,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         <div className="deal-fields">
           <label className="field wide">
             <span>Address or nickname</span>
-            <input value={deal.name} maxLength={80} placeholder="e.g. 123 Main St" onChange={(e) => set({ name: e.target.value })} />
+            <input id="deal-name" value={deal.name} maxLength={80} placeholder="e.g. 123 Main St" onChange={(e) => set({ name: e.target.value })} />
           </label>
           <label className="field">
             <span>State</span>
@@ -499,7 +499,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             <>
               <span className="muted" tabIndex={-1} id="deal-saved-line">Saved as {deal.practice ? 'the practice analysis ' : ''}“{deal.name}”. Changes save as you go.</span>
               <a className="btn" href={`#/deals/packet/${deal.id}`}>Deal packet&nbsp;→</a>
-              <button type="button" className="btn btn-secondary" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button>
+              <button type="button" className="btn btn-secondary" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); setTimeout(() => document.getElementById('deal-name')?.focus(), 0); }}>Start a new deal</button>
             </>
           ) : (
             <button type="button" className="btn" onClick={() => { if (!deal.locationConfirmed) set({ locationConfirmed: true }); else saveNew(); }}>{deal.locationConfirmed ? (practiceSave(deal) ? 'Save as a practice analysis' : 'Save this deal') : 'Confirm location and open my analysis'}</button>
@@ -540,7 +540,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       {deal.locationConfirmed && <>
       <section className="deal-checklist" aria-labelledby="check-head">
         <h2 id="check-head">2. Your checklist <span className="muted">({doneCount} of {all.length} done)</span></h2>
-        <p className="muted">For a {kindLabel(kinds.find((k) => k.key === deal.kind) ?? kinds[0], deal.state).replace(/^[A-Z][a-z]/, (m) => m.toLowerCase())} in {countyName(deal.county)}, {st.name}.</p>
+        <p className="muted">{(() => { const k = kindLabel(kinds.find((x) => x.key === deal.kind) ?? kinds[0], deal.state).replace(/^[A-Z][a-z]/, (m) => m.toLowerCase()); return `For ${/^(IRS|HOA|SID|REO)\b|^[aeiou]/i.test(k) ? 'an' : 'a'} ${k}`; })()} in {countyName(deal.county)}, {st.name}.</p>
         {groups.map((g) => (
           <CheckFold key={g.title} title={g.title} done={g.items.filter((c) => deal.done.includes(c.id)).length} total={g.items.length}>
             <ul className="decide-checklist">
