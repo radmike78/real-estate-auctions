@@ -30,6 +30,9 @@ const growToFit = (el: HTMLTextAreaElement | null) => { if (!el || fieldSizing) 
 /** Every date name re-measured (after a Remove or a resize the rows' text moves), where CSS can't size them. */
 const growAll = () => document.querySelectorAll<HTMLTextAreaElement>('.packet-what').forEach(growToFit);
 
+/** After a stage button (it goes away), the cursor goes to the new next action. */
+const focusNext = () => setTimeout(() => document.getElementById('packet-next-head')?.focus(), 0);
+
 export default function DealPacketPage({ dealId, section }: { dealId: string; section?: string }) {
   // (Date names: re-measured after each render and on resize, where CSS field-sizing isn't supported.)
   useLayoutEffect(() => { growAll(); });
@@ -115,14 +118,14 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <p className="muted">{stageHint(stage, deal)} The stage picks the next action here and in My plan.</p>
       </div>
       <div className="packet-next">
-        <strong>Your next action</strong>
+        <strong id="packet-next-head" tabIndex={-1}>Your next action</strong>
         <p>{next.label}{next.urgent ? '' : <>{/[?.!]$/.test(next.label) ? '' : '.'} <span className="muted">You’ll have {next.produces}.</span></>}{' '}
           {next.openDeal ? <a href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(deal); }}>Open in Analyze&nbsp;→</a>
             : next.setStage ? <button type="button" className="linkish" onClick={() => setDealStage(deal.id, next.setStage!)}>Do it now&nbsp;→</button>
             : !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there&nbsp;→</a> : null}
         </p>
-        {next.advance && <button type="button" className="btn btn-secondary" onClick={() => setDealStage(deal.id, next.advance!.stage)}>{next.advance.label}</button>}
-        {next.advance2 && <button type="button" className="btn btn-secondary" onClick={() => setDealStage(deal.id, next.advance2!.stage)}>{next.advance2.label}</button>}
+        {next.advance && <button type="button" className="btn btn-secondary" onClick={() => { setDealStage(deal.id, next.advance!.stage); focusNext(); }}>{next.advance.label}</button>}
+        {next.advance2 && <button type="button" className="btn btn-secondary" onClick={() => { setDealStage(deal.id, next.advance2!.stage); focusNext(); }}>{next.advance2.label}</button>}
       </div>
       <div className="row packet-actions">
         <button type="button" className="btn btn-secondary" onClick={() => downloadText(fileName(`deal packet ${deal.name}`, 'txt'), dealPacketText(deal, p))}>Download the packet</button>
@@ -169,7 +172,20 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           {(() => {
             // Usual dates removed (or added since the packet was started): add back only those, at the end.
             const missing = p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x.what, w))) : [];
-            return missing.length ? <button type="button" className="btn btn-secondary" onClick={() => { const at = p.dates.length; update({ dates: [...p.dates, ...missing.map((what) => ({ when: '', what, who: '' }))] }); setTimeout(() => document.querySelectorAll<HTMLInputElement>('.packet-dates input[type="date"]')[at]?.focus(), 0); }}>Add the usual dates that are missing ({missing.length})</button> : null;
+            return missing.length ? <button type="button" className="btn btn-secondary" onClick={() => {
+              // Each one after the nearest usual date before it that's still there (the list reads as a timeline).
+              const usual = suggestedDates(deal);
+              const rows = [...p.dates];
+              let first = -1;
+              for (const what of missing) {
+                const before = usual.slice(0, usual.indexOf(what)).reverse().map((w) => rows.findIndex((x) => sameDate(x.what, w))).find((k) => k >= 0);
+                const at = before === undefined ? 0 : before + 1;
+                rows.splice(at, 0, { when: '', what, who: '' });
+                if (first < 0 || at <= first) first = at;
+              }
+              update({ dates: rows });
+              setTimeout(() => document.querySelectorAll<HTMLInputElement>('.packet-dates input[type="date"]')[first]?.focus(), 0);
+            }}>Add the usual dates that are missing ({missing.length})</button> : null;
           })()}
           <button type="button" className="btn btn-secondary" onClick={() => update({ dates: [...p.dates, { when: '', what: '', who: '' }] })}>Add a date</button>
         </div>

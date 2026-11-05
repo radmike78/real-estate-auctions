@@ -66,6 +66,9 @@ export function ContinueButton({ task, dealId, onPlan, label }: { task: PlanTask
  * On My plan, the property you're working on and its stage can be changed here, with the optional "Not sure where to
  * start?" helper beside it and the roadmap or evidence summary alongside on wide screens.
  */
+/** After a stage button (it goes away), the cursor goes to the new task's heading in the same card. */
+const focusTaskIn = (box: Element | null | undefined) => setTimeout(() => { const h = box && document.contains(box) ? box.querySelector<HTMLElement>('h3') : null; if (h) { h.setAttribute('tabindex', '-1'); h.focus(); } }, 0);
+
 export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'; helper?: ReactNode }) {
   useEffect(() => syncRoadmapCredits(), []);
   usePlanTick();
@@ -166,8 +169,8 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           <p className="plan-now-produces"><strong>You’ll have:</strong> {task.produces}.</p>
           <div className="plan-now-actions">
             <ContinueButton task={task} dealId={deal?.id} onPlan={onPlan} label={planStarted(now) ? undefined : 'Start'} />
-            {task.advance && deal && <button type="button" className="btn btn-secondary" onClick={() => setDealStage(deal.id, task.advance!.stage)}>{task.advance.label}</button>}
-            {task.advance2 && deal && <button type="button" className="btn btn-secondary" onClick={() => setDealStage(deal.id, task.advance2!.stage)}>{task.advance2.label}</button>}
+            {task.advance && deal && <button type="button" className="btn btn-secondary" onClick={(e) => { const box = e.currentTarget.closest('.plan-now-actions')?.parentElement; setDealStage(deal.id, task.advance!.stage); focusTaskIn(box); }}>{task.advance.label}</button>}
+            {task.advance2 && deal && <button type="button" className="btn btn-secondary" onClick={(e) => { const box = e.currentTarget.closest('.plan-now-actions')?.parentElement; setDealStage(deal.id, task.advance2!.stage); focusTaskIn(box); }}>{task.advance2.label}</button>}
           </div>
           {task.support.length > 0 && (
             <details className="plan-now-support"><summary>Help with this step</summary><p>

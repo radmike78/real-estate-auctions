@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
 import { irsWithoutRedemption } from '../lib/dealPacket';
+import { loadDeals } from '../lib/analyze';
 import { stateByCode, type StateCode } from '../lib/regions';
 import { investorProfile, profileStart, commercialProfileStart } from '../lib/myPlan';
 import BidCalculator from './BidCalculator';
@@ -40,6 +41,8 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
   useEffect(() => { const on = () => setTick((n) => n + 1); window.addEventListener(CONFIRMED_EVENT, on); return () => window.removeEventListener(CONFIRMED_EVENT, on); }, []);
   // An IRS sale with "No redemption" picked (a court-ordered sale): no 180-day line.
   const irsNone = saleKind === 'irs' && !!dealId && !!state && irsWithoutRedemption({ state, kind: 'irs', id: dealId, plan: 'flip' });
+  // Past the sale (won, closed or owned): not "before you bid".
+  const won = !!dealId && ['contract', 'closed', 'owned'].includes(loadDeals().find((x) => x.id === dealId)?.stage ?? '');
   const name = state ? stateByCode(state)?.name : undefined;
   // Renting rules matter only when you'd keep it and rent it out.
   const renting = plan !== 'flip' && plan !== 'lien';
@@ -61,9 +64,9 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
         <li><strong>Your tax bill, not the last owner’s.</strong> It can change when you buy or rent it out. <a href={`#/learn/analyze?section=your-tax-bill-after-you-buy${state ? `&state=${state}` : ''}`}>{name ? `${name} property tax rules` : 'Property tax rules by state'}</a></li>
         {renting && plan === 'commercial' && <li><strong>The rules for leasing it:</strong> zoning and permitted uses, the existing leases and their terms, and for apartments any local rent rules.</li>}
         {renting && plan !== 'commercial' && <li><strong>The rules for renting it:</strong> HOA limits, short-term rental rules and local rent rules.</li>}
-        <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor and financial advisor before you bid.</li>
+        <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor and financial advisor {won ? 'before you spend more on it' : 'before you bid'}.</li>
       </ul>
-      <p className="muted small">Can’t check one yet? Get the answer before you bid.</p>
+      <p className="muted small">Can’t check one yet? Get the answer {won ? 'before you rely on these numbers' : 'before you bid'}.</p>
     </section>
   );
   if (plan === 'lien') return (

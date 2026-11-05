@@ -531,6 +531,15 @@ function RentDealLab({ v, at: atP, onPrice, living = false }: { v: RentInputs; a
   );
 }
 
+/** Open the group holding the "HOA dues, per month" field, and put the cursor in it. */
+function openHoaDues() {
+  // (Its label points to the input by id.)
+  const label = [...document.querySelectorAll<HTMLLabelElement>('.calc label.calc-label')].find((l) => /^HOA dues, per month/.test(l.textContent?.trim() ?? ''));
+  const input = label?.htmlFor ? document.getElementById(label.htmlFor) : null;
+  for (let x: HTMLElement | null = input; x; x = x.parentElement) if (x instanceof HTMLDetailsElement) x.open = true;
+  setTimeout(() => input?.focus(), 0);
+}
+
 export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = false, start = {}, regional = false, offer = false, saleKind, dealId }: { /** The kind of sale (a redemption wait before the deed is said). */ saleKind?: string; /** The saved deal (an IRS sale's picked rule). */ dealId?: string; storageKey?: string; /** The key already names the deal and kind of purchase. */ exactKey?: boolean; start?: Partial<RentInputs>; regional?: boolean; offer?: boolean }) {
   const rt = useRegionTax(RENT_GROUPS, regional);
   const region = useCalcRegion();
@@ -599,7 +608,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
       </div>
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
-        {saleKind === 'hoa' && !(v.hoaMonthly > 0) && <p className="caution" role="note"><strong>This home is in an HOA.</strong> Enter its monthly assessment under “HOA dues, per month” (from the HOA’s notice or its foreclosure agent): the owner pays it from the sale on, and these numbers count $0 until you do.</p>}
+        {saleKind === 'hoa' && !(v.hoaMonthly > 0) && <p className="caution" role="note"><strong>This home is in an HOA.</strong> You pay its dues from the day of the sale. Enter the monthly amount (from the HOA’s notice of sale or its foreclosure agent) under <button type="button" className="linkish" onClick={openHoaDues}>HOA dues, per month</button>; until you do, these numbers count $0.</p>}
         {!offer && rentWaitNote(region.state, saleKind, dealId) && <p className="caution" role="note"><strong>Plan for little or no rent until the redemption period ends.</strong> {rentWaitNote(region.state, saleKind, dealId)} {RENT_WAIT_ADVICE}.</p>}
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
         {offer && investorProfile().ownerOccupant && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
