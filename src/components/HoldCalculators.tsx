@@ -565,6 +565,8 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500, ...stateForce } : {}, regional ? `${rt.per500}|${region.state}` : '{}');
   // A home you'll live in: no example rent is counted (only rent you type, from a room or unit you'll rent out).
   const savedL = livesHere && !typedKeys.has('monthlyRent') && !('monthlyRent' in start) ? { ...saved, monthlyRent: 0 } : saved;
+  // A home with its price in: the 0 rent shown counts as yours, so the results save (no retyping).
+  useEffect(() => { if (livesHere && exactKey && typedKeys.has('atPrice') && !typedKeys.has('monthlyRent') && !('monthlyRent' in start)) set('monthlyRent', 0); }, [livesHere, exactKey, typedKeys.has('atPrice'), typedKeys.has('monthlyRent')]);
   const v = offer ? { ...withPlanCash(withoutOldValueExample(savedL, true, typedKeys), true, typedKeys, investorProfile().investable), buyerPremiumPct: 0 } : savedL;
   const r = rentMaxBid(v, offer);
   // No realistic price fits your cash (only the cash is short): the panels and buttons don't use the capped price.
@@ -826,7 +828,7 @@ const LIEN_GROUPS: CalcGroup<LienInputs>[] = [
     title: 'Timing',
     fields: [
       { k: 'monthsToRedeem', label: 'Months until the owner pays', unit: 'mo', hint: 'Most owners redeem.*' },
-      { k: 'payoutDelayMonths', label: 'Months until you’re paid', unit: 'mo', hint: 'After they redeem; often 1–2.' },
+      { k: 'payoutDelayMonths', label: 'Months until you’re paid', unit: 'mo', hint: 'After they redeem; often 1–2*.' },
     ],
   },
 ];

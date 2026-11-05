@@ -36,7 +36,7 @@ it('says where the starting tax comes from, with the year and the range inside t
   // One short line: the state's rules are in the details.
   expect(h.more).toContain('the hint works out the rate on it for you to enter');
   expect(h.more).toContain('homestead');
-  expect(countyTaxLine('NV', 'Carson City')?.short).toBe('Carson City: about 1.24% of taxable value a year (2026 rental rate). On a purchase price this usually comes out high, because taxable value is often lower and yearly caps limit increases.* The Treasurer’s bill for the parcel is the real figure.');
+  expect(countyTaxLine('NV', 'Carson City')?.short).toBe('Carson City: about 1.24% of taxable value a year (2026 rate). On a purchase price this usually comes out high, because taxable value is often lower and yearly caps limit increases.* The Treasurer’s bill for the parcel is the real figure.');
   expect(h.more).toContain('Texas Comptroller of Public Accounts');
   expect(h.more).toContain('1.51% to 4.32%');
   expect(countyTaxLine('CA', 'Kern')?.short).toContain('about 1.25% of price');

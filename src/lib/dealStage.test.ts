@@ -932,14 +932,16 @@ describe('Nevada round 4 flow', () => {
     const lien = { ...nvFlip, kind: 'lien' as const, plan: 'lien' as const };
     saveDeals([{ ...lien, stage: 'closed' }]);
     const lp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'City', resolved: true }] };
-    expect(packetSections({ ...lien, stage: 'closed' }, lp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Still to add: the date for Earliest you may act \(unpaid lien\): 120 days after the certificate of sale \(the sale day\), about Dec 30, 2026, if the parcel has no building; 2 years if it has one \(NRS 271\.595\(1\)\)\*\. After that, the owner can still redeem until 60 days after the notice/);
+    expect(packetSections({ ...lien, stage: 'closed' }, lp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Still to add: the date for Earliest you may act \(unpaid lien\): 120 days after the certificate of sale \(the sale day\), about Dec 30, 2026, if the parcel had no home or other significant permanent improvement at the sale; 2 years if it did, as the city or county decides \(NRS 271\.595\(1\)\)\*\. After that, the owner can still redeem until 60 days after the notice/);
   });
 
   it('round 12 verifier: the winning bid is marked; postponed summary; void recording rows; homes settled', async () => {
     const { packetSections } = await import('./dealPacket');
     const { settleHomes } = await import('./dealStage');
     const won = stageTasks(nvFlip, 'contract', EMPTY_PACKET, now).find((x) => x.key === 'won-price')!;
-    expect(won.tick?.label).toBe('I entered my winning bid: mark it');
+    // No bid saved yet: the task says so, with no tick.
+    expect(won.label).toBe('No bid is saved for 2210 Mesa Verde Ln yet: enter your winning bid in Analyze');
+    expect(won.tick).toBeUndefined();
     expect(stageTasks(nvFlip, 'contract', { ...EMPTY_PACKET, dates: [{ when: '2026-10-06', what: 'Winning bid entered in Analyze', who: 'Me', resolved: true }] }, now).find((x) => x.key === 'won-price')!.done).toBe(true);
     const keys = stageTasks(nvFlip, 'contract', EMPTY_PACKET, now).map((x) => x.key);
     expect(keys.indexOf('ev-insurance')).toBeLessThan(keys.indexOf('won-price'));
@@ -997,6 +999,23 @@ describe('Nevada round 4 flow', () => {
     const voided = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-05', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }] };
     expect(dealNextTask(tax, voided, now, 'contract').undo).toEqual({ label: 'Not void after all? Undo', removeRow: 'Treasurer: the sale is void' });
     expect(pressingWeight({ key: 'sid-void', label: '' })).toBeLessThan(pressingWeight({ key: 'date', label: 'Redemption period ends' }));
+  });
+
+  it('round 13 flow: paid at the win: no overdue payment; a typed bid can be marked; trustee hint keeps the 90 days', async () => {
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    saveLog('analyzed:f1', cleanLog({ rows: { terms: { done: true } } }));
+    const pp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'A', resolved: true }, { when: '2026-09-01', what: 'Payment deadline', who: 'Me' }] };
+    expect(dealNextTask(hoa, pp, now, 'contract').label).not.toMatch(/Overdue by .* Payment deadline/);
+    expect(stageTasks(hoa, 'contract', pp, now).find((x) => x.key === 'dates')!.label).toBe('Put 2210 Mesa Verde Ln’s recording date on its calendar');
+    saveLog('analyzed:f1', cleanLog({ rows: {} }));
+    localStorage.setItem('fsf.calc.rent.f1.v1', JSON.stringify({ atPrice: 150000 }));
+    localStorage.setItem('fsf.calc.rent.f1.v1.typed.v1', JSON.stringify(['atPrice']));
+    const won = stageTasks({ ...hoa, plan: 'rent' }, 'contract', EMPTY_PACKET, now).find((x) => x.key === 'won-price')!;
+    expect(won.tick?.label).toBe('I entered my winning bid: mark it');
+    expect(won.produces).toMatch(/instead of the walk-away price/);
+    // (Dates well ahead: the hint reads the real clock.)
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2030-01-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2030-01-05', what: 'Deed recorded', who: 'Me', resolved: true }, { when: '2030-02-04', what: 'Challenge window ends', who: 'Title' }] });
+    expect(stageHint('closed', nvFlip)).toMatch(/ends Feb 4, 2030, or Apr 1, 2030 for anyone not properly notified/);
   });
 
   it('says so when the deed row is ticked at a win', () => {

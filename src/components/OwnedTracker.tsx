@@ -38,7 +38,7 @@ const thisMonth = () => {
 
 /** The purchase date from its packet (the closing, the deed or the sale), else today. */
 function boughtDate(d: Deal): string {
-  const rows = loadPacket(`analyzed:${d.id}`).dates.filter((x) => x.when && x.resolved && ['Closing', 'Deed recorded', 'Treasurer’s deed recorded', 'Certificate of sale recorded', 'Sale day'].some((n) => sameEvent(x.what, n)));
+  const rows = loadPacket(`analyzed:${d.id}`).dates.filter((x) => x.when && (x.resolved || sameEvent(x.what, 'Closing')) && ['Closing', 'Deed recorded', 'Treasurer’s deed recorded', 'Certificate of sale recorded', 'Sale day'].some((n) => sameEvent(x.what, n)));
   const latest = rows.map((x) => x.when).sort().pop();
   return latest && latest <= today() ? latest : today();
 }
@@ -97,6 +97,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   if (!o && ['researching', 'offer'].includes(stageOf(deal)) && wayOf(deal) !== 'offer') return <p className="muted">Won it? Answer “did you win?” in Your next action above once the sale is over, and the steps after the sale appear here.</p>;
   if (!o && sidState(deal) === 'void') return <p className="muted">Not needed: the Treasurer said the sale is void.</p>;
   if (!o && stageOf(deal) === 'contract' && wayOf(deal) !== 'offer') return <p className="muted">Once you’ve paid and the {certificateFirst(deal) ? 'certificate of sale' : 'deed'} is {certificateFirst(deal) && deal.kind === 'irs' ? 'in hand' : 'recorded'}, mark it in Your next action above; then start tracking its costs here.</p>;
+  // An offer before it's under contract: nothing is bought yet.
+  if (!o && ['researching', 'offer'].includes(stageOf(deal)) && wayOf(deal) === 'offer') return <p className="muted">Once your offer is accepted and it closes, start tracking it here.</p>;
   if (!o) {
     // At Closed or later you did buy it: start tracking (not "did you buy it?").
     const bought = ['closed', 'owned'].includes(stageOf(deal));
@@ -160,8 +162,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <>
           <dl className="calc-kv">
             <div><dt>Months recorded</dt><dd>{s.months}</dd></div>
-            <div><dt>{liveIn(deal) ? 'What it cost, in total (after any rent)' : 'Actual cash flow, in total'}</dt><dd>{liveIn(deal) && s.actual > 0 ? `${fmtMoney(Math.round(s.actual))} to spare` : signed(liveIn(deal) ? -s.actual : s.actual)}</dd></div>
-            <div><dt>{liveIn(deal) ? 'Average cost a month' : 'Average month'}</dt><dd>{liveIn(deal) && s.averageMonthly > 0 ? `${fmtMoney(Math.round(s.averageMonthly))} to spare` : signed(liveIn(deal) ? -s.averageMonthly : s.averageMonthly)}</dd></div>
+            <div><dt>{liveIn(deal) ? (s.actual > 0 ? 'Left over, in total (after rent)' : 'What it cost, in total (after any rent)') : 'Actual cash flow, in total'}</dt><dd>{liveIn(deal) && s.actual > 0 ? `${fmtMoney(Math.round(s.actual))} to spare` : signed(liveIn(deal) ? -s.actual : s.actual)}</dd></div>
+            <div><dt>{liveIn(deal) ? (s.averageMonthly > 0 ? 'Left over, average month' : 'Average cost a month') : 'Average month'}</dt><dd>{liveIn(deal) && s.averageMonthly > 0 ? `${fmtMoney(Math.round(s.averageMonthly))} to spare` : signed(liveIn(deal) ? -s.averageMonthly : s.averageMonthly)}</dd></div>
             {flip && budget && <div><dt>Paid so far, against your {fmtMoney(Math.round(budget.total))} budget</dt><dd>{fmtMoney(Math.round(s.costs))} {s.costs > budget.total ? `(${fmtMoney(Math.round(s.costs - budget.total))} over)` : `(${fmtMoney(Math.round(budget.total - s.costs))} left)`}</dd></div>}
             {s.gapMonthly !== null && <div><dt>Against your plan, a month</dt><dd>{signed(s.gapMonthly)} {s.gapMonthly < 0 ? '(behind)' : '(ahead)'}</dd></div>}
           </dl>
