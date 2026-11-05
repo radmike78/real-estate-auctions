@@ -1,7 +1,8 @@
 import { workStorage as localStorage } from './workStorage';
 // What My plan's roadmap has stored in this browser: the steps ticked, their statuses, the way of buying and the
 // property being worked on. Read here so the roadmap, the home page and My plan's next step all count the same way.
-import { loadDeals, type Deal } from './analyze';
+import { DEAL_STAGES, loadDeals, type Deal } from './analyze';
+import { stageOf, stageOfStep } from './dealStage';
 import { loadOwned } from './owned';
 import { getMyState } from './myState';
 import { DECIDE_KEY, QUESTIONS, rank, type Answers } from './decide';
@@ -265,11 +266,18 @@ function decideRoute(): RoadmapPath | null {
 export const dealProgress = (dealKey: string) => readKey(DEAL_STEPS_KEY, {}, cleanDealSteps)[dealKey] ?? { done: [] as string[], status: {} as Record<string, StepStatus> };
 
 /** Whether a step is settled (done, or marked "doesn't apply"), counting steps 4 to 7 for the property in focus. */
+/** A property's step from a stage it's already past (it got through it from its packet). */
+export function pastStage(dealKey: string): (s: RoadmapStep) => boolean {
+  const d = dealKey ? loadDeals().find((x) => `analyzed:${x.id}` === dealKey) : undefined;
+  const stage = d ? stageOf(d) : undefined;
+  return (s) => { if (!stage || stage === 'passed' || !dealScoped(s)) return false; const st = stageOfStep(s.id); return !!st && st !== 'passed' && DEAL_STAGES.indexOf(st) < DEAL_STAGES.indexOf(stage); };
+}
 export function settledFor(dealKey: string) {
   const done = roadmapDone();
   const status = readKey(STATUS_KEY, {}, cleanStatus);
   const per = dealKey ? dealProgress(dealKey) : null;
-  return (s: RoadmapStep) => (per && dealScoped(s) ? per.done.includes(s.id) || per.status[s.id] === 'na' : done.includes(s.id) || status[s.id] === 'na' || !!practiceDoneElsewhere(s.id));
+  const past = pastStage(dealKey);
+  return (s: RoadmapStep) => (per && dealScoped(s) ? per.done.includes(s.id) || per.status[s.id] === 'na' || past(s) : done.includes(s.id) || status[s.id] === 'na' || !!practiceDoneElsewhere(s.id));
 }
 
 /** Steps done out of the steps on the visitor's path. */

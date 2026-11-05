@@ -3,7 +3,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
 import { DEAL_STAGES, loadDeals, openDeal, type Deal, type DealStage } from '../lib/analyze';
-import { deadlinePassed, pressingWeight, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
+import { deadlinePassed, needsAnswerNow, pressingWeight, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
@@ -106,7 +106,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   const nextLabel = now.context.startsWith('Roadmap · ') ? `Next roadmap task · ${now.context.slice('Roadmap · '.length)}` : `Next task · ${now.context}`;
 
   // Another property with a passed deadline: the one that costs most if missed first (a sale that may be void), with a count.
-  const pressing = loadDeals().filter((x) => x.id !== deal?.id && !x.practice && stageOf(x) !== 'passed' && !finishedDeal(x) && deadlinePassed(dealNextTask(x)));
+  const pressing = loadDeals().filter((x) => x.id !== deal?.id && !x.practice && stageOf(x) !== 'passed' && !finishedDeal(x) && needsAnswerNow(dealNextTask(x)));
   const weight = (x: Deal) => pressingWeight(dealNextTask(x));
   const other = [...pressing].sort((a, b) => weight(a) - weight(b))[0];
   const otherWhat = (x: Deal) => { const l = dealNextTask(x).label; const at = l.indexOf(x.name); const i = l.indexOf('. ', at >= 0 ? at + x.name.length : 0); return (i >= 0 ? l.slice(0, i + 1) : l).replace(/([^.?!])$/, '$1.'); };

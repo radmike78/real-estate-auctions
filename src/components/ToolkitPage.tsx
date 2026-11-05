@@ -23,7 +23,7 @@ import { toolkitConfig } from '../lib/narrow';
 import DocGuideView from './DocGuideView';
 import { EvidenceArea } from './EvidenceLog';
 import { cleanDealSteps, DEAL_KEY, DEAL_STEPS_KEY, type DealSteps } from '../lib/roadmapDeals';
-import { cleanStatus, creditStep, dealScoped, focusDealId, NO_DEAL, pathForDeal, planPath, practiceDoneElsewhere, PRACTICE_NAME, PROGRESS_EVENT, progressChanged, ROADMAP_KEY, ROADMAP_PATH_KEY, roadmapDone, roadmapPath, roadmapProgress, STATUS_KEY } from '../lib/roadmapState';
+import { cleanStatus, creditStep, dealScoped, focusDealId, NO_DEAL, pathForDeal, planPath, practiceDoneElsewhere, PRACTICE_NAME, PROGRESS_EVENT, progressChanged, ROADMAP_KEY, ROADMAP_PATH_KEY, roadmapDone, roadmapPath, roadmapProgress, STATUS_KEY, pastStage } from '../lib/roadmapState';
 import type { Deal } from '../lib/analyze';
 import { ASTERISK_NOTE } from '../lib/disclaimers';
 import AnnouncedResults from './AnnouncedResults';
@@ -315,7 +315,8 @@ export function FirstDealRoadmap() {
   const deal = active ? { id: `analyzed:${active.id}`, name: active.name, kind: active.kind } : undefined;
   const stage = active ? stageOf(active) : undefined;
   const scoped = (s: RoadmapStep) => !!deal && dealScoped(s);
-  const doneOf = (s: RoadmapStep) => (scoped(s) ? (perDeal[deal!.id]?.done ?? []).includes(s.id) : done.includes(s.id));
+  const pastOf = deal ? pastStage(`analyzed:${deal.id}`) : () => false;
+  const doneOf = (s: RoadmapStep) => (scoped(s) ? (perDeal[deal!.id]?.done ?? []).includes(s.id) || pastOf(s) : done.includes(s.id));
   const statusOf = (s: RoadmapStep): StepStatus | undefined => (scoped(s) ? perDeal[deal!.id]?.status[s.id] : status[s.id]);
   // On the lien route, a focused lien deal's state decides its practice step (an Arizona deal for a Texas reader).
   const steps = roadmapFor(path, practiceState());

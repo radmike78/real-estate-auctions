@@ -840,7 +840,7 @@ describe('Nevada round 4 flow', () => {
     expect(lt.label).toMatch(/after the 20-day deadline \(Sep 30, 2026\): ask the Treasurer in writing whether the sale stands\*/);
     expect(lt.undo?.label).toBe('The Treasurer said the sale is void: mark it');
     // Void: collect the rest of what you paid.
-    const voided = { ...late, dates: [...late.dates, { when: '2026-10-05', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }] };
+    const voided = { ...late, dates: [...late.dates, { when: '2026-10-05', what: 'The sale is void (the Treasurer said so)', who: 'The county treasurer', resolved: true }] };
     const vt = dealNextTask(tax, voided, now, 'contract');
     expect(vt.label).toMatch(/is void: ask the Treasurer in writing for the rest of what you paid\*/);
     expect(vt.tick).toMatchObject({ label: 'I got the refund: mark it passed', then: 'passed' });
@@ -892,7 +892,7 @@ describe('Nevada round 4 flow', () => {
     saveDeals([{ ...tax, stage: 'contract' }]);
     expect(stageHint('contract', tax)).toMatch(/^Paid, but the SID payoff came after the 20-day deadline/);
     expect(packetSections({ ...tax, stage: 'contract' }, late, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Next: ask the Treasurer in writing whether the sale stands\*; the SID payoff was after the 20-day deadline \(Sep 30, 2026\)/);
-    const voided = { ...EMPTY_PACKET, dates: [...base, { when: '2026-10-05', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }] };
+    const voided = { ...EMPTY_PACKET, dates: [...base, { when: '2026-10-05', what: 'The sale is void (the Treasurer said so)', who: 'The county treasurer', resolved: true }] };
     expect(dealNextTask(tax, voided, now, 'contract').key).toBe('sid-refund');
     const keys = stageTasks(tax, 'contract', voided, now).map((t) => t.key);
     expect(keys).not.toContain('record');
@@ -926,7 +926,7 @@ describe('Nevada round 4 flow', () => {
     const sp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-11', what: 'Payment deadline', who: 'Me', resolved: true }] };
     const aff = stageTasks(tax, 'contract', sp, now).find((x) => x.key === 'sid-affidavit')!;
     expect(aff.undo?.label).toBe('An affidavit was filed and I didn’t pay it in time: the sale is void');
-    const voided = { ...sp, dates: [...sp.dates, { when: '2026-10-06', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }] };
+    const voided = { ...sp, dates: [...sp.dates, { when: '2026-10-06', what: 'The sale is void (the Treasurer said so)', who: 'The county treasurer', resolved: true }] };
     expect(dealNextTask(tax, voided, now, 'contract').key).toBe('sid-refund');
     // A Nevada SID lien: the worked-out 120-day end.
     const lien = { ...nvFlip, kind: 'lien' as const, plan: 'lien' as const };
@@ -949,7 +949,7 @@ describe('Nevada round 4 flow', () => {
     const pp = { ...EMPTY_PACKET, postponedSale: true, dates: [{ when: '', what: 'Sale day', who: 'Trustee' }, { when: '2026-10-01', what: 'Sale postponed (was Oct 1, 2026)', who: 'Trustee', resolved: true }] };
     expect(packetSections({ ...nvFlip, stage: 'researching' }, pp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Next: enter the new sale date \(the sale was postponed\)\./);
     const tax = { ...nvFlip, kind: 'taxSale' as const };
-    const vp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-09', what: 'Treasurer’s deed recorded', who: 'Treasurer' }, { when: '2026-10-05', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }] };
+    const vp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-09', what: 'Treasurer’s deed recorded', who: 'Treasurer' }, { when: '2026-10-05', what: 'The sale is void (the Treasurer said so)', who: 'The county treasurer', resolved: true }] };
     savePacket('analyzed:f1', vp);
     saveDeals([{ ...tax, stage: 'contract' }]);
     expect(packetSections({ ...tax, stage: 'contract' }, vp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Treasurer’s deed recorded \(Treasurer\) — not needed \(the sale is void\)/);
@@ -974,7 +974,7 @@ describe('Nevada round 4 flow', () => {
     const unpaid = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-11', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-09-25', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City' }] };
     const t = dealNextTask(tax, unpaid, now, 'contract');
     expect(t.record?.label).toBe('I didn’t pay it by Sep 30, 2026: the sale is void');
-    expect(t.record?.row.what).toBe('Treasurer: the sale is void');
+    expect(t.record?.row).toMatchObject({ what: 'The sale is void (the SID payoff wasn’t made within 20 days, NRS 361.595(6))', who: 'You' });
     const late = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-03', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City', resolved: true }, { when: '2026-10-04', what: 'Treasurer’s deed recorded', who: 'T', resolved: true }] };
     expect(dealNextTask(tax, late, now, 'closed').key).toBe('sid-void');
     savePacket('analyzed:f1', late);
@@ -996,8 +996,8 @@ describe('Nevada round 4 flow', () => {
     saveOwned({});
     localStorage.removeItem('deedowl.decide.v1');
     const tax = { ...nvFlip, kind: 'taxSale' as const };
-    const voided = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-05', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }] };
-    expect(dealNextTask(tax, voided, now, 'contract').undo).toEqual({ label: 'Not void after all? Undo', removeRow: 'Treasurer: the sale is void' });
+    const voided = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-05', what: 'The sale is void (the Treasurer said so)', who: 'The county treasurer', resolved: true }] };
+    expect(dealNextTask(tax, voided, now, 'contract').undo).toEqual({ label: 'Not void after all? Undo', removeRow: 'The sale is void' });
     expect(pressingWeight({ key: 'sid-void', label: '' })).toBeLessThan(pressingWeight({ key: 'date', label: 'Redemption period ends' }));
   });
 
@@ -1046,7 +1046,7 @@ describe('Nevada round 4 flow', () => {
     saveLog('analyzed:f1', cleanLog({ rows: {} }));
     // A void tax sale at Owned: the hint says void.
     const tax = { ...nvFlip, kind: 'taxSale' as const };
-    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }] });
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'The sale is void (the Treasurer said so)', who: 'The county treasurer', resolved: true }] });
     expect(stageHint('owned', tax)).toMatch(/^The Treasurer said the sale is void/);
   });
 
@@ -1061,7 +1061,7 @@ describe('Nevada round 4 flow', () => {
     saveLog('analyzed:f1', cleanLog({ rows: {} }));
     // A void sale's label, and the refund received.
     const tax = { ...nvFlip, kind: 'taxSale' as const };
-    const vd = { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }, { when: '2026-10-06', what: 'Refund received from the Treasurer', who: 'The county treasurer', resolved: true }] };
+    const vd = { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'The sale is void (the Treasurer said so)', who: 'The county treasurer', resolved: true }, { when: '2026-10-06', what: 'Refund received from the Treasurer', who: 'The county treasurer', resolved: true }] };
     savePacket('analyzed:f1', vd);
     expect(stageLabel('owned', tax)).toBe('Void: refund due');
     expect(stageLabel('passed', tax)).not.toBe('Void: refund due');
@@ -1071,6 +1071,36 @@ describe('Nevada round 4 flow', () => {
     // A sheriff sale on Feb 29: a year later is Feb 28.
     const court = { ...nvFlip, kind: 'court' as const };
     expect(redemptionEndFrom(court, { ...EMPTY_PACKET, dates: [{ when: '2028-02-29', what: 'Sale day', who: 'S', resolved: true }] })).toBe('2029-02-28');
+  });
+
+  it('round 14 flow: auction questions; sale day leads; passed rows answerable; sheriff records; void by law; roadmap credit', async () => {
+    const { needsAnswerNow } = await import('./dealStage');
+    const { settledFor } = await import('./roadmapState');
+    expect(stageTasks(nvFlip, 'offer', EMPTY_PACKET, now).map((x) => x.key)).toContain('qa');
+    // On sale day the sale day leads over an unticked registration row.
+    const sd = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Bidder registration (if required)', who: 'Trustee' }, { when: '2026-10-06', what: 'Sale day', who: 'Trustee' }] };
+    expect(dealNextTask(nvFlip, sd, now, 'offer').label).not.toMatch(/Bidder registration/);
+    // A passed contract row gets an answer; an ended inspection period reads as a window.
+    const listing = { ...nvFlip, kind: 'listing' as const };
+    const ip = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Inspection period ends', who: 'Me' }] };
+    const it2 = dealNextTask(listing, ip, now, 'contract');
+    expect(it2.label).toMatch(/inspection period for 2210 Mesa Verde Ln ended 5 days ago/);
+    expect(it2.tick?.label).toBe('Inspections done, or I cancelled in time: mark it handled');
+    // NV sheriff: the sheriff files the certificate.
+    const court = { ...nvFlip, kind: 'court' as const };
+    expect(stageTasks(court, 'contract', EMPTY_PACKET, now).find((x) => x.key === 'record')!.label).toMatch(/the sheriff files a copy with the county recorder, NRS 21\.190/);
+    // Did you win? counts as needing an answer now.
+    const past = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'Trustee' }] };
+    expect(needsAnswerNow(dealNextTask(nvFlip, past, now, 'offer'))).toBe(true);
+    // Void by law (not paid in time): the hint says so.
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'The sale is void (the SID payoff wasn’t made within 20 days, NRS 361.595(6))', who: 'You', resolved: true }] });
+    expect(stageHint('contract', tax)).toMatch(/^The SID payoff wasn’t made within 20 days, so the sale is void/);
+    // The roadmap credits a property's earlier stages.
+    saveDeals([{ ...nvFlip, stage: 'closed' }]);
+    const settled = settledFor('analyzed:f1');
+    const bid = ROADMAP.find((x) => x.id === STAGE_STEPS.offer[0])!;
+    expect(settled(bid)).toBe(true);
   });
 
   it('says so when the deed row is ticked at a win', () => {

@@ -77,7 +77,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const all = useOwned();
   const o = all[deal.id];
   const [month, setMonth] = useState(thisMonth);
-  const [rent, setRent] = useState('');
+  // (A flip collects no rent: it starts at 0.)
+  const [rent, setRent] = useState(deal.plan === 'flip' ? '0' : '');
   const [focusBox, setFocusBox] = useState<'rent' | 'costs' | null>(null);
   const [costs, setCosts] = useState('');
   const [note, setNote] = useState('');
@@ -95,7 +96,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   if (!o && redeemingNow(deal)) return <p className="muted">It was redeemed: nothing to track here. Keep the receipt for your payoff.</p>;
   if (!o && (stageOf(deal) === 'passed' || finishedDeal(deal))) return <p className="muted">{finishedDeal(deal) ? 'It was repaid: nothing more to track here.' : 'You passed on it: nothing to track here.'}</p>;
   if (!o && ['researching', 'offer'].includes(stageOf(deal)) && wayOf(deal) !== 'offer') return <p className="muted">Won it? Answer “did you win?” in Your next action above once the sale is over, and the steps after the sale appear here.</p>;
-  if (sidState(deal) === 'void') return <p className="muted">Not needed: the Treasurer said the sale is void.</p>;
+  if (sidState(deal) === 'void') return <p className="muted">Not needed: the sale is void.</p>;
   if (!o && stageOf(deal) === 'contract' && wayOf(deal) !== 'offer') return <p className="muted">Once you’ve paid and the {certificateFirst(deal) ? 'certificate of sale' : 'deed'} is {certificateFirst(deal) && deal.kind === 'irs' ? 'in hand' : 'recorded'}, mark it in Your next action above; then start tracking its costs here.</p>;
   // An offer before it's under contract: nothing is bought yet.
   if (!o && ['researching', 'offer'].includes(stageOf(deal)) && wayOf(deal) === 'offer') return <p className="muted">Once your offer is accepted and it closes, start tracking it here.</p>;
@@ -154,10 +155,11 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} aria-invalid={showBad(costs, 'costs') || undefined} onFocus={() => setFocusBox('costs')} onBlur={() => setFocusBox(null)} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
         <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable || month < o.boughtOn.slice(0, 7)} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
+        {(rent === '' || costs === '') && <span className="muted small">Enter the rent (0 if none) and what you paid.</span>}
       </div>}
       {(showBad(rent, 'rent') || showBad(costs, 'costs')) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
       {negative && <p className="caution small" role="alert">Enter rent and costs as $0 or more. Record a refund to a tenant as a cost.</p>}
-      {!o.sold && <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs{liveIn(deal) ? '' : ', management'} and utilities, and any money you moved into your repair savings.{liveIn(deal) ? ' Rent: only what a room or unit you rent out brought in.' : ''}</p>}
+      {!o.sold && <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs{liveIn(deal) ? ' (leave out utilities: the plan doesn’t include them)' : ', management and utilities'}, and any money you moved into your repair savings.{liveIn(deal) ? ' Rent: only what a room or unit you rent out brought in.' : ''}</p>}
       {s.months > 0 ? (
         <>
           <dl className="calc-kv">
