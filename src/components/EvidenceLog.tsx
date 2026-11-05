@@ -113,12 +113,12 @@ function useReloadOnSave(dealId: string, setLog: (l: Log) => void) {
 }
 
 /** The decision on its own, where the deal packet asks for it; the same choice as the log's, kept in sync. */
-export function DecisionGate({ dealId, onPass, record = false }: { dealId: string; /** Offered after choosing Pass: move the property to Passed. */ onPass?: () => void; /** Bought: the choice is shown as a record, not asked again. */ record?: boolean }) {
+export function DecisionGate({ dealId, onPass, record = false, passed = false }: { dealId: string; /** Offered after choosing Pass: move the property to Passed. */ onPass?: () => void; /** Bought: the choice is shown as a record, not asked again. */ record?: boolean; /** Moved to Passed: that is the decision. */ passed?: boolean }) {
   const [log, setLog] = useState<Log>(() => loadLog(dealId));
   useReloadOnSave(dealId, setLog);
   const choose = (gate: Log['gate']) => { const next = { ...loadLog(dealId), gate }; saveLog(dealId, next); setLog(next); };
   const [moved, setMoved] = useState(false);
-  if (record) return <p className="evidence-gate-record"><strong>Your decision before you bought:</strong> {GATES.find((g) => g.key === log.gate)?.label ?? 'none recorded'}.</p>;
+  if (record) return <p className="evidence-gate-record"><strong>{passed ? 'Your decision:' : 'Your decision before you bought:'}</strong> {passed ? 'Pass (you moved it to Passed)' : GATES.find((g) => g.key === log.gate)?.label ?? 'none recorded'}.</p>;
   return (
     <fieldset className="evidence-gate">
       <legend>Your decision</legend>

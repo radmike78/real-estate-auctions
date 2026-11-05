@@ -1119,7 +1119,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   // A saved deal's state or county changed in Analyze and isn't confirmed yet: its costs still follow the old place.
   if (hasNums && !d.locationConfirmed) nums.push(UNCONFIRMED_PLACE);
   if (!hasNums && flipNeedsRepairs(d)) nums.push(REPAIRS_NEEDED(strategy));
-  else if (!hasNums && d.plan === 'rent') nums.push(liveIn(d) ? `No numbers yet: enter the price you’d pay, and any rent from a room or unit (or 0), in ${strategy}.` : `No numbers yet: type the property’s rent, and the price you’d pay, in ${strategy}. Our example rent doesn’t count.`);
+  else if (!hasNums && d.plan === 'rent') nums.push(liveIn(d) ? `No numbers yet: enter the price you${['closed', 'owned'].includes(stageOf(d)) ? ' paid' : '’d pay'}, and any rent from a room or unit (or 0), in ${strategy}.` : `No numbers yet: type the property’s rent, and the price you’d pay, in ${strategy}. Our example rent doesn’t count.`);
   else if (!hasNums && d.plan === 'commercial') nums.push(`No numbers yet: type the building’s rent in ${strategy}. Our example rent doesn’t count.`);
   else if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
   // Done only once there's a downside to look at, not just the base case.
@@ -1146,7 +1146,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     status: answered.length && !waiting.length ? 'done' : p.qa.length ? 'started' : 'missing',
     lines: p.qa.length
       ? p.qa.filter((x) => x.q).map((x) => `${proGuideByKey(x.role as never) ? roleTitleFor(d, x.role as never) : 'Other'}: ${x.q} → ${x.a ? `${x.a}${x.on ? ` (${prettyDay(x.on)})` : ''}` : 'waiting for an answer'}`)
-      : ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? ['Nothing was recorded here before you bought. Add a question if you want it on file.'] : [`Write down the question this deal raises for each of: ${teamRolesFor(d).map((k) => roleTitleFor(d, k)).join(', ')}. Add any other professional you’ll use.`],
+      : stageOf(d) === 'passed' ? ['Nothing was recorded here before you passed.'] : ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? ['Nothing was recorded here before you bought. Add a question if you want it on file.'] : [`Write down the question this deal raises for each of: ${teamRolesFor(d).map((k) => roleTitleFor(d, k)).join(', ')}. Add any other professional you’ll use.`],
   });
 
   // 8. Decision
@@ -1155,7 +1155,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     key: 'decision',
     title: 'Your decision',
     status: gate && p.decisionWhy ? 'done' : gate || p.decisionWhy ? 'started' : 'missing',
-    lines: [gate ? `${gate.label}: ${gate.when}` : 'Not decided yet', p.decisionWhy ? `Why: ${p.decisionWhy}` : 'Why: not written yet', p.conditions ? `Still to resolve before you commit: ${p.conditions}` : 'Conditions still to resolve: none written'],
+    lines: [stageOf(d) === 'passed' ? 'Pass (you moved it to Passed)' : gate ? `${gate.label}: ${gate.when}` : 'Not decided yet', p.decisionWhy ? `Why: ${p.decisionWhy}` : 'Why: not written yet', p.conditions ? `Still to resolve before you commit: ${p.conditions}` : 'Conditions still to resolve: none written'],
   });
   return out;
 }
@@ -1176,7 +1176,7 @@ export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const lines = [`DEAL PACKET: ${d.name}`, 'DeedOwl educational worksheet. Every number is your estimate until a source backs it; a checkmark records your review, not a clear title.', ''];
   lines.push(`STAGE: ${stageLabel(stageOf(d), d)}`, `NEXT ACTION: ${nextAction(d, p, now).text}`, ...(flipSaleLine(d) ? [`SALE: ${flipSaleLine(d)}`] : []), '');
   for (const s of packetSections(d, p, now)) {
-    lines.push(`${s.title.toUpperCase()} [${s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : pastSale && recordParts(d).includes(s.key) ? (s.status === 'missing' ? 'left blank: from before you bought' : 'partly filled in: from before you bought') : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines);
+    lines.push(`${s.title.toUpperCase()} [${s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : stageOf(d) === 'passed' && s.key !== 'dates' ? 'not needed (you passed)' : pastSale && recordParts(d).includes(s.key) ? (s.status === 'missing' ? 'left blank: from before you bought' : 'partly filled in: from before you bought') : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines);
     if (s.key === 'dates' && dateGuideLines(d).length) lines.push(`What the less familiar ${d.state === 'TX' ? (isOffer(d) ? 'Texas contract ' : 'Texas ') : ''}dates mean (${isOffer(d) ? 'the signed contract wins' : 'the official notice wins'}):`, ...dateGuideLines(d).map((l) => `- ${l}`));
     lines.push('');
   }

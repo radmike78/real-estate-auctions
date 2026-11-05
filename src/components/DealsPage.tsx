@@ -17,7 +17,7 @@ import { removeLog } from '../lib/evidence';
 import { noRedemptionShort, shortestRedemptionWords, waitWords } from '../lib/dealPacket';
 import { kindLabel, loadDeals as loadAnalyzed, makeRealDeal, openDeal, savingPractice, SALE_KINDS, checklistFor, type Deal } from '../lib/analyze';
 import { progressChanged } from '../lib/roadmapState';
-import { ownedSummary } from '../lib/owned';
+import { ownedSummary, loadOwned } from '../lib/owned';
 import { projectedMonthly, useOwned } from './OwnedTracker';
 import { countyName } from '../lib/regions';
 import StatusBadge from './StatusBadge';
@@ -152,7 +152,7 @@ function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
           ))}
         </tbody>
       </table>
-      <p className="muted">{rows.every((r) => liveIn(r.d)) ? `What ${rows.length === 1 ? 'it' : 'they'} cost, after any rent, recorded so far` : rows.every((r) => r.d.plan === 'flip') ? 'What you’ve paid in repairs and holding costs, recorded so far' : `Rent minus costs recorded so far${rows.length === 1 ? '' : ', across all of them'}`}: <strong>{rows.every((r) => liveIn(r.d)) && total > 0 ? `${fmtMoney(Math.round(total))} to spare` : signed(rows.every((r) => liveIn(r.d)) || rows.every((r) => r.d.plan === 'flip') ? -total : total)}</strong>{rows.some((r) => r.o.sold) ? (rows.filter((r) => r.o.sold).every((r) => /Rough profit/.test(flipSaleLine({ ...r.d, plan: 'flip' }) ?? '')) ? ' (sales not included: each sold property’s packet shows a rough profit against the one you planned)' : ' (sales not included: enter each sold property’s numbers in Analyze to see a rough profit)') : ''}. Add each month on the property’s deal packet.</p>
+      <p className="muted">{rows.every((r) => liveIn(r.d)) ? `What ${rows.length === 1 ? 'it' : 'they'} cost${rows.some((r) => loadOwned()[r.d.id]?.months.some((m) => m.rent > 0)) ? ', after any rent,' : ''} recorded so far` : rows.every((r) => r.d.plan === 'flip') ? 'What you’ve paid in repairs and holding costs, recorded so far' : `Rent minus costs recorded so far${rows.length === 1 ? '' : ', across all of them'}`}: <strong>{rows.every((r) => liveIn(r.d)) && total > 0 ? `${fmtMoney(Math.round(total))} to spare` : signed(rows.every((r) => liveIn(r.d)) || rows.every((r) => r.d.plan === 'flip') ? -total : total)}</strong>{rows.some((r) => r.o.sold) ? (rows.filter((r) => r.o.sold).every((r) => /Rough profit/.test(flipSaleLine({ ...r.d, plan: 'flip' }) ?? '')) ? ' (sales not included: each sold property’s packet shows a rough profit against the one you planned)' : ' (sales not included: enter each sold property’s numbers in Analyze to see a rough profit)') : ''}. Add each month on the property’s deal packet.</p>
     </section>
   );
 }

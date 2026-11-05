@@ -159,7 +159,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   return (
     <div>
       {/^\d{4}-\d{2}$/.test(month) && month > maxMonth && <p className="caution" role="note">That month isn’t over yet: record it once it ends.</p>}
-      {month === '' && <p className="muted" role="note">{o.months.length ? 'Every finished month is recorded. Come back once this month ends, or pick an earlier month to change it.' : 'Your first month isn’t over yet: record it once it ends.'}</p>}
+      {month === '' && <p className="muted" role="note">{o.months.length ? 'Every finished month is recorded. Come back once this month ends, or pick an earlier month to change it.' : `Your first month ends ${prettyDay((() => { const [y, m] = o.boughtOn.split('-').map(Number); const t = new Date(y, m, 0); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })())}. Come back after that to record what it ${liveIn(deal) ? 'cost' : 'brought in and cost'}.`}</p>}
       {/^\d{4}-\d{2}$/.test(month) && month < o.boughtOn.slice(0, 7) && <p className="caution" role="note">That month is before you bought it ({prettyDay(o.boughtOn)}): pick a later month.</p>}
       {o.months.some((m) => m.month < o.boughtOn.slice(0, 7)) && <p className="caution" role="note">{o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).map((m) => monthWords(m.month)).join(', ')} {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'is' : 'are'} before the date you bought it ({prettyDay(o.boughtOn)}): remove {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'it' : 'them'} or check the date.</p>}
       {!rentCovers && deal.home === 'live' && deal.homeFrom !== 'plan' && s.months > 0 && s.rent > 0 && s.rent >= s.costs && <p className="muted small">Rent now covers this home’s costs. Still your home? You can change it under “Your plan and buy box”.</p>}
@@ -173,12 +173,14 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
       {!o.sold && <p className="muted">{flip ? (budgetLine ?? 'Record what you pay each month, with $0 rent, and compare it yourself with the repairs and holding costs under Fix and flip in Analyze.') : liveIn(deal) && projected === null ? 'Record what your home costs each month (and any rent from a room or unit). Save its numbers in Analyze to compare with your plan.' : projected === null ? 'Renting it out? Save this deal’s numbers in Buy and hold to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : liveIn(deal) ? `You planned on about ${signed(-projected)} a month to live there${savedNumbers(deal).rent?.noRent ? '' : ' (after any rent you collect)'}${(savedNumbers(deal).rent?.mi ?? 0) > 0 ? `, before mortgage insurance (about ${fmtMoney(Math.round(savedNumbers(deal).rent!.mi))} a month more)` : ''}.` : `You planned on ${signed(projected)} a month of cash flow.`}</p>}
       {o.sold ? <p className="muted">Bought on {prettyDay(o.boughtOn)}. Sold: the months you recorded are below.</p> : <div className="row owned-add">
         <label className="field"><span>Bought on</span><input id="owned-bought-on" type="date" value={o.boughtOn} max={today()} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
+        {month === '' && !o.months.length ? null : <>
         <label className="field"><span>Month</span><input id="owned-month" type="month" value={month} min={o.boughtOn.slice(0, 7)} max={maxMonth} onChange={(e) => setMonth(e.target.value)} /></label>
         <label className="field"><span>{liveIn(deal) ? 'Rent you collected ($)' : 'Rent collected ($)'}</span><input type="text" inputMode="decimal" value={rent} aria-invalid={showBad(rent, 'rent') || undefined} onFocus={() => setFocusBox('rent')} onBlur={() => setFocusBox(null)} onChange={(e) => setRent(e.target.value)} /></label>
         <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} aria-invalid={showBad(costs, 'costs') || undefined} onFocus={() => setFocusBox('costs')} onBlur={() => setFocusBox(null)} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
         <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable || month < o.boughtOn.slice(0, 7) || month > maxMonth} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
         {(rent === '' || costs === '') && <span className="muted small owned-missing">Enter the rent (0 if none) and what you paid.</span>}
+        </>}
       </div>}
       {(showBad(rent, 'rent') || showBad(costs, 'costs')) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
       {negative && <p className="caution small" role="alert">Enter rent and costs as $0 or more. Record a refund to a tenant as a cost.</p>}
@@ -187,7 +189,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <>
           <dl className="calc-kv">
             <div><dt>Months recorded</dt><dd>{s.months}</dd></div>
-            <div><dt>{liveIn(deal) ? (s.actual > 0 ? 'Left over, in total (after rent)' : 'What it cost, in total (after any rent)') : 'Actual cash flow, in total'}</dt><dd>{liveIn(deal) && s.actual > 0 ? fmtMoney(Math.round(s.actual)) : signed(liveIn(deal) ? -s.actual : s.actual)}</dd></div>
+            <div><dt>{liveIn(deal) ? (s.actual > 0 ? 'Left over, in total (after rent)' : (o.months.some((m) => m.rent > 0) ? 'What it cost, in total (after any rent)' : 'What it cost, in total')) : 'Actual cash flow, in total'}</dt><dd>{liveIn(deal) && s.actual > 0 ? fmtMoney(Math.round(s.actual)) : signed(liveIn(deal) ? -s.actual : s.actual)}</dd></div>
             <div><dt>{liveIn(deal) ? (s.averageMonthly > 0 ? 'Left over, average month' : 'Average cost a month') : 'Average month'}</dt><dd>{liveIn(deal) && s.averageMonthly > 0 ? fmtMoney(Math.round(s.averageMonthly)) : signed(liveIn(deal) ? -s.averageMonthly : s.averageMonthly)}</dd></div>
             {flip && budget && <div><dt>Paid so far, against your {fmtMoney(Math.round(budget.total))} budget</dt><dd>{fmtMoney(Math.round(s.costs))} {s.costs > budget.total ? `(${fmtMoney(Math.round(s.costs - budget.total))} over)` : `(${fmtMoney(Math.round(budget.total - s.costs))} left)`}</dd></div>}
             {s.gapMonthly !== null && <div><dt>Against your plan, a month</dt><dd>{signed(s.gapMonthly)} {s.gapMonthly < 0 ? '(behind)' : '(ahead)'}</dd></div>}
@@ -206,7 +208,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
           </table>
         </>
       ) : (
-        <p>{flip ? 'No months recorded yet. Add the first month’s costs, with $0 rent.' : liveIn(deal) ? 'No months recorded yet. After your first full month in the home, add what it cost, plus any rent from a room or unit (or $0).' : 'No months recorded yet. Add the first one when the rent comes in.'}</p>
+        month === '' && !o.months.length ? null : <p>{flip ? 'No months recorded yet. Add the first month’s costs, with $0 rent.' : liveIn(deal) ? 'No months recorded yet. After your first full month in the home, add what it cost, plus any rent from a room or unit (or $0).' : 'No months recorded yet. Add the first one when the rent comes in.'}</p>
       )}
       {flip && stageOf(deal) === 'owned' && (
         <>

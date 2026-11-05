@@ -326,7 +326,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
   const neg = (n: number) => (n > 0 ? `−\u2060${mo(n)}` : mo(0)); // word joiner: the minus never wraps away from the amount
   return (
     <section className="at-price price-block price-block-yours" aria-labelledby="at-price-head">
-      <PriceHead level={3} id="at-price-head" kind="yours" label={word} price={price > 0 ? price : null} result={price > 0 ? a.cashFlow / 12 : null} cost={livingThere && !(v.monthlyRent > 0)} note={price > 0 ? 'Your actual price: the result for the property as you’d buy it.' : 'Enter the price you’d pay to see this property’s own result.'} />
+      <PriceHead level={3} id="at-price-head" kind="yours" label={word} price={price > 0 ? price : null} result={price > 0 ? a.cashFlow / 12 : null} cost={livingThere && !(v.monthlyRent > 0)} note={price > 0 ? (word === 'The price you paid' ? 'The price you paid: the result for the property as you bought it.' : 'Your actual price: the result for the property as you’d buy it.') : 'Enter the price you’d pay to see this property’s own result.'} />
       <label className="field">
         <span>{word} ($)</span>
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
@@ -556,6 +556,8 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const [, bumpHome] = useState(0);
   const ownDeal = dealId ? loadDeals().find((x) => x.id === dealId) : undefined;
   const livesHere = offer && (ownDeal ? liveIn({ ...ownDeal, plan: 'rent' }) : !!investorProfile().ownerOccupant);
+  // Already bought (closed or owned): the price is the one you paid.
+  const bought = offer && !!ownDeal && ['closed', 'owned'].includes(ownDeal.stage ?? '');
   // In a deal with a state, the example tax and insurance follow that state (a Texas rental's tax is about three
   // times a Nevada one's); they're starting numbers only and give way to anything typed or prefilled.
   const stateStart = regional ? rentalStartFor(region.state, start.value ?? RENT_DEFAULTS.value, region.county) : {};
@@ -602,7 +604,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const basicFields = groups.flatMap((g) => g.fields).filter((f) => basics.has(f.k));
   const moreGroups = groups.map((g) => ({ ...g, fields: g.fields.filter((f) => !basics.has(f.k)) }));
   const allExample = !typed && Object.keys(start).length === 0;
-  const word = offer ? 'Your offer' : 'Your bid';
+  const word = bought ? 'The price you paid' : offer ? 'Your offer' : 'Your bid';
   // Which price the panels below are figured at: yours once you enter it, else the target price.
   // You plan to live there (Decide: a home loan and live in it): the investor's walk-away price is a yardstick only, so
   // the panels below wait for your offer instead of using it.
@@ -618,7 +620,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
     <div className="calc">
       <div className="calc-inputs">
         <ExampleInputs labels={still} all={allExample} />
-        <CalcFields groups={[{ title: 'Start with these numbers', fields: [{ k: 'atPrice', label: offer ? 'Your offer' : 'Your bid', unit: '$', hint: living ? 'Enter the asking price or your offer to see what living there costs; an investor’s price is under Investor yardstick.' : '0 leaves your price unset; the target-price estimate is still shown.' }, ...basicFields] }]} values={v} onChange={set} />
+        <CalcFields groups={[{ title: 'Start with these numbers', fields: [{ k: 'atPrice', label: bought ? 'The price you paid' : offer ? 'Your offer' : 'Your bid', unit: '$', hint: bought ? 'What you paid at closing.' : living ? 'Enter the asking price or your offer to see what living there costs; an investor’s price is under Investor yardstick.' : '0 leaves your price unset; the target-price estimate is still shown.' }, ...basicFields] }]} values={v} onChange={set} />
         <details className="calc-assumptions"><summary>Review all other costs, loan terms and targets</summary><p className="muted small">These inputs are already included in the estimate, even while this section is closed. Review vacancy, upkeep, replacement reserves, acquisition costs and loan terms before using the result.</p><CalcFields groups={moreGroups} values={v} onChange={set} /></details>
       </div>
       <div className="calc-results">

@@ -153,6 +153,8 @@ export const redeemedIn = (p: PacketData) => p.dates.some((x) => sameDate(x.what
 /** Who pays a redemption's money: you, or the sheriff for you (NRS 21.230(1), (3)); an HOA sale's, you (NRS 116.31166(3));
  *  an IRS sale's, you, or the IRS if you can't be found in the county (26 U.S.C. 6337(b)(2)). */
 const payoffRow = (d: Pick<Deal, 'kind'>) => ({ when: '', what: REDEEMED_ROW, who: d.kind === 'court' ? 'The person who redeemed, or the sheriff for them' : d.kind === 'irs' ? 'The person who redeemed (the IRS, if you couldn’t be found)' : 'The person who redeemed' });
+/** On a task about something else: the redemption is a different event, so the button names it. */
+const redeemLabel = (d: Pick<Deal, 'kind' | 'state'> & { id?: string; plan?: Deal['plan'] }, p: PacketData) => { const e = p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when || redemptionEnd(d, p); return `Someone redeemed${e ? ` (before ${prettyDay(e)})` : ''}? Collect the payoff`; };
 const redeemButton = (d: Pick<Deal, 'kind'>, label = 'It was redeemed: collect the payoff') => ({ stage: 'closed' as DealStage, label, addRow: payoffRow(d) });
 /** A flip's recorded sale (in its packet's owned section). */
 export const soldOf = (d: { id?: string }) => (d.id ? loadOwned()[d.id]?.sold : undefined);
@@ -571,7 +573,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     const deedFirst = certificateFirst(d) && (ticked(p, 'Redemption period ends') || ticked(p, DEED_AFTER_WAIT));
     // During the redemption wait, someone can redeem any day: that answer rides on whichever task leads.
     const waiting = certificateFirst(d) && !deedFirst && !redeemedIn(p);
-    const withRedeem = (t: PlanTask): PlanTask => (waiting && !t.advance2 ? { ...t, advance2: redeemButton(d) } : t);
+    const withRedeem = (t: PlanTask): PlanTask => (waiting && !t.advance2 ? { ...t, advance2: redeemButton(d, redeemLabel(d, p)) } : t);
     if (!deedFirst) out.push(withRedeem(firstWeek));
     const wonLater = w === 'auction' && (d.plan === 'flip' || d.plan === 'rent') ? wonPrice(d as Deal, p, n) : undefined;
     const won = wonLater && !wonLater.done && !bidTyped(d as Deal) ? wonLater : undefined;
@@ -660,7 +662,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
 export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date(), stage: DealStage = stageOf(d)): PlanTask {
   const t = nextTaskFor(d, p, now, stage);
   // A certificate-first win, paid: the redemption period is running, so someone can redeem any day.
-  return stage === 'contract' && certificateFirst(d) && paidIn(p) && !redeemedIn(p) && !t.advance2 && !t.done ? { ...t, advance2: redeemButton(d) } : t;
+  return stage === 'contract' && certificateFirst(d) && paidIn(p) && !redeemedIn(p) && !t.advance2 && !t.done ? { ...t, advance2: redeemButton(d, redeemLabel(d, p)) } : t;
 }
 function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanTask {
   if (stage !== 'passed') {
