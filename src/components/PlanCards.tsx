@@ -38,7 +38,7 @@ export function PlanCards({ price, extra, selected }: { price: (t: AdTier) => Re
     <div className="plan-grid">
       {AD_TIERS.map((t) => (
         <div key={t} className={`plan-option${selected === t ? ' on' : ''}`}>
-          <h3>{TIER_INFO[t].label}{TIER_INFO[t].badge && <> <span className="badge tone-go">{TIER_INFO[t].badge}</span></>}</h3>
+          <h3>{TIER_INFO[t].label}{TIER_INFO[t].badge && price(t) !== 'Coming soon' && price(t) !== '…' && <> <span className="badge tone-go">{TIER_INFO[t].badge}</span></>}</h3>
           <div className="plan-price">{price(t)}</div>
           <ul>{TIER_INFO[t].includes.map((x) => <li key={x}>{x}</li>)}</ul>
           {extra?.(t)}

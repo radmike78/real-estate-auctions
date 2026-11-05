@@ -150,20 +150,20 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
       {o.sold ? <p className="muted">Bought on {prettyDay(o.boughtOn)}. Sold: the months you recorded are below.</p> : <div className="row owned-add">
         <label className="field"><span>Bought on</span><input id="owned-bought-on" type="date" value={o.boughtOn} max={today()} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
         <label className="field"><span>Month</span><input id="owned-month" type="month" value={month} min={o.boughtOn.slice(0, 7)} onChange={(e) => setMonth(e.target.value)} /></label>
-        <label className="field"><span>{liveIn(deal) ? 'Rent from a room or unit ($)' : 'Rent collected ($)'}</span><input type="text" inputMode="decimal" value={rent} aria-invalid={showBad(rent, 'rent') || undefined} onFocus={() => setFocusBox('rent')} onBlur={() => setFocusBox(null)} onChange={(e) => setRent(e.target.value)} /></label>
+        <label className="field"><span>{liveIn(deal) ? 'Rent you collected ($)' : 'Rent collected ($)'}</span><input type="text" inputMode="decimal" value={rent} aria-invalid={showBad(rent, 'rent') || undefined} onFocus={() => setFocusBox('rent')} onBlur={() => setFocusBox(null)} onChange={(e) => setRent(e.target.value)} /></label>
         <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} aria-invalid={showBad(costs, 'costs') || undefined} onFocus={() => setFocusBox('costs')} onBlur={() => setFocusBox(null)} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
         <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable || month < o.boughtOn.slice(0, 7)} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
       </div>}
       {(showBad(rent, 'rent') || showBad(costs, 'costs')) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
       {negative && <p className="caution small" role="alert">Enter rent and costs as $0 or more. Record a refund to a tenant as a cost.</p>}
-      {!o.sold && <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs, management and utilities, and any money you moved into your repair savings.</p>}
+      {!o.sold && <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs{liveIn(deal) ? '' : ', management'} and utilities, and any money you moved into your repair savings.{liveIn(deal) ? ' Rent: only what a room or unit you rent out brought in.' : ''}</p>}
       {s.months > 0 ? (
         <>
           <dl className="calc-kv">
             <div><dt>Months recorded</dt><dd>{s.months}</dd></div>
-            <div><dt>{liveIn(deal) ? (s.actual > 0 ? 'Left over, in total (after rent)' : 'What it cost, in total (after any rent)') : 'Actual cash flow, in total'}</dt><dd>{liveIn(deal) && s.actual > 0 ? `${fmtMoney(Math.round(s.actual))} to spare` : signed(liveIn(deal) ? -s.actual : s.actual)}</dd></div>
-            <div><dt>{liveIn(deal) ? (s.averageMonthly > 0 ? 'Left over, average month' : 'Average cost a month') : 'Average month'}</dt><dd>{liveIn(deal) && s.averageMonthly > 0 ? `${fmtMoney(Math.round(s.averageMonthly))} to spare` : signed(liveIn(deal) ? -s.averageMonthly : s.averageMonthly)}</dd></div>
+            <div><dt>{liveIn(deal) ? (s.actual > 0 ? 'Left over, in total (after rent)' : 'What it cost, in total (after any rent)') : 'Actual cash flow, in total'}</dt><dd>{liveIn(deal) && s.actual > 0 ? fmtMoney(Math.round(s.actual)) : signed(liveIn(deal) ? -s.actual : s.actual)}</dd></div>
+            <div><dt>{liveIn(deal) ? (s.averageMonthly > 0 ? 'Left over, average month' : 'Average cost a month') : 'Average month'}</dt><dd>{liveIn(deal) && s.averageMonthly > 0 ? fmtMoney(Math.round(s.averageMonthly)) : signed(liveIn(deal) ? -s.averageMonthly : s.averageMonthly)}</dd></div>
             {flip && budget && <div><dt>Paid so far, against your {fmtMoney(Math.round(budget.total))} budget</dt><dd>{fmtMoney(Math.round(s.costs))} {s.costs > budget.total ? `(${fmtMoney(Math.round(s.costs - budget.total))} over)` : `(${fmtMoney(Math.round(budget.total - s.costs))} left)`}</dd></div>}
             {s.gapMonthly !== null && <div><dt>Against your plan, a month</dt><dd>{signed(s.gapMonthly)} {s.gapMonthly < 0 ? '(behind)' : '(ahead)'}</dd></div>}
           </dl>

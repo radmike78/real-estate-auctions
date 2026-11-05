@@ -363,15 +363,15 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         <tbody>
           {!(livingThere && !(v.monthlyRent > 0)) && <tr><th scope="row">Rent, if fully rented</th><td>{mo(a.gross)}</td></tr>}
           {!(livingThere && !(v.monthlyRent > 0)) && <tr><th scope="row">Vacancy and unpaid rent ({v.vacancyPct}%)</th><td>{neg(a.vacancy)}</td></tr>}
-          <tr><th scope="row">Operating costs: tax, insurance, HOA, management ({v.managementPct}%) and repairs ({v.maintenancePct}%)</th><td>{neg(a.operating)}</td></tr>
-          <tr className={`sum${a.noi < 0 ? ' neg' : ''}`}><th scope="row">Net operating income (NOI)</th><td>{a.noi < 0 ? `−${fmtMoney(Math.round(-a.noi / 12))}` : mo(a.noi)}</td></tr>
-          <tr><th scope="row">Reserves for big replacements ({v.capexPct}%)</th><td>{neg(a.reserves)}</td></tr>
+          {livingThere && !(v.monthlyRent > 0) ? <tr><th scope="row">Operating costs: tax, insurance and HOA (repairs and big-item reserves aren’t counted here: they’re a share of rent. Budget your own upkeep, often about 1% of the price a year*)</th><td>{neg(a.operating)}</td></tr> : <tr><th scope="row">Operating costs: tax, insurance, HOA, management ({v.managementPct}%) and repairs ({v.maintenancePct}%)</th><td>{neg(a.operating)}</td></tr>}
+          {!(livingThere && !(v.monthlyRent > 0)) && <tr className={`sum${a.noi < 0 ? ' neg' : ''}`}><th scope="row">Net operating income (NOI)</th><td>{a.noi < 0 ? `−${fmtMoney(Math.round(-a.noi / 12))}` : mo(a.noi)}</td></tr>}
+          {!(livingThere && !(v.monthlyRent > 0)) && <tr><th scope="row">Reserves for big replacements ({v.capexPct}%)</th><td>{neg(a.reserves)}</td></tr>}
           <tr><th scope="row">Debt service: the loan payment{a.debtService > 0 ? '' : ' (no loan)'}</th><td>{neg(a.debtService)}</td></tr>
           <tr className={`sum${a.cashFlow < 0 ? ' neg' : ''}`}><th scope="row">Cash flow</th><td>{a.cashFlow < 0 ? `−${fmtMoney(Math.round(-a.cashFlow / 12))}` : mo(a.cashFlow)}</td></tr>
         </tbody>
       </table>
       <dl className="calc-kv">
-        <div><dt>Everything you pay, ready to rent (price, buying costs, liens, title, possession, repairs; not loan fees)</dt><dd>{fmtMoney(Math.round(a.allIn))}</dd></div>
+        <div><dt>Everything you pay, ready to {livingThere ? 'move in' : 'rent'} (price, buying costs, liens, title, possession, repairs; not loan fees)</dt><dd>{fmtMoney(Math.round(a.allIn))}</dd></div>
         {a.loan > 0 && <div><dt>Loan principal ({Math.min(v.loanPct, 100)}% of {onPrice ? `${fmtMoney(v.value > 0 ? Math.min(price, v.value) : price)}, the lower of the price and the value` : `the ${fmtMoney(v.value)} value`})</dt><dd>{fmtMoney(Math.round(a.loan))}</dd></div>}
         {a.loan > 0 && <div><dt>Loan fees ({v.loanCostPct}% of principal)</dt><dd>{fmtMoney(Math.round(a.loan * v.loanCostPct / 100))}</dd></div>}
         {a.loan > 0 && <div><dt>Net loan proceeds after loan fees</dt><dd>{fmtMoney(Math.round(a.loan * (1 - v.loanCostPct / 100)))}</dd></div>}
@@ -593,7 +593,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const groups0 = withTaxHint(offer ? forOffer(rt.groups) : rt.groups);
   // Living there: that's a rental's rate; a home you live in may get an owner-occupant (homestead) exemption.
   const groups = livesHere
-    ? groups0.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} ${ownerOccupiedTaxNote(region.state)}`.trim() } : f.k === 'insuranceYear' ? { ...f, hint: 'A policy for a home you live in that has rented units: tell the insurer how many units you rent out.*' } : f.k === 'repairs' ? { ...f, hint: 'To make it ready to move in.' } : f.k === 'monthlyRent' ? { ...f, hint: '0, or only the rent from space you’ll rent out.' } : f.k === 'cashAvailable' ? { ...f, hint: 'All the cash you can put in: the price and every cost until you move in. Leave 0 for no limit.' } : f)) }))
+    ? groups0.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} ${ownerOccupiedTaxNote(region.state)}`.trim() } : f.k === 'insuranceYear' ? { ...f, hint: 'A homeowner’s policy for the home you’ll live in. If you’ll rent out a room or unit, tell the insurer.*' } : f.k === 'repairs' ? { ...f, hint: 'To make it ready to move in.' } : f.k === 'monthlyRent' ? { ...f, hint: '0, or only the rent from space you’ll rent out.' } : f.k === 'cashAvailable' ? { ...f, hint: 'All the cash you can put in: the price and every cost until you move in. Leave 0 for no limit.' } : f)) }))
     : groups0;
   // Numbers from your plan or the property (`start`) aren't our examples.
   const still = exampleLabels(visibleFields(groups, v), v, examples, typedKeys, new Set([...NOT_EXAMPLES, ...Object.keys(start)]));
@@ -664,8 +664,9 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         {at.price > 0 ? <CashCushion v={v} price={at.price} at={at.label} onPrice={offer} /> : null}
         {at.price > 0 ? <RentDealLab v={v} at={at} onPrice={offer} living={living} /> : <p className="calc-note small">Enter {offer ? 'your offer (the asking price)' : 'your bid'} to see the cash cushion, the stress test and how a lender sees this rent at that price.</p>}
         <HoldAndSell v={living && !(v.atPrice > 0) ? { ...v, value: 0 } : v} onPrice={offer} target={living || noReal ? 0 : r.maxBid} exampleValue={v.value === RENT_DEFAULTS.value && !typedKeys.has('value')} />
-        {at.price > 0 ? <LenderView v={v} at={at} onPrice={offer} /> : null}
-        <StrComparison v={v} />
+        {/* (A home you live in with no rent: the lender's rent test and nightly renting don't apply.) */}
+        {at.price > 0 && !(living && !(v.monthlyRent > 0)) ? <LenderView v={v} at={at} onPrice={offer} /> : null}
+        {!(living && !(v.monthlyRent > 0)) && <StrComparison v={v} />}
       </div>
       {!living && <StickyResult label={offer ? 'Price that meets the target' : 'Walk-away price'} value={noReal ? 'No realistic price' : r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks || noReal} />}
     </div>
