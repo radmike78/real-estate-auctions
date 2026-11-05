@@ -1,11 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { areasFor, emptyRow, EVIDENCE_EVENT, GATES, loadLog, logText, saveLog, type EvidenceLog as Log, type EvidenceRow } from '../lib/evidence';
 import { downloadText, fileName } from '../lib/download';
+import { loadDeals } from '../lib/analyze';
+import { liveIn } from '../lib/dealStage';
+
+/** A saved deal that's a home you'll live in. */
+const homeOf = (dealId: string) => { const d = loadDeals().find((x) => `analyzed:${x.id}` === dealId); return !!d && liveIn(d); };
 
 /** For one deal: what you verified, where it came from and what's still open, then the decision it supports. */
 export default function EvidenceLog({ dealId, name, kind, initiallyOpen = false, onPass }: { dealId: string; name: string; /** The kind of sale (a lien certificate's areas differ). */ kind?: string; initiallyOpen?: boolean; /** Offered after choosing Pass: move the property to Passed. */ onPass?: () => void }) {
   const [log, setLog] = useState<Log>(() => loadLog(dealId));
-  const areas = areasFor(kind);
+  const areas = areasFor(kind, homeOf(dealId));
   const [passedNow, setPassedNow] = useState(false);
   // Focus the confirmation once, when it appears (not on every re-render while you type elsewhere).
   const passedRef = useRef<HTMLParagraphElement>(null);
@@ -67,7 +72,7 @@ export default function EvidenceLog({ dealId, name, kind, initiallyOpen = false,
  * full log, saved to it. `askFinding` reminds the reader to record what they found when they mark the step done.
  */
 export function EvidenceArea({ dealId, dealName, area, askFinding, kind }: { dealId: string; dealName: string; area: string; askFinding?: boolean; /** The deal's kind of sale (a lien certificate's areas differ). */ kind?: string }) {
-  const a = areasFor(kind).find((x) => x.key === area);
+  const a = areasFor(kind, homeOf(dealId)).find((x) => x.key === area);
   const [log, setLog] = useState<Log>(() => loadLog(dealId));
   useReloadOnSave(dealId, setLog);
   if (!a) return null;

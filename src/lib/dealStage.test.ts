@@ -1261,4 +1261,15 @@ describe('Nevada round 4 flow', () => {
     expect(loadPacket('analyzed:f1').dates.map((x) => !!x.resolved)).toEqual([true, false]);
     expect(dealNextTask(offer, { ...EMPTY_PACKET }, now, 'passed').key).toBe('deposit-back');
   });
+
+  it('round 18 flow: a passed cancel-by window is a question, and the inspection due tomorrow leads over it', () => {
+    const offer = { ...deal, id: 'f1', state: 'NV' as const, county: 'Clark', kind: 'reo' as const };
+    const base = [{ when: '2026-09-28', what: 'Contract signed', who: 'Me', resolved: true }, { when: '2026-09-29', what: 'Earnest money due', who: 'Me', resolved: true }];
+    const win = { ...EMPTY_PACKET, dates: [...base, { when: '2026-10-05', what: 'HOA resale package: cancel by (if in an HOA)', who: 'Me' }] };
+    const t = dealNextTask(offer, win, now, 'contract');
+    expect(t.label).toMatch(/right to cancel over the HOA resale package ended/);
+    expect(t.advance2?.label).toBe('I cancelled in writing: mark it passed');
+    const both = { ...EMPTY_PACKET, dates: [...win.dates, { when: '2026-10-07', what: 'Inspection period ends', who: 'Me' }] };
+    expect(dealNextTask(offer, both, now, 'contract').label).toMatch(/Inspection period ends/);
+  });
 });

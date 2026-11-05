@@ -132,7 +132,10 @@ export const challenge90Ahead = (p: PacketData, now: Date): string => {
 };
 export const RECORDED_ROWS = ['Deed recorded', 'Deed or certificate recorded', 'Treasurer’s deed recorded', 'Certificate of sale recorded', 'Certificate of sale received'];
 /** Windows that end on their own (no one acted in time): past their date, they ended; they weren't missed. */
-const WINDOWS: { name: string; what: string; then: (kind?: string) => string; tick?: string }[] = [
+const WINDOWS: { name: string; what: string; then: (kind?: string) => string; tick?: string; ask?: string; cancel?: boolean }[] = [
+  { name: 'Seller’s disclosure form due', what: 'the seller’s disclosure deadline', tick: 'It arrived: mark it handled', ask: 'an answer on whether the seller’s disclosure form arrived, noted in its deal packet', then: () => 'did the seller’s disclosure form arrive? If it didn’t, ask your agent: you may be able to cancel before closing (NRS 113.150)*' },
+  { name: 'HOA resale package: cancel by', what: 'your right to cancel over the HOA resale package', tick: 'I didn’t cancel: mark it handled', ask: 'your answer on whether you cancelled, noted in its deal packet', cancel: true, then: () => 'if you cancelled in writing in time, mark the deal passed; if not, mark it handled' },
+  { name: 'Defect cancellation deadline', what: 'your right to cancel over a disclosed defect', tick: 'I didn’t cancel: mark it handled', ask: 'your answer on whether you cancelled, noted in its deal packet', cancel: true, then: () => 'if you cancelled in writing in time, mark the deal passed; if not, mark it handled' },
   { name: 'Redemption period ends', what: 'the redemption period', tick: 'No one redeemed: mark it handled',
     then: (k) => `ask ${k === 'court' ? 'the sheriff’s civil office' : k === 'hoa' ? 'the HOA’s foreclosure agent' : k === 'irs' ? 'the IRS sale officer' : 'whoever ran the sale'} in writing whether anyone redeemed. If no one did, mark it handled and ask for the deed` },
   { name: 'Challenge window ends', what: 'the challenge window', tick: 'No suit was filed, and the 90-day limit doesn’t apply*: mark it handled', then: () => 'ask your title company or attorney whether any suit was filed, and whether the 90-day limit for anyone not properly notified (NRS 107.080(6)) still runs. If it does, move the end date; if not, mark it handled' },
@@ -140,10 +143,10 @@ const WINDOWS: { name: string; what: string; then: (kind?: string) => string; ti
   { name: 'Earliest you may act (unpaid lien)', what: 'the wait before you may act on an unpaid lien', then: () => 'if it’s still unpaid, ask your attorney about your next step, or mark it handled' },
 ];
 /** A window past its date: `text` for a sentence ("the challenge window ended 3 days ago"), `short` for a list. */
-export const windowEnded = (what: string, daysAgo: number, kind?: string): { text: string; short: string; then: string; tick?: string } | null => {
+export const windowEnded = (what: string, daysAgo: number, kind?: string): { text: string; short: string; then: string; tick?: string; ask?: string; cancel?: boolean } | null => {
   const w = WINDOWS.find((x) => sameDate(what, x.name));
   const ago = `ended ${daysAgo} day${daysAgo === 1 ? '' : 's'} ago`;
-  return w ? { text: `${w.what} ${ago}`, short: ago, then: w.then(kind), tick: w.tick } : null;
+  return w ? { text: `${w.what} ${ago}`, short: ago, then: w.then(kind), tick: w.tick, ask: w.ask, cancel: w.cancel } : null;
 };
 export const calendarReady = (p: PacketData, stage: string) => p.dates.length > 0 && calendarRows(p, stage).every(dateRowComplete);
 export const calendarComplete = (p: PacketData, stage: string) => p.calendarReviewedFor === stage && calendarReady(p, stage);
@@ -886,7 +889,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     key: 'property',
     title: 'The property and the sale',
     status: sale?.done && sale.finding ? 'done' : sale?.done || sale?.finding ? 'started' : 'missing',
-    lines: [`${d.name}`, `${kind ? kindLabel(kind, d.state) : d.kind} · ${countyName(d.county)}, ${d.state}`, sale?.finding ? `Verified: ${sale.finding}${sale.source ? ` (source: ${sale.source}${sale.checked ? `, ${prettyDay(sale.checked)}` : ''})` : ''}` : sale?.done ? 'Reviewed (no finding written yet): add what the notice says in its evidence log.' : 'Not verified yet: the parcel, who is selling and what exactly is sold, from the official notice or listing.'],
+    lines: [`${d.name}`, `${kind ? kindLabel(kind, d.state) : d.kind} · ${countyName(d.county)}, ${d.state}`, sale?.finding ? `Verified: ${sale.finding}${sale.source ? ` (source: ${sale.source}${sale.checked ? `, ${prettyDay(sale.checked)}` : ''})` : ''}` : sale?.done ? `Reviewed (no finding written yet): add what the ${isOffer(d) ? 'listing' : 'notice'} says in its evidence log.` : 'Not verified yet: the parcel, who is selling and what exactly is sold, from the official notice or listing.'],
   });
 
   // 3. Key dates
@@ -1124,7 +1127,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: downside && !bid?.unentered.length ? 'done' : hasNums || flipNeedsRepairs(d) ? 'started' : 'missing', lines: nums, fix: { label: 'Open in Analyze', href: '#/analyze' } });
 
   // 6. Evidence
-  const areas = areasFor(d.kind);
+  const areas = areasFor(d.kind, liveIn(d));
   const checked = areas.filter((a) => log.rows[a.key]?.done);
   const open = areas.map((a) => ({ a, r: log.rows[a.key] })).filter(({ r }) => r?.open && !r.done);
   out.push({
@@ -1175,6 +1178,15 @@ export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   for (const s of packetSections(d, p, now)) {
     lines.push(`${s.title.toUpperCase()} [${s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : pastSale && recordParts(d).includes(s.key) ? (s.status === 'missing' ? 'left blank: from before you bought' : 'partly filled in: from before you bought') : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines);
     if (s.key === 'dates' && dateGuideLines(d).length) lines.push(`What the less familiar ${d.state === 'TX' ? (isOffer(d) ? 'Texas contract ' : 'Texas ') : ''}dates mean (${isOffer(d) ? 'the signed contract wins' : 'the official notice wins'}):`, ...dateGuideLines(d).map((l) => `- ${l}`));
+    lines.push('');
+  }
+  const own = loadOwned()[d.id];
+  if (own) {
+    lines.push('AFTER YOU BUY: ACTUAL RESULTS', `Bought on ${prettyDay(own.boughtOn)}.`);
+    for (const m of [...own.months].sort((x, y) => x.month.localeCompare(y.month))) lines.push(`${new Date(`${m.month}-15T12:00:00`).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}: rent ${money(m.rent)}, paid ${money(m.costs)}, result ${money(m.rent - m.costs)}${m.note ? ` (${m.note})` : ''}`);
+    if (!own.months.length) lines.push('No months recorded yet.');
+    if (own.months.length) lines.push(`Total: ${money(own.months.reduce((t, m) => t + m.rent - m.costs, 0))} over ${own.months.length} month${own.months.length === 1 ? '' : 's'}.`);
+    if (own.sold) lines.push(`Sold on ${prettyDay(own.sold.on)} for ${money(own.sold.price)}.`);
     lines.push('');
   }
   // A line marked with an asterisk: say what it means (a downloaded file has no page footer).

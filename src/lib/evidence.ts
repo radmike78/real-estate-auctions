@@ -35,7 +35,14 @@ const LIEN_AREAS: Record<string, Pick<EvidenceArea, 'title' | 'what'>> = {
 };
 
 /** The evidence areas for a kind of sale: a lien certificate's are about the lien. */
-export const areasFor = (kind?: string): EvidenceArea[] => (kind === 'lien' ? EVIDENCE_AREAS.map((a) => ({ ...a, ...LIEN_AREAS[a.key] })) : EVIDENCE_AREAS);
+/** A home you'll live in: the same nine areas, with the two investor ones asked about living there. */
+const HOME_AREAS: Record<string, Pick<EvidenceArea, 'title' | 'what'>> = {
+  income: { title: 'Monthly costs', what: 'Tax after purchase, HOA, insurance, utilities, and any rent from a room or unit you’ll rent out.' },
+  exit: { title: 'Savings and a fallback', what: 'Cash left after closing for repairs and surprises, and what you’d do if your plans change.' },
+};
+
+/** The evidence areas for a kind of sale: a lien certificate's are about the lien; a home's about living there. */
+export const areasFor = (kind?: string, home = false): EvidenceArea[] => (kind === 'lien' ? EVIDENCE_AREAS.map((a) => ({ ...a, ...LIEN_AREAS[a.key] })) : home ? EVIDENCE_AREAS.map((a) => ({ ...a, ...(HOME_AREAS[a.key] ?? {}) })) : EVIDENCE_AREAS);
 
 export interface EvidenceRow {
   source: string;
