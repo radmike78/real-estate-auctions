@@ -28,7 +28,7 @@ function read(key: string): unknown {
  * The rental numbers saved for a deal at the price you'd pay, or null until a price is entered in Keep and rent. Only
  * for a deal saved with the Keep and rent strategy: another strategy's deal never shows leftover rental numbers.
  */
-export function dealNumbers(d: Deal): { /** FHA mortgage insurance a month, not counted (0: none). */ mi: number; /** An investor's offer loan over 80% of the price: mortgage insurance isn't counted. */ miLeftOut?: boolean; /** An investor's offer loan over 85% of the price (under 15% down). */ loanHigh?: boolean; price: number; monthly: number; cashOnCash: number | null; target: number; /** The return target was typed (else our example). */ targetTyped: boolean; /** Under the minimum income coverage at this price. */ coverageShort: boolean; minDscr: number; dscrTyped: boolean; cashIn: number; exampleValue: boolean; refiValue: number; /** Cash needed (until a refinance closes) and the cash limit entered in Keep and rent (0: none). */ cashNeeded: number; cashLimit: number; /** You typed the cash limit (a typed 0: no limit). */ cashTyped: boolean; /** Cash flow after a later refinance (an auction rental with a loan). */ refi: boolean } | null {
+export function dealNumbers(d: Deal): { /** FHA mortgage insurance a month, not counted (0: none). */ mi: number; /** An investor's offer loan over 80% of the price: mortgage insurance isn't counted. */ miLeftOut?: boolean; /** An investor's offer loan over 85% of the price (under 15% down). */ loanHigh?: boolean; price: number; monthly: number; cashOnCash: number | null; target: number; /** The return target was typed (else our example). */ targetTyped: boolean; /** Under the minimum income coverage at this price. */ coverageShort: boolean; minDscr: number; dscrTyped: boolean; cashIn: number; exampleValue: boolean; refiValue: number; /** Cash needed (until a refinance closes) and the cash limit entered in Buy and hold (0: none). */ cashNeeded: number; cashLimit: number; /** You typed the cash limit (a typed 0: no limit). */ cashTyped: boolean; /** Cash flow after a later refinance (an auction rental with a loan). */ refi: boolean } | null {
   // Only the property's own numbers (the rent typed), never the calculator's examples.
   if (d.plan !== 'rent' || !ownNumbers(d)) return null;
   const offer = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
@@ -68,8 +68,8 @@ export function propertyPacketText(d: Deal): string {
         'Downside cases (monthly cash flow before income tax):',
         ...rentStress(v, v.atPrice, offer).map((s) => `  ${s.label}: ${money(s.monthly)}`),
       );
-    } else lines.push(`(Enter ${offer ? 'your offer' : 'your bid'} under “${offer ? 'Your offer' : 'Your bid'}” in Analyze’s Keep and rent calculator.)`);
-  } else lines.push('(Not run yet: open this deal in Analyze and use Keep and rent.)');
+    } else lines.push(`(Enter ${offer ? 'your offer' : 'your bid'} under “${offer ? 'Your offer' : 'Your bid'}” in Analyze’s Buy and hold calculator.)`);
+  } else lines.push('(Not run yet: open this deal in Analyze and use Buy and hold.)');
   lines.push('');
 
   const log = loadLog(`analyzed:${d.id}`);

@@ -79,7 +79,7 @@ const LATER = ['Redemption money collected', 'Challenge window ends', 'Recovery-
 /** The rows this stage's calendar needs filled in: before the sale, only the dates before it; after, all but those
  *  counted from a later event (they can wait for it). */
 export const calendarRows = (p: PacketData, stage: string) => {
-  if (['researching', 'offer'].includes(stage)) return p.dates.filter((x) => !afterSale(x.what) && !CONTRACT_ROWS.some((n) => sameDate(x.what, n)) && !(/^(bidder )?registration/i.test(x.what.trim()) && !x.when && saleOver(p, new Date())));
+  if (['researching', 'offer'].includes(stage)) return p.dates.filter((x) => !afterSale(x.what) && !CONTRACT_ROWS.some((n) => sameDate(x.what, n)) && !(/^(bidder )?registration/i.test(x.what.trim()) && saleOver(p, new Date())));
   // A short sale's dates count from the lender's approval: until it's dated, it and the rows after it can wait.
   const approvalRow = p.dates.find((x) => sameDate(x.what, 'Approval notice received'));
   const waiting = !!approvalRow && !approvalRow.when;
@@ -494,7 +494,7 @@ const priceName = (source: 'yours' | 'listed', offer: boolean, cap = false) => {
 };
 
 /** The plan's own calculator in Analyze, by name. */
-export const STRATEGY_LABEL: Record<Deal['plan'], string> = { rent: 'Keep and rent', flip: 'Fix and sell', commercial: 'Commercial income', lien: 'Lien certificate' };
+export const STRATEGY_LABEL: Record<Deal['plan'], string> = { rent: 'Buy and hold', flip: 'Fix and flip', commercial: 'Commercial income', lien: 'Lien certificate' };
 
 /**
  * The numbers saved for this deal, from the calculator of the strategy it's saved with (its plan) only. Numbers left
@@ -750,7 +750,7 @@ export function flipSaleLine(d: Deal): string | null {
   if (d.plan !== 'flip' || !sold) return null;
   const head = `Sold on ${prettyDay(sold.on)} for ${money(sold.price)}`;
   const raw = read(`fsf.bid.analyzed-${d.id}.v1`);
-  if (!raw || typeof raw !== 'object') return `${head}. Save its Fix and sell numbers in Analyze, with the price you paid in “Check ${isOffer(d) ? 'an offer' : 'a bid'}”, to see your rough profit; keep the closing statement for your taxes.`;
+  if (!raw || typeof raw !== 'object') return `${head}. Save its Fix and flip numbers in Analyze, with the price you paid in “Check ${isOffer(d) ? 'an offer' : 'a bid'}”, to see your rough profit; keep the closing statement for your taxes.`;
   const saved: BidInputs = sanitizeInputs(raw, BLANK_INPUTS);
   const i = isOffer(d) ? offerInputs(saved) : saved;
   const proposed = proposedPriceOf(i);
@@ -879,7 +879,10 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   // Rows the stage has put behind you read "passed", not "open" (the sale day once won; the offer once accepted).
   const behind = behindStage(d, stageOf(d));
   const localDayOf = (t: Date) => `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
-  const pastRow = (x: { what: string; when: string }) => !['researching', 'offer'].includes(stageOf(d)) && (['Sale day', 'Bidder registration', 'Registration', 'Offer accepted', 'Acceptance', 'Contract signed'].some((n) => sameDate(x.what, n)) || behind.some((n) => sameDate(x.what, n)) || (sameDate(x.what, 'Approval notice received') && !!x.when && x.when <= localDayOf(now)));
+  const pastRow = (x: { what: string; when: string }) => !['researching', 'offer'].includes(stageOf(d)) && (['Sale day', 'Bidder registration', 'Registration', 'Offer accepted', 'Acceptance', 'Contract signed'].some((n) => sameDate(x.what, n)) || (behind.some((n) => sameDate(x.what, n)) && !sameDate(x.what, 'Lienholder approval deadline')) || (sameDate(x.what, 'Approval notice received') && !!x.when && x.when <= localDayOf(now)));
+  // V-7: a short sale's lienholder deadline, met by an approval on or before it.
+  const approvalOn = d.kind === 'short' ? p.dates.find((x) => sameDate(x.what, 'Approval notice received') && x.when && x.when <= localDayOf(now))?.when ?? '' : '';
+  const lienMet = (x: { what: string; when: string }) => !!approvalOn && sameDate(x.what, 'Lienholder approval deadline') && (!x.when || approvalOn <= x.when);
   // UX-2: an SID payoff dated after its 20-day deadline says so on its own row.
   const sidDl = d.state === 'NV' && d.kind === 'taxSale' ? sidDeadline(p) : '';
   // UX-3: nothing is due, but the contract still has undated rows (a short sale's, once the lender approves): name them.
@@ -893,7 +896,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     // (A deal you passed on, or that was redeemed and repaid, has no stage left to review its calendar for.)
     status: calendarComplete(p, stageOf(d)) || (stageOf(d) === 'passed' && calendarReady(p, 'passed')) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length || undatedDone.length
-      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${prettyDay(x.when)}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : pastRow(x) ? ' — passed' : sidDl && sameDate(x.what, 'SID certificate payoff') && x.when > sidDl ? ' — open, after the 20-day deadline' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days, d.kind) ? `${windowEnded(nd.what, -nd.days, d.kind)!.short} (${d.state === 'NV' && d.kind === 'trustee' && sameDate(nd.what, 'Challenge window ends') ? challengeEnded(p, now, windowEnded(nd.what, -nd.days, d.kind)!.then).then : windowEnded(nd.what, -nd.days, d.kind)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}${nd && sameDate(nd.what, 'SID certificate payoff') && p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && x.when > nd.when) ? ` (the 20-day deadline, ${prettyDay(nd.when)}; your date is later)` : ''}${''}` : (saleDone ? `Next: the sale day has passed: answer “${d.kind === 'lien' && d.state === 'NV' ? 'were you picked?' : 'did you win?'}” in Your next action.` : closingDone ? 'Next: the closing is marked handled: mark the deal closed (“It closed”).' : openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : toAdd.length ? `Still to add: the date${toAdd.length === 1 ? '' : 's'} for ${toAdd.map((x) => x.what.replace(/\s*\([^)]*\)$/, '')).join('; ')}.` : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
+      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${prettyDay(x.when)}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : lienMet(x) ? ` — met (approved ${prettyDay(approvalOn)})` : pastRow(x) ? ' — passed' : sidDl && sameDate(x.what, 'SID certificate payoff') && x.when > sidDl ? ' — open, after the 20-day deadline' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days, d.kind) ? `${windowEnded(nd.what, -nd.days, d.kind)!.short} (${d.state === 'NV' && d.kind === 'trustee' && sameDate(nd.what, 'Challenge window ends') ? challengeEnded(pk, now, windowEnded(nd.what, -nd.days, d.kind)!.then).then : windowEnded(nd.what, -nd.days, d.kind)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}${nd && sameDate(nd.what, 'SID certificate payoff') && p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && x.when > nd.when) ? ` (the 20-day deadline, ${prettyDay(nd.when)}; your date is later)` : ''}${''}` : (saleDone ? `Next: the sale day has passed: answer “${d.kind === 'lien' && d.state === 'NV' ? 'were you picked?' : 'did you win?'}” in Your next action.` : closingDone ? 'Next: the closing is marked handled: mark the deal closed (“It closed”).' : openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : toAdd.length ? `Still to add: the date${toAdd.length === 1 ? '' : 's'} for ${toAdd.map((x) => x.what.replace(/\s*\([^)]*\)$/, '')).join('; ')}.` : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
       : p.dates.length ? [`Fill in each date from the ${offer ? 'contract' : 'official notice'}; leave a date marked “(if …)” blank if it doesn’t apply.`] : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' ? 'official notice (the eligible-bidder windows count from the sale day, for homes of 1–4 units)' : d.kind === 'trustee' && d.state === 'NV' ? 'official notice (the challenge window counts from the day the trustee’s deed is recorded)' : d.kind === 'trustee' && d.state === 'TX' ? 'official notice (the rescission window counts from the sale day)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
   });
 
@@ -922,7 +925,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       need = rent.allIn;
       needAt = `At a ${money(rent.price)} price`;
       cash.push(`From sale day until the refinance closes, all in: ${money(rent.allIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs)`);
-      cash.push(rent.exampleValue ? `After a refinance: not this property’s yet (${refiValueWords(rent.refiValue)}). Enter the value after repairs in Keep and rent to see what a refinance would return.` : `After a refinance, if approved: ${rent.cashIn > 0 ? `${money(rent.cashIn)} of your cash left in` : 'the loan returns all your cash'}`);
+      cash.push(rent.exampleValue ? `After a refinance: not this property’s yet (${refiValueWords(rent.refiValue)}). Enter the value after repairs in Buy and hold to see what a refinance would return.` : `After a refinance, if approved: ${rent.cashIn > 0 ? `${money(rent.cashIn)} of your cash left in` : 'the loan returns all your cash'}`);
     } else {
       need = rent.cashIn;
       needAt = `At a ${money(rent.price)} price`;
@@ -930,9 +933,10 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
         const acquisition = Math.max(0, rent.cashIn - rent.repairs - rent.possession);
         cash.push(`Acquisition cash estimate at a ${money(rent.price)} price, before deposit credits: ${money(acquisition)} (${rent.noLoan ? 'the price and modeled buying costs, paying cash' : 'down payment and modeled purchase/loan costs'}; excludes repairs, possession costs and retained reserves).`);
         if (p.depositCredit) {
-          cash.push(p.depositCredit <= acquisition && p.depositCredit <= p.earnest + (p.optionFee ?? 0)
-            ? `After ${money(p.depositCredit)} of confirmed deposit/fee credits: ${money(acquisition - p.depositCredit)} remaining acquisition cash in this planning estimate.`
-            : 'Review the confirmed credit: it exceeds the recorded deposit/fee payments or modeled acquisition cash. No remainder is calculated.');
+          const tx = d.state === 'TX';
+          cash.push(p.depositCredit <= acquisition && p.depositCredit <= p.earnest + (tx ? p.optionFee ?? 0 : 0)
+            ? `After ${money(p.depositCredit)} of confirmed ${tx ? 'deposit/fee' : 'deposit'} credits: ${money(acquisition - p.depositCredit)} remaining acquisition cash in this planning estimate.`
+            : `Review the confirmed credit: it exceeds the recorded ${tx ? 'deposit/fee payments' : 'deposit'} or modeled acquisition cash. No remainder is calculated.`);
         }
         cash.push(`Repair spending as work is done: ${money(rent.repairs)}, including the contingency. Possession costs, if needed: ${money(rent.possession)}.`);
         cash.push(`Total modeled acquisition, repairs and possession cash: ${money(rent.cashIn)}. This is not the amount to wire at closing.`);

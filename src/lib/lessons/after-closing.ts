@@ -180,7 +180,7 @@ export const afterClosing: Lesson = {
     { term: 'Unlawful detainer', meaning: 'The court case a landlord files to get possession back from a tenant. In Arizona it’s called a special detainer. In Texas it’s an eviction (forcible detainer) suit.' },
     { term: 'Depreciation recapture', meaning: 'Tax on the part of your gain that comes from depreciation you took. For a rental building it’s taxed at up to 25%.' },
   ],
-  tryIt: { label: 'Analyze a deal: Keep and rent', href: '#/analyze?plan=rent' },
+  tryIt: { label: 'Analyze a deal: Buy and hold', href: '#/analyze?plan=rent' },
   sources: [
     { label: 'Texas Department of Insurance: matching coverage to rental use', url: 'https://tdi.texas.gov/tips/home-sharing.html' },
     { label: 'HUD: Fair Housing Act overview', url: 'https://www.hud.gov/helping-americans/fair-housing-act-overview' },

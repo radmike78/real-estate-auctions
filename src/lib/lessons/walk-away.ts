@@ -31,7 +31,7 @@ export const walkAway: Lesson = {
           'No reserves: you’d have no cash left for reserves after closing.',
           'Thin margin: a small change, like rent 10% lower or $1,200 more a year for insurance, wipes out the profit.',
         ] },
-        { links: [{ label: 'Run the stress tests in Analyze a deal', url: '#/analyze', what: 'Keep and rent and Fix and sell show what happens when things go wrong.' }] },
+        { links: [{ label: 'Run the stress tests in Analyze a deal', url: '#/analyze', what: 'Buy and hold and Fix and flip show what happens when things go wrong.' }] },
       ],
     },
     {

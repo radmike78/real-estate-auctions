@@ -187,7 +187,7 @@ function Results({ s, progress }: { s: Scenario; progress: ScenarioProgress }) {
       <p>When you’re ready for a real one:</p>
       <ul>
         <li><a href={`#/playbooks/${s.playbookKey}`}>Read the full guide for this sale</a></li>
-        <li><a href={lien ? '#/analyze?plan=lien' : '#/analyze?plan=flip'}>{lien ? 'Run your own numbers in the lien calculator' : 'Run your own numbers in Analyze a deal (Fix and sell)'}</a></li>
+        <li><a href={lien ? '#/analyze?plan=lien' : '#/analyze?plan=flip'}>{lien ? 'Run your own numbers in the lien calculator' : 'Run your own numbers in Analyze a deal (Fix and flip)'}</a></li>
         <li><a href="#/pros">Learn who you need and how to find them</a></li>
         <li><a href="#/practice">Practice another kind of sale or property</a></li>
       </ul>
@@ -474,7 +474,7 @@ function NumbersTask({ task, k, done, head, markDone }: { task: Extract<Task, { 
       {two && !!task.waitMonths && <p className="numbers-note">Both ways count the {task.waitMonths === 12 ? '1-year' : task.waitMonths === 6 ? '180-day' : task.waitMonths === 2 ? '60-day' : `${task.waitMonths}-month`} redemption wait: you can’t sell with a clear title until the redemption period ends and you have the deed.</p>}
       {two && <p>Selling as-is means less work, less cash tied up and a quicker exit, for a smaller profit. Fixing it up can earn more, but your money is tied up longer, and you carry the risk of repairs running over, a slow sale or a lower price. {fix.maxBid ? `This practice buyer plans to fix and sell, so the maximum is ${fmtMoney(fix.maxBid)}.` : 'Here, no price leaves the target profit either way.'}</p>}
       <p>{task.lesson}</p>
-      <p className="small muted">Practice numbers, not market data. <a href="#/analyze?plan=flip">Try your own in Analyze a deal (Fix and sell)</a>.</p>
+      <p className="small muted">Practice numbers, not market data. <a href="#/analyze?plan=flip">Try your own in Analyze a deal (Fix and flip)</a>.</p>
       {!done && <button className="btn btn-secondary" onClick={(e) => { keepCardFocus(e.currentTarget); markDone(k); }}>I understand my maximum</button>}
     </article>
   );

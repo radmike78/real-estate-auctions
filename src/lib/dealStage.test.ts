@@ -713,6 +713,43 @@ describe('Nevada round 4 flow', () => {
     expect(packetSections({ ...nvFlip, stage: 'closed' }, tr, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Oct 31, 2026: Challenge window ends \(worked out from the deed’s recording/);
   });
 
+  it('round 10 verifier: worked-out challenge question; remodel check after the deed; who on a dated redemption row; lienholder met; offer hint; registration', async () => {
+    const { packetSections, calendarRows } = await import('./dealPacket');
+    // Deed Jul 5 -> window Aug 4 (passed); sale Jul 1 -> 90 days Sep 29 (passed). now = Oct 6.
+    const tr = { ...EMPTY_PACKET, dates: [{ when: '2026-07-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-07-05', what: 'Deed recorded', who: 'Me', resolved: true }] };
+    const t = dealNextTask(nvFlip, tr, now, 'closed');
+    expect(t.label).toMatch(/^The challenge window ended 63 days ago \(Aug 4, 2026, worked out from the deed’s recording\)/);
+    expect(t.tick).toEqual({ label: 'No suit was filed: mark it handled', row: 'Challenge window ends', when: '2026-08-04', who: 'Your title company' });
+    // Sale Aug 20 -> 90 days Nov 18 still ahead: move the end.
+    const tg = { ...EMPTY_PACKET, dates: [{ when: '2026-08-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-01', what: 'Deed recorded', who: 'Me', resolved: true }] };
+    expect(dealNextTask(nvFlip, tg, now, 'closed').redate?.when).toBe('2026-11-18');
+    // No one redeemed: the deed, then the remodel check without a redemption question.
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const nr = { ...EMPTY_PACKET, dates: [{ when: '2026-08-01', what: 'Sale day', who: 'A', resolved: true }, { when: '2026-09-30', what: 'Redemption period ends', who: 'A', resolved: true }] };
+    const ts = stageTasks(hoa, 'closed', nr, now);
+    const keys = ts.map((x) => x.key);
+    expect(keys.indexOf('deed')).toBeLessThan(keys.indexOf('before-remodel'));
+    expect(ts.find((x) => x.key === 'before-remodel')!.label).toBe('Check possession and title for 2210 Mesa Verde Ln before you remodel');
+    // A dated redemption row with no "who": the answer fills it.
+    const court = { ...nvFlip, kind: 'court' as const };
+    const cr = { ...EMPTY_PACKET, dates: [{ when: '2025-10-01', what: 'Sale day', who: 'S', resolved: true }, { when: '2026-10-01', what: 'Redemption period ends', who: '' }] };
+    expect(dealNextTask(court, cr, now, 'closed').tick?.who).toBe('The sheriff’s civil office');
+    // A lienholder deadline the approval came after stays open; one it met reads "met".
+    const short = { ...nvFlip, kind: 'short' as const };
+    saveDeals([{ ...short, stage: 'contract' }]);
+    const late = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Approval notice received (dates count from here)', who: 'Lender' }, { when: '2026-09-20', what: 'Lienholder approval deadline (from the short sale addendum)', who: 'Lender' }] };
+    savePacket('analyzed:f1', late);
+    expect(packetSections({ ...short, stage: 'contract' }, late, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Lienholder approval deadline \(from the short sale addendum\) \(Lender\) — open/);
+    const met = { ...late, dates: [late.dates[0], { ...late.dates[1], when: '2026-10-20' }] };
+    savePacket('analyzed:f1', met);
+    expect(packetSections({ ...short, stage: 'contract' }, met, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/— met \(approved Oct 1, 2026\)/);
+    // The offer stage after the sale; a dated registration row isn't still needed.
+    const r = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'T' }, { when: '2026-08-25', what: 'Bidder registration (if required)', who: '' }] };
+    savePacket('analyzed:f1', r);
+    expect(stageHint('offer', nvFlip)).toMatch(/^The sale day has passed: say whether you won/);
+    expect(calendarRows(r, 'offer').some((x) => /registration/i.test(x.what))).toBe(false);
+  });
+
   it('says so when the deed row is ticked at a win', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);

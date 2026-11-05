@@ -137,7 +137,7 @@ export const analyze: Lesson = {
           ['Selling costs: commission and closing, about 7%', '− $23,000'],
           ['Left before income tax', 'about $2,000'],
         ] } },
-        'The repair and holding numbers are examples; yours will differ. The point is that a “typical” flip can leave almost nothing once every cost is counted. Run Fix and sell in Analyze a deal with your own numbers, and try a slower sale and a lower price too.',
+        'The repair and holding numbers are examples; yours will differ. The point is that a “typical” flip can leave almost nothing once every cost is counted. Run Fix and flip in Analyze a deal with your own numbers, and try a slower sale and a lower price too.',
       ],
     },
     {

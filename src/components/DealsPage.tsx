@@ -145,13 +145,13 @@ function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
               <td><a href={`#/deals/packet/${d.id}`}>{d.name}</a>{o.sold ? <span className="muted"> · sold {prettyDay(o.sold.on)} for {fmtMoney(o.sold.price)}</span> : null}</td>
               <td data-label="Bought">{prettyDay(o.boughtOn)}</td>
               <td data-label="Months recorded">{s.months}</td>
-              <td data-label="Average month">{s.months ? <>{signed(s.averageMonthly)}{liveIn(d) ? <span className="muted"> (your home’s cost)</span> : null}</> : '—'}</td>
+              <td data-label="Average month">{s.months ? <>{signed(liveIn(d) ? -s.averageMonthly : s.averageMonthly)}{liveIn(d) ? <span className="muted"> (your home’s cost)</span> : null}</> : '—'}</td>
               <td data-label="Against your plan">{s.gapMonthly === null ? '—' : `${signed(s.gapMonthly)} a month`}</td>
             </tr>
           ))}
         </tbody>
       </table>
-      <p className="muted">{rows.every((r) => liveIn(r.d)) ? `What ${rows.length === 1 ? 'it' : 'they'} cost, after any rent, recorded so far` : rows.every((r) => r.d.plan === 'flip') ? 'What you’ve paid in repairs and holding costs, recorded so far' : `Rent minus costs recorded so far${rows.length === 1 ? '' : ', across all of them'}`}: <strong>{signed(rows.every((r) => liveIn(r.d) || r.d.plan === 'flip') ? -total : total)}</strong>{rows.some((r) => r.o.sold) ? ' (sales not included: each sold property’s packet shows a rough profit against the one you planned)' : ''}. Add each month on the property’s deal packet.</p>
+      <p className="muted">{rows.every((r) => liveIn(r.d)) ? `What ${rows.length === 1 ? 'it' : 'they'} cost, after any rent, recorded so far` : rows.every((r) => r.d.plan === 'flip') ? 'What you’ve paid in repairs and holding costs, recorded so far' : `Rent minus costs recorded so far${rows.length === 1 ? '' : ', across all of them'}`}: <strong>{signed(rows.every((r) => liveIn(r.d)) || rows.every((r) => r.d.plan === 'flip') ? -total : total)}</strong>{rows.some((r) => r.o.sold) ? ' (sales not included: each sold property’s packet shows a rough profit against the one you planned)' : ''}. Add each month on the property’s deal packet.</p>
     </section>
   );
 }
@@ -201,7 +201,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       // The cash it needs there, against your limit (as Analyze and the packet say), when that's short too.
       const pc = investorProfile().investable;
       const lim = bid.cashLimit > 0 ? bid.cashLimit : bid.cashTyped ? 0 : pc;
-      return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash, with the loan (if any) and costs entered in Fix and sell (${bid.cashLimit > 0 ? 'the cash you entered' : 'My plan'}: ${fmtMoney(lim)}).` : '';
+      return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash, with the loan (if any) and costs entered in Fix and flip (${bid.cashLimit > 0 ? 'the cash you entered' : 'My plan'}: ${fmtMoney(lim)}).` : '';
     })()}{whatIfSentence}</p>;
     // The redemption wait the price was built on, and a redemption's result at its end (as the packet says).
     const redeemClause = redemptionOver(d) ? '' : bid.redeem && !bid.redeem.who ? whatIf : bid.redeem && !(bid.redeem.price > 0) ? waitOnly : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait${bid.redeem.shortest ? `, shorter than any period the law sets (at least ${shortestRedemptionWords(d, true)})*` : ''} (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? 'your bid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
@@ -218,7 +218,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       const at = a.source === 'yours' ? `At your ${listed ? 'offer' : 'bid'}` : `At the ${listed ? 'asking price' : 'opening bid'}`;
       return (
         <p className={mine || short || a.profit < bid.target || a.price > bid.maxBid ? 'deal-urgent' : undefined}>
-          {at}, {fmtMoney(a.price)}: profit about {fmtMoney(Math.round(a.profit))} · needs about {fmtMoney(Math.round(a.cashPeak))} of your cash{mine ? ` (${bid.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''} · walk-away price {fmtMoney(bid.maxBid)}{short && !mine ? ` (needs about ${fmtMoney(Math.round(bid.cashPeak))} of your cash; My plan: ${fmtMoney(Math.round(planCash))}; ${listed ? 'offer only what fits your cash' : 'enter your cash in Fix and sell to cap it'})` : ''}{mine && bid.cashLimit <= 0 ? ` · even this ${listed ? 'price' : 'bid'} needs more than My plan’s cash: skip this one, or update My plan if you have more` : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
+          {at}, {fmtMoney(a.price)}: profit about {fmtMoney(Math.round(a.profit))} · needs about {fmtMoney(Math.round(a.cashPeak))} of your cash{mine ? ` (${bid.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''} · walk-away price {fmtMoney(bid.maxBid)}{short && !mine ? ` (needs about ${fmtMoney(Math.round(bid.cashPeak))} of your cash; My plan: ${fmtMoney(Math.round(planCash))}; ${listed ? 'offer only what fits your cash' : 'enter your cash in Fix and flip to cap it'})` : ''}{mine && bid.cashLimit <= 0 ? ` · even this ${listed ? 'price' : 'bid'} needs more than My plan’s cash: skip this one, or update My plan if you have more` : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
           {redeemClause}
         </p>
       );

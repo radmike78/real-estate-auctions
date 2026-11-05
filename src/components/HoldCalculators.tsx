@@ -184,7 +184,7 @@ function HoldResults({ coverageQuiet = false, dscrTyped = true, r, title, target
   const priced = !r.noBidWorks && Number.isFinite(r.maxBid) && !tiny;
   return (
     <section className="price-block price-block-target" aria-label={`${headLabel}: the price that meets the target`}>
-      {/* No price meets the target: the red box below says so, with no empty "Walk-away price: —" above it (as in Fix and sell). */}
+      {/* No price meets the target: the red box below says so, with no empty "Walk-away price: —" above it (as in Fix and flip). */}
       {!tiny && !r.noBidWorks && <PriceHead level={3} kind="target" label={headLabel} price={priced ? r.maxBid : null} result={priced ? r.cashFlow / 12 : null} note={priced ? 'Not the result at your price: this is the most you could pay and still meet the target.' : undefined} />}
       <ExampleResults count={examples} all={allExample} />
       <div className={`calc-max${r.noBidWorks || tiny ? ' bad' : ''}`}>

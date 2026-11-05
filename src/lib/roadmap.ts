@@ -489,7 +489,7 @@ export const ROADMAP: RoadmapStep[] = [
     evidence: 'exit',
     text: 'Work out the most you’ll bid with every cost counted, and write it down before the sale.',
     outcome: 'A written maximum bid (your walk-away price), with every cost behind it.',
-    steps: ['Use Analyze a deal (Fix and sell) with your value, repairs, liens that stay, holding costs and selling costs.', 'Write the number down, and take it to the sale.'],
+    steps: ['Use Analyze a deal (Fix and flip) with your value, repairs, liens that stay, holding costs and selling costs.', 'Write the number down, and take it to the sale.'],
     doneWhen: 'Your maximum is written down and your funds meet the sale’s payment rules.',
     action: 'Set your maximum bid', href: '#/analyze?plan=flip',
   },

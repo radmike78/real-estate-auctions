@@ -117,11 +117,11 @@ describe('the deal packet', () => {
     localStorage.setItem('fsf.calc.rent.d1-offer.v1', JSON.stringify({ value: 300000, atPrice: 300000, monthlyRent: 2200 }));
     const rentDeal = { ...deal, plan: 'rent' as const };
     const text = packetSections(rentDeal, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
-    expect(text).toMatch(/Strategy: Keep and rent/);
+    expect(text).toMatch(/Strategy: Buy and hold/);
     expect(text).toMatch(/Your offer \(your actual price\): \$300,000 → monthly cash flow/);
     expect(text).not.toMatch(/Walk-away price|\$250,000 resale/);
     const flip = packetSections({ ...deal, plan: 'flip' }, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
-    expect(flip).toMatch(/Strategy: Fix and sell/);
+    expect(flip).toMatch(/Strategy: Fix and flip/);
     expect(flip).toMatch(/What-if: walk-away price .*\$250,000 resale value/);
     expect(flip).not.toMatch(/Monthly cash flow/);
     expect(dealNumbers({ ...deal, plan: 'flip' })).toBeNull();

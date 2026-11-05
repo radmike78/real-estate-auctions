@@ -79,7 +79,7 @@ export const financing: Lesson = {
           'Many lend to an LLC, usually with your personal guarantee.',
         ] },
         'Have ready: the lease or the appraiser’s rent estimate, your LLC papers if the LLC borrows, bank statements showing the down payment and reserves, and your credit report.',
-        { links: [{ label: 'Run a rental’s DSCR in Analyze a deal', url: '#/analyze?plan=rent', what: 'Keep and rent shows the coverage ratio for your loan.' }] },
+        { links: [{ label: 'Run a rental’s DSCR in Analyze a deal', url: '#/analyze?plan=rent', what: 'Buy and hold shows the coverage ratio for your loan.' }] },
       ],
     },
     {
@@ -119,7 +119,7 @@ export const financing: Lesson = {
           'A hard-money loan usually can’t be paid off with a regular cash-out loan until those periods pass. Some lenders allow a rate-and-term refinance sooner; ask before you buy, and make sure the hard-money term is long enough.',
           'The new loan is sized on the appraisal and the rent, not on what you spent. A low appraisal can leave more of your cash in the property than you planned.',
         ] },
-        { links: [{ label: 'Run a BRRRR in Analyze a deal', url: '#/analyze?plan=rent', what: 'Keep and rent shows your cash until the refinance closes, and what stays in after it.' }] },
+        { links: [{ label: 'Run a BRRRR in Analyze a deal', url: '#/analyze?plan=rent', what: 'Buy and hold shows your cash until the refinance closes, and what stays in after it.' }] },
       ],
     },
     {
@@ -152,7 +152,7 @@ export const financing: Lesson = {
             ],
           },
         },
-        'Lower cash up front usually means a bigger monthly payment, a requirement to live there, or a deadline you must meet. Run each option through Keep and rent in Analyze a deal before you choose.',
+        'Lower cash up front usually means a bigger monthly payment, a requirement to live there, or a deadline you must meet. Run each option through Buy and hold in Analyze a deal before you choose.',
         { links: [{ label: 'Benefits for veterans', url: '#/learn/veterans', what: 'The VA funding fee by down payment and first or later use, and who is exempt.' }] },
       ],
     },
