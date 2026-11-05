@@ -1234,4 +1234,18 @@ describe('Nevada round 4 flow', () => {
     const keys = stageTasks(short, 'contract', insp, now).map((x) => x.key);
     expect(keys.indexOf('short-approval')).toBeLessThan(keys.indexOf('inspection-complete'));
   });
+
+  it('round 17 verifier: a roadmap step ticks one saved row; any buy box field counts', async () => {
+    const { settleStepRow } = await import('./dealStage');
+    const { loadPacket } = await import('./dealPacket');
+    const offer = { ...deal, id: 'f1', state: 'NV' as const, county: 'Washoe', kind: 'listing' as const };
+    saveDeals([{ ...offer, stage: 'contract' }]);
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Earnest money due', who: 'Me' }, { when: '2026-10-20', what: 'Earnest money due (additional deposit after inspections)', who: 'Me' }] });
+    settleStepRow('analyzed:f1', 'deposit');
+    const rows = loadPacket('analyzed:f1').dates;
+    expect(rows.map((x) => !!x.resolved)).toEqual([true, false]);
+    localStorage.setItem('deedowl.buybox.v1', JSON.stringify({ area: 'Reno' }));
+    const p = { ...EMPTY_PACKET, fit: 'fits' as const, fitWhy: 'In Reno' };
+    expect(stageTasks({ ...offer, stage: 'researching' }, 'researching', p, now).find((t) => t.key === 'fit')?.done).toBe(true);
+  });
 });

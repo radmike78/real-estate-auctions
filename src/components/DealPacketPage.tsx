@@ -300,7 +300,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
 
       <section className="deal-setup packet-section" aria-labelledby="packet-decision">
         <Head k="decision" />
-        <DecisionGate dealId={key} onPass={stageOf(deal) === 'passed' ? undefined : () => { setDealStage(deal.id, 'passed'); }} />
+        <DecisionGate dealId={key} record={['closed', 'owned'].includes(stageOf(deal)) || finishedDeal(deal)} onPass={stageOf(deal) === 'passed' ? undefined : () => { setDealStage(deal.id, 'passed'); }} />
         {pastSale ? <p className="muted">This records the choice you made before you bought: nothing needs deciding here now.</p> : <p className="muted">Write down why, and anything that must be true before you sign or bid. The same choice shows at the end of the evidence log.</p>}
         {(() => { const boxes = (<>
         <label className="field wide">

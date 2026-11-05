@@ -127,7 +127,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     return (
       <div>
         <p>{flip ? (budgetLine ? `${ask} record what you pay each month for repairs and holding, against your budget from Fix and flip. ${budgetLine}` : `${ask} record what you pay each month for repairs and holding, and compare it yourself with the repairs and holding costs under Fix and flip in Analyze.`) : liveIn(deal) ? `${bought ? 'Start tracking your home to' : 'Did you buy it? Mark it as your home to'} record what it really costs each month (and any rent from a room or unit), against what you planned.` : `${ask} track the real rent and costs each month against the cash flow you planned.`}</p>
-        <button type="button" className="btn btn-secondary" onClick={() => { put({ boughtOn: boughtDate(deal), months: [] }); if (!['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'closed'); setTimeout(() => document.getElementById('owned-bought-on')?.focus(), 0); }}>{bought ? 'Start tracking it' : 'I bought this property'}</button>
+        <button type="button" className="btn btn-secondary" onClick={() => { { const start = { boughtOn: boughtDate(deal), months: [] }; put(start); setMonth(openMonth(start as Owned)); } if (!['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'closed'); setTimeout(() => document.getElementById('owned-bought-on')?.focus(), 0); }}>{bought ? 'Start tracking it' : 'I bought this property'}</button>
       </div>
     );
   }
