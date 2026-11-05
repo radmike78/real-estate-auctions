@@ -617,6 +617,23 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(tax, sid, now, 'contract').label).toMatch(/The deadline is Oct 10, 2026, 20 days after the sale; your date, Nov 30, 2026, is later/);
   });
 
+  it('round 10: no worked-out redemption on an IRS no-redemption sale; the open SID payoff after the deed; Closing date counts', async () => {
+    const irs = { ...nvFlip, kind: 'irs' as const };
+    localStorage.setItem('fsf.bid.analyzed-f1.v1', JSON.stringify({}));
+    localStorage.setItem('fsf.bid.analyzed-f1.v1.typed.v1', JSON.stringify(['rulePick_NV_irs_none']));
+    const { redemptionEndFrom } = await import('./dealStage');
+    const sp = { ...EMPTY_PACKET, dates: [{ when: '2026-08-01', what: 'Sale day', who: 'IRS', resolved: true }] };
+    expect(redemptionEndFrom(irs, sp)).toBe('');
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    const sid = { ...EMPTY_PACKET, dates: [{ when: '2026-10-08', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
+    const t = dealNextTask(tax, sid, now, 'closed');
+    expect(t.label).toMatch(/SID certificate payoff for .* is still open/);
+    expect(t.tick?.label).toBe('I paid it: mark it handled');
+    const { sameEvent } = await import('./dealPacket');
+    expect(sameEvent('Closing date', 'Closing')).toBe(true);
+    expect(sameEvent('Closing Disclosure received', 'Closing')).toBe(false);
+  });
+
   it('says so when the deed row is ticked at a win', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);

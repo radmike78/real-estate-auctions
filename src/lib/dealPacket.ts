@@ -69,7 +69,7 @@ const dateBase = (name: string) => name.replace(/\s*\([^)]*\)$/, '');
  *  "Closing"): after the name, only the end, a note in parentheses, a colon or dash, a date or "on"/"at". */
 export const sameEvent = (rowWhat: string, name: string) => {
   const base = dateBase(name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`^${base}(\\s*($|[(:–—-]|\\d)|\\s+(on|at)\\b)`, 'i').test(rowWhat.trim());
+  return new RegExp(`^${base}(\\s*($|[(:–—-]|\\d)|\\s+(on|at|date|day)\\b)`, 'i').test(rowWhat.trim());
 };
 
 /** A date row filled in: its date and who handles it, or (a date that applies only if something happens) left undated. */
@@ -846,7 +846,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     key: 'property',
     title: 'The property and the sale',
     status: sale?.done && sale.finding ? 'done' : sale?.done || sale?.finding ? 'started' : 'missing',
-    lines: [`${d.name}`, `${kind ? kindLabel(kind, d.state) : d.kind} · ${countyName(d.county)}, ${d.state}`, sale?.finding ? `Verified: ${sale.finding}${sale.source ? ` (source: ${sale.source}${sale.checked ? `, ${sale.checked}` : ''})` : ''}` : sale?.done ? 'Reviewed (no finding written yet): add what the notice says in its evidence log.' : 'Not verified yet: the parcel, who is selling and what exactly is sold, from the official notice or listing.'],
+    lines: [`${d.name}`, `${kind ? kindLabel(kind, d.state) : d.kind} · ${countyName(d.county)}, ${d.state}`, sale?.finding ? `Verified: ${sale.finding}${sale.source ? ` (source: ${sale.source}${sale.checked ? `, ${prettyDay(sale.checked)}` : ''})` : ''}` : sale?.done ? 'Reviewed (no finding written yet): add what the notice says in its evidence log.' : 'Not verified yet: the parcel, who is selling and what exactly is sold, from the official notice or listing.'],
   });
 
   // 3. Key dates
@@ -868,7 +868,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     // (A deal you passed on, or that was redeemed and repaid, has no stage left to review its calendar for.)
     status: calendarComplete(p, stageOf(d)) || (stageOf(d) === 'passed' && calendarReady(p, 'passed')) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length || undatedDone.length
-      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${prettyDay(x.when)}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : pastRow(x.what) ? ' — passed' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days, d.kind) ? `${windowEnded(nd.what, -nd.days, d.kind)!.short} (${d.state === 'NV' && d.kind === 'trustee' && !challenge90Ahead(p, now) ? windowEnded(nd.what, -nd.days, d.kind)!.then.replace('If it does, move the end date; if not, mark it handled', 'If none was filed, mark it handled') : windowEnded(nd.what, -nd.days, d.kind)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : (closingDone ? 'Next: the closing is marked handled: mark the deal closed (“It closed”).' : openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
+      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${prettyDay(x.when)}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : pastRow(x.what) ? ' — passed' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days, d.kind) ? `${windowEnded(nd.what, -nd.days, d.kind)!.short} (${d.state === 'NV' && d.kind === 'trustee' && !challenge90Ahead(p, now) ? windowEnded(nd.what, -nd.days, d.kind)!.then.replace('If it does, move the end date; if not, mark it handled', 'If none was filed, mark it handled') : windowEnded(nd.what, -nd.days, d.kind)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}${nd && sameDate(nd.what, 'SID certificate payoff') && p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && x.when > nd.when) ? ` (the 20-day deadline, ${prettyDay(nd.when)}; your date is later)` : ''}${''}` : (closingDone ? 'Next: the closing is marked handled: mark the deal closed (“It closed”).' : openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
       : p.dates.length ? [`Fill in each date from the ${offer ? 'contract' : 'official notice'}; leave a date marked “(if …)” blank if it doesn’t apply.`] : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' ? 'official notice (the eligible-bidder windows count from the sale day, for homes of 1–4 units)' : d.kind === 'trustee' && d.state === 'NV' ? 'official notice (the challenge window counts from the day the trustee’s deed is recorded)' : d.kind === 'trustee' && d.state === 'TX' ? 'official notice (the rescission window counts from the sale day)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
   });
 
@@ -1074,7 +1074,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     title: 'Questions for your professionals',
     status: answered.length && !waiting.length ? 'done' : p.qa.length ? 'started' : 'missing',
     lines: p.qa.length
-      ? p.qa.filter((x) => x.q).map((x) => `${proGuideByKey(x.role as never) ? roleTitleFor(d, x.role as never) : 'Other'}: ${x.q} → ${x.a ? `${x.a}${x.on ? ` (${x.on})` : ''}` : 'waiting for an answer'}`)
+      ? p.qa.filter((x) => x.q).map((x) => `${proGuideByKey(x.role as never) ? roleTitleFor(d, x.role as never) : 'Other'}: ${x.q} → ${x.a ? `${x.a}${x.on ? ` (${prettyDay(x.on)})` : ''}` : 'waiting for an answer'}`)
       : [`Write down the question this deal raises for each of: ${teamRolesFor(d).map((k) => roleTitleFor(d, k)).join(', ')}. Add any other professional you’ll use.`],
   });
 

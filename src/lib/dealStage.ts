@@ -56,7 +56,7 @@ export const remindable = (p: PacketData, now: Date, early: boolean, behind: str
 };
 /** The usual dates a stage has put behind you: once it's closed or owned, the ones before closing and the recording rows. */
 export const behindStage = (d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan']; id?: string }, stage: DealStage): string[] =>
-  stage === 'contract' && wayOf(d) !== 'offer' ? ['Bidder registration', 'Registration', 'Sale day'] : stage === 'closed' || stage === 'owned' ? [...suggestedDates(d).filter((n) => !afterSale(n) || RECORDED_ROWS.some((r) => sameDate(n, r))), 'SID certificate payoff', ...(stage === 'owned' && certificateFirst(d) ? ['Redemption period ends', DEED_AFTER_WAIT] : [])] : [];
+  stage === 'contract' && wayOf(d) !== 'offer' ? ['Bidder registration', 'Registration', 'Sale day'] : stage === 'closed' || stage === 'owned' ? [...suggestedDates(d).filter((n) => !afterSale(n) || RECORDED_ROWS.some((r) => sameDate(n, r))), ...(stage === 'owned' && certificateFirst(d) ? ['Redemption period ends', DEED_AFTER_WAIT] : [])] : [];
 /** Rows that mark an event, not a deadline: once their date has passed, they aren't a reminder. */
 const EVENTS = ['Sale day', 'Contract signed', 'Offer accepted (Day 0)', 'Acceptance (Day 0)', 'Approval notice received'];
 /** Registration rows: past the bidding (won, closed), they're behind you. */
@@ -87,8 +87,10 @@ const lienPayoff = (d: Deal, p: PacketData) => task({ key: 'payoff', label: `Col
 /** Who delivers a certificate-first sale's deed. */
 const deedWho = (d: Pick<Deal, 'kind'>) => (d.kind === 'hoa' ? 'The person who conducted the sale (the HOA’s agent)' : d.kind === 'irs' ? 'The IRS' : 'The sheriff');
 /** A Nevada HOA, sheriff or IRS sale's redemption end, counted from its sale day (60 days; 1 year; 180 days). */
-export const redemptionEndFrom = (d: Pick<Deal, 'kind' | 'state'>, p: PacketData) => redemptionEnd(d, p);
-const redemptionEnd = (d: Pick<Deal, 'kind' | 'state'>, p: PacketData) => {
+export const redemptionEndFrom = (d: Pick<Deal, 'kind' | 'state'> & { id?: string; plan?: Deal['plan'] }, p: PacketData) => redemptionEnd(d, p);
+const redemptionEnd = (d: Pick<Deal, 'kind' | 'state'> & { id?: string; plan?: Deal['plan'] }, p: PacketData) => {
+  // (An IRS sale with "No redemption" picked has none: it isn't certificate-first.)
+  if (!certificateFirst(d)) return '';
   const own = p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when;
   if (own) return own;
   const sd = p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when;
@@ -501,13 +503,14 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
       const ended = nd.days < 0 ? windowEnded(nd.what, -nd.days, d.kind) : null;
       const late90Ahead = ended && d.state === 'NV' && d.kind === 'trustee' && sameDate(nd.what, 'Challenge window ends') ? challenge90Ahead(p, now) : '';
       const deedTick = stage === 'closed' && certificateFirst(d) && sameDate(nd.what, DEED_AFTER_WAIT) && ticked(p, 'Redemption period ends') ? { label: 'I have the deed, and it’s recorded: mark it handled', row: nd.what, who: deedWho(d) } : undefined;
-      const paidTick = stage === 'contract' && nd.days <= 0 && sameEvent(nd.what, 'Payment deadline') ? { label: 'I paid: mark it handled', row: nd.what } : stage === 'contract' && nd.days <= 0 && (sameEvent(nd.what, 'Earnest money due') || sameEvent(nd.what, 'Option fee')) ? { label: 'I sent it: mark it handled', row: nd.what } : sameDate(nd.what, 'SID certificate payoff') && nd.days <= 0 ? { label: 'I paid it: mark it handled', row: nd.what } : undefined;
+      const paidTick = stage === 'contract' && nd.days <= 0 && sameEvent(nd.what, 'Payment deadline') ? { label: 'I paid: mark it handled', row: nd.what } : stage === 'contract' && nd.days <= 0 && (sameEvent(nd.what, 'Earnest money due') || sameEvent(nd.what, 'Option fee')) ? { label: 'I sent it: mark it handled', row: nd.what } : sameDate(nd.what, 'SID certificate payoff') && (nd.days <= 0 || stage === 'closed' || stage === 'owned') ? { label: 'I paid it: mark it handled', row: nd.what } : undefined;
       const sidNone = sameDate(nd.what, 'SID certificate payoff') ? { label: 'The Treasurer confirmed no SID affidavit', removeRow: nd.what, addRow: { when: localDay(now), what: NO_SID_ROW, who: 'The county treasurer', resolved: true } } : undefined;
-      const sidLate = nd.days < 0 && sameDate(nd.what, 'SID certificate payoff') && d.state === 'NV';
+      const sidLate = nd.days < 0 && sameDate(nd.what, 'SID certificate payoff') && d.state === 'NV' && stage === 'contract';
+      const sidAfterDeed = sameDate(nd.what, 'SID certificate payoff') && d.state === 'NV' && (stage === 'closed' || stage === 'owned');
       if (ended && !late90Ahead) ended.then = ended.then.replace('If it does, move the end date; if not, mark it handled', 'If none was filed, mark it handled');
       const sidRow = sameDate(nd.what, 'SID certificate payoff') ? p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && x.when)?.when ?? '' : '';
       const sidNote = sidRow && sidRow > nd.when ? ` The deadline is ${prettyDay(nd.when)}, 20 days after the sale; your date, ${prettyDay(sidRow)}, is later. If it isn’t paid by then, the sale is void (NRS 361.595(6)).` : '';
-      const text = sidLate ? `Overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}: the SID certificate payoff for ${d.name || 'this property'}. If it isn’t paid, the sale is void (NRS 361.595(6)): call the treasurer today.` : ended ? `${ended.text[0].toUpperCase()}${ended.text.slice(1)}: ${ended.then}.` : `${nd.days < 0 ? `Overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'Today' : nd.days === 1 ? 'Tomorrow' : `In ${nd.days} days`}: ${nd.what} for ${d.name || 'this property'}${nd.who ? ` (who: ${nd.who})` : ''}.${sidNote}`;
+      const text = sidAfterDeed ? `The SID certificate payoff for ${d.name || 'this property'} is still open. The Treasurer can’t issue the deed until it’s paid (NRS 361.595(6)), so if your deed is recorded it was likely settled: if you paid it, mark it handled; if not, call the treasurer today.` : sidLate ? `Overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}: the SID certificate payoff for ${d.name || 'this property'}. If it isn’t paid, the sale is void (NRS 361.595(6)): call the treasurer today.` : ended ? `${ended.text[0].toUpperCase()}${ended.text.slice(1)}: ${ended.then}.` : `${nd.days < 0 ? `Overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'Today' : nd.days === 1 ? 'Tomorrow' : `In ${nd.days} days`}: ${nd.what} for ${d.name || 'this property'}${nd.who ? ` (who: ${nd.who})` : ''}.${sidNote}`;
       const redeemable = stage === 'closed' && certificateFirst(d) && (sameDate(nd.what, 'Redemption period ends') || (sameDate(nd.what, DEED_AFTER_WAIT) && !ticked(p, 'Redemption period ends')));
       // The stage's own event (the deed recorded, the closing): its "mark it" button comes with the reminder.
       const own = stage === 'contract' && (RECORDED_ROWS.some((r) => sameEvent(nd.what, r)) || sameEvent(nd.what, 'Closing')) ? stageTasks(d, stage, p, now).find((t) => t.advance)?.advance : undefined;
@@ -524,7 +527,7 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
       const daysAgo = Math.round((new Date(`${localDay(now)}T12:00:00`).getTime() - new Date(`${computedEnd}T12:00:00`).getTime()) / 864e5);
       const e = windowEnded('Redemption period ends', daysAgo, d.kind)!;
       const text = `The redemption period ended ${daysAgo} day${daysAgo === 1 ? '' : 's'} ago (${prettyDay(computedEnd)}): ${e.then}.`;
-      return { key: 'date', label: text, produces: 'a written answer on whether anyone redeemed, noted in its deal packet', href: `#/deals/packet/${d.id}/dates`, tick: { label: e.tick!, row: 'Redemption period ends', when: computedEnd }, answer: true, advance2: redeemButton(d), support: [], done: false, urgent: false, text };
+      return { key: 'date', label: text, produces: 'a written answer on whether anyone redeemed, noted in its deal packet', href: `#/deals/packet/${d.id}/dates`, tick: { label: e.tick!, row: 'Redemption period ends', when: computedEnd, who: d.kind === 'court' ? 'The sheriff’s civil office' : d.kind === 'irs' ? 'The IRS sale officer' : 'The HOA’s foreclosure agent' }, answer: true, advance2: redeemButton(d), support: [], done: false, urgent: false, text };
     }
     const log = loadLog(`analyzed:${d.id}`);
     const openRow = areasFor(d.kind).map((a) => ({ a, r: log.rows[a.key] })).find(({ r }) => r?.open && !r.done);

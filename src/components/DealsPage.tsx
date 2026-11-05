@@ -145,7 +145,7 @@ function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
               <td><a href={`#/deals/packet/${d.id}`}>{d.name}</a>{o.sold ? <span className="muted"> · sold {prettyDay(o.sold.on)} for {fmtMoney(o.sold.price)}</span> : null}</td>
               <td data-label="Bought">{prettyDay(o.boughtOn)}</td>
               <td data-label="Months recorded">{s.months}</td>
-              <td data-label="Average month">{s.months ? signed(liveIn(d) ? -s.averageMonthly : s.averageMonthly) : '—'}</td>
+              <td data-label="Average month">{s.months ? <>{signed(s.averageMonthly)}{liveIn(d) ? <span className="muted"> (your home’s cost)</span> : null}</> : '—'}</td>
               <td data-label="Against your plan">{s.gapMonthly === null ? '—' : `${signed(s.gapMonthly)} a month`}</td>
             </tr>
           ))}

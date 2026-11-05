@@ -127,7 +127,7 @@ export function logText(name: string, log: EvidenceLog, kind?: string): string {
   const lines = [`Evidence log: ${name}`, 'DeedOwl educational worksheet. A checkmark records your review; it does not clear title or certify a deal.', ''];
   for (const a of areasFor(kind)) {
     const r = log.rows[a.key] ?? EMPTY_ROW;
-    lines.push(`${r.done ? '[x]' : '[ ]'} ${a.title}: ${a.what}`, `    Source: ${r.source}`, `    Date checked: ${r.checked}`, `    Finding: ${r.finding}`, `    Open question: ${r.open}`, `    Who / by when: ${r.owner}`, '');
+    lines.push(`${r.done ? '[x]' : '[ ]'} ${a.title}: ${a.what}`, `    Source: ${r.source}`, `    Date checked: ${/^\d{4}-\d{2}-\d{2}$/.test(r.checked) ? new Date(`${r.checked}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : r.checked}`, `    Finding: ${r.finding}`, `    Open question: ${r.open}`, `    Who / by when: ${r.owner}`, '');
   }
   lines.push(`Decision: ${gate ? `${gate.label} (${gate.when})` : 'not decided'}`);
   return lines.join('\n');
