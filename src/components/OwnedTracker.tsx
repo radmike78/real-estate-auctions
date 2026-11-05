@@ -71,11 +71,11 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   // Each box's message waits while you're still typing a comma number in it ("1,25" on the way to 1,250).
   const showBad = (t: string, box: 'rent' | 'costs') => t.trim() !== '' && !!calculatorInputError(t, '$') && !(focusBox === box && midNumber(t));
   const add = () => {
-    // (The button goes away while the fields clear: the cursor goes back to the month, for the next one.)
-    setTimeout(() => document.getElementById('owned-month')?.focus(), 0);
     const r = parseCalcInput(rent);
     const c = parseCalcInput(costs);
     if (unreadable || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || !Number.isFinite(r) || !Number.isFinite(c) || r < 0 || c < 0) return;
+    // (Saved: the cursor goes back to the month, for the next one.)
+    setTimeout(() => document.getElementById('owned-month')?.focus(), 0);
     put({ ...o, months: [{ month, rent: Math.max(0, r), costs: Math.max(0, c), note: note.slice(0, 200) }, ...o.months.filter((m) => m.month !== month)].sort((a, b) => b.month.localeCompare(a.month)) });
     setRent('');
     setCosts('');

@@ -352,3 +352,33 @@ it('offers "didn’t win" beside "did you win?", with no doubled punctuation in 
   expect(stageTasks(hoa, 'offer', p, now).find((t) => t.key === 'lost')?.setStage).toBe('passed');
   expect(nextAction(hoa, p, now).text).not.toMatch(/\?\./);
 });
+
+it('round 4: researching past sale day, two answers, deed ends the redemption reminder, early calendar, live-in owned', async () => {
+  const { calendarReady, dateGuide, rentWaitNote } = await import('./dealPacket');
+  const hoa: Deal = { ...deal, id: 'dh9', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip' };
+  const past = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'HOA agent' }] };
+  const r = dealNextTask(hoa, past, now, 'researching');
+  expect(r.label).toMatch(/did you bid and win/);
+  expect(r.advance2?.stage).toBe('passed');
+  expect(dealNextTask(hoa, past, now, 'offer').advance2?.stage).toBe('passed');
+  // A future sale day ticked handled isn't over.
+  const future = { ...EMPTY_PACKET, dates: [{ when: '2026-10-20', what: 'Sale day', who: 'HOA agent', resolved: true }] };
+  expect(dealNextTask(hoa, future, now, 'offer').label).not.toMatch(/Sale day has passed/);
+  // The deed ticked: no "ask for the deed" reminder.
+  const deedIn = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Redemption period ends', who: 'Owner' }, { when: '', what: 'Deed delivered (if no one redeemed)', who: '', resolved: true }] };
+  expect(dealNextTask(hoa, deedIn, now, 'closed').label).not.toMatch(/ask for the deed/);
+  // Before the sale, only the pre-sale dates need filling in.
+  const pre = { ...EMPTY_PACKET, dates: [{ when: '2026-10-20', what: 'Sale day', who: 'HOA agent' }, { when: '', what: 'Redemption period ends', who: '' }] };
+  expect(calendarReady(pre, 'offer')).toBe(true);
+  expect(calendarReady({ ...pre, dates: [{ when: '', what: 'Sale day', who: '' }] }, 'offer')).toBe(false);
+  // An IRS rental with "No redemption" picked: no certificate rows, no rent-wait note.
+  localStorage.setItem('fsf.bid.analyzed-di9.v1', JSON.stringify({ exitValue: 250000, redemptionMonths: 0, redemptionRatePct: 0 }));
+  localStorage.setItem('fsf.bid.analyzed-di9.v1.typed.v1', JSON.stringify(['exitValue', 'rulePick_NV_irs_none']));
+  const irs: Deal = { ...deal, id: 'di9', state: 'NV', county: 'Clark', kind: 'irs', plan: 'rent' };
+  expect(dateGuide(irs).map((g) => g.what)).not.toContain('Redemption period ends');
+  expect(rentWaitNote('NV', 'irs', 'di9')).toBeNull();
+  // A home you live in, once owned: "Living there".
+  localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { borrow: 'live' } }));
+  expect(stageLabel('owned', { ...deal, id: 'dl9', state: 'NV', kind: 'reo', plan: 'rent' })).toBe('Living there');
+  localStorage.removeItem('deedowl.decide.v1');
+});

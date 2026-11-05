@@ -16,7 +16,7 @@ import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
-import { dealNextTask, stageLabel, stageOf, afterSale } from './dealStage';
+import { dealNextTask, stageLabel, stageOf, afterSale, remindable } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -65,7 +65,13 @@ export const sameDate = (rowWhat: string, name: string) => rowWhat.trim().toLowe
 
 /** A date row filled in: its date and who handles it, or (a date that applies only if something happens) left undated. */
 export const dateRowComplete = (d: { when: string; what: string; who: string }) => !!d.what.trim() && ((!!d.when && !!d.who.trim()) || (!d.when && ifOnly(d.what)));
-export const calendarComplete = (p: PacketData, stage: string) => p.calendarReviewedFor === stage && p.dates.length > 0 && p.dates.every(dateRowComplete);
+/** Dates counted from a later event (a deed recorded, a period's end): they can stay undated until that event. */
+const LATER = ['Challenge window ends', 'Recovery-suit window ends', 'Redemption period ends', 'Deed delivered (if no one redeemed)', 'Certificate expires', 'Earliest you may act (unpaid lien)', 'Rescission window ends', 'Intent-to-bid window ends', 'Eligible bid deadline (45 days)'];
+/** The rows this stage's calendar needs filled in: before the sale, only the dates before it; after, all but those
+ *  counted from a later event (they can wait for it). */
+export const calendarRows = (p: PacketData, stage: string) => (['researching', 'offer'].includes(stage) ? p.dates.filter((x) => !afterSale(x.what)) : p.dates.filter((x) => x.when || !LATER.some((n) => sameDate(x.what, n))));
+export const calendarReady = (p: PacketData, stage: string) => p.dates.length > 0 && calendarRows(p, stage).every(dateRowComplete);
+export const calendarComplete = (p: PacketData, stage: string) => p.calendarReviewedFor === stage && calendarReady(p, stage);
 
 const KEY = 'deedowl.dealPacket.v1';
 export const PACKET_KEY = KEY;
@@ -279,7 +285,9 @@ function typedWait(d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal[
 export const RENT_WAIT_ADVICE = 'These numbers start the rent right away: count that time’s holding costs, with no rent, in your budget (for example under Possession costs)';
 
 /** Before the deed, a redemption period with no rent you can count on (a certificate of sale first): its words, or null. */
-export function rentWaitNote(state: string | null | undefined, kind: string | null | undefined): string | null {
+export function rentWaitNote(state: string | null | undefined, kind: string | null | undefined, dealId?: string): string | null {
+  // (An IRS sale with "No redemption" picked: none.)
+  if (kind === 'irs' && dealId && state && irsWithoutRedemption({ state: state as Deal['state'], kind: 'irs', id: dealId })) return null;
   if (state === 'NV' && kind === 'court') return 'After a Nevada sheriff’s sale the owner can redeem for 1 year, and whoever lives there may keep using the property until then (NRS 21.210, 21.240). If a tenant rents it, you’re entitled to that rent during the year, but it’s subtracted from what you’re repaid if someone redeems (NRS 21.250).';
   if (state === 'NV' && kind === 'hoa') return 'After a Nevada HOA sale the owner can redeem for 60 days, and you get the deed only after that (NRS 116.31166).';
   if (kind === 'irs') return 'After an IRS sale the owner can redeem for 180 days, and you get the deed only after that (26 U.S.C. 6337(b), 6338).';
@@ -354,7 +362,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   // (A trustee's sale lists registration only if the trustee requires one: the statutes set no registration step.)
   if (d.kind === 'trustee') return [{ what: 'Registration (if required)', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline', 'Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
-  const certFirst = d.kind === 'irs' ? savedRule(d) !== 'none' : d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court');
+  const certFirst = d.kind === 'irs' ? savedRule({ ...d, plan: 'flip' }) !== 'none' : d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court');
   const out = [d.state === 'NV' && d.kind === 'hoa' ? 'Registration (if required)' : 'Bidder registration deadline', 'Sale day', 'Payment deadline', d.kind === 'irs' && certFirst ? 'Certificate of sale received' : certFirst ? 'Certificate of sale recorded' : 'Deed or certificate recorded'];
   const nvCert = d.kind === 'irs' && certFirst
     ? { what: 'Certificate of sale received', when: 'When you pay the full price.', who: 'The IRS', todo: 'Keep it safe: you hand it in for the deed.', missed: 'Ask the IRS sale officer.', why: '26 U.S.C. 6338(a)' }
@@ -363,7 +371,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
     : null;
   // Owners can't redeem after a Nevada, California, Utah or Arizona tax sale (redemption ends before the sale), or after a
   // Texas execution sale; a Texas tax sale has its own redemption period (Tax Code 34.21).
-  if ((['hoa', 'irs', 'court'].includes(d.kind) || (d.kind === 'taxSale' && d.state === 'TX')) && redemptionChoicesFor(d.state, d.kind).start !== 'none' && savedRule(d) !== 'none') out.push('Redemption period ends');
+  if ((['hoa', 'irs', 'court'].includes(d.kind) || (d.kind === 'taxSale' && d.state === 'TX')) && redemptionChoicesFor(d.state, d.kind).start !== 'none' && savedRule(d.kind === 'irs' ? { ...d, plan: 'flip' } : d) !== 'none') out.push('Redemption period ends');
   // A redemption wait typed in Fix and sell (a what-if the price is built on) puts its end on the calendar too.
   else if (typedWait(d)) out.push('Redemption period ends');
   // Then the deed, if no one redeemed (NRS 116.31166(7); NRS 21.220(4); 26 U.S.C. 6338(b)).
@@ -756,7 +764,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
 
   // 3. Key dates
   const early = ['researching', 'offer'].includes(stageOf(d));
-  const nd = nextDate(early ? { ...p, dates: p.dates.filter((x) => !afterSale(x.what)) } : p, now);
+  const nd = nextDate(remindable(p, now, early), now);
+  const openAfter = early && p.dates.some((x) => x.when && !x.resolved && afterSale(x.what));
   const dated = p.dates.filter((x) => x.when);
   const undatedDone = p.dates.filter((x) => !x.when && x.resolved && x.what.trim());
   out.push({
@@ -764,7 +773,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     title: 'Key dates',
     status: calendarComplete(p, stageOf(d)) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length || undatedDone.length
-      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && sameDate(nd.what, 'Redemption period ends') ? `ended ${-nd.days} day${nd.days === -1 ? '' : 's'} ago (if no one redeemed, mark it handled and ask for the deed)` : nd.days < 0 ? `overdue by ${-nd.days} days` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : 'All dated items are marked handled.']
+      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && sameDate(nd.what, 'Redemption period ends') ? `ended ${-nd.days} day${nd.days === -1 ? '' : 's'} ago (if no one redeemed, mark it handled and ask for the deed)` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : (openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
       : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' ? 'official notice (the eligible-bidder windows count from the sale day, for homes of 1–4 units)' : d.kind === 'trustee' && d.state === 'NV' ? 'official notice (the challenge window counts from the day the trustee’s deed is recorded)' : d.kind === 'trustee' && d.state === 'TX' ? 'official notice (the rescission window counts from the sale day)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
   });
 
@@ -808,7 +817,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
         cash.push(`Repair spending as work is done: ${money(rent.repairs)}, including the contingency. Possession costs, if needed: ${money(rent.possession)}.`);
         cash.push(`Total modeled acquisition, repairs and possession cash: ${money(rent.cashIn)}. This is not the amount to wire at closing.`);
         cash.push('Ask title/escrow and your lender for the actual cash to close and payment dates. Prepaid costs, escrow funding, prorations, credits and costs paid earlier can change it. Repair/lease-up carrying costs also need a separate budget if not included.');
-      } else cash.push(`From sale day until it’s rented, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs)${rentWaitNote(d.state, d.kind) ? `. ${rentWaitNote(d.state, d.kind)} ${RENT_WAIT_ADVICE}.` : ''}`);
+      } else cash.push(`From sale day until it’s rented, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs)${rentWaitNote(d.state, d.kind, d.id) ? `. ${rentWaitNote(d.state, d.kind, d.id)} ${RENT_WAIT_ADVICE}.` : ''}`);
     }
     cash.push(rent.retained > 0 ? `Retained property reserves: ${money(rent.retained)}, kept separately from the ${money(need)} modeled cash requirement.` : 'Retained property reserves: not entered. Set aside a separate amount for vacancies and unexpected costs.');
     if (rent.retained > 0) need += rent.retained;

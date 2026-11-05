@@ -167,6 +167,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           <div className="plan-now-actions">
             <ContinueButton task={task} dealId={deal?.id} onPlan={onPlan} label={planStarted(now) ? undefined : 'Start'} />
             {task.advance && deal && <button type="button" className="btn btn-secondary" onClick={() => setDealStage(deal.id, task.advance!.stage)}>{task.advance.label}</button>}
+            {task.advance2 && deal && <button type="button" className="btn btn-secondary" onClick={() => setDealStage(deal.id, task.advance2!.stage)}>{task.advance2.label}</button>}
           </div>
           {task.support.length > 0 && (
             <details className="plan-now-support"><summary>Help with this step</summary><p>

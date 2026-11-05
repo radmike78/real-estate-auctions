@@ -6,7 +6,7 @@ import PageHero from './PageHero';
 import EvidenceLog, { DecisionGate } from './EvidenceLog';
 import { kindLabel, loadDeals, openDeal, SALE_KINDS } from '../lib/analyze';
 import { countyName } from '../lib/regions';
-import { roleTitleFor, dateGuide, dateRowComplete, sameDate, dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus, teamRolesFor } from '../lib/dealPacket';
+import { roleTitleFor, dateGuide, calendarReady, sameDate, dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus, teamRolesFor } from '../lib/dealPacket';
 import { TEAM_ROLES } from '../lib/myPlan';
 import { downloadText, fileName } from '../lib/download';
 import { EVIDENCE_EVENT } from '../lib/evidence';
@@ -122,6 +122,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
             : !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there&nbsp;→</a> : null}
         </p>
         {next.advance && <button type="button" className="btn btn-secondary" onClick={() => setDealStage(deal.id, next.advance!.stage)}>{next.advance.label}</button>}
+        {next.advance2 && <button type="button" className="btn btn-secondary" onClick={() => setDealStage(deal.id, next.advance2!.stage)}>{next.advance2.label}</button>}
       </div>
       <div className="row packet-actions">
         <button type="button" className="btn btn-secondary" onClick={() => downloadText(fileName(`deal packet ${deal.name}`, 'txt'), dealPacketText(deal, p))}>Download the packet</button>
@@ -155,7 +156,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <ul className="packet-dates">
           {p.dates.map((x, i) => (
             <li key={i}>
-              <textarea className="packet-what" rows={1} ref={growToFit} onInput={(e) => growToFit(e.currentTarget)} aria-label={`Name of this date${x.what ? ` (${x.what})` : ''}`} maxLength={200} value={x.what} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, what: e.target.value.replace(/\n/g, ' '), resolved: false } : y)) })} />
+              <textarea className="packet-what" rows={1} ref={growToFit} onInput={(e) => growToFit(e.currentTarget)} aria-label={`Name of date ${i + 1}`} maxLength={200} value={x.what} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, what: e.target.value.replace(/\n/g, ' '), resolved: false } : y)) })} />
               <input type="date" aria-label={`Date: ${x.what || 'new date'}`} value={x.when} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, when: e.target.value, resolved: y.when ? false : y.resolved } : y)) })} />
               <input aria-label={`Who handles ${x.what || 'this date'}`} placeholder="Who" maxLength={120} value={x.who} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, who: e.target.value, resolved: false } : y)) })} />
               <label><input type="checkbox" aria-label={`${x.what || 'This date'}: handled`} checked={!!x.resolved} onChange={(e) => update({ dates: p.dates.map((y, j) => j === i ? { ...y, resolved: e.target.checked } : y) }, false)} /> Handled</label>
@@ -173,7 +174,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           <button type="button" className="btn btn-secondary" onClick={() => update({ dates: [...p.dates, { when: '', what: '', who: '' }] })}>Add a date</button>
         </div>
         <label className="field">
-          <span><input type="checkbox" checked={p.calendarReviewedFor === stageOf(deal)} disabled={!p.dates.length || !p.dates.every(dateRowComplete)} onChange={(e) => update({ calendarReviewedFor: e.target.checked ? stageOf(deal) : undefined })} /> I checked every applicable deadline for this stage against the signed contract or official notice, including who acts and how notice must be delivered.{(!p.dates.length || !p.dates.every(dateRowComplete)) && <span className="muted"> (Fill in the date, task and who handles it for every entry first; a date marked “(if …)” can stay blank until it applies.)</span>}</span>
+          <span><input type="checkbox" checked={p.calendarReviewedFor === stageOf(deal)} disabled={!calendarReady(p, stageOf(deal))} onChange={(e) => update({ calendarReviewedFor: e.target.checked ? stageOf(deal) : undefined })} /> I checked every applicable deadline for this stage against the signed contract or official notice, including who acts and how notice must be delivered.{!calendarReady(p, stageOf(deal)) && <span className="muted"> (Fill in the date, task and who handles it for every entry first; a date marked “(if …)” {['researching', 'offer'].includes(stageOf(deal)) ? 'and the dates after the sale' : 'and one that counts from a later event'} can stay blank for now.)</span>}</span>
         </label>
         <p className="muted small">Past dates stay open until you mark them handled. Confirm completion or an agreed resolution with your team. Fill in the date, task and responsible person for each applicable deadline; remove entries that do not apply. Ask your agent or attorney to confirm the calendar. Adding or changing a date requires another review.</p>
         <Lines k="dates" />

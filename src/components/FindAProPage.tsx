@@ -412,7 +412,7 @@ export default function FindAProPage({ section }: { section?: string }) {
                   </p>
                 );
               })()}
-              <TeamList team={book && book.key !== 'sid' && !/lien/.test(book.key) && !book.team.some((x) => /property_manager/.test(x.href ?? '')) && rentalInAnalyze(book.key) ? [...team, { role: 'Loan officer', when: 'If you’ll refinance once it’s rented: ask about waiting periods and what the lender needs, before the sale.', href: '#/pros/lender' }, { role: 'Property manager', when: 'If you’ll hire one to run the rental: their fee is part of your numbers.', href: '#/pros/property_manager' }] : team} />
+              <TeamList team={book && book.key !== 'sid' && !/lien|reo|short/.test(book.key) && !book.team.some((x) => /property_manager|lender/.test(x.href ?? '')) && rentalInAnalyze(book.key) ? [...team, { role: 'Loan officer', when: 'If you’ll refinance once it’s rented: ask about waiting periods and what the lender needs, before the sale.', href: '#/pros/lender' }, { role: 'Property manager', when: 'If you’ll hire one to run the rental: their fee is part of your numbers.', href: '#/pros/property_manager' }] : team} />
             </>
           )}
         </section>

@@ -531,7 +531,7 @@ function RentDealLab({ v, at: atP, onPrice, living = false }: { v: RentInputs; a
   );
 }
 
-export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = false, start = {}, regional = false, offer = false, saleKind }: { /** The kind of sale (a redemption wait before the deed is said). */ saleKind?: string; storageKey?: string; /** The key already names the deal and kind of purchase. */ exactKey?: boolean; start?: Partial<RentInputs>; regional?: boolean; offer?: boolean }) {
+export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = false, start = {}, regional = false, offer = false, saleKind, dealId }: { /** The kind of sale (a redemption wait before the deed is said). */ saleKind?: string; /** The saved deal (an IRS sale's picked rule). */ dealId?: string; storageKey?: string; /** The key already names the deal and kind of purchase. */ exactKey?: boolean; start?: Partial<RentInputs>; regional?: boolean; offer?: boolean }) {
   const rt = useRegionTax(RENT_GROUPS, regional);
   const region = useCalcRegion();
   // In a deal with a state, the example tax and insurance follow that state (a Texas rental's tax is about three
@@ -600,7 +600,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
       <div className="calc-results">
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         {saleKind === 'hoa' && !(v.hoaMonthly > 0) && <p className="caution" role="note"><strong>This home is in an HOA.</strong> Enter its monthly assessment under “HOA dues, per month” (from the HOA’s notice or its foreclosure agent): the owner pays it from the sale on, and these numbers count $0 until you do.</p>}
-        {!offer && rentWaitNote(region.state, saleKind) && <p className="caution" role="note"><strong>Plan for little or no rent until the redemption period ends.</strong> {rentWaitNote(region.state, saleKind)} {RENT_WAIT_ADVICE}.</p>}
+        {!offer && rentWaitNote(region.state, saleKind, dealId) && <p className="caution" role="note"><strong>Plan for little or no rent until the redemption period ends.</strong> {rentWaitNote(region.state, saleKind, dealId)} {RENT_WAIT_ADVICE}.</p>}
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
         {offer && investorProfile().ownerOccupant && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
         <AtThisPrice v={v} start={noReal ? NaN : r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} targetTyped={typedKeys.has('targetCocPct')} dscrTyped={typedKeys.has('minDscr')} rentTyped={!exactKey || typedKeys.has('monthlyRent')} />
@@ -678,7 +678,7 @@ const COMMERCIAL_GROUPS: CalcGroup<CommercialInputs>[] = [
   },
 ];
 
-export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', exactKey = false, start = {}, regional = false, offer = false, saleKind }: { /** The kind of sale (a redemption wait before the deed is said). */ saleKind?: string; storageKey?: string; exactKey?: boolean; start?: Partial<CommercialInputs>; regional?: boolean; offer?: boolean }) {
+export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', exactKey = false, start = {}, regional = false, offer = false, saleKind, dealId }: { /** The kind of sale (a redemption wait before the deed is said). */ saleKind?: string; /** The saved deal (an IRS sale's picked rule). */ dealId?: string; storageKey?: string; exactKey?: boolean; start?: Partial<CommercialInputs>; regional?: boolean; offer?: boolean }) {
   const commRegion = useCalcRegion();
   const ct = useRegionTax(COMMERCIAL_GROUPS);
   const [saved, set, typed, typedKeys] = useSaved<CommercialInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...COMMERCIAL_DEFAULTS, ...start }, regional ? { transferTaxPer500: ct.per500 } : {});
@@ -702,7 +702,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
     <div className="calc">
       <div className="calc-inputs"><ExampleInputs labels={still} all={allExample} /><CalcFields groups={groups} values={v} onChange={set} /></div>
       <div className="calc-results">
-        {!offer && rentWaitNote(commRegion.state, saleKind) && <p className="caution" role="note"><strong>Plan for little or no rent until the redemption period ends.</strong> {rentWaitNote(commRegion.state, saleKind)} {RENT_WAIT_ADVICE}.</p>}
+        {!offer && rentWaitNote(commRegion.state, saleKind, dealId) && <p className="caution" role="note"><strong>Plan for little or no rent until the redemption period ends.</strong> {rentWaitNote(commRegion.state, saleKind, dealId)} {RENT_WAIT_ADVICE}.</p>}
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
         <CommercialAtPrice v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={noReal ? NaN : r.maxBid} cashTyped={cashTyped} capTyped={typedKeys.has('targetCapPct')} rentTyped={!exactKey || typedKeys.has('monthlyRent')} dscrTyped={typedKeys.has('minDscr')} />
         {n.byLine && (() => {
