@@ -25,12 +25,13 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
   // is cancelled by Back, Close or leaving the page.
   const timer = useRef<number | undefined>(undefined);
   const moved = useRef(false);
+  const helpBtn = useRef<HTMLButtonElement>(null);
   const progress = useRef<HTMLParagraphElement>(null);
   useEffect(() => () => window.clearTimeout(timer.current), []);
   const resultHead = useRef<HTMLParagraphElement>(null);
   useEffect(() => {
     // The last answer opens the suggestions: focus moves there, since the question it answered is gone.
-    if (moved.current) (step >= qs.length ? resultHead.current : progress.current)?.focus();
+    if (moved.current) (!open ? helpBtn.current : step >= qs.length ? resultHead.current : progress.current)?.focus();
     moved.current = false;
   }, [step, qs.length, open]);
   const jump = (id: string) => { const target = document.getElementById(id); for (let p = target; p; p = p.parentElement) { if (p instanceof HTMLDetailsElement) p.open = true; } target?.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
@@ -41,7 +42,7 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
       {!open ? (
         <>
           <p>{intro}</p>
-          <button type="button" className="btn" onClick={() => { moved.current = true; setOpen(true); }}>Help me choose&nbsp;→</button>
+          <button ref={helpBtn} type="button" className="btn" onClick={() => { moved.current = true; setOpen(true); }}>Help me choose&nbsp;→</button>
         </>
       ) : q ? (
         <>
@@ -68,7 +69,7 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
             </p>
           )}
           <div className="decide-nav">
-            <button type="button" className="btn btn-secondary" onClick={() => { window.clearTimeout(timer.current); if (step) setStep((s) => s - 1); else setOpen(false); }}>{step ? 'Back' : 'Close'}</button>
+            <button type="button" className="btn btn-secondary" onClick={() => { window.clearTimeout(timer.current); moved.current = true; if (step) setStep((s) => s - 1); else setOpen(false); }}>{step ? 'Back' : 'Close'}</button>
             <button type="button" className="btn" disabled={!picked} onClick={() => { moved.current = true; setStep((s) => s + 1); }}>{step + 1 === qs.length ? 'Show me where to start' : 'Next'}</button>
           </div>
         </>

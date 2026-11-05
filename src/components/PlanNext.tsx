@@ -133,7 +133,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
               </li>
             ))}
           </ol></details>
-          {!finishedDeal(deal) && <p className="plan-now-evidence">Evidence: <strong>{checked} of {EVIDENCE_AREAS.length}</strong> areas checked. <a href={`#/deals/packet/${deal.id}`}>Open its deal packet&nbsp;→</a></p>}
+          {!finishedDeal(deal) && !['closed', 'owned'].includes(stageOf(deal)) && <p className="plan-now-evidence">Evidence: <strong>{checked} of {EVIDENCE_AREAS.length}</strong> areas checked. <a href={`#/deals/packet/${deal.id}`}>Open its deal packet&nbsp;→</a></p>}
         </>
       ) : (
         !onPlan && <details><summary>See all roadmap phases</summary><PhaseSummary /></details>

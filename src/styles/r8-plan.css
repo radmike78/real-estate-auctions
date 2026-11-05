@@ -50,7 +50,7 @@
 .plan-now-support > span:first-child { font-weight: 700; color: var(--text); }
 
 .plan-now-side { display: grid; align-content: start; gap: 10px; min-width: 0; padding: 16px 18px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface-2); }
-.plan-now-side h3 { margin: 0; font-size: 1.2rem; }
+.plan-now-side h3 { margin: 0; padding: 8px 14px; font-size: 1.2rem; border-left: 4px solid var(--accent-strong); background: var(--surface); border-radius: 10px; }
 .plan-now-side h4 { margin: 6px 0 0; font-size: 1.02rem; }
 .plan-now-side p { margin: 0; }
 .plan-now-count { display: grid; gap: 6px; }

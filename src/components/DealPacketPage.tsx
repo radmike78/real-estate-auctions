@@ -119,7 +119,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         title={<>Deal <span className="grad">packet</span></>}
         sub={`${deal.name} · ${kind ? kindLabel(kind, deal.state) : deal.kind} · ${countyName(deal.county)}, ${deal.state}`}
       />
-      <p>{sidState(deal) === 'void' && stageOf(deal) !== 'passed' ? <>This sale is void: what’s left is the refund*. Its dates and your records from the sale are kept here.</> : sidState(deal) === 'void' ? <>Everything about this property, on one page: its dates and your records from the sale (the sale was void).</> : finishedDeal(deal) ? <>Everything about this property, on one page: its dates and your records from the sale.</> : wonAuction ? <>{wayOf(deal) === 'lien' ? 'You were picked: pay on time.' : 'You won the bid: pay and record it on time.'} The parts from before the sale are kept as your records.</> : redeemingNow(deal) ? <>Everything about this property, on one page: its dates, the payoff and your records from the sale.</> : pastSale ? <>Everything about this property, on one page: its dates, costs and results, with the records from before you bought it. {(() => { const live = sections.filter((x) => !RECORD_PARTS.includes(x.key)); return live.length === 1 ? `${live[0].title}: ${STATUS_LABEL[live[0].status].toLowerCase()}.` : `${live.filter((x) => x.status === 'done').length} of ${live.length} parts after the sale are filled in.`; })()}</> : <>Everything this decision needs, on one page: your plan, the dates, the cash and when it’s due, your numbers with a downside case, what you’ve verified, your professionals’ answers and your decision. {done} of {sections.length} parts are complete.</>} Every number is your estimate until a source backs it.</p>
+      <p>{sidState(deal) === 'void' && stageOf(deal) !== 'passed' ? <>This sale is void: what’s left is the refund*. Its dates and your records from the sale are kept here.</> : sidState(deal) === 'void' ? <>Everything about this property, on one page: its dates and your records from the sale (the sale was void).</> : finishedDeal(deal) ? <>Everything about this property, on one page: its dates and your records from the sale.</> : wonAuction ? <>{wayOf(deal) === 'lien' ? 'You were picked: pay on time.' : 'You won the bid: pay and record it on time.'} The parts from before the sale are kept as your records.</> : redeemingNow(deal) ? <>Everything about this property, on one page: its dates, the payoff and your records from the sale.</> : pastSale ? <>Everything about this property, on one page: its dates, costs and results, with the records from before you bought it. {(() => { const live = sections.filter((x) => !RECORD_PARTS.includes(x.key)); return live.length === 1 ? (live[0].status === 'done' ? `${live[0].title} is complete.` : live[0].status === 'started' ? `${live[0].title} is in progress.` : `Still to fill in: ${live[0].title}.`) : `${live.filter((x) => x.status === 'done').length} of ${live.length} parts after the sale are filled in.`; })()}</> : <>Everything this decision needs, on one page: your plan, the dates, the cash and when it’s due, your numbers with a downside case, what you’ve verified, your professionals’ answers and your decision. {done} of {sections.length} parts are complete.</>} Every number is your estimate until a source backs it.</p>
 
       <div className="packet-stage">
         <label className="field">
@@ -301,7 +301,8 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <section className="deal-setup packet-section" aria-labelledby="packet-decision">
         <Head k="decision" />
         <DecisionGate dealId={key} onPass={stageOf(deal) === 'passed' ? undefined : () => { setDealStage(deal.id, 'passed'); }} />
-        <p className="muted">Write down why, and anything that must be true before you sign or bid. The same choice shows at the end of the evidence log.</p>
+        {pastSale ? <p className="muted">This records the choice you made before you bought: nothing needs deciding here now.</p> : <p className="muted">Write down why, and anything that must be true before you sign or bid. The same choice shows at the end of the evidence log.</p>}
+        {(() => { const boxes = (<>
         <label className="field wide">
           <span>Why</span>
           <textarea rows={2} maxLength={1000} value={p.decisionWhy} onChange={(e) => update({ decisionWhy: e.target.value })} />
@@ -310,6 +311,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           <span>Still to resolve before you commit</span>
           <textarea rows={2} maxLength={1000} value={p.conditions} onChange={(e) => update({ conditions: e.target.value })} placeholder="e.g. Title company confirms the 2023 lien will be released; insurance quote under $1,500." />
         </label>
+        </>); return pastSale ? <details open={p.decisionWhy || p.conditions ? true : undefined}><summary>Add to the record</summary>{boxes}</details> : boxes; })()}
         <Lines k="decision" />
       </section>
       <section className="deal-setup packet-section" aria-labelledby="packet-owned">

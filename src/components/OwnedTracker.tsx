@@ -182,7 +182,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
       </div>}
       {(showBad(rent, 'rent') || showBad(costs, 'costs')) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
       {negative && <p className="caution small" role="alert">Enter rent and costs as $0 or more. Record a refund to a tenant as a cost.</p>}
-      {!o.sold && <p className="small muted">{liveIn(deal) ? 'Count what you paid that month for the loan, taxes, insurance and HOA. Leave out utilities, repairs and repair savings: the plan doesn’t include them. Rent: only what a room or unit you rent out brought in.' : 'Count everything you paid that month: the loan, taxes, insurance, HOA, repairs, management and utilities, and any money you moved into your repair savings.'}</p>}
+      {!o.sold && <p className="small muted">{liveIn(deal) ? 'Count what you paid that month for the loan, taxes, insurance and HOA. Leave out utilities, repairs and repair savings, so it compares with Analyze’s monthly cost. Rent: only what a room or unit you rent out brought in.' : 'Count everything you paid that month: the loan, taxes, insurance, HOA, repairs, management and utilities, and any money you moved into your repair savings.'}</p>}
       {s.months > 0 ? (
         <>
           <dl className="calc-kv">
