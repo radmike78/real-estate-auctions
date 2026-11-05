@@ -4,7 +4,7 @@ import type { Deal } from '../lib/analyze';
 import { flipBudget, flipBudgetLine, flipSaleLine, loadPacket, sameEvent, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
-import { certificateFirst, finishedDeal, liveIn, prettyDay, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
+import { asksHome, setDealHome, certificateFirst, finishedDeal, liveIn, prettyDay, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
 
 /** The monthly cash flow the deal was bought on, from its Keep and rent numbers (null without them). */
 export function projectedMonthly(d: Deal): number | null {
@@ -129,8 +129,17 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     const [y, mo] = month.split('-').map(Number);
     setMonth(mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`);
   };
+  // A home whose recorded rent now covers its costs: ask whether you still live there (never switch it on its own).
+  const rentCovers = !deal.home && asksHome(deal) && o.months.some((m) => m.rent > 0) && s.rent >= s.costs;
   return (
     <div>
+      {rentCovers && (
+        <fieldset className="packet-fit">
+          <legend>Rent now covers this home’s costs. Do you still live there?</legend>
+          <label className="check"><input type="radio" name={`still-home-${deal.id}`} onChange={() => setDealHome(deal.id, 'live')} /> Yes, it’s my home</label>
+          <label className="check"><input type="radio" name={`still-home-${deal.id}`} onChange={() => setDealHome(deal.id, 'rent')} /> No, it’s a rental now</label>
+        </fieldset>
+      )}
       {!o.sold && <p className="muted">{flip ? (budgetLine ?? 'Record what you pay each month, with $0 rent, and compare it yourself with the repairs and holding costs under Fix and flip in Analyze.') : liveIn(deal) && projected === null ? 'Record what your home costs each month (and any rent from a room or unit). Save its numbers in Analyze to compare with your plan.' : projected === null ? 'Renting it out? Save this deal’s numbers in Buy and hold to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : liveIn(deal) ? `You planned on about ${signed(-projected)} a month to live there (after any rent you collect).` : `You planned on ${signed(projected)} a month of cash flow.`}</p>}
       {o.sold ? <p className="muted">Bought on {prettyDay(o.boughtOn)}. Sold: the months you recorded are below.</p> : <div className="row owned-add">
         <label className="field"><span>Bought on</span><input id="owned-bought-on" type="date" value={o.boughtOn} max={today()} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
