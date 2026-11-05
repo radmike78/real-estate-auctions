@@ -62,6 +62,8 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
         {state === 'NV' && saleKind === 'court' ? <li><strong>The owner’s right to buy it back:</strong> 1 year after a sheriff’s sale, at your price plus 1% a month, plus taxes, assessments and earlier liens you paid (NRS 21.210). You get a certificate of sale first.</li>
           : state === 'NV' && saleKind === 'hoa' ? <li><strong>The owner’s right to buy it back:</strong> 60 days after an HOA sale, at your price plus 1% a month, plus the taxes, assessments and needed upkeep you paid (NRS 116.31166(3)). You get a certificate of sale first.</li>
           : saleKind === 'irs' && !irsNone ? <li><strong>The owner’s right to buy it back:</strong> 180 days after an IRS sale, at your price plus 20% a year (26 U.S.C. 6337(b)). You get a certificate of sale first.</li>
+          : state === 'NV' && saleKind === 'trustee' ? <li><strong>No owner buy-back after a Nevada trustee’s sale</strong> (NRS 107.080(5)), but a challenge window: 30 days after the trustee’s deed is recorded, or 90 days after the sale for anyone who didn’t get proper notice (NRS 107.080(5), (6)).</li>
+          : state === 'NV' && saleKind === 'taxSale' ? <li><strong>No owner buy-back after the Treasurer’s sale,</strong> but a suit to recover it can be brought for 2 years after the deed is delivered (NRS 361.600).</li>
           : <li><strong>Any right to buy it back (redemption)</strong> and how long it lasts for this kind of sale in your state.*</li>}
         <li><strong>Who lives there,</strong> and the court process to get possession.</li>
         <li><strong>Insurance from the day it’s yours.</strong> <a href="#/learn/analyze">What to ask</a></li>

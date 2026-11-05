@@ -496,6 +496,23 @@ describe('Nevada round 4 flow', () => {
     expect(stageHint('passed', hoa)).not.toMatch(/redeemed/);
   });
 
+  it('round 6 flow: work after the challenge window, SID payoff, paid tick, calendar review, deed tick', () => {
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'Trustee', resolved: true }, { when: '2026-09-20', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
+    const rep = stageTasks(nvFlip, 'closed', p, now).find((x) => x.key === 'repairs')!;
+    expect(rep.label).toMatch(/start the work after the challenge window ends \(2026-10-20\)/);
+    expect(stageTasks(nvFlip, 'closed', p, now).find((x) => x.key === 'window')!.produces).toMatch(/90 days after the sale \(2026-11-30\)/);
+    const lien = { ...nvFlip, kind: 'lien' as const, plan: 'lien' as const };
+    const hold = stageTasks(lien, 'owned', EMPTY_PACKET, now).find((x) => x.key === 'hold')!;
+    expect(hold.advance2?.addRow?.who).toMatch(/Treasurer/);
+    const paid = { ...EMPTY_PACKET, dates: [{ when: '', what: 'Redemption money collected', who: 'The Treasurer who sold the certificate' }] };
+    expect(dealNextTask(lien, paid, now, 'owned').key).toBe('payoff');
+    const won = { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'Payment deadline', who: 'Me' }] };
+    expect(dealNextTask(nvFlip, won, now, 'contract').tick?.label).toBe('I paid: mark it handled');
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const deedP = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Redemption period ends', who: 'Owner', resolved: true }] };
+    expect(stageTasks(hoa, 'closed', deedP, now).find((x) => x.key === 'deed')!.tick?.label).toBe('I have the deed: mark it handled');
+  });
+
   it('says so when the deed row is ticked at a win', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);

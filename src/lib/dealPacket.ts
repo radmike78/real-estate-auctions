@@ -409,7 +409,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   else if (typedWait(d)) out.push('Redemption period ends');
   // Then the deed, if no one redeemed (NRS 116.31166(7); NRS 21.220(4); 26 U.S.C. 6338(b)).
   if (certFirst && out.includes('Redemption period ends')) out.push('Deed delivered (if no one redeemed)');
-  const deedRow = certFirst ? { what: 'Deed delivered (if no one redeemed)', when: `After the redemption period, if no one redeemed${d.kind === 'irs' ? ': hand in the certificate of sale for the deed' : ''}.`, who: d.kind === 'hoa' ? 'The person who conducted the sale (the HOA’s agent)' : d.kind === 'irs' ? 'The IRS' : 'The sheriff', todo: 'Record the deed and get title insurance before you remodel or sell. If it was redeemed instead, you’re repaid your price plus what the law adds: keep the payoff statement and mark the deal passed.', missed: d.kind === 'hoa' ? 'Ask the HOA’s agent who ran the sale when the deed will be delivered.' : d.kind === 'irs' ? 'Ask the IRS sale officer when the deed will be delivered.' : 'Ask the sheriff’s civil office when the deed will be delivered.', why: d.kind === 'hoa' ? 'NRS 116.31166(5) and (7)' : d.kind === 'irs' ? '26 U.S.C. 6338(b)' : 'NRS 21.220(4) and (5)' } : null;
+  const deedRow = certFirst ? { what: 'Deed delivered (if no one redeemed)', when: `After the redemption period, if no one redeemed${d.kind === 'irs' ? ': hand in the certificate of sale for the deed' : ''}.`, who: d.kind === 'hoa' ? 'The person who conducted the sale (the HOA’s agent)' : d.kind === 'irs' ? 'The IRS' : 'The sheriff', todo: 'Record the deed and get title insurance before you remodel or sell. If it was redeemed instead, you’re repaid your price plus what the law adds: press “It was redeemed: collect the payoff”, then “I was repaid” once you have it.', missed: d.kind === 'hoa' ? 'Ask the HOA’s agent who ran the sale when the deed will be delivered.' : d.kind === 'irs' ? 'Ask the IRS sale officer when the deed will be delivered.' : 'Ask the sheriff’s civil office when the deed will be delivered.', why: d.kind === 'hoa' ? 'NRS 116.31166(5) and (7)' : d.kind === 'irs' ? '26 U.S.C. 6338(b)' : 'NRS 21.220(4) and (5)' } : null;
   // When the owner's period starts, where the rule says (not under a United States redemption, which has its own).
   const ownerRule = !['usCourt', 'usFederal'].includes(savedRule(d) ?? '');
   // Nevada (leg.state.nv.us): an HOA sale's owner or a junior lienholder may redeem within 60 days (NRS 116.31166(3)), a
@@ -818,8 +818,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   out.push({
     key: 'property',
     title: 'The property and the sale',
-    status: sale?.done ? 'done' : sale?.finding ? 'started' : 'missing',
-    lines: [`${d.name}`, `${kind ? kindLabel(kind, d.state) : d.kind} · ${countyName(d.county)}, ${d.state}`, sale?.finding ? `Verified: ${sale.finding}${sale.source ? ` (source: ${sale.source}${sale.checked ? `, ${sale.checked}` : ''})` : ''}` : 'Not verified yet: the parcel, who is selling and what exactly is sold, from the official notice or listing.'],
+    status: sale?.done && sale.finding ? 'done' : sale?.done || sale?.finding ? 'started' : 'missing',
+    lines: [`${d.name}`, `${kind ? kindLabel(kind, d.state) : d.kind} · ${countyName(d.county)}, ${d.state}`, sale?.finding ? `Verified: ${sale.finding}${sale.source ? ` (source: ${sale.source}${sale.checked ? `, ${sale.checked}` : ''})` : ''}` : sale?.done ? 'Reviewed (no finding written yet): add what the notice says in its evidence log.' : 'Not verified yet: the parcel, who is selling and what exactly is sold, from the official notice or listing.'],
   });
 
   // 3. Key dates

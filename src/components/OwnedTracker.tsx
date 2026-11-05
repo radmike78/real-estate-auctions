@@ -4,7 +4,7 @@ import type { Deal } from '../lib/analyze';
 import { flipBudget, flipBudgetLine, flipSaleLine, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
-import { finishedDeal, liveIn, setDealStage, stageOf } from '../lib/dealStage';
+import { finishedDeal, liveIn, setDealStage, stageOf, wayOf } from '../lib/dealStage';
 
 /** The monthly cash flow the deal was bought on, from its Keep and rent numbers (null without them). */
 export function projectedMonthly(d: Deal): number | null {
@@ -82,6 +82,9 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     else delete copy[deal.id];
     saveOwned(copy);
   };
+  // A finished deal (passed, or repaid) has nothing to track; an auction not yet won is answered on sale day.
+  if (!o && (stageOf(deal) === 'passed' || finishedDeal(deal))) return <p className="muted">{finishedDeal(deal) ? 'It was repaid: nothing more to track here.' : 'You passed on it: nothing to track here.'}</p>;
+  if (!o && ['researching', 'offer'].includes(stageOf(deal)) && wayOf(deal) !== 'offer') return <p className="muted">Won it? Answer “did you win?” in Your next action above once the sale is over, and the steps after the sale appear here.</p>;
   if (!o) {
     // At Closed or later you did buy it: start tracking (not "did you buy it?").
     const bought = ['closed', 'owned'].includes(stageOf(deal));
