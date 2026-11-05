@@ -4,7 +4,7 @@ import type { Deal } from '../lib/analyze';
 import { flipBudget, flipBudgetLine, flipSaleLine, loadPacket, sameEvent, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
-import { certificateFirst, finishedDeal, liveIn, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
+import { certificateFirst, finishedDeal, liveIn, prettyDay, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
 
 /** The monthly cash flow the deal was bought on, from its Keep and rent numbers (null without them). */
 export function projectedMonthly(d: Deal): number | null {
@@ -52,7 +52,7 @@ function SoldForm({ o, put, deal }: { o: Owned; put: (next: Owned | null) => voi
   const priceWhy = price.trim() === '' ? 'Enter the sale price.' : priceBad ? (priceFocus && midNumber(price) ? 'Finish typing the price (commas only between thousands, like 430,000).' : 'Check the sale price: use commas only between thousands, like 430,000.') : !(p > 0) ? 'Enter the sale price.' : '';
   const dateOk = /^\d{4}-\d{2}-\d{2}$/.test(on);
   // A closing that hasn't happened yet, or before you bought it, doesn't finish the deal.
-  const dateWhy = !dateOk ? 'Enter the closing date.' : on > today() ? 'Record the sale once it has closed: the closing date can’t be in the future.' : on < o.boughtOn ? `The closing date can’t be before you bought it (${o.boughtOn}).` : '';
+  const dateWhy = !dateOk ? 'Enter the closing date.' : on > today() ? 'Record the sale once it has closed: the closing date can’t be in the future.' : on < o.boughtOn ? `The closing date can’t be before you bought it (${prettyDay(o.boughtOn)}).` : '';
   const ok = dateOk && !dateWhy && !priceBad && Number.isFinite(p) && p > 0;
   if (o.sold) return <p className="notice" id="owned-sold" tabIndex={-1} role="status">{flipSaleLine(deal) ?? `Sold on ${o.sold.on} for ${fmtMoney(o.sold.price)}.`} <button type="button" className="linkish" onClick={() => { const { sold: _sold, ...rest } = o; put(rest); setTimeout(() => document.getElementById('owned-sold-on')?.focus(), 0); }}>Undo</button></p>;
   return (
@@ -130,7 +130,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   return (
     <div>
       {!o.sold && <p className="muted">{flip ? (budgetLine ?? 'Record what you pay each month, with $0 rent, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : liveIn(deal) && projected === null ? 'Record what your home costs each month (and any rent from a room or unit). Save its numbers in Analyze to compare with your plan.' : projected === null ? 'Renting it out? Save this deal’s numbers in Keep and rent to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : liveIn(deal) ? `You planned on about ${signed(-projected)} a month to live there (after any rent you collect).` : `You planned on ${signed(projected)} a month of cash flow.`}</p>}
-      {o.sold ? <p className="muted">Bought on {o.boughtOn}. Sold: the months you recorded are below.</p> : <div className="row owned-add">
+      {o.sold ? <p className="muted">Bought on {prettyDay(o.boughtOn)}. Sold: the months you recorded are below.</p> : <div className="row owned-add">
         <label className="field"><span>Bought on</span><input id="owned-bought-on" type="date" value={o.boughtOn} max={today()} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
         <label className="field"><span>Month</span><input id="owned-month" type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></label>
         <label className="field"><span>{liveIn(deal) ? 'Rent from a room or unit ($)' : 'Rent collected ($)'}</span><input type="text" inputMode="decimal" value={rent} aria-invalid={showBad(rent, 'rent') || undefined} onFocus={() => setFocusBox('rent')} onBlur={() => setFocusBox(null)} onChange={(e) => setRent(e.target.value)} /></label>

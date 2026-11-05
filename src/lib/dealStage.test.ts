@@ -462,7 +462,7 @@ describe('Nevada round 4 flow', () => {
     localStorage.setItem('fsf.bid.analyzed-f1.v1', JSON.stringify({ exitValue: 340000, proposedPrice: 180000, sellingCostPct: 6 }));
     saveOwned({ f1: { boughtOn: '2026-06-01', months: [{ month: '2026-07', rent: 0, costs: 30000, note: '' }], sold: { on: '2026-10-01', price: 335000 } } });
     const line = flipSaleLine({ ...nvFlip, stage: 'owned' })!;
-    expect(line).toMatch(/^Sold on 2026-10-01 for \$335,000 \(you planned a \$340,000 resale\)/);
+    expect(line).toMatch(/^Sold on Oct 1, 2026 for \$335,000 \(you planned a \$340,000 resale\)/);
     expect(line).toMatch(/Rough profit before income tax: about \$[0-9,]+ \(the sale, less your \$180,000 bid/);
     expect(line).not.toMatch(/walk-away/);
   });
@@ -510,7 +510,7 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(nvFlip, won, now, 'contract').tick?.label).toBe('I paid: mark it handled');
     const hoa = { ...nvFlip, kind: 'hoa' as const };
     const deedP = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Redemption period ends', who: 'Owner', resolved: true }] };
-    expect(stageTasks(hoa, 'closed', deedP, now).find((x) => x.key === 'deed')!.tick?.label).toBe('I have the deed: mark it handled');
+    expect(stageTasks(hoa, 'closed', deedP, now).find((x) => x.key === 'deed')!.tick?.label).toBe('I have the deed, and it’s recorded: mark it handled');
   });
 
   it('round 6 verifier: no sale-day reminder once won; the deed reminder carries its answer', () => {
@@ -519,7 +519,7 @@ describe('Nevada round 4 flow', () => {
     const hoa = { ...nvFlip, kind: 'hoa' as const };
     const d = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Redemption period ends', who: 'Owner', resolved: true }, { when: '2026-10-04', what: 'Deed delivered (if no one redeemed)', who: 'Agent' }] };
     const t = dealNextTask(hoa, d, now, 'closed');
-    expect(t.tick?.label).toBe('I have the deed: mark it handled');
+    expect(t.tick?.label).toBe('I have the deed, and it’s recorded: mark it handled');
     expect(t.urgent).toBe(false);
   });
 
@@ -590,6 +590,17 @@ describe('Nevada round 4 flow', () => {
     saveOwned({ f1: { boughtOn: '2026-06-01', months: [], sold: { on: '2026-09-15', price: 300000 } } });
     localStorage.setItem(DEAL_KEY, JSON.stringify('analyzed:f1'));
     expect(focusDealId()).toBe('analyzed:f2');
+  });
+
+  it('round 9 flow: a repaid only deal still leads My plan; an offer’s contract dates wait; pre-sale rows behind a win', async () => {
+    const hoa = { ...nvFlip, kind: 'hoa' as const, stage: 'passed' as const };
+    saveDeals([hoa]);
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Redemption money collected', who: 'x', resolved: true }] });
+    expect(focusDealId()).toBe('analyzed:f1');
+    const { calendarRows } = await import('./dealPacket');
+    expect(calendarRows({ ...EMPTY_PACKET, dates: [{ when: '', what: 'Closing', who: '' }] }, 'researching')).toHaveLength(0);
+    const { behindStage } = await import('./dealStage');
+    expect(behindStage(nvFlip, 'contract')).toContain('Sale day');
   });
 
   it('says so when the deed row is ticked at a win', () => {

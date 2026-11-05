@@ -17,7 +17,7 @@ import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
-import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom } from './dealStage';
+import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, deedInHand } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -79,7 +79,7 @@ const LATER = ['Redemption money collected', 'Challenge window ends', 'Recovery-
 /** The rows this stage's calendar needs filled in: before the sale, only the dates before it; after, all but those
  *  counted from a later event (they can wait for it). */
 export const calendarRows = (p: PacketData, stage: string) => {
-  if (['researching', 'offer'].includes(stage)) return p.dates.filter((x) => !afterSale(x.what));
+  if (['researching', 'offer'].includes(stage)) return p.dates.filter((x) => !afterSale(x.what) && !CONTRACT_ROWS.some((n) => sameDate(x.what, n)));
   // A short sale's dates count from the lender's approval: until it's dated, it and the rows after it can wait.
   const approvalRow = p.dates.find((x) => sameDate(x.what, 'Approval notice received'));
   const waiting = !!approvalRow && !approvalRow.when;
@@ -101,6 +101,8 @@ export const capSid = (p: PacketData, d: Pick<Deal, 'kind' | 'state'>): PacketDa
   const dl = d.state === 'NV' && d.kind === 'taxSale' ? sidDeadline(p) : '';
   return dl && p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && x.when > dl) ? { ...p, dates: p.dates.map((x) => (sameDate(x.what, 'SID certificate payoff') && x.when > dl ? { ...x, when: dl } : x)) } : p;
 };
+/** An offer's contract dates: they start once the offer is accepted (no calendar needed before then). */
+const CONTRACT_ROWS = ['Offer accepted', 'Acceptance', 'Contract signed', 'Earnest money', 'Earnest Money Deposit', 'Inspection period ends', 'Option period ends', 'Seller’s disclosure', 'Seller Disclosure', 'Defect cancellation', 'HOA resale package', 'Appraisal deadline', 'Loan approval deadline', 'Closing', 'Lienholder approval', 'Approval notice received', 'Feasibility', 'Title and survey', 'Due Diligence', 'Financing & Appraisal', 'Settlement Deadline'];
 /** The most dates a packet keeps. */
 export const MAX_DATES = 60;
 /** A Nevada trustee sale's 90-day limit (NRS 107.080(6)) still ahead of the challenge window's own end, and of today. */
@@ -376,7 +378,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   ];
   // Utah's state-approved purchase contract (REPC, section 24) has its own named deadlines.
   if (isOffer(d) && d.state === 'UT') return names([...(d.kind === 'short' ? ['Lienholder approval deadline (from the short sale addendum)'] : []), 'Acceptance (Day 0)', 'Earnest Money Deposit due (4 calendar days after Acceptance, unless the contract says otherwise)', 'Seller Disclosure Deadline', 'Due Diligence Deadline', 'Financing & Appraisal Deadline', 'Settlement Deadline', ...(d.kind === 'reo' ? ['Any dates the bank’s addendum changes (it can replace the REPC’s)'] : [])]);
-  if (d.kind === 'short') return [...names(['Contract signed']), ...(tx ? TX_DEPOSIT_DATES : []), ...names(['Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)']), ...(d.state === 'NV' ? NV_OFFER_DATES : []), ...(tx ? [TX_SHORT_OPTION_END, txDisclosureDate(true), txHoaDate(true), TX_TITLE_DATE, txWaterDate(true), txAppraisalDate(true), ...txLoanDates(true)] : names(['Inspection period ends', 'Loan approval deadline'])), ...names(['Closing'])];
+  if (d.kind === 'short') return [...names(['Contract signed']), ...(tx ? TX_DEPOSIT_DATES : names(['Earnest money due'])), ...names(['Lienholder approval deadline (from the short sale addendum)', 'Approval notice received (dates count from here)']), ...(d.state === 'NV' ? NV_OFFER_DATES : []), ...(tx ? [TX_SHORT_OPTION_END, txDisclosureDate(true), txHoaDate(true), TX_TITLE_DATE, txWaterDate(true), txAppraisalDate(true), ...txLoanDates(true)] : names(['Inspection period ends', 'Loan approval deadline'])), ...names(['Closing'])];
   // Nevada (leg.state.nv.us): the seller's disclosure form at least 10 days before conveyance (NRS 113.130(1)); rescission
   // if it isn't served (113.150(1)), or within 4 working days, notarized, after a disclosed defect (113.150(2)-(3)); and 5
   // calendar days to cancel after an HOA's resale package arrives (116.4109(2)).
@@ -387,7 +389,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   // Nevada tax sale (leg.state.nv.us): the treasurer gives a quitclaim deed and records it at the purchaser's expense (NRS
   // 361.595(5), (7)); no action to recover the land lies unless brought within 2 years after its delivery (361.600).
   if (d.kind === 'taxSale' && d.state === 'NV') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),
-    { what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', when: 'Within 20 days after the sale, if a city or county gave the treasurer an affidavit, by 3 business days before the sale, that the parcel has an unpaid special assessment (SID) certificate of sale. Ask the treasurer after the sale.', who: 'You, with that city or county', todo: 'Pay what the certificate is owed; the treasurer can’t issue your deed until you do.', missed: 'The tax sale is void, and the treasurer may keep up to 10% of what you paid.', why: 'NRS 361.595(6)' },
+    { what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', when: 'Within 20 days after the sale, if a city or county gave the treasurer an affidavit, by 3 business days before the sale, that the parcel has an unpaid special assessment (SID) certificate of sale. Ask the treasurer after the sale.', who: 'You, with that city or county', todo: 'Pay what the certificate is owed, get a receipt, and ask the city or county to send the treasurer its affidavit that you paid; the treasurer can’t issue your deed until it has it.', missed: 'The tax sale is void, and the treasurer may keep up to 10% of what you paid.', why: 'NRS 361.595(6)' },
     { what: 'Treasurer’s deed recorded', when: 'The county treasurer records the quitclaim deed at your expense after you pay.', who: 'The county treasurer', todo: 'Get a recorded copy, and insure the property right away.', missed: 'Ask the treasurer when it will be recorded.', why: 'NRS 361.595(5) and (7)' },
     { what: 'Recovery-suit window ends', when: '2 years after the treasurer’s deed is delivered to you.', who: 'The former owner, or anyone claiming the land', todo: 'Ask your title company when it will insure the title; a quiet title action may let you sell sooner.', missed: 'After it, no action to recover the land lies under that law.', why: 'NRS 361.600' }];
   // Nevada (NRS 271.595, leg.state.nv.us): redemption within 2 years with a home or other significant permanent
@@ -735,14 +737,14 @@ export function flipBudget(d: Deal): { repairs: number; monthly: number; months:
 export function flipSaleLine(d: Deal): string | null {
   const sold = loadOwned()[d.id]?.sold;
   if (d.plan !== 'flip' || !sold) return null;
-  const head = `Sold on ${sold.on} for ${money(sold.price)}`;
+  const head = `Sold on ${prettyDay(sold.on)} for ${money(sold.price)}`;
   const raw = read(`fsf.bid.analyzed-${d.id}.v1`);
-  if (!raw || typeof raw !== 'object') return `${head}. Save its Fix and sell numbers in Analyze, with the price you paid in “Check an offer”, to see your rough profit; keep the closing statement for your taxes.`;
+  if (!raw || typeof raw !== 'object') return `${head}. Save its Fix and sell numbers in Analyze, with the price you paid in “Check ${isOffer(d) ? 'an offer' : 'a bid'}”, to see your rough profit; keep the closing statement for your taxes.`;
   const saved: BidInputs = sanitizeInputs(raw, BLANK_INPUTS);
   const i = isOffer(d) ? offerInputs(saved) : saved;
   const proposed = proposedPriceOf(i);
   const planned = i.exitValue > 0 ? ` (you planned a ${money(i.exitValue)} resale)` : '';
-  if (!proposed || proposed.source !== 'yours') return `${head}${planned}. Type the price you paid in “Check an offer” under Fix and sell (Analyze) to see your rough profit; keep the closing statement for your taxes.`;
+  if (!proposed || proposed.source !== 'yours') return `${head}${planned}. Type the price you paid in “Check ${isOffer(d) ? 'an offer' : 'a bid'}” under Fix and sell (Analyze) to see your rough profit; keep the closing statement for your taxes.`;
   const c = costsAtBid(i, proposed.price);
   const buy = c.premium + c.transferTax + c.survivingLiens + c.titleLegal + c.possession;
   const o = loadOwned()[d.id];
@@ -1006,7 +1008,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     // Your own wait, under every period the law sets for this sale: said once, with the shortest.
     const shorter = bid?.redeem?.shortest ? ` That’s shorter than any redemption period the law sets for this sale (the shortest is ${shortestRedemptionWords(d, true)}):* the owner can still redeem until it ends.` : '';
     if (bid?.redeem && bid.redeem.who && !(bid.redeem.price > 0)) nums.push(bid.redeem.shortest ? `Built on ${waitWords(bid.redeem.months)}.${shorter}` : `Built on a ${bid.redeem.months}-month redemption wait: ${bid.redeem.who} can redeem until it ends.`);
-    else if (bid.redeem && bid.redeem.who) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait.${shorter} If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* on a ${money(x.price)} ${offer ? 'offer' : 'bid'}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
+    else if (bid.redeem && bid.redeem.who && !deedInHand(d)) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait.${shorter} If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* on a ${money(x.price)} ${offer ? 'offer' : 'bid'}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
     const floor = a?.source === 'listed' ? a.price : 0;
     for (const s of bid.stress.slice(1)) {

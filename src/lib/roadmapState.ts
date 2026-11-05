@@ -109,7 +109,10 @@ export function focusDealId(deals: Deal[] = loadDeals()): string {
   const owned = loadOwned();
   const open = all.some((d) => !owned[d.id]?.sold) ? all.filter((d) => !owned[d.id]?.sold) : all;
   const recent = open.find((d) => underWay(d)) ?? open[0];
-  return recent ? `analyzed:${recent.id}` : '';
+  if (recent) return `analyzed:${recent.id}`;
+  // Nothing open: the most recent finished deal (sold or repaid) leads, with its "Find your next …".
+  const fin = [...deals].filter((d) => !d.practice && (repaid(d.id) || !!loadOwned()[d.id]?.sold)).sort((x, y) => y.updatedAt.localeCompare(x.updatedAt))[0];
+  return fin ? `analyzed:${fin.id}` : '';
 }
 
 /** A deal whose redemption payoff is marked collected in its packet (read directly: no import cycle). */

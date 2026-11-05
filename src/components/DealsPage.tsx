@@ -24,7 +24,7 @@ import { dealNumbers } from '../lib/propertyPacket';
 import { flipNeedsRepairs, nextAction, savedNumbers } from '../lib/dealPacket';
 import { investorProfile } from '../lib/myPlan';
 import { capMisses, capText, dscrText, refiValueWords, rentVerdict } from '../lib/holdCalc';
-import { dealNextTask, finishedDeal, liveIn, soldOf, stageLabel, stageOf, setDealStage } from '../lib/dealStage';
+import { deedInHand, dealNextTask, finishedDeal, prettyDay, liveIn, soldOf, stageLabel, stageOf, setDealStage } from '../lib/dealStage';
 import AdSpot from './AdSpot';
 
 function DealCard({ d, p, loading, known }: { d: SavedDeal; p: Property | undefined; loading: boolean; known: boolean }) {
@@ -142,7 +142,7 @@ function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
         <tbody>
           {rows.map(({ d, o, s }) => (
             <tr key={d.id}>
-              <td><a href={`#/deals/packet/${d.id}`}>{d.name}</a>{o.sold ? <span className="muted"> · sold {o.sold.on} for {fmtMoney(o.sold.price)}</span> : null}</td>
+              <td><a href={`#/deals/packet/${d.id}`}>{d.name}</a>{o.sold ? <span className="muted"> · sold {prettyDay(o.sold.on)} for {fmtMoney(o.sold.price)}</span> : null}</td>
               <td data-label="Bought">{o.boughtOn}</td>
               <td data-label="Months recorded">{s.months}</td>
               <td data-label="Average month">{s.months ? signed(s.averageMonthly) : '—'}</td>
@@ -204,7 +204,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash, with the loan (if any) and costs entered in Fix and sell (${bid.cashLimit > 0 ? 'the cash you entered' : 'My plan'}: ${fmtMoney(lim)}).` : '';
     })()}{whatIfSentence}</p>;
     // The redemption wait the price was built on, and a redemption's result at its end (as the packet says).
-    const redeemClause = bid.redeem && !bid.redeem.who ? whatIf : bid.redeem && !(bid.redeem.price > 0) ? waitOnly : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait${bid.redeem.shortest ? `, shorter than any period the law sets (at least ${shortestRedemptionWords(d, true)})*` : ''} (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? 'your bid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
+    const redeemClause = deedInHand(d) ? '' : bid.redeem && !bid.redeem.who ? whatIf : bid.redeem && !(bid.redeem.price > 0) ? waitOnly : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait${bid.redeem.shortest ? `, shorter than any period the law sets (at least ${shortestRedemptionWords(d, true)})*` : ''} (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? 'your bid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
     const planCash = investorProfile().investable;
     // The same rule as Fix and sell: no warning once a cash limit is entered there (the price is already capped by it).
     const short = !(bid.cashLimit > 0) && !bid.cashTyped && planCash > 0 && bid.cashPeak > planCash;
@@ -291,7 +291,7 @@ export default function DealsPage() {
                           <p className={rentVerdict({ coverageShort: n.coverageShort, cashFlow: n.monthly, cashOnCash: n.cashOnCash, targetPct: n.target, cashShort: short, exampleRefi: n.exampleValue && n.refiValue > 0, living }) === 'bad' ? 'deal-urgent' : undefined}>
                             At your price, {fmtMoney(n.price)}: {living && !(n.exampleValue && n.refiValue > 0) ? <>{Math.round(Math.abs(n.monthly)) === 0 ? 'the rent you collect about breaks even with every cost' : n.monthly < 0 ? `living there costs you about ${fmtMoney(Math.round(-n.monthly))} a month after any rent you collect` : `the rent you collect covers every cost, with about ${fmtMoney(Math.round(n.monthly))} a month to spare`}{n.mi > 0 ? `, before mortgage insurance (about ${fmtMoney(n.mi)} a month on an FHA loan; not counted)` : ''}{short ? ` · needs about ${fmtMoney(Math.round(n.cashNeeded))} of your cash (${n.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</> : <>{n.monthly < 0 ? `loses ${fmtMoney(Math.round(-n.monthly))}` : `${fmtMoney(Math.round(n.monthly))} cash flow`} a month{n.exampleValue ? ` (${refiValueWords(n.refiValue)})` : n.refi ? ' after the refinance' : ''} · {n.exampleValue && n.refiValue > 0 ? 'enter the value after repairs to see the return' : n.cashOnCash === null ? 'all your cash back' : `${capText(n.cashOnCash, n.target)}% a year on ${fmtMoney(Math.round(n.cashIn))} of your cash`} (target {n.target}%{n.targetTyped ? '' : ', our example'}){n.coverageShort && !living ? ` · income coverage under ${n.dscrTyped ? 'your' : 'our example'} ${n.minDscr}× minimum` : ''}{short ? ` · needs about ${fmtMoney(Math.round(n.cashNeeded))} of your cash (${n.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}{n.loanHigh ? ' · a bigger loan than most investment lenders make (they usually want 15% to 25% down*; ask your lender) and mortgage insurance not included' : n.miLeftOut ? ' · mortgage insurance not included (ask your lender)' : ''}</>}
                           </p>
-                        ) : finishedDeal(d) && !soldOf(d) ? <p><strong>Finished:</strong> {d.kind === 'lien' ? 'paid off, and the Treasurer repaid you' : 'redeemed, and you were repaid'}.</p> : d.plan === 'rent' ? <p className="muted">{liveIn(d) ? 'No numbers yet: open it and enter the price you’d pay under Keep and rent (rent 0, or only the rent from a room or unit you’ll rent out).' : 'No numbers yet: open it and type its rent, and the price you’d pay, under Keep and rent (our example rent doesn’t count).'}</p> : soldOf(d) ? <p><strong>Finished:</strong> sold on {soldOf(d)!.on} for {fmtMoney(soldOf(d)!.price)}.</p> : <OtherNumbers d={d} />;
+                        ) : finishedDeal(d) && !soldOf(d) ? <p><strong>Finished:</strong> {d.kind === 'lien' ? 'paid off, and the Treasurer repaid you' : 'redeemed, and you were repaid'}.</p> : d.plan === 'rent' ? <p className="muted">{liveIn(d) ? 'No numbers yet: open it and enter the price you’d pay under Keep and rent (rent 0, or only the rent from a room or unit you’ll rent out).' : 'No numbers yet: open it and type its rent, and the price you’d pay, under Keep and rent (our example rent doesn’t count).'}</p> : soldOf(d) ? <p><strong>Finished:</strong> sold on {prettyDay(soldOf(d)!.on)} for {fmtMoney(soldOf(d)!.price)}.</p> : <OtherNumbers d={d} />;
                       })()}
                       {!d.locationConfirmed && <p className="muted">Its location isn’t confirmed: open it in Analyze and confirm it, so its costs follow its state and county.</p>}
                       {madeReal === d.id && !d.practice && <p className="note" tabIndex={-1} id={`made-real-${d.id}`}>“{d.name}” is now a real deal, so My plan can follow it.</p>}

@@ -191,7 +191,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
             <p id="contract-workstreams"><strong>Arrange the deposit, inspection, loan and title work promptly.</strong> These tasks run together.</p><details><summary>Who does what, and when</summary>
             <p>Do not wait for one to finish before arranging the others. Your signed contract controls deadlines; ask your team to confirm them.</p>
             <div className="table-wrap"><table><caption>Who handles each part of the purchase</caption><thead><tr><th scope="col">Work</th><th scope="col">Responsible people</th><th scope="col">Checkpoint</th></tr></thead><tbody>
-              <tr><th scope="row">Earnest money and any option fee</th><td>You and escrow</td><td>Deliver by the contract deadline; confirm receipt</td></tr>
+              <tr><th scope="row">{deal?.state === 'TX' ? 'Earnest money and any option fee' : 'Earnest money'}</th><td>You and escrow</td><td>Deliver by the contract deadline; confirm receipt</td></tr>
               <tr><th scope="row">Inspection and repair decision</th><td>You, inspector and agent</td><td>Before the inspection or option deadline</td></tr>
               <tr><th scope="row">Underwriting and appraisal</th><td>You and lender</td><td>Loan and appraisal deadlines; rate-lock expiration</td></tr>
               <tr><th scope="row">Title and HOA review</th><td>You, title officer and agent or attorney</td><td>Objection and document-review deadlines</td></tr>
