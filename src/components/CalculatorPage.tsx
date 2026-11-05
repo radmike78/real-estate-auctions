@@ -51,6 +51,8 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
   const living = !!dealId && !!saleKind && plan === 'rent' && liveIn({ id: dealId, kind: saleKind as Deal['kind'], plan: 'rent' });
   // Past the sale (won, closed or owned): not "before you bid".
   const won = !!dealId && ['contract', 'closed', 'owned'].includes(loadDeals().find((x) => x.id === dealId)?.stage ?? '');
+  // An offer is yours from the closing (Under contract, it's still ahead).
+  const owns = !!dealId && ['closed', 'owned'].includes(loadDeals().find((x) => x.id === dealId)?.stage ?? '');
   const name = state ? stateByCode(state)?.name : undefined;
   // Renting rules matter only when you'd keep it and rent it out.
   const renting = plan !== 'flip' && plan !== 'lien';
@@ -94,7 +96,7 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
   );
   return (
     <section className="before-commit" aria-labelledby="before-commit-head">
-      <h3 id="before-commit-head">{won ? 'Check these now that you own it' : 'Before you commit, check these'}</h3>
+      <h3 id="before-commit-head">{owns ? 'Check these now that you own it' : 'Before you commit, check these'}</h3>
       <ul>
         <li><strong>Your tax bill, not the seller’s.</strong> It can change when you buy or rent it out. <a href={`#/learn/analyze?section=your-tax-bill-after-you-buy${state ? `&state=${state}` : ''}`}>{name ? `${name} property tax rules` : 'Property tax rules by state'}</a></li>
         <li><strong>A written insurance quote</strong> for how you’ll use it, including while it’s empty. <a href="#/learn/analyze">What to ask</a></li>
@@ -104,7 +106,7 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
         <li><strong>Wire instructions confirmed by phone</strong> with your title or escrow company, using a number you looked up yourself. <a href="#/learn/negotiate">Why</a></li>
         <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor, agent and financial advisor before you bid, buy or borrow.</li>
       </ul>
-      <p className="muted small">Can’t check one yet? Get the answer {won ? 'before you rely on these numbers' : 'before you sign or bid'}.</p>
+      <p className="muted small">Can’t check one yet? Get the answer {owns ? 'before you rely on these numbers' : 'before you sign or bid'}.</p>
     </section>
   );
 }

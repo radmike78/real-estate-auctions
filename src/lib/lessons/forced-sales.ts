@@ -69,7 +69,7 @@ export const forcedSales: Lesson = {
     {
       heading: 'Court sales and the right to redeem',
       blocks: [
-        'Sometimes a foreclosure goes through court, or a sheriff sells property to pay a judgment. When that happens, the owner may be able to buy it back for a while after the sale. You own it, but the owner keeps that right until it runs out.',
+        'Sometimes a foreclosure goes through court, or a sheriff sells property to pay a judgment. When that happens, the owner (and in some states, a creditor with a later lien) may be able to buy it back for a while after the sale. You may hold only a certificate of sale until that right runs out, and get the deed after.',
         { list: [
           'Nevada: after a sheriff’s execution sale, the owner (or a creditor with the right to redeem) can buy it back within 1 year by paying your price plus 1% a month, and certain taxes and liens you paid (NRS 21.210).',
           'California: only when the judgment allows a deficiency (the notice of sale says whether the sale is subject to redemption): 3 months after a judicial foreclosure sale if the sale paid the debt in full, or 1 year if it didn’t (CCP 729.010, 729.030).',

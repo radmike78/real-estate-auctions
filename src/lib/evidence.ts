@@ -129,10 +129,10 @@ export const EVIDENCE_EVENT = 'deedowl:evidence';
 export const emptyRow = (): EvidenceRow => ({ ...EMPTY_ROW });
 
 /** The log as plain text, to download or print. */
-export function logText(name: string, log: EvidenceLog, kind?: string): string {
+export function logText(name: string, log: EvidenceLog, kind?: string, home = false): string {
   const gate = GATES.find((g) => g.key === log.gate);
   const lines = [`Evidence log: ${name}`, 'DeedOwl educational worksheet. A checkmark records your review; it does not clear title or certify a deal.', ''];
-  for (const a of areasFor(kind)) {
+  for (const a of areasFor(kind, home)) {
     const r = log.rows[a.key] ?? EMPTY_ROW;
     lines.push(`${r.done ? '[x]' : '[ ]'} ${a.title}: ${a.what}`, `    Source: ${r.source}`, `    Date checked: ${/^\d{4}-\d{2}-\d{2}$/.test(r.checked) ? new Date(`${r.checked}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : r.checked}`, `    Finding: ${r.finding}`, `    Open question: ${r.open}`, `    Who / by when: ${r.owner}`, '');
   }

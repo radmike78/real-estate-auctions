@@ -62,7 +62,7 @@ export default function EvidenceLog({ dealId, name, kind, initiallyOpen = false,
           : log.gate === 'pass' && onPass && <p><button type="button" className="btn btn-secondary" onClick={() => { onPass(); setPassedNow(true); }}>Move it to Passed</button></p>}
       </fieldset>
       {log.gate === 'proceed' && openCount > 0 && <p className="caution" role="status">You still have {openCount} open question{openCount === 1 ? '' : 's'}. Resolve them before you commit money.</p>}
-      <button type="button" className="btn btn-secondary" onClick={() => downloadText(fileName(`evidence log ${name}`, 'txt'), logText(name, log, kind))}>Download the log</button>
+      <button type="button" className="btn btn-secondary" onClick={() => downloadText(fileName(`evidence log ${name}`, 'txt'), logText(name, log, kind, homeOf(dealId)))}>Download the log</button>
     </details>
   );
 }

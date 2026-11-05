@@ -27,7 +27,7 @@ import { cleanStatus, creditStep, dealScoped, focusDealId, NO_DEAL, pathForDeal,
 import type { Deal } from '../lib/analyze';
 import { ASTERISK_NOTE } from '../lib/disclaimers';
 import AnnouncedResults from './AnnouncedResults';
-import { settleAllSteps, stageLabel, stageOf, stageOfStep, STAGE_STEPS, DEAL_STAGES, finishedDeal } from '../lib/dealStage';
+import { settleAllSteps, unsettleStep, stageLabel, stageOf, stageOfStep, STAGE_STEPS, DEAL_STAGES, finishedDeal } from '../lib/dealStage';
 import PlanNext from './PlanNext';
 import { planNow, practiceLienDeal, practiceState } from '../lib/planNext';
 import { CORE_TEAM } from '../lib/proGuide';
@@ -401,6 +401,7 @@ export function FirstDealRoadmap() {
       setPerDeal(all);
       save(DEAL_STEPS_KEY, all);
       if (v === 'done' || v === 'na') settleAllSteps(k);
+      else unsettleStep(k, s.id);
       return;
     }
     const d = nextDone(roadmapDone(), s.id, v);

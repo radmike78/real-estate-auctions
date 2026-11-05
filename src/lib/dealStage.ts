@@ -96,34 +96,58 @@ export const earlyDeedEnd = (d: Pick<Deal, 'kind' | 'state'> & { id?: string; pl
 /** An offer's earnest money marked sent on the roadmap counts as its date row handled (one answer, not two). */
 const STEP_ROWS: Record<string, string[]> = { deposit: ['Earnest money due'], inspect: ['Inspection period ends', 'Option period ends'], 'loan-approval': ['Loan approval deadline'], appraise: ['Appraisal deadline'] };
 let settling = false;
-/** Every roadmap step marked done (or "doesn't apply") for this offer ticks one date row of its kind, once: when it's
- * marked, and when that row is added or dated later. (A kind that already has a handled row is left alone.) */
+const SETTLED_KEY = 'deedowl.stepRows.v1';
+/** Which date row each roadmap step ticked, per deal: each step settles once, so a row you untick stays unticked. */
+const settledRows = (): Record<string, Record<string, string>> => { try { const v = JSON.parse(localStorage.getItem(SETTLED_KEY) ?? '{}'); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch { return {}; } };
+const saveSettled = (all: Record<string, Record<string, string>>) => { try { localStorage.setItem(SETTLED_KEY, JSON.stringify(all)); } catch { /* storage unavailable */ } };
+/** Every roadmap step marked done (or, but for the deposit, "doesn't apply") for this offer ticks one date row of its
+ * kind, once: when it's marked, or when that row is added or dated later. */
 export function settleAllSteps(dealKey: string) {
   if (settling || !dealKey.startsWith('analyzed:')) return;
   settling = true;
   try {
     const prog = dealProgress(dealKey);
-    for (const id of Object.keys(STEP_ROWS).filter((k) => prog.done.includes(k) || prog.status[k] === 'na')) {
+    const all = settledRows();
+    const mine = { ...(all[dealKey] ?? {}) };
+    let changed = false;
+    for (const id of Object.keys(STEP_ROWS).filter((k) => prog.done.includes(k) || (k !== 'deposit' && prog.status[k] === 'na'))) {
+      if (mine[id]) continue;
       const p = loadPacket(dealKey);
-      if (!p.dates.some((x) => x.resolved && STEP_ROWS[id].some((n) => sameEvent(x.what, n)))) settleStepRow(dealKey, id);
+      if (p.dates.some((x) => x.resolved && STEP_ROWS[id].some((n) => sameEvent(x.what, n)))) { mine[id] = '(already handled)'; changed = true; continue; }
+      const what = settleStepRow(dealKey, id);
+      if (what) { mine[id] = what; changed = true; }
     }
+    if (changed) saveSettled({ ...all, [dealKey]: mine });
   } finally {
     settling = false;
   }
 }
+/** A roadmap step set back to "To do": untick the row it ticked (and let it settle again later). */
+export function unsettleStep(dealKey: string, stepId: string) {
+  const all = settledRows();
+  const what = all[dealKey]?.[stepId];
+  if (!what) return;
+  const { [stepId]: _gone, ...rest } = all[dealKey];
+  saveSettled({ ...all, [dealKey]: rest });
+  if (what === '(already handled)') return;
+  const p = loadPacket(dealKey);
+  const k = p.dates.findIndex((x) => x.what === what && x.resolved);
+  if (k >= 0) { settling = true; try { savePacket(dealKey, { ...p, dates: p.dates.map((x, i) => (i === k ? { ...x, resolved: false } : x)) }); } finally { settling = false; } }
+}
 onPacketSaved(settleAllSteps);
 /** A roadmap step marked done on an offer: tick its one date row in the packet (the row named for it, else the
  * earliest open one of that kind), so the table, Key dates and the reminders all agree. */
-export function settleStepRow(dealKey: string, stepId: string) {
+export function settleStepRow(dealKey: string, stepId: string): string {
   const names = STEP_ROWS[stepId];
-  if (!names || !dealKey.startsWith('analyzed:')) return;
+  if (!names || !dealKey.startsWith('analyzed:')) return '';
   const d = loadDeals().find((x) => `analyzed:${x.id}` === dealKey);
-  if (!d || wayOf(d) !== 'offer') return;
+  if (!d || wayOf(d) !== 'offer') return '';
   const p = loadPacket(dealKey);
   const open = p.dates.map((x, k) => ({ x, k })).filter(({ x }) => !x.resolved && names.some((n) => sameEvent(x.what, n)));
   const pick = open.find(({ x }) => names.some((n) => x.what.trim() === n)) ?? [...open].sort((a, b) => (a.x.when || '9999').localeCompare(b.x.when || '9999'))[0];
-  if (!pick) return;
+  if (!pick) return '';
   savePacket(dealKey, { ...p, dates: p.dates.map((x, k) => (k === pick.k ? { ...x, resolved: true } : x)) });
+  return pick.x.what;
 }
 /** The packet parts that, at this stage, are records from before you bought (the page and the download agree). */
 export const recordParts = (d: Deal) => (sidState(d) === 'void' || ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? ['plan', 'property', 'cash', 'numbers', 'evidence', 'pros', 'decision'] : ['plan', 'property', 'cash', 'numbers', 'pros', 'decision']);
@@ -342,7 +366,7 @@ export interface PlanTask {
   /** Moves a row's date ("The 90-day limit still runs: move the end to …"). */
   redate?: { label: string; row: string; when: string; who?: string; /** Renames the row (the condition in its name is settled). */ as?: string };
   /** Records an answer as a new handled row ("I didn't pay it in time: the sale is void"). */
-  record?: { label: string; row: { when: string; what: string; who: string; resolved?: boolean } };
+  record?: { label: string; row: { when: string; what: string; who: string; resolved?: boolean }; /** A row this answer settles (marked handled). */ closes?: string };
   /** The sale was postponed: clears the sale day, registration and payment dates (TaskActions). */
   postpone?: { label: string };
   /** A date reminder's days until its date (below 0: it has passed). */
@@ -650,7 +674,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     return out;
   }
 
-  if (stage === 'passed' && wayOf(d) === 'offer' && (stepDone('deposit') || p.dates.some((x) => (sameEvent(x.what, 'Earnest money due') || sameDate(x.what, 'Earnest money')) && !!x.resolved))) out.push(task({ key: 'deposit-back', label: `Get your earnest money back for ${n}`, produces: 'escrow’s written release of your earnest money under the contract’s cancellation terms*, kept with its records. Ask your agent or attorney if the seller disputes it', href: packetHref(d, 'dates'), tick: { label: 'I got it back: mark it handled', row: EARNEST_BACK, who: 'Escrow' }, support: [L.pro('attorney')], done: p.dates.some((x) => sameDate(x.what, EARNEST_BACK) && !!x.resolved) }));
+  if (stage === 'passed' && wayOf(d) === 'offer' && (per.done.includes('deposit') || p.dates.some((x) => (sameEvent(x.what, 'Earnest money due') || sameDate(x.what, 'Earnest money')) && !!x.resolved))) out.push(task({ key: 'deposit-back', label: `Get your earnest money back for ${n}`, produces: 'escrow’s written release of your earnest money under the contract’s cancellation terms*, kept with its records. Ask your agent or attorney if the seller disputes it', href: packetHref(d, 'dates'), tick: { label: 'I got it back: mark it handled', row: EARNEST_BACK, who: 'Escrow' }, support: [L.pro('attorney')], done: p.dates.some((x) => sameDate(x.what, EARNEST_BACK) && !!x.resolved) }));
   findNext();
   return out;
 }
@@ -700,6 +724,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     if (sidOpen) return sidOpen;
     // (Preparing to bid, with the sale days away: that stage's own tasks lead; Key dates keeps the countdown.)
     const bidPrep = (stage === 'offer' || stage === 'researching') && wayOf(d) !== 'offer' && nd && nd.days > 0 && sameEvent(nd.what, 'Sale day') && stageTasks(d, stage, p, now).some((t) => !t.done && t.key !== 'dates' && t.key !== 'stage');
+    if (bidPrep && nd && nd.days <= 7) { const t0 = stageTasks(d, stage, p, now).find((t) => !t.done && t.key !== 'dates' && t.key !== 'stage'); if (t0) return { ...t0, label: `${t0.label} (the sale is ${nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`})` }; }
     if (nd && !bidPrep && (nd.days <= 7 || (stage === 'contract' && sameDate(nd.what, 'SID certificate payoff')))) {
       const ended = nd.days < 0 ? windowEnded(nd.what, -nd.days, d.kind) : null;
       const late90Ahead = ended && d.state === 'NV' && d.kind === 'trustee' && sameDate(nd.what, 'Challenge window ends') ? challenge90Ahead(p, now) : '';
@@ -744,7 +769,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
       const todayAdvance = today ? (stageTasks(d, stage, p, now).find((t) => t.advance)?.advance ?? (wayOf(d) !== 'offer' ? { stage: 'contract' as DealStage, label: wayOf(d) === 'lien' && d.state === 'NV' ? 'I was picked: mark it' : 'I won the bid: mark it won' } : undefined)) : undefined;
       const todayLost = today && wayOf(d) !== 'offer' ? { stage: 'passed' as DealStage, label: wayOf(d) === 'lien' && d.state === 'NV' ? 'I wasn’t picked: mark it passed' : 'I didn’t win (or didn’t bid): mark it passed' } : undefined;
       const countdown = stage === 'researching' && wayOf(d) !== 'offer' && nd.days > 0 && sameEvent(nd.what, 'Sale day');
-      return { key: 'date', days: sidLate && sidDeadline(p) && sidDeadline(p) < localDay(now) ? -1 : nd.days, label: text, produces: countdown ? `${wayOf(d) === 'lien' ? 'the most you’ll put into one certificate' : 'your maximum bid'} set and the funds ready before then: finish the research and move it to ${stageLabel('offer', d)} in its deal packet` : ended?.ask ? ended.ask : ended ? `a written answer on whether ${/suit/i.test(ended.tick ?? '') ? 'a suit was filed' : sameDate(nd.what, 'Redemption period ends') ? 'anyone redeemed' : 'it’s still unpaid'}, noted in its deal packet` : recordingPast ? (isDeed ? 'the recorded deed, noted in its deal packet' : inHand ? 'the document in hand, noted in its deal packet' : 'the recorded document, noted in its deal packet') : deedAsk ? 'a written answer on whether anyone redeemed, noted in its deal packet' : deedEarly ? 'the right deed date, in its deal packet' : 'the deadline met, with what you did noted in its deal packet', href: `#/deals/packet/${d.id}/dates`, ...(own ? { advance: own } : todayAdvance ? { advance: todayAdvance } : countdown ? { advance: { stage: 'offer' as DealStage, label: `Research done? Move it to ${stageLabel('offer', d)}` } } : {}), ...(todayLost ? { advance2: todayLost, postpone: POSTPONE } : {}), ...(late90Ahead ? { redate: { label: `Wait for the 90-day limit: move the end to ${prettyDay(late90Ahead)}`, row: nd.what, when: late90Ahead } } : {}), ...(deedAskTick ? { tick: deedAskTick, answer: true } : ended?.tick ? { tick: { label: ended.tick, row: nd.what, ...(sameDate(nd.what, 'Redemption period ends') ? { who: redeemAsk(d) } : {}) }, answer: true } : paidTick ? { tick: paidTick } : deedTick ? { tick: deedTick } : passedTick ? { tick: passedTick } : inspectionNow ? { tick: { label: 'Inspections done: mark it handled', row: nd.what } } : {}), ...(sidNone ? { undo: sidNone } : {}), ...(sidUnpaid ? { record: sidUnpaid } : {}), ...(redeemable || (stage === 'closed' && certificateFirst(d) && !ticked(p, 'Redemption period ends') && !ticked(p, DEED_AFTER_WAIT) && !redeemedIn(p)) ? { advance2: redeemButton(d) } : wayOf(d) === 'lien' && d.state === 'NV' && (stage === 'closed' || stage === 'owned') && !redeemedIn(p) ? { advance2: lienPaidButton(d, stage) } : {}), ...(inspectionNow ? { advance2: { stage: 'passed' as DealStage, label: 'I cancelled in writing: mark it passed' } } : approvalMissed ? { advance2: { stage: 'passed' as DealStage, label: 'We cancelled: mark it passed' } } : ended?.cancel ? { advance2: { stage: 'passed' as DealStage, label: 'I cancelled in writing: mark it passed' } } : {}), support: [], done: false, urgent: !ended && !deedTick && !countdown && !recordingPast && !deedRow, text };
+      return { key: 'date', days: sidLate && sidDeadline(p) && sidDeadline(p) < localDay(now) ? -1 : nd.days, label: text, produces: countdown ? `${wayOf(d) === 'lien' ? 'the most you’ll put into one certificate' : 'your maximum bid'} set and the funds ready before then: finish the research and move it to ${stageLabel('offer', d)} in its deal packet` : ended?.ask ? ended.ask : ended ? `a written answer on whether ${/suit/i.test(ended.tick ?? '') ? 'a suit was filed' : sameDate(nd.what, 'Redemption period ends') ? 'anyone redeemed' : 'it’s still unpaid'}, noted in its deal packet` : recordingPast ? (isDeed ? 'the recorded deed, noted in its deal packet' : inHand ? 'the document in hand, noted in its deal packet' : 'the recorded document, noted in its deal packet') : deedAsk ? 'a written answer on whether anyone redeemed, noted in its deal packet' : deedEarly ? 'the right deed date, in its deal packet' : 'the deadline met, with what you did noted in its deal packet', href: `#/deals/packet/${d.id}/dates`, ...(own ? { advance: own } : todayAdvance ? { advance: todayAdvance } : countdown ? { advance: { stage: 'offer' as DealStage, label: `Research done? Move it to ${stageLabel('offer', d)}` } } : {}), ...(todayLost ? { advance2: todayLost, postpone: POSTPONE } : {}), ...(late90Ahead ? { redate: { label: `Wait for the 90-day limit: move the end to ${prettyDay(late90Ahead)}`, row: nd.what, when: late90Ahead } } : {}), ...(deedAskTick ? { tick: deedAskTick, answer: true } : ended?.tick ? { tick: { label: ended.tick, row: nd.what, ...(sameDate(nd.what, 'Redemption period ends') ? { who: redeemAsk(d) } : {}) }, answer: true } : paidTick ? { tick: paidTick } : deedTick ? { tick: deedTick } : passedTick ? { tick: passedTick } : inspectionNow ? { tick: { label: 'Inspections done: mark it handled', row: nd.what } } : {}), ...(sidNone ? { undo: sidNone } : {}), ...(sidUnpaid ? { record: sidUnpaid } : ended && sameDate(nd.what, 'Seller’s disclosure form due') ? { record: { label: 'It never came: note it, then ask my agent', row: { when: localDay(now), what: 'Seller’s disclosure form didn’t arrive (ask your agent about cancelling before closing, NRS 113.150)*', who: 'Me', resolved: true }, closes: nd.what } } : {}), ...(redeemable ? { advance2: redeemButton(d) } : stage === 'closed' && certificateFirst(d) && !ticked(p, 'Redemption period ends') && !ticked(p, DEED_AFTER_WAIT) && !redeemedIn(p) ? { advance2: redeemButton(d, redeemLabel(d, p)) } : wayOf(d) === 'lien' && d.state === 'NV' && (stage === 'closed' || stage === 'owned') && !redeemedIn(p) ? { advance2: lienPaidButton(d, stage) } : {}), ...(inspectionNow ? { advance2: { stage: 'passed' as DealStage, label: 'I cancelled in writing: mark it passed' } } : approvalMissed ? { advance2: { stage: 'passed' as DealStage, label: 'We cancelled: mark it passed' } } : ended?.cancel ? { advance2: { stage: 'passed' as DealStage, label: 'I cancelled in writing: mark it passed' } } : {}), support: [], done: false, urgent: !ended && !deedTick && !countdown && !recordingPast && !deedRow, text };
     }
     // A redemption end worked out from the sale day (the row has no date) that has passed: did anyone redeem?
     const computedEnd = stage === 'closed' && certificateFirst(d) && !ticked(p, 'Redemption period ends') && !ticked(p, DEED_AFTER_WAIT) && !redeemedIn(p) && !p.dates.some((x) => sameDate(x.what, 'Redemption period ends') && x.when) ? redemptionEnd(d, p) : '';

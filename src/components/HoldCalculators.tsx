@@ -326,7 +326,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
   const neg = (n: number) => (n > 0 ? `−\u2060${mo(n)}` : mo(0)); // word joiner: the minus never wraps away from the amount
   return (
     <section className="at-price price-block price-block-yours" aria-labelledby="at-price-head">
-      <PriceHead level={3} id="at-price-head" kind="yours" label={word} price={price > 0 ? price : null} result={price > 0 ? a.cashFlow / 12 : null} cost={livingThere && !(v.monthlyRent > 0)} note={price > 0 ? (word === 'The price you paid' ? 'The price you paid: the result for the property as you bought it.' : 'Your actual price: the result for the property as you’d buy it.') : 'Enter the price you’d pay to see this property’s own result.'} />
+      <PriceHead level={3} id="at-price-head" kind="yours" label={word} price={price > 0 ? price : null} result={price > 0 ? a.cashFlow / 12 : null} cost={livingThere && !(v.monthlyRent > 0)} note={price > 0 ? (word === 'The price you paid' ? 'The price you paid: the result for the property as you bought it.' : 'Your actual price: the result for the property as you’d buy it.') : word === 'The price you paid' ? 'Enter the price you paid to see this property’s own result.' : 'Enter the price you’d pay to see this property’s own result.'} />
       <label className="field">
         <span>{word} ($)</span>
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
@@ -355,7 +355,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         </p>
       )}
       {price > 0 && cashShort && <p className="small"><button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>{cashTyped ? 'Change your cash' : 'Enter your cash'}</button></p>}
-      {price === 0 && <p className="muted small">Enter the price you’d pay ({onPrice ? 'the asking price, or your offer' : 'your planned bid'}) to see your numbers at that price.</p>}
+      {price === 0 && <p className="muted small">{word === 'The price you paid' ? 'Enter the price you paid to see your numbers at that price.' : <>Enter the price you’d pay ({onPrice ? 'the asking price, or your offer' : 'your planned bid'}) to see your numbers at that price.</>}</p>}
       {walkAway > 0 && price !== walkAway && !livingThere && <button type="button" className="linkish" onClick={() => setPrice(walkAway)}>Use the walk-away price ({fmtMoney(walkAway)})</button>}
       {price > 0 && (<>
       <table className="deal-stress waterfall">
@@ -609,7 +609,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   // You plan to live there (Decide: a home loan and live in it): the investor's walk-away price is a yardstick only, so
   // the panels below wait for your offer instead of using it.
   const living = livesHere;
-  const at: PriceAt = v.atPrice > 0 ? { price: v.atPrice, label: `${word.toLowerCase()} of ${fmtMoney(v.atPrice)}` } : living || noReal ? { price: 0, label: '' } : Number.isFinite(r.maxBid) && r.maxBid > 0 ? { price: r.maxBid, label: `your walk-away price of ${fmtMoney(Math.round(r.maxBid))}` } : { price: v.value, label: `the ${fmtMoney(v.value)} value` };
+  const at: PriceAt = v.atPrice > 0 ? { price: v.atPrice, label: bought ? `the price you paid, ${fmtMoney(v.atPrice)}` : `${word.toLowerCase()} of ${fmtMoney(v.atPrice)}` } : living || noReal ? { price: 0, label: '' } : Number.isFinite(r.maxBid) && r.maxBid > 0 ? { price: r.maxBid, label: `your walk-away price of ${fmtMoney(Math.round(r.maxBid))}` } : { price: v.value, label: `the ${fmtMoney(v.value)} value` };
   // An auction rental's cash isn't taken from My plan (an offer's is, so its price is already capped): with no cash
   // entered here, compare the cash the walk-away price needs (all of it until a refinance) with My plan's.
   const planCash = investorProfile().investable;
@@ -665,7 +665,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         )}
         {/* No price to figure them at yet (no offer, no walk-away price, no value): ask for one instead of showing $0. */}
         {at.price > 0 ? <CashCushion v={v} price={at.price} at={at.label} onPrice={offer} /> : null}
-        {at.price > 0 ? <RentDealLab v={v} at={at} onPrice={offer} living={living} /> : <p className="calc-note small">Enter {offer ? 'your offer (the asking price)' : 'your bid'} to see the cash cushion, the stress test and how a lender sees this rent at that price.</p>}
+        {at.price > 0 ? <RentDealLab v={v} at={at} onPrice={offer} living={living} /> : <p className="calc-note small">Enter {bought ? 'the price you paid' : offer ? 'your offer (the asking price)' : 'your bid'} to see the cash cushion, the stress test and how a lender sees this rent at that price.</p>}
         <HoldAndSell v={living && !(v.atPrice > 0) ? { ...v, value: 0 } : v} onPrice={offer} target={living || noReal ? 0 : r.maxBid} exampleValue={v.value === RENT_DEFAULTS.value && !typedKeys.has('value')} />
         {/* (A home you live in with no rent: the lender's rent test and nightly renting don't apply.) */}
         {at.price > 0 && !(living && !(v.monthlyRent > 0)) ? <LenderView v={v} at={at} onPrice={offer} /> : null}

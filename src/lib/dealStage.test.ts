@@ -1272,4 +1272,24 @@ describe('Nevada round 4 flow', () => {
     const both = { ...EMPTY_PACKET, dates: [...win.dates, { when: '2026-10-07', what: 'Inspection period ends', who: 'Me' }] };
     expect(dealNextTask(offer, both, now, 'contract').label).toMatch(/Inspection period ends/);
   });
+
+  it('round 18 verifier: a row unticked after a step settled it stays unticked; To do undoes it; a deposit that does not apply is not money sent', async () => {
+    const { loadPacket } = await import('./dealPacket');
+    const { DEAL_STEPS_KEY } = await import('./roadmapDeals');
+    const { unsettleStep, settleAllSteps } = await import('./dealStage');
+    const offer = { ...deal, id: 'f1', state: 'NV' as const, county: 'Washoe', kind: 'listing' as const };
+    saveDeals([{ ...offer, stage: 'contract' }]);
+    localStorage.setItem(DEAL_STEPS_KEY, JSON.stringify({ 'analyzed:f1': { done: ['inspect'], status: {} } }));
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-10', what: 'Inspection period ends', who: 'Me' }] });
+    expect(loadPacket('analyzed:f1').dates[0].resolved).toBe(true);
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-10', what: 'Inspection period ends', who: 'Me', resolved: false }] });
+    expect(loadPacket('analyzed:f1').dates[0].resolved).toBeFalsy();
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-10', what: 'Inspection period ends', who: 'Me', resolved: true }] });
+    localStorage.setItem(DEAL_STEPS_KEY, JSON.stringify({ 'analyzed:f1': { done: [], status: {} } }));
+    unsettleStep('analyzed:f1', 'inspect');
+    localStorage.setItem(DEAL_STEPS_KEY, JSON.stringify({ 'analyzed:f2': { done: [], status: { deposit: 'na' } } }));
+    saveDeals([{ ...offer, id: 'f2', stage: 'passed' }]);
+    settleAllSteps('analyzed:f2');
+    expect(dealNextTask({ ...offer, id: 'f2' }, { ...EMPTY_PACKET }, now, 'passed').key).not.toBe('deposit-back');
+  });
 });

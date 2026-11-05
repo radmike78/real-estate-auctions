@@ -59,7 +59,8 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
     setP((cur) => {
       const next = { ...cur, ...patch, ...(patch.dates && reviewDates ? { calendarReviewedFor: undefined } : {}) };
       savePacket(key, next);
-      return next;
+      // (Saving can settle a row a roadmap step answered: show what was saved.)
+      return patch.dates ? loadPacket(key) : next;
     });
 
   if (!deal) {
@@ -97,7 +98,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
     return (
       <>
         <h2 id={`packet-${k}`}>
-          {s.title} {pastSale && RECORD_PARTS.includes(k) && s.status !== 'done' ? <span className="packet-status record">{s.status === 'missing' ? 'Left blank' : 'Partly filled in'}</span> : (stageOf(deal) === 'passed' && s.status !== 'done' && k !== 'dates' ? <span className="packet-status record">Not needed (you passed)</span> : s.status === 'missing' && (stageOf(deal) === 'researching' || (wayOf(deal) === 'offer' && stageOf(deal) === 'offer' && k === 'dates')) ? <span className="packet-status record">{k === 'dates' && wayOf(deal) === 'offer' ? 'Not needed yet' : 'Not started'}</span> : <span className={`packet-status ${s.status}`}>{s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>)}
+          {s.title} {pastSale && RECORD_PARTS.includes(k) && s.status !== 'done' ? <span className="packet-status record">{s.status === 'missing' ? 'Left blank' : 'Partly filled in'}</span> : (stageOf(deal) === 'passed' && sidState(deal) !== 'void' && s.status !== 'done' && k !== 'dates' && k !== 'decision' ? <span className="packet-status record">Not needed (you passed)</span> : s.status === 'missing' && (stageOf(deal) === 'researching' || (wayOf(deal) === 'offer' && stageOf(deal) === 'offer' && k === 'dates')) ? <span className="packet-status record">{k === 'dates' && wayOf(deal) === 'offer' ? 'Not needed yet' : 'Not started'}</span> : <span className={`packet-status ${s.status}`}>{s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>)}
         </h2>
         {pastSale && RECORD_PARTS.includes(k) && <p className="muted small">{sidState(deal) === 'void' ? 'From before the sale: kept as your records.' : deal.kind === 'lien' ? 'From before you were picked: kept as your records.' : 'From before you bought: kept as your records.'}</p>}
       </>
@@ -119,7 +120,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         title={<>Deal <span className="grad">packet</span></>}
         sub={`${deal.name} · ${kind ? kindLabel(kind, deal.state) : deal.kind} · ${countyName(deal.county)}, ${deal.state}`}
       />
-      <p>{sidState(deal) === 'void' && stageOf(deal) !== 'passed' ? <>This sale is void: what’s left is the refund*. Its dates and your records from the sale are kept here.</> : sidState(deal) === 'void' ? <>Everything about this property, on one page: its dates and your records from the sale (the sale was void).</> : finishedDeal(deal) ? <>Everything about this property, on one page: its dates and your records from the sale.</> : wonAuction ? <>{wayOf(deal) === 'lien' ? 'You were picked: pay on time.' : 'You won the bid: pay and record it on time.'} The parts from before the sale are kept as your records.</> : redeemingNow(deal) ? <>Everything about this property, on one page: its dates, the payoff and your records from the sale.</> : pastSale ? <>Everything about this property, on one page: its dates, costs and results, with the records from before you bought it. {(() => { const live = sections.filter((x) => !RECORD_PARTS.includes(x.key)); return live.length === 1 ? (live[0].status === 'done' ? `The ${live[0].title} part is complete.` : live[0].key === 'dates' && calendarReady(forCalendar(deal, p, stageOf(deal)), stageOf(deal)) && !p.dates.some((x) => x.when && !x.resolved) ? 'Key dates: tick “I checked every deadline…” to finish.' : live[0].status === 'started' ? `The ${live[0].title} part is in progress.` : `Still to fill in: ${live[0].title}.`) : `${live.filter((x) => x.status === 'done').length} of ${live.length} parts after the sale are filled in.`; })()}</> : <>Everything this decision needs, on one page: your plan, the dates, the cash and when it’s due, your numbers with a downside case, what you’ve verified, your professionals’ answers and your decision. {done} of {sections.length} parts are complete.</>} Every number is your estimate until a source backs it.</p>
+      <p>{sidState(deal) === 'void' && stageOf(deal) !== 'passed' ? <>This sale is void: what’s left is the refund*. Its dates and your records from the sale are kept here.</> : sidState(deal) === 'void' ? <>Everything about this property, on one page: its dates and your records from the sale (the sale was void).</> : stageOf(deal) === 'passed' && sidState(deal) !== 'void' && !finishedDeal(deal) ? <>Everything about this property, on one page. You passed on it: its dates and notes are kept as records.</> : finishedDeal(deal) ? <>Everything about this property, on one page: its dates and your records from the sale.</> : wonAuction ? <>{wayOf(deal) === 'lien' ? 'You were picked: pay on time.' : 'You won the bid: pay and record it on time.'} The parts from before the sale are kept as your records.</> : redeemingNow(deal) ? <>Everything about this property, on one page: its dates, the payoff and your records from the sale.</> : pastSale ? <>Everything about this property, on one page: its dates, costs and results, with the records from before you bought it. {(() => { const live = sections.filter((x) => !RECORD_PARTS.includes(x.key)); return live.length === 1 ? (live[0].status === 'done' ? `The ${live[0].title} part is complete.` : live[0].key === 'dates' && calendarReady(forCalendar(deal, p, stageOf(deal)), stageOf(deal)) && !p.dates.some((x) => x.when && !x.resolved) ? 'Key dates: tick “I checked every deadline…” to finish.' : live[0].status === 'started' ? `The ${live[0].title} part is in progress.` : `Still to fill in: ${live[0].title}.`) : `${live.filter((x) => x.status === 'done').length} of ${live.length} parts after the sale are filled in.`; })()}</> : <>Everything this decision needs, on one page: your plan, the dates, the cash and when it’s due, your numbers with a downside case, what you’ve verified, your professionals’ answers and your decision. {done} of {sections.length} parts are complete.</>} Every number is your estimate until a source backs it.</p>
 
       <div className="packet-stage">
         <label className="field">
@@ -169,11 +170,11 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
             <label key={f} className="check"><input type="radio" name="packet-fit" checked={p.fit === f} onChange={() => update({ fit: f })} /> {FIT_LABEL[f]}</label>
           ))}
         </fieldset>
-        </>); return pastSale && !p.fit ? <details><summary>Add to the record: did it fit your buy box?</summary>{fit}</details> : fit; })()}
         <label className="field wide">
           <span>Why (the evidence, not the feeling)</span>
           <textarea rows={2} maxLength={600} value={p.fitWhy} onChange={(e) => update({ fitWhy: e.target.value })} placeholder={liveIn(deal) ? 'e.g. Under my price limit, 3 bed, near work, but the monthly cost is $150 over my budget unless the inspection comes back clean.' : 'e.g. Under my price limit, 3 bed, but the cash flow only works if rent is $2,300 and comparables say $2,150.'} />
         </label>
+        </>); return (pastSale || stageOf(deal) === 'passed') && !p.fit ? <details><summary>Add to the record: did it fit your buy box?</summary>{fit}</details> : fit; })()}
       </section>
 
       <section className="deal-setup packet-section" aria-labelledby="packet-property">
