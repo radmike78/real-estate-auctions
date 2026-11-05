@@ -63,7 +63,7 @@ export function PriceHead({ kind, label, price, result, unit = 'a month', note, 
           <>
             <span className="price-head-arrow" aria-hidden> → </span>
             <span className="sr-only">{cost && result <= 0 ? ' costs ' : ' gives '}</span>
-            <strong className={`price-head-result${result < 0 && !cost ? ' neg' : ''}`}>{cost && result <= 0 ? `${fmtMoney(Math.round(-result))} ${unit} to live there` : money(result)}{cost && result <= 0 ? '' : ` ${unit}`} before income tax</strong>
+            <strong className={`price-head-result${result < 0 && !cost ? ' neg' : ''}`}>{cost && result <= 0 ? `${fmtMoney(Math.round(-result))} ${unit} to live there` : money(result)}{cost && result <= 0 ? ',' : ` ${unit}`} before income tax</strong>
           </>
         )}
       </span>

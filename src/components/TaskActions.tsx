@@ -15,7 +15,7 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
   return (
     <>
       {task.redate && (
-        <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const r = task.redate!; edit((p) => ({ ...p, dates: p.dates.some((x) => sameDate(x.what, r.row)) ? p.dates.map((x) => (sameDate(x.what, r.row) ? { ...x, when: r.when, who: x.who || r.who || '', resolved: false } : x)) : [...p.dates, { what: r.row, when: r.when, who: r.who ?? '' }] })); after(el); }}>{task.redate.label}</button>
+        <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const r = task.redate!; edit((p) => ({ ...p, dates: p.dates.some((x) => sameDate(x.what, r.row)) ? p.dates.map((x) => (sameDate(x.what, r.row) ? { ...x, what: r.as ?? x.what, when: r.when, who: x.who || r.who || '', resolved: false } : x)) : [...p.dates, { what: r.as ?? r.row, when: r.when, who: r.who ?? '' }] })); after(el); }}>{task.redate.label}</button>
       )}
       {tick && (
         <button type="button" className={task.answer ? main : 'btn btn-secondary'} onClick={(e) => {

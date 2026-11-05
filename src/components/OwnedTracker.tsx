@@ -79,8 +79,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const [rent, setRent] = useState(deal.plan === 'flip' ? '0' : '');
   // Tracking just started (or the purchase date moved later): the month can't be before the purchase.
   useEffect(() => { const b = o?.boughtOn?.slice(0, 7); if (b && month < b) setMonth(b); }, [o?.boughtOn]);
-  // The latest month you can record: last month (or the month you bought it, if that's this month).
-  const maxMonth = (() => { const t = new Date(); const l = new Date(t.getFullYear(), t.getMonth() - 1, 1); const lm = `${l.getFullYear()}-${String(l.getMonth() + 1).padStart(2, '0')}`; const b = o?.boughtOn?.slice(0, 7) ?? ''; return b && b > lm ? b : lm; })();
+  // The latest month you can record: last month (a month counts once it's over).
+  const maxMonth = (() => { const t = new Date(); const l = new Date(t.getFullYear(), t.getMonth() - 1, 1); return `${l.getFullYear()}-${String(l.getMonth() + 1).padStart(2, '0')}`; })();
   const [focusBox, setFocusBox] = useState<'rent' | 'costs' | null>(null);
   const [costs, setCosts] = useState('');
   const [note, setNote] = useState('');
@@ -134,13 +134,15 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     // Move on to the month after the one just added, so the next entry doesn't replace it.
     const [y, mo] = month.split('-').map(Number);
     const next = mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`;
-    if (next <= maxMonth) setMonth(next);
+    // (Every finished month is in: the month box empties until the next one ends.)
+    setMonth(next <= maxMonth ? next : '');
   };
   // A home whose recorded rent now covers its costs: ask whether you still live there (never switch it on its own).
   const rentCovers = trackerAsksHome(deal);
   return (
     <div>
       {/^\d{4}-\d{2}$/.test(month) && month > maxMonth && <p className="caution" role="note">That month isn’t over yet: record it once it ends.</p>}
+      {month === '' && <p className="muted" role="note">Every finished month is recorded. Come back once this month ends, or pick an earlier month to change it.</p>}
       {/^\d{4}-\d{2}$/.test(month) && month < o.boughtOn.slice(0, 7) && <p className="caution" role="note">That month is before you bought it ({prettyDay(o.boughtOn)}): pick a later month.</p>}
       {o.months.some((m) => m.month < o.boughtOn.slice(0, 7)) && <p className="caution" role="note">{o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).map((m) => monthWords(m.month)).join(', ')} {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'is' : 'are'} before the date you bought it ({prettyDay(o.boughtOn)}): remove {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'it' : 'them'} or check the date.</p>}
       {!rentCovers && deal.home === 'live' && deal.homeFrom !== 'plan' && s.months > 0 && s.rent > 0 && s.rent >= s.costs && <p className="muted small">Rent now covers this home’s costs. Still your home? You can change it under “Your plan and buy box”.</p>}

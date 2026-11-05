@@ -11,7 +11,9 @@
 @media (min-width: 1300px) {
   /* The next step keeps two thirds of the width; "Where you are" and "Not sure where to start?" stack beside it. */
   .plan-now.with-helper { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+  .plan-now.with-helper { grid-template-rows: auto 1fr; }
   .plan-now.with-helper .plan-now-main { grid-row: span 2; }
+  .plan-now.with-helper .plan-now-side, .plan-now.with-helper .plan-now-help { align-self: start; }
   .plan-now.with-helper .plan-now-help { grid-column: 2; }
 }
 /* No side panel or ad (My plan without a property, before any advertiser): no empty column. */

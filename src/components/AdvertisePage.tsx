@@ -68,7 +68,7 @@ export default function AdvertisePage() {
         <h2 id="adv-glance-head">At a glance</h2>
         <ul>
           <li><strong>Who reads it:</strong> {st ? `${stateByCode(st)?.name} ` : ''}buyers and investors checking listed, bank-owned and short-sale homes and official sales, county by county{st === 'NV' ? ', from Clark and Washoe to the rural counties' : ''}. Along the way, they look for the professionals they’ll need.</li>
-          <li><strong>Where you appear:</strong> your category’s page, and depending on your category, Find deals, Analyze a deal and the matching step in My plan (details below). Never on pages about foreclosure, tax, sheriff or IRS auctions, or on pages for homeowners.</li>
+          <li><strong>Where you appear:</strong> your category’s page, and depending on your category, Find deals, Analyze a deal and the matching step in My plan (details below). Never on pages about foreclosure, tax, HOA, sheriff or IRS sales, lien certificates, homeowners or business closures.</li>
           <li><strong>Plans:</strong> {open ? 'open now: see Plans below.' : 'opening soon.'}</li>
         </ul>
       </section>

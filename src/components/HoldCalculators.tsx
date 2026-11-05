@@ -821,7 +821,7 @@ const LIEN_GROUPS: CalcGroup<LienInputs>[] = [
     fields: [
       { k: 'price', label: 'Certificate price', unit: '$', hint: 'What you pay for it.' },
       { k: 'fees', label: 'Fees you pay', unit: '$', hint: 'Anything not repaid to you.' },
-      { k: 'ratePctMonth', label: 'Interest', unit: '%/mo', hint: '1% a month on the price in Nevada (NRS 271.610); confirm the terms on the Treasurer’s notice of sale.', more: 'Nevada sets the redemption interest at up to 1% a month on the price (NRS 271.595, 271.610). Confirm the rate and terms in the notice of sale.' },
+      { k: 'ratePctMonth', label: 'Interest', unit: '%/mo', hint: '1% a month on the price in Nevada (NRS 271.610); confirm the terms on the Treasurer’s notice of sale.', more: 'Nevada gives the certificate buyer 1% a month on the price (NRS 271.610); NRS 271.595 caps redemption interest at 1% a month. Confirm the terms on the Treasurer’s notice of sale.' },
     ],
   },
   {

@@ -1191,4 +1191,21 @@ describe('Nevada round 4 flow', () => {
     const ahead = { ...EMPTY_PACKET, dates: [{ when: '2026-12-01', what: 'Closing', who: 'Title', resolved: true }] };
     expect(dealNextTask(offer, ahead, now, 'contract').key).not.toBe('close');
   });
+
+  it('round 16 verifier: earnest money back after passing; a passed redemption end at the win; the early deed in Key dates', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const offer = { ...deal, id: 'f1', state: 'NV' as const, county: 'Carson City', kind: 'listing' as const };
+    const passed = { ...EMPTY_PACKET, dates: [{ when: '2026-10-20', what: 'Earnest money due', who: 'Me', resolved: true }, { when: '2026-12-01', what: 'Closing', who: 'Title' }] };
+    const t = dealNextTask(offer, passed, now, 'passed');
+    expect(t.key).toBe('deposit-back');
+    saveDeals([{ ...offer, stage: 'passed' }]);
+    expect(packetSections({ ...offer, stage: 'passed' }, passed, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Closing \(Title\) — not needed \(you passed\)/);
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const won = { ...EMPTY_PACKET, dates: [{ when: '2026-08-02', what: 'Sale day', who: 'HOA', resolved: true }, { when: '2026-08-03', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-10-01', what: 'Redemption period ends', who: 'HOA' }] };
+    expect(dealNextTask(hoa, won, now, 'contract').label).toMatch(/[Rr]edemption/);
+    const court = { ...nvFlip, kind: 'court' as const };
+    const early = { ...EMPTY_PACKET, dates: [{ when: '2026-08-03', what: 'Sale day', who: 'S', resolved: true }, { when: '2027-08-03', what: 'Redemption period ends', who: 'S' }, { when: '2026-10-01', what: 'Deed delivered (if no one redeemed)', who: 'S' }] };
+    saveDeals([{ ...court, stage: 'closed' }]);
+    expect(packetSections({ ...court, stage: 'closed' }, early, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Next: the deed date you entered/);
+  });
 });
