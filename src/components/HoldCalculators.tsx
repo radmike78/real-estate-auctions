@@ -332,7 +332,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
       </label>
       {/* My deals and the packet count only a typed rent: say so here, so the pages agree. */}
-      {price > 0 && !rentTyped && <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the property’s rent to save these results to My deals and the deal packet.</p>}
+      {price > 0 && !rentTyped && (living ? <p className="calc-note small" role="note"><strong>No rent is counted.</strong> If you’ll rent out a room or unit, type that rent; type 0 to save these results to My deals and the deal packet.</p> : <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the property’s rent to save these results to My deals and the deal packet.</p>)}
       {/* An investment-property loan over 85% of the price: said here, beside the result it changes (with no price
           typed yet, the mortgage-insurance note below says it). */}
       {price > 0 && onPrice && !living && Math.round(v.loanPct * 100) / 100 > 85 && (
@@ -380,7 +380,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : `${capText(a.cashOnCash, v.targetCocPct)}%`}</dd></div>
         <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{capPctText(a.capOnPrice)}</dd></div>
         <div><dt>Cap rate on everything you pay</dt><dd>{capPctText(a.capOnCost)}</dd></div>
-        {a.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments</dt><dd>{dscrText(a.dscr)}×{v.minDscr > 0 && !exampleRefi && a.dscr < v.minDscr && (livingThere ? <span> · below the {v.minDscr}× an investor’s lender looks for; a home loan you live in is judged mainly on your own income</span> : <span className="deal-urgent"> · under {dscrTyped ? 'your' : 'our example'} {v.minDscr}× minimum; check the lender’s separate requirements</span>)}</dd></div>}
+        {a.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments</dt><dd className="wrap">{dscrText(a.dscr)}×{v.minDscr > 0 && !exampleRefi && a.dscr < v.minDscr && (livingThere ? <span> · below the {v.minDscr}× an investor’s lender looks for; a home loan you live in is judged mainly on your own income</span> : <span className="deal-urgent"> · under {dscrTyped ? 'your' : 'our example'} {v.minDscr}× minimum; check the lender’s separate requirements</span>)}</dd></div>}
       </dl>
       </>)}
       <p className="muted small">Uses the rent, costs and loan you entered above; taxes and insurance are counted in operating costs, not in the loan payment. Your cash in doesn’t include reserves you keep in the bank. An estimate, not advice.</p>
@@ -563,7 +563,9 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   // guide to a Nevada one), except figures the property itself supplied (`start`) and numbers you typed (useSaved).
   const stateForce: Partial<RentInputs> = regional ? Object.fromEntries(Object.entries(stateStart).filter(([k]) => !(k in start))) : {};
   const [saved, set, typed, typedKeys] = useSaved<RentInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...examples, ...start }, regional ? { transferTaxPer500: rt.per500, ...stateForce } : {}, regional ? `${rt.per500}|${region.state}` : '{}');
-  const v = offer ? { ...withPlanCash(withoutOldValueExample(saved, true, typedKeys), true, typedKeys, investorProfile().investable), buyerPremiumPct: 0 } : saved;
+  // A home you'll live in: no example rent is counted (only rent you type, from a room or unit you'll rent out).
+  const savedL = livesHere && !typedKeys.has('monthlyRent') && !('monthlyRent' in start) ? { ...saved, monthlyRent: 0 } : saved;
+  const v = offer ? { ...withPlanCash(withoutOldValueExample(savedL, true, typedKeys), true, typedKeys, investorProfile().investable), buyerPremiumPct: 0 } : savedL;
   const r = rentMaxBid(v, offer);
   // No realistic price fits your cash (only the cash is short): the panels and buttons don't use the capped price.
   const uncapped = rentMaxBid({ ...v, cashAvailable: 0 }, offer);
@@ -626,8 +628,9 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         {offer && ownDeal && asksHome({ ...ownDeal, plan: 'rent' }) && (
           <fieldset className="packet-fit">
             <legend>Will you live in this property?</legend>
-            <label className="check"><input type="radio" name={`home-${ownDeal.id}`} checked={livesHere} onChange={() => { setDealHome(ownDeal.id, 'live'); bumpHome((n) => n + 1); }} /> Yes, it’s my home</label>
-            <label className="check"><input type="radio" name={`home-${ownDeal.id}`} checked={!livesHere} onChange={() => { setDealHome(ownDeal.id, 'rent'); bumpHome((n) => n + 1); }} /> No, it’s a rental</label>
+            {!ownDeal.home && <p className="muted small">From your plan: {livesHere ? 'a home you’ll live in' : 'a rental'}. Confirm it for this property.</p>}
+            <label className="check"><input type="radio" name={`home-${ownDeal.id}`} checked={ownDeal.home === 'live'} onChange={() => { setDealHome(ownDeal.id, 'live'); bumpHome((n) => n + 1); }} /> Yes, it’s my home</label>
+            <label className="check"><input type="radio" name={`home-${ownDeal.id}`} checked={ownDeal.home === 'rent'} onChange={() => { setDealHome(ownDeal.id, 'rent'); bumpHome((n) => n + 1); }} /> No, it’s a rental</label>
           </fieldset>
         )}
         {livesHere && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}

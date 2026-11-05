@@ -1418,6 +1418,8 @@ html { scroll-padding-top: 88px; }
 /* Totals never split a number across lines: the label wraps instead, and the number keeps its full width. */
 .calc-kv dd { overflow-wrap: normal; white-space: nowrap; flex: none; }
 .calc-kv dt { flex: 1 1 auto; }
+/* A value with words ("1.03× · below…"): it wraps in its own column instead of squeezing the label. */
+.calc-kv dd.wrap { white-space: normal; flex: 0 1 60%; text-align: right; }
 /* Tables start on the same left edge as the text above them. */
 .page table th:first-child, .page table td:first-child { padding-left: 0; }
 .page table th:last-child, .page table td:last-child { padding-right: 0; }
@@ -2736,6 +2738,7 @@ cite.cite { font-style: normal; font-size: max(0.82em, 15px); color: var(--muted
 .packet-next .packet-next-head { font-size: 1.05rem; margin: 0; padding: 0; border: 0; background: none; }
 .packet-next a, .packet-next .linkish { display: inline-flex; align-items: center; min-height: 44px; }
 .deal-actions .btn { white-space: nowrap; }
+@media (max-width: 480px) { .deal-actions .btn { white-space: normal; max-width: 100%; } }
 /* A saved deal's buttons: one column of equal widths on every card. */
 .deal-card .deal-actions { flex-direction: column; flex-wrap: nowrap; align-items: stretch; margin-top: 0; }
 .deal-card .deal-actions .btn { text-align: center; justify-content: center; }

@@ -13,7 +13,7 @@ import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
 import { DEAL_STAGES, type DealStage } from '../lib/analyze';
-import { asksHome, liveIn, setDealHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
+import { asksHome, liveIn, setDealHome, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { planNow } from '../lib/planNext';
 import TaskActions from './TaskActions';
@@ -94,7 +94,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
     return (
       <>
         <h2 id={`packet-${k}`}>
-          {s.title} {pastSale && RECORD_PARTS.includes(k) && s.status !== 'done' ? <span className="packet-status record">Left blank</span> : <span className={`packet-status ${s.status}`}>{s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>}
+          {s.title} {pastSale && RECORD_PARTS.includes(k) && s.status !== 'done' ? <span className="packet-status record">{s.status === 'missing' ? 'Left blank' : 'Partly filled in'}</span> : <span className={`packet-status ${s.status}`}>{s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>}
         </h2>
         {pastSale && RECORD_PARTS.includes(k) && <p className="muted small">From before you bought: kept as your records.</p>}
       </>
@@ -133,6 +133,8 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           {next.openDeal ? <a href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(deal); }}>Open in Analyze&nbsp;→</a>
             : next.setStage ? <button type="button" className="linkish" onClick={() => { setDealStage(deal.id, next.setStage!); focusNext(); }}>Do it now&nbsp;→</button>
             : next.key === 'qa-wait' ? <button type="button" className="linkish" onClick={() => { const i = p.qa.findIndex((x) => x.q && !x.a); const el = document.querySelectorAll<HTMLElement>('textarea[aria-label="Their answer"]')[i]; el?.scrollIntoView({ block: 'center' }); el?.focus(); }}>Record their answer&nbsp;↓</button>
+            : /^Enter the new sale date/.test(next.label) ? <button type="button" className="linkish" onClick={() => { const i = p.dates.findIndex((x) => sameDate(x.what, 'Sale day')); const el = document.querySelectorAll('.packet-dates > li')[i]?.querySelector<HTMLElement>('input[type="date"]'); el?.scrollIntoView({ block: 'center' }); el?.focus(); }}>Enter the date&nbsp;↓</button>
+            : !next.answer && (next.advance || next.tick) ? null
             : !next.answer && !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there&nbsp;→</a>
             : !next.answer && /\/(plan|dates|cash|evidence|pros|decision|owned)$/.test(next.href) ? (() => { const sec = /\/(\w+)$/.exec(next.href)![1]; return <button type="button" className="linkish" onClick={() => { const h = document.getElementById(`packet-${sec}`); h?.setAttribute('tabindex', '-1'); /* (the evidence log opens) */ h?.closest('section')?.querySelectorAll('details').forEach((x, i) => { if (i === 0) x.open = true; }); h?.scrollIntoView({ block: 'start' }); h?.focus(); }}>Go to {sec === 'dates' ? 'Key dates' : sec === 'evidence' ? 'the evidence log' : sec === 'owned' ? 'After you buy' : sec === 'decision' ? 'Your decision' : sec === 'pros' ? 'the questions' : sec === 'cash' ? 'the cash' : 'your plan'}&nbsp;↓</button>; })() : null}
         </p>
@@ -149,11 +151,12 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <section className="deal-setup packet-section" aria-labelledby="packet-plan">
         <Head k="plan" />
         <Lines k="plan" />
-        {asksHome(deal) && (
+        {asksHome(deal) && !trackerAsksHome(deal) && (
           <fieldset className="packet-fit">
             <legend>Will you live in this property?</legend>
-            <label className="check"><input type="radio" name="packet-home" checked={liveIn(deal)} onChange={() => setDealHome(deal.id, 'live')} /> Yes, it’s my home</label>
-            <label className="check"><input type="radio" name="packet-home" checked={!liveIn(deal)} onChange={() => setDealHome(deal.id, 'rent')} /> No, it’s a rental</label>
+            {!deal.home && <p className="muted small">From your plan: {liveIn(deal) ? 'a home you’ll live in' : 'a rental'}. Confirm it for this property.</p>}
+            <label className="check"><input type="radio" name="packet-home" checked={deal.home === 'live'} onChange={() => setDealHome(deal.id, 'live')} /> Yes, it’s my home</label>
+            <label className="check"><input type="radio" name="packet-home" checked={deal.home === 'rent'} onChange={() => setDealHome(deal.id, 'rent')} /> No, it’s a rental</label>
           </fieldset>
         )}
         <fieldset className="packet-fit">
@@ -193,7 +196,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           {(() => {
             // Usual dates removed (or added since the packet was started): add back only those, at the end.
             // (Past the sale, not the dates already behind it; once redeemed, not the deed.)
-            const behind = behindStage(deal, finishedDeal(deal) ? 'closed' : stageOf(deal));
+            const behind = wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? [] : behindStage(deal, finishedDeal(deal) ? 'closed' : stageOf(deal));
             const redeemed = p.dates.some((x) => sameDate(x.what, REDEEMED_ROW));
             const missing = p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x.what, w)) && !behind.some((b) => sameDate(w, b)) && !(redeemed && sameDate(w, DEED_AFTER_WAIT)) && !(sameDate(w, 'SID certificate payoff') && p.dates.some((x) => sameDate(x.what, NO_SID_ROW)))) : [];
             return missing.length ? <button type="button" className="btn btn-secondary" onClick={() => {

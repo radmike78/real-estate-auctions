@@ -104,6 +104,13 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   // The same label My plan's roadmap uses: "Next roadmap task · Get ready".
   const nextLabel = now.context.startsWith('Roadmap · ') ? `Next roadmap task · ${now.context.slice('Roadmap · '.length)}` : `Next task · ${now.context}`;
 
+  // Another property with a passed deadline: the one that costs most if missed first (a sale that may be void), with a count.
+  const pressing = loadDeals().filter((x) => x.id !== deal?.id && !x.practice && stageOf(x) !== 'passed' && !finishedDeal(x) && deadlinePassed(dealNextTask(x)));
+  const weight = (x: Deal) => { const t = dealNextTask(x); return t.key === 'sid-void' || t.key === 'sid-refund' ? 0 : /SID/.test(t.label) ? 1 : t.key === 'date' ? 2 : 3; };
+  const other = [...pressing].sort((a, b) => weight(a) - weight(b))[0];
+  const otherWhat = (x: Deal) => { const l = dealNextTask(x).label; const at = l.indexOf(x.name); const i = l.indexOf('. ', at >= 0 ? at + x.name.length : 0); return (i >= 0 ? l.slice(0, i + 1) : l).replace(/([^.?!*])$/, '$1.'); };
+  const otherNote = other ? <p className="caution" role="note"><strong>Another property needs {dealNextTask(other).answer ? 'an answer' : 'your attention'}:</strong> {other.name}. {otherWhat(other)} <button type="button" className="linkish" onClick={() => { chooseDeal(`analyzed:${other.id}`); setTimeout(() => focusTaskIn(document.querySelector('.plan-now-actions')?.parentElement), 0); }}>Work on it now&nbsp;→</button>{pressing.length > 1 ? <> {pressing.length - 1} more {pressing.length === 2 ? 'property has' : 'properties have'} a passed deadline: <a href="#/deals">see My deals&nbsp;→</a></> : null}</p> : null;
+
   const side = (
     <aside className="plan-now-side" aria-labelledby={`plan-now-where-${variant}`}>
       <h3 id={`plan-now-where-${variant}`}>Where you are</h3>
@@ -114,7 +121,6 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           <span className="decide-bar" role="progressbar" aria-label="Investing roadmap" aria-valuemin={0} aria-valuemax={prog.total} aria-valuenow={prog.done}><span style={{ width: `${Math.round((prog.done / Math.max(1, prog.total)) * 100)}%` }} /></span>
         </p>
       )}
-      {(() => { const o = loadDeals().find((x) => x.id !== deal?.id && !x.practice && stageOf(x) !== 'passed' && !finishedDeal(x) && deadlinePassed(dealNextTask(x))); return o ? <p className="caution" role="note"><strong>Another property needs {dealNextTask(o).answer ? 'an answer' : 'your attention'}:</strong> {o.name}. {dealNextTask(o).label.split(/(?<=\.)\s/)[0].replace(/([^.?!])$/, '$1.')} <button type="button" className="linkish" onClick={() => { chooseDeal(`analyzed:${o.id}`); setTimeout(() => focusTaskIn(document.querySelector('.plan-now-actions')?.parentElement), 0); }}>Work on it now&nbsp;→</button></p> : null; })()}
       {deal && now.tasks && stage ? (
         <>
           <h4>{stageLabel(stage, deal)}: {deal.name}</h4>
@@ -144,6 +150,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           <span className="plan-now-k">Your goal</span>
           {now.goal ? <span>{now.goal}</span> : decidedPick() ? <span>Not written yet. Decide suggests <strong>{decidedPick()}</strong>. <a href="#/toolkit/roadmap?step=goal">Put your goal in one sentence&nbsp;→</a></span> : <span>Not written yet. <a href="#/decide">Choose my goal</a> (a few questions), then write it in a sentence in your roadmap.</span>}
         </p>
+        {otherNote}
         {onPlan && choices.length > 0 && (
           <div className="plan-now-deal">
             <label className="field">
@@ -178,7 +185,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           <p className="plan-now-produces"><strong>You’ll have:</strong> {task.produces}.</p>
           <div className="plan-now-actions">
             {!(task.answer && deal) && <ContinueButton task={task} dealId={deal?.id} onPlan={onPlan} label={planStarted(now) ? undefined : 'Start'} />}
-            {deal && <TaskActions task={task} dealId={deal.id} big edit={(f) => { const k = `analyzed:${deal.id}`; savePacket(k, f(loadPacket(k))); progressChanged(); }} after={(el, done) => { if (done) { /* It leaves the plan: the next property comes up (one with a deadline first). */ write(DEAL_KEY, ''); progressChanged(); const others = loadDeals().filter((x) => x.id !== deal.id && !x.practice && stageOf(x) !== 'passed' && !finishedDeal(x)); const due = others.find((x) => dealNextTask(x).urgent); const focusId = focusDealId(); const nextOne = due ?? others.find((x) => `analyzed:${x.id}` === focusId); if (nextOne) { write(DEAL_KEY, `analyzed:${nextOne.id}`); write(ROADMAP_PATH_KEY, pathForDeal(nextOne)); } else { /* (nothing else open: it stays, with its "Find your next …") */ write(DEAL_KEY, `analyzed:${deal.id}`); } setFinishedNote(`${finishedDeal(deal) ? `${deal.name} is finished.` : `You marked ${deal.name} passed.`} ${nextOne ? `Next: ${nextOne.name}${due ? (dealNextTask(due).key === 'date' && dealNextTask(due).days !== undefined ? (dealNextTask(due).days! < 0 ? ', which has a date that has passed' : dealNextTask(due).days === 0 ? ', which has a date due today' : ', which has a date due within a week') : ', which has something waiting on you') : ''}.` : `Next: find your next ${deal.kind === 'lien' ? 'lien sale' : 'property'} in Find deals.`}`); setTimeout(() => document.getElementById('plan-finished-note')?.focus(), 0); } else { setFinishedNote(''); /* (stays on the deal just answered) */ write(DEAL_KEY, `analyzed:${deal.id}`); write(ROADMAP_PATH_KEY, pathForDeal(deal)); progressChanged(); focusTaskIn(el.closest('.plan-now-actions')?.parentElement); } }} />}
+            {deal && <TaskActions task={task} dealId={deal.id} big edit={(f) => { const k = `analyzed:${deal.id}`; savePacket(k, f(loadPacket(k))); progressChanged(); }} after={(el, done) => { if (done) { /* It leaves the plan: the next property comes up (one with a deadline first). */ write(DEAL_KEY, ''); progressChanged(); const others = loadDeals().filter((x) => x.id !== deal.id && !x.practice && stageOf(x) !== 'passed' && !finishedDeal(x)); const due = others.find((x) => deadlinePassed(dealNextTask(x))) ?? others.find((x) => dealNextTask(x).urgent); const focusId = focusDealId(); const nextOne = due ?? others.find((x) => `analyzed:${x.id}` === focusId); if (nextOne) { write(DEAL_KEY, `analyzed:${nextOne.id}`); write(ROADMAP_PATH_KEY, pathForDeal(nextOne)); } else { /* (nothing else open: it stays, with its "Find your next …") */ write(DEAL_KEY, `analyzed:${deal.id}`); } setFinishedNote(`${finishedDeal(deal) ? `${deal.name} is finished.` : `You marked ${deal.name} passed.`} ${nextOne ? `Next: ${nextOne.name}${due ? (dealNextTask(due).key === 'date' && dealNextTask(due).days !== undefined ? (dealNextTask(due).days! < 0 ? ', which has a date that has passed' : dealNextTask(due).days === 0 ? ', which has a date due today' : ', which has a date due within a week') : ', which has something waiting on you') : ''}.` : `Next: find your next ${deal.kind === 'lien' ? 'lien sale' : 'property'} in Find deals.`}`); setTimeout(() => document.getElementById('plan-finished-note')?.focus(), 0); } else { setFinishedNote(''); /* (stays on the deal just answered) */ write(DEAL_KEY, `analyzed:${deal.id}`); write(ROADMAP_PATH_KEY, pathForDeal(deal)); progressChanged(); focusTaskIn(el.closest('.plan-now-actions')?.parentElement); } }} />}
           </div>
           {task.support.length > 0 && (
             <details className="plan-now-support"><summary>Help with this step</summary><p>

@@ -4,7 +4,7 @@ import type { Deal } from '../lib/analyze';
 import { flipBudget, flipBudgetLine, flipSaleLine, loadPacket, sameEvent, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
-import { asksHome, setDealHome, certificateFirst, finishedDeal, liveIn, prettyDay, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
+import { setDealHome, trackerAsksHome, certificateFirst, finishedDeal, liveIn, prettyDay, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
 
 /** The monthly cash flow the deal was bought on, from its Keep and rent numbers (null without them). */
 export function projectedMonthly(d: Deal): number | null {
@@ -130,7 +130,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     setMonth(mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`);
   };
   // A home whose recorded rent now covers its costs: ask whether you still live there (never switch it on its own).
-  const rentCovers = !deal.home && asksHome(deal) && o.months.some((m) => m.rent > 0) && s.rent >= s.costs;
+  const rentCovers = trackerAsksHome(deal);
   return (
     <div>
       {rentCovers && (
@@ -156,18 +156,18 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <>
           <dl className="calc-kv">
             <div><dt>Months recorded</dt><dd>{s.months}</dd></div>
-            <div><dt>{liveIn(deal) ? 'What it cost, in total (after any rent)' : 'Actual cash flow, in total'}</dt><dd>{liveIn(deal) && s.actual > 0 ? `${fmtMoney(Math.round(s.actual))} to spare (the rent covers your home’s costs)` : signed(liveIn(deal) ? -s.actual : s.actual)}</dd></div>
+            <div><dt>{liveIn(deal) ? 'What it cost, in total (after any rent)' : 'Actual cash flow, in total'}</dt><dd>{liveIn(deal) && s.actual > 0 ? `${fmtMoney(Math.round(s.actual))} to spare` : signed(liveIn(deal) ? -s.actual : s.actual)}</dd></div>
             <div><dt>{liveIn(deal) ? 'Average cost a month' : 'Average month'}</dt><dd>{liveIn(deal) && s.averageMonthly > 0 ? `${fmtMoney(Math.round(s.averageMonthly))} to spare` : signed(liveIn(deal) ? -s.averageMonthly : s.averageMonthly)}</dd></div>
             {flip && budget && <div><dt>Paid so far, against your {fmtMoney(Math.round(budget.total))} budget</dt><dd>{fmtMoney(Math.round(s.costs))} {s.costs > budget.total ? `(${fmtMoney(Math.round(s.costs - budget.total))} over)` : `(${fmtMoney(Math.round(budget.total - s.costs))} left)`}</dd></div>}
             {s.gapMonthly !== null && <div><dt>Against your plan, a month</dt><dd>{signed(s.gapMonthly)} {s.gapMonthly < 0 ? '(behind)' : '(ahead)'}</dd></div>}
           </dl>
           {s.gapMonthly !== null && s.gapMonthly < -50 && <p className="caution small" role="note">{liveIn(deal) ? 'It’s costing more than you planned. Look at which costs ran over and whether your savings can carry it.' : <>It’s earning less than you planned. Look at which costs ran over, whether the rent matches new leases nearby, and whether your repair savings can carry it. Review it before you buy the next one.</>}</p>}
           <table className="lesson-table owned-table">
-            <thead><tr><th>Month</th><th>Rent</th><th>Paid</th><th>{liveIn(deal) ? 'Cost after rent' : 'Cash flow'}</th><th>Note</th><th><span className="sr-only">Remove</span></th></tr></thead>
+            <thead><tr><th>Month</th><th>Rent</th><th>Paid</th><th>{liveIn(deal) ? 'After rent' : 'Cash flow'}</th><th>Note</th><th><span className="sr-only">Remove</span></th></tr></thead>
             <tbody>
               {o.months.map((m) => (
                 <tr key={m.month}>
-                  <td data-label="Month">{monthWords(m.month)}</td><td data-label="Rent">{fmtMoney(m.rent)}</td><td data-label="Paid">{fmtMoney(m.costs)}</td><td data-label={liveIn(deal) ? 'Cost after rent' : 'Cash flow'}>{signed(liveIn(deal) ? m.costs - m.rent : m.rent - m.costs)}</td><td data-label={m.note ? 'Note' : ''}>{m.note}</td>
+                  <td data-label="Month">{monthWords(m.month)}</td><td data-label="Rent">{fmtMoney(m.rent)}</td><td data-label="Paid">{fmtMoney(m.costs)}</td><td data-label={liveIn(deal) ? 'After rent' : 'Cash flow'}>{liveIn(deal) ? (m.rent > m.costs ? `${fmtMoney(m.rent - m.costs)} to spare` : `${fmtMoney(m.costs - m.rent)} cost`) : signed(m.rent - m.costs)}</td><td data-label={m.note ? 'Note' : ''}>{m.note}</td>
                   <td><button type="button" className="linkish" aria-label={`Remove ${monthWords(m.month)}`} onClick={() => put({ ...o, months: o.months.filter((x) => x.month !== m.month) })}>Remove</button></td>
                 </tr>
               ))}
