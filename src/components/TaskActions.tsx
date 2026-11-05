@@ -14,6 +14,9 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
   const add = task.advance2?.addRow;
   return (
     <>
+      {task.redate && (
+        <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const r = task.redate!; edit((p) => ({ ...p, dates: p.dates.some((x) => sameDate(x.what, r.row)) ? p.dates.map((x) => (sameDate(x.what, r.row) ? { ...x, when: r.when, who: x.who || r.who || '', resolved: false } : x)) : [...p.dates, { what: r.row, when: r.when, who: r.who ?? '' }] })); after(el); }}>{task.redate.label}</button>
+      )}
       {tick && (
         <button type="button" className={task.answer ? main : 'btn btn-secondary'} onClick={(e) => {
           const el = e.currentTarget;
@@ -36,9 +39,6 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
           setDealStage(dealId, task.advance2!.stage);
           after(el, task.advance2!.stage === 'passed');
         }}>{task.advance2.label}</button>
-      )}
-      {task.redate && (
-        <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const r = task.redate!; edit((p) => ({ ...p, dates: p.dates.some((x) => sameDate(x.what, r.row)) ? p.dates.map((x) => (sameDate(x.what, r.row) ? { ...x, when: r.when, who: x.who || r.who || '', resolved: false } : x)) : [...p.dates, { what: r.row, when: r.when, who: r.who ?? '' }] })); after(el); }}>{task.redate.label}</button>
       )}
       {task.undo && (
         <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const u = task.undo!; edit((p) => { const kept = p.dates.filter((x) => !sameDate(x.what, u.removeRow)); return { ...p, dates: [...kept, ...(u.addRow && !kept.some((x) => sameDate(x.what, u.addRow!.what)) ? [{ ...u.addRow }] : [])] }; }); after(el); }}>{task.undo.label}</button>

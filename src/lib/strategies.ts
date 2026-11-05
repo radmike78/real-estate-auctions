@@ -90,7 +90,7 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
       'The profit is usually taxed as ordinary income, and can owe self-employment tax; it can’t use a 1031 exchange.',
       'Have a fallback: can you rent it if it doesn’t sell at your price?',
     ],
-    calc: { label: 'Run it in Fix and flip (fix and sell)', href: '#/analyze?plan=flip' },
+    calc: { label: 'Run it in Fix and flip', href: '#/analyze?plan=flip' },
     practice: [{ label: 'Practice: is there really a profit?', href: '#/practice/drills/flip-numbers' }],
     lessons: ['analyze', 'walk-away', 'financing', 'taxes'],
     team: ['agent', 'contractor', 'private_lender', 'inspector', 'cpa'],

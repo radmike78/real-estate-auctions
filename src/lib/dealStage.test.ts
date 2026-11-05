@@ -784,6 +784,35 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(tax, late, now, 'contract').days).toBeLessThan(0);
   });
 
+  it('round 11 UX: the 90-day limit while it runs; its own row; passed deadlines carry days; row words', async () => {
+    const { packetSections } = await import('./dealPacket');
+    // Sale Aug 20 (+90 = Nov 18, ahead); deed Sep 1 (+30 = Oct 1, passed). now = Oct 6.
+    const tg = { ...EMPTY_PACKET, dates: [{ when: '2026-08-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-01', what: 'Deed recorded', who: 'Me', resolved: true }] };
+    const t = dealNextTask(nvFlip, tg, now, 'closed');
+    expect(t.label).toMatch(/properly notified\*\. Anyone who wasn’t can still sue until Nov 18, 2026, 90 days after the sale/);
+    expect(t.redate?.label).toBe('Wait for the 90-day limit: move the end to Nov 18, 2026');
+    expect(t.tick?.label).toBe('My attorney or title company confirmed proper notice and no suit*: mark it handled');
+    expect(t.days).toBeLessThan(0);
+    // Before the 30 days end, Key dates show the 90-day limit too.
+    const early = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-20', what: 'Deed recorded', who: 'Me', resolved: true }] };
+    saveDeals([{ ...nvFlip, stage: 'closed' }]);
+    const el = packetSections({ ...nvFlip, stage: 'closed' }, early, now).find((x) => x.key === 'dates')!.lines.join(' | ');
+    expect(el).toMatch(/Oct 20, 2026: Challenge window ends/);
+    expect(el).toMatch(/Nov 30, 2026: 90-day limit for anyone not properly notified ends/);
+    expect(el).toMatch(/Next: Challenge window ends, in 14 days/);
+    // A researching deal's passed sale day.
+    const r = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T' }] };
+    saveDeals([{ ...nvFlip, stage: 'researching' }]);
+    expect(packetSections({ ...nvFlip, stage: 'researching' }, r, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Sale day \(T\) — passed: did you win\?/);
+    // The SID deadline passed: its row and the affidavit task.
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    const sp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-11', what: 'Payment deadline', who: 'Me', resolved: true }] };
+    saveDeals([{ ...tax, stage: 'contract' }]);
+    expect(packetSections({ ...tax, stage: 'contract' }, sp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/— ended: ask the Treasurer/);
+    expect(dealNextTask(tax, sp, now, 'contract').days).toBe(-1);
+    expect(stageHint('contract', tax)).toBe('Payment and recording deadlines are running.');
+  });
+
   it('says so when the deed row is ticked at a win', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);

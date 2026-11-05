@@ -3,7 +3,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
 import { DEAL_STAGES, loadDeals, openDeal, type Deal, type DealStage } from '../lib/analyze';
-import { dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
+import { deadlinePassed, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
@@ -114,6 +114,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           <span className="decide-bar" role="progressbar" aria-label="Investing roadmap" aria-valuemin={0} aria-valuemax={prog.total} aria-valuenow={prog.done}><span style={{ width: `${Math.round((prog.done / Math.max(1, prog.total)) * 100)}%` }} /></span>
         </p>
       )}
+      {(() => { const o = loadDeals().find((x) => x.id !== deal?.id && !x.practice && stageOf(x) !== 'passed' && !finishedDeal(x) && deadlinePassed(dealNextTask(x))); return o ? <p className="caution" role="note"><strong>Another property needs an answer:</strong> {o.name}: {dealNextTask(o).label.split(/: /)[0]}. <button type="button" className="linkish" onClick={() => chooseDeal(`analyzed:${o.id}`)}>Work on it now&nbsp;→</button></p> : null; })()}
       {deal && now.tasks && stage ? (
         <>
           <h4>{stageLabel(stage, deal)}: {deal.name}</h4>

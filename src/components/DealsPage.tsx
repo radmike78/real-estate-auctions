@@ -24,7 +24,7 @@ import { dealNumbers } from '../lib/propertyPacket';
 import { flipNeedsRepairs, nextAction, savedNumbers } from '../lib/dealPacket';
 import { investorProfile } from '../lib/myPlan';
 import { capMisses, capText, dscrText, refiValueWords, rentVerdict } from '../lib/holdCalc';
-import { redemptionOver, dealNextTask, finishedDeal, prettyDay, liveIn, soldOf, stageLabel, stageOf, setDealStage } from '../lib/dealStage';
+import { deadlinePassed, redemptionOver, dealNextTask, finishedDeal, prettyDay, liveIn, soldOf, stageLabel, stageOf, setDealStage } from '../lib/dealStage';
 import AdSpot from './AdSpot';
 
 function DealCard({ d, p, loading, known }: { d: SavedDeal; p: Property | undefined; loading: boolean; known: boolean }) {
@@ -233,8 +233,8 @@ function OtherNumbers({ d }: { d: Deal }) {
   if (lien?.overCap) return <p className="deal-urgent">{fmtMoney(lien.price)} certificate · the interest rate entered is above {d.state === 'AZ' ? 'Arizona’s legal maximum of 16% a year' : 'Nevada’s 1% a month'}: fix it under Lien certificate to see the yield.</p>;
   if (lien) return <p>{fmtMoney(lien.price)} certificate · {lien.yearly === null ? 'no yield' : `${(lien.yearly * 100).toFixed(1)}% a year`} if paid off in {lien.months} months{lien.partMonth ? ' · Washoe doesn’t prorate its 1% a month, so the part month may not count' : ''}</p>;
   // The resale value is in, only the repairs are missing: ask for just those.
-  if (flipNeedsRepairs(d)) return <p className="muted">Almost there: open it and enter the repairs under Fix and flip (fix and sell), or 0 if there are none.</p>;
-  return <p className="muted">No numbers yet: open it and enter {d.plan === 'flip' ? 'the resale value and repairs under Fix and flip (fix and sell)' : d.plan === 'commercial' ? 'the building’s rent under Commercial income (our example rent doesn’t count)' : 'the certificate price under Lien certificate'}.</p>;
+  if (flipNeedsRepairs(d)) return <p className="muted">Almost there: open it and enter the repairs under Fix and flip, or 0 if there are none.</p>;
+  return <p className="muted">No numbers yet: open it and enter {d.plan === 'flip' ? 'the resale value and repairs under Fix and flip' : d.plan === 'commercial' ? 'the building’s rent under Commercial income (our example rent doesn’t count)' : 'the certificate price under Lien certificate'}.</p>;
 }
 
 export default function DealsPage() {
@@ -269,7 +269,7 @@ export default function DealsPage() {
           <h2 id="analyzed-head">Deals you’ve analyzed</h2>
           <ul className="deal-list">
             {/* Deadlines within a week first, then deals in progress, then finished or passed ones. */}
-            {[...analyzed].map((d, i) => ({ d, i, r: stageOf(d) === 'passed' || finishedDeal(d) ? 3 : dealNextTask(d).urgent ? 0 : ['contract', 'closed', 'owned'].includes(stageOf(d)) ? 1 : 2 })).sort((a, b) => a.r - b.r || a.i - b.i).map(({ d }) => {
+            {[...analyzed].map((d, i) => ({ d, i, r: stageOf(d) === 'passed' || finishedDeal(d) ? 3 : deadlinePassed(dealNextTask(d)) ? -1 : dealNextTask(d).urgent ? 0 : ['contract', 'closed', 'owned'].includes(stageOf(d)) ? 1 : 2 })).sort((a, b) => a.r - b.r || a.i - b.i).map(({ d }) => {
               const k = SALE_KINDS.find((x) => x.key === d.kind)!;
               const all = checklistFor(d, { liveIn: liveIn(d) }).flatMap((g) => g.items);
               const done = all.filter((i) => d.done.includes(i.id)).length;
@@ -291,7 +291,7 @@ export default function DealsPage() {
                           <p className={rentVerdict({ coverageShort: n.coverageShort, cashFlow: n.monthly, cashOnCash: n.cashOnCash, targetPct: n.target, cashShort: short, exampleRefi: n.exampleValue && n.refiValue > 0, living }) === 'bad' ? 'deal-urgent' : undefined}>
                             At your price, {fmtMoney(n.price)}: {living && !(n.exampleValue && n.refiValue > 0) ? <>{Math.round(Math.abs(n.monthly)) === 0 ? 'the rent you collect about breaks even with every cost' : n.monthly < 0 ? `living there costs you about ${fmtMoney(Math.round(-n.monthly))} a month after any rent you collect` : `the rent you collect covers every cost, with about ${fmtMoney(Math.round(n.monthly))} a month to spare`}{n.mi > 0 ? `, before mortgage insurance (about ${fmtMoney(n.mi)} a month on an FHA loan; not counted)` : ''}{short ? ` · needs about ${fmtMoney(Math.round(n.cashNeeded))} of your cash (${n.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</> : <>{n.monthly < 0 ? `loses ${fmtMoney(Math.round(-n.monthly))}` : `${fmtMoney(Math.round(n.monthly))} cash flow`} a month{n.exampleValue ? ` (${refiValueWords(n.refiValue)})` : n.refi ? ' after the refinance' : ''} · {n.exampleValue && n.refiValue > 0 ? 'enter the value after repairs to see the return' : n.cashOnCash === null ? 'all your cash back' : `${capText(n.cashOnCash, n.target)}% a year on ${fmtMoney(Math.round(n.cashIn))} of your cash`} (target {n.target}%{n.targetTyped ? '' : ', our example'}){n.coverageShort && !living ? ` · income coverage under ${n.dscrTyped ? 'your' : 'our example'} ${n.minDscr}× minimum` : ''}{short ? ` · needs about ${fmtMoney(Math.round(n.cashNeeded))} of your cash (${n.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}{n.loanHigh ? ' · a bigger loan than most investment lenders make (they usually want 15% to 25% down*; ask your lender) and mortgage insurance not included' : n.miLeftOut ? ' · mortgage insurance not included (ask your lender)' : ''}</>}
                           </p>
-                        ) : finishedDeal(d) && !soldOf(d) ? <p><strong>Finished:</strong> {d.kind === 'lien' ? 'paid off, and the Treasurer repaid you' : 'redeemed, and you were repaid'}.</p> : d.plan === 'rent' ? <p className="muted">{liveIn(d) ? 'No numbers yet: open it and enter the price you’d pay under Buy and hold (keep and rent) (rent 0, or only the rent from a room or unit you’ll rent out).' : 'No numbers yet: open it and type its rent, and the price you’d pay, under Buy and hold (keep and rent) (our example rent doesn’t count).'}</p> : soldOf(d) ? <p><strong>Finished:</strong> sold on {prettyDay(soldOf(d)!.on)} for {fmtMoney(soldOf(d)!.price)}.</p> : <OtherNumbers d={d} />;
+                        ) : finishedDeal(d) && !soldOf(d) ? <p><strong>Finished:</strong> {d.kind === 'lien' ? 'paid off, and the Treasurer repaid you' : 'redeemed, and you were repaid'}.</p> : d.plan === 'rent' ? <p className="muted">{liveIn(d) ? 'No numbers yet: open it and enter the price you’d pay under Buy and hold (rent 0, or only the rent from a room or unit you’ll rent out).' : 'No numbers yet: open it and type its rent, and the price you’d pay, under Buy and hold (our example rent doesn’t count).'}</p> : soldOf(d) ? <p><strong>Finished:</strong> sold on {prettyDay(soldOf(d)!.on)} for {fmtMoney(soldOf(d)!.price)}.</p> : <OtherNumbers d={d} />;
                       })()}
                       {!d.locationConfirmed && <p className="muted">Its location isn’t confirmed: open it in Analyze and confirm it, so its costs follow its state and county.</p>}
                       {madeReal === d.id && !d.practice && <p className="note" tabIndex={-1} id={`made-real-${d.id}`}>“{d.name}” is now a real deal, so My plan can follow it.</p>}
