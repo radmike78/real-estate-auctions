@@ -16,7 +16,7 @@ import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
-import { dealNextTask, stageLabel, stageOf, afterSale, remindable } from './dealStage';
+import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -61,7 +61,7 @@ export const EMPTY_PACKET: PacketData = { fit: '', fitWhy: '', dates: [], qa: []
 /** A date that applies only if something happens (its name says “(if …)”): it can stay undated. */
 const ifOnly = (what: string) => /\(if /.test(what);
 /** A packet row is this date, even renamed by the reader: its name starts with the date's own (without any “(if …)”). */
-export const sameDate = (rowWhat: string, name: string) => rowWhat.trim().toLowerCase().startsWith(name.replace(/\s*\(if [^)]*\)$/, '').toLowerCase()) || (/^registration/i.test(name) && /^bidder registration/i.test(rowWhat.trim()));
+export const sameDate = (rowWhat: string, name: string) => rowWhat.trim().toLowerCase().startsWith(name.replace(/\s*\(if [^)]*\)$/, '').toLowerCase()) || (/^(bidder )?registration/i.test(name) && !/notice/i.test(name) && /^(bidder )?registration/i.test(rowWhat.trim()) && !/notice/i.test(rowWhat));
 
 /** A date row filled in: its date and who handles it, or (a date that applies only if something happens) left undated. */
 export const dateRowComplete = (d: { when: string; what: string; who: string }) => !!d.what.trim() && ((!!d.when && !!d.who.trim()) || (!d.when && ifOnly(d.what)));
@@ -79,17 +79,18 @@ export const calendarRows = (p: PacketData, stage: string) => {
 /** The recording rows at a win: the record task is how they get done (they can stay undated until then). */
 export const RECORDED_ROWS = ['Deed recorded', 'Deed or certificate recorded', 'Treasurer’s deed recorded', 'Certificate of sale recorded', 'Certificate of sale received'];
 /** Windows that end on their own (no one acted in time): past their date, they ended; they weren't missed. */
-const WINDOWS: [string, string, string][] = [
-  ['Redemption period ends', 'the redemption period', 'if no one redeemed, mark it handled and ask for the deed'],
-  ['Challenge window ends', 'the challenge window', 'if no one sued, mark it handled'],
-  ['Recovery-suit window ends', 'the recovery-suit window', 'if no one sued, mark it handled'],
-  ['Earliest you may act (unpaid lien)', 'the wait before you may act on an unpaid lien', 'if it’s still unpaid, ask your attorney about your next step, or mark it handled'],
+const WINDOWS: { name: string; what: string; then: (kind?: string) => string; tick?: string }[] = [
+  { name: 'Redemption period ends', what: 'the redemption period', tick: 'No one redeemed: mark it handled',
+    then: (k) => `ask ${k === 'court' ? 'the sheriff’s civil office' : k === 'hoa' ? 'the HOA’s foreclosure agent' : k === 'irs' ? 'the IRS sale officer' : 'whoever ran the sale'} in writing whether anyone redeemed. If no one did, mark it handled and ask for the deed` },
+  { name: 'Challenge window ends', what: 'the challenge window', tick: 'No suit was filed: mark it handled', then: () => 'ask your title company or attorney whether any suit was filed. If not, mark it handled' },
+  { name: 'Recovery-suit window ends', what: 'the recovery-suit window', tick: 'No suit was filed: mark it handled', then: () => 'ask your title company or attorney whether any suit was filed. If not, mark it handled' },
+  { name: 'Earliest you may act (unpaid lien)', what: 'the wait before you may act on an unpaid lien', then: () => 'if it’s still unpaid, ask your attorney about your next step, or mark it handled' },
 ];
 /** A window past its date: `text` for a sentence ("the challenge window ended 3 days ago"), `short` for a list. */
-export const windowEnded = (what: string, daysAgo: number): { text: string; short: string; then: string } | null => {
-  const w = WINDOWS.find(([n]) => sameDate(what, n));
+export const windowEnded = (what: string, daysAgo: number, kind?: string): { text: string; short: string; then: string; tick?: string } | null => {
+  const w = WINDOWS.find((x) => sameDate(what, x.name));
   const ago = `ended ${daysAgo} day${daysAgo === 1 ? '' : 's'} ago`;
-  return w ? { text: `${w[1]} ${ago}`, short: ago, then: w[2] } : null;
+  return w ? { text: `${w.what} ${ago}`, short: ago, then: w.then(kind), tick: w.tick } : null;
 };
 export const calendarReady = (p: PacketData, stage: string) => p.dates.length > 0 && calendarRows(p, stage).every(dateRowComplete);
 export const calendarComplete = (p: PacketData, stage: string) => p.calendarReviewedFor === stage && calendarReady(p, stage);
@@ -367,24 +368,24 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   // deed is recorded (90 days after the sale for someone who didn't get proper notice); after that, the failure doesn't
   // affect a bona fide purchaser (NRS 107.080(5)-(7)).
   if (d.kind === 'trustee' && d.state === 'NV') return [
-    { what: 'Registration (if required)', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay (usually cashier’s checks for the full bid at the sale).', missed: 'You may not be able to bid.' },
+    { what: 'Bidder registration (if required)', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay (usually cashier’s checks for the full bid at the sale).', missed: 'You may not be able to bid.' },
     ...names(['Sale day', 'Payment deadline']),
     { what: 'Deed recorded', when: 'The trustee records the deed within 30 days after the sale, or gives it to you within 20 days; then you must record it within 10 days of receiving it.', who: 'The trustee, or you if the trustee gives you the deed', todo: 'Ask the trustee which it will do. If you record it, post a copy on the property within 5 days after recording (your title company or attorney can arrange it).', missed: 'You can be liable for up to $500 plus damages and attorney’s fees, and the challenge window below starts only once the deed is recorded.', why: 'NRS 107.080(10) to (12)' },
     { what: 'Challenge window ends', when: '30 days after the trustee’s deed is recorded (90 days after the sale for someone who didn’t get proper notice).', who: 'The former owner, or anyone entitled to notice of the sale', todo: 'Record your deed right away, and hold off on repairs and new contracts until it passes; ask your title company whether it will insure before then.', missed: 'After it, a failure to follow the law in the sale no longer affects a bona fide purchaser’s rights.*', why: 'NRS 107.080(5)-(7)' },
     ...names([...(typedWait(d) ? ['Redemption period ends'] : [])])];
   if (d.kind === 'trustee' && d.state === 'TX') return [
-    { what: 'Registration (if required)', when: 'Ask the trustee before the sale.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay (the price is due without delay when your bid is accepted).', missed: 'You may not be able to bid.' },
+    { what: 'Bidder registration (if required)', when: 'Ask the trustee before the sale.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay (the price is due without delay when your bid is accepted).', missed: 'You may not be able to bid.' },
     ...names(['Sale day', 'Payment deadline']),
     { what: 'Rescission window ends', when: 'For a home of 1 to 4 units, a condo or a co-op unit: within 15 days after the sale.', who: 'The lender (mortgagee), the trustee or a substitute trustee', todo: 'Hold off on repairs and new contracts until it passes. The reasons the law lists include: the sale’s legal requirements weren’t met, the default was cured before the sale, or a bankruptcy stay was in effect.', missed: 'A notice mailed and recorded by day 15 counts even if it reaches you later; after that, the sale can’t be rescinded under that law.*', why: 'Property Code 51.016' },
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
-  if (d.kind === 'trustee' && d.state === 'CA') return [{ what: 'Registration (if required)', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline']),
+  if (d.kind === 'trustee' && d.state === 'CA') return [{ what: 'Bidder registration (if required)', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline']),
     { what: 'Intent-to-bid window ends', when: 'For a home of 1–4 units: 15 days after the sale.', who: 'Eligible bidders (such as tenants and some buyers who will live there)', todo: 'Watch for a notice that one of them intends to bid; until then your win isn’t final.', missed: 'If none gives notice in time, your win stands, unless an exception applies.*', why: 'Civil Code 2924m, in effect until January 1, 2031' },
     { what: 'Eligible bid deadline (45 days)', when: 'For a home of 1–4 units: 45 days after the sale, if one gave notice of intent.', who: 'The eligible bidder who gave notice', todo: 'Plan for the chance that a higher eligible bid replaces yours.', missed: 'If no qualifying bid arrives in time, your win stands.', why: 'Civil Code 2924m, in effect until January 1, 2031' },
     ...names(['Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   // (A trustee's sale lists registration only if the trustee requires one: the statutes set no registration step.)
-  if (d.kind === 'trustee') return [{ what: 'Registration (if required)', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline', 'Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
+  if (d.kind === 'trustee') return [{ what: 'Bidder registration (if required)', when: 'Ask the trustee before the sale; each trustee sets its own terms.', who: 'You, with the trustee', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }, ...names(['Sale day', 'Payment deadline', 'Deed recorded', ...(typedWait(d) ? ['Redemption period ends'] : [])])];
   const certFirst = d.kind === 'irs' ? savedRule({ ...d, plan: 'flip' }) !== 'none' : d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court');
-  const out = [d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court') ? 'Registration (if required)' : 'Bidder registration deadline', 'Sale day', 'Payment deadline', d.kind === 'irs' && certFirst ? 'Certificate of sale received' : certFirst ? 'Certificate of sale recorded' : 'Deed or certificate recorded'];
+  const out = [d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court') ? 'Bidder registration (if required)' : 'Bidder registration deadline', 'Sale day', 'Payment deadline', d.kind === 'irs' && certFirst ? 'Certificate of sale received' : certFirst ? 'Certificate of sale recorded' : 'Deed or certificate recorded'];
   const nvCert = d.kind === 'irs' && certFirst
     ? { what: 'Certificate of sale received', when: 'When you pay the full price.', who: 'The IRS', todo: 'Keep it safe: you hand it in for the deed.', missed: 'Ask the IRS sale officer.', why: '26 U.S.C. 6338(a)' }
     : d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court')
@@ -412,8 +413,8 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
     : d.state === 'TX' && d.kind === 'taxSale' && ownerRule
       ? { what: 'Redemption period ends', when: '180 days, or 2 years for the owner’s home (homestead), land designated for agricultural use or a mineral interest, counted from the day your deed is recorded, not from sale day.', who: 'The former owner', todo: 'Secure, insure and maintain the property; hold off on remodeling until it ends.', missed: 'After it ends, the owner can no longer redeem under that law.*', why: 'Tax Code 34.21' }
       : null);
-  const hoaReg = d.state === 'NV' && d.kind === 'hoa' ? { what: 'Registration (if required)', when: 'Ask the HOA’s foreclosure agent before the sale; each sets its own terms.', who: 'You, with the HOA’s foreclosure agent', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }
-    : d.state === 'NV' && d.kind === 'court' ? { what: 'Registration (if required)', when: 'Ask the sheriff’s civil office before the sale.', who: 'You, with the sheriff’s civil office', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' } : null;
+  const hoaReg = d.state === 'NV' && d.kind === 'hoa' ? { what: 'Bidder registration (if required)', when: 'Ask the HOA’s foreclosure agent before the sale; each sets its own terms.', who: 'You, with the HOA’s foreclosure agent', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' }
+    : d.state === 'NV' && d.kind === 'court' ? { what: 'Bidder registration (if required)', when: 'Ask the sheriff’s civil office before the sale.', who: 'You, with the sheriff’s civil office', todo: 'Confirm how to bid and pay.', missed: 'You may not be able to bid.' } : null;
   return names(out).map((g) => (hoaReg && g.what === hoaReg.what ? hoaReg : ends && g.what === 'Redemption period ends' ? ends : nvCert && g.what === nvCert.what ? nvCert : deedRow && g.what === deedRow.what ? deedRow : g));
 }
 
@@ -786,7 +787,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
 
   // 3. Key dates
   const early = ['researching', 'offer'].includes(stageOf(d));
-  const nd = nextDate(remindable(p, now, early), now);
+  const nd = nextDate(remindable(p, now, early, behindStage(d, stageOf(d))), now);
   const openAfter = early && p.dates.some((x) => x.when && !x.resolved && afterSale(x.what));
   const dated = p.dates.filter((x) => x.when);
   const undatedDone = p.dates.filter((x) => !x.when && x.resolved && x.what.trim());
@@ -795,7 +796,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     title: 'Key dates',
     status: calendarComplete(p, stageOf(d)) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length || undatedDone.length
-      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days) ? `${windowEnded(nd.what, -nd.days)!.short} (${windowEnded(nd.what, -nd.days)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : (openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
+      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days, d.kind) ? `${windowEnded(nd.what, -nd.days, d.kind)!.short} (${windowEnded(nd.what, -nd.days, d.kind)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : (openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
       : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' ? 'official notice (the eligible-bidder windows count from the sale day, for homes of 1–4 units)' : d.kind === 'trustee' && d.state === 'NV' ? 'official notice (the challenge window counts from the day the trustee’s deed is recorded)' : d.kind === 'trustee' && d.state === 'TX' ? 'official notice (the rescission window counts from the sale day)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
   });
 

@@ -39,19 +39,23 @@ function SoldForm({ o, put }: { o: Owned; put: (next: Owned | null) => void }) {
   const [on, setOn] = useState(o.sold?.on ?? today());
   const [price, setPrice] = useState(o.sold ? String(o.sold.price) : '');
   const p = parseCalcInput(price);
+  // A misplaced comma ("430,00") would record a price ten times off: refused, as in the monthly form.
+  const [priceFocus, setPriceFocus] = useState(false);
+  const priceBad = price.trim() !== '' && !!calculatorInputError(price, '$');
+  const priceWhy = price.trim() === '' ? 'Enter the sale price.' : priceBad ? (priceFocus && midNumber(price) ? '' : 'Check the sale price: use commas only between thousands, like 430,000.') : !(p > 0) ? 'Enter the sale price.' : '';
   const dateOk = /^\d{4}-\d{2}-\d{2}$/.test(on);
   // A closing that hasn't happened yet, or before you bought it, doesn't finish the deal.
   const dateWhy = !dateOk ? 'Enter the closing date.' : on > today() ? 'Record the sale once it has closed: the closing date can’t be in the future.' : on < o.boughtOn ? `The closing date can’t be before you bought it (${o.boughtOn}).` : '';
-  const ok = dateOk && !dateWhy && Number.isFinite(p) && p > 0;
+  const ok = dateOk && !dateWhy && !priceBad && Number.isFinite(p) && p > 0;
   if (o.sold) return <p className="notice" id="owned-sold" tabIndex={-1} role="status">Sold on {o.sold.on} for {fmtMoney(o.sold.price)}. Compare it with the walk-away price in your Fix and sell numbers, and keep the closing statement for your taxes. <button type="button" className="linkish" onClick={() => { const { sold: _sold, ...rest } = o; put(rest); setTimeout(() => document.getElementById('owned-sold-on')?.focus(), 0); }}>Undo</button></p>;
   return (
     <>
       <div className="row owned-add">
         <label className="field"><span>Sold on (closing date)</span><input id="owned-sold-on" type="date" value={on} max={today()} min={o.boughtOn} aria-describedby={dateWhy ? 'owned-sold-why' : undefined} onChange={(e) => setOn(e.target.value)} /></label>
-        <label className="field"><span>Sale price ($)</span><input type="text" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} /></label>
+        <label className="field"><span>Sale price ($)</span><input type="text" inputMode="decimal" value={price} aria-invalid={(priceBad && !(priceFocus && midNumber(price))) || undefined} aria-describedby={dateWhy || priceWhy ? 'owned-sold-why' : undefined} onFocus={() => setPriceFocus(true)} onBlur={() => setPriceFocus(false)} onChange={(e) => setPrice(e.target.value)} /></label>
         <button type="button" className="btn btn-secondary" disabled={!ok} onClick={() => { put({ ...o, sold: { on, price: p } }); setTimeout(() => document.getElementById('owned-sold')?.focus(), 0); }}>It sold: record the sale</button>
       </div>
-      {dateWhy && <p className="caution small" id="owned-sold-why" role="status">{dateWhy}</p>}
+      {(dateWhy || priceWhy) && <p className="muted small" id="owned-sold-why" role="status">{dateWhy || priceWhy}</p>}
     </>
   );
 }
@@ -110,7 +114,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     <div>
       <p className="muted">{flip ? (budgetLine ?? 'Record what you pay each month, with $0 rent, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : projected === null ? 'Renting it out? Save this deal’s numbers in Keep and rent to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : `You planned on ${signed(projected)} a month of cash flow.`}</p>
       <div className="row owned-add">
-        <label className="field"><span>Bought on</span><input id="owned-bought-on" type="date" value={o.boughtOn} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
+        <label className="field"><span>Bought on</span><input id="owned-bought-on" type="date" value={o.boughtOn} max={o.sold?.on ?? today()} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && !(o.sold && e.target.value > o.sold.on) && put({ ...o, boughtOn: e.target.value })} /></label>
         <label className="field"><span>Month</span><input id="owned-month" type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></label>
         <label className="field"><span>Rent collected ($)</span><input type="text" inputMode="decimal" value={rent} aria-invalid={showBad(rent, 'rent') || undefined} onFocus={() => setFocusBox('rent')} onBlur={() => setFocusBox(null)} onChange={(e) => setRent(e.target.value)} /></label>
         <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} aria-invalid={showBad(costs, 'costs') || undefined} onFocus={() => setFocusBox('costs')} onBlur={() => setFocusBox(null)} onChange={(e) => setCosts(e.target.value)} /></label>
@@ -135,7 +139,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
             <tbody>
               {o.months.map((m) => (
                 <tr key={m.month}>
-                  <td>{m.month}</td><td>{fmtMoney(m.rent)}</td><td>{fmtMoney(m.costs)}</td><td>{signed(m.rent - m.costs)}</td><td>{m.note}</td>
+                  <td data-label="Month">{m.month}</td><td data-label="Rent">{fmtMoney(m.rent)}</td><td data-label="Paid">{fmtMoney(m.costs)}</td><td data-label="Cash flow">{signed(m.rent - m.costs)}</td><td data-label={m.note ? 'Note' : ''}>{m.note}</td>
                   <td><button type="button" className="linkish" aria-label={`Remove ${m.month}`} onClick={() => put({ ...o, months: o.months.filter((x) => x.month !== m.month) })}>Remove</button></td>
                 </tr>
               ))}
@@ -151,7 +155,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
           <SoldForm o={o} put={put} />
         </>
       )}
-      <p><button type="button" className="linkish" onClick={() => { if (window.confirm('Stop tracking this property and delete its monthly records?')) put(null); }}>I didn’t buy it, stop tracking</button></p>
+      {!o.sold && <p><button type="button" className="linkish" onClick={() => { if (window.confirm('Stop tracking this property and delete its monthly records?')) put(null); }}>I didn’t buy it, stop tracking</button></p>}
     </div>
   );
 }

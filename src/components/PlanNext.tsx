@@ -7,6 +7,8 @@ import { setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask 
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
+import { loadPacket, savePacket } from '../lib/dealPacket';
+import TaskActions from './TaskActions';
 import { guidedPracticeDone, practiceState, planNow, planStarted, roadmapNextStep, ROADMAP_TASK_HREF } from '../lib/planNext';
 import { stepAdCategories, stepAllowsAds } from '../lib/contextAds';
 import { useSpotCategories } from './AdSpot';
@@ -168,9 +170,8 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           <h3>{task.label}</h3>
           <p className="plan-now-produces"><strong>You’ll have:</strong> {task.produces}.</p>
           <div className="plan-now-actions">
-            <ContinueButton task={task} dealId={deal?.id} onPlan={onPlan} label={planStarted(now) ? undefined : 'Start'} />
-            {task.advance && deal && <button type="button" className="btn btn-secondary" onClick={(e) => { const box = e.currentTarget.closest('.plan-now-actions')?.parentElement; setDealStage(deal.id, task.advance!.stage); focusTaskIn(box); }}>{task.advance.label}</button>}
-            {task.advance2 && deal && <button type="button" className="btn btn-secondary" onClick={(e) => { const box = e.currentTarget.closest('.plan-now-actions')?.parentElement; setDealStage(deal.id, task.advance2!.stage); focusTaskIn(box); }}>{task.advance2.label}</button>}
+            {!(task.answer && deal) && <ContinueButton task={task} dealId={deal?.id} onPlan={onPlan} label={planStarted(now) ? undefined : 'Start'} />}
+            {deal && <TaskActions task={task} dealId={deal.id} big edit={(f) => { const k = `analyzed:${deal.id}`; savePacket(k, f(loadPacket(k))); progressChanged(); }} after={(el) => focusTaskIn(el.closest('.plan-now-actions')?.parentElement)} />}
           </div>
           {task.support.length > 0 && (
             <details className="plan-now-support"><summary>Help with this step</summary><p>

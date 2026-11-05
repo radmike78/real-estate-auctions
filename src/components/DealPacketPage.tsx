@@ -14,9 +14,10 @@ import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
 import { DEAL_STAGES, type DealStage } from '../lib/analyze';
-import { dealNextTask, setDealStage, stageHint, stageLabel, stageOf } from '../lib/dealStage';
+import { dealNextTask, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { planNow } from '../lib/planNext';
+import TaskActions from './TaskActions';
 import { OWNED_EVENT } from '../lib/owned';
 
 const STATUS_LABEL: Record<SectionStatus, string> = { done: 'Complete', started: 'In progress', missing: 'Missing' };
@@ -116,18 +117,17 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
             {DEAL_STAGES.map((st) => <option key={st} value={st}>{stageLabel(st, deal)}</option>)}
           </select>
         </label>
-        <p className="muted">{stageHint(stage, deal)} {(() => { const plan = planNow(); return plan.source === 'deal' && plan.deal?.id === deal.id ? 'The stage picks the next action here and in My plan.' : stage === 'passed' ? 'The stage picks the next action here.' : <>The stage picks the next action here. <a href="#/toolkit">My plan</a> {plan.source === 'deal' ? 'is working on another property' : 'shows the lessons and practice first'}; choose this property there to work on it now.</>; })()}</p>
+        <p className="muted">{stageHint(stage, deal)} {(() => { const plan = planNow(); return plan.source === 'deal' && plan.deal?.id === deal.id ? 'The stage picks the next action here and in My plan.' : stage === 'passed' || soldOf(deal) ? 'The stage picks the next action here.' : <>The stage picks the next action here. <a href="#/toolkit">My plan</a> {plan.source === 'deal' ? 'is working on another property' : 'shows the lessons and practice first'}; choose this property there to work on it now.</>; })()}</p>
       </div>
       <div className="packet-next">
         <strong id="packet-next-head" tabIndex={-1}>Your next action</strong>
         <p>{next.label}{next.urgent ? '' : <>{/[?.!]$/.test(next.label) ? '' : '.'} <span className="muted">You’ll have {next.produces}.</span></>}{' '}
           {next.openDeal ? <a href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(deal); }}>Open in Analyze&nbsp;→</a>
             : next.setStage ? <button type="button" className="linkish" onClick={() => { setDealStage(deal.id, next.setStage!); focusNext(); }}>Do it now&nbsp;→</button>
-            : !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there&nbsp;→</a> : null}
+            : !next.answer && !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there&nbsp;→</a> : null}
         </p>
-        {(next.advance || next.advance2) && <div className="packet-next-actions">
-          {next.advance && <button type="button" className="btn btn-secondary" onClick={() => { setDealStage(deal.id, next.advance!.stage); focusNext(); }}>{next.advance.label}</button>}
-          {next.advance2 && <button type="button" className="btn btn-secondary" onClick={() => { setDealStage(deal.id, next.advance2!.stage); focusNext(); }}>{next.advance2.label}</button>}
+        {(next.advance || next.advance2 || next.tick) && <div className="packet-next-actions">
+          <TaskActions task={next} dealId={deal.id} edit={(f) => setP((cur) => { const n = f(cur); savePacket(key, n); return n; })} after={() => focusNext()} />
         </div>}
       </div>
       <div className="row packet-actions">
@@ -162,9 +162,9 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <ul className="packet-dates">
           {p.dates.map((x, i) => (
             <li key={i}>
-              <textarea className="packet-what" rows={1} ref={growToFit} onInput={(e) => growToFit(e.currentTarget)} aria-label={`Name of date ${i + 1}`} maxLength={200} value={x.what} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, what: e.target.value.replace(/\n/g, ' '), resolved: false } : y)) })} />
-              <input type="date" aria-label={`Date: ${x.what || 'new date'}`} value={x.when} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, when: e.target.value, resolved: y.when ? false : y.resolved } : y)) })} />
-              <input aria-label={`Who handles ${x.what || 'this date'}`} placeholder="Who" maxLength={120} value={x.who} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, who: e.target.value, resolved: false } : y)) })} />
+              <label className="packet-f packet-what-f"><span aria-hidden="true">What</span><textarea className="packet-what" rows={1} ref={growToFit} onInput={(e) => growToFit(e.currentTarget)} aria-label={`Name of date ${i + 1}`} maxLength={200} value={x.what} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, what: e.target.value.replace(/\n/g, ' '), resolved: false } : y)) })} /></label>
+              <label className="packet-f"><span aria-hidden="true">Date</span><input type="date" aria-label={`Date: ${x.what || 'new date'}`} value={x.when} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, when: e.target.value, resolved: y.when ? false : y.resolved } : y)) })} /></label>
+              <label className="packet-f"><span aria-hidden="true">Who handles it</span><input aria-label={`Who handles ${x.what || 'this date'}`} placeholder="Who" maxLength={120} value={x.who} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, who: e.target.value, resolved: false } : y)) })} /></label>
               <label><input type="checkbox" aria-label={`${x.what || 'This date'}: handled`} checked={!!x.resolved} onChange={(e) => update({ dates: p.dates.map((y, j) => j === i ? { ...y, resolved: e.target.checked } : y) }, false)} /> Handled</label>
               <button type="button" className="linkish" aria-label={`Remove ${x.what || 'date'}`} onClick={() => update({ dates: p.dates.filter((_, j) => j !== i) })}>Remove</button>
             </li>
@@ -254,13 +254,13 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <ul className="packet-qa">
           {p.qa.map((x, i) => (
             <li key={i}>
-              <select aria-label="Professional" value={x.role} onChange={(e) => update({ qa: p.qa.map((y, j) => (j === i ? { ...y, role: e.target.value } : y)) })}>
+              <label className="packet-f"><span aria-hidden="true">Professional</span><select aria-label="Professional" value={x.role} onChange={(e) => update({ qa: p.qa.map((y, j) => (j === i ? { ...y, role: e.target.value } : y)) })}>
                 {TEAM_ROLES.map((r) => <option key={r} value={r}>{roleTitleFor(deal, r)}</option>)}
                 <option value="other">Other</option>
-              </select>
-              <textarea aria-label="Your question" rows={2} maxLength={500} placeholder="Your question" value={x.q} onChange={(e) => update({ qa: p.qa.map((y, j) => (j === i ? { ...y, q: e.target.value } : y)) })} />
-              <textarea aria-label="Their answer" rows={2} maxLength={1000} placeholder="Their answer" value={x.a} onChange={(e) => update({ qa: p.qa.map((y, j) => (j === i ? { ...y, a: e.target.value } : y)) })} />
-              <input type="date" aria-label="Date answered" value={x.on} onChange={(e) => update({ qa: p.qa.map((y, j) => (j === i ? { ...y, on: e.target.value } : y)) })} />
+              </select></label>
+              <label className="packet-f"><span aria-hidden="true">Your question</span><textarea aria-label="Your question" rows={2} maxLength={500} placeholder="Your question" value={x.q} onChange={(e) => update({ qa: p.qa.map((y, j) => (j === i ? { ...y, q: e.target.value } : y)) })} /></label>
+              <label className="packet-f"><span aria-hidden="true">Their answer</span><textarea aria-label="Their answer" rows={2} maxLength={1000} placeholder="Their answer" value={x.a} onChange={(e) => update({ qa: p.qa.map((y, j) => (j === i ? { ...y, a: e.target.value } : y)) })} /></label>
+              <label className="packet-f"><span aria-hidden="true">Answered on</span><input type="date" aria-label="Date answered" value={x.on} onChange={(e) => update({ qa: p.qa.map((y, j) => (j === i ? { ...y, on: e.target.value } : y)) })} /></label>
               <button type="button" className="linkish" aria-label="Remove this question" onClick={() => update({ qa: p.qa.filter((_, j) => j !== i) })}>Remove</button>
             </li>
           ))}

@@ -352,7 +352,8 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
       <DrillDown sections={s} active={section} baseHref={base} label={`${p.short} guide`} />
       {!open && (
         <section className="guide-group" aria-labelledby="glance-head">
-          <h2 id="glance-head" className="section-title">The key facts</h2>
+          <h2 id="glance-head" className="section-title">The key facts{stateOf(p) === 'NV' && ['tax', 'sid', 'sheriff'].includes(p.key) ? ': Clark County' : ''}</h2>
+          {stateOf(p) === 'NV' && ['tax', 'sid', 'sheriff'].includes(p.key) && (() => { const ld = forLienDeal ? practiceLienDeal() : null; const a = ld ? { state: ld.state, county: ld.county } : myArea; return a?.state === 'NV' && a.county && a.county !== 'Clark' ? <p className="muted">{a.county === 'Carson City' ? 'Carson City' : `${a.county} County`}’s own dates, deposits and payment rules may differ: see the note at the top and its official page.</p> : null; })()}
           <dl className="glance-facts guide-facts">
             {p.glance.filter((g) => g.label !== 'What you get').map((g) => <div key={g.label}><dt>{g.label}</dt><dd><Cited text={withPeriod(g.value)} plain={boldNumbers} /></dd></div>)}
           </dl>

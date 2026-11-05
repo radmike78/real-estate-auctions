@@ -10,7 +10,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-11-05",
-    "hash": "5c35e29a06a79215",
+    "hash": "7caaa9ae9cb11770",
     "note": "Reviewed 2026-11-01 (rounds 33-40): rent calculator example value and refinance sizing restored; county property tax rates from official state sources; one shared rule each for the Keep and rent verdict and for 'no realistic price fits your cash' across Analyze, My deals and the packet; plan-cash and typed-0 cash handling; living-there wording and per-state owner-occupant tax notes (CA BOE, Utah Code 59-2-103/103.5 confirmed); lien legal-rate warnings (A.R.S. 42-18053, NRS 271.610); mortgage insurance note (HUD ML 2023-05); commercial routing and contract dates. Each change checked by unit tests, browser runs at 360-1900px in light and dark, and an independent verification pass."
   },
   {
@@ -118,7 +118,7 @@
       "src/lib/saleDocs.ts"
     ],
     "reviewed": "2026-11-05",
-    "hash": "1eafc05c7753fc33",
+    "hash": "fb6b1c42122c5c3c",
     "note": "Reviewed 2026-11-01 (rounds 33-40): rent calculator example value and refinance sizing restored; county property tax rates from official state sources; one shared rule each for the Keep and rent verdict and for 'no realistic price fits your cash' across Analyze, My deals and the packet; plan-cash and typed-0 cash handling; living-there wording and per-state owner-occupant tax notes (CA BOE, Utah Code 59-2-103/103.5 confirmed); lien legal-rate warnings (A.R.S. 42-18053, NRS 271.610); mortgage insurance note (HUD ML 2023-05); commercial routing and contract dates. Each change checked by unit tests, browser runs at 360-1900px in light and dark, and an independent verification pass."
   },
   {
@@ -146,7 +146,7 @@
       "src/practice/dealJourney.ts"
     ],
     "reviewed": "2026-11-05",
-    "hash": "1d22e6904fd287e1",
+    "hash": "69ee5f34b3e95af4",
     "note": "Reviewed 2026-11-01 (rounds 33-40): rent calculator example value and refinance sizing restored; county property tax rates from official state sources; one shared rule each for the Keep and rent verdict and for 'no realistic price fits your cash' across Analyze, My deals and the packet; plan-cash and typed-0 cash handling; living-there wording and per-state owner-occupant tax notes (CA BOE, Utah Code 59-2-103/103.5 confirmed); lien legal-rate warnings (A.R.S. 42-18053, NRS 271.610); mortgage insurance note (HUD ML 2023-05); commercial routing and contract dates. Each change checked by unit tests, browser runs at 360-1900px in light and dark, and an independent verification pass."
   },
   {
@@ -163,7 +163,7 @@
       "src/lib/holdCalc.ts"
     ],
     "reviewed": "2026-11-05",
-    "hash": "d7609c705a02e562",
+    "hash": "98de34e6942e79d5",
     "note": "Reviewed 2026-11-01 (rounds 33-40): rent calculator example value and refinance sizing restored; county property tax rates from official state sources; one shared rule each for the Keep and rent verdict and for 'no realistic price fits your cash' across Analyze, My deals and the packet; plan-cash and typed-0 cash handling; living-there wording and per-state owner-occupant tax notes (CA BOE, Utah Code 59-2-103/103.5 confirmed); lien legal-rate warnings (A.R.S. 42-18053, NRS 271.610); mortgage insurance note (HUD ML 2023-05); commercial routing and contract dates. Each change checked by unit tests, browser runs at 360-1900px in light and dark, and an independent verification pass."
   },
   {
@@ -180,7 +180,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-11-05",
-    "hash": "01d0b11761635e09",
+    "hash": "4065b27da741f769",
     "note": "Reviewed 2026-11-01 (rounds 33-40): rent calculator example value and refinance sizing restored; county property tax rates from official state sources; one shared rule each for the Keep and rent verdict and for 'no realistic price fits your cash' across Analyze, My deals and the packet; plan-cash and typed-0 cash handling; living-there wording and per-state owner-occupant tax notes (CA BOE, Utah Code 59-2-103/103.5 confirmed); lien legal-rate warnings (A.R.S. 42-18053, NRS 271.610); mortgage insurance note (HUD ML 2023-05); commercial routing and contract dates. Each change checked by unit tests, browser runs at 360-1900px in light and dark, and an independent verification pass."
   },
   {
@@ -421,7 +421,7 @@
       "src/lib/dealStage.ts"
     ],
     "reviewed": "2026-11-05",
-    "hash": "8b284b13a11ed255",
+    "hash": "8e30be88eba7574c",
     "note": "Reviewed 2026-11-01 (rounds 33-40): rent calculator example value and refinance sizing restored; county property tax rates from official state sources; one shared rule each for the Keep and rent verdict and for 'no realistic price fits your cash' across Analyze, My deals and the packet; plan-cash and typed-0 cash handling; living-there wording and per-state owner-occupant tax notes (CA BOE, Utah Code 59-2-103/103.5 confirmed); lien legal-rate warnings (A.R.S. 42-18053, NRS 271.610); mortgage insurance note (HUD ML 2023-05); commercial routing and contract dates. Each change checked by unit tests, browser runs at 360-1900px in light and dark, and an independent verification pass."
   },
   {

@@ -230,7 +230,7 @@ describe('the deal packet', () => {
     expect(rentWaitNote('NV', 'trustee')).toBeNull();
     // A Nevada bank-owned home: the foreclosure exemption and the lender's defect notice (NRS 113.130(2)(a), (4)); an HOA sale's registration is "if required".
     expect(dateGuide({ ...deal, state: 'NV', kind: 'reo' }).find((g) => g.what === 'Seller’s disclosure form due')?.why).toBe('NRS 113.130(2)(a) and (4), 113.150(1)');
-    expect(dateGuide({ ...deal, state: 'NV', kind: 'hoa' }).find((g) => g.what === 'Registration (if required)')?.who).toBe('You, with the HOA’s foreclosure agent');
+    expect(dateGuide({ ...deal, state: 'NV', kind: 'hoa' }).find((g) => g.what === 'Bidder registration (if required)')?.who).toBe('You, with the HOA’s foreclosure agent');
     // An auction's dates follow the official notice (a contract only on an offer).
     const { dealPacketText } = await import('./dealPacket');
     expect(dealPacketText({ ...deal, state: 'CA', kind: 'trustee' }, EMPTY_PACKET, now)).toContain('What the less familiar dates mean (the official notice wins):');

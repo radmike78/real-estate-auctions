@@ -579,7 +579,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const groups0 = withTaxHint(offer ? forOffer(rt.groups) : rt.groups);
   // Living there: that's a rental's rate; a home you live in may get an owner-occupant (homestead) exemption.
   const groups = offer && investorProfile().ownerOccupant
-    ? groups0.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} ${ownerOccupiedTaxNote(region.state)}`.trim() } : f.k === 'insuranceYear' ? { ...f, hint: 'A policy for a home you live in that has rented units: tell the insurer how many units you rent out.*' } : f)) }))
+    ? groups0.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} ${ownerOccupiedTaxNote(region.state)}`.trim() } : f.k === 'insuranceYear' ? { ...f, hint: 'A policy for a home you live in that has rented units: tell the insurer how many units you rent out.*' } : f.k === 'repairs' ? { ...f, hint: 'To make it ready to move in.' } : f.k === 'monthlyRent' ? { ...f, hint: '0, or only the rent from space you’ll rent out.' } : f.k === 'cashAvailable' ? { ...f, hint: 'All the cash you can put in: the price and every cost until you move in. Leave 0 for no limit.' } : f)) }))
     : groups0;
   // Numbers from your plan or the property (`start`) aren't our examples.
   const still = exampleLabels(visibleFields(groups, v), v, examples, typedKeys, new Set([...NOT_EXAMPLES, ...Object.keys(start)]));

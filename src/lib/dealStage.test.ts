@@ -414,17 +414,24 @@ describe('Nevada round 4 flow', () => {
     expect(windowEnded('Challenge window ends', 27)!.text).toBe('the challenge window ended 27 days ago');
     expect(windowEnded('Sale day', 2)).toBeNull();
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-08', what: 'Challenge window ends', who: 'Title company' }] };
-    expect(dealNextTask({ ...nvFlip, stage: 'closed' }, p, now, 'closed').label).toBe('The challenge window ended 28 days ago: if no one sued, mark it handled.');
+    expect(dealNextTask({ ...nvFlip, stage: 'closed' }, p, now, 'closed').label).toBe('The challenge window ended 28 days ago: ask your title company or attorney whether any suit was filed. If not, mark it handled.');
   });
 
   it('drops past registration and signing rows once they’re behind you, and keeps “It was redeemed” in the last week', () => {
-    const won = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Registration (if required)', who: 'me' }, { when: '2026-10-02', what: 'Sale day', who: '' }, { when: '2026-10-05', what: 'Payment deadline', who: 'Trustee' }] };
+    const won = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Bidder registration (if required)', who: 'me' }, { when: '2026-10-02', what: 'Sale day', who: '' }, { when: '2026-10-05', what: 'Payment deadline', who: 'Trustee' }] };
     expect(dealNextTask(nvFlip, won, now, 'contract').label).toMatch(/^Overdue by 1 day: Payment deadline/);
     const signed = { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'Contract signed', who: 'Agent' }] };
     expect(dealNextTask({ ...nvFlip, kind: 'short', plan: 'rent' }, signed, now, 'contract').label).toMatch(/^Send the earnest money/);
     const hoa = { ...nvFlip, kind: 'hoa' as const };
     const wait = { ...EMPTY_PACKET, dates: [{ when: '2026-10-09', what: 'Redemption period ends', who: 'Former owner' }] };
-    expect(dealNextTask(hoa, wait, now, 'closed').advance2?.stage).toBe('passed');
+    const t = dealNextTask(hoa, wait, now, 'closed');
+    expect(t.advance2?.addRow?.what).toBe('Redemption money collected');
+    // It was redeemed: the payoff comes first, and finishes as "Redeemed (repaid)".
+    const red = { ...wait, dates: [...wait.dates, t.advance2!.addRow!] };
+    const pay = dealNextTask(hoa, red, new Date('2026-10-20T15:00:00Z'), 'closed');
+    expect(pay.key).toBe('payoff');
+    expect(pay.tick).toEqual({ label: 'I was repaid: mark it finished', row: 'Redemption money collected', then: 'passed' });
+    expect(pay.produces).toMatch(/NRS 116\.31166/);
   });
 
   it('counts a ticked Treasurer’s deed row, and words an unpaid lien’s date as a wait that ended', async () => {
@@ -432,6 +439,18 @@ describe('Nevada round 4 flow', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }] };
     expect(stageTasks({ ...nvFlip, kind: 'taxSale' }, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/is recorded/);
     expect(windowEnded('Earliest you may act (unpaid lien)', 6)!.short).toBe('ended 6 days ago');
+  });
+
+  it('links a stage to its own date rows, and asks a Nevada lien buyer whether they were picked', () => {
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'Payment deadline', who: 'Trustee', resolved: true }, { when: '2026-10-07', what: 'Deed recorded', who: 'Trustee' }] };
+    expect(dealNextTask(nvFlip, p, now, 'contract').advance?.label).toBe('The deed is recorded: mark it');
+    // Moved on with the row unticked: no "Overdue: Deed recorded" at Deed recorded.
+    expect(dealNextTask(nvFlip, { ...p, dates: [{ ...p.dates[1], when: '2026-09-20' }] }, now, 'closed').label).not.toMatch(/Deed recorded/);
+    const lien = { ...nvFlip, kind: 'lien' as const, plan: 'lien' as const };
+    const sale = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: '' }] };
+    const t = dealNextTask(lien, sale, now, 'researching');
+    expect(t.label).toMatch(/were you picked\?$/);
+    expect(t.advance?.label).toBe('I was picked: mark it');
   });
 
   it('says so when the deed row is ticked at a win', () => {

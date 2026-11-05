@@ -47,11 +47,14 @@ const AFTER_SALE = ['Certificate of sale recorded', 'Certificate of sale receive
 export const afterSale = (what: string) => AFTER_SALE.some((n) => sameDate(what, n));
 /** The packet's dates that can be a reminder now: before winning, not the post-sale ones; never a sale day that has
  *  passed; and once the deed is ticked, not the redemption period. */
-export const remindable = (p: PacketData, now: Date, early: boolean): PacketData => {
+export const remindable = (p: PacketData, now: Date, early: boolean, behind: string[] = []): PacketData => {
   const deed = ticked(p, DEED_AFTER_WAIT);
   const past = (x: { when: string }) => !!x.when && x.when < localDay(now);
-  return { ...p, dates: p.dates.filter((x) => !(early && afterSale(x.what)) && !(EVENTS.some((n) => sameDate(x.what, n)) && past(x)) && !(!early && BEFORE_SALE.some((n) => sameDate(x.what, n))) && !(deed && sameDate(x.what, 'Redemption period ends'))) };
+  return { ...p, dates: p.dates.filter((x) => !(early && afterSale(x.what)) && !(EVENTS.some((n) => sameDate(x.what, n)) && past(x)) && !(!early && BEFORE_SALE.some((n) => sameDate(x.what, n))) && !((deed || redeemedIn(p)) && sameDate(x.what, 'Redemption period ends')) && !(redeemedIn(p) && sameDate(x.what, DEED_AFTER_WAIT)) && !behind.some((n) => sameDate(x.what, n))) };
 };
+/** The usual dates a stage has put behind you: once it's closed or owned, the ones before closing and the recording rows. */
+export const behindStage = (d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan']; id?: string }, stage: DealStage): string[] =>
+  stage === 'closed' || stage === 'owned' ? suggestedDates(d).filter((n) => !afterSale(n) || RECORDED_ROWS.some((r) => sameDate(n, r))) : [];
 /** Rows that mark an event, not a deadline: once their date has passed, they aren't a reminder. */
 const EVENTS = ['Sale day', 'Contract signed', 'Offer accepted (Day 0)', 'Acceptance (Day 0)', 'Approval notice received'];
 /** Registration rows: past the bidding (won, closed), they're behind you. */
@@ -60,8 +63,17 @@ const BEFORE_SALE = ['Registration', 'Bidder registration'];
 const saleOver = (p: PacketData, now: Date) => p.dates.some((x) => sameDate(x.what, 'Sale day') && (x.when ? x.when < localDay(now) || (!!x.resolved && x.when <= localDay(now)) : !!x.resolved));
 /** A row marked handled, with or without its date (the deed: you have it). */
 const ticked = (p: PacketData, what: string) => p.dates.some((x) => sameDate(x.what, what) && !!x.resolved);
+/** A redemption: the row for its payoff, added by "It was redeemed". */
+export const REDEEMED_ROW = 'Redemption money collected';
+const redeemedIn = (p: PacketData) => p.dates.some((x) => sameDate(x.what, REDEEMED_ROW));
+/** Who pays a redemption's money: you, or the sheriff for you (NRS 21.230(1), (3)); an HOA sale's, you (NRS 116.31166(3));
+ *  an IRS sale's, you, or the IRS if you can't be found in the county (26 U.S.C. 6337(b)(2)). */
+const payoffRow = (d: Pick<Deal, 'kind'>) => ({ when: '', what: REDEEMED_ROW, who: d.kind === 'court' ? 'The person who redeemed, or the sheriff for them' : d.kind === 'irs' ? 'The person who redeemed (the IRS, if you couldn’t be found)' : 'The person who redeemed' });
+const redeemButton = (d: Pick<Deal, 'kind'>) => ({ stage: 'closed' as DealStage, label: 'It was redeemed: collect the payoff', addRow: payoffRow(d) });
 /** A flip's recorded sale (in its packet's owned section). */
-const soldOf = (d: { id?: string }) => (d.id ? loadOwned()[d.id]?.sold : undefined);
+export const soldOf = (d: { id?: string }) => (d.id ? loadOwned()[d.id]?.sold : undefined);
+/** A deal whose redemption payoff is marked collected in its packet. */
+const redeemedOf = (d: { id?: string }) => !!d.id && ticked(loadPacket(`analyzed:${d.id}`), REDEEMED_ROW);
 /** A certificate-first deal whose deed row is ticked in its packet. */
 const deedInHand = (d: { kind: Deal['kind']; state?: Deal['state']; id?: string; plan?: Deal['plan'] }) => !!d.id && certificateFirst(d) && ticked(loadPacket(`analyzed:${d.id}`), DEED_AFTER_WAIT);
 
@@ -74,7 +86,7 @@ export function stageLabel(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: De
     case 'contract': return w === 'offer' ? 'Under contract' : w === 'lien' && d.state === 'NV' ? 'Picked: paying' : 'Won: paying and recording';
     case 'closed': return w === 'offer' ? 'Closed' : w === 'lien' ? 'Certificate in hand' : certificateFirst(d) && !deedInHand(d) ? (d.kind === 'irs' ? 'Certificate of sale received' : 'Certificate of sale recorded') : 'Deed recorded';
     case 'owned': return w === 'lien' ? 'Holding the certificate' : d.plan === 'flip' ? (soldOf(d) ? 'Sold' : 'Fixing and selling') : liveIn(d) ? 'Living there' : 'Owned and operating';
-    case 'passed': return 'Passed';
+    case 'passed': return redeemedOf(d) ? 'Redeemed (repaid)' : 'Passed';
   }
 }
 
@@ -89,7 +101,7 @@ export function stageHint(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Dea
     case 'contract': return w === 'offer' ? 'The seller accepted your offer. The contract’s deadlines are running.' : w === 'lien' && d.state === 'NV' ? 'You were picked. The payment deadline is running.' : 'You won the bid. Payment and recording deadlines are running.';
     case 'closed': return w === 'offer' ? 'It’s yours: insurance, locks, utilities and repairs come first.' : w === 'lien' ? 'You hold the certificate: track it until it’s paid off.' : deedIn ? 'You have the deed: make sure it’s recorded, get title insurance, then start the repairs.' : certificateFirst(d) ? `A certificate of sale first: insure and maintain it, and hold off on remodeling until the redemption period (${waitWord(d)} after the sale) ends and you have the deed.` : 'The deed is yours: check redemption, possession and title before you remodel.';
     case 'owned': return w === 'lien' ? 'Tracking payoffs, interest and what to do with unpaid liens.' : liveIn(d) ? 'Living there: recording what your home really costs each month.' : d.plan === 'flip' ? (soldOf(d) ? `Sold on ${soldOf(d)!.on} for $${Math.round(soldOf(d)!.price).toLocaleString('en-US')}: compare it with your walk-away price, then find your next property.` : 'Fixing it up and selling it: tracking repair and holding costs against your budget.') : 'Renting or holding it: recording real rent and costs each month.';
-    case 'passed': return certificateFirst(d) ? 'You walked away, were outbid, or it was redeemed and you were repaid. Each is a fine result: find your next property.' : 'You walked away. A good result when the evidence says no.';
+    case 'passed': return redeemedOf(d) ? 'It was redeemed and you were repaid your price plus what the law adds. A fine result: find your next property.' : certificateFirst(d) ? 'You walked away, were outbid, or it was redeemed and you were repaid. Each is a fine result: find your next property.' : 'You walked away. A good result when the evidence says no.';
   }
 }
 
@@ -154,8 +166,12 @@ export interface PlanTask {
   setStage?: DealStage;
   /** A second button for the event that moves the deal on: "The seller accepted: mark it under contract". */
   advance?: { stage: DealStage; label: string };
-  /** The other answer to the same event: "I didn't win: mark it passed". */
-  advance2?: { stage: DealStage; label: string };
+  /** The other answer to the same event: "I didn't win: mark it passed". addRow adds a row to its dates (a redemption's payoff). */
+  advance2?: { stage: DealStage; label: string; addRow?: { when: string; what: string; who: string } };
+  /** The task is a question its buttons answer: no Continue or "Go there" link beside them. */
+  answer?: boolean;
+  /** A button that marks one of its date rows handled (then, optionally, moves the deal on). */
+  tick?: { label: string; row: string; then?: DealStage };
   /** Lessons, practice missions, guides and team pages that help with this task. */
   support: Support[];
   done: boolean;
@@ -296,6 +312,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
         advance: { stage: 'contract', label: w === 'lien' && d.state === 'NV' ? 'I was picked: mark it' : 'I won the bid: mark it won' },
         ...(saleOver(p, now) ? { advance2: { stage: 'passed' as DealStage, label: w === 'lien' && d.state === 'NV' ? 'I wasn’t picked: mark it passed' : 'I didn’t win: mark it passed' } } : {}),
         support: [L.guides, w === 'lien' && d.state === 'NV' ? L.practiceLien : L.practiceAuction],
+        answer: saleOver(p, now),
         done: false,
       });
       if (saleOver(p, now)) out.unshift(bidTask, task({ key: 'lost', label: w === 'lien' && d.state === 'NV' ? `Not picked for ${n}? Mark it passed` : `Didn’t win ${n}? Mark it passed`, produces: 'the deal moved to Passed, with its record kept', href: packetHref(d, 'decision'), setStage: 'passed', done: false }));
@@ -339,14 +356,19 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       out.push(task({ key: 'stage', label: `Mark ${n} as ${stageLabel('owned', d).toLowerCase()}`, produces: 'the holding tasks: payoffs, interest and what to do if it’s never paid', href: ROADMAP_HREF, setStage: 'owned', done: false }));
       return out;
     }
+    // It was redeemed: collect the payoff (your price plus what the law adds), then it's finished.
+    if (certificateFirst(d) && redeemedIn(p)) {
+      out.push(task({ key: 'payoff', label: `Collect the redemption money for ${n}`, produces: `the payoff (your price plus what the law adds) and a receipt. ${d.kind === 'court' ? 'The person who redeemed pays you, or pays the sheriff, who then pays you (NRS 21.230): ask the sheriff’s civil office whether it holds the money.' : d.kind === 'irs' ? 'The person who redeemed pays you; only if you can’t be found in the county is it paid to the IRS for you (26 U.S.C. 6337(b)(2)).' : 'The person who redeemed pays you, and you then sign and give them a certificate of redemption (NRS 116.31166(3), (5)). Ask your attorney to prepare it.'} Then mark it collected`, href: packetHref(d, 'dates'), tick: { label: 'I was repaid: mark it finished', row: REDEEMED_ROW, then: 'passed' }, answer: true, support: [L.pro('attorney')], done: ticked(p, REDEEMED_ROW) }));
+      return out;
+    }
     // A certificate first: insure it on day one, then the wait, then the deed (each done from the packet's dates).
     const firstWeek = task({ key: 'first-week', label: `Your first week with ${n}`, produces: certificateFirst(d) && !deedInHand(d) ? 'insurance in your name and a dated record of its condition; locks, utilities and possession as your attorney advises while the redemption period runs*' : 'insurance in your name, locks changed, utilities on, and a dated record of its condition', href: stepHref('first-week'), support: d.plan === 'flip' ? [L.caseStage('after', 'Your first weeks')] : [L.afterClosing, L.caseStage('after', 'Your first weeks')], done: stepDone('first-week') });
     if (certificateFirst(d)) out.push(firstWeek);
     if (w === 'auction') out.push(task({ key: 'before-remodel', label: `Check redemption, possession and title for ${n} before you remodel`, produces: 'a written answer on any redemption period, lawful possession and title insurance', href: stepHref('a-before-remodel'), support: [L.guides], done: stepDone('a-before-remodel') }));
     // The redemption wait comes first: the end date on its calendar, the property insured and kept up, no remodeling.
     if (certificateFirst(d)) {
-      out.push(task({ key: 'redemption-wait', label: `Wait out ${n}’s redemption period (${waitWord(d)} after the sale)`, produces: `the end date on its calendar, the property insured and maintained, ${d.kind === 'court' ? 'receipts for the taxes, assessments and earlier liens you pay (a redemption repays those, not upkeep)' : d.kind === 'irs' ? 'your records of what you pay (a redemption repays your price plus 20% a year, not taxes or upkeep)' : 'receipts for the taxes and upkeep you pay'}, and no remodeling until it ends. Once it has passed, mark “Redemption period ends” handled in its dates`, href: packetHref(d, 'dates'), advance2: { stage: 'passed', label: 'It was redeemed: mark it passed' }, support: [L.pro('attorney')], done: handled(p, 'Redemption period ends', now) || ticked(p, DEED_AFTER_WAIT) }));
-      out.push(task({ key: 'deed', label: `Get the deed for ${n} and record it, if no one redeemed`, produces: `the deed from ${d.kind === 'hoa' ? 'whoever conducted the sale' : d.kind === 'irs' ? 'the IRS, for your certificate of sale' : 'the sheriff'}, recorded, then enter the date you got it and mark “${DEED_AFTER_WAIT}” handled in its dates. If it was redeemed instead, you’re repaid your price plus what the law adds: keep the payoff statement in its evidence log and mark the deal passed`, href: packetHref(d, 'dates'), advance2: { stage: 'passed', label: 'It was redeemed: mark it passed' }, support: [L.pro('title')], done: ticked(p, DEED_AFTER_WAIT) }));
+      out.push(task({ key: 'redemption-wait', label: `Wait out ${n}’s redemption period (${waitWord(d)} after the sale)`, produces: `the end date on its calendar, the property insured and maintained, ${d.kind === 'court' ? 'receipts for the taxes, assessments and earlier liens you pay (a redemption repays those, not upkeep)' : d.kind === 'irs' ? 'your records of what you pay (a redemption repays your price plus 20% a year, not taxes or upkeep)' : 'receipts for the taxes and upkeep you pay'}, and no remodeling until it ends. Once it has passed, mark “Redemption period ends” handled in its dates`, href: packetHref(d, 'dates'), advance2: redeemButton(d), support: [L.pro('attorney')], done: handled(p, 'Redemption period ends', now) || ticked(p, DEED_AFTER_WAIT) }));
+      out.push(task({ key: 'deed', label: `Get the deed for ${n} and record it, if no one redeemed`, produces: `the deed from ${d.kind === 'hoa' ? 'whoever conducted the sale' : d.kind === 'irs' ? 'the IRS, for your certificate of sale' : 'the sheriff'}, recorded, then enter the date you got it and mark “${DEED_AFTER_WAIT}” handled in its dates. If it was redeemed instead, you’re repaid your price plus what the law adds: keep the payoff statement in its evidence log and mark the deal passed`, href: packetHref(d, 'dates'), advance2: redeemButton(d), support: [L.pro('title')], done: ticked(p, DEED_AFTER_WAIT) }));
     } else out.push(firstWeek);
     if (d.plan === 'flip') {
       // A flip gets the work and the sale, not rental tasks.
@@ -402,17 +424,20 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
     // Still researching when the sale went by: did you bid and win? (Never "overdue: sale day".)
     if (stage === 'researching' && wayOf(d) !== 'offer' && saleOver(p, now)) {
       const n = d.name || 'this property';
-      return task({ key: 'bid', label: `Sale day has passed for ${n}: did you bid and win?`, produces: 'your answer. If you won, mark it and the payment and recording steps appear here; if not, mark it passed', href: packetHref(d, 'decision'), advance: { stage: 'contract', label: 'I won: mark it won' }, advance2: { stage: 'passed', label: 'I didn’t bid or win: mark it passed' }, support: [], done: false });
+      const picked = wayOf(d) === 'lien' && d.state === 'NV';
+      return task({ key: 'bid', label: picked ? `Sale day has passed for ${n}: were you picked?` : `Sale day has passed for ${n}: did you bid and win?`, produces: picked ? 'your answer. If you were picked, mark it and the payment step appears here; if not, mark it passed' : 'your answer. If you won, mark it and the payment and recording steps appear here; if not, mark it passed', href: packetHref(d, 'decision'), advance: { stage: 'contract', label: picked ? 'I was picked: mark it' : 'I won: mark it won' }, advance2: { stage: 'passed', label: picked ? 'I wasn’t picked: mark it passed' : 'I didn’t bid or win: mark it passed' }, answer: true, support: [], done: false });
     }
     // Before you've won, a date that only matters after the sale isn't a reminder yet; a sale day that has passed isn't
     // a reminder at all; and once the deed is in hand, the redemption period is behind you.
     const early = stage === 'researching' || stage === 'offer';
-    const nd = nextDate(remindable(p, now, early), now);
+    const nd = nextDate(remindable(p, now, early, behindStage(d, stage)), now);
     if (nd && nd.days <= 7) {
-      const ended = nd.days < 0 ? windowEnded(nd.what, -nd.days) : null;
+      const ended = nd.days < 0 ? windowEnded(nd.what, -nd.days, d.kind) : null;
       const text = ended ? `${ended.text[0].toUpperCase()}${ended.text.slice(1)}: ${ended.then}.` : `${nd.days < 0 ? `Overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'Today' : nd.days === 1 ? 'Tomorrow' : `In ${nd.days} days`}: ${nd.what}.${nd.who ? ` Who: ${nd.who}.` : ''}`;
       const redeemable = stage === 'closed' && certificateFirst(d) && (sameDate(nd.what, 'Redemption period ends') || sameDate(nd.what, DEED_AFTER_WAIT));
-      return { key: 'date', label: text, produces: 'the deadline met, with what you did noted in its deal packet', href: `#/deals/packet/${d.id}/dates`, ...(redeemable ? { advance2: { stage: 'passed' as DealStage, label: 'It was redeemed: mark it passed' } } : {}), support: [], done: false, urgent: true, text };
+      // The stage's own event (the deed recorded, the closing): its "mark it" button comes with the reminder.
+      const own = stage === 'contract' && (RECORDED_ROWS.some((r) => sameDate(nd.what, r)) || sameDate(nd.what, 'Closing')) ? stageTasks(d, stage, p, now).find((t) => t.advance)?.advance : undefined;
+      return { key: 'date', label: text, produces: 'the deadline met, with what you did noted in its deal packet', href: `#/deals/packet/${d.id}/dates`, ...(own ? { advance: own } : {}), ...(ended?.tick ? { tick: { label: ended.tick, row: nd.what } } : {}), ...(redeemable ? { advance2: redeemButton(d) } : {}), support: [], done: false, urgent: true, text };
     }
     const log = loadLog(`analyzed:${d.id}`);
     const openRow = areasFor(d.kind).map((a) => ({ a, r: log.rows[a.key] })).find(({ r }) => r?.open && !r.done);

@@ -392,6 +392,8 @@ a.btn { display: inline-block; }
 .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .owned-add { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 12px; align-items: end; }
 .owned-add .field { margin: 0; }
+.owned-add .field > span { line-height: 1.4; }
+.owned-table td { vertical-align: middle; }
 
 /* Admin */
 
@@ -2735,10 +2737,14 @@ cite.cite { font-style: normal; font-size: max(0.82em, 15px); color: var(--muted
 .packet-dates, .packet-qa { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 8px; }
 .packet-dates li { display: grid; grid-template-columns: minmax(0, 2fr) minmax(150px, 180px) minmax(120px, 1fr) auto auto; gap: 8px; align-items: center; }
 .packet-qa li { display: grid; grid-template-columns: minmax(240px, 270px) 1fr 1fr minmax(150px, 180px) auto; gap: 8px; align-items: start; }
+.packet-f { display: grid; gap: 4px; min-width: 0; margin: 0; }
+.packet-f > span { font-size: 0.875rem; font-weight: 600; color: var(--muted); }
+.packet-dates li, .packet-qa li { align-items: end; }
+@media (max-width: 760px) { .packet-qa li { border: 1px solid var(--border); border-radius: 10px; padding: 10px; } }
 .packet-qa textarea { font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; width: 100%; resize: vertical; }
 @media (max-width: 760px) { .packet-qa li { grid-template-columns: 1fr; } }
 /* Narrow screens: one card per date, its name across the top, then the date and who side by side. */
-@media (max-width: 1000px) { .packet-dates li { grid-template-columns: 1fr 1fr; border: 1px solid var(--border); border-radius: 10px; padding: 10px; } .packet-dates li .packet-what { grid-column: 1 / -1; } }
+@media (max-width: 1000px) { .packet-dates li { grid-template-columns: 1fr 1fr; border: 1px solid var(--border); border-radius: 10px; padding: 10px; } .packet-dates li .packet-what-f { grid-column: 1 / -1; } }
 @media (max-width: 600px) { .packet-dates li { grid-template-columns: 1fr; } }
 /* A date's name wraps instead of being cut off (a long one on a phone). */
 .packet-dates .packet-what { font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; width: 100%; resize: none; field-sizing: content; min-height: 46px; }
