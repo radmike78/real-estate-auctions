@@ -610,7 +610,7 @@ describe('Nevada round 4 flow', () => {
     saveDeals([{ ...hoa, stage: 'closed' }]);
     const open = { ...EMPTY_PACKET, dates: [{ when: '2026-08-01', what: 'Sale day', who: 'A', resolved: true }] };
     const lines = packetSections({ ...hoa, stage: 'closed' }, open, now).find((x) => x.key === 'dates')!.lines.join(' | ');
-    expect(lines).toMatch(/Sep 30, 2026: Redemption period ends \(worked out from the sale day; confirm it\) — open/);
+    expect(lines).toMatch(/Sep 30, 2026: Redemption period ends \(worked out from the sale day; confirm it\) — ended: ask whether anyone redeemed/);
     const tax = { ...nvFlip, kind: 'taxSale' as const };
     const sid = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-30', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
     expect(dealNextTask(tax, sid, now, 'contract').label).toMatch(/The deadline is Oct 10, 2026, 20 days after the sale; your date, Nov 30, 2026, is later/);
@@ -831,7 +831,9 @@ describe('Nevada round 4 flow', () => {
     const base = [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-11', what: 'Payment deadline', who: 'Me', resolved: true }];
     const open = { ...EMPTY_PACKET, dates: [...base, { when: '2026-10-03', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City' }] };
     const t = dealNextTask(tax, open, now, 'contract');
-    expect(t.tick).toMatchObject({ label: 'I paid it by Sep 30, 2026: mark it handled', setWhen: '2026-09-30' });
+    // A typed date after the deadline is kept (it leads to "does the sale stand?").
+    expect(t.tick?.label).toBe('I paid it: mark it handled');
+    expect(t.tick?.setWhen).toBeUndefined();
     // Handled with the late date kept: the warning stays, and the next step asks whether the sale stands.
     const late = { ...EMPTY_PACKET, dates: [...base, { when: '2026-10-03', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City', resolved: true }] };
     const lt = dealNextTask(tax, late, now, 'contract');
@@ -897,6 +899,40 @@ describe('Nevada round 4 flow', () => {
     expect(keys).not.toContain('ev-insurance');
     savePacket('analyzed:f1', voided);
     expect(stageHint('contract', tax)).toMatch(/^The Treasurer said the sale is void/);
+  });
+
+  it('round 12 flow: a bought home keeps its answer; first full month; winning bid; filed and unpaid SID; lien end', async () => {
+    const { packetSections, teamRolesFor } = await import('./dealPacket');
+    const { liveIn } = await import('./dealStage');
+    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { borrow: 'live' } }));
+    const home = { ...nvFlip, kind: 'listing' as const, plan: 'rent' as const };
+    saveDeals([{ ...home, stage: 'contract' }]);
+    setDealStage('f1', 'closed');
+    expect(loadDeals()[0].home).toBe('live');
+    expect(teamRolesFor(loadDeals()[0])).not.toContain('property_manager');
+    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { borrow: 'invest' } }));
+    expect(liveIn({ id: 'f1', kind: 'listing', plan: 'rent' })).toBe(true);
+    localStorage.removeItem('deedowl.decide.v1');
+    // Bought Oct 2: the first full month (October... ends Nov 30 for a mid-month purchase).
+    saveOwned({ f1: { boughtOn: '2026-10-02', months: [] } });
+    const ms = stageTasks({ ...loadDeals()[0], stage: 'owned' }, 'owned', EMPTY_PACKET, now).find((x) => x.key === 'month')!;
+    expect(ms.label).toMatch(/first full month ends Nov 30, 2026/);
+    saveOwned({});
+    // At a win, the winning bid.
+    const wins = stageTasks(nvFlip, 'contract', EMPTY_PACKET, now).map((x) => x.key);
+    expect(wins).toContain('won-price');
+    // An affidavit filed and not paid: void, then the refund.
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    const sp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-11', what: 'Payment deadline', who: 'Me', resolved: true }] };
+    const aff = stageTasks(tax, 'contract', sp, now).find((x) => x.key === 'sid-affidavit')!;
+    expect(aff.undo?.label).toBe('An affidavit was filed and I didn’t pay it in time: the sale is void');
+    const voided = { ...sp, dates: [...sp.dates, { when: '2026-10-06', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }] };
+    expect(dealNextTask(tax, voided, now, 'contract').key).toBe('sid-refund');
+    // A Nevada SID lien: the worked-out 120-day end.
+    const lien = { ...nvFlip, kind: 'lien' as const, plan: 'lien' as const };
+    saveDeals([{ ...lien, stage: 'closed' }]);
+    const lp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'City', resolved: true }] };
+    expect(packetSections({ ...lien, stage: 'closed' }, lp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Dec 30, 2026: Earliest you may act \(unpaid lien\) \(120 days after the sale if the parcel has no building, 2 years if it has one/);
   });
 
   it('says so when the deed row is ticked at a win', () => {
