@@ -46,7 +46,7 @@ const BUY_Q: NarrowQuestion = {
   question: 'How do you want to buy?',
   options: [
     { value: 'agent', label: 'Through an agent', hint: 'Listed homes, bank-owned homes and short sales' },
-    { value: 'auction', label: 'At an auction', hint: 'Tax, foreclosure, sheriff, HOA and IRS sales' },
+    { value: 'auction', label: 'At an auction', hint: 'Tax, foreclosure, sheriff, HOA and IRS sales, and lien certificates where a county sells them' },
   ],
   suggest: () => ({ value: 'agent', why: 'Buying through an agent lets you inspect, get an appraisal and back out if something’s wrong. Auctions need cash and more research.' }),
 };

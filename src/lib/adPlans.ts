@@ -27,7 +27,7 @@ export const TIER_INFO: Record<AdTier, { label: string; includes: string[]; badg
   },
   premium: {
     label: 'Spotlight',
-    includes: ['Your own profile page with a contact form', 'A place in your category’s directory list', 'A fixed ad that doesn’t rotate at available, enabled placements for your category and ad areas', 'A results dashboard and a monthly report'],
+    includes: ['Your own profile page with a contact form', 'A place in your category’s directory list', 'A fixed ad (it doesn’t rotate) wherever your category appears, in the areas you choose', 'A results dashboard and a monthly report'],
   },
   premium_plus: {
     label: 'Mentor Connect',

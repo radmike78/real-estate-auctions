@@ -9,7 +9,8 @@ import { laterRow, MAX_DATES, sidDeadline, calendarRows, dateRowComplete, roleTi
 import { RECORDED_ROWS } from '../lib/dealPacket';
 import { TEAM_ROLES } from '../lib/myPlan';
 import { downloadText, fileName } from '../lib/download';
-import { EVIDENCE_EVENT } from '../lib/evidence';
+import { EVIDENCE_EVENT, loadLog } from '../lib/evidence';
+import OwlNote from './OwlNote';
 import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
@@ -98,7 +99,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
     return (
       <>
         <h2 id={`packet-${k}`}>
-          {s.title} {pastSale && RECORD_PARTS.includes(k) && s.status !== 'done' ? <span className="packet-status record">{s.status === 'missing' ? 'Left blank' : 'Partly filled in'}</span> : (stageOf(deal) === 'passed' && sidState(deal) !== 'void' && s.status !== 'done' && k !== 'dates' && k !== 'decision' ? <span className="packet-status record">Not needed (you passed)</span> : s.status === 'missing' && (stageOf(deal) === 'researching' || (wayOf(deal) === 'offer' && stageOf(deal) === 'offer' && k === 'dates')) ? <span className="packet-status record">{k === 'dates' && wayOf(deal) === 'offer' ? 'Not needed yet' : 'Not started'}</span> : <span className={`packet-status ${s.status}`}>{s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>)}
+          {s.title} {pastSale && RECORD_PARTS.includes(k) && s.status !== 'done' ? <span className="packet-status record">{s.status === 'missing' ? 'Left blank' : 'Partly filled in'}</span> : (stageOf(deal) === 'passed' && sidState(deal) !== 'void' && s.status !== 'done' && (k !== 'dates' || p.dates.length === 0) && k !== 'decision' ? <span className="packet-status record">Not needed (you passed)</span> : s.status === 'missing' && (stageOf(deal) === 'researching' || (wayOf(deal) === 'offer' && stageOf(deal) === 'offer' && k === 'dates')) ? <span className="packet-status record">{k === 'dates' && wayOf(deal) === 'offer' ? 'Not needed yet' : 'Not started'}</span> : <span className={`packet-status ${s.status}`}>{s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>)}
         </h2>
         {pastSale && RECORD_PARTS.includes(k) && <p className="muted small">{sidState(deal) === 'void' ? 'From before the sale: kept as your records.' : deal.kind === 'lien' ? 'From before you were picked: kept as your records.' : 'From before you bought: kept as your records.'}</p>}
       </>
@@ -129,7 +130,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
             {DEAL_STAGES.map((st) => <option key={st} value={st}>{stageLabel(st, deal)}</option>)}
           </select>
         </label>
-        <p className="muted">{stageHint(stage, deal)} {(() => { const plan = planNow(); return plan.source === 'deal' && plan.deal?.id === deal.id ? 'The stage picks the next action here and in My plan.' : stage === 'passed' || soldOf(deal) ? 'The stage picks the next action here.' : <>The stage picks the next action here. <a href="#/toolkit">My plan</a> {plan.source === 'deal' ? 'is working on another property' : 'shows the lessons and practice first'}; choose this property there to work on it now.</>; })()}</p>
+        <p className="muted">{stageHint(stage, deal)} {(() => { const plan = planNow(); return plan.source === 'deal' && plan.deal?.id === deal.id ? 'Change the stage when something happens; Your next action below and My plan follow it.' : stage === 'passed' || soldOf(deal) ? 'Change the stage when something happens; Your next action below follows it.' : <>The stage picks the next action here. <a href="#/toolkit">My plan</a> {plan.source === 'deal' ? 'is working on another property' : 'shows the lessons and practice first'}; choose this property there to work on it now.</>; })()}</p>
       </div>
       <div className="packet-next">
         <h2 id="packet-next-head" className="packet-next-head" tabIndex={-1}>Your next action</h2>
@@ -155,7 +156,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <section className="deal-setup packet-section" aria-labelledby="packet-plan">
         <Head k="plan" />
         <Lines k="plan" />
-        {asksHome(deal) && !trackerAsksHome(deal) && (
+        {asksHome(deal) && !trackerAsksHome(deal) && stageOf(deal) !== 'passed' && (
           <fieldset className="packet-fit">
             <legend>Will you live in this property?</legend>
             {(!deal.home || deal.homeFrom === 'plan') && <p className="muted small packet-fit-note">Your plan says {liveIn(deal) ? 'you’ll live here' : 'it’s a rental'}. Pick Yes or No to confirm it for this property.</p>}
@@ -185,6 +186,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <section className="deal-setup packet-section" aria-labelledby="packet-dates">
         <Head k="dates" />
         <p className="muted">{wayOf(deal) === 'offer' ? (['researching', 'offer'].includes(stageOf(deal)) ? 'From the listing and your offer; once it’s signed, the contract wins over anything here.' : 'From the signed contract: the contract wins over anything here.') : 'From the official notice: the notice wins over anything here.'}</p>
+        {p.dates.length === 0 && <OwlNote>{stageOf(deal) === 'passed' ? 'No dates were added before you passed. Add one if you want it on file.' : wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'No dates yet. Nothing needs a date until your offer is accepted; then the contract’s deadlines go here.' : 'No dates yet. Start with the usual dates for this kind of sale below (the official notice or the contract wins), then fill in each one.'}</OwlNote>}
         <ul className="packet-dates">
           {p.dates.map((x, i) => (
             <li key={i}>
@@ -198,7 +200,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           ))}
         </ul>
         <div className="row">
-          {p.dates.length === 0 && <button type="button" className={wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'btn btn-secondary' : 'btn'} onClick={() => { update({ dates: suggestedDates(deal).map((what) => ({ when: '', what, who: '' })) }); setTimeout(() => document.querySelector<HTMLInputElement>('#dates input, [data-section="dates"] input, .packet-dates input')?.focus(), 0); }}>{wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'Add the contract’s usual dates now (they can stay blank)' : 'Start with the usual dates for this sale'}</button>}
+          {p.dates.length === 0 && stageOf(deal) !== 'passed' && <button type="button" className={wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'btn btn-secondary' : 'btn'} onClick={() => { update({ dates: suggestedDates(deal).map((what) => ({ when: '', what, who: '' })) }); setTimeout(() => document.querySelector<HTMLInputElement>('#dates input, [data-section="dates"] input, .packet-dates input')?.focus(), 0); }}>{wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'Add the contract’s usual dates now (they can stay blank)' : 'Start with the usual dates for this sale'}</button>}
           {(() => {
             // Usual dates removed (or added since the packet was started): add back only those, at the end.
             // (Past the sale, not the dates already behind it; once redeemed, not the deed.)
@@ -223,7 +225,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           <button type="button" className="btn btn-secondary" disabled={p.dates.length >= MAX_DATES} onClick={() => { const at = p.dates.length; update({ dates: [...p.dates, { when: '', what: '', who: '' }] }); setTimeout(() => document.querySelector<HTMLElement>(`[aria-label="Name of date ${at + 1}"]`)?.focus(), 0); }}>Add a date</button>
           {p.dates.length >= MAX_DATES && <span className="muted small">{MAX_DATES} dates is the most a packet keeps: remove one you don’t need.</span>}
         </div>
-        {!(wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal))) && sidState(deal) !== 'void' && <>
+        {p.dates.length > 0 && !(wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal))) && sidState(deal) !== 'void' && <>
         <label className="check packet-reviewed"><input type="checkbox" checked={p.calendarReviewedFor === stageOf(deal)} disabled={!calendarReady(forCalendar(deal, p, stageOf(deal)), stageOf(deal))} onChange={(e) => update({ calendarReviewedFor: e.target.checked ? stageOf(deal) : undefined })} /> <strong>I checked every deadline for this stage against the {wayOf(deal) === 'offer' ? 'signed contract' : 'official notice'}, including who acts and how notice must be delivered.</strong></label>
         <p className="muted small">{stageOf(deal) !== 'passed' && !calendarReady(forCalendar(deal, p, stageOf(deal)), stageOf(deal)) && <span>{p.dates.length === 0 ? (wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'Nothing needs a date until your offer is accepted. ' : 'Add this sale’s dates first: use “Start with the usual dates for this sale” above. ') : `${(() => { const miss = calendarRows(forCalendar(deal, p, stageOf(deal)), stageOf(deal)).filter((x) => !dateRowComplete(x)); const noDate = miss.filter((x) => !x.when || !x.what.trim()).map((x) => x.what || 'an unnamed date'); const noWho = miss.filter((x) => x.when && x.what.trim()).map((x) => x.what); return [noDate.length ? `No date yet: ${noDate.join('; ')}.` : '', noWho.length ? `Who handles it is still blank for: ${noWho.join('; ')}.` : ''].filter(Boolean).join(' '); })()} `}{wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) && p.dates.length === 0 ? null : <>Fill in the date, task and who handles it for every entry first; a date marked “(if …)” {['researching', 'offer'].includes(stageOf(deal)) ? (wayOf(deal) === 'offer' ? 'and the contract’s dates (until your offer is accepted)' : 'and the dates after the sale') : 'and one that counts from a later event'} can stay blank for now.</>}</span>}</p>
         </>}
@@ -298,13 +300,13 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           ))}
         </ul>
         <button type="button" className="btn btn-secondary" onClick={() => { const team = teamRolesFor(deal); update({ qa: [...p.qa, { role: team.length ? team[p.qa.length % team.length] : TEAM_ROLES[p.qa.length % TEAM_ROLES.length], q: '', a: '', on: '' }] }); setTimeout(() => [...document.querySelectorAll<HTMLElement>('textarea[aria-label="Your question"]')].pop()?.focus(), 0); }}>Add a question</button>
-        <Lines k="pros" />
+        {p.qa.length === 0 ? <OwlNote>{sec('pros').lines[0]}</OwlNote> : <Lines k="pros" />}
       </section>
 
       <section className="deal-setup packet-section" aria-labelledby="packet-decision">
         <Head k="decision" />
         <DecisionGate dealId={key} record={pastSale || stageOf(deal) === 'passed'} passed={stageOf(deal) === 'passed'} onPass={stageOf(deal) === 'passed' ? undefined : () => { setDealStage(deal.id, 'passed'); }} />
-        {stageOf(deal) === 'passed' ? <p className="muted">You passed on this property: nothing needs deciding here now.</p> : pastSale ? <p className="muted">This records the choice you made before you bought: nothing needs deciding here now.</p> : <p className="muted">Write down why, and anything that must be true before you sign or bid. The same choice shows at the end of the evidence log.</p>}
+        {stageOf(deal) === 'passed' ? <p className="muted">You passed on this property: nothing needs deciding here now.</p> : pastSale ? <p className="muted">{loadLog(key).gate ? 'This records the choice you made before you bought: nothing needs deciding here now.' : 'No decision was recorded before you bought. Nothing needs deciding here now; add your reasons below if you’d like them on file.'}</p> : <p className="muted">Write down why, and anything that must be true before you sign or bid. The same choice shows at the end of the evidence log.</p>}
         {(() => { const boxes = (<>
         <label className="field wide">
           <span>Why</span>
