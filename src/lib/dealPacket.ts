@@ -17,7 +17,7 @@ import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
-import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal } from './dealStage';
+import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -835,7 +835,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     // (A deal you passed on, or that was redeemed and repaid, has no stage left to review its calendar for.)
     status: calendarComplete(p, stageOf(d)) || (stageOf(d) === 'passed' && calendarReady(p, 'passed')) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length || undatedDone.length
-      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days, d.kind) ? `${windowEnded(nd.what, -nd.days, d.kind)!.short} (${windowEnded(nd.what, -nd.days, d.kind)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : (openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
+      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${prettyDay(x.when)}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days, d.kind) ? `${windowEnded(nd.what, -nd.days, d.kind)!.short} (${windowEnded(nd.what, -nd.days, d.kind)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : (openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
       : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' ? 'official notice (the eligible-bidder windows count from the sale day, for homes of 1–4 units)' : d.kind === 'trustee' && d.state === 'NV' ? 'official notice (the challenge window counts from the day the trustee’s deed is recorded)' : d.kind === 'trustee' && d.state === 'TX' ? 'official notice (the rescission window counts from the sale day)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
   });
 

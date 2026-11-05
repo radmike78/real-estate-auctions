@@ -40,7 +40,7 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
         <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const r = task.redate!; edit((p) => ({ ...p, dates: p.dates.map((x) => (sameDate(x.what, r.row) ? { ...x, when: r.when, resolved: false } : x)) })); after(el); }}>{task.redate.label}</button>
       )}
       {task.undo && (
-        <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const u = task.undo!; edit((p) => ({ ...p, dates: p.dates.filter((x) => !sameDate(x.what, u.removeRow)) })); after(el); }}>{task.undo.label}</button>
+        <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const u = task.undo!; edit((p) => ({ ...p, dates: [...p.dates.filter((x) => !sameDate(x.what, u.removeRow)), ...(u.addRow && !p.dates.some((x) => sameDate(x.what, u.addRow!.what)) ? [{ ...u.addRow }] : [])] })); after(el); }}>{task.undo.label}</button>
       )}
     </>
   );

@@ -414,7 +414,7 @@ describe('Nevada round 4 flow', () => {
     expect(windowEnded('Challenge window ends', 27)!.text).toBe('the challenge window ended 27 days ago');
     expect(windowEnded('Sale day', 2)).toBeNull();
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-08', what: 'Challenge window ends', who: 'Title company' }] };
-    expect(dealNextTask({ ...nvFlip, stage: 'closed' }, p, now, 'closed').label).toBe('The challenge window ended 28 days ago: ask your title company or attorney whether any suit was filed, and whether the 90-day limit for anyone not properly notified (NRS 107.080(6)) still runs. If it does, move the end date; if not, mark it handled.');
+    expect(dealNextTask({ ...nvFlip, stage: 'closed' }, p, now, 'closed').label).toBe('The challenge window ended 28 days ago: ask your title company or attorney whether any suit was filed, and whether the 90-day limit for anyone not properly notified (NRS 107.080(6)) still runs. If none was filed, mark it handled.');
   });
 
   it('drops past registration and signing rows once they’re behind you, and keeps “It was redeemed” in the last week', () => {
@@ -560,6 +560,21 @@ describe('Nevada round 4 flow', () => {
     expect(stageTasks(tax, 'contract', EMPTY_PACKET, now).some((x) => x.key === 'sid-affidavit')).toBe(true);
     const cw = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-01', what: 'Challenge window ends', who: 'Title' }] };
     expect(dealNextTask(nvFlip, cw, now, 'closed').redate?.when).toBe('2026-11-30');
+  });
+
+  it('round 8 verifier: the SID question comes right after paying, and its no is its own row; lien areas; redemption end from the row', () => {
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    const keys = stageTasks(tax, 'contract', EMPTY_PACKET, now).map((x) => x.key);
+    expect(keys.indexOf('sid-affidavit')).toBe(keys.indexOf('ev-terms') + 1);
+    const t = stageTasks(tax, 'contract', EMPTY_PACKET, now).find((x) => x.key === 'sid-affidavit')!;
+    expect(t.tick?.row).toBe('Treasurer confirmed no SID affidavit');
+    expect(stageTasks(tax, 'contract', { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Treasurer confirmed no SID affidavit', who: 'T', resolved: true }] }, now).find((x) => x.key === 'sid-affidavit')!.done).toBe(true);
+    const lien = { ...nvFlip, kind: 'lien' as const, plan: 'lien' as const };
+    const pay = stageTasks(lien, 'contract', EMPTY_PACKET, now).find((x) => x.key === 'ev-terms');
+    if (pay) expect(pay.produces).not.toMatch(/Financing and sale terms/);
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const hp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'A', resolved: true }, { when: '2026-11-20', what: 'Redemption period ends', who: 'O' }] };
+    expect(stageTasks(hoa, 'closed', hp, now).find((x) => x.key === 'redemption-wait')!.label).toMatch(/ends Nov 20, 2026/);
   });
 
   it('says so when the deed row is ticked at a win', () => {

@@ -14,7 +14,7 @@ import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
 import { DEAL_STAGES, type DealStage } from '../lib/analyze';
-import { behindStage, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
+import { behindStage, NO_SID_ROW, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { planNow } from '../lib/planNext';
 import TaskActions from './TaskActions';
@@ -117,7 +117,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         title={<>Deal <span className="grad">packet</span></>}
         sub={`${deal.name} · ${kind ? kindLabel(kind, deal.state) : deal.kind} · ${countyName(deal.county)}, ${deal.state}`}
       />
-      <p>{finishedDeal(deal) ? <>Everything about this property, on one page: its dates and your records from the sale.</> : wonAuction ? <>You won the bid: pay and record it on time. The parts from before the sale are kept as your records.</> : redeemingNow(deal) ? <>Everything about this property, on one page: its dates, the payoff and your records from the sale.</> : pastSale ? <>Everything about this property, on one page: its dates, costs and results, with the records from before you bought it. {sections.filter((x) => !RECORD_PARTS.includes(x.key) && x.status === 'done').length} of {sections.filter((x) => !RECORD_PARTS.includes(x.key)).length} parts after the sale are filled in.</> : <>Everything this decision needs, on one page: your plan, the dates, the cash and when it’s due, your numbers with a downside case, what you’ve verified, your professionals’ answers and your decision. {done} of {sections.length} parts are complete.</>} Every number is your estimate until a source backs it.</p>
+      <p>{finishedDeal(deal) ? <>Everything about this property, on one page: its dates and your records from the sale.</> : wonAuction ? <>{wayOf(deal) === 'lien' ? 'You were picked: pay on time.' : 'You won the bid: pay and record it on time.'} The parts from before the sale are kept as your records.</> : redeemingNow(deal) ? <>Everything about this property, on one page: its dates, the payoff and your records from the sale.</> : pastSale ? <>Everything about this property, on one page: its dates, costs and results, with the records from before you bought it. {sections.filter((x) => !RECORD_PARTS.includes(x.key) && x.status === 'done').length} of {sections.filter((x) => !RECORD_PARTS.includes(x.key)).length} parts after the sale are filled in.</> : <>Everything this decision needs, on one page: your plan, the dates, the cash and when it’s due, your numbers with a downside case, what you’ve verified, your professionals’ answers and your decision. {done} of {sections.length} parts are complete.</>} Every number is your estimate until a source backs it.</p>
 
       <div className="packet-stage">
         <label className="field">
@@ -188,7 +188,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
             // (Past the sale, not the dates already behind it; once redeemed, not the deed.)
             const behind = behindStage(deal, finishedDeal(deal) ? 'closed' : stageOf(deal));
             const redeemed = p.dates.some((x) => sameDate(x.what, REDEEMED_ROW));
-            const missing = p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x.what, w)) && !behind.some((b) => sameDate(w, b)) && !(redeemed && sameDate(w, DEED_AFTER_WAIT))) : [];
+            const missing = p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x.what, w)) && !behind.some((b) => sameDate(w, b)) && !(redeemed && sameDate(w, DEED_AFTER_WAIT)) && !(sameDate(w, 'SID certificate payoff') && p.dates.some((x) => sameDate(x.what, NO_SID_ROW)))) : [];
             return missing.length ? <button type="button" className="btn btn-secondary" onClick={() => {
               // Each one after the nearest usual date before it that's still there (the list reads as a timeline).
               const usual = suggestedDates(deal);
