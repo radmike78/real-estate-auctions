@@ -3,7 +3,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
 import { DEAL_STAGES, loadDeals, openDeal, type Deal, type DealStage } from '../lib/analyze';
-import { finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask } from '../lib/dealStage';
+import { finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
@@ -72,6 +72,8 @@ export function ContinueButton({ task, dealId, onPlan, label }: { task: PlanTask
 const focusTaskIn = (box: Element | null | undefined) => setTimeout(() => { const h = box && document.contains(box) ? box.querySelector<HTMLElement>('h3') : null; if (h) { h.setAttribute('tabindex', '-1'); h.focus(); } }, 0);
 
 export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'; helper?: ReactNode }) {
+  // A deal just finished from here (passed or repaid): say so, so the next property's task isn't mistaken for it.
+  const [finishedNote, setFinishedNote] = useState('');
   useEffect(() => syncRoadmapCredits(), []);
   usePlanTick();
   const now = planNow();
@@ -146,7 +148,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
               <span>Property you’re working on</span>
               <select value={focus} onChange={(e) => chooseDeal(e.target.value)}>
                 <option value="">None yet (learning)</option>
-                {choices.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : d.stage === 'passed' ? ' (passed)' : ''}</option>)}
+                {choices.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : finishedDeal(d) ? ` (${stageLabel(stageOf(d), d).toLowerCase()})` : d.stage === 'passed' ? ' (passed)' : ''}</option>)}
               </select>
             </label>
             {(() => {
@@ -167,13 +169,14 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
             {deal && stage && <p className="muted plan-now-hint">{stageHint(stage, deal)}{deal.stage ? '' : ' (We worked this out from what you’ve recorded; change it if it’s wrong.)'}</p>}
           </div>
         )}
+        {finishedNote && <p id="plan-finished-note" className="notice" role="status" tabIndex={-1}>{finishedNote}</p>}
         <div className={`plan-now-task${task.urgent ? ' urgent' : ''}`}>
           <p className="plan-now-k">{nextLabel}</p>
           <h3>{task.label}</h3>
           <p className="plan-now-produces"><strong>You’ll have:</strong> {task.produces}.</p>
           <div className="plan-now-actions">
             {!(task.answer && deal) && <ContinueButton task={task} dealId={deal?.id} onPlan={onPlan} label={planStarted(now) ? undefined : 'Start'} />}
-            {deal && <TaskActions task={task} dealId={deal.id} big edit={(f) => { const k = `analyzed:${deal.id}`; savePacket(k, f(loadPacket(k))); progressChanged(); }} after={(el) => focusTaskIn(el.closest('.plan-now-actions')?.parentElement)} />}
+            {deal && <TaskActions task={task} dealId={deal.id} big edit={(f) => { const k = `analyzed:${deal.id}`; savePacket(k, f(loadPacket(k))); progressChanged(); }} after={(el, done) => { if (done) { setFinishedNote(`${deal.name} is finished: ${stageLabel('passed', deal).toLowerCase()}. My plan has moved on to what’s next.`); setTimeout(() => document.getElementById('plan-finished-note')?.focus(), 0); } else { setFinishedNote(''); focusTaskIn(el.closest('.plan-now-actions')?.parentElement); } }} />}
           </div>
           {task.support.length > 0 && (
             <details className="plan-now-support"><summary>Help with this step</summary><p>

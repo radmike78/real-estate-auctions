@@ -14,7 +14,7 @@ import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
 import { DEAL_STAGES, type DealStage } from '../lib/analyze';
-import { dealNextTask, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
+import { behindStage, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { planNow } from '../lib/planNext';
 import TaskActions from './TaskActions';
@@ -84,12 +84,17 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
   const sec = (k: string) => sections.find((s) => s.key === k)!;
   const guideRows = dateGuide(deal).filter((g) => g.when);
 
+  // Bought (closed or owned), or finished: the decision parts are records now.
+  const pastSale = ['closed', 'owned'].includes(stageOf(deal)) || finishedDeal(deal);
   const Head = ({ k }: { k: string }) => {
     const s = sec(k);
     return (
-      <h2 id={`packet-${k}`}>
-        {s.title} <span className={`packet-status ${s.status}`}>{s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>
-      </h2>
+      <>
+        <h2 id={`packet-${k}`}>
+          {s.title} <span className={`packet-status ${s.status}`}>{s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>
+        </h2>
+        {pastSale && ['plan', 'cash', 'decision'].includes(k) && <p className="muted small">From before you bought: kept as your records.</p>}
+      </>
     );
   };
   const Lines = ({ k }: { k: string }) => {
@@ -108,7 +113,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         title={<>Deal <span className="grad">packet</span></>}
         sub={`${deal.name} · ${kind ? kindLabel(kind, deal.state) : deal.kind} · ${countyName(deal.county)}, ${deal.state}`}
       />
-      <p>Everything this decision needs, on one page: your plan, the dates, the cash and when it’s due, your numbers with a downside case, what you’ve verified, your professionals’ answers and your decision. {done} of {sections.length} parts are complete. Every number is your estimate until a source backs it.</p>
+      <p>{pastSale ? <>Everything about this property, on one page: its dates, costs and results, with the records from before you bought it. {done} of {sections.length} parts are filled in.</> : <>Everything this decision needs, on one page: your plan, the dates, the cash and when it’s due, your numbers with a downside case, what you’ve verified, your professionals’ answers and your decision. {done} of {sections.length} parts are complete.</>} Every number is your estimate until a source backs it.</p>
 
       <div className="packet-stage">
         <label className="field">
@@ -121,9 +126,10 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       </div>
       <div className="packet-next">
         <strong id="packet-next-head" tabIndex={-1}>Your next action</strong>
-        <p>{next.label}{next.urgent ? '' : <>{/[?.!]$/.test(next.label) ? '' : '.'} <span className="muted">You’ll have {next.produces}.</span></>}{' '}
+        <p aria-live="polite">{next.label}{next.urgent ? '' : <>{/[?.!]$/.test(next.label) ? '' : '.'} <span className="muted">You’ll have {next.produces}.</span></>}{' '}
           {next.openDeal ? <a href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(deal); }}>Open in Analyze&nbsp;→</a>
             : next.setStage ? <button type="button" className="linkish" onClick={() => { setDealStage(deal.id, next.setStage!); focusNext(); }}>Do it now&nbsp;→</button>
+            : next.key === 'qa-wait' ? <button type="button" className="linkish" onClick={() => { const i = p.qa.findIndex((x) => x.q && !x.a); const el = document.querySelectorAll<HTMLElement>('textarea[aria-label="Their answer"]')[i]; el?.scrollIntoView({ block: 'center' }); el?.focus(); }}>Record their answer&nbsp;↓</button>
             : !next.answer && !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there&nbsp;→</a> : null}
         </p>
         {(next.advance || next.advance2 || next.tick || next.undo) && <div className="packet-next-actions">
@@ -174,7 +180,10 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           {p.dates.length === 0 && <button type="button" className="btn" onClick={() => { update({ dates: suggestedDates(deal).map((what) => ({ when: '', what, who: '' })) }); setTimeout(() => document.querySelector<HTMLInputElement>('#dates input, [data-section="dates"] input, .packet-dates input')?.focus(), 0); }}>Start with the usual dates for this sale</button>}
           {(() => {
             // Usual dates removed (or added since the packet was started): add back only those, at the end.
-            const missing = p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x.what, w))) : [];
+            // (Past the sale, not the dates already behind it; once redeemed, not the deed.)
+            const behind = behindStage(deal, stageOf(deal));
+            const redeemed = p.dates.some((x) => sameDate(x.what, REDEEMED_ROW));
+            const missing = p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x.what, w)) && !behind.some((b) => sameDate(w, b)) && !(redeemed && sameDate(w, DEED_AFTER_WAIT))) : [];
             return missing.length ? <button type="button" className="btn btn-secondary" onClick={() => {
               // Each one after the nearest usual date before it that's still there (the list reads as a timeline).
               const usual = suggestedDates(deal);

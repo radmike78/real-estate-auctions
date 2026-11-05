@@ -83,10 +83,13 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     saveOwned(copy);
   };
   if (!o) {
+    // At Closed or later you did buy it: start tracking (not "did you buy it?").
+    const bought = ['closed', 'owned'].includes(stageOf(deal));
+    const ask = bought ? 'Start tracking it to' : 'Did you buy it? Mark it as yours to';
     return (
       <div>
-        <p>{flip ? (budgetLine ? `Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, against your budget from Fix and sell. ${budgetLine}` : 'Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : liveIn(deal) ? 'Did you buy it? Mark it as your home to record what it really costs each month (and any rent from a room or unit), against what you planned.' : 'Did you buy it? Mark it as yours to track the real rent and costs each month against the cash flow you planned.'}</p>
-        <button type="button" className="btn btn-secondary" onClick={() => { put({ boughtOn: today(), months: [] }); if (!['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'closed'); setTimeout(() => document.getElementById('owned-bought-on')?.focus(), 0); }}>I bought this property</button>
+        <p>{flip ? (budgetLine ? `${ask} record what you pay each month for repairs and holding, against your budget from Fix and sell. ${budgetLine}` : `${ask} record what you pay each month for repairs and holding, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).`) : liveIn(deal) ? `${bought ? 'Start tracking your home to' : 'Did you buy it? Mark it as your home to'} record what it really costs each month (and any rent from a room or unit), against what you planned.` : `${ask} track the real rent and costs each month against the cash flow you planned.`}</p>
+        <button type="button" className="btn btn-secondary" onClick={() => { put({ boughtOn: today(), months: [] }); if (!['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'closed'); setTimeout(() => document.getElementById('owned-bought-on')?.focus(), 0); }}>{bought ? 'Start tracking it' : 'I bought this property'}</button>
       </div>
     );
   }
@@ -115,14 +118,14 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   return (
     <div>
       <p className="muted">{flip ? (budgetLine ?? 'Record what you pay each month, with $0 rent, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : projected === null ? 'Renting it out? Save this deal’s numbers in Keep and rent to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : `You planned on ${signed(projected)} a month of cash flow.`}</p>
-      <div className="row owned-add">
-        <label className="field"><span>Bought on</span><input id="owned-bought-on" type="date" value={o.boughtOn} max={o.sold?.on ?? today()} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && !(o.sold && e.target.value > o.sold.on) && put({ ...o, boughtOn: e.target.value })} /></label>
+      {o.sold ? <p className="muted">Bought on {o.boughtOn}. Sold: the months you recorded are below.</p> : <div className="row owned-add">
+        <label className="field"><span>Bought on</span><input id="owned-bought-on" type="date" value={o.boughtOn} max={today()} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
         <label className="field"><span>Month</span><input id="owned-month" type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></label>
         <label className="field"><span>Rent collected ($)</span><input type="text" inputMode="decimal" value={rent} aria-invalid={showBad(rent, 'rent') || undefined} onFocus={() => setFocusBox('rent')} onBlur={() => setFocusBox(null)} onChange={(e) => setRent(e.target.value)} /></label>
         <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} aria-invalid={showBad(costs, 'costs') || undefined} onFocus={() => setFocusBox('costs')} onBlur={() => setFocusBox(null)} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
         <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
-      </div>
+      </div>}
       {(showBad(rent, 'rent') || showBad(costs, 'costs')) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
       {negative && <p className="caution small" role="alert">Enter rent and costs as $0 or more. Record a refund to a tenant as a cost.</p>}
       <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs, management and utilities, and any money you moved into your repair savings.</p>

@@ -430,7 +430,7 @@ describe('Nevada round 4 flow', () => {
     const red = { ...wait, dates: [...wait.dates, t.advance2!.addRow!] };
     const pay = dealNextTask(hoa, red, new Date('2026-10-20T15:00:00Z'), 'closed');
     expect(pay.key).toBe('payoff');
-    expect(pay.tick).toEqual({ label: 'I was repaid: mark it finished', row: 'Redemption money collected', then: 'passed', closes: 'Redemption period ends' });
+    expect(pay.tick).toEqual({ label: 'I was repaid for 2210 Mesa Verde Ln: mark it finished', row: 'Redemption money collected', then: 'passed', closes: 'Redemption period ends' });
     expect(pay.produces).toMatch(/NRS 116\.31166/);
   });
 

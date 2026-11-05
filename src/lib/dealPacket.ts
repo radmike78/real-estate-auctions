@@ -712,12 +712,12 @@ export function flipSaleLine(d: Deal): string | null {
   if (d.plan !== 'flip' || !sold) return null;
   const head = `Sold on ${sold.on} for ${money(sold.price)}`;
   const raw = read(`fsf.bid.analyzed-${d.id}.v1`);
-  if (!raw || typeof raw !== 'object') return `${head}. Save its Fix and sell numbers in Analyze to see your profit against the one you planned; keep the closing statement for your taxes.`;
+  if (!raw || typeof raw !== 'object') return `${head}. Save its Fix and sell numbers in Analyze, with the price you paid in “Check an offer”, to see your rough profit; keep the closing statement for your taxes.`;
   const saved: BidInputs = sanitizeInputs(raw, BLANK_INPUTS);
   const i = isOffer(d) ? offerInputs(saved) : saved;
   const proposed = proposedPriceOf(i);
   const planned = i.exitValue > 0 ? ` (you planned a ${money(i.exitValue)} resale)` : '';
-  if (!proposed || proposed.source !== 'yours') return `${head}${planned}. Enter the price you paid in Fix and sell (Analyze) to see your profit; keep the closing statement for your taxes.`;
+  if (!proposed || proposed.source !== 'yours') return `${head}${planned}. Type the price you paid in “Check an offer” under Fix and sell (Analyze) to see your rough profit; keep the closing statement for your taxes.`;
   const c = costsAtBid(i, proposed.price);
   const buy = c.premium + c.transferTax + c.survivingLiens + c.titleLegal + c.possession;
   const o = loadOwned()[d.id];

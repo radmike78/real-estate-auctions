@@ -1,4 +1,4 @@
-import { liveIn, stageLabel, stageOf } from '../lib/dealStage';
+import { liveIn, stageLabel, stageOf, finishedDeal } from '../lib/dealStage';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
 import { planNow, practiceLienDeal, roadmapNextStep } from '../lib/planNext';
 import { lienDealFor, planPath, progressChanged } from '../lib/roadmapState';
@@ -412,7 +412,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <section className="deal-setup" aria-labelledby="setup-head">
         <h2 id="setup-head">1. Tell us about the property you found</h2>
         {underWayHere && (
-          <p className="note">“{deal.name}” is past researching (stage: {stageLabel(stageOf(saved.find((d) => d.id === deal.id)!), deal)}). Changes here update it in My deals. Its state, county, kind of sale and plan are locked, since changing them changes its packet dates and next tasks{locked ? <>: <button type="button" className="linkish" onClick={() => { if (window.confirm('Changing this deal’s state, county, kind of sale or plan changes its packet dates and next tasks. Unlock them?')) { setUnlockedFor(deal.id); setTimeout(() => document.querySelector<HTMLSelectElement>('.deal-fields select')?.focus(), 0); } }}>Change them</button></> : ' (unlocked now)'}. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); setTimeout(() => document.getElementById('deal-name')?.focus(), 0); }}>Start a new deal</button></p>
+          <p className="note">“{deal.name}” is past researching (stage: {stageLabel(stageOf(saved.find((d) => d.id === deal.id)!), deal)}). Changes here update it in My deals. {locked ? 'Its state, county, kind of sale and plan are locked, since changing them changes its packet dates and next tasks' : 'You unlocked its state, county, kind of sale and plan: changing them changes its packet dates and next tasks'}{locked ? <>: <button type="button" className="linkish" onClick={() => { if (window.confirm('Changing this deal’s state, county, kind of sale or plan changes its packet dates and next tasks. Unlock them?')) { setUnlockedFor(deal.id); setTimeout(() => document.querySelector<HTMLSelectElement>('.deal-fields select')?.focus(), 0); } }}>Change them</button></> : ''}. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); setTimeout(() => document.getElementById('deal-name')?.focus(), 0); }}>Start a new deal</button></p>
         )}
         {deal.id && saved.find((d) => d.id === deal.id)?.stage === 'passed' && (
           <p className="note">You passed on “{deal.name}”. Changes here update it in My deals. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button></p>
@@ -541,7 +541,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             <ul>
               {saved.map((d) => (
                 <li key={d.id} className={d.id === deal.id ? 'on' : ''}>
-                  <button type="button" className="linkish" onClick={() => { try { localStorage.setItem(OPENED_KEY, JSON.stringify(d.id)); } catch { /* storage unavailable */ } const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); setDeal({ ...d, updatedAt: nextStamp(d.updatedAt) }); } else setDeal(d); }}>{d.name}{d.practice ? ' (practice)' : ''}{d.stage === 'passed' ? ' (passed)' : ''}</button>
+                  <button type="button" className="linkish" onClick={() => { try { localStorage.setItem(OPENED_KEY, JSON.stringify(d.id)); } catch { /* storage unavailable */ } const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); setDeal({ ...d, updatedAt: nextStamp(d.updatedAt) }); } else setDeal(d); }}>{d.name}{d.practice ? ' (practice)' : ''}{finishedDeal(d) ? ` (${stageLabel(stageOf(d), d).toLowerCase()})` : d.stage === 'passed' ? ' (passed)' : ''}</button>
                   <span className="muted"> · {countyName(d.county)}, {d.state}</span>
                   <button type="button" className="linkish danger" aria-label={`Delete ${d.name}`} onClick={() => remove(d.id)}>Delete</button>
                 </li>

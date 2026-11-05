@@ -7,7 +7,7 @@ import { setDealStage, type PlanTask } from '../lib/dealStage';
  */
 const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 
-export default function TaskActions({ task, dealId, edit, after, big = false }: { task: PlanTask; dealId: string; edit: (f: (p: PacketData) => PacketData) => void; after: (el: HTMLElement) => void; big?: boolean }) {
+export default function TaskActions({ task, dealId, edit, after, big = false }: { task: PlanTask; dealId: string; edit: (f: (p: PacketData) => PacketData) => void; after: (el: HTMLElement, finished?: boolean) => void; big?: boolean }) {
   // The answer that moves the deal on is the main button when the task is a question.
   const main = `btn${big ? ' big' : ''}`;
   const tick = task.tick;
@@ -23,16 +23,16 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
             return i < 0 ? p : { ...p, dates: p.dates.map((x, j) => (j === i ? { ...x, resolved: true, when: x.when || today() } : tick.closes && sameDate(x.what, tick.closes) ? { ...x, resolved: true } : x)) };
           });
           if (tick.then) setDealStage(dealId, tick.then);
-          after(el);
+          after(el, tick.then === 'passed');
         }}>{tick.label}</button>
       )}
-      {task.advance && <button type="button" className={task.answer ? main : 'btn btn-secondary'} onClick={(e) => { const el = e.currentTarget; setDealStage(dealId, task.advance!.stage); after(el); }}>{task.advance.label}</button>}
+      {task.advance && <button type="button" className={task.answer ? main : 'btn btn-secondary'} onClick={(e) => { const el = e.currentTarget; setDealStage(dealId, task.advance!.stage); after(el, task.advance!.stage === 'passed'); }}>{task.advance.label}</button>}
       {task.advance2 && (
         <button type="button" className="btn btn-secondary" onClick={(e) => {
           const el = e.currentTarget;
           if (add) edit((p) => ({ ...p, dates: p.dates.some((x) => sameDate(x.what, add.what)) ? p.dates : [...p.dates, { ...add }] }));
           setDealStage(dealId, task.advance2!.stage);
-          after(el);
+          after(el, task.advance2!.stage === 'passed');
         }}>{task.advance2.label}</button>
       )}
       {task.undo && (
