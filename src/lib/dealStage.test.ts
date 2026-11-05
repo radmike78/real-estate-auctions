@@ -417,6 +417,23 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask({ ...nvFlip, stage: 'closed' }, p, now, 'closed').label).toBe('The challenge window ended 28 days ago: if no one sued, mark it handled.');
   });
 
+  it('drops past registration and signing rows once they’re behind you, and keeps “It was redeemed” in the last week', () => {
+    const won = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Registration (if required)', who: 'me' }, { when: '2026-10-02', what: 'Sale day', who: '' }, { when: '2026-10-05', what: 'Payment deadline', who: 'Trustee' }] };
+    expect(dealNextTask(nvFlip, won, now, 'contract').label).toMatch(/^Overdue by 1 day: Payment deadline/);
+    const signed = { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'Contract signed', who: 'Agent' }] };
+    expect(dealNextTask({ ...nvFlip, kind: 'short', plan: 'rent' }, signed, now, 'contract').label).toMatch(/^Send the earnest money/);
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const wait = { ...EMPTY_PACKET, dates: [{ when: '2026-10-09', what: 'Redemption period ends', who: 'Former owner' }] };
+    expect(dealNextTask(hoa, wait, now, 'closed').advance2?.stage).toBe('passed');
+  });
+
+  it('counts a ticked Treasurer’s deed row, and words an unpaid lien’s date as a wait that ended', async () => {
+    const { windowEnded } = await import('./dealPacket');
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }] };
+    expect(stageTasks({ ...nvFlip, kind: 'taxSale' }, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/is recorded/);
+    expect(windowEnded('Earliest you may act (unpaid lien)', 6)!.short).toBe('ended 6 days ago');
+  });
+
   it('says so when the deed row is ticked at a win', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);

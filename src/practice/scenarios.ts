@@ -700,7 +700,7 @@ const HOA: Flow = {
   own: () => ({ correct: 'A certificate of sale, then a deed after the 60-day redemption period, and possibly still subject to the first mortgage', wrong: ['The home free of the mortgage, right away', 'A lien certificate earning 1% a month'] }),
   numbers: (p) => {
     const first = roundTo(p.value * 0.72, 1000);
-    return { ...auctionNumbers(p, { label: 'Opening bid', amount: roundTo((p.hoaMonthly ?? 0) * 18 + 3_000, 100) }, { holdingMonths: 7, titleLegal: 2_800, survivingLiens: first }), waitMonths: 2 };
+    return { ...auctionNumbers(p, { label: 'Opening bid', amount: roundTo((p.hoaMonthly ?? 0) * 18 + 3_000, 100) }, { holdingMonths: 8, titleLegal: 2_800, survivingLiens: first }), waitMonths: 2 };
   },
   research: (p, n) => [
     {
@@ -787,7 +787,7 @@ const SHERIFF: Flow = {
   checklist: 'sheriff',
   available: () => null,
   own: () => ({ correct: 'A certificate of sale for the debtor’s interest, with a deed after the redemption period', wrong: ['A deed right away, free of all liens', 'A lien certificate earning interest'] }),
-  numbers: (p) => ({ ...auctionNumbers(p, { label: 'Opening bid (the creditor’s credit bid)', amount: roundTo(p.value * 0.2, 1000) }, { holdingMonths: 15, titleLegal: 1_500, survivingLiens: roundTo(p.value * 0.3, 1000) }), waitMonths: 12 }),
+  numbers: (p) => ({ ...auctionNumbers(p, { label: 'Opening bid (the creditor’s credit bid)', amount: roundTo(p.value * 0.2, 1000) }, { holdingMonths: 18, titleLegal: 1_500, survivingLiens: roundTo(p.value * 0.3, 1000) }), waitMonths: 12 }),
   research: (p, n) => [
     {
       kind: 'document',
@@ -859,7 +859,7 @@ const IRS: Flow = {
   checklist: 'sheriff',
   available: () => null,
   own: () => ({ correct: 'A certificate of sale for the taxpayer’s interest, then a deed after the 180-day redemption period', wrong: ['Free and clear title from the federal government', 'The property with the IRS paying off the mortgage'] }),
-  numbers: (p) => ({ ...auctionNumbers(p, { label: 'Minimum bid', amount: roundTo(p.value * 0.15, 1000) }, { holdingMonths: 9, titleLegal: 1_500, survivingLiens: roundTo(p.value * 0.25, 1000) }), waitMonths: 6 }),
+  numbers: (p) => ({ ...auctionNumbers(p, { label: 'Minimum bid', amount: roundTo(p.value * 0.15, 1000) }, { holdingMonths: 12, titleLegal: 1_500, survivingLiens: roundTo(p.value * 0.25, 1000) }), waitMonths: 6 }),
   research: (p, n) => [
     {
       kind: 'document',

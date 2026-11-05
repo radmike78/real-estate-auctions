@@ -34,19 +34,25 @@ const thisMonth = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 };
 
-/** A flip's sale: the closing date and price, which finish the deal (its last task). */
+/** A flip's sale, once it's at "Fixing and selling": the closing date and price, which finish the deal (its last task). */
 function SoldForm({ o, put }: { o: Owned; put: (next: Owned | null) => void }) {
   const [on, setOn] = useState(o.sold?.on ?? today());
   const [price, setPrice] = useState(o.sold ? String(o.sold.price) : '');
   const p = parseCalcInput(price);
-  const ok = /^\d{4}-\d{2}-\d{2}$/.test(on) && Number.isFinite(p) && p > 0;
-  if (o.sold) return <p className="notice" role="status">Sold on {o.sold.on} for {fmtMoney(o.sold.price)}. Compare it with the walk-away price in your Fix and sell numbers, and keep the closing statement for your taxes. <button type="button" className="linkish" onClick={() => { const { sold: _sold, ...rest } = o; put(rest); }}>Undo</button></p>;
+  const dateOk = /^\d{4}-\d{2}-\d{2}$/.test(on);
+  // A closing that hasn't happened yet, or before you bought it, doesn't finish the deal.
+  const dateWhy = !dateOk ? 'Enter the closing date.' : on > today() ? 'Record the sale once it has closed: the closing date can’t be in the future.' : on < o.boughtOn ? `The closing date can’t be before you bought it (${o.boughtOn}).` : '';
+  const ok = dateOk && !dateWhy && Number.isFinite(p) && p > 0;
+  if (o.sold) return <p className="notice" id="owned-sold" tabIndex={-1} role="status">Sold on {o.sold.on} for {fmtMoney(o.sold.price)}. Compare it with the walk-away price in your Fix and sell numbers, and keep the closing statement for your taxes. <button type="button" className="linkish" onClick={() => { const { sold: _sold, ...rest } = o; put(rest); setTimeout(() => document.getElementById('owned-sold-on')?.focus(), 0); }}>Undo</button></p>;
   return (
-    <div className="row owned-add">
-      <label className="field"><span>Sold on (closing date)</span><input type="date" value={on} onChange={(e) => setOn(e.target.value)} /></label>
-      <label className="field"><span>Sale price ($)</span><input type="text" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} /></label>
-      <button type="button" className="btn btn-secondary" disabled={!ok} onClick={() => put({ ...o, sold: { on, price: p } })}>It sold: record the sale</button>
-    </div>
+    <>
+      <div className="row owned-add">
+        <label className="field"><span>Sold on (closing date)</span><input id="owned-sold-on" type="date" value={on} max={today()} min={o.boughtOn} aria-describedby={dateWhy ? 'owned-sold-why' : undefined} onChange={(e) => setOn(e.target.value)} /></label>
+        <label className="field"><span>Sale price ($)</span><input type="text" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} /></label>
+        <button type="button" className="btn btn-secondary" disabled={!ok} onClick={() => { put({ ...o, sold: { on, price: p } }); setTimeout(() => document.getElementById('owned-sold')?.focus(), 0); }}>It sold: record the sale</button>
+      </div>
+      {dateWhy && <p className="caution small" id="owned-sold-why" role="status">{dateWhy}</p>}
+    </>
   );
 }
 
@@ -111,7 +117,6 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
         <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
       </div>
-      {flip && <SoldForm o={o} put={put} />}
       {(showBad(rent, 'rent') || showBad(costs, 'costs')) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
       {negative && <p className="caution small" role="alert">Enter rent and costs as $0 or more. Record a refund to a tenant as a cost.</p>}
       <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs, management and utilities, and any money you moved into your repair savings.</p>
@@ -139,6 +144,12 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         </>
       ) : (
         <p>{flip ? 'No months recorded yet. Add the first month’s costs, with $0 rent.' : 'No months recorded yet. Add the first one when the rent comes in.'}</p>
+      )}
+      {flip && stageOf(deal) === 'owned' && (
+        <>
+          <h3 className="owned-sold-head">Sold it?</h3>
+          <SoldForm o={o} put={put} />
+        </>
       )}
       <p><button type="button" className="linkish" onClick={() => { if (window.confirm('Stop tracking this property and delete its monthly records?')) put(null); }}>I didn’t buy it, stop tracking</button></p>
     </div>

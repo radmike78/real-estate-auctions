@@ -77,16 +77,19 @@ export const calendarRows = (p: PacketData, stage: string) => {
   return p.dates.filter((x, i) => x.when || !(LATER.some((n) => sameDate(x.what, n)) || (stage === 'contract' && RECORDED_ROWS.some((n) => sameDate(x.what, n))) || (waiting && i >= approval)));
 };
 /** The recording rows at a win: the record task is how they get done (they can stay undated until then). */
-export const RECORDED_ROWS = ['Deed recorded', 'Deed or certificate recorded', 'Certificate of sale recorded', 'Certificate of sale received'];
+export const RECORDED_ROWS = ['Deed recorded', 'Deed or certificate recorded', 'Treasurer’s deed recorded', 'Certificate of sale recorded', 'Certificate of sale received'];
 /** Windows that end on their own (no one acted in time): past their date, they ended; they weren't missed. */
 const WINDOWS: [string, string, string][] = [
   ['Redemption period ends', 'the redemption period', 'if no one redeemed, mark it handled and ask for the deed'],
   ['Challenge window ends', 'the challenge window', 'if no one sued, mark it handled'],
   ['Recovery-suit window ends', 'the recovery-suit window', 'if no one sued, mark it handled'],
+  ['Earliest you may act (unpaid lien)', 'the wait before you may act on an unpaid lien', 'if it’s still unpaid, ask your attorney about your next step, or mark it handled'],
 ];
-export const windowEnded = (what: string, daysAgo: number): { text: string; then: string } | null => {
+/** A window past its date: `text` for a sentence ("the challenge window ended 3 days ago"), `short` for a list. */
+export const windowEnded = (what: string, daysAgo: number): { text: string; short: string; then: string } | null => {
   const w = WINDOWS.find(([n]) => sameDate(what, n));
-  return w ? { text: `${w[1]} ended ${daysAgo} day${daysAgo === 1 ? '' : 's'} ago`, then: w[2] } : null;
+  const ago = `ended ${daysAgo} day${daysAgo === 1 ? '' : 's'} ago`;
+  return w ? { text: `${w[1]} ${ago}`, short: ago, then: w[2] } : null;
 };
 export const calendarReady = (p: PacketData, stage: string) => p.dates.length > 0 && calendarRows(p, stage).every(dateRowComplete);
 export const calendarComplete = (p: PacketData, stage: string) => p.calendarReviewedFor === stage && calendarReady(p, stage);
@@ -792,7 +795,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     title: 'Key dates',
     status: calendarComplete(p, stageOf(d)) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length || undatedDone.length
-      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days) ? `${windowEnded(nd.what, -nd.days)!.text.replace(/^the [^ ]+( [^ ]+)? ended/, 'ended')} (${windowEnded(nd.what, -nd.days)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : (openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
+      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days) ? `${windowEnded(nd.what, -nd.days)!.short} (${windowEnded(nd.what, -nd.days)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : (openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
       : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' ? 'official notice (the eligible-bidder windows count from the sale day, for homes of 1–4 units)' : d.kind === 'trustee' && d.state === 'NV' ? 'official notice (the challenge window counts from the day the trustee’s deed is recorded)' : d.kind === 'trustee' && d.state === 'TX' ? 'official notice (the rescission window counts from the sale day)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
   });
 

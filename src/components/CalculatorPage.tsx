@@ -1,3 +1,5 @@
+import { liveIn } from '../lib/dealStage';
+import type { Deal } from '../lib/analyze';
 import { useEffect, useState } from 'react';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
 import { irsWithoutRedemption } from '../lib/dealPacket';
@@ -41,6 +43,8 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
   useEffect(() => { const on = () => setTick((n) => n + 1); window.addEventListener(CONFIRMED_EVENT, on); return () => window.removeEventListener(CONFIRMED_EVENT, on); }, []);
   // An IRS sale with "No redemption" picked (a court-ordered sale): no 180-day line.
   const irsNone = saleKind === 'irs' && !!dealId && !!state && irsWithoutRedemption({ state, kind: 'irs', id: dealId, plan: 'flip' });
+  // A home you'll live in with no rent counted: no vacancies or renting rules.
+  const living = !!dealId && !!saleKind && plan === 'rent' && liveIn({ id: dealId, kind: saleKind as Deal['kind'], plan: 'rent' });
   // Past the sale (won, closed or owned): not "before you bid".
   const won = !!dealId && ['contract', 'closed', 'owned'].includes(loadDeals().find((x) => x.id === dealId)?.stage ?? '');
   const name = state ? stateByCode(state)?.name : undefined;
@@ -63,7 +67,7 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
         <li><strong>Insurance from the day it’s yours.</strong> <a href="#/learn/analyze">What to ask</a></li>
         <li><strong>Your tax bill, not the last owner’s.</strong> It can change when you buy or rent it out. <a href={`#/learn/analyze?section=your-tax-bill-after-you-buy${state ? `&state=${state}` : ''}`}>{name ? `${name} property tax rules` : 'Property tax rules by state'}</a></li>
         {renting && plan === 'commercial' && <li><strong>The rules for leasing it:</strong> zoning and permitted uses, the existing leases and their terms, and for apartments any local rent rules.</li>}
-        {renting && plan !== 'commercial' && <li><strong>The rules for renting it:</strong> HOA limits, short-term rental rules and local rent rules.</li>}
+        {renting && !living && plan !== 'commercial' && <li><strong>The rules for renting it:</strong> HOA limits, short-term rental rules and local rent rules.</li>}
         <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor and financial advisor {won ? 'before you spend more on it' : 'before you bid'}.</li>
       </ul>
       <p className="muted small">Can’t check one yet? Get the answer {won ? 'before you rely on these numbers' : 'before you bid'}.</p>
@@ -88,9 +92,9 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
       <ul>
         <li><strong>Your tax bill, not the seller’s.</strong> It can change when you buy or rent it out. <a href={`#/learn/analyze?section=your-tax-bill-after-you-buy${state ? `&state=${state}` : ''}`}>{name ? `${name} property tax rules` : 'Property tax rules by state'}</a></li>
         <li><strong>A written insurance quote</strong> for how you’ll use it, including while it’s empty. <a href="#/learn/analyze">What to ask</a></li>
-        <li><strong>A reserve cushion after closing and repairs.</strong> Plan for vacancies and unexpected costs, and confirm any reserve requirement with your lender.</li>
+        <li><strong>A reserve cushion after closing and repairs.</strong> Plan for {living ? 'repairs' : 'vacancies'} and unexpected costs, and confirm any reserve requirement with your lender.</li>
         {renting && plan === 'commercial' && <li><strong>The rules for leasing it:</strong> zoning and permitted uses, the existing leases and their terms, and for apartments any local rent rules.</li>}
-        {renting && plan !== 'commercial' && <li><strong>The rules for renting it:</strong> HOA limits, short-term rental rules and local rent rules.</li>}
+        {renting && !living && plan !== 'commercial' && <li><strong>The rules for renting it:</strong> HOA limits, short-term rental rules and local rent rules.</li>}
         <li><strong>Wire instructions confirmed by phone</strong> with your title or escrow company, using a number you looked up yourself. <a href="#/learn/negotiate">Why</a></li>
         <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor, agent and financial advisor before you bid, buy or borrow.</li>
       </ul>

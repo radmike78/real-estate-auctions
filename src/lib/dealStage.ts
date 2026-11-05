@@ -49,12 +49,19 @@ export const afterSale = (what: string) => AFTER_SALE.some((n) => sameDate(what,
  *  passed; and once the deed is ticked, not the redemption period. */
 export const remindable = (p: PacketData, now: Date, early: boolean): PacketData => {
   const deed = ticked(p, DEED_AFTER_WAIT);
-  return { ...p, dates: p.dates.filter((x) => !(early && afterSale(x.what)) && !(sameDate(x.what, 'Sale day') && !!x.when && x.when < localDay(now)) && !(deed && sameDate(x.what, 'Redemption period ends'))) };
+  const past = (x: { when: string }) => !!x.when && x.when < localDay(now);
+  return { ...p, dates: p.dates.filter((x) => !(early && afterSale(x.what)) && !(EVENTS.some((n) => sameDate(x.what, n)) && past(x)) && !(!early && BEFORE_SALE.some((n) => sameDate(x.what, n))) && !(deed && sameDate(x.what, 'Redemption period ends'))) };
 };
+/** Rows that mark an event, not a deadline: once their date has passed, they aren't a reminder. */
+const EVENTS = ['Sale day', 'Contract signed', 'Offer accepted (Day 0)', 'Acceptance (Day 0)', 'Approval notice received'];
+/** Registration rows: past the bidding (won, closed), they're behind you. */
+const BEFORE_SALE = ['Registration', 'Bidder registration'];
 /** Sale day is marked handled, or its date has passed: time to say whether you won. */
 const saleOver = (p: PacketData, now: Date) => p.dates.some((x) => sameDate(x.what, 'Sale day') && (x.when ? x.when < localDay(now) || (!!x.resolved && x.when <= localDay(now)) : !!x.resolved));
 /** A row marked handled, with or without its date (the deed: you have it). */
 const ticked = (p: PacketData, what: string) => p.dates.some((x) => sameDate(x.what, what) && !!x.resolved);
+/** A flip's recorded sale (in its packet's owned section). */
+const soldOf = (d: { id?: string }) => (d.id ? loadOwned()[d.id]?.sold : undefined);
 /** A certificate-first deal whose deed row is ticked in its packet. */
 const deedInHand = (d: { kind: Deal['kind']; state?: Deal['state']; id?: string; plan?: Deal['plan'] }) => !!d.id && certificateFirst(d) && ticked(loadPacket(`analyzed:${d.id}`), DEED_AFTER_WAIT);
 
@@ -66,7 +73,7 @@ export function stageLabel(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: De
     case 'offer': return w === 'offer' ? 'Preparing an offer' : w === 'lien' && d.state === 'NV' ? 'Preparing for the sale' : 'Preparing to bid';
     case 'contract': return w === 'offer' ? 'Under contract' : w === 'lien' && d.state === 'NV' ? 'Picked: paying' : 'Won: paying and recording';
     case 'closed': return w === 'offer' ? 'Closed' : w === 'lien' ? 'Certificate in hand' : certificateFirst(d) && !deedInHand(d) ? (d.kind === 'irs' ? 'Certificate of sale received' : 'Certificate of sale recorded') : 'Deed recorded';
-    case 'owned': return w === 'lien' ? 'Holding the certificate' : d.plan === 'flip' ? 'Fixing and selling' : liveIn(d) ? 'Living there' : 'Owned and operating';
+    case 'owned': return w === 'lien' ? 'Holding the certificate' : d.plan === 'flip' ? (soldOf(d) ? 'Sold' : 'Fixing and selling') : liveIn(d) ? 'Living there' : 'Owned and operating';
     case 'passed': return 'Passed';
   }
 }
@@ -81,7 +88,7 @@ export function stageHint(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Dea
     case 'offer': return w === 'offer' ? 'It checked out: you’re setting your price, the earnest money and your questions before you offer.' : w === 'lien' && d.state === 'NV' ? 'It checked out: you’re setting the most you’ll put into one certificate and getting the funds ready.' : 'It checked out: you’re setting your maximum bid and getting the funds ready.';
     case 'contract': return w === 'offer' ? 'The seller accepted your offer. The contract’s deadlines are running.' : w === 'lien' && d.state === 'NV' ? 'You were picked. The payment deadline is running.' : 'You won the bid. Payment and recording deadlines are running.';
     case 'closed': return w === 'offer' ? 'It’s yours: insurance, locks, utilities and repairs come first.' : w === 'lien' ? 'You hold the certificate: track it until it’s paid off.' : deedIn ? 'You have the deed: make sure it’s recorded, get title insurance, then start the repairs.' : certificateFirst(d) ? `A certificate of sale first: insure and maintain it, and hold off on remodeling until the redemption period (${waitWord(d)} after the sale) ends and you have the deed.` : 'The deed is yours: check redemption, possession and title before you remodel.';
-    case 'owned': return w === 'lien' ? 'Tracking payoffs, interest and what to do with unpaid liens.' : liveIn(d) ? 'Living there: recording what your home really costs each month.' : d.plan === 'flip' ? 'Fixing it up and selling it: tracking repair and holding costs against your budget.' : 'Renting or holding it: recording real rent and costs each month.';
+    case 'owned': return w === 'lien' ? 'Tracking payoffs, interest and what to do with unpaid liens.' : liveIn(d) ? 'Living there: recording what your home really costs each month.' : d.plan === 'flip' ? (soldOf(d) ? `Sold on ${soldOf(d)!.on} for $${Math.round(soldOf(d)!.price).toLocaleString('en-US')}: compare it with your walk-away price, then find your next property.` : 'Fixing it up and selling it: tracking repair and holding costs against your budget.') : 'Renting or holding it: recording real rent and costs each month.';
     case 'passed': return certificateFirst(d) ? 'You walked away, were outbid, or it was redeemed and you were repaid. Each is a fine result: find your next property.' : 'You walked away. A good result when the evidence says no.';
   }
 }
@@ -404,7 +411,8 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
     if (nd && nd.days <= 7) {
       const ended = nd.days < 0 ? windowEnded(nd.what, -nd.days) : null;
       const text = ended ? `${ended.text[0].toUpperCase()}${ended.text.slice(1)}: ${ended.then}.` : `${nd.days < 0 ? `Overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'Today' : nd.days === 1 ? 'Tomorrow' : `In ${nd.days} days`}: ${nd.what}.${nd.who ? ` Who: ${nd.who}.` : ''}`;
-      return { key: 'date', label: text, produces: 'the deadline met, with what you did noted in its deal packet', href: `#/deals/packet/${d.id}/dates`, support: [], done: false, urgent: true, text };
+      const redeemable = stage === 'closed' && certificateFirst(d) && (sameDate(nd.what, 'Redemption period ends') || sameDate(nd.what, DEED_AFTER_WAIT));
+      return { key: 'date', label: text, produces: 'the deadline met, with what you did noted in its deal packet', href: `#/deals/packet/${d.id}/dates`, ...(redeemable ? { advance2: { stage: 'passed' as DealStage, label: 'It was redeemed: mark it passed' } } : {}), support: [], done: false, urgent: true, text };
     }
     const log = loadLog(`analyzed:${d.id}`);
     const openRow = areasFor(d.kind).map((a) => ({ a, r: log.rows[a.key] })).find(({ r }) => r?.open && !r.done);

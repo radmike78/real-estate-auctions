@@ -135,13 +135,13 @@ function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
   const signed = (n: number) => `${n < 0 ? '−' : ''}${fmtMoney(Math.abs(Math.round(n)))}`;
   return (
     <section className="analyzed-deals" aria-labelledby="owned-head">
-      <h2 id="owned-head">Properties you own</h2>
+      <h2 id="owned-head">Properties you bought</h2>
       <table className="lesson-table owned-table">
         <thead><tr><th>Property</th><th>Bought</th><th>Months recorded</th><th>Average month</th><th>Against your plan</th></tr></thead>
         <tbody>
           {rows.map(({ d, o, s }) => (
             <tr key={d.id}>
-              <td><a href={`#/deals/packet/${d.id}`}>{d.name}</a></td>
+              <td><a href={`#/deals/packet/${d.id}`}>{d.name}</a>{o.sold ? <span className="muted"> · sold {o.sold.on}</span> : null}</td>
               <td>{o.boughtOn}</td>
               <td>{s.months}</td>
               <td>{s.months ? signed(s.averageMonthly) : '—'}</td>

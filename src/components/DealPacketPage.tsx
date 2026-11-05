@@ -122,11 +122,13 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <strong id="packet-next-head" tabIndex={-1}>Your next action</strong>
         <p>{next.label}{next.urgent ? '' : <>{/[?.!]$/.test(next.label) ? '' : '.'} <span className="muted">You’ll have {next.produces}.</span></>}{' '}
           {next.openDeal ? <a href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(deal); }}>Open in Analyze&nbsp;→</a>
-            : next.setStage ? <button type="button" className="linkish" onClick={() => setDealStage(deal.id, next.setStage!)}>Do it now&nbsp;→</button>
+            : next.setStage ? <button type="button" className="linkish" onClick={() => { setDealStage(deal.id, next.setStage!); focusNext(); }}>Do it now&nbsp;→</button>
             : !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there&nbsp;→</a> : null}
         </p>
-        {next.advance && <button type="button" className="btn btn-secondary" onClick={() => { setDealStage(deal.id, next.advance!.stage); focusNext(); }}>{next.advance.label}</button>}
-        {next.advance2 && <button type="button" className="btn btn-secondary" onClick={() => { setDealStage(deal.id, next.advance2!.stage); focusNext(); }}>{next.advance2.label}</button>}
+        {(next.advance || next.advance2) && <div className="packet-next-actions">
+          {next.advance && <button type="button" className="btn btn-secondary" onClick={() => { setDealStage(deal.id, next.advance!.stage); focusNext(); }}>{next.advance.label}</button>}
+          {next.advance2 && <button type="button" className="btn btn-secondary" onClick={() => { setDealStage(deal.id, next.advance2!.stage); focusNext(); }}>{next.advance2.label}</button>}
+        </div>}
       </div>
       <div className="row packet-actions">
         <button type="button" className="btn btn-secondary" onClick={() => downloadText(fileName(`deal packet ${deal.name}`, 'txt'), dealPacketText(deal, p))}>Download the packet</button>

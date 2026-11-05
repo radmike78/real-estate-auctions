@@ -2727,6 +2727,8 @@ cite.cite { font-style: normal; font-size: max(0.82em, 15px); color: var(--muted
 .packet-status.missing { background: var(--caution-bg); color: var(--caution); }
 .packet-next { border-left: 4px solid var(--accent); background: var(--surface-2); border-radius: 8px; padding: 12px 16px; margin: 0 0 16px; }
 .packet-next p { margin: 4px 0 0; }
+.packet-next-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.owned-sold-head { margin: 20px 0 8px; }
 .packet-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
 .packet-lines { margin: 8px 0; padding-left: 1.2em; }
 .packet-fit { border: 0; padding: 0; margin: 8px 0; display: flex; flex-wrap: wrap; gap: 6px 18px; }

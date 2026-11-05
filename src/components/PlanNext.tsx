@@ -50,7 +50,7 @@ function usePlanTick() {
 /** The plan's one Continue: it opens the task's deal or moves its stage when the task says so. `label` replaces the plain wording (the home page names the task). */
 export function ContinueButton({ task, dealId, onPlan, label }: { task: PlanTask; dealId?: string; onPlan: boolean; label?: string }) {
   if (task.setStage && dealId)
-    return <button type="button" className="btn big" onClick={() => setDealStage(dealId, task.setStage!)}>{label ?? 'Continue: move it on'}&nbsp;→</button>;
+    return <button type="button" className="btn big" onClick={(e) => { const box = e.currentTarget.closest('.plan-now-actions')?.parentElement; setDealStage(dealId, task.setStage!); focusTaskIn(box); }}>{label ?? 'Continue: move it on'}&nbsp;→</button>;
   if (task.openDeal && dealId) {
     const d = loadDeals().find((x) => x.id === dealId);
     if (d) return <a className="btn big" href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(d); }}>{label ?? 'Continue'}&nbsp;→</a>;
