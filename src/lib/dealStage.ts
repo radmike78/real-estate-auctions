@@ -9,7 +9,7 @@ import { workStorage as localStorage } from './workStorage';
 import { CURRENT_KEY, DEAL_STAGES, isDealStage, loadDeals, saveDeals, type Deal, type DealStage } from './analyze';
 import { investorProfile } from './myPlan';
 import { readConfirmed } from './calcConfirmation';
-import { calendarReady, flipSaleLine, irsWithoutRedemption, RECORDED_ROWS, sameEvent, windowEnded, sameDate, roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
+import { calendarReady, flipSaleLine, savePacket, irsWithoutRedemption, RECORDED_ROWS, sameEvent, windowEnded, sameDate, roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
 import { areasFor, loadLog, type EvidenceLog } from './evidence';
 import { loadOwned, type Owned } from './owned';
 import { proGuideByKey } from './proGuide';
@@ -54,7 +54,7 @@ export const remindable = (p: PacketData, now: Date, early: boolean, behind: str
 };
 /** The usual dates a stage has put behind you: once it's closed or owned, the ones before closing and the recording rows. */
 export const behindStage = (d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan']; id?: string }, stage: DealStage): string[] =>
-  stage === 'closed' || stage === 'owned' ? [...suggestedDates(d).filter((n) => !afterSale(n) || RECORDED_ROWS.some((r) => sameDate(n, r))), ...(stage === 'owned' && certificateFirst(d) ? ['Redemption period ends', DEED_AFTER_WAIT] : [])] : [];
+  stage === 'closed' || stage === 'owned' ? [...suggestedDates(d).filter((n) => !afterSale(n) || RECORDED_ROWS.some((r) => sameDate(n, r))), 'SID certificate payoff', ...(stage === 'owned' && certificateFirst(d) ? ['Redemption period ends', DEED_AFTER_WAIT] : [])] : [];
 /** Rows that mark an event, not a deadline: once their date has passed, they aren't a reminder. */
 const EVENTS = ['Sale day', 'Contract signed', 'Offer accepted (Day 0)', 'Acceptance (Day 0)', 'Approval notice received'];
 /** Registration rows: past the bidding (won, closed), they're behind you. */
@@ -147,6 +147,12 @@ export function setDealStage(id: string, stage: DealStage) {
   const all = loadDeals();
   if (!all.some((d) => d.id === id)) return;
   saveDeals(all.map((d) => (d.id === id ? { ...d, stage } : d)));
+  // Moved back off a repaid finish (from any page): the payoff isn't collected after all.
+  if (stage !== 'passed') {
+    const k = `analyzed:${id}`;
+    const pk = loadPacket(k);
+    if (pk.dates.some((x) => sameDate(x.what, REDEEMED_ROW) && x.resolved)) savePacket(k, { ...pk, dates: pk.dates.map((x) => (sameDate(x.what, REDEEMED_ROW) ? { ...x, resolved: false } : x)) });
+  }
   try {
     // The deal open in Analyze is kept separately: change its copy too, so it doesn't write the old stage back.
     const cur = JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as Deal | null;
@@ -221,7 +227,7 @@ const lastMonth = (now: Date) => {
 
 /** A task in the stage's list. `text` defaults to the label. */
 function task(t: Omit<PlanTask, 'text' | 'support'> & { support?: Support[]; text?: string }): PlanTask {
-  return { support: [], ...t, text: t.text ?? `${t.label}.` };
+  return { support: [], ...t, text: t.text ?? `${t.label}${/[?.!]$/.test(t.label) ? '' : '.'}` };
 }
 
 /**
@@ -325,6 +331,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
         ...(saleOver(p, now) ? { advance2: { stage: 'passed' as DealStage, label: w === 'lien' && d.state === 'NV' ? 'I wasn’t picked: mark it passed' : 'I didn’t win (or didn’t bid): mark it passed' } } : {}),
         support: [L.guides, w === 'lien' && d.state === 'NV' ? L.practiceLien : L.practiceAuction],
         answer: saleOver(p, now),
+        urgent: saleOver(p, now),
         done: false,
       });
       if (saleOver(p, now)) out.unshift(bidTask, task({ key: 'lost', label: w === 'lien' && d.state === 'NV' ? `Not picked for ${n}? Mark it passed` : `Didn’t win ${n}? Mark it passed`, produces: 'the deal moved to Passed, with its record kept', href: packetHref(d, 'decision'), setStage: 'passed', done: false }));
@@ -458,7 +465,7 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
     if (stage === 'researching' && wayOf(d) !== 'offer' && saleOver(p, now)) {
       const n = d.name || 'this property';
       const picked = wayOf(d) === 'lien' && d.state === 'NV';
-      return task({ key: 'bid', label: picked ? `Sale day has passed for ${n}: were you picked?` : `Sale day has passed for ${n}: did you win?`, produces: picked ? 'your answer. If you were picked, mark it and the payment step appears here; if not, mark it passed' : 'your answer. If you won, mark it and the payment and recording steps appear here; if not, mark it passed', href: packetHref(d, 'decision'), advance: { stage: 'contract', label: picked ? 'I was picked: mark it' : 'I won the bid: mark it won' }, advance2: { stage: 'passed', label: picked ? 'I wasn’t picked: mark it passed' : 'I didn’t win (or didn’t bid): mark it passed' }, answer: true, support: [], done: false });
+      return task({ key: 'bid', label: picked ? `Sale day has passed for ${n}: were you picked?` : `Sale day has passed for ${n}: did you win?`, produces: picked ? 'your answer. If you were picked, mark it and the payment step appears here; if not, mark it passed' : 'your answer. If you won, mark it and the payment and recording steps appear here; if not, mark it passed', href: packetHref(d, 'decision'), advance: { stage: 'contract', label: picked ? 'I was picked: mark it' : 'I won the bid: mark it won' }, advance2: { stage: 'passed', label: picked ? 'I wasn’t picked: mark it passed' : 'I didn’t win (or didn’t bid): mark it passed' }, answer: true, urgent: true, support: [], done: false });
     }
     // Before you've won, a date that only matters after the sale isn't a reminder yet; a sale day that has passed isn't
     // a reminder at all; and once the deed is in hand, the redemption period is behind you.

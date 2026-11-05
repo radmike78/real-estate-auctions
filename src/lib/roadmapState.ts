@@ -100,7 +100,10 @@ export function focusDealId(deals: Deal[] = loadDeals()): string {
   if (chosen && deals.some((d) => `analyzed:${d.id}` === chosen && (d.stage !== 'passed' || !deals.some((x) => x.stage !== 'passed' && !x.practice && x.updatedAt > d.updatedAt)))) return chosen;
   // Practice analyses are never picked on their own. A deal under way (an offer, a contract, a win, a home just bought,
   // or a flip still to sell) leads over a newer candidate you're only researching.
-  const open = [...deals].filter((d) => d.stage !== 'passed' && !d.practice).sort((x, y) => y.updatedAt.localeCompare(x.updatedAt));
+  const all = [...deals].filter((d) => d.stage !== 'passed' && !d.practice).sort((x, y) => y.updatedAt.localeCompare(x.updatedAt));
+  // (A sold flip is finished: a deal still being worked on comes first.)
+  const owned = loadOwned();
+  const open = all.some((d) => !owned[d.id]?.sold) ? all.filter((d) => !owned[d.id]?.sold) : all;
   const recent = open.find((d) => underWay(d)) ?? open[0];
   return recent ? `analyzed:${recent.id}` : '';
 }
