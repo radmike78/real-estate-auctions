@@ -123,8 +123,10 @@ export function settleAllSteps(dealKey: string) {
         let pk = loadPacket(dealKey);
         for (const [id, what] of Object.entries(mine)) {
           if (!STEP_ROWS[id] || pk.dates.some((x) => x.step === id || x.step === `~${id}`)) continue;
-          const k = what === '(already handled)' ? pk.dates.findIndex((x) => x.resolved && STEP_ROWS[id].some((n) => sameEvent(x.what, n))) : pk.dates.findIndex((x) => x.what === what);
-          if (k >= 0) pk = { ...pk, dates: pk.dates.map((x, i) => (i === k ? { ...x, step: what === '(already handled)' ? `~${id}` : id } : x)) };
+          const exact = what === '(already handled)' ? pk.dates.findIndex((x) => x.resolved && STEP_ROWS[id].some((n) => sameEvent(x.what, n))) : pk.dates.findIndex((x) => x.what === what);
+          // (Renamed, or ticked by hand first: mark the first row of its kind as settled, leaving its tick as it is.)
+          const k = exact >= 0 ? exact : pk.dates.findIndex((x) => STEP_ROWS[id].some((n) => sameEvent(x.what, n)));
+          if (k >= 0) pk = { ...pk, dates: pk.dates.map((x, i) => (i === k ? { ...x, step: exact >= 0 && what !== '(already handled)' ? id : `~${id}` } : x)) };
         }
         savePacket(dealKey, pk);
         const { [dealKey]: _done, ...rest } = old!;
@@ -341,7 +343,7 @@ export function setDealStage(id: string, stage: DealStage) {
   const all = loadDeals();
   if (!all.some((d) => d.id === id)) return;
   // A home bought to live in keeps that answer from now on (so a later Decide change doesn't turn it into a rental).
-  saveDeals(all.map((d) => (d.id === id ? { ...d, stage, ...((stage === 'closed' || stage === 'owned') && !d.home && d.plan === 'rent' && wayOf(d) === 'offer' ? { home: liveIn(d) ? 'live' as const : 'rent' as const, homeFrom: 'plan' as const } : {}) } : d)));
+  saveDeals(all.map((d) => (d.id === id ? { ...d, stage, ...((stage === 'closed' || stage === 'owned') && !d.home && d.plan === 'rent' && wayOf(d) === 'offer' && decideAnswered() ? { home: liveIn(d) ? 'live' as const : 'rent' as const, homeFrom: 'plan' as const } : {}) } : d)));
   // Moved back off a repaid finish (from any page): the payoff isn't collected after all.
   if (stage !== 'passed') {
     const k = `analyzed:${id}`;
@@ -690,7 +692,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       // (The first finished month not recorded, as the tracker opens on it.)
       const open = (() => { const o = owned[d.id]; const b = o?.boughtOn?.slice(0, 7); if (!o || !b) return ''; const t = new Date(now.getFullYear(), now.getMonth() - 1, 1); const lm = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}`; for (let [y, m] = b.split('-').map(Number), i = 0; i < 1200; i++) { const k = `${y}-${String(m).padStart(2, '0')}`; if (k > lm) return ''; if (!o.months.some((x) => x.month === k)) return k === lm ? '' : k; m += 1; if (m > 12) { m = 1; y += 1; } } return ''; })();
       const openWord = open ? new Date(`${open}-15T12:00:00`).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '';
-      if (!(firstEnd && localDay(now) <= firstEnd && !owned[d.id]?.months.length)) out.push(task({ key: 'month', label: openWord ? `Record ${openWord}’s ${liveIn(d) ? 'costs' : 'rent and costs'} for ${n} (the first month not yet recorded)` : liveIn(d) ? `Record last month’s costs for ${n}` : `Record last month’s rent and costs for ${n}`, produces: liveIn(d) ? `what your home actually cost ${openWord ? 'that month' : 'last month'}, against what you planned` : 'its actual cash flow for the month, against what you planned', href: packetHref(d, 'owned'), support: [L.caseStage('run', 'Run it and review')], done: !!owned[d.id]?.months.some((m) => m.month >= month) }));
+      if (!(firstEnd && localDay(now) <= firstEnd && !owned[d.id]?.months.length)) out.push(task({ key: 'month', label: openWord ? `Record ${openWord}’s ${liveIn(d) ? 'costs' : 'rent and costs'} for ${n} (the first month not yet recorded)` : liveIn(d) ? `Record last month’s costs for ${n}` : `Record last month’s rent and costs for ${n}`, produces: liveIn(d) ? `what your home actually cost ${openWord ? 'that month' : 'last month'}, against what you planned` : 'its actual cash flow for the month, against what you planned', href: packetHref(d, 'owned'), support: [L.caseStage('run', 'Run it and review')], done: !!owned[d.id]?.months.some((m) => m.month >= month) && !openWord }));
       out.push(task({ key: 'review', label: `Review ${n} against your goal`, produces: 'a written decision: keep it as it is, improve it, refinance or sell', href: stepHref('review'), support: [L.pro('cpa')], done: stepDone('review') }));
     }
     findNext();

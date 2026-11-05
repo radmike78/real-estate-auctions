@@ -962,6 +962,8 @@ describe('Nevada round 4 flow', () => {
   });
 
   it('round 13 code: an investor’s bought rental stays a rental; unpaid SID void answer; late SID at Deed recorded', async () => {
+    // (An investor: Decide answered with an investment loan.)
+    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { borrow: 'invest' } }));
     const { liveIn, settleHomes } = await import('./dealStage');
     const rental = { ...nvFlip, kind: 'listing' as const, plan: 'rent' as const };
     saveDeals([{ ...rental, stage: 'contract' }]);
@@ -1024,6 +1026,8 @@ describe('Nevada round 4 flow', () => {
   });
 
   it('round 13 verifier: no question for an investor rental; a home rent of 0; paid calendar; void owned', async () => {
+    // (An investor: Decide answered with an investment loan.)
+    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { borrow: 'invest' } }));
     const { asksHome, forCalendar } = await import('./dealStage');
     const { ownNumbers } = await import('./dealPacket');
     const rental = { ...nvFlip, kind: 'listing' as const, plan: 'rent' as const };
@@ -1327,5 +1331,12 @@ describe('Nevada round 4 flow', () => {
     expect(r.resolved).toBeFalsy();
     expect(localStorage.getItem('deedowl.stepRows.v1')).toBeNull();
     expect(calendarReady({ ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: '' }, { when: '', what: 'Payment deadline', who: 'Me', resolved: true }] }, 'contract')).toBe(true);
+  });
+
+  it('round 20: with Decide skipped, closing a listed home leaves the home question open', () => {
+    const rental = { ...deal, id: 'f1', state: 'NV' as const, county: 'Clark', kind: 'listing' as const, plan: 'rent' as const };
+    saveDeals([{ ...rental, stage: 'contract' }]);
+    setDealStage('f1', 'closed');
+    expect(loadDeals()[0].home).toBeUndefined();
   });
 });
