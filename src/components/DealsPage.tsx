@@ -129,7 +129,8 @@ function DealCard({ d, p, loading, known }: { d: SavedDeal; p: Property | undefi
 /** Properties you've marked as bought: how each is really doing against the plan, and all of them together. */
 function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
   const owned = useOwned();
-  const rows = deals.filter((d) => owned[d.id]).map((d) => ({ d, o: owned[d.id], s: ownedSummary(owned[d.id], projectedMonthly(d)) }));
+  // (A property redeemed from you and repaid isn't one you own.)
+  const rows = deals.filter((d) => owned[d.id] && !(finishedDeal(d) && !soldOf(d))).map((d) => ({ d, o: owned[d.id], s: ownedSummary(owned[d.id], projectedMonthly(d)) }));
   if (!rows.length) return null;
   const total = rows.reduce((t, r) => t + r.s.actual, 0);
   const signed = (n: number) => `${n < 0 ? '−' : ''}${fmtMoney(Math.abs(Math.round(n)))}`;

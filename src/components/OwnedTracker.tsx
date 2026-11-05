@@ -4,7 +4,7 @@ import type { Deal } from '../lib/analyze';
 import { flipBudget, flipBudgetLine, flipSaleLine, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
-import { liveIn, setDealStage, stageOf } from '../lib/dealStage';
+import { finishedDeal, liveIn, setDealStage, stageOf } from '../lib/dealStage';
 
 /** The monthly cash flow the deal was bought on, from its Keep and rent numbers (null without them). */
 export function projectedMonthly(d: Deal): number | null {
@@ -90,6 +90,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
       </div>
     );
   }
+  // Redeemed and repaid: no more months to record; what was recorded stays for your taxes.
+  if (finishedDeal(deal) && !o.sold) return <p className="notice" role="note">It was redeemed and you were repaid. The {o.months.length} {o.months.length === 1 ? 'month' : 'months'} you recorded stay here for your records and taxes.</p>;
   const s = ownedSummary(o, projected);
   const negative = parseCalcInput(rent) < 0 || parseCalcInput(costs) < 0;
   // A misplaced comma ("250,00") would record a number ten or a hundred times off, so it's refused, not guessed.

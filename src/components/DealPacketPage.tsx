@@ -126,7 +126,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
             : next.setStage ? <button type="button" className="linkish" onClick={() => { setDealStage(deal.id, next.setStage!); focusNext(); }}>Do it now&nbsp;→</button>
             : !next.answer && !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there&nbsp;→</a> : null}
         </p>
-        {(next.advance || next.advance2 || next.tick) && <div className="packet-next-actions">
+        {(next.advance || next.advance2 || next.tick || next.undo) && <div className="packet-next-actions">
           <TaskActions task={next} dealId={deal.id} edit={(f) => setP((cur) => { const n = f(cur); savePacket(key, n); return n; })} after={() => focusNext()} />
         </div>}
       </div>

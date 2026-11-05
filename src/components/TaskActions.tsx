@@ -20,7 +20,7 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
           edit((p) => {
             const i = p.dates.findIndex((x) => sameDate(x.what, tick.row) && !x.resolved);
             // (An event with no date yet, such as the payoff, is dated today.)
-            return i < 0 ? p : { ...p, dates: p.dates.map((x, j) => (j === i ? { ...x, resolved: true, when: x.when || today() } : x)) };
+            return i < 0 ? p : { ...p, dates: p.dates.map((x, j) => (j === i ? { ...x, resolved: true, when: x.when || today() } : tick.closes && sameDate(x.what, tick.closes) ? { ...x, resolved: true } : x)) };
           });
           if (tick.then) setDealStage(dealId, tick.then);
           after(el);
@@ -30,14 +30,13 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
       {task.advance2 && (
         <button type="button" className="btn btn-secondary" onClick={(e) => {
           const el = e.currentTarget;
-          const closes = task.advance2!.closes;
-          if (add) edit((p) => {
-            const rows = closes ? p.dates.map((x) => (sameDate(x.what, closes) ? { ...x, resolved: true } : x)) : p.dates;
-            return { ...p, dates: rows.some((x) => sameDate(x.what, add.what)) ? rows : [...rows, { ...add }] };
-          });
+          if (add) edit((p) => ({ ...p, dates: p.dates.some((x) => sameDate(x.what, add.what)) ? p.dates : [...p.dates, { ...add }] }));
           setDealStage(dealId, task.advance2!.stage);
           after(el);
         }}>{task.advance2.label}</button>
+      )}
+      {task.undo && (
+        <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const u = task.undo!; edit((p) => ({ ...p, dates: p.dates.filter((x) => !sameDate(x.what, u.removeRow)) })); after(el); }}>{task.undo.label}</button>
       )}
     </>
   );

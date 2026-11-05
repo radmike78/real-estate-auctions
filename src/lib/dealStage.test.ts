@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { cleanDeal, loadDeals, saveDeals, type Deal } from './analyze';
 import { EMPTY_PACKET, nextAction, savePacket } from './dealPacket';
-import { dealNextTask, inferStage, setDealStage, STAGE_STEPS, stageLabel, stageOf, stageTasks } from './dealStage';
+import { dealNextTask, inferStage, setDealStage, STAGE_STEPS, stageHint, stageLabel, stageOf, stageTasks } from './dealStage';
 import { cleanLog, saveLog } from './evidence';
 import { saveOwned } from './owned';
 import { planNow } from './planNext';
@@ -430,7 +430,7 @@ describe('Nevada round 4 flow', () => {
     const red = { ...wait, dates: [...wait.dates, t.advance2!.addRow!] };
     const pay = dealNextTask(hoa, red, new Date('2026-10-20T15:00:00Z'), 'closed');
     expect(pay.key).toBe('payoff');
-    expect(pay.tick).toEqual({ label: 'I was repaid: mark it finished', row: 'Redemption money collected', then: 'passed' });
+    expect(pay.tick).toEqual({ label: 'I was repaid: mark it finished', row: 'Redemption money collected', then: 'passed', closes: 'Redemption period ends' });
     expect(pay.produces).toMatch(/NRS 116\.31166/);
   });
 
@@ -476,7 +476,24 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask({ ...hoa, plan: 'rent' }, owned, now, 'owned').urgent).toBeFalsy();
     const t = dealNextTask(hoa, { ...EMPTY_PACKET, dates: [owned.dates[0]] }, now, 'closed');
     expect(t.answer).toBe(true);
-    expect(t.advance2?.closes).toBe('Redemption period ends');
+    expect(t.advance2?.addRow?.what).toBe('Redemption money collected');
+  });
+
+  it('round 6: sale-day buttons, a strict stage event, the redemption undo and labels', () => {
+    const today = { ...EMPTY_PACKET, dates: [{ when: '2026-10-06', what: 'Sale day', who: 'Trustee' }] };
+    const t = dealNextTask(nvFlip, today, now, 'offer');
+    expect(t.advance?.label).toBe('I won the bid: mark it won');
+    expect(t.advance2?.stage).toBe('passed');
+    const cd = { ...EMPTY_PACKET, dates: [{ when: '2026-10-08', what: 'Closing Disclosure received', who: 'Lender' }] };
+    expect(dealNextTask({ ...nvFlip, kind: 'reo' as const }, cd, now, 'contract').advance).toBeUndefined();
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const red = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Redemption period ends', who: 'Owner' }, { when: '', what: 'Redemption money collected', who: 'The person who redeemed' }] };
+    const pay = dealNextTask(hoa, red, now, 'closed');
+    expect(pay.undo?.removeRow).toBe('Redemption money collected');
+    expect(pay.tick?.closes).toBe('Redemption period ends');
+    const after = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Redemption period ends', who: 'Owner', resolved: true }, { when: '2026-10-03', what: 'Deed delivered (if no one redeemed)', who: 'Agent' }] };
+    expect(dealNextTask(hoa, after, now, 'closed').advance2).toBeUndefined();
+    expect(stageHint('passed', hoa)).not.toMatch(/redeemed/);
   });
 
   it('says so when the deed row is ticked at a win', () => {

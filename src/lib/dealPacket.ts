@@ -62,7 +62,15 @@ export const EMPTY_PACKET: PacketData = { fit: '', fitWhy: '', dates: [], qa: []
 /** A date that applies only if something happens (its name says “(if …)”): it can stay undated. */
 const ifOnly = (what: string) => /\(if /.test(what);
 /** A packet row is this date, even renamed by the reader: its name starts with the date's own (without any “(if …)”). */
-export const sameDate = (rowWhat: string, name: string) => rowWhat.trim().toLowerCase().startsWith(name.replace(/\s*\(if [^)]*\)$/, '').toLowerCase()) || (/^(bidder )?registration/i.test(name) && !/notice/i.test(name) && /^(bidder )?registration/i.test(rowWhat.trim()) && !/notice/i.test(rowWhat));
+export const sameDate = (rowWhat: string, name: string) => rowWhat.trim().toLowerCase().startsWith(dateBase(name).toLowerCase()) || (/^(bidder )?registration/i.test(name) && /^(bidder )?registration/i.test(rowWhat.trim()));
+/** A date's name without its trailing note in parentheses ("Bidder registration (if required)" -> "Bidder registration"). */
+const dateBase = (name: string) => name.replace(/\s*\([^)]*\)$/, '');
+/** A row that is this event itself, not another date that starts with its words ("Closing Disclosure received" isn't
+ *  "Closing"): after the name, only the end, a note in parentheses, a colon or dash, a date or "on"/"at". */
+export const sameEvent = (rowWhat: string, name: string) => {
+  const base = dateBase(name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`^${base}(\\s*($|[(:–—-]|\\d)|\\s+(on|at)\\b)`, 'i').test(rowWhat.trim());
+};
 
 /** A date row filled in: its date and who handles it, or (a date that applies only if something happens) left undated. */
 export const dateRowComplete = (d: { when: string; what: string; who: string }) => !!d.what.trim() && ((!!d.when && !!d.who.trim()) || (!d.when && ifOnly(d.what)));
