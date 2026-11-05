@@ -4,7 +4,7 @@ import type { Deal } from '../lib/analyze';
 import { flipBudget, flipBudgetLine, flipSaleLine, loadPacket, sameEvent, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
-import { setDealHome, trackerAsksHome, certificateFirst, finishedDeal, liveIn, prettyDay, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
+import { setDealHome, sidState, trackerAsksHome, certificateFirst, finishedDeal, liveIn, prettyDay, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
 
 /** The monthly cash flow the deal was bought on, from its Keep and rent numbers (null without them). */
 export function projectedMonthly(d: Deal): number | null {
@@ -95,6 +95,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   if (!o && redeemingNow(deal)) return <p className="muted">It was redeemed: nothing to track here. Keep the receipt for your payoff.</p>;
   if (!o && (stageOf(deal) === 'passed' || finishedDeal(deal))) return <p className="muted">{finishedDeal(deal) ? 'It was repaid: nothing more to track here.' : 'You passed on it: nothing to track here.'}</p>;
   if (!o && ['researching', 'offer'].includes(stageOf(deal)) && wayOf(deal) !== 'offer') return <p className="muted">Won it? Answer “did you win?” in Your next action above once the sale is over, and the steps after the sale appear here.</p>;
+  if (!o && sidState(deal) === 'void') return <p className="muted">Not needed: the Treasurer said the sale is void.</p>;
   if (!o && stageOf(deal) === 'contract' && wayOf(deal) !== 'offer') return <p className="muted">Once you’ve paid and the {certificateFirst(deal) ? 'certificate of sale' : 'deed'} is {certificateFirst(deal) && deal.kind === 'irs' ? 'in hand' : 'recorded'}, mark it in Your next action above; then start tracking its costs here.</p>;
   if (!o) {
     // At Closed or later you did buy it: start tracking (not "did you buy it?").
@@ -135,7 +136,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     <div>
       {/^\d{4}-\d{2}$/.test(month) && month < o.boughtOn.slice(0, 7) && <p className="caution" role="note">That month is before you bought it ({prettyDay(o.boughtOn)}): pick a later month.</p>}
       {o.months.some((m) => m.month < o.boughtOn.slice(0, 7)) && <p className="caution" role="note">{o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).map((m) => monthWords(m.month)).join(', ')} {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'is' : 'are'} before the date you bought it ({prettyDay(o.boughtOn)}): remove {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'it' : 'them'} or check the date.</p>}
-      {!rentCovers && deal.home === 'live' && s.months > 0 && s.rent > 0 && s.rent >= s.costs && <p className="muted small">Rent now covers this home’s costs. Still your home? You can change it under “Your plan and buy box”.</p>}
+      {!rentCovers && deal.home === 'live' && deal.homeFrom !== 'plan' && s.months > 0 && s.rent > 0 && s.rent >= s.costs && <p className="muted small">Rent now covers this home’s costs. Still your home? You can change it under “Your plan and buy box”.</p>}
       {rentCovers && (
         <fieldset className="packet-fit">
           <legend>Rent now covers this home’s costs. Do you still live there?</legend>

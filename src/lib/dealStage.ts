@@ -52,11 +52,12 @@ export function settleHomes() {
   localStorage.setItem(HOMES_SETTLED_KEY, '1');
   const all = loadDeals();
   const fix = all.filter((d) => (d.stage === 'closed' || d.stage === 'owned') && !d.home && d.plan === 'rent' && wayOf(d) === 'offer');
-  if (fix.length) saveDeals(all.map((d) => (fix.includes(d) ? { ...d, home: liveIn(d) ? 'live' as const : 'rent' as const } : d)));
+  if (fix.length) saveDeals(all.map((d) => (fix.includes(d) ? { ...d, home: liveIn(d) ? 'live' as const : 'rent' as const, homeFrom: 'plan' as const } : d)));
 }
 /** The tracker asks "Do you still live there?": rent recorded covers the costs, and this property has no answer yet. */
 export const trackerAsksHome = (d: { id: string; kind: Deal['kind']; plan?: Deal['plan']; home?: Deal['home'] }) => {
-  if (d.home || (loadDeals().find((x) => x.id === d.id)?.home) || !asksHome(d)) return false;
+  const st = loadDeals().find((x) => x.id === d.id);
+  if ((st?.home && st.homeFrom !== 'plan') || !asksHome(d)) return false;
   const ms = loadOwned()[d.id]?.months ?? [];
   return ms.some((m) => m.rent > 0) && ms.reduce((t, m) => t + m.rent, 0) >= ms.reduce((t, m) => t + m.costs, 0);
 };
@@ -64,10 +65,10 @@ export const trackerAsksHome = (d: { id: string; kind: Deal['kind']; plan?: Deal
 export function setDealHome(id: string, home: 'live' | 'rent') {
   const all = loadDeals();
   if (!all.some((d) => d.id === id)) return;
-  saveDeals(all.map((d) => (d.id === id ? { ...d, home } : d)));
+  saveDeals(all.map((d) => (d.id === id ? { ...d, home, homeFrom: undefined } : d)));
   try {
     const cur = JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as Deal | null;
-    if (cur && cur.id === id) localStorage.setItem(CURRENT_KEY, JSON.stringify({ ...cur, home }));
+    if (cur && cur.id === id) localStorage.setItem(CURRENT_KEY, JSON.stringify({ ...cur, home, homeFrom: undefined }));
   } catch {
     /* storage unavailable */
   }
@@ -150,6 +151,8 @@ export const sidState = (d: { id?: string; state?: Deal['state']; kind: Deal['ki
 const workedWindow = (d: { id?: string; state?: Deal['state']; kind: Deal['kind'] }) => { if (!d.id || d.state !== 'NV' || d.kind !== 'trustee') return ''; const on = loadPacket(`analyzed:${d.id}`).dates.find((x) => sameDate(x.what, 'Deed recorded') && x.when)?.when; if (!on) return ''; const t = new Date(`${on}T12:00:00`); t.setDate(t.getDate() + 30); return localDay(t); };
 /** A sale postponed: clear its date, registration and payment dates for the new ones. */
 const POSTPONE = { label: 'It was postponed: clear its dates to enter the new ones' };
+/** How much a passed deadline costs if missed (lower first): a sale that may be void, then the SID payoff, then other dates. */
+export const pressingWeight = (t: Pick<PlanTask, 'key' | 'label'>) => (t.key === 'sid-void' || t.key === 'sid-refund' ? 0 : /SID/.test(t.label) ? 1 : t.key === 'date' ? 2 : 3);
 /** A deadline that has passed (a window ended, the SID payoff's 20 days): it needs an answer before routine work. */
 export const deadlinePassed = (t: Pick<PlanTask, 'days'>) => t.days !== undefined && t.days < 0;
 /** Who to ask whether anyone redeemed (and who answers on its row). */
@@ -225,7 +228,7 @@ export function setDealStage(id: string, stage: DealStage) {
   const all = loadDeals();
   if (!all.some((d) => d.id === id)) return;
   // A home bought to live in keeps that answer from now on (so a later Decide change doesn't turn it into a rental).
-  saveDeals(all.map((d) => (d.id === id ? { ...d, stage, ...((stage === 'closed' || stage === 'owned') && !d.home && d.plan === 'rent' && wayOf(d) === 'offer' ? { home: liveIn(d) ? 'live' as const : 'rent' as const } : {}) } : d)));
+  saveDeals(all.map((d) => (d.id === id ? { ...d, stage, ...((stage === 'closed' || stage === 'owned') && !d.home && d.plan === 'rent' && wayOf(d) === 'offer' ? { home: liveIn(d) ? 'live' as const : 'rent' as const, homeFrom: 'plan' as const } : {}) } : d)));
   // Moved back off a repaid finish (from any page): the payoff isn't collected after all.
   if (stage !== 'passed') {
     const k = `analyzed:${id}`;
@@ -317,7 +320,7 @@ function sidTasks(d: Deal, p: PacketData, now: Date, n: string): PlanTask[] {
   const out: PlanTask[] = [];
     const sidLateRow = d.state === 'NV' && d.kind === 'taxSale' && sidDeadline(p) ? p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && x.resolved && x.when > sidDeadline(p)) : undefined;
     if (sidLateRow) out.push(task({ key: 'sid-void', days: -1, label: `The SID payoff for ${n} is dated ${prettyDay(sidLateRow.when)}, after the 20-day deadline (${prettyDay(sidDeadline(p))}): ask the Treasurer in writing whether the sale stands*`, produces: 'a written answer from the Treasurer, in its evidence log. If the payoff wasn’t made within 20 days, the sale is void and the Treasurer may keep up to 10% of what you paid (NRS 361.595(6))', href: packetHref(d, 'dates'), tick: { label: 'The Treasurer confirmed in writing that the sale stands: mark it', row: SID_STANDS_ROW, who: 'The county treasurer' }, undo: { label: 'The Treasurer said the sale is void: mark it', removeRow: SID_VOID_ROW, addRow: { when: localDay(now), what: SID_VOID_ROW, who: 'The county treasurer', resolved: true } }, answer: true, urgent: true, support: [L.guides], done: p.dates.some((x) => sameDate(x.what, SID_STANDS_ROW) || sameDate(x.what, SID_VOID_ROW)) }));
-    if (d.state === 'NV' && d.kind === 'taxSale' && p.dates.some((x) => sameDate(x.what, SID_VOID_ROW))) out.push(task({ key: 'sid-refund', days: -1, label: `The sale of ${n} is void: ask the Treasurer in writing for the rest of what you paid*`, produces: `the refund and a receipt, in its evidence log. The Treasurer may keep up to 10% of what you paid for administrative costs (NRS 361.595(6))${p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && x.resolved) ? '. Ask the city or county you paid for the SID certificate what happens to that payment*; your attorney can help' : ''}. Then mark it passed`, href: packetHref(d, 'dates'), tick: { label: 'I got the refund: mark it passed', row: 'Refund received from the Treasurer', who: 'The county treasurer', then: 'passed' }, answer: true, urgent: true, support: [L.guides], done: false }));
+    if (d.state === 'NV' && d.kind === 'taxSale' && p.dates.some((x) => sameDate(x.what, SID_VOID_ROW))) out.push(task({ key: 'sid-refund', days: -1, label: `The sale of ${n} is void: ask the Treasurer in writing for the rest of what you paid*`, produces: `the refund and a receipt, in its evidence log. The Treasurer may keep up to 10% of what you paid for administrative costs (NRS 361.595(6))${p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && x.resolved) ? '. Ask the city or county you paid for the SID certificate what happens to that payment*; your attorney can help' : ''}. Then mark it passed`, href: packetHref(d, 'dates'), tick: { label: 'I got the refund: mark it passed', row: 'Refund received from the Treasurer', who: 'The county treasurer', then: 'passed' }, undo: { label: 'Not void after all? Undo', removeRow: SID_VOID_ROW }, answer: true, urgent: true, support: [L.guides], done: false }));
   return out;
 }
 

@@ -645,7 +645,7 @@ describe('Nevada round 4 flow', () => {
     saveDeals([{ ...nvFlip, stage: 'closed' }]);
     const tl = packetSections({ ...nvFlip, stage: 'closed' }, tr, now).find((x) => x.key === 'dates')!.lines.join(' | ');
     expect(tl).toMatch(/Jul 5, 2026: Deed recorded \(Me\) — passed/);
-    expect(tl).toMatch(/ended Sep 29, 2026/);
+    expect(tl).toMatch(/Next: Challenge window ends, ended 63 days ago \(Aug 4, 2026\): see Your next action/);
     const tax = { ...nvFlip, kind: 'taxSale' as const };
     const sid = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-30', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
     saveDeals([{ ...tax, stage: 'contract' }]);
@@ -932,7 +932,7 @@ describe('Nevada round 4 flow', () => {
     const lien = { ...nvFlip, kind: 'lien' as const, plan: 'lien' as const };
     saveDeals([{ ...lien, stage: 'closed' }]);
     const lp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'City', resolved: true }] };
-    expect(packetSections({ ...lien, stage: 'closed' }, lp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Still to add: when the owner can no longer redeem: 120 days after the certificate of sale \(dated the sale day\), about Dec 30, 2026, if the parcel has no building; 2 years if it has one/);
+    expect(packetSections({ ...lien, stage: 'closed' }, lp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Still to add: the date for Earliest you may act \(unpaid lien\): 120 days after the certificate of sale \(the sale day\), about Dec 30, 2026, if the parcel has no building; 2 years if it has one \(NRS 271\.595\(1\)\)\*\. After that, the owner can still redeem until 60 days after the notice/);
   });
 
   it('round 12 verifier: the winning bid is marked; postponed summary; void recording rows; homes settled', async () => {
@@ -977,6 +977,26 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(tax, late, now, 'closed').key).toBe('sid-void');
     savePacket('analyzed:f1', late);
     expect(stageHint('closed', tax)).toMatch(/after the 20-day deadline: confirm with the Treasurer whether the sale stands\*/);
+  });
+
+  it('round 13 UX: answers from the plan are marked; void can be undone; one ranking', async () => {
+    const { pressingWeight, trackerAsksHome } = await import('./dealStage');
+    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { borrow: 'live' } }));
+    saveDeals([{ ...nvFlip, kind: 'reo', plan: 'rent', stage: 'contract' }]);
+    setDealStage('f1', 'owned');
+    expect(loadDeals()[0]).toMatchObject({ home: 'live', homeFrom: 'plan' });
+    saveOwned({ f1: { boughtOn: '2026-08-01', months: [{ month: '2026-09', rent: 2500, costs: 500, note: '' }] } });
+    expect(trackerAsksHome(loadDeals()[0])).toBe(true);
+    const { setDealHome } = await import('./dealStage');
+    setDealHome('f1', 'live');
+    expect(loadDeals()[0].homeFrom).toBeUndefined();
+    expect(trackerAsksHome(loadDeals()[0])).toBe(false);
+    saveOwned({});
+    localStorage.removeItem('deedowl.decide.v1');
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    const voided = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-05', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }] };
+    expect(dealNextTask(tax, voided, now, 'contract').undo).toEqual({ label: 'Not void after all? Undo', removeRow: 'Treasurer: the sale is void' });
+    expect(pressingWeight({ key: 'sid-void', label: '' })).toBeLessThan(pressingWeight({ key: 'date', label: 'Redemption period ends' }));
   });
 
   it('says so when the deed row is ticked at a win', () => {

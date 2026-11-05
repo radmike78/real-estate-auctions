@@ -6,6 +6,7 @@ import EvidenceLog, { DecisionGate } from './EvidenceLog';
 import { kindLabel, loadDeals, openDeal, SALE_KINDS } from '../lib/analyze';
 import { countyName } from '../lib/regions';
 import { laterRow, MAX_DATES, sidDeadline, calendarRows, dateRowComplete, roleTitleFor, dateGuide, calendarReady, sameDate, dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus, teamRolesFor } from '../lib/dealPacket';
+import { RECORDED_ROWS } from '../lib/dealPacket';
 import { TEAM_ROLES } from '../lib/myPlan';
 import { downloadText, fileName } from '../lib/download';
 import { EVIDENCE_EVENT } from '../lib/evidence';
@@ -13,7 +14,7 @@ import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
 import { DEAL_STAGES, type DealStage } from '../lib/analyze';
-import { asksHome, liveIn, setDealHome, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
+import { asksHome, liveIn, setDealHome, sidState, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { planNow } from '../lib/planNext';
 import TaskActions from './TaskActions';
@@ -96,7 +97,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <h2 id={`packet-${k}`}>
           {s.title} {pastSale && RECORD_PARTS.includes(k) && s.status !== 'done' ? <span className="packet-status record">{s.status === 'missing' ? 'Left blank' : 'Partly filled in'}</span> : <span className={`packet-status ${s.status}`}>{s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>}
         </h2>
-        {pastSale && RECORD_PARTS.includes(k) && <p className="muted small">From before you bought: kept as your records.</p>}
+        {pastSale && RECORD_PARTS.includes(k) && <p className="muted small">{sidState(deal) === 'void' ? 'From before the sale: kept as your records.' : 'From before you bought: kept as your records.'}</p>}
       </>
     );
   };
@@ -116,7 +117,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         title={<>Deal <span className="grad">packet</span></>}
         sub={`${deal.name} · ${kind ? kindLabel(kind, deal.state) : deal.kind} · ${countyName(deal.county)}, ${deal.state}`}
       />
-      <p>{finishedDeal(deal) ? <>Everything about this property, on one page: its dates and your records from the sale.</> : wonAuction ? <>{wayOf(deal) === 'lien' ? 'You were picked: pay on time.' : 'You won the bid: pay and record it on time.'} The parts from before the sale are kept as your records.</> : redeemingNow(deal) ? <>Everything about this property, on one page: its dates, the payoff and your records from the sale.</> : pastSale ? <>Everything about this property, on one page: its dates, costs and results, with the records from before you bought it. {sections.filter((x) => !RECORD_PARTS.includes(x.key) && x.status === 'done').length} of {sections.filter((x) => !RECORD_PARTS.includes(x.key)).length} parts after the sale are filled in.</> : <>Everything this decision needs, on one page: your plan, the dates, the cash and when it’s due, your numbers with a downside case, what you’ve verified, your professionals’ answers and your decision. {done} of {sections.length} parts are complete.</>} Every number is your estimate until a source backs it.</p>
+      <p>{finishedDeal(deal) ? <>Everything about this property, on one page: its dates and your records from the sale.</> : wonAuction && sidState(deal) === 'void' ? <>The Treasurer said this sale is void: ask for the rest of what you paid*. The parts before it are kept as your records.</> : wonAuction ? <>{wayOf(deal) === 'lien' ? 'You were picked: pay on time.' : 'You won the bid: pay and record it on time.'} The parts from before the sale are kept as your records.</> : redeemingNow(deal) ? <>Everything about this property, on one page: its dates, the payoff and your records from the sale.</> : pastSale ? <>Everything about this property, on one page: its dates, costs and results, with the records from before you bought it. {sections.filter((x) => !RECORD_PARTS.includes(x.key) && x.status === 'done').length} of {sections.filter((x) => !RECORD_PARTS.includes(x.key)).length} parts after the sale are filled in.</> : <>Everything this decision needs, on one page: your plan, the dates, the cash and when it’s due, your numbers with a downside case, what you’ve verified, your professionals’ answers and your decision. {done} of {sections.length} parts are complete.</>} Every number is your estimate until a source backs it.</p>
 
       <div className="packet-stage">
         <label className="field">
@@ -154,9 +155,9 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         {asksHome(deal) && !trackerAsksHome(deal) && (
           <fieldset className="packet-fit">
             <legend>Will you live in this property?</legend>
-            {!deal.home && <p className="muted small">From your plan: {liveIn(deal) ? 'a home you’ll live in' : 'a rental'}. Confirm it for this property.</p>}
-            <label className="check"><input type="radio" name="packet-home" checked={deal.home === 'live'} onChange={() => setDealHome(deal.id, 'live')} /> Yes, it’s my home</label>
-            <label className="check"><input type="radio" name="packet-home" checked={deal.home === 'rent'} onChange={() => setDealHome(deal.id, 'rent')} /> No, it’s a rental</label>
+            {(!deal.home || deal.homeFrom === 'plan') && <p className="muted small">From your plan: {liveIn(deal) ? 'a home you’ll live in' : 'a rental'}. Confirm it for this property.</p>}
+            <label className="check"><input type="radio" name="packet-home" checked={deal.home === 'live' && deal.homeFrom !== 'plan'} onChange={() => setDealHome(deal.id, 'live')} /> Yes, it’s my home</label>
+            <label className="check"><input type="radio" name="packet-home" checked={deal.home === 'rent' && deal.homeFrom !== 'plan'} onChange={() => setDealHome(deal.id, 'rent')} /> No, it’s a rental</label>
           </fieldset>
         )}
         <fieldset className="packet-fit">
@@ -187,7 +188,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
               <label className="packet-f"><span aria-hidden="true">Who handles it</span><input aria-label={`Who handles ${x.what || 'this date'}`} placeholder="Who" maxLength={120} value={x.who} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, who: e.target.value } : y)) }, !laterRow(x.what))} /></label>
               <label><input type="checkbox" aria-label={`${x.what || 'This date'}: handled`} checked={!!x.resolved} onChange={(e) => update({ dates: p.dates.map((y, j) => j === i ? { ...y, resolved: e.target.checked } : y) }, false)} /> Handled</label>
               <button type="button" className="linkish" aria-label={`Remove ${x.what || 'date'}`} onClick={() => update({ dates: p.dates.filter((_, j) => j !== i) })}>Remove</button>
-              {deal.state === 'NV' && deal.kind === 'taxSale' && sameDate(x.what, 'SID certificate payoff') && !!x.when && !!sidDeadline(p) && x.when > sidDeadline(p) && <p className="caution small packet-row-note" role="note">This is after {prettyDay(sidDeadline(p))}, 20 days after the sale. If it isn’t paid by then, the sale is void (NRS 361.595(6)). Check the date with the Treasurer.</p>}
+              {deal.state === 'NV' && deal.kind === 'taxSale' && sameDate(x.what, 'SID certificate payoff') && !!x.when && !!sidDeadline(p) && x.when > sidDeadline(p) && <p className="caution small packet-row-note" role="note">{sidState(deal) === 'void' ? 'Paid after the deadline: the Treasurer said the sale is void.' : <>This is after {prettyDay(sidDeadline(p))}, 20 days after the sale. If it isn’t paid by then, the sale is void (NRS 361.595(6)). Check the date with the Treasurer.</>}</p>}
             </li>
           ))}
         </ul>
@@ -198,7 +199,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
             // (Past the sale, not the dates already behind it; once redeemed, not the deed.)
             const behind = wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? [] : behindStage(deal, finishedDeal(deal) ? 'closed' : stageOf(deal));
             const redeemed = p.dates.some((x) => sameDate(x.what, REDEEMED_ROW));
-            const missing = p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x.what, w)) && !behind.some((b) => sameDate(w, b)) && !(redeemed && sameDate(w, DEED_AFTER_WAIT)) && !(sameDate(w, 'SID certificate payoff') && p.dates.some((x) => sameDate(x.what, NO_SID_ROW)))) : [];
+            const missing = p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x.what, w)) && !behind.some((b) => sameDate(w, b)) && !(redeemed && sameDate(w, DEED_AFTER_WAIT)) && !(sidState(deal) === 'void' && (RECORDED_ROWS.some((r) => sameDate(w, r)) || sameDate(w, 'Recovery-suit window ends'))) && !(sameDate(w, 'SID certificate payoff') && p.dates.some((x) => sameDate(x.what, NO_SID_ROW)))) : [];
             return missing.length ? <button type="button" className="btn btn-secondary" onClick={() => {
               // Each one after the nearest usual date before it that's still there (the list reads as a timeline).
               const usual = suggestedDates(deal);
@@ -218,7 +219,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           {p.dates.length >= MAX_DATES && <span className="muted small">{MAX_DATES} dates is the most a packet keeps: remove one you don’t need.</span>}
         </div>
         <label className="field">
-          <span><input type="checkbox" checked={p.calendarReviewedFor === stageOf(deal)} disabled={!calendarReady(p, stageOf(deal))} onChange={(e) => update({ calendarReviewedFor: e.target.checked ? stageOf(deal) : undefined })} /> I checked every applicable deadline for this stage against the signed contract or official notice, including who acts and how notice must be delivered.{!calendarReady(p, stageOf(deal)) && <span className="muted"> ({p.dates.length === 0 ? 'Add this sale’s dates first: use “Start with the usual dates for this sale” above. ' : `${(() => { const miss = calendarRows(p, stageOf(deal)).filter((x) => !dateRowComplete(x)); const noDate = miss.filter((x) => !x.when || !x.what.trim()).map((x) => x.what || 'an unnamed date'); const noWho = miss.filter((x) => x.when && x.what.trim()).map((x) => x.what); return [noDate.length ? `No date yet: ${noDate.join('; ')}.` : '', noWho.length ? `Who handles it is still blank for: ${noWho.join('; ')}.` : ''].filter(Boolean).join(' '); })()} `}Fill in the date, task and who handles it for every entry first; a date marked “(if …)” {['researching', 'offer'].includes(stageOf(deal)) ? (wayOf(deal) === 'offer' ? 'and the contract’s dates (until your offer is accepted)' : 'and the dates after the sale') : 'and one that counts from a later event'} can stay blank for now.)</span>}</span>
+          <span className="packet-reviewed"><input type="checkbox" checked={p.calendarReviewedFor === stageOf(deal)} disabled={!calendarReady(p, stageOf(deal))} onChange={(e) => update({ calendarReviewedFor: e.target.checked ? stageOf(deal) : undefined })} /> I checked every applicable deadline for this stage against the signed contract or official notice, including who acts and how notice must be delivered.{!calendarReady(p, stageOf(deal)) && <span className="muted"> ({p.dates.length === 0 ? 'Add this sale’s dates first: use “Start with the usual dates for this sale” above. ' : `${(() => { const miss = calendarRows(p, stageOf(deal)).filter((x) => !dateRowComplete(x)); const noDate = miss.filter((x) => !x.when || !x.what.trim()).map((x) => x.what || 'an unnamed date'); const noWho = miss.filter((x) => x.when && x.what.trim()).map((x) => x.what); return [noDate.length ? `No date yet: ${noDate.join('; ')}.` : '', noWho.length ? `Who handles it is still blank for: ${noWho.join('; ')}.` : ''].filter(Boolean).join(' '); })()} `}Fill in the date, task and who handles it for every entry first; a date marked “(if …)” {['researching', 'offer'].includes(stageOf(deal)) ? (wayOf(deal) === 'offer' ? 'and the contract’s dates (until your offer is accepted)' : 'and the dates after the sale') : 'and one that counts from a later event'} can stay blank for now.)</span>}</span>
         </label>
         <p className="muted small">Past dates stay open until you mark them handled. Confirm completion or an agreed resolution with your team. Fill in the date, task and responsible person for each applicable deadline; remove entries that do not apply. Ask your agent or attorney to confirm the calendar. Adding or changing a date requires another review.</p>
         <Lines k="dates" />

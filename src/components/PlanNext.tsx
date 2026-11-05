@@ -3,7 +3,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
 import { DEAL_STAGES, loadDeals, openDeal, type Deal, type DealStage } from '../lib/analyze';
-import { deadlinePassed, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
+import { deadlinePassed, pressingWeight, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
@@ -107,10 +107,10 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
 
   // Another property with a passed deadline: the one that costs most if missed first (a sale that may be void), with a count.
   const pressing = loadDeals().filter((x) => x.id !== deal?.id && !x.practice && stageOf(x) !== 'passed' && !finishedDeal(x) && deadlinePassed(dealNextTask(x)));
-  const weight = (x: Deal) => { const t = dealNextTask(x); return t.key === 'sid-void' || t.key === 'sid-refund' ? 0 : /SID/.test(t.label) ? 1 : t.key === 'date' ? 2 : 3; };
+  const weight = (x: Deal) => pressingWeight(dealNextTask(x));
   const other = [...pressing].sort((a, b) => weight(a) - weight(b))[0];
   const otherWhat = (x: Deal) => { const l = dealNextTask(x).label; const at = l.indexOf(x.name); const i = l.indexOf('. ', at >= 0 ? at + x.name.length : 0); return (i >= 0 ? l.slice(0, i + 1) : l).replace(/([^.?!])$/, '$1.'); };
-  const otherNote = other ? <p className="caution" role="note"><strong>Another property needs {dealNextTask(other).answer ? 'an answer' : 'your attention'}:</strong> {other.name}. {otherWhat(other)} <button type="button" className="linkish" onClick={() => { chooseDeal(`analyzed:${other.id}`); setTimeout(() => focusTaskIn(document.querySelector('.plan-now-actions')?.parentElement), 0); }}>Work on it now&nbsp;→</button>{pressing.length > 1 ? <> {pressing.length - 1} more {pressing.length === 2 ? 'property has' : 'properties have'} a passed deadline: <a href="#/deals">see My deals&nbsp;→</a></> : null}</p> : null;
+  const otherNote = other ? <p className="caution" role="note"><strong>Another property needs {dealNextTask(other).answer ? 'an answer' : 'your attention'}:</strong> {otherWhat(other).includes(other.name) ? '' : `${other.name}. `}{otherWhat(other)}<br /><button type="button" className="linkish" onClick={() => { chooseDeal(`analyzed:${other.id}`); setTimeout(() => focusTaskIn(document.querySelector('.plan-now-actions')?.parentElement), 0); }}>Work on it now&nbsp;→</button>{pressing.length > 1 ? <> · {pressing.length - 1} more {pressing.length === 2 ? 'property has' : 'properties have'} a passed deadline: <a href="#/deals">see My deals&nbsp;→</a></> : null}</p> : null;
 
   const side = (
     <aside className="plan-now-side" aria-labelledby={`plan-now-where-${variant}`}>

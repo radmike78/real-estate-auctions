@@ -332,7 +332,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
       </label>
       {/* My deals and the packet count only a typed rent: say so here, so the pages agree. */}
-      {price > 0 && !rentTyped && (living ? <p className="calc-note small" role="note"><strong>No rent is counted.</strong> If you’ll rent out a room or unit, type that rent. To save these results to My deals and the deal packet, type the rent in Monthly rent, even if it’s 0.</p> : <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the property’s rent to save these results to My deals and the deal packet.</p>)}
+      {price > 0 && !rentTyped && (living ? <p className="calc-note small" role="note"><strong>No rent is counted.</strong> Type 0 in Monthly rent (or the rent from a room or unit you’ll rent out) to save these results to My deals and the deal packet.</p> : <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the property’s rent to save these results to My deals and the deal packet.</p>)}
       {/* An investment-property loan over 85% of the price: said here, beside the result it changes (with no price
           typed yet, the mortgage-insurance note below says it). */}
       {price > 0 && onPrice && !living && Math.round(v.loanPct * 100) / 100 > 85 && (
@@ -361,8 +361,8 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
       <table className="deal-stress waterfall">
         <caption className="sr-only">Monthly income and costs at this price</caption>
         <tbody>
-          <tr><th scope="row">Rent, if fully rented</th><td>{mo(a.gross)}</td></tr>
-          <tr><th scope="row">Vacancy and unpaid rent ({v.vacancyPct}%)</th><td>{neg(a.vacancy)}</td></tr>
+          {!(livingThere && !(v.monthlyRent > 0)) && <tr><th scope="row">Rent, if fully rented</th><td>{mo(a.gross)}</td></tr>}
+          {!(livingThere && !(v.monthlyRent > 0)) && <tr><th scope="row">Vacancy and unpaid rent ({v.vacancyPct}%)</th><td>{neg(a.vacancy)}</td></tr>}
           <tr><th scope="row">Operating costs: tax, insurance, HOA, management ({v.managementPct}%) and repairs ({v.maintenancePct}%)</th><td>{neg(a.operating)}</td></tr>
           <tr className={`sum${a.noi < 0 ? ' neg' : ''}`}><th scope="row">Net operating income (NOI)</th><td>{a.noi < 0 ? `−${fmtMoney(Math.round(-a.noi / 12))}` : mo(a.noi)}</td></tr>
           <tr><th scope="row">Reserves for big replacements ({v.capexPct}%)</th><td>{neg(a.reserves)}</td></tr>
@@ -377,10 +377,10 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         {a.loan > 0 && <div><dt>Net loan proceeds after loan fees</dt><dd>{fmtMoney(Math.round(a.loan * (1 - v.loanCostPct / 100)))}</dd></div>}
         {!onPrice && a.loan > 0 && <div><dt>Your cash until the refinance closes</dt><dd>{fmtMoney(Math.round(a.allIn))}{cashLimit > 0 && a.allIn > cashLimit && <span className="deal-urgent"> · more than {limitWords}</span>}</dd></div>}
         <div><dt>{!onPrice && a.loan > 0 ? 'Your cash left in after the refinance, if approved' : 'Your cash in the deal'}</dt><dd>{a.cashIn > 0 ? fmtMoney(Math.round(a.cashIn)) : 'None: the loan covers it'}{(onPrice || !(a.loan > 0)) && cashLimit > 0 && a.cashIn > cashLimit && <span className="deal-urgent"> · more than {limitWords}</span>}</dd></div>
-        <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : `${capText(a.cashOnCash, v.targetCocPct)}%`}</dd></div>
-        <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{capPctText(a.capOnPrice)}</dd></div>
-        <div><dt>Cap rate on everything you pay</dt><dd>{capPctText(a.capOnCost)}</dd></div>
-        {a.dscr !== null && <div><dt>Income coverage: NOI ÷ loan payments</dt><dd className="wrap">{dscrText(a.dscr)}×{v.minDscr > 0 && !exampleRefi && a.dscr < v.minDscr && (livingThere ? <span> · below the {v.minDscr}× an investor’s lender looks for; a home loan you live in is judged mainly on your own income</span> : <span className="deal-urgent"> · under {dscrTyped ? 'your' : 'our example'} {v.minDscr}× minimum; check the lender’s separate requirements</span>)}</dd></div>}
+        {!(livingThere && !(v.monthlyRent > 0)) && <div><dt>Cash-on-cash return: yearly cash flow ÷ your cash in</dt><dd>{a.cashOnCash === null ? 'All your cash is back' : `${capText(a.cashOnCash, v.targetCocPct)}%`}</dd></div>}
+        {!(livingThere && !(v.monthlyRent > 0)) && <div><dt>Cap rate on the price: NOI ÷ price</dt><dd>{capPctText(a.capOnPrice)}</dd></div>}
+        {!(livingThere && !(v.monthlyRent > 0)) && <div><dt>Cap rate on everything you pay</dt><dd>{capPctText(a.capOnCost)}</dd></div>}
+        {a.dscr !== null && !(livingThere && !(v.monthlyRent > 0)) && <div><dt>Income coverage: NOI ÷ loan payments</dt><dd className="wrap">{dscrText(a.dscr)}×{v.minDscr > 0 && !exampleRefi && a.dscr < v.minDscr && (livingThere ? <span> · below the {v.minDscr}× an investor’s lender looks for; a home loan you live in is judged mainly on your own income</span> : <span className="deal-urgent"> · under {dscrTyped ? 'your' : 'our example'} {v.minDscr}× minimum; check the lender’s separate requirements</span>)}</dd></div>}
       </dl>
       </>)}
       <p className="muted small">Uses the rent, costs and loan you entered above; taxes and insurance are counted in operating costs, not in the loan payment. Your cash in doesn’t include reserves you keep in the bank. An estimate, not advice.</p>
