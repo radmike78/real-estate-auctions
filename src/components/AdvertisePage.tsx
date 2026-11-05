@@ -109,12 +109,13 @@ export default function AdvertisePage() {
       </ol>
 
       <h2>Where your category appears</h2>
+      <p>Who reads it: buyers and investors working through listed, bank-owned and short-sale homes and official sales, county by county, and the professionals they need along the way.</p>
       <p>Spotlight and Mentor Connect advertisers get a Featured ad on their category’s page, after “What to say”, and also show at the placements below for their kind of professional (the ones that are on today). Rotating advertisers take turns in the ad at the top of Your team (not beside a forced sale’s team).</p>
       <p>No ads appear on pages about forced sales (tax, trustee, HOA, sheriff and IRS sales) or lien certificates, or on pages for homeowners and business closures, so an ad is never placed beside owners in distress.</p>
       <div className="table-wrap"><table className="lesson-table where-cats">
         <thead><tr><th scope="col">Professional</th><th scope="col">Spotlight and Mentor Connect also show on</th></tr></thead>
         <tbody>
-          {(Object.keys(CATEGORIES) as Category[]).map((c) => {
+          {(() => { const rows = (Object.keys(CATEGORIES) as Category[]).map((c) => {
             const where: string[] = [];
             for (const spot of AD_SPOTS) {
               if (spot.key === 'analyze') {
@@ -126,8 +127,13 @@ export default function AdvertisePage() {
               } else if (spotCategories(spotSettings, spot.key).includes(c)) where.push(spot.key === 'finddeals' ? 'Find deals (readers buying through an agent: listed and bank-owned homes)' : spot.label);
             }
             if (CATEGORIES[c].financing) where.unshift('Financing page (Featured ad)');
-            return <tr key={c}><th scope="row">{CATEGORIES[c].label}</th><td>{where.length ? where.join('; ') : 'Your category’s page only, for now'}</td></tr>;
-          })}
+            return { c, text: where.length ? where.join('; ') : 'Your category’s page only, for now' };
+          });
+            // (Categories that show in the same places share one row.)
+            const groups: { labels: string[]; text: string; key: string }[] = [];
+            for (const r of rows) { const g = groups.find((x) => x.text === r.text); if (g) g.labels.push(CATEGORIES[r.c].label); else groups.push({ labels: [CATEGORIES[r.c].label], text: r.text, key: r.c }); }
+            return groups.map((g) => <tr key={g.key}><th scope="row">{g.labels.join(', ')}</th><td>{g.text}</td></tr>);
+          })()}
         </tbody>
       </table></div>
 

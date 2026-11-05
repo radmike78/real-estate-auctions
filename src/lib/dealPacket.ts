@@ -17,7 +17,7 @@ import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
-import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay } from './dealStage';
+import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -89,6 +89,18 @@ export const calendarRows = (p: PacketData, stage: string) => {
 /** A row the calendar review lets wait for a later event (filling it in later needs no new review). */
 export const laterRow = (what: string) => LATER.some((n) => sameDate(what, n)) || RECORDED_ROWS.some((n) => sameDate(what, n)) || sameDate(what, 'Redemption money collected');
 /** The recording rows at a win: the record task is how they get done (they can stay undated until then). */
+/** A Nevada tax sale's SID payoff deadline: 20 days after the sale (NRS 361.595(6)); '' without a sale day. */
+export const sidDeadline = (p: PacketData): string => {
+  const sd = p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when;
+  if (!sd) return '';
+  const t = new Date(`${sd}T12:00:00`); t.setDate(t.getDate() + 20);
+  return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+};
+/** Reminders count an SID payoff dated after its 20-day deadline against the deadline instead. */
+export const capSid = (p: PacketData, d: Pick<Deal, 'kind' | 'state'>): PacketData => {
+  const dl = d.state === 'NV' && d.kind === 'taxSale' ? sidDeadline(p) : '';
+  return dl && p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && x.when > dl) ? { ...p, dates: p.dates.map((x) => (sameDate(x.what, 'SID certificate payoff') && x.when > dl ? { ...x, when: dl } : x)) } : p;
+};
 /** The most dates a packet keeps. */
 export const MAX_DATES = 60;
 /** A Nevada trustee sale's 90-day limit (NRS 107.080(6)) still ahead of the challenge window's own end, and of today. */
@@ -837,7 +849,11 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
 
   // 3. Key dates
   const early = ['researching', 'offer'].includes(stageOf(d));
-  const nd = stageOf(d) === 'passed' || finishedDeal(d) ? null : nextDate(remindable(p, now, early, behindStage(d, stageOf(d))), now);
+  const nd = stageOf(d) === 'passed' || finishedDeal(d) ? null : nextDate(remindable(capSid(p, d), now, early, behindStage(d, stageOf(d))), now);
+  // Rows the stage has put behind you read "passed", not "open" (the sale day once won; the offer once accepted).
+  const pastRow = (what: string) => !['researching', 'offer'].includes(stageOf(d)) && ['Sale day', 'Bidder registration', 'Registration', 'Offer accepted', 'Acceptance', 'Contract signed'].some((n) => sameDate(what, n));
+  // A redemption end worked out from the sale day, while its row is blank.
+  const workedEnd = stageOf(d) === 'closed' && !p.dates.some((x) => sameDate(x.what, 'Redemption period ends') && x.when) ? redemptionEndFrom(d, p) : '';
   const openAfter = early && p.dates.some((x) => x.when && !x.resolved && afterSale(x.what));
   const dated = p.dates.filter((x) => x.when);
   const undatedDone = p.dates.filter((x) => !x.when && x.resolved && x.what.trim());
@@ -847,8 +863,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     // (A deal you passed on, or that was redeemed and repaid, has no stage left to review its calendar for.)
     status: calendarComplete(p, stageOf(d)) || (stageOf(d) === 'passed' && calendarReady(p, 'passed')) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length || undatedDone.length
-      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${prettyDay(x.when)}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days, d.kind) ? `${windowEnded(nd.what, -nd.days, d.kind)!.short} (${d.state === 'NV' && d.kind === 'trustee' && !challenge90Ahead(p, now) ? windowEnded(nd.what, -nd.days, d.kind)!.then.replace('If it does, move the end date; if not, mark it handled', 'If none was filed, mark it handled') : windowEnded(nd.what, -nd.days, d.kind)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : (openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
-      : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' ? 'official notice (the eligible-bidder windows count from the sale day, for homes of 1–4 units)' : d.kind === 'trustee' && d.state === 'NV' ? 'official notice (the challenge window counts from the day the trustee’s deed is recorded)' : d.kind === 'trustee' && d.state === 'TX' ? 'official notice (the rescission window counts from the sale day)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
+      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${prettyDay(x.when)}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : pastRow(x.what) ? ' — passed' : ' — open'}`), ...(workedEnd ? [`${prettyDay(workedEnd)} (worked out from the sale day; confirm it): Redemption period ends — open`] : []), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && windowEnded(nd.what, -nd.days, d.kind) ? `${windowEnded(nd.what, -nd.days, d.kind)!.short} (${d.state === 'NV' && d.kind === 'trustee' && !challenge90Ahead(p, now) ? windowEnded(nd.what, -nd.days, d.kind)!.then.replace('If it does, move the end date; if not, mark it handled', 'If none was filed, mark it handled') : windowEnded(nd.what, -nd.days, d.kind)!.then})` : nd.days < 0 ? `overdue by ${-nd.days} day${nd.days === -1 ? '' : 's'}` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : (openAfter ? 'Nothing is due before the sale; the dates after it come once you win.' : p.dates.some((x) => x.when && !x.resolved) ? 'Nothing else is due now.' : 'All dated items are marked handled.')]
+      : p.dates.length ? [`Fill in each date from the ${offer ? 'contract' : 'official notice'}; leave a date marked “(if …)” blank if it doesn’t apply.`] : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' ? 'official notice (the eligible-bidder windows count from the sale day, for homes of 1–4 units)' : d.kind === 'trustee' && d.state === 'NV' ? 'official notice (the challenge window counts from the day the trustee’s deed is recorded)' : d.kind === 'trustee' && d.state === 'TX' ? 'official notice (the rescission window counts from the sale day)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
   });
 
   // 4. Cash needed, by when (from the deal's own strategy)
