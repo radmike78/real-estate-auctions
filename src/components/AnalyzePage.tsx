@@ -190,6 +190,8 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const [mine] = useMyState();
   // The investing state before the State field below changed it, for the notice.
   const [stateMoved, setStateMoved] = useState<StateCode | null>(null);
+  // A deal past researching: its sale and plan fields unlock after one confirm (per deal, this visit).
+  const [unlockedFor, setUnlockedFor] = useState<string | null>(null);
   // The practice lien certificate's note, focused when the button opens one (it replaces the button).
   const lienNoteRef = useRef<HTMLParagraphElement>(null);
   // Your own state, from before the State field first moved you (kept across visits until you're back in it).
@@ -357,7 +359,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const practiceCert = !deal.id && deal.kind === 'lien' && !!mine && ((deal.state !== mine && practiceLienDeal()?.state === deal.state) || (!!movedFrom() && !['NV', 'AZ'].includes(movedFrom()!) && lienDealFor()?.state === deal.state && lienDealFor()?.county === deal.county));
   // A saved deal past researching (an offer, a win, a home you own): its sale and plan change only after a confirm.
   const underWayHere = !!deal.id && !deal.practice && ['offer', 'contract', 'closed', 'owned'].includes(saved.find((d) => d.id === deal.id)?.stage ?? '');
-  const changeOk = () => !underWayHere || window.confirm('This deal is under way. Changing its state, county, kind of sale or plan changes its packet dates and next tasks. Change it anyway?');
+  const locked = underWayHere && unlockedFor !== deal.id;
   const st = stateByCode(deal.state)!;
   const kinds = kindsFor(deal.state);
   const plans = PLANS.filter((p) => plansFor(deal.kind).includes(p.key));
@@ -410,7 +412,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <section className="deal-setup" aria-labelledby="setup-head">
         <h2 id="setup-head">1. Tell us about the property you found</h2>
         {underWayHere && (
-          <p className="note">“{deal.name}” is past researching (stage: {stageLabel(stageOf(saved.find((d) => d.id === deal.id)!), deal)}). Changes here update it in My deals; changing its state, county, kind of sale or plan also changes its packet dates and next tasks. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); setTimeout(() => document.getElementById('deal-name')?.focus(), 0); }}>Start a new deal</button></p>
+          <p className="note">“{deal.name}” is past researching (stage: {stageLabel(stageOf(saved.find((d) => d.id === deal.id)!), deal)}). Changes here update it in My deals. Its state, county, kind of sale and plan are locked, since changing them changes its packet dates and next tasks{locked ? <>: <button type="button" className="linkish" onClick={() => { if (window.confirm('Changing this deal’s state, county, kind of sale or plan changes its packet dates and next tasks. Unlock them?')) { setUnlockedFor(deal.id); setTimeout(() => document.querySelector<HTMLSelectElement>('.deal-fields select')?.focus(), 0); } }}>Change them</button></> : ' (unlocked now)'}. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); setTimeout(() => document.getElementById('deal-name')?.focus(), 0); }}>Start a new deal</button></p>
         )}
         {deal.id && saved.find((d) => d.id === deal.id)?.stage === 'passed' && (
           <p className="note">You passed on “{deal.name}”. Changes here update it in My deals. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button></p>
@@ -472,25 +474,25 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           </label>
           <label className="field">
             <span>State</span>
-            <select value={deal.state} onChange={(e) => { if (!changeOk()) return; const s = e.target.value as StateCode; if (mine && s !== mine) setStateMoved(mine); noteStateMove(mine, s); setMyState(s); /* first, so the starting county is your area's in that state */ const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: startCounty(s), countyChosen: false, locationConfirmed: false, kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); }}>
+            <select value={deal.state} disabled={locked} onChange={(e) => { const s = e.target.value as StateCode; if (mine && s !== mine) setStateMoved(mine); noteStateMove(mine, s); setMyState(s); /* first, so the starting county is your area's in that state */ const k = kindsFor(s).some((x) => x.key === deal.kind) ? deal.kind : 'listing'; set({ state: s, county: startCounty(s), countyChosen: false, locationConfirmed: false, kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0] }); }}>
               {STATES.map((s) => <option key={s.code} value={s.code}>{s.name}</option>)}
             </select>
           </label>
           <label className="field">
             <span>County</span>
-            <select value={deal.county} onChange={(e) => { if (changeOk()) set({ county: e.target.value, locationConfirmed: false, countyChosen: true }); }}>
+            <select value={deal.county} disabled={locked} onChange={(e) => set({ county: e.target.value, locationConfirmed: false, countyChosen: true })}>
               {st.counties.map((c) => <option key={c} value={c}>{countyName(c)}</option>)}
             </select>
           </label>
           <label className="field kind-field">
             <span>Kind of sale</span>
-            <select value={deal.kind} aria-describedby={deal.state === 'TX' && deal.kind === 'court' ? 'tx-court-note' : deal.state === 'AZ' && deal.kind === 'lien' ? 'az-land-note' : undefined} onChange={(e) => { if (!changeOk()) return; const k = e.target.value as SaleKind; set({ kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0], ...(practiceCert ? { locationConfirmed: false } : k === 'lien' && certSpot ? { locationConfirmed: true } : {}) }); /* a new lien certificate starts confirmed (no property); another kind of sale is a property to check */ }}>
+            <select value={deal.kind} aria-describedby={deal.state === 'TX' && deal.kind === 'court' ? 'tx-court-note' : deal.state === 'AZ' && deal.kind === 'lien' ? 'az-land-note' : undefined} disabled={locked} onChange={(e) => { const k = e.target.value as SaleKind; set({ kind: k, plan: plansFor(k).includes(deal.plan) ? deal.plan : plansFor(k)[0], ...(practiceCert ? { locationConfirmed: false } : k === 'lien' && certSpot ? { locationConfirmed: true } : {}) }); /* a new lien certificate starts confirmed (no property); another kind of sale is a property to check */ }}>
               {kinds.map((k) => <option key={k.key} value={k.key}>{kindLabel(k, deal.state)}</option>)}
             </select>
           </label>
           <label className="field kind-field">
             <span>Your plan</span>
-            <select value={deal.plan} onChange={(e) => { if (changeOk()) set({ plan: e.target.value as Plan }); }}>
+            <select value={deal.plan} disabled={locked} onChange={(e) => set({ plan: e.target.value as Plan })}>
               {plans.map((p) => <option key={p.key} value={p.key}>{p.label}</option>)}
             </select>
           </label>

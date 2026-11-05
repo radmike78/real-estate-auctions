@@ -3,7 +3,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
 import { DEAL_STAGES, loadDeals, openDeal, type Deal, type DealStage } from '../lib/analyze';
-import { setDealStage, soldOf, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask } from '../lib/dealStage';
+import { finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask } from '../lib/dealStage';
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
@@ -95,7 +95,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   // Working on a property doesn't finish the groundwork: the goal, cash, buy box and payment plan still open stay in view.
   const settledOwn = settledFor('');
   // (Not on a finished deal, sold or passed: nothing is running on it.)
-  const finished = !!deal && (stage === 'passed' || !!soldOf(deal));
+  const finished = !!deal && (stage === 'passed' || finishedDeal(deal));
   const foundations = deal && !finished ? roadmapFor(planPath(), practiceState()).filter((s) => s.phase <= 2 && !settledOwn(s)) : [];
 
   // The same label My plan's roadmap uses: "Next roadmap task · Get ready".
@@ -122,7 +122,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
               </li>
             ))}
           </ol></details>
-          <p className="plan-now-evidence">Evidence: <strong>{checked} of {EVIDENCE_AREAS.length}</strong> areas checked. <a href={`#/deals/packet/${deal.id}`}>Open its deal packet&nbsp;→</a></p>
+          {!finishedDeal(deal) && <p className="plan-now-evidence">Evidence: <strong>{checked} of {EVIDENCE_AREAS.length}</strong> areas checked. <a href={`#/deals/packet/${deal.id}`}>Open its deal packet&nbsp;→</a></p>}
         </>
       ) : (
         !onPlan && <details><summary>See all roadmap phases</summary><PhaseSummary /></details>

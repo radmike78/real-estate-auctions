@@ -467,6 +467,18 @@ describe('Nevada round 4 flow', () => {
     expect(line).not.toMatch(/walk-away/);
   });
 
+  it('keeps a redeemed deal’s calendar complete, and puts the wait behind an owned certificate-first deal', async () => {
+    const { calendarReady } = await import('./dealPacket');
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-08-01', what: 'Sale day', who: 'Agent', resolved: true }, { when: '', what: 'Redemption money collected', who: 'The person who redeemed' }] };
+    expect(calendarReady(p, 'closed')).toBe(true);
+    const owned = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Redemption period ends', who: 'Owner' }, { when: '2026-09-20', what: 'Deed delivered (if no one redeemed)', who: 'Agent' }] };
+    expect(dealNextTask({ ...hoa, plan: 'rent' }, owned, now, 'owned').urgent).toBeFalsy();
+    const t = dealNextTask(hoa, { ...EMPTY_PACKET, dates: [owned.dates[0]] }, now, 'closed');
+    expect(t.answer).toBe(true);
+    expect(t.advance2?.closes).toBe('Redemption period ends');
+  });
+
   it('says so when the deed row is ticked at a win', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);

@@ -42,7 +42,7 @@ function SoldForm({ o, put, deal }: { o: Owned; put: (next: Owned | null) => voi
   // A misplaced comma ("430,00") would record a price ten times off: refused, as in the monthly form.
   const [priceFocus, setPriceFocus] = useState(false);
   const priceBad = price.trim() !== '' && !!calculatorInputError(price, '$');
-  const priceWhy = price.trim() === '' ? 'Enter the sale price.' : priceBad ? (priceFocus && midNumber(price) ? '' : 'Check the sale price: use commas only between thousands, like 430,000.') : !(p > 0) ? 'Enter the sale price.' : '';
+  const priceWhy = price.trim() === '' ? 'Enter the sale price.' : priceBad ? (priceFocus && midNumber(price) ? 'Finish typing the price (commas only between thousands, like 430,000).' : 'Check the sale price: use commas only between thousands, like 430,000.') : !(p > 0) ? 'Enter the sale price.' : '';
   const dateOk = /^\d{4}-\d{2}-\d{2}$/.test(on);
   // A closing that hasn't happened yet, or before you bought it, doesn't finish the deal.
   const dateWhy = !dateOk ? 'Enter the closing date.' : on > today() ? 'Record the sale once it has closed: the closing date can’t be in the future.' : on < o.boughtOn ? `The closing date can’t be before you bought it (${o.boughtOn}).` : '';
@@ -155,7 +155,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
           <SoldForm o={o} put={put} deal={deal} />
         </>
       )}
-      {!o.sold && <p><button type="button" className="linkish" onClick={() => { if (window.confirm('Stop tracking this property and delete its monthly records?')) put(null); }}>I didn’t buy it, stop tracking</button></p>}
+      {!o.sold && <p><button type="button" className="linkish" onClick={() => { if (!window.confirm('Stop tracking this property, delete its monthly records and move it back to before closing?')) return; put(null); if (['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'contract'); }}>I didn’t buy it, stop tracking</button></p>}
     </div>
   );
 }

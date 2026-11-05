@@ -392,8 +392,12 @@ a.btn { display: inline-block; }
 .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .owned-add { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 12px; align-items: end; }
 .owned-add .field { margin: 0; }
-.owned-add .field > span { line-height: 1.4; }
-.owned-table td { vertical-align: middle; }
+.owned-add .field > span { display: block; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.owned-add .field input { min-width: 0; width: 100%; box-sizing: border-box; }
+.lesson-table.owned-table td { vertical-align: middle; }
+.owned-add { align-items: start; }
+.owned-add > .btn { align-self: end; }
+.owned-table td .linkish { vertical-align: middle; }
 
 /* Admin */
 
@@ -2739,7 +2743,9 @@ cite.cite { font-style: normal; font-size: max(0.82em, 15px); color: var(--muted
 .packet-qa li { display: grid; grid-template-columns: minmax(240px, 270px) 1fr 1fr minmax(150px, 180px) auto; gap: 8px; align-items: start; }
 .packet-f { display: grid; gap: 4px; min-width: 0; margin: 0; }
 .packet-f > span { font-size: 0.875rem; font-weight: 600; color: var(--muted); }
-.packet-dates li, .packet-qa li { align-items: end; }
+.packet-dates li { align-items: end; }
+.packet-qa li { align-items: start; }
+.packet-dates li > label:not(.packet-f), .packet-dates li > button { align-self: end; min-height: 46px; display: flex; align-items: center; }
 @media (max-width: 760px) { .packet-qa li { border: 1px solid var(--border); border-radius: 10px; padding: 10px; } }
 .packet-qa textarea { font: inherit; color: inherit; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; width: 100%; resize: vertical; }
 @media (max-width: 760px) { .packet-qa li { grid-template-columns: 1fr; } }

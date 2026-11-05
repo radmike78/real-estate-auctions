@@ -47,8 +47,8 @@ const NEVADA: Playbook[] = [
     key: 'tax',
     title: 'Nevada tax sales',
     short: 'Tax sales',
-    teaser: 'Homes and land with three or more years of unpaid property taxes (two if the county found it abandoned), sold by the Treasurer at auction (in person in Clark and Washoe counties; online in several rural counties).',
-    oneLine: 'Homes and land about three years behind on property taxes (two if the county found it abandoned), sold by the Treasurer at auction (in person in Clark and Washoe counties; online in several rural counties). How it adds up: a tax certificate about a year after the taxes go unpaid, then 2 years (1 if abandoned) for the owner to pay before the Treasurer takes title in trust and can auction it.',
+    teaser: 'Homes and land with three or more years of unpaid property taxes (two if the county found it abandoned), sold by the Treasurer at auction (in person in Clark County; Washoe registers bidders in person at the Treasurer’s office*; online in several rural counties).',
+    oneLine: 'Homes and land about three years behind on property taxes (two if the county found it abandoned), sold by the Treasurer at auction (in person in Clark County; Washoe registers bidders in person at the Treasurer’s office*; online in several rural counties). How it adds up: a tax certificate about a year after the taxes go unpaid, then 2 years (1 if abandoned) for the owner to pay before the Treasurer takes title in trust and can auction it.',
     youGet: 'The property, by quitclaim deed from the Treasurer, with no warranty of title.',
     plain: 'The house itself, but the county makes no promise that the title is clear.',
     forSale: true,
@@ -60,7 +60,7 @@ const NEVADA: Playbook[] = [
       { label: 'Deposit', value: '$5,000 per bidder in certified funds; credited if you win' },
       { label: 'Payment', value: "Pay the full price the same day by 1:00 p.m. (4:30 p.m. for parcels re-auctioned at 2:00 p.m.). Plan on cash, a cashier's check or a money order. The May 2025 notice didn't list wire for the final payment, though the Treasurer's FAQ mentions it, so confirm in the current notice. No financing." },
       { label: 'Deed', value: 'A quitclaim deed to the name on your Trustee Auction Registration Form. It is recorded within 30 days and mailed to you. To change the name later, you record your own new deed' },
-      { label: 'After the sale', value: 'There’s no redemption: the owner can’t buy it back. But for 2 years after the Treasurer’s deed is delivered, the former owner, or anyone else claiming the land, can sue to recover it. You may not be able to get title insurance during that time (NRS 361.600)' },
+      { label: 'After the sale', value: 'There’s no redemption: the owner can’t buy it back. But for 2 years after the Treasurer’s deed is delivered, the former owner, or anyone else claiming the land, can sue to recover it (NRS 361.600). County FAQs say title companies may not insure during that time; a quiet title action, or (Douglas County’s FAQ says) the former owner claiming the excess proceeds, can shorten it' },
     ],
     steps: [
       { title: 'Get the list and the notice', detail: 'The Treasurer publishes the parcel list and the auction information notice before each sale. Owners, and lenders or other lienholders of record, can pay until close of business 3 business days before the sale. Parcels that get paid are crossed off the list (called lined out) (NRS 361.585).' },
@@ -78,7 +78,7 @@ const NEVADA: Playbook[] = [
     },
     mistakes: [
       { mistake: 'Bidding on a parcel you never looked up', prevent: 'Match the parcel number on the Assessor map, not just the address.' },
-      { mistake: 'Planning to resell right away', prevent: 'Budget for the wait. Before a title company will insure, you’ll need to get past the 2-year window after the deed, or win a quiet title action (NRS 361.600).' },
+      { mistake: 'Planning to resell right away', prevent: 'Budget for the wait. A title company may not insure until the 2-year window to sue after the deed has passed (NRS 361.600), unless a quiet title action is won or (Douglas County’s FAQ says) the former owner claims the excess proceeds. Ask a title company before you plan a resale.' },
       { mistake: 'Registering in the wrong name', prevent: 'The deed goes to exactly the bidder name on your registration form. The Treasurer’s form requires an individual’s name, not a company, LLC or trust. To hold it in an entity, record your own deed to it after you receive the Treasurer’s deed. Ask an attorney first.' },
       { mistake: 'Hoping to buy an unsold parcel later', prevent: 'The county doesn’t sell parcels over the counter. Unsold parcels may come back at a future auction.' },
       { mistake: 'Winning several parcels without the cash for all of them', prevent: 'Bring certified funds for everything you might win. One unpaid parcel costs the deposit and a ban.' },
