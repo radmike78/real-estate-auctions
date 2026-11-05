@@ -8,6 +8,7 @@ import { workStorage as localStorage } from './workStorage';
 // team, public records and the county only.
 import { CURRENT_KEY, DEAL_STAGES, isDealStage, loadDeals, saveDeals, type Deal, type DealStage } from './analyze';
 import { investorProfile } from './myPlan';
+import { readConfirmed } from './calcConfirmation';
 import { irsWithoutRedemption, sameDate, roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
 import { areasFor, loadLog, type EvidenceLog } from './evidence';
 import { loadOwned, type Owned } from './owned';
@@ -34,14 +35,15 @@ const handled = (p: PacketData, what: string, now: Date) => p.dates.some((x) => 
 function liveIn(d: Deal): boolean {
   if (d.plan !== 'rent' || wayOf(d) !== 'offer' || !investorProfile().ownerOccupant) return false;
   try {
-    const r = JSON.parse(localStorage.getItem(`fsf.calc.rent.${d.id}-offer.v1`) ?? 'null') as { monthlyRent?: unknown } | null;
-    return !(typeof r?.monthlyRent === 'number' && r.monthlyRent > 0);
+    const key = `fsf.calc.rent.${d.id}-offer.v1`;
+    const r = JSON.parse(localStorage.getItem(key) ?? 'null') as { monthlyRent?: unknown } | null;
+    return !(readConfirmed(key).has('monthlyRent') && typeof r?.monthlyRent === 'number' && r.monthlyRent > 0);
   } catch { return true; }
 }
 
 /** Dates that only matter once you've won (they come after the sale): no reminder for them before then. */
 const AFTER_SALE = ['Certificate of sale recorded', 'Certificate of sale received', 'Redemption period ends', DEED_AFTER_WAIT, 'Deed recorded', 'Deed or certificate recorded', 'Treasurer’s deed recorded', 'Recovery-suit window ends', 'Challenge window ends', 'Rescission window ends', 'Intent-to-bid window ends', 'Eligible bid deadline (45 days)', 'Earliest you may act (unpaid lien)', 'Certificate expires'];
-const afterSale = (what: string) => AFTER_SALE.some((n) => sameDate(what, n));
+export const afterSale = (what: string) => AFTER_SALE.some((n) => sameDate(what, n));
 /** Sale day is marked handled, or its date has passed: time to say whether you won. */
 const saleOver = (p: PacketData, now: Date) => p.dates.some((x) => sameDate(x.what, 'Sale day') && (!!x.resolved || (!!x.when && x.when < localDay(now))));
 /** A row marked handled, with or without its date (the deed: you have it). */
@@ -273,13 +275,13 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       const bidTask = task({
         key: 'bid',
         label: saleOver(p, now) ? (w === 'lien' && d.state === 'NV' ? `Sale day has passed: were you picked for ${n}?` : `Sale day has passed: did you win ${n}?`) : w === 'lien' ? (d.state === 'NV' ? `Sign up for ${n} at the county’s sale` : `Bid on ${n} at the county’s sale`) : `Register and bid on ${n}, up to your maximum`,
-        produces: saleOver(p, now) ? `your answer. If you ${w === 'lien' && d.state === 'NV' ? 'were picked' : 'won'}, mark it and the payment and recording steps appear here; if not, move it to Passed in its packet` : w === 'lien' && d.state === 'NV' ? 'your name in for it at the sale (buyers are picked by a drawing or a show of hands), or a clean walk-away. If you’re picked, mark it and the payment deadline appears here' : 'a bid at or below your limit, or a clean walk-away. If you win, mark it won and the payment deadlines appear here',
+        produces: saleOver(p, now) ? `your answer. If you ${w === 'lien' && d.state === 'NV' ? 'were picked, mark it and the payment step appears here' : 'won, mark it and the payment and recording steps appear here'}; if not, mark it passed` : w === 'lien' && d.state === 'NV' ? 'your name in for it at the sale (buyers are picked by a drawing or a show of hands), or a clean walk-away. If you’re picked, mark it and the payment deadline appears here' : 'a bid at or below your limit, or a clean walk-away. If you win, mark it won and the payment deadlines appear here',
         href: ROADMAP_HREF,
         advance: { stage: 'contract', label: w === 'lien' && d.state === 'NV' ? 'I was picked: mark it' : 'I won the bid: mark it won' },
         support: [L.guides, w === 'lien' && d.state === 'NV' ? L.practiceLien : L.practiceAuction],
         done: false,
       });
-      if (saleOver(p, now)) out.unshift(bidTask);
+      if (saleOver(p, now)) out.unshift(bidTask, task({ key: 'lost', label: w === 'lien' && d.state === 'NV' ? `Not picked for ${n}? Mark it passed` : `Didn’t win ${n}? Mark it passed`, produces: 'the deal moved to Passed, with its record kept', href: packetHref(d, 'decision'), setStage: 'passed', done: false }));
       if (!saleOver(p, now)) out.push(bidTask);
     }
     return out;
@@ -320,7 +322,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       return out;
     }
     // A certificate first: insure it on day one, then the wait, then the deed (each done from the packet's dates).
-    const firstWeek = task({ key: 'first-week', label: `Your first week with ${n}`, produces: certificateFirst(d) ? 'insurance in your name and a dated record of its condition; locks, utilities and possession as your attorney advises while the redemption period runs*' : 'insurance in your name, locks changed, utilities on, and a dated record of its condition', href: stepHref('first-week'), support: d.plan === 'flip' ? [L.caseStage('after', 'Your first weeks')] : [L.afterClosing, L.caseStage('after', 'Your first weeks')], done: stepDone('first-week') });
+    const firstWeek = task({ key: 'first-week', label: `Your first week with ${n}`, produces: certificateFirst(d) && !deedInHand(d) ? 'insurance in your name and a dated record of its condition; locks, utilities and possession as your attorney advises while the redemption period runs*' : 'insurance in your name, locks changed, utilities on, and a dated record of its condition', href: stepHref('first-week'), support: d.plan === 'flip' ? [L.caseStage('after', 'Your first weeks')] : [L.afterClosing, L.caseStage('after', 'Your first weeks')], done: stepDone('first-week') });
     if (certificateFirst(d)) out.push(firstWeek);
     if (w === 'auction') out.push(task({ key: 'before-remodel', label: `Check redemption, possession and title for ${n} before you remodel`, produces: 'a written answer on any redemption period, lawful possession and title insurance', href: stepHref('a-before-remodel'), support: [L.guides], done: stepDone('a-before-remodel') }));
     // The redemption wait comes first: the end date on its calendar, the property insured and kept up, no remodeling.
@@ -383,7 +385,7 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
     const early = stage === 'researching' || stage === 'offer';
     const nd = nextDate(early ? { ...p, dates: p.dates.filter((x) => !afterSale(x.what)) } : p, now);
     if (nd && nd.days <= 7) {
-      const text = nd.days < 0 && nd.what === 'Redemption period ends' ? `The redemption period ended ${-nd.days} day${nd.days === -1 ? '' : 's'} ago: if no one redeemed, mark it handled and ask for the deed.` : `${nd.days < 0 ? `Overdue by ${-nd.days} days` : nd.days === 0 ? 'Today' : nd.days === 1 ? 'Tomorrow' : `In ${nd.days} days`}: ${nd.what}.${nd.who ? ` Who: ${nd.who}.` : ''}`;
+      const text = nd.days < 0 && sameDate(nd.what, 'Redemption period ends') ? `The redemption period ended ${-nd.days} day${nd.days === -1 ? '' : 's'} ago: if no one redeemed, mark it handled and ask for the deed.` : `${nd.days < 0 ? `Overdue by ${-nd.days} days` : nd.days === 0 ? 'Today' : nd.days === 1 ? 'Tomorrow' : `In ${nd.days} days`}: ${nd.what}.${nd.who ? ` Who: ${nd.who}.` : ''}`;
       return { key: 'date', label: text, produces: 'the deadline met, with what you did noted in its deal packet', href: `#/deals/packet/${d.id}/dates`, support: [], done: false, urgent: true, text };
     }
     const log = loadLog(`analyzed:${d.id}`);

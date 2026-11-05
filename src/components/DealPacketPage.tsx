@@ -116,7 +116,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       </div>
       <div className="packet-next">
         <strong>Your next action</strong>
-        <p>{next.label}{next.urgent ? '' : <>. <span className="muted">You’ll have {next.produces}.</span></>}{' '}
+        <p>{next.label}{next.urgent ? '' : <>{/[?.!]$/.test(next.label) ? '' : '.'} <span className="muted">You’ll have {next.produces}.</span></>}{' '}
           {next.openDeal ? <a href="#/analyze" onClick={(e) => { e.preventDefault(); openDeal(deal); }}>Open in Analyze&nbsp;→</a>
             : next.setStage ? <button type="button" className="linkish" onClick={() => setDealStage(deal.id, next.setStage!)}>Do it now&nbsp;→</button>
             : !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there&nbsp;→</a> : null}

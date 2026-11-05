@@ -156,7 +156,7 @@ export function pages(): Page[] {
 function noscriptNote(body: string): string {
   // (Nevada is the launch state: a page naming any other state's rules says why.)
   const plain = body.replace(/Nevada, California, Arizona, Utah,? and Texas/g, '');
-  const states = ['California', 'Arizona', 'Utah', 'Texas'].filter((n) => plain.includes(n)).length;
+  const states = ['California', 'Arizona', 'Utah', 'Texas'].filter((n) => new RegExp(`\\b[Ii]n ${n}\\b,|\\b${n}:`).test(plain)).length;
   const lines = [
     ...(body.length < 2000 ? ['Parts of this page need JavaScript. The lessons in Learn work without it.'] : []),
     ...(states >= 1 ? ['This copy shows rules for the states we cover, each labeled with its state; turn on JavaScript to see only yours.'] : []),

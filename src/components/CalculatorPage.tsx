@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
 import { irsWithoutRedemption } from '../lib/dealPacket';
 import { stateByCode, type StateCode } from '../lib/regions';
 import { investorProfile, profileStart, commercialProfileStart } from '../lib/myPlan';
@@ -33,6 +35,9 @@ export function Calculators({ initial, onTab, state, offer = false, dealId, onAn
 
 /** The checks that most often change a beginner's numbers, shown where the decision is made. */
 function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; state?: StateCode; saleKind?: string; dealId?: string }) {
+  // (Re-read when Fix and sell saves a rule: the redemption lines follow it.)
+  const [, setTick] = useState(0);
+  useEffect(() => { const on = () => setTick((n) => n + 1); window.addEventListener(CONFIRMED_EVENT, on); return () => window.removeEventListener(CONFIRMED_EVENT, on); }, []);
   // An IRS sale with "No redemption" picked (a court-ordered sale): no 180-day line.
   const irsNone = saleKind === 'irs' && !!dealId && !!state && irsWithoutRedemption({ state, kind: 'irs', id: dealId, plan: 'flip' });
   const name = state ? stateByCode(state)?.name : undefined;

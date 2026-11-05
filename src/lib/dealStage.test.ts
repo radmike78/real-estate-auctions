@@ -343,3 +343,12 @@ it('gives a home you’ll live in no rental tasks', () => {
   expect(keys).toMatch(/as your home/);
   localStorage.removeItem('deedowl.decide.v1');
 });
+
+it('offers "didn’t win" beside "did you win?", with no doubled punctuation in the next action', () => {
+  const hoa: Deal = { ...deal, id: 'dh8', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'offer' };
+  const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'HOA agent', resolved: true }] };
+  const keys = stageTasks(hoa, 'offer', p, now).map((t) => t.key);
+  expect(keys.slice(0, 2)).toEqual(['bid', 'lost']);
+  expect(stageTasks(hoa, 'offer', p, now).find((t) => t.key === 'lost')?.setStage).toBe('passed');
+  expect(nextAction(hoa, p, now).text).not.toMatch(/\?\./);
+});

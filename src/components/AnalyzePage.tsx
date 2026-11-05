@@ -1,3 +1,4 @@
+import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
 import { planNow, practiceLienDeal, roadmapNextStep } from '../lib/planNext';
 import { lienDealFor, planPath, progressChanged } from '../lib/roadmapState';
 import PathNext from './PathNext';
@@ -201,6 +202,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   // The kept-draft note shows once. (The "opened on purpose" marker stays while that deal is the one open.)
   // Read into keptNoteOnce, so a second mount during the first paint (the prerendered /analyze page) still shows it.
   useEffect(() => { try { localStorage.removeItem(KEPT_NOTE_KEY); } catch { /* storage unavailable */ } }, []);
+  // A rule saved in Fix and sell (an IRS sale's "No redemption") changes the checklist: re-read it.
+  const [, setRuleTick] = useState(0);
+  useEffect(() => { const on = () => setRuleTick((n) => n + 1); window.addEventListener(CONFIRMED_EVENT, on); return () => window.removeEventListener(CONFIRMED_EVENT, on); }, []);
   const [keptNote, setKeptNote] = useState(() => {
     // Left by openDeal when a started deal was saved before another was opened elsewhere on the site.
     try {
@@ -353,6 +357,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const st = stateByCode(deal.state)!;
   const kinds = kindsFor(deal.state);
   const plans = PLANS.filter((p) => plansFor(deal.kind).includes(p.key));
+  // (The IRS redemption line follows a rule picked in Fix and sell, re-read when it's saved.)
   const groups = checklistFor(deal);
   const all = groups.flatMap((g) => g.items);
   const doneCount = all.filter((i) => deal.done.includes(i.id)).length;

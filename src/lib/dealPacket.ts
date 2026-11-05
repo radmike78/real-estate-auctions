@@ -16,7 +16,7 @@ import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
-import { dealNextTask, stageLabel, stageOf } from './dealStage';
+import { dealNextTask, stageLabel, stageOf, afterSale } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -61,7 +61,7 @@ export const EMPTY_PACKET: PacketData = { fit: '', fitWhy: '', dates: [], qa: []
 /** A date that applies only if something happens (its name says “(if …)”): it can stay undated. */
 const ifOnly = (what: string) => /\(if /.test(what);
 /** A packet row is this date, even renamed by the reader: its name starts with the date's own (without any “(if …)”). */
-export const sameDate = (rowWhat: string, name: string) => rowWhat.trim().toLowerCase().startsWith(name.replace(/\s*\(if [^)]*\)$/, '').toLowerCase());
+export const sameDate = (rowWhat: string, name: string) => rowWhat.trim().toLowerCase().startsWith(name.replace(/\s*\(if [^)]*\)$/, '').toLowerCase()) || (/^registration/i.test(name) && /^bidder registration/i.test(rowWhat.trim()));
 
 /** A date row filled in: its date and who handles it, or (a date that applies only if something happens) left undated. */
 export const dateRowComplete = (d: { when: string; what: string; who: string }) => !!d.what.trim() && ((!!d.when && !!d.who.trim()) || (!d.when && ifOnly(d.what)));
@@ -263,7 +263,7 @@ function savedRule(d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal[
 }
 
 /** An IRS sale with "No redemption" picked in Fix and sell (a court-ordered sale can allow none): a deed, not a certificate first. */
-export const irsWithoutRedemption = (d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal['plan'] }): boolean => d.kind === 'irs' && savedRule(d) === 'none';
+export const irsWithoutRedemption = (d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal['plan'] }): boolean => d.kind === 'irs' && savedRule({ ...d, plan: 'flip' }) === 'none';
 
 /** A redemption wait typed in Fix and sell for this deal (a what-if its price is built on). */
 function typedWait(d: Pick<Deal, 'state' | 'kind'> & { id?: string; plan?: Deal['plan'] }): boolean {
@@ -755,7 +755,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   });
 
   // 3. Key dates
-  const nd = nextDate(p, now);
+  const early = ['researching', 'offer'].includes(stageOf(d));
+  const nd = nextDate(early ? { ...p, dates: p.dates.filter((x) => !afterSale(x.what)) } : p, now);
   const dated = p.dates.filter((x) => x.when);
   const undatedDone = p.dates.filter((x) => !x.when && x.resolved && x.what.trim());
   out.push({
@@ -763,7 +764,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     title: 'Key dates',
     status: calendarComplete(p, stageOf(d)) ? 'done' : dated.length ? 'started' : 'missing',
     lines: dated.length || undatedDone.length
-      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 ? `overdue by ${-nd.days} days` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : 'All dated items are marked handled.']
+      ? [...[...dated].sort((a, b) => a.when.localeCompare(b.when)).map((x) => `${x.when}: ${x.what}${x.who ? ` (${x.who})` : ''}${x.resolved ? ' — handled' : ' — open'}`), ...undatedDone.map((x) => `No date: ${x.what}${x.who ? ` (${x.who})` : ''} — handled`), nd ? `Next: ${nd.what}, ${nd.days < 0 && sameDate(nd.what, 'Redemption period ends') ? `ended ${-nd.days} day${nd.days === -1 ? '' : 's'} ago (if no one redeemed, mark it handled and ask for the deed)` : nd.days < 0 ? `overdue by ${-nd.days} days` : nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}` : 'All dated items are marked handled.']
       : [`Add the dates from the ${offer ? 'contract' : d.kind === 'trustee' && d.state === 'CA' ? 'official notice (the eligible-bidder windows count from the sale day, for homes of 1–4 units)' : d.kind === 'trustee' && d.state === 'NV' ? 'official notice (the challenge window counts from the day the trustee’s deed is recorded)' : d.kind === 'trustee' && d.state === 'TX' ? 'official notice (the rescission window counts from the sale day)' : 'official notice'}: ${suggestedDates(d).join('; ')}.${offer && d.plan === 'commercial' ? ' Commercial contracts vary: take each date from your signed contract.' : ''}`],
   });
 
@@ -990,7 +991,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
  */
 export function nextAction(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date()): { text: string; href?: string } {
   const t = dealNextTask(d, p, now);
-  return { text: t.urgent ? t.text : `${t.label}. You’ll have ${t.produces}.`, href: t.openDeal ? '#/analyze' : undefined };
+  return { text: t.urgent ? t.text : `${t.label}${/[?.!]$/.test(t.label) ? '' : '.'} You’ll have ${t.produces}.`, href: t.openDeal ? '#/analyze' : undefined };
 }
 
 /** The whole packet as plain text, to download, print or share with your professionals. */
