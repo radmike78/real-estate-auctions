@@ -21,7 +21,9 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
         <button type="button" className={task.answer ? main : 'btn btn-secondary'} onClick={(e) => {
           const el = e.currentTarget;
           edit((p) => {
-            const i = p.dates.findIndex((x) => sameDate(x.what, tick.row) && !x.resolved);
+            // (The row the reminder named, exactly; else the first open row of that kind.)
+            const exact = p.dates.findIndex((x) => x.what === tick.row && !x.resolved);
+            const i = exact >= 0 ? exact : p.dates.findIndex((x) => sameDate(x.what, tick.row) && !x.resolved);
             // (An event with no date yet, such as the payoff, is dated today.)
             const rows = i < 0 ? (p.dates.some((x) => sameDate(x.what, tick.row)) ? p.dates : [...p.dates, { what: tick.row, when: tick.when ?? (tick.noDate ? '' : today()), who: tick.who ?? '', resolved: true }]) : p.dates.map((x, j) => (j === i ? { ...x, resolved: true, when: tick.setWhen || x.when || tick.when || (tick.noDate ? '' : today()), who: x.who || tick.who || '' } : x));
             const kept = tick.drops ? rows.filter((x) => !(sameDate(x.what, tick.drops!) && !x.when)) : rows;

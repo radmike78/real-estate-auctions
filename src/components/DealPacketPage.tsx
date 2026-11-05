@@ -14,7 +14,7 @@ import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
 import { DEAL_STAGES, type DealStage } from '../lib/analyze';
-import { asksHome, voidByLaw, forCalendar, liveIn, setDealHome, sidState, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
+import { recordParts, asksHome, voidByLaw, forCalendar, liveIn, setDealHome, sidState, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { planNow } from '../lib/planNext';
 import TaskActions from './TaskActions';
@@ -91,7 +91,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
   const pastSale = ['closed', 'owned'].includes(stageOf(deal)) || finishedDeal(deal) || wonAuction || sidState(deal) === 'void';
   // The parts from before you bought: records now, not homework.
   // (After the closing or the deed, the evidence log and the questions were for before you bought: records too.)
-  const RECORD_PARTS = sidState(deal) === 'void' || ['closed', 'owned'].includes(stageOf(deal)) || finishedDeal(deal) ? ['plan', 'property', 'cash', 'numbers', 'evidence', 'pros', 'decision'] : ['plan', 'property', 'cash', 'numbers', 'pros', 'decision'];
+  const RECORD_PARTS = recordParts(deal);
   const Head = ({ k }: { k: string }) => {
     const s = sec(k);
     return (

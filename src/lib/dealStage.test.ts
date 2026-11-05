@@ -1208,4 +1208,14 @@ describe('Nevada round 4 flow', () => {
     saveDeals([{ ...court, stage: 'closed' }]);
     expect(packetSections({ ...court, stage: 'closed' }, early, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Next: the deed date you entered/);
   });
+
+  it('round 17: an early deed date is checked at the win and before it passes; the winning bid comes before the redemption wait', () => {
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const won = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'HOA', resolved: true }, { when: '2026-09-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-10-31', what: 'Redemption period ends', who: 'HOA' }, { when: '2026-09-20', what: 'Deed delivered (if no one redeemed)', who: 'HOA agent' }] };
+    expect(dealNextTask(hoa, won, now, 'contract').label).toMatch(/is before the redemption period ends/);
+    const soon = { ...EMPTY_PACKET, dates: [{ when: '2026-08-26', what: 'Sale day', who: 'HOA', resolved: true }, { when: '2026-10-25', what: 'Redemption period ends', who: 'HOA' }, { when: '2026-10-08', what: 'Deed delivered (if no one redeemed)', who: 'HOA agent' }] };
+    expect(dealNextTask(hoa, soon, now, 'closed').label).toMatch(/is before the redemption period ends/);
+    const keys = stageTasks({ ...nvFlip, kind: 'court' as const }, 'closed', { ...EMPTY_PACKET, dates: [{ when: '2026-08-03', what: 'Sale day', who: 'S', resolved: true }] }, now).map((t) => t.key);
+    if (keys.includes('won-price')) expect(keys.indexOf('won-price')).toBeLessThan(keys.indexOf('redemption-wait'));
+  });
 });

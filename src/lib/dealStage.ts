@@ -91,7 +91,11 @@ export const afterSale = (what: string) => AFTER_SALE.some((n) => sameDate(what,
 /** At a certificate-first win, the redemption end and the deed are ahead: not reminders yet (and not behind you). */
 export const notYet = (d: { kind: Deal['kind']; state?: Deal['state']; id?: string; plan?: Deal['plan'] }, stage: string, p?: PacketData, now: Date = new Date()) => (stage === 'contract' && wayOf(d) !== 'offer' && certificateFirst(d) ? [DEED_AFTER_WAIT, 'Redemption period ends'].filter((n) => !(p?.dates.some((x) => sameDate(x.what, n) && x.when && x.when < localDay(now)))) : []);
 /** A deed date typed before the redemption ends (the end typed or worked out, still ahead): that end, else ''. */
-export const earlyDeedEnd = (d: Pick<Deal, 'kind' | 'state'> & { id?: string; plan?: Deal['plan'] }, p: PacketData, now: Date) => { if (!certificateFirst(d) || ticked(p, 'Redemption period ends')) return ''; const e = p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when || redemptionEnd(d, p); return e && e >= localDay(now) ? e : ''; };
+export const earlyDeedEnd = (d: Pick<Deal, 'kind' | 'state'> & { id?: string; plan?: Deal['plan'] }, p: PacketData, now: Date, deedOn = p.dates.find((x) => sameDate(x.what, DEED_AFTER_WAIT) && x.when && !x.resolved)?.when ?? '') => { if (!certificateFirst(d) || ticked(p, 'Redemption period ends') || !deedOn) return ''; const e = p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when || redemptionEnd(d, p); return e && e >= localDay(now) && deedOn < e ? e : ''; };
+/** An offer's earnest money marked sent on the roadmap counts as its date row handled (one answer, not two). */
+export const withDeposit = (d: { id?: string; kind: Deal['kind'] }, p: PacketData): PacketData => (d.id && wayOf(d) === 'offer' && dealProgress(`analyzed:${d.id}`).done.includes('deposit') && p.dates.some((x) => sameEvent(x.what, 'Earnest money due') && !x.resolved) ? { ...p, dates: p.dates.map((x) => (sameEvent(x.what, 'Earnest money due') && !x.resolved ? { ...x, resolved: true } : x)) } : p);
+/** The packet parts that, at this stage, are records from before you bought (the page and the download agree). */
+export const recordParts = (d: Deal) => (sidState(d) === 'void' || ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? ['plan', 'property', 'cash', 'numbers', 'evidence', 'pros', 'decision'] : ['plan', 'property', 'cash', 'numbers', 'pros', 'decision']);
 /** A passed offer's earnest money, back from escrow. */
 export const EARNEST_BACK = 'Earnest money returned';
 export const remindable = (p: PacketData, now: Date, early: boolean, behind: string[] = []): PacketData => {
@@ -378,6 +382,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
   const ev = (k: string) => !!log.rows[k]?.done;
   const per = dealProgress(`analyzed:${d.id}`);
   const stepDone = (id: string) => per.done.includes(id) || per.status[id] === 'na';
+  p = withDeposit(d, p);
   const nums = savedNumbers(d);
   const hasNums = d.plan === 'lien' || hasSavedNumbers(nums); // only the property's own numbers (dealPacket.ownNumbers)
   const tx = d.state === 'TX';
@@ -482,7 +487,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
 
   if (stage === 'contract') {
     if (w === 'offer') {
-      out.push(task({ key: 'deposit-sent', label: ticked(p, 'Earnest money due') ? `Confirm escrow received the earnest money for ${n}` : `Send the earnest money for ${n} and confirm receipt`, produces: `escrow’s written confirmation that it received the deposit${tx ? ' and any option fee' : ''} your contract requires; mark the deposit roadmap task done`, href: stepHref('deposit'), support: [L.negotiate], done: stepDone('deposit') || ticked(p, 'Earnest money due') }));
+      out.push(task({ key: 'deposit-sent', label: ticked(p, 'Earnest money due') ? `Confirm escrow received the earnest money for ${n}` : `Send the earnest money for ${n} and confirm receipt`, produces: `escrow’s written confirmation that it received the deposit${tx ? ' and any option fee' : ''} your contract requires; mark it handled here`, href: stepHref('deposit'), ...(!ticked(p, 'Earnest money due') ? { tick: { label: 'I sent it: mark it handled', row: 'Earnest money due', who: 'Escrow' } } : {}), support: [L.negotiate], done: stepDone('deposit') || ticked(p, 'Earnest money due') }));
       out.push(task({ key: 'dates', label: `Put ${n}’s contract deadlines on its calendar`, produces: 'every deadline from the signed contract on one calendar (the date rows under Key dates), with the next one shown here', href: packetHref(d, 'dates'), support: [L.negotiate], done: calendarComplete(p, stage) }));
       out.push(task({ key: 'inspection-complete', label: `Inspect ${n} before the ${d.plan === 'commercial' ? 'feasibility (due-diligence) period ends' : tx ? 'option period ends' : d.state === 'UT' ? 'Due Diligence Deadline' : 'inspection period ends'}`, produces: 'the report, repair bids and written decision before the deadline; mark the inspection roadmap task done', href: stepHref('inspect'), support: d.plan === 'commercial' ? [L.pro('environmental'), L.pro('appraiser')] : [L.pro('inspector'), L.caseStage('inspection', 'The inspection')], done: stepDone('inspect') || ticked(p, 'Inspection period ends') || ticked(p, 'Option period ends') }));
       out.push(task({ key: 'final-financing', label: `Get the loan approved for ${n}, or confirm your cash`, produces: 'final lender approval with conditions satisfied, or verified available closing funds; mark the final financing roadmap task done', href: stepHref('loan-approval'), support: [L.pro('lender')], done: stepDone('loan-approval') || ticked(p, 'Loan approval deadline') }));
@@ -535,7 +540,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     if (!deedFirst) out.push(firstWeek);
     const wonLater = w === 'auction' && (d.plan === 'flip' || d.plan === 'rent') ? wonPrice(d as Deal, p, n) : undefined;
     const won = wonLater && !wonLater.done && !bidTyped(d as Deal) ? wonLater : undefined;
-    if (won && !certificateFirst(d)) out.push(won);
+    if (won) out.push(won);
     const nvTrustee = d.state === 'NV' && d.kind === 'trustee';
     const nvTax = d.state === 'NV' && d.kind === 'taxSale';
     const redemptionDone = certificateFirst(d) && ticked(p, 'Redemption period ends');
@@ -547,7 +552,6 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       out.push(task({ key: 'deed', label: ticked(p, 'Redemption period ends') ? `Get the deed for ${n} and record it` : `Get the deed for ${n} and record it, if no one redeemed`, produces: `the deed from ${d.kind === 'hoa' ? 'whoever conducted the sale' : d.kind === 'irs' ? 'the IRS, for your certificate of sale' : 'the sheriff'}, recorded, then enter the date you got it and mark “${DEED_AFTER_WAIT}” handled in its dates${ticked(p, 'Redemption period ends') ? '' : '. If it was redeemed instead, you’re repaid your price plus what the law adds: press “It was redeemed” to collect the payoff'}`, href: packetHref(d, 'dates'), tick: { label: 'I have the deed, and it’s recorded: mark it handled', row: DEED_AFTER_WAIT, who: deedWho(d) }, ...(ticked(p, 'Redemption period ends') ? {} : { advance2: redeemButton(d) }), support: [L.pro('title')], done: ticked(p, DEED_AFTER_WAIT) }));
       if (deedFirst) out.push({ ...firstWeek, label: `Secure and insure ${n}` });
       if (deedFirst && w === 'auction' && !nvTrustee && !nvTax) out.push(beforeRemodel);
-      if (won) out.push(won);
     }
     // Nevada: a trustee's sale can be challenged for 30 days after the deed is recorded (NRS 107.080(5)), a tax sale's
     // land recovered by a suit within 2 years after the Treasurer's deed (NRS 361.600): their end on the calendar first.
@@ -562,7 +566,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       const baseDate = p.dates.find((x) => sameDate(x.what, win.base) && x.when)?.when;
       const end = win.days ? plusDays(baseDate, win.days) : '';
       const late = win.days ? plusDays(p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when, 90) : '';
-      out.push(task({ key: 'window', label: win.days ? `Put the challenge window’s end on ${n}’s calendar` : `Put the recovery-suit window’s end on ${n}’s calendar`, produces: win.days ? `the date the challenge window ends, in its Key dates: 30 days after the trustee’s deed was recorded${end ? ` (${prettyDay(end)})` : ''}, or 90 days after the sale${late ? ` (${prettyDay(late)})` : ''} if anyone didn’t get proper notice (NRS 107.080(5), (6)). Ask your title company which applies, and plan repairs and new contracts for after it, as your attorney advises` : `its end date in its dates (2 years after the Treasurer’s deed was delivered to you, NRS 361.600${baseDate ? `; about ${prettyDay((() => { const t = new Date(`${baseDate}T12:00:00`); t.setFullYear(t.getFullYear() + 2); return localDay(t); })())} if it was delivered the day it was recorded, ${prettyDay(baseDate)}*` : ''}), and a title company’s answer on when it will insure`, href: packetHref(d, 'dates'), support: [L.pro('title')], done: p.dates.some((x) => sameDate(x.what, win.row) && (!!x.when || !!x.resolved)) }));
+      out.push(task({ key: 'window', label: win.days ? `Put the challenge window’s end on ${n}’s calendar` : `Put the recovery-suit window’s end on ${n}’s calendar`, produces: win.days ? `the date the challenge window ends, in its Key dates: 30 days after the trustee’s deed was recorded${end ? ` (${prettyDay(end)})` : ''}, or 90 days after the sale${late ? ` (${prettyDay(late)})` : ''} if anyone didn’t get proper notice (NRS 107.080(5), (6)). Ask your title company which applies, and plan repairs and new contracts for after it, as your attorney advises` : `its end date in its dates (2 years after the Treasurer’s deed was delivered to you, NRS 361.600${baseDate ? `; about ${prettyDay((() => { const t = new Date(`${baseDate}T12:00:00`); const m = t.getMonth(); t.setFullYear(t.getFullYear() + 2); if (t.getMonth() !== m) t.setDate(0); return localDay(t); })())} if it was delivered the day it was recorded, ${prettyDay(baseDate)}*` : ''}), and a title company’s answer on when it will insure`, href: packetHref(d, 'dates'), support: [L.pro('title')], done: p.dates.some((x) => sameDate(x.what, win.row) && (!!x.when || !!x.resolved)) }));
     }
     if (nvTax) out.push(task({ key: 'before-remodel', label: `Check the recovery-suit window, possession and title for ${n} before you remodel`, produces: 'a written answer on the 2-year recovery-suit window (no owner buy-back after a Nevada tax sale, NRS 361.600), lawful possession and when a title company will insure', href: stepHref('a-before-remodel'), support: [L.guides, L.pro('title')], done: stepDone('a-before-remodel') }));
     if (nvTrustee) out.push(task({ key: 'before-remodel', label: d.state === 'NV' && d.kind === 'trustee' ? `Check possession and title insurance for ${n} before you remodel` : `Check redemption, possession and title for ${n} before you remodel`, produces: d.state === 'NV' && d.kind === 'trustee' ? 'a written answer on lawful possession and when title insurance is available (there’s no owner buy-back after a Nevada trustee’s sale)' : 'a written answer on any redemption period, lawful possession and title insurance', href: stepHref('a-before-remodel'), support: [L.guides], done: stepDone('a-before-remodel') }));
@@ -618,6 +622,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
  * waiting for comes first; then the first unfinished task of its stage.
  */
 export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date(), stage: DealStage = stageOf(d)): PlanTask {
+  p = withDeposit(d, p);
   if (stage !== 'passed') {
     // Sale day has passed with the deal still before the sale: whether you won comes first.
     if (stage === 'offer' && wayOf(d) !== 'offer' && saleOver(p, now)) {
@@ -666,11 +671,12 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
       const sidRow = sameDate(nd.what, 'SID certificate payoff') ? p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && x.when)?.when ?? '' : '';
       const sidNote = sidRow && sidRow > nd.when ? ` The deadline is ${prettyDay(nd.when)}, 20 days after the sale; your date, ${prettyDay(sidRow)}, is later. If it isn’t paid by then, the sale is void (NRS 361.595(6)).` : '';
       const inspectionEnded = nd.days < 0 && stage === 'contract' && sameEvent(nd.what, 'Inspection period ends');
-      const deedRow = nd.days < 0 && stage === 'closed' && certificateFirst(d) && sameDate(nd.what, DEED_AFTER_WAIT) && !ticked(p, 'Redemption period ends') && !redeemedIn(p);
-      const rEnd = deedRow ? p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when || redemptionEnd(d, p) : '';
-      // (A deed date typed before the redemption ends: check the date, don't ask yet.)
-      const deedEarly = deedRow && !!earlyDeedEnd(d, p, now);
-      const deedAsk = deedRow && !deedEarly;
+      const deedAny = (stage === 'contract' || stage === 'closed') && certificateFirst(d) && sameDate(nd.what, DEED_AFTER_WAIT) && !ticked(p, 'Redemption period ends') && !redeemedIn(p);
+      // (A deed date typed before the redemption ends, past or future: check the date, don't ask yet.)
+      const deedEarly = deedAny && !!earlyDeedEnd(d, p, now, nd.when);
+      const deedAsk = deedAny && !deedEarly && nd.days < 0 && stage === 'closed';
+      const deedRow = deedEarly || deedAsk;
+      const rEnd = deedRow ? (deedEarly ? earlyDeedEnd(d, p, now, nd.when) : p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when || redemptionEnd(d, p)) : '';
       const deedAskTick = deedAsk ? { label: 'No one redeemed: mark it handled', row: 'Redemption period ends', who: redeemAsk(d), ...(rEnd ? { when: rEnd } : {}) } : undefined;
       const recordingPast = !deedRow && nd.days < 0 && (RECORDED_ROWS.some((r) => sameDate(nd.what, r)) || sameDate(nd.what, DEED_AFTER_WAIT));
       const inHand = sameDate(nd.what, 'Certificate of sale received') || sameDate(nd.what, DEED_AFTER_WAIT);

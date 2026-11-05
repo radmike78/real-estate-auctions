@@ -33,6 +33,23 @@ const today = () => {
 };
 
 /** The purchase date from its packet (the closing, the deed or the sale), else today. */
+/** The earliest finished month (from the purchase on) not yet recorded; '' when every one is in. */
+function openMonth(o?: Owned): string {
+  const t = new Date();
+  const l = new Date(t.getFullYear(), t.getMonth() - 1, 1);
+  const lm = `${l.getFullYear()}-${String(l.getMonth() + 1).padStart(2, '0')}`;
+  const b = o?.boughtOn?.slice(0, 7) ?? '';
+  if (!o || !/^\d{4}-\d{2}$/.test(b)) return lm;
+  if (b > lm) return b; // bought this month: it isn't over yet (the form says so)
+  for (let [y, m] = b.split('-').map(Number), i = 0; i < 1200; i++) {
+    const k = `${y}-${String(m).padStart(2, '0')}`;
+    if (k > lm) break;
+    if (!o.months.some((x) => x.month === k)) return k;
+    m += 1; if (m > 12) { m = 1; y += 1; }
+  }
+  return '';
+}
+
 function boughtDate(d: Deal): string {
   // An auction: you bought it when you paid (the money went in at the sale, not when the deed came).
   if (wayOf(d) !== 'offer') { const pk = loadPacket(`analyzed:${d.id}`); const paid = pk.dates.filter((x) => x.when && x.resolved && sameDate(x.what, 'Payment deadline')).map((x) => x.when).sort().pop() ?? pk.dates.find((x) => x.when && sameEvent(x.what, 'Sale day'))?.when; if (paid && paid <= today()) return paid; }
@@ -74,11 +91,12 @@ function SoldForm({ o, put, deal }: { o: Owned; put: (next: Owned | null) => voi
 export default function OwnedTracker({ deal }: { deal: Deal }) {
   const all = useOwned();
   const o = all[deal.id];
-  const [month, setMonth] = useState(() => { const t = new Date(); const last = new Date(t.getFullYear(), t.getMonth() - 1, 1); const lm = `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, '0')}`; const b = o?.boughtOn?.slice(0, 7) ?? ''; return b && lm < b ? b : lm; });
+  // (It opens on the earliest finished month not yet recorded, so an entry never replaces one by accident.)
+  const [month, setMonth] = useState(() => openMonth(o));
   // (A flip collects no rent: it starts at 0.)
   const [rent, setRent] = useState(deal.plan === 'flip' ? '0' : '');
   // Tracking just started (or the purchase date moved later): the month can't be before the purchase.
-  useEffect(() => { const b = o?.boughtOn?.slice(0, 7); if (b && month < b) setMonth(b); }, [o?.boughtOn]);
+  useEffect(() => { const b = o?.boughtOn?.slice(0, 7); if (b && month && month < b) setMonth(openMonth(o)); }, [o?.boughtOn]);
   // The latest month you can record: last month (a month counts once it's over).
   const maxMonth = (() => { const t = new Date(); const l = new Date(t.getFullYear(), t.getMonth() - 1, 1); return `${l.getFullYear()}-${String(l.getMonth() + 1).padStart(2, '0')}`; })();
   const [focusBox, setFocusBox] = useState<'rent' | 'costs' | null>(null);
@@ -127,15 +145,14 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     if (unreadable || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || month < o.boughtOn.slice(0, 7) || month > maxMonth || !Number.isFinite(r) || !Number.isFinite(c) || r < 0 || c < 0) return;
     // (Saved: the cursor goes back to the month, for the next one.)
     setTimeout(() => document.getElementById('owned-month')?.focus(), 0);
-    put({ ...o, months: [{ month, rent: Math.max(0, r), costs: Math.max(0, c), note: note.slice(0, 200) }, ...o.months.filter((m) => m.month !== month)].sort((a, b) => b.month.localeCompare(a.month)) });
+    const nextO = { ...o, months: [{ month, rent: Math.max(0, r), costs: Math.max(0, c), note: note.slice(0, 200) }, ...o.months.filter((m) => m.month !== month)].sort((a, b) => b.month.localeCompare(a.month)) };
+    put(nextO);
     setRent(deal.plan === 'flip' ? '0' : '');
     setCosts('');
     setNote('');
-    // Move on to the month after the one just added, so the next entry doesn't replace it.
-    const [y, mo] = month.split('-').map(Number);
-    const next = mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`;
+    // Move on to the next finished month not yet recorded, so the next entry doesn't replace one.
     // (Every finished month is in: the month box empties until the next one ends.)
-    setMonth(next <= maxMonth ? next : '');
+    setMonth(openMonth(nextO));
   };
   // A home whose recorded rent now covers its costs: ask whether you still live there (never switch it on its own).
   const rentCovers = trackerAsksHome(deal);
