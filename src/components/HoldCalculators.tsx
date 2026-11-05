@@ -18,6 +18,8 @@ const visibleFields = <T,>(groups: CalcGroup<T>[], v: T) => groups.flatMap((g) =
 /** Set by the county (transfer tax) or not a number you choose: never listed as an example. */
 const NOT_EXAMPLES = new Set(['transferTaxPer500', 'buyerPremiumPct', 'atPrice']);
 import { investorProfile } from '../lib/myPlan';
+import { loadDeals } from '../lib/analyze';
+import { asksHome, liveIn, setDealHome } from '../lib/dealStage';
 import { countyTaxRate, ownerOccupiedTaxNote, propertyTaxHint, rentalStartFor, taxAt, transferTaxFor } from '../lib/stateCosts';
 import { COUNTY_TAX_RATES } from '../lib/countyTaxRates';
 
@@ -297,9 +299,9 @@ function PlanCashNote({ need, planCash, offer, auctionDay = 0, noLoan = false }:
 }
 
 /** The rental at a price you type: every step from rent to cash flow, with its assumptions. */
-function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, cashTyped = false, targetTyped = true, dscrTyped = false, rentTyped = true }: { /** The rent was typed (else our example: the results aren't saved to My deals). */ rentTyped?: boolean; /** The minimum income coverage was typed (else it's our example). */ dscrTyped?: boolean; /** The return target was typed (else it's our example). */ targetTyped?: boolean; v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string; /** The refinance is still on our example value. */ exampleValue?: boolean; /** The cash limit is one you typed (else it follows My plan). */ cashTyped?: boolean }) {
+function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, cashTyped = false, targetTyped = true, dscrTyped = false, rentTyped = true, living = !!investorProfile().ownerOccupant }: { /** You live there (this property, or Decide's answer with no saved deal). */ living?: boolean; /** The rent was typed (else our example: the results aren't saved to My deals). */ rentTyped?: boolean; /** The minimum income coverage was typed (else it's our example). */ dscrTyped?: boolean; /** The return target was typed (else it's our example). */ targetTyped?: boolean; v: RentInputs; start: number; onPrice: boolean; setPrice: (n: number) => void; /** "Your offer" or "Your bid". */ word: string; /** The refinance is still on our example value. */ exampleValue?: boolean; /** The cash limit is one you typed (else it follows My plan). */ cashTyped?: boolean }) {
   // You plan to live in one unit (Decide: a home loan and live in it): a loss is your own housing cost, not a failed deal.
-  const livingThere = onPrice && !!investorProfile().ownerOccupant;
+  const livingThere = onPrice && living;
   // The refinance on our example value: its return isn't this property's. Blank: no refinance counted, the rest is real.
   const exampleRefi = exampleValue && v.value > 0;
   const blankRefi = exampleValue && !(v.value > 0);
@@ -333,7 +335,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
       {price > 0 && !rentTyped && <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the property’s rent to save these results to My deals and the deal packet.</p>}
       {/* An investment-property loan over 85% of the price: said here, beside the result it changes (with no price
           typed yet, the mortgage-insurance note below says it). */}
-      {price > 0 && onPrice && !investorProfile().ownerOccupant && Math.round(v.loanPct * 100) / 100 > 85 && (
+      {price > 0 && onPrice && !living && Math.round(v.loanPct * 100) / 100 > 85 && (
         <p className="calc-note small" role="note"><strong>Investment loans usually need 15% to 25% down.*</strong> So {/^(8|1[18](\D|$))/.test(String(Math.round(v.loanPct * 100) / 100)) ? 'an' : 'a'} {(Math.round(v.loanPct * 100) / 100).toLocaleString('en-US')}% loan may not be available for a property you won’t live in: ask your lender and use their figure.{' '}<button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'loanPct')}>Change the loan</button></p>
       )}
       {price > 0 && (
@@ -549,6 +551,10 @@ function openHoaDues() {
 export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = false, start = {}, regional = false, offer = false, saleKind, dealId }: { /** The kind of sale (a redemption wait before the deed is said). */ saleKind?: string; /** The saved deal (an IRS sale's picked rule). */ dealId?: string; storageKey?: string; /** The key already names the deal and kind of purchase. */ exactKey?: boolean; start?: Partial<RentInputs>; regional?: boolean; offer?: boolean }) {
   const rt = useRegionTax(RENT_GROUPS, regional);
   const region = useCalcRegion();
+  // You live there: this saved property's answer ("Will you live in this property?"), else Decide's.
+  const [, bumpHome] = useState(0);
+  const ownDeal = dealId ? loadDeals().find((x) => x.id === dealId) : undefined;
+  const livesHere = offer && (ownDeal ? liveIn({ ...ownDeal, plan: 'rent' }) : !!investorProfile().ownerOccupant);
   // In a deal with a state, the example tax and insurance follow that state (a Texas rental's tax is about three
   // times a Nevada one's); they're starting numbers only and give way to anything typed or prefilled.
   const stateStart = regional ? rentalStartFor(region.state, start.value ?? RENT_DEFAULTS.value, region.county) : {};
@@ -584,7 +590,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
     : gs);
   const groups0 = withTaxHint(offer ? forOffer(rt.groups) : rt.groups);
   // Living there: that's a rental's rate; a home you live in may get an owner-occupant (homestead) exemption.
-  const groups = offer && investorProfile().ownerOccupant
+  const groups = livesHere
     ? groups0.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} ${ownerOccupiedTaxNote(region.state)}`.trim() } : f.k === 'insuranceYear' ? { ...f, hint: 'A policy for a home you live in that has rented units: tell the insurer how many units you rent out.*' } : f.k === 'repairs' ? { ...f, hint: 'To make it ready to move in.' } : f.k === 'monthlyRent' ? { ...f, hint: '0, or only the rent from space you’ll rent out.' } : f.k === 'cashAvailable' ? { ...f, hint: 'All the cash you can put in: the price and every cost until you move in. Leave 0 for no limit.' } : f)) }))
     : groups0;
   // Numbers from your plan or the property (`start`) aren't our examples.
@@ -597,7 +603,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   // Which price the panels below are figured at: yours once you enter it, else the target price.
   // You plan to live there (Decide: a home loan and live in it): the investor's walk-away price is a yardstick only, so
   // the panels below wait for your offer instead of using it.
-  const living = offer && !!investorProfile().ownerOccupant;
+  const living = livesHere;
   const at: PriceAt = v.atPrice > 0 ? { price: v.atPrice, label: `${word.toLowerCase()} of ${fmtMoney(v.atPrice)}` } : living || noReal ? { price: 0, label: '' } : Number.isFinite(r.maxBid) && r.maxBid > 0 ? { price: r.maxBid, label: `your walk-away price of ${fmtMoney(Math.round(r.maxBid))}` } : { price: v.value, label: `the ${fmtMoney(v.value)} value` };
   // An auction rental's cash isn't taken from My plan (an offer's is, so its price is already capped): with no cash
   // entered here, compare the cash the walk-away price needs (all of it until a refinance) with My plan's.
@@ -617,8 +623,15 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         {saleKind === 'hoa' && !(v.hoaMonthly > 0) && <p className="caution" role="note"><strong>This home is in an HOA.</strong> You pay its dues from the day of the sale. Enter the monthly amount (from the HOA’s notice of sale or its foreclosure agent) under <button type="button" className="linkish" onClick={openHoaDues}>HOA dues, per month</button>; until you do, these numbers count $0.</p>}
         {!offer && rentWaitNote(region.state, saleKind, dealId) && <p className="caution" role="note"><strong>Plan for little or no rent until the redemption period ends.</strong> {rentWaitNote(region.state, saleKind, dealId)} {RENT_WAIT_ADVICE}.</p>}
         {/* Your actual deal first; the price that would meet your goal second, each with its own heading bar and colour. */}
-        {offer && investorProfile().ownerOccupant && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
-        <AtThisPrice v={v} start={noReal ? NaN : r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} targetTyped={typedKeys.has('targetCocPct')} dscrTyped={typedKeys.has('minDscr')} rentTyped={!exactKey || typedKeys.has('monthlyRent')} />
+        {offer && ownDeal && asksHome({ ...ownDeal, plan: 'rent' }) && (
+          <fieldset className="packet-fit">
+            <legend>Will you live in this property?</legend>
+            <label className="check"><input type="radio" name={`home-${ownDeal.id}`} checked={livesHere} onChange={() => { setDealHome(ownDeal.id, 'live'); bumpHome((n) => n + 1); }} /> Yes, it’s my home</label>
+            <label className="check"><input type="radio" name={`home-${ownDeal.id}`} checked={!livesHere} onChange={() => { setDealHome(ownDeal.id, 'rent'); bumpHome((n) => n + 1); }} /> No, it’s a rental</label>
+          </fieldset>
+        )}
+        {livesHere && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
+        <AtThisPrice v={v} start={noReal ? NaN : r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} targetTyped={typedKeys.has('targetCocPct')} dscrTyped={typedKeys.has('minDscr')} rentTyped={!exactKey || typedKeys.has('monthlyRent')} living={livesHere} />
         {living ? (
           <details className="calc-assumptions">
             <summary>{r.limitedBy === 'dscr' ? `Investor yardstick: the most an investor’s loan allows at ${v.minDscr}× income coverage` : `Investor yardstick: the price that meets an investor’s ${v.targetCocPct}% return`}</summary>
@@ -631,7 +644,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
             premiums for 30-year loans from HUD Mortgagee Letter 2023-05: 0.50% / 0.55% (95% or less / over 95% of value)
             up to a $726,200 base loan, 0.70% / 0.75% above it. */}
         {offer && v.loanPct > 80 && (() => {
-          const live = !!investorProfile().ownerOccupant;
+          const live = livesHere;
           const long = !(v.years > 0 && v.years <= 15);
           const f = live ? fhaMonthlyMi(v) : null;
           const rate = f?.rate ?? ((v.atPrice * v.loanPct / 100 > 726200 ? 0.70 : 0.50) + (v.loanPct > 95 ? 0.05 : 0));

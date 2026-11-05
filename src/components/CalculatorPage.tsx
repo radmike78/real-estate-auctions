@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
 import { irsWithoutRedemption } from '../lib/dealPacket';
 import { loadDeals } from '../lib/analyze';
+import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { stateByCode, type StateCode } from '../lib/regions';
 import { investorProfile, profileStart, commercialProfileStart } from '../lib/myPlan';
 import BidCalculator from './BidCalculator';
@@ -24,7 +25,7 @@ export function Calculators({ initial, onTab, state, offer = false, dealId, onAn
         hideTabs={onAnalyze}
         strategies={[
           { key: 'flip', label: 'Fix and flip (fix and sell)', about: `The most you can ${bid} and still make your profit when you fix it up and sell it.`, render: () => <BidCalculator headingLevel={2} offer={offer} saleKind={saleKind} saveAs={dealId ? `analyzed-${dealId}` : onAnalyze ? 'analyze-draft' : undefined} /> },
-          { key: 'rent', label: 'Buy and hold (keep and rent)', about: offer && investorProfile().ownerOccupant ? 'What living there costs each month at your offer, and the cash it needs.' : `The most you can ${bid} and still get your return on the cash you leave in, with or without a loan afterward.`, render: () => <RentCalculator saleKind={saleKind} dealId={dealId} regional={!!state} offer={offer} storageKey={k('rent')} exactKey={!!dealId} start={onAnalyze ? profileStart(investorProfile(), offer) : undefined} /> },
+          { key: 'rent', label: 'Buy and hold (keep and rent)', about: offer && (dealId && saleKind ? liveIn({ id: dealId, kind: saleKind as Deal['kind'], plan: 'rent' }) : !!investorProfile().ownerOccupant) ? 'What living there costs each month at your offer, and the cash it needs.' : `The most you can ${bid} and still get your return on the cash you leave in, with or without a loan afterward.`, render: () => <RentCalculator saleKind={saleKind} dealId={dealId} regional={!!state} offer={offer} storageKey={k('rent')} exactKey={!!dealId} start={onAnalyze ? profileStart(investorProfile(), offer) : undefined} /> },
           { key: 'commercial', label: 'Commercial income', about: `The most you can ${bid} for a building’s income, counting the months it takes to lease it up.`, render: () => <CommercialCalculator saleKind={saleKind} dealId={dealId} regional={!!state} offer={offer} storageKey={k('commercial')} exactKey={!!dealId} start={onAnalyze ? commercialProfileStart(investorProfile(), offer) : undefined} /> },
           { key: 'seller', label: 'Seller financing', about: 'When the seller is the lender: the payment, the balloon you’ll have to pay off, and the cash it saves against a bank loan.', render: () => <SellerFinanceCalculator /> },
           { key: 'lien', label: 'Lien certificate', about: 'What a special assessment (SID) lien certificate earns per year, counting the wait to be paid.', render: () => <LienCalculator storageKey={dealId ? `fsf.calc.lien.${dealId}${state === 'AZ' ? '-az' : ''}.v1` : undefined} /> },
@@ -40,7 +41,7 @@ export function Calculators({ initial, onTab, state, offer = false, dealId, onAn
 function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; state?: StateCode; saleKind?: string; dealId?: string }) {
   // (Re-read when Fix and sell saves a rule: the redemption lines follow it.)
   const [, setTick] = useState(0);
-  useEffect(() => { const on = () => setTick((n) => n + 1); window.addEventListener(CONFIRMED_EVENT, on); return () => window.removeEventListener(CONFIRMED_EVENT, on); }, []);
+  useEffect(() => { const on = () => setTick((n) => n + 1); window.addEventListener(CONFIRMED_EVENT, on); window.addEventListener(PROGRESS_EVENT, on); return () => { window.removeEventListener(CONFIRMED_EVENT, on); window.removeEventListener(PROGRESS_EVENT, on); }; }, []);
   // An IRS sale with "No redemption" picked (a court-ordered sale): no 180-day line.
   const irsNone = saleKind === 'irs' && !!dealId && !!state && irsWithoutRedemption({ state, kind: 'irs', id: dealId, plan: 'flip' });
   // A home you'll live in with no rent counted: no vacancies or renting rules.

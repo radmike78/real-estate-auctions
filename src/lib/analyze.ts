@@ -75,6 +75,8 @@ export interface Deal {
   practice?: boolean;
   /** The county was picked for this property (not just your area's or the state's starting county). */
   countyChosen?: boolean;
+  /** For a reader buying a home to live in (Decide): whether this property is that home or a rental. */
+  home?: 'live' | 'rent';
 }
 
 export interface CheckItem {
@@ -350,6 +352,7 @@ export function cleanDeal(v: unknown): Deal | null {
     ...(d.locationConfirmed === true && typeof d.county === 'string' && st.counties.includes(d.county) ? { locationConfirmed: true } : {}),
     ...(d.practice === true ? { practice: true } : {}),
     ...(d.countyChosen === true ? { countyChosen: true } : {}),
+    ...(d.home === 'live' || d.home === 'rent' ? { home: d.home } : {}),
   };
 }
 

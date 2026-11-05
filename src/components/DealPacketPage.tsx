@@ -1,4 +1,3 @@
-import { investorProfile } from '../lib/myPlan';
 import { analyzeAllowsAds } from '../lib/contextAds';
 import NumInput from './NumInput';
 import { useEffect, useLayoutEffect, useState } from 'react';
@@ -14,7 +13,7 @@ import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
 import { DEAL_STAGES, type DealStage } from '../lib/analyze';
-import { behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
+import { asksHome, liveIn, setDealHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { planNow } from '../lib/planNext';
 import TaskActions from './TaskActions';
@@ -150,6 +149,13 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <section className="deal-setup packet-section" aria-labelledby="packet-plan">
         <Head k="plan" />
         <Lines k="plan" />
+        {asksHome(deal) && (
+          <fieldset className="packet-fit">
+            <legend>Will you live in this property?</legend>
+            <label className="check"><input type="radio" name="packet-home" checked={liveIn(deal)} onChange={() => setDealHome(deal.id, 'live')} /> Yes, it’s my home</label>
+            <label className="check"><input type="radio" name="packet-home" checked={!liveIn(deal)} onChange={() => setDealHome(deal.id, 'rent')} /> No, it’s a rental</label>
+          </fieldset>
+        )}
         <fieldset className="packet-fit">
           <legend>Does it fit your buy box?</legend>
           {(Object.keys(FIT_LABEL) as Exclude<Fit, ''>[]).map((f) => (
@@ -248,7 +254,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           {deal.state === 'TX' ? <p className="muted small">If your saved amount combined earnest money and an option fee, split them here. Enter only credits your title or escrow professional has confirmed. Include any uncredited fee once in your calculator’s acquisition costs; this field does not add it automatically.</p> : <p className="muted small">Enter only credits your title or escrow professional has confirmed toward closing.</p>}
           {deal.state === 'TX' && <label className="field"><span>Option fee, if applicable</span><NumInput blank max={1e9} value={p.optionFee} onValue={(n) => update({ optionFee: n ?? 0 })} /></label>}
           <label className="field"><span>{deal.state === 'TX' ? 'Confirmed deposit/fee credits toward closing' : 'Confirmed deposit credits toward closing'}</span><NumInput blank max={1e9} value={p.depositCredit} onValue={(n) => update({ depositCredit: n ?? 0 })} /></label>
-          <p className="muted small"><a href="https://www.consumerfinance.gov/owning-a-home/closing-disclosure/" target="_blank" rel="noopener noreferrer">CFPB: understand cash to close ↗</a>. This consumer-mortgage example may use different documents from your purchase{investorProfile().ownerOccupant && deal?.plan === 'rent' ? '' : ' of an investment property'}.</p>
+          <p className="muted small"><a href="https://www.consumerfinance.gov/owning-a-home/closing-disclosure/" target="_blank" rel="noopener noreferrer">CFPB: understand cash to close ↗</a>. This consumer-mortgage example may use different documents from your purchase{liveIn(deal) ? '' : ' of an investment property'}.</p>
         </details>}
         <Lines k="cash" />
       </section>

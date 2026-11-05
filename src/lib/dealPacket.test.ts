@@ -87,7 +87,9 @@ describe('the deal packet', () => {
   it('puts a deadline within a week ahead of everything else', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-09', what: 'Option period ends (5 p.m.)', who: 'Me and my agent' }, { when: '2026-10-01', what: 'Offer accepted', who: '', resolved: true }] };
     expect(nextDate(p, now)?.days).toBe(3);
-    expect(nextAction(deal, p, now).text).toBe('In 3 days: Option period ends (5 p.m.) for 12 Test St (who: Me and my agent).');
+    // (Under contract: before an offer is accepted, the contract's dates aren't reminders.)
+    expect(nextAction({ ...deal, stage: 'contract' }, p, now).text).toBe('In 3 days: Option period ends (5 p.m.) for 12 Test St (who: Me and my agent).');
+    expect(nextAction({ ...deal, stage: 'offer' }, p, now).text).not.toMatch(/Option period ends/);
     const secs = packetSections(deal, p, now);
     expect(secs.find((s) => s.key === 'dates')?.status).toBe('started');
   });

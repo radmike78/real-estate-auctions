@@ -750,6 +750,40 @@ describe('Nevada round 4 flow', () => {
     expect(calendarRows(r, 'offer').some((x) => /registration/i.test(x.what))).toBe(false);
   });
 
+  it('round 11: contract dates wait for the offer; a postponed sale; per-property home choice; SID passed in the summary; date days', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const { setDealHome, liveIn } = await import('./dealStage');
+    const listing = { ...nvFlip, kind: 'listing' as const, plan: 'rent' as const };
+    const ep = { ...EMPTY_PACKET, dates: [{ when: '2026-10-04', what: 'Earnest money due', who: 'me' }] };
+    expect(dealNextTask(listing, ep, now, 'offer').label).not.toMatch(/Earnest money due/);
+    expect(dealNextTask(listing, ep, now, 'contract').label).toMatch(/^Overdue by 2 days: Earnest money due/);
+    // A sale day that went by: "postponed" clears the date.
+    const past = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'Trustee' }] };
+    const t = dealNextTask(nvFlip, past, now, 'offer');
+    expect(t.undo).toEqual({ label: 'It was postponed: clear the sale date to enter the new one', removeRow: 'Sale day', addRow: { when: '', what: 'Sale day', who: 'Trustee' } });
+    expect(dealNextTask(nvFlip, past, now, 'researching').undo?.removeRow).toBe('Sale day');
+    // A reader buying a home: each property can be the home or a rental.
+    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { borrow: 'live' } }));
+    saveDeals([{ ...listing, stage: 'contract' }]);
+    expect(liveIn(listing)).toBe(true);
+    setDealHome('f1', 'rent');
+    expect(loadDeals()[0].home).toBe('rent');
+    expect(liveIn({ id: 'f1', kind: 'listing', plan: 'rent' })).toBe(false);
+    setDealHome('f1', 'live');
+    expect(liveIn({ id: 'f1', kind: 'listing', plan: 'rent' })).toBe(true);
+    localStorage.removeItem('deedowl.decide.v1');
+    // The worked-out SID deadline once it has passed.
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    const sp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-11', what: 'Payment deadline', who: 'Me', resolved: true }] };
+    saveDeals([{ ...tax, stage: 'contract' }]);
+    const lines = packetSections({ ...tax, stage: 'contract' }, sp, now).find((x) => x.key === 'dates')!.lines.join(' | ');
+    expect(lines).toMatch(/Next: the 20 days for any SID payoff ended Sep 30, 2026: ask the Treasurer whether an SID affidavit was filed/);
+    expect(lines).not.toMatch(/overdue/);
+    // A date reminder carries its days (My plan's finish note reads them).
+    const late = { ...sp, dates: [...sp.dates, { when: '2026-10-02', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
+    expect(dealNextTask(tax, late, now, 'contract').days).toBeLessThan(0);
+  });
+
   it('says so when the deed row is ticked at a win', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);

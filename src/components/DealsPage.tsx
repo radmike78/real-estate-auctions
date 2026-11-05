@@ -146,7 +146,7 @@ function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
               <td data-label="Bought">{prettyDay(o.boughtOn)}</td>
               <td data-label="Months recorded">{s.months}</td>
               <td data-label="Average month">{s.months ? <>{signed(liveIn(d) ? -s.averageMonthly : s.averageMonthly)}{liveIn(d) ? <span className="muted"> (your home’s cost)</span> : null}</> : '—'}</td>
-              <td data-label="Against your plan">{s.gapMonthly === null ? '—' : `${signed(s.gapMonthly)} a month`}</td>
+              <td data-label="Against your plan">{s.gapMonthly === null ? '—' : Math.round(s.gapMonthly) === 0 ? 'on plan' : liveIn(d) ? `${fmtMoney(Math.abs(Math.round(s.gapMonthly)))} a month ${s.gapMonthly < 0 ? 'more' : 'less'} than planned` : `${signed(s.gapMonthly)} a month (${s.gapMonthly < 0 ? 'behind' : 'ahead'})`}</td>
             </tr>
           ))}
         </tbody>
@@ -286,7 +286,7 @@ export default function DealsPage() {
                         const limit = n && n.cashLimit > 0 ? n.cashLimit : n?.cashTyped ? 0 : planCash;
                         const short = !!n && limit > 0 && n.cashNeeded > limit;
                         // You plan to live there: a monthly loss is what living there costs you (as Keep and rent says).
-                        const living = !!n && !!investorProfile().ownerOccupant && (d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short');
+                        const living = !!n && liveIn(d);
                         return n ? (
                           <p className={rentVerdict({ coverageShort: n.coverageShort, cashFlow: n.monthly, cashOnCash: n.cashOnCash, targetPct: n.target, cashShort: short, exampleRefi: n.exampleValue && n.refiValue > 0, living }) === 'bad' ? 'deal-urgent' : undefined}>
                             At your price, {fmtMoney(n.price)}: {living && !(n.exampleValue && n.refiValue > 0) ? <>{Math.round(Math.abs(n.monthly)) === 0 ? 'the rent you collect about breaks even with every cost' : n.monthly < 0 ? `living there costs you about ${fmtMoney(Math.round(-n.monthly))} a month after any rent you collect` : `the rent you collect covers every cost, with about ${fmtMoney(Math.round(n.monthly))} a month to spare`}{n.mi > 0 ? `, before mortgage insurance (about ${fmtMoney(n.mi)} a month on an FHA loan; not counted)` : ''}{short ? ` · needs about ${fmtMoney(Math.round(n.cashNeeded))} of your cash (${n.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}</> : <>{n.monthly < 0 ? `loses ${fmtMoney(Math.round(-n.monthly))}` : `${fmtMoney(Math.round(n.monthly))} cash flow`} a month{n.exampleValue ? ` (${refiValueWords(n.refiValue)})` : n.refi ? ' after the refinance' : ''} · {n.exampleValue && n.refiValue > 0 ? 'enter the value after repairs to see the return' : n.cashOnCash === null ? 'all your cash back' : `${capText(n.cashOnCash, n.target)}% a year on ${fmtMoney(Math.round(n.cashIn))} of your cash`} (target {n.target}%{n.targetTyped ? '' : ', our example'}){n.coverageShort && !living ? ` · income coverage under ${n.dscrTyped ? 'your' : 'our example'} ${n.minDscr}× minimum` : ''}{short ? ` · needs about ${fmtMoney(Math.round(n.cashNeeded))} of your cash (${n.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''}{n.loanHigh ? ' · a bigger loan than most investment lenders make (they usually want 15% to 25% down*; ask your lender) and mortgage insurance not included' : n.miLeftOut ? ' · mortgage insurance not included (ask your lender)' : ''}</>}
