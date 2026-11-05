@@ -430,7 +430,7 @@ describe('Nevada round 4 flow', () => {
     const red = { ...wait, dates: [...wait.dates, t.advance2!.addRow!] };
     const pay = dealNextTask(hoa, red, new Date('2026-10-20T15:00:00Z'), 'closed');
     expect(pay.key).toBe('payoff');
-    expect(pay.tick).toEqual({ label: 'I was repaid for 2210 Mesa Verde Ln: mark it finished', row: 'Redemption money collected', then: 'passed', closes: 'Redemption period ends' });
+    expect(pay.tick).toEqual({ label: 'I was repaid for 2210 Mesa Verde Ln: mark it finished', row: 'Redemption money collected', then: 'passed' });
     expect(pay.produces).toMatch(/NRS 116\.31166/);
   });
 
@@ -490,7 +490,7 @@ describe('Nevada round 4 flow', () => {
     const red = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Redemption period ends', who: 'Owner' }, { when: '', what: 'Redemption money collected', who: 'The person who redeemed' }] };
     const pay = dealNextTask(hoa, red, now, 'closed');
     expect(pay.undo?.removeRow).toBe('Redemption money collected');
-    expect(pay.tick?.closes).toBe('Redemption period ends');
+    expect(pay.tick?.closes).toBeUndefined();
     const after = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Redemption period ends', who: 'Owner', resolved: true }, { when: '2026-10-03', what: 'Deed delivered (if no one redeemed)', who: 'Agent' }] };
     expect(dealNextTask(hoa, after, now, 'closed').advance2).toBeUndefined();
     expect(stageHint('passed', hoa)).not.toMatch(/redeemed/);
@@ -521,6 +521,17 @@ describe('Nevada round 4 flow', () => {
     const t = dealNextTask(hoa, d, now, 'closed');
     expect(t.tick?.label).toBe('I have the deed: mark it handled');
     expect(t.urgent).toBe(false);
+  });
+
+  it('round 7: a ticked undated wait counts; a paid-off lien’s rows stop reminding; the lien reminder carries the payoff button', () => {
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const undated = { ...EMPTY_PACKET, dates: [{ when: '', what: 'Redemption period ends', who: 'Owner', resolved: true }] };
+    expect(stageTasks(hoa, 'closed', undated, now).find((x) => x.key === 'redemption-wait')!.done).toBe(true);
+    const lien = { ...nvFlip, kind: 'lien' as const, plan: 'lien' as const };
+    const near = { ...EMPTY_PACKET, dates: [{ when: '2026-10-08', what: 'Earliest you may act (unpaid lien)', who: 'Treasurer' }] };
+    expect(dealNextTask(lien, near, now, 'owned').advance2?.label).toMatch(/The owner paid for/);
+    const paying = { ...near, dates: [...near.dates, { when: '', what: 'Redemption money collected', who: 'The Treasurer' }] };
+    expect(dealNextTask(lien, paying, now, 'owned').key).toBe('payoff');
   });
 
   it('says so when the deed row is ticked at a win', () => {
