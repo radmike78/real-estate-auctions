@@ -315,7 +315,7 @@ export function FirstDealRoadmap() {
   const deal = active ? { id: `analyzed:${active.id}`, name: active.name, kind: active.kind } : undefined;
   const stage = active ? stageOf(active) : undefined;
   const scoped = (s: RoadmapStep) => !!deal && dealScoped(s);
-  const pastOf = deal ? pastStage(`analyzed:${deal.id}`) : () => false;
+  const pastOf = deal ? pastStage(deal.id.startsWith('analyzed:') ? deal.id : `analyzed:${deal.id}`) : () => false;
   const doneOf = (s: RoadmapStep) => (scoped(s) ? (perDeal[deal!.id]?.done ?? []).includes(s.id) || pastOf(s) : done.includes(s.id));
   const statusOf = (s: RoadmapStep): StepStatus | undefined => (scoped(s) ? perDeal[deal!.id]?.status[s.id] : status[s.id]);
   // On the lien route, a focused lien deal's state decides its practice step (an Arizona deal for a Texas reader).

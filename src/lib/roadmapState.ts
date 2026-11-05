@@ -270,7 +270,7 @@ export const dealProgress = (dealKey: string) => readKey(DEAL_STEPS_KEY, {}, cle
 export function pastStage(dealKey: string): (s: RoadmapStep) => boolean {
   const d = dealKey ? loadDeals().find((x) => `analyzed:${x.id}` === dealKey) : undefined;
   const stage = d ? stageOf(d) : undefined;
-  return (s) => { if (!stage || stage === 'passed' || !dealScoped(s)) return false; const st = stageOfStep(s.id); return !!st && st !== 'passed' && DEAL_STAGES.indexOf(st) < DEAL_STAGES.indexOf(stage); };
+  return (s) => { if (!stage || stage === 'passed' || !dealScoped(s)) return false; const st = stageOfStep(s.id); return !!st && ['researching', 'offer', 'contract'].includes(st) && s.id !== 'a-possess' && DEAL_STAGES.indexOf(st) < DEAL_STAGES.indexOf(stage); };
 }
 export function settledFor(dealKey: string) {
   const done = roadmapDone();

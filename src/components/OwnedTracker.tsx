@@ -94,9 +94,9 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   };
   // A finished deal (passed, or repaid) has nothing to track; an auction not yet won is answered on sale day.
   if (!o && redeemingNow(deal)) return <p className="muted">It was redeemed: nothing to track here. Keep the receipt for your payoff.</p>;
+  if (sidState(deal) === 'void') return <p className="muted">Not needed: the sale is void.</p>;
   if (!o && (stageOf(deal) === 'passed' || finishedDeal(deal))) return <p className="muted">{finishedDeal(deal) ? 'It was repaid: nothing more to track here.' : 'You passed on it: nothing to track here.'}</p>;
   if (!o && ['researching', 'offer'].includes(stageOf(deal)) && wayOf(deal) !== 'offer') return <p className="muted">Won it? Answer “did you win?” in Your next action above once the sale is over, and the steps after the sale appear here.</p>;
-  if (sidState(deal) === 'void') return <p className="muted">Not needed: the sale is void.</p>;
   if (!o && stageOf(deal) === 'contract' && wayOf(deal) !== 'offer') return <p className="muted">Once you’ve paid and the {certificateFirst(deal) ? 'certificate of sale' : 'deed'} is {certificateFirst(deal) && deal.kind === 'irs' ? 'in hand' : 'recorded'}, mark it in Your next action above; then start tracking its costs here.</p>;
   // An offer before it's under contract: nothing is bought yet.
   if (!o && ['researching', 'offer'].includes(stageOf(deal)) && wayOf(deal) === 'offer') return <p className="muted">Once your offer is accepted and it closes, start tracking it here.</p>;
@@ -126,7 +126,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     // (Saved: the cursor goes back to the month, for the next one.)
     setTimeout(() => document.getElementById('owned-month')?.focus(), 0);
     put({ ...o, months: [{ month, rent: Math.max(0, r), costs: Math.max(0, c), note: note.slice(0, 200) }, ...o.months.filter((m) => m.month !== month)].sort((a, b) => b.month.localeCompare(a.month)) });
-    setRent('');
+    setRent(deal.plan === 'flip' ? '0' : '');
     setCosts('');
     setNote('');
     // Move on to the month after the one just added, so the next entry doesn't replace it.
@@ -159,7 +159,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
       </div>}
       {(showBad(rent, 'rent') || showBad(costs, 'costs')) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
       {negative && <p className="caution small" role="alert">Enter rent and costs as $0 or more. Record a refund to a tenant as a cost.</p>}
-      {!o.sold && <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs{liveIn(deal) ? ' (leave out utilities: the plan doesn’t include them)' : ', management and utilities'}, and any money you moved into your repair savings.{liveIn(deal) ? ' Rent: only what a room or unit you rent out brought in.' : ''}</p>}
+      {!o.sold && <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs{liveIn(deal) ? ' (leave out utilities and repairs: the plan doesn’t include them)' : ', management and utilities'}, and any money you moved into your repair savings.{liveIn(deal) ? ' Rent: only what a room or unit you rent out brought in.' : ''}</p>}
       {s.months > 0 ? (
         <>
           <dl className="calc-kv">

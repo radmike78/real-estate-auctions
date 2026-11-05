@@ -161,7 +161,10 @@ export function cleanPacket(v: unknown): PacketData {
   const dates = (Array.isArray(o.dates) ? o.dates : []).slice(0, MAX_DATES + 40).map((d) => {
     const r = obj(d);
     const when = str(r.when, 10);
-    return { when: DATE.test(when) ? when : '', what: str(r.what, 200), who: str(r.who, 120), ...(r.resolved === true ? { resolved: true } : {}) };
+    // (A void recorded before the row was renamed keeps counting.)
+    const what0 = str(r.what, 200);
+    const what = /^Treasurer: the sale is void/.test(what0) ? 'The sale is void (the Treasurer said so)' : what0;
+    return { when: DATE.test(when) ? when : '', what, who: str(r.who, 120), ...(r.resolved === true ? { resolved: true } : {}) };
   });
   const qa = (Array.isArray(o.qa) ? o.qa : []).slice(0, 40).map((d) => {
     const r = obj(d);

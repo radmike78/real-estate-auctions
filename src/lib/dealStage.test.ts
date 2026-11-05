@@ -1063,7 +1063,9 @@ describe('Nevada round 4 flow', () => {
     const tax = { ...nvFlip, kind: 'taxSale' as const };
     const vd = { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'The sale is void (the Treasurer said so)', who: 'The county treasurer', resolved: true }, { when: '2026-10-06', what: 'Refund received from the Treasurer', who: 'The county treasurer', resolved: true }] };
     savePacket('analyzed:f1', vd);
-    expect(stageLabel('owned', tax)).toBe('Void: refund due');
+    expect(stageLabel('owned', { ...tax, stage: 'owned' })).toBe('Void: refund due');
+    // A stage picker lists the other stages by their own names.
+    expect(stageLabel('closed', { ...tax, stage: 'owned' })).not.toBe('Void: refund due');
     expect(stageLabel('passed', tax)).not.toBe('Void: refund due');
     saveDeals([{ ...tax, stage: 'passed' }]);
     expect(packetSections({ ...tax, stage: 'passed' }, vd, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/The refund is received: nothing else is due\./);
@@ -1101,6 +1103,20 @@ describe('Nevada round 4 flow', () => {
     const settled = settledFor('analyzed:f1');
     const bid = ROADMAP.find((x) => x.id === STAGE_STEPS.offer[0])!;
     expect(settled(bid)).toBe(true);
+  });
+
+  it('round 14 verifier: old void rows still count; possession is never credited', async () => {
+    const { loadPacket, savePacket: sp } = await import('./dealPacket');
+    const { settledFor } = await import('./roadmapState');
+    localStorage.setItem('deedowl.dealPacket.v1', JSON.stringify({ 'analyzed:f1': { dates: [{ when: '2026-10-05', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }] } }));
+    expect(loadPacket('analyzed:f1').dates[0].what).toBe('The sale is void (the Treasurer said so)');
+    const { sidState } = await import('./dealStage');
+    expect(sidState({ ...nvFlip, kind: 'taxSale' })).toBe('void');
+    sp('analyzed:f1', EMPTY_PACKET);
+    saveDeals([{ ...nvFlip, kind: 'court', stage: 'closed' }]);
+    const settled = settledFor('analyzed:f1');
+    expect(settled(ROADMAP.find((x) => x.id === 'a-possess')!)).toBe(false);
+    expect(settled(ROADMAP.find((x) => x.id === 'a-bid')!)).toBe(true);
   });
 
   it('says so when the deed row is ticked at a win', () => {

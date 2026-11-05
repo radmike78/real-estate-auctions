@@ -628,7 +628,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         {offer && ownDeal && asksHome({ ...ownDeal, plan: 'rent' }) && (
           <fieldset className="packet-fit">
             <legend>Will you live in this property?</legend>
-            {(!ownDeal.home || ownDeal.homeFrom === 'plan') && <p className="muted small">From your plan: {livesHere ? 'a home you’ll live in' : 'a rental'}. Confirm it for this property.</p>}
+            {(!ownDeal.home || ownDeal.homeFrom === 'plan') && <p className="muted small packet-fit-note">Your plan says {livesHere ? 'you’ll live here' : 'it’s a rental'}. Pick Yes or No to confirm it for this property.</p>}
             <label className="check"><input type="radio" name={`home-${ownDeal.id}`} checked={ownDeal.home === 'live' && ownDeal.homeFrom !== 'plan'} onChange={() => { setDealHome(ownDeal.id, 'live'); bumpHome((n) => n + 1); }} /> Yes, it’s my home</label>
             <label className="check"><input type="radio" name={`home-${ownDeal.id}`} checked={ownDeal.home === 'rent' && ownDeal.homeFrom !== 'plan'} onChange={() => { setDealHome(ownDeal.id, 'rent'); bumpHome((n) => n + 1); }} /> No, it’s a rental</label>
           </fieldset>
