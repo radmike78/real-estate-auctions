@@ -1,10 +1,10 @@
 import { calculatorInputError, midNumber, parseCalcInput } from './CalcFields';
 import { useEffect, useState } from 'react';
 import type { Deal } from '../lib/analyze';
-import { flipBudget, flipBudgetLine, savedNumbers } from '../lib/dealPacket';
+import { flipBudget, flipBudgetLine, flipSaleLine, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
-import { setDealStage, stageOf } from '../lib/dealStage';
+import { liveIn, setDealStage, stageOf } from '../lib/dealStage';
 
 /** The monthly cash flow the deal was bought on, from its Keep and rent numbers (null without them). */
 export function projectedMonthly(d: Deal): number | null {
@@ -35,7 +35,7 @@ const thisMonth = () => {
 };
 
 /** A flip's sale, once it's at "Fixing and selling": the closing date and price, which finish the deal (its last task). */
-function SoldForm({ o, put }: { o: Owned; put: (next: Owned | null) => void }) {
+function SoldForm({ o, put, deal }: { o: Owned; put: (next: Owned | null) => void; deal: Deal }) {
   const [on, setOn] = useState(o.sold?.on ?? today());
   const [price, setPrice] = useState(o.sold ? String(o.sold.price) : '');
   const p = parseCalcInput(price);
@@ -47,7 +47,7 @@ function SoldForm({ o, put }: { o: Owned; put: (next: Owned | null) => void }) {
   // A closing that hasn't happened yet, or before you bought it, doesn't finish the deal.
   const dateWhy = !dateOk ? 'Enter the closing date.' : on > today() ? 'Record the sale once it has closed: the closing date can’t be in the future.' : on < o.boughtOn ? `The closing date can’t be before you bought it (${o.boughtOn}).` : '';
   const ok = dateOk && !dateWhy && !priceBad && Number.isFinite(p) && p > 0;
-  if (o.sold) return <p className="notice" id="owned-sold" tabIndex={-1} role="status">Sold on {o.sold.on} for {fmtMoney(o.sold.price)}. Compare it with the walk-away price in your Fix and sell numbers, and keep the closing statement for your taxes. <button type="button" className="linkish" onClick={() => { const { sold: _sold, ...rest } = o; put(rest); setTimeout(() => document.getElementById('owned-sold-on')?.focus(), 0); }}>Undo</button></p>;
+  if (o.sold) return <p className="notice" id="owned-sold" tabIndex={-1} role="status">{flipSaleLine(deal) ?? `Sold on ${o.sold.on} for ${fmtMoney(o.sold.price)}.`} <button type="button" className="linkish" onClick={() => { const { sold: _sold, ...rest } = o; put(rest); setTimeout(() => document.getElementById('owned-sold-on')?.focus(), 0); }}>Undo</button></p>;
   return (
     <>
       <div className="row owned-add">
@@ -85,7 +85,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   if (!o) {
     return (
       <div>
-        <p>{flip ? (budgetLine ? `Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, against your budget from Fix and sell. ${budgetLine}` : 'Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : 'Did you buy it? Mark it as yours to track the real rent and costs each month against the cash flow you planned.'}</p>
+        <p>{flip ? (budgetLine ? `Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, against your budget from Fix and sell. ${budgetLine}` : 'Did you buy it? Mark it as yours to record what you pay each month for repairs and holding, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : liveIn(deal) ? 'Did you buy it? Mark it as your home to record what it really costs each month (and any rent from a room or unit), against what you planned.' : 'Did you buy it? Mark it as yours to track the real rent and costs each month against the cash flow you planned.'}</p>
         <button type="button" className="btn btn-secondary" onClick={() => { put({ boughtOn: today(), months: [] }); if (!['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'closed'); setTimeout(() => document.getElementById('owned-bought-on')?.focus(), 0); }}>I bought this property</button>
       </div>
     );
@@ -152,7 +152,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
       {flip && stageOf(deal) === 'owned' && (
         <>
           <h3 className="owned-sold-head">Sold it?</h3>
-          <SoldForm o={o} put={put} />
+          <SoldForm o={o} put={put} deal={deal} />
         </>
       )}
       {!o.sold && <p><button type="button" className="linkish" onClick={() => { if (window.confirm('Stop tracking this property and delete its monthly records?')) put(null); }}>I didn’t buy it, stop tracking</button></p>}

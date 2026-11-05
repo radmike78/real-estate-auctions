@@ -7,6 +7,7 @@ import { workStorage as localStorage } from './workStorage';
 // why, the deal's key dates, your questions to professionals and their answers, your earnest money, and the reason
 // for your decision with any conditions still open. Kept only in this browser, like the rest.
 import { kindLabel, SALE_KINDS, type Deal } from './analyze';
+import { loadOwned } from './owned';
 import { costsAtBid, maxSafeBid, offerInputs, redemptionOutcome, ruleOf, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, unenteredCosts, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
 import { offeredRedemptionRules, redemptionChoicesFor } from './stateCosts';
 import { cleanBuyBox, EMPTY_BUY_BOX, LIEN_STRATEGY, type BuyBox } from './toolkit';
@@ -76,6 +77,8 @@ export const calendarRows = (p: PacketData, stage: string) => {
   const waiting = approval >= 0 && !p.dates[approval].when;
   return p.dates.filter((x, i) => x.when || !(LATER.some((n) => sameDate(x.what, n)) || (stage === 'contract' && RECORDED_ROWS.some((n) => sameDate(x.what, n))) || (waiting && i >= approval)));
 };
+/** A row the calendar review lets wait for a later event (filling it in later needs no new review). */
+export const laterRow = (what: string) => LATER.some((n) => sameDate(what, n)) || RECORDED_ROWS.some((n) => sameDate(what, n)) || sameDate(what, 'Redemption money collected');
 /** The recording rows at a win: the record task is how they get done (they can stay undated until then). */
 export const RECORDED_ROWS = ['Deed recorded', 'Deed or certificate recorded', 'Treasurer’s deed recorded', 'Certificate of sale recorded', 'Certificate of sale received'];
 /** Windows that end on their own (no one acted in time): past their date, they ended; they weren't missed. */
@@ -691,6 +694,32 @@ export function flipBudget(d: Deal): { repairs: number; monthly: number; months:
  * The flip budget in one line for the owned tracker. With no price saved, the loan cost covers the repairs only, so it
  * says so; otherwise it names the price it was figured at (your offer or bid, or the asking price or opening bid).
  */
+/**
+ * A sold flip in plain words: the sale against the resale value planned, and a rough profit before income tax (the sale,
+ * less the price you entered, the costs to buy, what you recorded paying each month and the selling costs), against the
+ * profit Fix and sell planned at that price.
+ */
+export function flipSaleLine(d: Deal): string | null {
+  const sold = loadOwned()[d.id]?.sold;
+  if (d.plan !== 'flip' || !sold) return null;
+  const head = `Sold on ${sold.on} for ${money(sold.price)}`;
+  const raw = read(`fsf.bid.analyzed-${d.id}.v1`);
+  if (!raw || typeof raw !== 'object') return `${head}. Save its Fix and sell numbers in Analyze to see your profit against the one you planned; keep the closing statement for your taxes.`;
+  const saved: BidInputs = sanitizeInputs(raw, BLANK_INPUTS);
+  const i = isOffer(d) ? offerInputs(saved) : saved;
+  const proposed = proposedPriceOf(i);
+  const planned = i.exitValue > 0 ? ` (you planned a ${money(i.exitValue)} resale)` : '';
+  if (!proposed || proposed.source !== 'yours') return `${head}${planned}. Enter the price you paid in Fix and sell (Analyze) to see your profit; keep the closing statement for your taxes.`;
+  const c = costsAtBid(i, proposed.price);
+  const buy = c.premium + c.transferTax + c.survivingLiens + c.titleLegal + c.possession;
+  const o = loadOwned()[d.id];
+  const paid = o ? o.months.reduce((t, m) => t + m.costs - m.rent, 0) : 0;
+  const selling = (sold.price * (i.sellingCostPct || 0)) / 100;
+  const profit = sold.price - proposed.price - buy - paid - selling;
+  const plan = c.total > 0 ? ` You planned about ${money(i.exitValue - c.total)} at that price.` : '';
+  return `${head}${planned}. Rough profit before income tax: about ${money(profit)} (the sale, less your ${money(proposed.price)} ${isOffer(d) ? 'price' : 'bid'}, about ${money(buy)} to buy it, the ${money(paid)} you recorded paying${o && o.months.length ? '' : ' (no months recorded yet: add them for a truer figure)'}, and selling costs at ${i.sellingCostPct || 0}%, about ${money(selling)}).${plan} Your closing statement and your tax advisor have the exact figures.`;
+}
+
 export function flipBudgetLine(d: Deal): string | null {
   const b = flipBudget(d);
   if (!b) return null;
@@ -1029,7 +1058,7 @@ export function nextAction(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}
 /** The whole packet as plain text, to download, print or share with your professionals. */
 export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date()): string {
   const lines = [`DEAL PACKET: ${d.name}`, 'DeedOwl educational worksheet. Every number is your estimate until a source backs it; a checkmark records your review, not a clear title.', ''];
-  lines.push(`STAGE: ${stageLabel(stageOf(d), d)}`, `NEXT ACTION: ${nextAction(d, p, now).text}`, '');
+  lines.push(`STAGE: ${stageLabel(stageOf(d), d)}`, `NEXT ACTION: ${nextAction(d, p, now).text}`, ...(flipSaleLine(d) ? [`SALE: ${flipSaleLine(d)}`] : []), '');
   for (const s of packetSections(d, p, now)) {
     lines.push(`${s.title.toUpperCase()} [${s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines);
     if (s.key === 'dates' && dateGuideLines(d).length) lines.push(`What the less familiar ${d.state === 'TX' ? (isOffer(d) ? 'Texas contract ' : 'Texas ') : ''}dates mean (${isOffer(d) ? 'the signed contract wins' : 'the official notice wins'}):`, ...dateGuideLines(d).map((l) => `- ${l}`));

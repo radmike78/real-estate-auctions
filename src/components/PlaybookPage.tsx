@@ -320,7 +320,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
               : p.key === 'sid' && !offices?.specialAssessment
                 ? `Lien certificates are sold by Clark and Washoe counties and some cities. Ask ${place}’s treasurer whether it holds a special assessment (SID) lien sale before you plan on one.`
               : p.key === 'tax' && offices?.taxSale?.note && /online through (\w+)/i.test(offices.taxSale.note)
-                ? `${place}’s recent sales ran online through ${/online through (\w+)/i.exec(offices.taxSale.note)![1]}, not in person: register, place the deposit and bid on the site its page names. Its dates, deposits and payment rules also differ from Clark’s: confirm them with its treasurer before a real sale.`
+                ? `${place}’s recent sales ran online through ${/online through (\w+)/i.exec(offices.taxSale.note)![1]}, not in person: register and bid on the site its page names, and follow that site’s deposit and payment rules.* Its dates, deposits and payment rules also differ from Clark’s: confirm them with its treasurer before a real sale.`
               : ['tax', 'sid', 'sheriff'].includes(p.key)
                 ? `${place}’s own dates, deposits and payment rules may differ: confirm them with ${p.key === 'sheriff' ? 'its sheriff' : 'its treasurer'} before a real sale.`
                 : p.key === 'irs' ? 'IRS sales follow federal law, the same in every county; each sale’s terms come from the IRS notice of sale, so read it for the one you’re buying.' : 'This kind of sale follows the same Nevada law in every county; each sale’s own terms come from its notice or the seller, so read them for the one you’re buying.'}

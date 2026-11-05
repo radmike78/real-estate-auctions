@@ -3,7 +3,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
 import { DEAL_STAGES, loadDeals, openDeal, type Deal, type DealStage } from '../lib/analyze';
-import { setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask } from '../lib/dealStage';
+import { setDealStage, soldOf, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask } from '../lib/dealStage';
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
@@ -94,7 +94,9 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   const checked = log ? EVIDENCE_AREAS.filter((a) => log.rows[a.key]?.done).length : 0;
   // Working on a property doesn't finish the groundwork: the goal, cash, buy box and payment plan still open stay in view.
   const settledOwn = settledFor('');
-  const foundations = deal ? roadmapFor(planPath(), practiceState()).filter((s) => s.phase <= 2 && !settledOwn(s)) : [];
+  // (Not on a finished deal, sold or passed: nothing is running on it.)
+  const finished = !!deal && (stage === 'passed' || !!soldOf(deal));
+  const foundations = deal && !finished ? roadmapFor(planPath(), practiceState()).filter((s) => s.phase <= 2 && !settledOwn(s)) : [];
 
   // The same label My plan's roadmap uses: "Next roadmap task · Get ready".
   const nextLabel = now.context.startsWith('Roadmap · ') ? `Next roadmap task · ${now.context.slice('Roadmap · '.length)}` : `Next task · ${now.context}`;

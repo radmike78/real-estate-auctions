@@ -453,6 +453,20 @@ describe('Nevada round 4 flow', () => {
     expect(t.advance?.label).toBe('I was picked: mark it');
   });
 
+  it('asks for the challenge window’s end after a Nevada trustee sale, and shows a sold flip’s rough profit', async () => {
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
+    const w = stageTasks(nvFlip, 'closed', p, now).find((x) => x.key === 'window')!;
+    expect(w.produces).toMatch(/2026-10-20/);
+    expect(w.done).toBe(false);
+    const { flipSaleLine } = await import('./dealPacket');
+    localStorage.setItem('fsf.bid.analyzed-f1.v1', JSON.stringify({ exitValue: 340000, proposedPrice: 180000, sellingCostPct: 6 }));
+    saveOwned({ f1: { boughtOn: '2026-06-01', months: [{ month: '2026-07', rent: 0, costs: 30000, note: '' }], sold: { on: '2026-10-01', price: 335000 } } });
+    const line = flipSaleLine({ ...nvFlip, stage: 'owned' })!;
+    expect(line).toMatch(/^Sold on 2026-10-01 for \$335,000 \(you planned a \$340,000 resale\)/);
+    expect(line).toMatch(/Rough profit before income tax: about \$[0-9,]+ \(the sale, less your \$180,000 bid/);
+    expect(line).not.toMatch(/walk-away/);
+  });
+
   it('says so when the deed row is ticked at a win', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);

@@ -92,6 +92,12 @@ function useSaved<T extends object>(key: string, defaults: T, force: Partial<T> 
   const set = (k: keyof T & string, n: number) => {
     trackAction('calculator_used', true);
     setTyped(true);
+    // Saved before the page is told (CONFIRMED_EVENT), so what it re-reads (Analyze's checklist) is the new number.
+    try {
+      localStorage.setItem(key, JSON.stringify({ ...v, [k]: n }));
+    } catch {
+      /* storage unavailable */
+    }
     setTypedKeys((t) => { const next = new Set([...t, k]); saveConfirmed(key, next); return next; });
     setV((cur) => {
       const next = { ...cur, [k]: n };
