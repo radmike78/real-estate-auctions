@@ -31,10 +31,6 @@ const today = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
-const thisMonth = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-};
 
 /** The purchase date from its packet (the closing, the deed or the sale), else today. */
 function boughtDate(d: Deal): string {
@@ -76,7 +72,7 @@ function SoldForm({ o, put, deal }: { o: Owned; put: (next: Owned | null) => voi
 export default function OwnedTracker({ deal }: { deal: Deal }) {
   const all = useOwned();
   const o = all[deal.id];
-  const [month, setMonth] = useState(thisMonth);
+  const [month, setMonth] = useState(() => { const t = new Date(); const last = new Date(t.getFullYear(), t.getMonth() - 1, 1); const lm = `${last.getFullYear()}-${String(last.getMonth() + 1).padStart(2, '0')}`; const b = o?.boughtOn?.slice(0, 7) ?? ''; return b && lm < b ? b : lm; });
   // (A flip collects no rent: it starts at 0.)
   const [rent, setRent] = useState(deal.plan === 'flip' ? '0' : '');
   const [focusBox, setFocusBox] = useState<'rent' | 'costs' | null>(null);
@@ -155,11 +151,11 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} aria-invalid={showBad(costs, 'costs') || undefined} onFocus={() => setFocusBox('costs')} onBlur={() => setFocusBox(null)} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
         <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable || month < o.boughtOn.slice(0, 7)} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
-        {(rent === '' || costs === '') && <span className="muted small">Enter the rent (0 if none) and what you paid.</span>}
+        {(rent === '' || costs === '') && <span className="muted small owned-missing">Enter the rent (0 if none) and what you paid.</span>}
       </div>}
       {(showBad(rent, 'rent') || showBad(costs, 'costs')) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
       {negative && <p className="caution small" role="alert">Enter rent and costs as $0 or more. Record a refund to a tenant as a cost.</p>}
-      {!o.sold && <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs{liveIn(deal) ? ' (leave out utilities and repairs: the plan doesn’t include them)' : ', management and utilities'}, and any money you moved into your repair savings.{liveIn(deal) ? ' Rent: only what a room or unit you rent out brought in.' : ''}</p>}
+      {!o.sold && <p className="small muted">{liveIn(deal) ? 'Count what you paid that month for the loan, taxes, insurance and HOA. Leave out utilities, repairs and repair savings: the plan doesn’t include them. Rent: only what a room or unit you rent out brought in.' : 'Count everything you paid that month: the loan, taxes, insurance, HOA, repairs, management and utilities, and any money you moved into your repair savings.'}</p>}
       {s.months > 0 ? (
         <>
           <dl className="calc-kv">

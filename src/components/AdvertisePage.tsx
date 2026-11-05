@@ -64,6 +64,15 @@ export default function AdvertisePage() {
         ))}
       </section>
 
+      <section className="adv-glance" aria-labelledby="adv-glance-head">
+        <h2 id="adv-glance-head">At a glance</h2>
+        <ul>
+          <li><strong>Who reads it:</strong> {st ? `${stateByCode(st)?.name} ` : ''}buyers and investors checking listed, bank-owned and short-sale homes and official sales, county by county.</li>
+          <li><strong>Where you appear:</strong> your category’s page, and depending on your category, Find deals, Analyze a deal and the matching step in My plan (details below). Never beside a forced sale.</li>
+          <li><strong>Plans:</strong> {open ? 'open now: see Plans below.' : 'opening soon.'}</li>
+        </ul>
+      </section>
+
       <h2>What your ad looks like</h2>
       <p>A labeled ad in its own box, in the areas you choose, placed where buyers decide who to call: after “What to say” on your category’s page and, depending on your category, on Find deals, Analyze a deal or beside the next step in My plan (see “Where your category appears”). Its button opens your profile page, where buyers send you a contact request.</p>
       <AdPreview tag="Example" category="agent" state={st ?? 'NV'} name="Jordan Example" company="Example Realty" licenseId="00000 (example)" line="Helping first-time investors buy rentals and bank-owned homes in your county." />

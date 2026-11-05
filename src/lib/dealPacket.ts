@@ -1036,7 +1036,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   } else if (flipNeedsRepairs(d)) {
     cash.push(REPAIRS_NEEDED(strategy));
   } else {
-    cash.push(`Run ${strategy} in Analyze to see the cash this deal needs.`);
+    cash.push(sidState(d) === 'void' ? 'Not needed: the sale is void.' : `Run ${strategy} in Analyze to see the cash this deal needs.`);
   }
   // The same limit the calculator uses: the cash you entered there, else My plan's investable cash.
   const entered = rent?.cashLimit || bid?.cashLimit || commercial?.cashLimit || 0;

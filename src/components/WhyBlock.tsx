@@ -23,7 +23,7 @@ function Point({ p }: { p: WhyPoint }) {
 }
 
 /** "Why you would / Why you wouldn't", side by side on wide screens and stacked on phones. */
-export default function WhyBlock({ title, yes, no, yesLabel = 'Why you would', noLabel = 'Why you wouldn’t', more, level }: { title?: string; yes: WhyPoint[]; no: WhyPoint[]; yesLabel?: string; noLabel?: string; more?: { href: string; label: string }; /** The column headings' level, when the block sits under a heading other than an h2. */ level?: 3 | 4 }) {
+export default function WhyBlock({ title, about, yes, no, yesLabel = 'Why you would', noLabel = 'Why you wouldn’t', more, level }: { title?: string; /** What the reasons are about, for headings read out of context (screen readers). */ about?: string; yes: WhyPoint[]; no: WhyPoint[]; yesLabel?: string; noLabel?: string; more?: { href: string; label: string }; /** The column headings' level, when the block sits under a heading other than an h2. */ level?: 3 | 4 }) {
   // One level below the block's own title, or below the page section's h2 when there's no title.
   const H = level ? (`h${level}` as 'h3' | 'h4') : title ? 'h4' : 'h3';
   return (
@@ -31,11 +31,11 @@ export default function WhyBlock({ title, yes, no, yesLabel = 'Why you would', n
       {title && <h3 className="why-title">{title}</h3>}
       <div className="why-cols">
         <div className="why-col why-yes">
-          <H className="why-head"><span aria-hidden>✓</span> {yesLabel}</H>
+          <H className="why-head"><span aria-hidden>✓</span> {yesLabel}{about && <span className="sr-only"> ({about})</span>}</H>
           <ul>{yes.map((p) => <Point key={p.text} p={p} />)}</ul>
         </div>
         <div className="why-col why-no">
-          <H className="why-head"><span aria-hidden>✕</span> {noLabel}</H>
+          <H className="why-head"><span aria-hidden>✕</span> {noLabel}{about && <span className="sr-only"> ({about})</span>}</H>
           <ul>{no.map((p) => <Point key={p.text} p={p} />)}</ul>
         </div>
       </div>

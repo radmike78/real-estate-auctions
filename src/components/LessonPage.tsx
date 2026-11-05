@@ -130,7 +130,7 @@ function Block({ b, marked }: { b: LessonBlock; marked?: Piece[][] }) {
     return (
       <details className="why-fold">
         <summary>{b.why.title ? `${b.why.title}: pros and cons` : 'Pros and cons'}</summary>
-        <WhyBlock yes={b.why.yes} no={b.why.no} more={b.why.more} />
+        <WhyBlock about={b.why.title} yes={b.why.yes} no={b.why.no} more={b.why.more} />
       </details>
     );
   if ('links' in b)

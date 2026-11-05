@@ -2753,6 +2753,8 @@ cite.cite { font-style: normal; font-size: max(0.82em, 15px); color: var(--muted
 .packet-dates li input[type="date"] { width: 100%; min-width: 0; box-sizing: border-box; }
 .packet-dates li input[type="checkbox"], .packet-reviewed input[type="checkbox"], .check input[type="checkbox"], .check input[type="radio"] { inline-size: 1.25rem; block-size: 1.25rem; }
 .packet-fit .packet-fit-note { flex-basis: 100%; margin: 0; }
+.owned-add .owned-missing { flex-basis: 100%; }
+.ad-who { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 .check.packet-reviewed { align-items: flex-start; }
 .check.packet-reviewed input { margin-top: 0.15em; flex: none; }
 .evidence-done input[type="checkbox"], input[type="radio"][name^="gate-"] { inline-size: 1.25rem; block-size: 1.25rem; }
