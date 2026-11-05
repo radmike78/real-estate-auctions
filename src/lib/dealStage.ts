@@ -43,6 +43,8 @@ export function liveIn(d: { kind: Deal['kind']; plan?: Deal['plan']; id?: string
   // (Rent that covers the costs doesn't change it on its own: the tracker asks whether you still live there.)
   return !!investorProfile().ownerOccupant;
 }
+/** Decide answered how you'll pay and live (its borrow question): it can say home or rental. */
+export const decideAnswered = () => { try { const dc = JSON.parse(localStorage.getItem('deedowl.decide.v1') ?? 'null'); return !!dc?.answers?.borrow; } catch { return false; } };
 /** Whether to ask "do you live there?" for this property: a reader buying a home to live in, keeping one bought by offer. */
 export const asksHome = (d: { kind: Deal['kind']; plan?: Deal['plan']; id?: string; home?: Deal['home'] }) => {
   if (d.plan !== 'rent' || wayOf(d) !== 'offer') return false;
@@ -52,7 +54,7 @@ export const asksHome = (d: { kind: Deal['kind']; plan?: Deal['plan']; id?: stri
   const home = st?.home ?? d.home;
   const from = st ? st.homeFrom : (d as { homeFrom?: string }).homeFrom;
   // (Decide skipped and no answer yet: no way to know, so ask, with neither choice picked.)
-  if (!home) { try { const dc = JSON.parse(localStorage.getItem('deedowl.decide.v1') ?? 'null'); return !dc || !dc.answers || !Object.keys(dc.answers).length; } catch { return true; } }
+  if (!home) return !decideAnswered();
   return from !== 'plan' || home === 'live';
 };
 const HOMES_SETTLED_KEY = 'deedowl.homes-settled.v1';
@@ -113,6 +115,22 @@ export function settleAllSteps(dealKey: string) {
   if (settling || !dealKey.startsWith('analyzed:')) return;
   settling = true;
   try {
+    // (An earlier build kept which row each step ticked in its own store: move that onto the rows, once.)
+    try {
+      const old = JSON.parse(localStorage.getItem('deedowl.stepRows.v1') ?? 'null') as Record<string, Record<string, string>> | null;
+      const mine = old && typeof old === 'object' ? old[dealKey] : undefined;
+      if (mine && typeof mine === 'object') {
+        let pk = loadPacket(dealKey);
+        for (const [id, what] of Object.entries(mine)) {
+          if (!STEP_ROWS[id] || pk.dates.some((x) => x.step === id || x.step === `~${id}`)) continue;
+          const k = what === '(already handled)' ? pk.dates.findIndex((x) => x.resolved && STEP_ROWS[id].some((n) => sameEvent(x.what, n))) : pk.dates.findIndex((x) => x.what === what);
+          if (k >= 0) pk = { ...pk, dates: pk.dates.map((x, i) => (i === k ? { ...x, step: what === '(already handled)' ? `~${id}` : id } : x)) };
+        }
+        savePacket(dealKey, pk);
+        const { [dealKey]: _done, ...rest } = old!;
+        if (Object.keys(rest).length) localStorage.setItem('deedowl.stepRows.v1', JSON.stringify(rest)); else localStorage.removeItem('deedowl.stepRows.v1');
+      }
+    } catch { /* an unreadable old record: nothing to move */ }
     const prog = dealProgress(dealKey);
     for (const id of Object.keys(STEP_ROWS).filter((k) => prog.done.includes(k) || (k !== 'deposit' && prog.status[k] === 'na'))) {
       const p = loadPacket(dealKey);
@@ -672,7 +690,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       // (The first finished month not recorded, as the tracker opens on it.)
       const open = (() => { const o = owned[d.id]; const b = o?.boughtOn?.slice(0, 7); if (!o || !b) return ''; const t = new Date(now.getFullYear(), now.getMonth() - 1, 1); const lm = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}`; for (let [y, m] = b.split('-').map(Number), i = 0; i < 1200; i++) { const k = `${y}-${String(m).padStart(2, '0')}`; if (k > lm) return ''; if (!o.months.some((x) => x.month === k)) return k === lm ? '' : k; m += 1; if (m > 12) { m = 1; y += 1; } } return ''; })();
       const openWord = open ? new Date(`${open}-15T12:00:00`).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '';
-      if (!(firstEnd && localDay(now) <= firstEnd && !owned[d.id]?.months.length)) out.push(task({ key: 'month', label: openWord ? `Record ${openWord}’s ${liveIn(d) ? 'costs' : 'rent and costs'} for ${n} (the first month not yet recorded)` : liveIn(d) ? `Record last month’s costs for ${n}` : `Record last month’s rent and costs for ${n}`, produces: liveIn(d) ? 'what your home actually cost last month, against what you planned' : 'its actual cash flow for the month, against what you planned', href: packetHref(d, 'owned'), support: [L.caseStage('run', 'Run it and review')], done: !!owned[d.id]?.months.some((m) => m.month >= month) }));
+      if (!(firstEnd && localDay(now) <= firstEnd && !owned[d.id]?.months.length)) out.push(task({ key: 'month', label: openWord ? `Record ${openWord}’s ${liveIn(d) ? 'costs' : 'rent and costs'} for ${n} (the first month not yet recorded)` : liveIn(d) ? `Record last month’s costs for ${n}` : `Record last month’s rent and costs for ${n}`, produces: liveIn(d) ? `what your home actually cost ${openWord ? 'that month' : 'last month'}, against what you planned` : 'its actual cash flow for the month, against what you planned', href: packetHref(d, 'owned'), support: [L.caseStage('run', 'Run it and review')], done: !!owned[d.id]?.months.some((m) => m.month >= month) }));
       out.push(task({ key: 'review', label: `Review ${n} against your goal`, produces: 'a written decision: keep it as it is, improve it, refinance or sell', href: stepHref('review'), support: [L.pro('cpa')], done: stepDone('review') }));
     }
     findNext();

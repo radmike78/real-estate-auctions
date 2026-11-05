@@ -15,7 +15,7 @@ import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
 import { DEAL_STAGES, type DealStage } from '../lib/analyze';
-import { recordParts, asksHome, voidByLaw, forCalendar, liveIn, setDealHome, sidState, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
+import { decideAnswered, recordParts, asksHome, voidByLaw, forCalendar, liveIn, setDealHome, sidState, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { planNow } from '../lib/planNext';
 import TaskActions from './TaskActions';
@@ -130,7 +130,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
             {DEAL_STAGES.map((st) => <option key={st} value={st}>{stageLabel(st, deal)}</option>)}
           </select>
         </label>
-        <p className="muted">{stageHint(stage, deal)} {(() => { const plan = planNow(); return plan.source === 'deal' && plan.deal?.id === deal.id ? 'Change the stage when something happens; Your next action below and My plan follow it.' : stage === 'passed' || soldOf(deal) ? 'Change the stage when something happens; Your next action below follows it.' : <>The stage picks the next action here. <a href="#/toolkit">My plan</a> {plan.source === 'deal' ? 'is working on another property' : 'shows the lessons and practice first'}; choose this property there to work on it now.</>; })()}</p>
+        <p className="muted">{stageHint(stage, deal)} {(() => { const plan = planNow(); return plan.source === 'deal' && plan.deal?.id === deal.id ? 'Change the stage when something happens; Your next action below and My plan follow it.' : stage === 'passed' || soldOf(deal) ? 'Change the stage when something happens; Your next action below follows it.' : <>Change the stage when something happens; Your next action below follows it. <a href="#/toolkit">My plan</a> {plan.source === 'deal' ? 'is working on another property' : 'shows the lessons and practice first'}; choose this property there to work on it now.</>; })()}</p>
       </div>
       <div className="packet-next">
         <h2 id="packet-next-head" className="packet-next-head" tabIndex={-1}>Your next action</h2>
@@ -159,7 +159,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         {asksHome(deal) && !trackerAsksHome(deal) && stageOf(deal) !== 'passed' && (
           <fieldset className="packet-fit">
             <legend>Will you live in this property?</legend>
-            {(!deal.home || deal.homeFrom === 'plan') && <p className="muted small packet-fit-note">Your plan says {liveIn(deal) ? 'you’ll live here' : 'it’s a rental'}. Pick Yes or No to confirm it for this property.</p>}
+            {(deal.homeFrom === 'plan' || (!deal.home && decideAnswered())) && <p className="muted small packet-fit-note">Your plan says {liveIn(deal) ? 'you’ll live here' : 'it’s a rental'}. Pick Yes or No to confirm it for this property.</p>}
             <label className="check"><input type="radio" name="packet-home" checked={deal.home === 'live' && deal.homeFrom !== 'plan'} onChange={() => setDealHome(deal.id, 'live')} /> Yes, it’s my home</label>
             <label className="check"><input type="radio" name="packet-home" checked={deal.home === 'rent' && deal.homeFrom !== 'plan'} onChange={() => setDealHome(deal.id, 'rent')} /> No, it’s a rental</label>
           </fieldset>
@@ -186,7 +186,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <section className="deal-setup packet-section" aria-labelledby="packet-dates">
         <Head k="dates" />
         <p className="muted">{wayOf(deal) === 'offer' ? (['researching', 'offer'].includes(stageOf(deal)) ? 'From the listing and your offer; once it’s signed, the contract wins over anything here.' : 'From the signed contract: the contract wins over anything here.') : 'From the official notice: the notice wins over anything here.'}</p>
-        {p.dates.length === 0 && <OwlNote>{stageOf(deal) === 'passed' ? 'No dates were added before you passed. Add one if you want it on file.' : wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'No dates yet. Nothing needs a date until your offer is accepted; then the contract’s deadlines go here.' : 'No dates yet. Start with the usual dates for this kind of sale below (the official notice or the contract wins), then fill in each one.'}</OwlNote>}
+        {p.dates.length === 0 && <OwlNote>{stageOf(deal) === 'passed' ? 'No dates were added before you passed. Add one if you want it on file.' : wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'No dates yet. Nothing needs a date until your offer is accepted; then the contract’s deadlines go here.' : `No dates yet. Start with the usual dates for this kind of sale below (the ${wayOf(deal) === 'offer' ? 'signed contract' : 'official notice'} wins), then fill in each one.`}</OwlNote>}
         <ul className="packet-dates">
           {p.dates.map((x, i) => (
             <li key={i}>

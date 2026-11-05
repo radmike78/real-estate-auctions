@@ -1311,4 +1311,21 @@ describe('Nevada round 4 flow', () => {
     expect(after.resolved).toBeFalsy();
     expect(after.step).toBeUndefined();
   });
+
+  it('round 19 verifier: the old step record moves onto the rows; a won sale day needs no who', async () => {
+    const { loadPacket, calendarReady } = await import('./dealPacket');
+    const { DEAL_STEPS_KEY } = await import('./roadmapDeals');
+    const { settleAllSteps } = await import('./dealStage');
+    const offer = { ...deal, id: 'f1', state: 'NV' as const, county: 'Washoe', kind: 'listing' as const };
+    saveDeals([{ ...offer, stage: 'contract' }]);
+    localStorage.setItem(DEAL_STEPS_KEY, JSON.stringify({ 'analyzed:f1': { done: ['deposit'], status: {} } }));
+    localStorage.setItem('deedowl.stepRows.v1', JSON.stringify({ 'analyzed:f1': { deposit: 'Earnest money due' } }));
+    localStorage.setItem('deedowl.dealPacket.v1', JSON.stringify({ 'analyzed:f1': { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Earnest money due', who: 'Me' }] } }));
+    settleAllSteps('analyzed:f1');
+    const r = loadPacket('analyzed:f1').dates[0];
+    expect(r.step).toBe('deposit');
+    expect(r.resolved).toBeFalsy();
+    expect(localStorage.getItem('deedowl.stepRows.v1')).toBeNull();
+    expect(calendarReady({ ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: '' }, { when: '', what: 'Payment deadline', who: 'Me', resolved: true }] }, 'contract')).toBe(true);
+  });
 });
