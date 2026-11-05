@@ -1,10 +1,10 @@
 import { calculatorInputError, midNumber, parseCalcInput } from './CalcFields';
 import { useEffect, useState } from 'react';
 import type { Deal } from '../lib/analyze';
-import { flipBudget, flipBudgetLine, flipSaleLine, savedNumbers } from '../lib/dealPacket';
+import { flipBudget, flipBudgetLine, flipSaleLine, loadPacket, sameDate, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
-import { certificateFirst, finishedDeal, liveIn, setDealStage, stageOf, wayOf } from '../lib/dealStage';
+import { certificateFirst, finishedDeal, liveIn, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
 
 /** The monthly cash flow the deal was bought on, from its Keep and rent numbers (null without them). */
 export function projectedMonthly(d: Deal): number | null {
@@ -33,6 +33,13 @@ const thisMonth = () => {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 };
+
+/** The purchase date from its packet (the closing, the deed or the sale), else today. */
+function boughtDate(d: Deal): string {
+  const rows = loadPacket(`analyzed:${d.id}`).dates.filter((x) => x.when && x.resolved && ['Closing', 'Deed recorded', 'Treasurer’s deed recorded', 'Certificate of sale recorded', 'Sale day'].some((n) => sameDate(x.what, n)));
+  const latest = rows.map((x) => x.when).sort().pop();
+  return latest && latest <= today() ? latest : today();
+}
 
 /** A flip's sale, once it's at "Fixing and selling": the closing date and price, which finish the deal (its last task). */
 function SoldForm({ o, put, deal }: { o: Owned; put: (next: Owned | null) => void; deal: Deal }) {
@@ -83,6 +90,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     saveOwned(copy);
   };
   // A finished deal (passed, or repaid) has nothing to track; an auction not yet won is answered on sale day.
+  if (!o && redeemingNow(deal)) return <p className="muted">It was redeemed: nothing to track here. Keep the receipt for your payoff.</p>;
   if (!o && (stageOf(deal) === 'passed' || finishedDeal(deal))) return <p className="muted">{finishedDeal(deal) ? 'It was repaid: nothing more to track here.' : 'You passed on it: nothing to track here.'}</p>;
   if (!o && ['researching', 'offer'].includes(stageOf(deal)) && wayOf(deal) !== 'offer') return <p className="muted">Won it? Answer “did you win?” in Your next action above once the sale is over, and the steps after the sale appear here.</p>;
   if (!o && stageOf(deal) === 'contract' && wayOf(deal) !== 'offer') return <p className="muted">Once you’ve paid and the {certificateFirst(deal) ? 'certificate of sale' : 'deed'} is {certificateFirst(deal) && deal.kind === 'irs' ? 'in hand' : 'recorded'}, mark it in Your next action above; then start tracking its costs here.</p>;
@@ -93,7 +101,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     return (
       <div>
         <p>{flip ? (budgetLine ? `${ask} record what you pay each month for repairs and holding, against your budget from Fix and sell. ${budgetLine}` : `${ask} record what you pay each month for repairs and holding, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).`) : liveIn(deal) ? `${bought ? 'Start tracking your home to' : 'Did you buy it? Mark it as your home to'} record what it really costs each month (and any rent from a room or unit), against what you planned.` : `${ask} track the real rent and costs each month against the cash flow you planned.`}</p>
-        <button type="button" className="btn btn-secondary" onClick={() => { put({ boughtOn: today(), months: [] }); if (!['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'closed'); setTimeout(() => document.getElementById('owned-bought-on')?.focus(), 0); }}>{bought ? 'Start tracking it' : 'I bought this property'}</button>
+        <button type="button" className="btn btn-secondary" onClick={() => { put({ boughtOn: boughtDate(deal), months: [] }); if (!['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'closed'); setTimeout(() => document.getElementById('owned-bought-on')?.focus(), 0); }}>{bought ? 'Start tracking it' : 'I bought this property'}</button>
       </div>
     );
   }
@@ -121,7 +129,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   };
   return (
     <div>
-      {!o.sold && <p className="muted">{flip ? (budgetLine ?? 'Record what you pay each month, with $0 rent, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : projected === null ? 'Renting it out? Save this deal’s numbers in Keep and rent to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : `You planned on ${signed(projected)} a month of cash flow.`}</p>}
+      {!o.sold && <p className="muted">{flip ? (budgetLine ?? 'Record what you pay each month, with $0 rent, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : projected === null ? 'Renting it out? Save this deal’s numbers in Keep and rent to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : liveIn(deal) ? `You planned on about ${signed(-projected)} a month to live there (after any rent you collect).` : `You planned on ${signed(projected)} a month of cash flow.`}</p>}
       {o.sold ? <p className="muted">Bought on {o.boughtOn}. Sold: the months you recorded are below.</p> : <div className="row owned-add">
         <label className="field"><span>Bought on</span><input id="owned-bought-on" type="date" value={o.boughtOn} max={today()} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
         <label className="field"><span>Month</span><input id="owned-month" type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></label>
@@ -156,7 +164,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
           </table>
         </>
       ) : (
-        <p>{flip ? 'No months recorded yet. Add the first month’s costs, with $0 rent.' : 'No months recorded yet. Add the first one when the rent comes in.'}</p>
+        <p>{flip ? 'No months recorded yet. Add the first month’s costs, with $0 rent.' : liveIn(deal) ? 'No months recorded yet. Add last month’s costs, with any rent from space you rent out (or $0).' : 'No months recorded yet. Add the first one when the rent comes in.'}</p>
       )}
       {flip && stageOf(deal) === 'owned' && (
         <>
