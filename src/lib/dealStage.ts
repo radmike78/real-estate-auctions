@@ -7,7 +7,7 @@ import { workStorage as localStorage } from './workStorage';
 // Site rules: tasks never involve contacting a homeowner, an occupant or a former owner. Official sellers, your own
 // team, public records and the county only.
 import { CURRENT_KEY, DEAL_STAGES, isDealStage, loadDeals, saveDeals, type Deal, type DealStage } from './analyze';
-import { irsWithoutRedemption, roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
+import { irsWithoutRedemption, sameDate, roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
 import { areasFor, loadLog, type EvidenceLog } from './evidence';
 import { loadOwned, type Owned } from './owned';
 import { proGuideByKey } from './proGuide';
@@ -28,9 +28,9 @@ const waitWord = (d: { kind: Deal['kind'] }) => (d.kind === 'hoa' ? '60 days' : 
 export const DEED_AFTER_WAIT = 'Deed delivered (if no one redeemed)';
 /** A date in the packet with its date entered, passed and marked handled. */
 const localDay = (now: Date) => `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-const handled = (p: PacketData, what: string, now: Date) => p.dates.some((x) => x.what === what && !!x.resolved && !!x.when && x.when < localDay(now));
+const handled = (p: PacketData, what: string, now: Date) => p.dates.some((x) => sameDate(x.what, what) && !!x.resolved && !!x.when && x.when < localDay(now));
 /** A row marked handled, with or without its date (the deed: you have it). */
-const ticked = (p: PacketData, what: string) => p.dates.some((x) => x.what === what && !!x.resolved);
+const ticked = (p: PacketData, what: string) => p.dates.some((x) => sameDate(x.what, what) && !!x.resolved);
 /** A certificate-first deal whose deed row is ticked in its packet. */
 const deedInHand = (d: { kind: Deal['kind']; state?: Deal['state']; id?: string; plan?: Deal['plan'] }) => !!d.id && certificateFirst(d) && ticked(loadPacket(`analyzed:${d.id}`), DEED_AFTER_WAIT);
 

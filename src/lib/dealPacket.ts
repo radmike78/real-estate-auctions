@@ -60,6 +60,9 @@ export const EMPTY_PACKET: PacketData = { fit: '', fitWhy: '', dates: [], qa: []
 /** A count of dates cannot establish that all applicable deadlines have been reviewed. */
 /** A date that applies only if something happens (its name says “(if …)”): it can stay undated. */
 const ifOnly = (what: string) => /\(if /.test(what);
+/** A packet row is this date, even renamed by the reader: its name starts with the date's own (without any “(if …)”). */
+export const sameDate = (rowWhat: string, name: string) => rowWhat.trim().toLowerCase().startsWith(name.replace(/\s*\(if [^)]*\)$/, '').toLowerCase());
+
 /** A date row filled in: its date and who handles it, or (a date that applies only if something happens) left undated. */
 export const dateRowComplete = (d: { when: string; what: string; who: string }) => !!d.what.trim() && ((!!d.when && !!d.who.trim()) || (!d.when && ifOnly(d.what)));
 export const calendarComplete = (p: PacketData, stage: string) => p.calendarReviewedFor === stage && p.dates.length > 0 && p.dates.every(dateRowComplete);
@@ -794,7 +797,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
         cash.push(`Repair spending as work is done: ${money(rent.repairs)}, including the contingency. Possession costs, if needed: ${money(rent.possession)}.`);
         cash.push(`Total modeled acquisition, repairs and possession cash: ${money(rent.cashIn)}. This is not the amount to wire at closing.`);
         cash.push('Ask title/escrow and your lender for the actual cash to close and payment dates. Prepaid costs, escrow funding, prorations, credits and costs paid earlier can change it. Repair/lease-up carrying costs also need a separate budget if not included.');
-      } else cash.push(`From sale day until it’s rented, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs)${rentWaitNote(d.state, d.kind) ? `. ${rentWaitNote(d.state, d.kind)} ${RENT_WAIT_ADVICE}` : ''}`);
+      } else cash.push(`From sale day until it’s rented, all in: ${money(rent.cashIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs)${rentWaitNote(d.state, d.kind) ? `. ${rentWaitNote(d.state, d.kind)} ${RENT_WAIT_ADVICE}.` : ''}`);
     }
     cash.push(rent.retained > 0 ? `Retained property reserves: ${money(rent.retained)}, kept separately from the ${money(need)} modeled cash requirement.` : 'Retained property reserves: not entered. Set aside a separate amount for vacancies and unexpected costs.');
     if (rent.retained > 0) need += rent.retained;

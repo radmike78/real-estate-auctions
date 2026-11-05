@@ -6,7 +6,7 @@ import PageHero from './PageHero';
 import EvidenceLog, { DecisionGate } from './EvidenceLog';
 import { kindLabel, loadDeals, openDeal, SALE_KINDS } from '../lib/analyze';
 import { countyName } from '../lib/regions';
-import { roleTitleFor, dateGuide, dateRowComplete, dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus, teamRolesFor } from '../lib/dealPacket';
+import { roleTitleFor, dateGuide, dateRowComplete, sameDate, dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus, teamRolesFor } from '../lib/dealPacket';
 import { TEAM_ROLES } from '../lib/myPlan';
 import { downloadText, fileName } from '../lib/download';
 import { EVIDENCE_EVENT } from '../lib/evidence';
@@ -155,10 +155,10 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <ul className="packet-dates">
           {p.dates.map((x, i) => (
             <li key={i}>
+              <textarea className="packet-what" rows={1} ref={growToFit} onInput={(e) => growToFit(e.currentTarget)} aria-label={`Name of this date${x.what ? ` (${x.what})` : ''}`} maxLength={200} value={x.what} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, what: e.target.value.replace(/\n/g, ' '), resolved: false } : y)) })} />
               <input type="date" aria-label={`Date: ${x.what || 'new date'}`} value={x.when} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, when: e.target.value, resolved: y.when ? false : y.resolved } : y)) })} />
-              <textarea className="packet-what" rows={1} ref={growToFit} onInput={(e) => growToFit(e.currentTarget)} aria-label="What" maxLength={200} value={x.what} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, what: e.target.value.replace(/\n/g, ' '), resolved: false } : y)) })} />
               <input aria-label={`Who handles ${x.what || 'this date'}`} placeholder="Who" maxLength={120} value={x.who} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, who: e.target.value, resolved: false } : y)) })} />
-              <label><input type="checkbox" checked={!!x.resolved} onChange={(e) => update({ dates: p.dates.map((y, j) => j === i ? { ...y, resolved: e.target.checked } : y) }, false)} /> Handled</label>
+              <label><input type="checkbox" aria-label={`${x.what || 'This date'}: handled`} checked={!!x.resolved} onChange={(e) => update({ dates: p.dates.map((y, j) => j === i ? { ...y, resolved: e.target.checked } : y) }, false)} /> Handled</label>
               <button type="button" className="linkish" aria-label={`Remove ${x.what || 'date'}`} onClick={() => update({ dates: p.dates.filter((_, j) => j !== i) })}>Remove</button>
             </li>
           ))}
@@ -167,7 +167,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           {p.dates.length === 0 && <button type="button" className="btn" onClick={() => { update({ dates: suggestedDates(deal).map((what) => ({ when: '', what, who: '' })) }); setTimeout(() => document.querySelector<HTMLInputElement>('#dates input, [data-section="dates"] input, .packet-dates input')?.focus(), 0); }}>Start with the usual dates for this sale</button>}
           {(() => {
             // Usual dates removed (or added since the packet was started): add back only those, at the end.
-            const missing = p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => x.what === w)) : [];
+            const missing = p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x.what, w))) : [];
             return missing.length ? <button type="button" className="btn btn-secondary" onClick={() => { const at = p.dates.length; update({ dates: [...p.dates, ...missing.map((what) => ({ when: '', what, who: '' }))] }); setTimeout(() => document.querySelectorAll<HTMLInputElement>('.packet-dates input[type="date"]')[at]?.focus(), 0); }}>Add the usual dates that are missing ({missing.length})</button> : null;
           })()}
           <button type="button" className="btn btn-secondary" onClick={() => update({ dates: [...p.dates, { when: '', what: '', who: '' }] })}>Add a date</button>

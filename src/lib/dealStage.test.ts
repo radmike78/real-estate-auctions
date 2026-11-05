@@ -313,3 +313,11 @@ it('says "Deed recorded" once the deed row is ticked, and counts the wait as ove
   expect(stageLabel('closed', hoa)).toBe('Deed recorded');
   expect(stageTasks(hoa, 'closed', p, now).find((t) => t.key === 'redemption-wait')?.done).toBe(true);
 });
+
+it('counts a renamed wait or deed row as that date', () => {
+  const hoa: Deal = { ...deal, id: 'dh5', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip' };
+  const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Redemption period ends (60 days, check notice)', who: 'Owner', resolved: true }, { when: '', what: 'Deed delivered', who: '', resolved: true }] };
+  const t = Object.fromEntries(stageTasks(hoa, 'closed', p, now).map((x) => [x.key, x.done]));
+  expect(t['redemption-wait']).toBe(true);
+  expect(t['deed']).toBe(true);
+});

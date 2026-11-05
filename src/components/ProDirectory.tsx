@@ -93,7 +93,8 @@ export default function ProDirectory({ categories, initialCategory = 'any', show
   const [q, setQ] = useState<Omit<ProQuery, 'categories'>>({ location: initialLocation, service: 'any', creditProfile: 'any', language: 'any' });
   const active = cat === 'any' ? categories : [cat];
   // "real estate agents", or "professionals" when the list mixes categories.
-  const who = active.length === 1 ? CATEGORIES[active[0]].plural.toLowerCase() : 'professionals';
+  // (Lowercase, but keep an acronym: "CPAs".)
+  const who = active.length === 1 ? ((pl) => (/^[A-Z]{2}/.test(pl) ? pl : pl[0].toLowerCase() + pl.slice(1)))(CATEGORIES[active[0]].plural) : 'professionals';
   const financing = active.some((c) => CATEGORIES[c].financing);
   const serviceOptions = useMemo(() => [...new Set(active.flatMap((c) => servicesFor(c)))], [active.join()]); // eslint-disable-line react-hooks/exhaustive-deps
   const languages = useMemo(() => [...new Set(pros.flatMap((p) => p.languages))].sort(), [pros]);
