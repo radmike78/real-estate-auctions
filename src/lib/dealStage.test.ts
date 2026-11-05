@@ -958,6 +958,27 @@ describe('Nevada round 4 flow', () => {
     localStorage.removeItem('deedowl.decide.v1');
   });
 
+  it('round 13 code: an investor’s bought rental stays a rental; unpaid SID void answer; late SID at Deed recorded', async () => {
+    const { liveIn, settleHomes } = await import('./dealStage');
+    const rental = { ...nvFlip, kind: 'listing' as const, plan: 'rent' as const };
+    saveDeals([{ ...rental, stage: 'contract' }]);
+    setDealStage('f1', 'closed');
+    expect(loadDeals()[0].home).toBe('rent');
+    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { borrow: 'live' } }));
+    settleHomes();
+    expect(liveIn({ id: 'f1', kind: 'listing', plan: 'rent' })).toBe(false);
+    localStorage.removeItem('deedowl.decide.v1');
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    const unpaid = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-11', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-09-25', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City' }] };
+    const t = dealNextTask(tax, unpaid, now, 'contract');
+    expect(t.record?.label).toBe('I didn’t pay it by Sep 30, 2026: the sale is void');
+    expect(t.record?.row.what).toBe('Treasurer: the sale is void');
+    const late = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-03', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City', resolved: true }, { when: '2026-10-04', what: 'Treasurer’s deed recorded', who: 'T', resolved: true }] };
+    expect(dealNextTask(tax, late, now, 'closed').key).toBe('sid-void');
+    savePacket('analyzed:f1', late);
+    expect(stageHint('closed', tax)).toMatch(/after the 20-day deadline: confirm with the Treasurer whether the sale stands\*/);
+  });
+
   it('says so when the deed row is ticked at a win', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);

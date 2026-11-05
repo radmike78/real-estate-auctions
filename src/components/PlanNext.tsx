@@ -89,7 +89,8 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   const chooseDeal = (v: string) => {
     setFinishedNote('');
     write(DEAL_KEY, v || NO_DEAL);
-    const d = deals.find((x) => `analyzed:${x.id}` === v);
+    // (Home has no list of deals: look it up, so the route follows the property there too.)
+    const d = loadDeals().find((x) => `analyzed:${x.id}` === v);
     if (d) write(ROADMAP_PATH_KEY, pathForDeal(d));
     progressChanged();
   };

@@ -43,6 +43,9 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
       {task.postpone && (
         <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; edit((p) => { const was = p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when); return { ...p, postponedSale: true, calendarReviewedFor: undefined, dates: [...p.dates.map((x) => (clearsOnPostpone(x.what) ? { ...x, when: '', resolved: undefined } : x)), ...(was ? [{ when: was.when, what: `Sale postponed (was ${new Date(`${was.when}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })})`, who: was.who || 'Whoever runs the sale', resolved: true }] : [])] }; }); after(el); }}>{task.postpone.label}</button>
       )}
+      {task.record && (
+        <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const r = task.record!; edit((p) => ({ ...p, dates: p.dates.some((x) => sameDate(x.what, r.row.what)) ? p.dates : [...p.dates, { ...r.row }] })); after(el); }}>{task.record.label}</button>
+      )}
       {task.undo && (
         <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const u = task.undo!; edit((p) => { const kept = p.dates.filter((x) => !sameDate(x.what, u.removeRow)); return { ...p, dates: [...kept, ...(u.addRow && !kept.some((x) => sameDate(x.what, u.addRow!.what)) ? [{ ...u.addRow }] : [])] }; }); after(el); }}>{task.undo.label}</button>
       )}

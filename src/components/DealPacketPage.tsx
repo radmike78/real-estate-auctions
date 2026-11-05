@@ -138,7 +138,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
             : !next.answer && !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there&nbsp;→</a>
             : !next.answer && /\/(plan|dates|cash|evidence|pros|decision|owned)$/.test(next.href) ? (() => { const sec = /\/(\w+)$/.exec(next.href)![1]; return <button type="button" className="linkish" onClick={() => { const h = document.getElementById(`packet-${sec}`); h?.setAttribute('tabindex', '-1'); /* (the evidence log opens) */ h?.closest('section')?.querySelectorAll('details').forEach((x, i) => { if (i === 0) x.open = true; }); h?.scrollIntoView({ block: 'start' }); h?.focus(); }}>Go to {sec === 'dates' ? 'Key dates' : sec === 'evidence' ? 'the evidence log' : sec === 'owned' ? 'After you buy' : sec === 'decision' ? 'Your decision' : sec === 'pros' ? 'the questions' : sec === 'cash' ? 'the cash' : 'your plan'}&nbsp;↓</button>; })() : null}
         </p>
-        {(next.advance || next.advance2 || next.tick || next.undo || next.redate) && <div className="packet-next-actions">
+        {(next.advance || next.advance2 || next.tick || next.undo || next.redate || next.postpone || next.record) && <div className="packet-next-actions">
           <TaskActions task={next} dealId={deal.id} edit={(f) => setP((cur) => { const n = f(cur); savePacket(key, n); return n; })} after={() => focusNext()} />
         </div>}
       </div>
