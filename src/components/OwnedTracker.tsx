@@ -77,6 +77,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const [rent, setRent] = useState(deal.plan === 'flip' ? '0' : '');
   // Tracking just started (or the purchase date moved later): the month can't be before the purchase.
   useEffect(() => { const b = o?.boughtOn?.slice(0, 7); if (b && month < b) setMonth(b); }, [o?.boughtOn]);
+  // The latest month you can record: last month (or the month you bought it, if that's this month).
+  const maxMonth = (() => { const t = new Date(); const l = new Date(t.getFullYear(), t.getMonth() - 1, 1); const lm = `${l.getFullYear()}-${String(l.getMonth() + 1).padStart(2, '0')}`; const b = o?.boughtOn?.slice(0, 7) ?? ''; return b && b > lm ? b : lm; })();
   const [focusBox, setFocusBox] = useState<'rent' | 'costs' | null>(null);
   const [costs, setCosts] = useState('');
   const [note, setNote] = useState('');
@@ -120,7 +122,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const add = () => {
     const r = parseCalcInput(rent);
     const c = parseCalcInput(costs);
-    if (unreadable || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || month < o.boughtOn.slice(0, 7) || !Number.isFinite(r) || !Number.isFinite(c) || r < 0 || c < 0) return;
+    if (unreadable || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || month < o.boughtOn.slice(0, 7) || month > maxMonth || !Number.isFinite(r) || !Number.isFinite(c) || r < 0 || c < 0) return;
     // (Saved: the cursor goes back to the month, for the next one.)
     setTimeout(() => document.getElementById('owned-month')?.focus(), 0);
     put({ ...o, months: [{ month, rent: Math.max(0, r), costs: Math.max(0, c), note: note.slice(0, 200) }, ...o.months.filter((m) => m.month !== month)].sort((a, b) => b.month.localeCompare(a.month)) });
@@ -129,12 +131,14 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     setNote('');
     // Move on to the month after the one just added, so the next entry doesn't replace it.
     const [y, mo] = month.split('-').map(Number);
-    setMonth(mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`);
+    const next = mo === 12 ? `${y + 1}-01` : `${y}-${String(mo + 1).padStart(2, '0')}`;
+    if (next <= maxMonth) setMonth(next);
   };
   // A home whose recorded rent now covers its costs: ask whether you still live there (never switch it on its own).
   const rentCovers = trackerAsksHome(deal);
   return (
     <div>
+      {/^\d{4}-\d{2}$/.test(month) && month > maxMonth && <p className="caution" role="note">That month isn’t over yet: record it once it ends.</p>}
       {/^\d{4}-\d{2}$/.test(month) && month < o.boughtOn.slice(0, 7) && <p className="caution" role="note">That month is before you bought it ({prettyDay(o.boughtOn)}): pick a later month.</p>}
       {o.months.some((m) => m.month < o.boughtOn.slice(0, 7)) && <p className="caution" role="note">{o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).map((m) => monthWords(m.month)).join(', ')} {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'is' : 'are'} before the date you bought it ({prettyDay(o.boughtOn)}): remove {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'it' : 'them'} or check the date.</p>}
       {!rentCovers && deal.home === 'live' && deal.homeFrom !== 'plan' && s.months > 0 && s.rent > 0 && s.rent >= s.costs && <p className="muted small">Rent now covers this home’s costs. Still your home? You can change it under “Your plan and buy box”.</p>}
@@ -148,11 +152,11 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
       {!o.sold && <p className="muted">{flip ? (budgetLine ?? 'Record what you pay each month, with $0 rent, and compare it yourself with the repairs and holding costs under Fix and flip in Analyze.') : liveIn(deal) && projected === null ? 'Record what your home costs each month (and any rent from a room or unit). Save its numbers in Analyze to compare with your plan.' : projected === null ? 'Renting it out? Save this deal’s numbers in Buy and hold to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : liveIn(deal) ? `You planned on about ${signed(-projected)} a month to live there (after any rent you collect).` : `You planned on ${signed(projected)} a month of cash flow.`}</p>}
       {o.sold ? <p className="muted">Bought on {prettyDay(o.boughtOn)}. Sold: the months you recorded are below.</p> : <div className="row owned-add">
         <label className="field"><span>Bought on</span><input id="owned-bought-on" type="date" value={o.boughtOn} max={today()} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
-        <label className="field"><span>Month</span><input id="owned-month" type="month" value={month} min={o.boughtOn.slice(0, 7)} onChange={(e) => setMonth(e.target.value)} /></label>
+        <label className="field"><span>Month</span><input id="owned-month" type="month" value={month} min={o.boughtOn.slice(0, 7)} max={maxMonth} onChange={(e) => setMonth(e.target.value)} /></label>
         <label className="field"><span>{liveIn(deal) ? 'Rent you collected ($)' : 'Rent collected ($)'}</span><input type="text" inputMode="decimal" value={rent} aria-invalid={showBad(rent, 'rent') || undefined} onFocus={() => setFocusBox('rent')} onBlur={() => setFocusBox(null)} onChange={(e) => setRent(e.target.value)} /></label>
         <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} aria-invalid={showBad(costs, 'costs') || undefined} onFocus={() => setFocusBox('costs')} onBlur={() => setFocusBox(null)} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
-        <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable || month < o.boughtOn.slice(0, 7)} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
+        <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable || month < o.boughtOn.slice(0, 7) || month > maxMonth} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
         {(rent === '' || costs === '') && <span className="muted small owned-missing">Enter the rent (0 if none) and what you paid.</span>}
       </div>}
       {(showBad(rent, 'rent') || showBad(costs, 'costs')) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}

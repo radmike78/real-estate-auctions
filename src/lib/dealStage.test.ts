@@ -1138,7 +1138,7 @@ describe('Nevada round 4 flow', () => {
     expect(t.label).toMatch(/^Deed recorded on Jul 8, 2026 for 2210 Mesa Verde Ln\? If it’s recorded, mark it to go on/);
     const tax = { ...nvFlip, kind: 'taxSale' as const };
     const sp = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-01', what: 'Payment deadline', who: 'Me', resolved: true }] };
-    expect(stageTasks(tax, 'contract', sp, now).find((x) => x.key === 'sid-affidavit')!.redate).toMatchObject({ when: '2026-10-21', who: 'The city or county' });
+    expect(stageTasks(tax, 'contract', sp, now).find((x) => x.key === 'sid-affidavit')!.redate).toMatchObject({ when: '2026-10-21', who: 'Me' });
     const listing = { ...nvFlip, kind: 'listing' as const };
     savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-12-10', what: 'Closing', who: 'Escrow', resolved: true }] });
     expect(stageHint('contract', listing)).not.toMatch(/^Closed\?/);
@@ -1167,5 +1167,27 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(tax, sid, now, 'contract').label).toMatch(/SID certificate payoff/);
     const pay = stageTasks({ ...nvFlip, kind: 'trustee' as const }, 'contract', { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }] }, now).find((x) => x.key === 'ev-terms');
     if (pay?.tick) expect(pay.tick.noDate).toBe(true);
+  });
+
+  it('round 16: a split payment stays open; the redemption end isn’t passed at the win; an early deed date is checked; an early closing tick', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const split = { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-05', what: 'Payment deadline (deposit at the sale)', who: 'Me', resolved: true }, { when: '2026-10-08', what: 'Payment deadline (balance, next business day)', who: 'Me' }] };
+    savePacket('analyzed:f1', split);
+    saveDeals([{ ...nvFlip, stage: 'contract' }]);
+    expect(dealNextTask(nvFlip, split, now, 'contract').label).toMatch(/Payment deadline \(balance/);
+    expect(packetSections({ ...nvFlip, stage: 'contract' }, split, now).find((x) => x.key === 'dates')!.lines.join(' | ')).not.toMatch(/balance, next business day\) \(Me\) — passed/);
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const won = { ...EMPTY_PACKET, dates: [{ when: '2026-10-02', what: 'Sale day', who: 'HOA', resolved: true }, { when: '2026-10-03', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2027-01-01', what: 'Redemption period ends', who: 'HOA' }] };
+    savePacket('analyzed:f1', won);
+    saveDeals([{ ...hoa, stage: 'contract' }]);
+    expect(packetSections({ ...hoa, stage: 'contract' }, won, now).find((x) => x.key === 'dates')!.lines.join(' | ')).not.toMatch(/Redemption period ends \(HOA\) — passed/);
+    const court = { ...nvFlip, kind: 'court' as const };
+    const early = { ...EMPTY_PACKET, dates: [{ when: '2026-08-03', what: 'Sale day', who: 'S', resolved: true }, { when: '2027-08-03', what: 'Redemption period ends', who: 'S' }, { when: '2026-10-01', what: 'Deed delivered (if no one redeemed)', who: 'S' }] };
+    const t = dealNextTask(court, early, now, 'closed');
+    expect(t.label).toMatch(/is before the redemption period ends/);
+    expect(t.tick?.label).not.toBe('No one redeemed: mark it handled');
+    const offer = { ...deal, kind: 'listing' as const };
+    const ahead = { ...EMPTY_PACKET, dates: [{ when: '2026-12-01', what: 'Closing', who: 'Title', resolved: true }] };
+    expect(dealNextTask(offer, ahead, now, 'contract').key).not.toBe('close');
   });
 });

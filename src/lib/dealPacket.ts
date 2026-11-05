@@ -17,7 +17,7 @@ import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
-import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, saleOver, liveIn, sidState, forCalendar } from './dealStage';
+import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, saleOver, liveIn, sidState, forCalendar, notYet } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -106,7 +106,7 @@ export const capSid = (p: PacketData, d: Pick<Deal, 'kind' | 'state'>): PacketDa
 /** An offer's contract dates: they start once the offer is accepted (no calendar needed before then). */
 export const CONTRACT_ROWS = ['Offer accepted', 'Acceptance', 'Contract signed', 'Earnest money', 'Earnest Money Deposit', 'Inspection period ends', 'Option period ends', 'Seller’s disclosure', 'Seller Disclosure', 'Defect cancellation', 'HOA resale package', 'Appraisal deadline', 'Loan approval deadline', 'Closing', 'Lienholder approval', 'Approval notice received', 'Feasibility', 'Title and survey', 'Due Diligence', 'Financing & Appraisal', 'Settlement Deadline'];
 /** The rows a postponed sale clears for its new dates: the sale day, registration and the payment deadline. */
-export const clearsOnPostpone = (what: string) => sameDate(what, 'Sale day') || /^(bidder )?registration/i.test(what.trim()) || sameEvent(what, 'Payment deadline');
+export const clearsOnPostpone = (what: string) => sameDate(what, 'Sale day') || /^(bidder )?registration/i.test(what.trim()) || sameDate(what, 'Payment deadline');
 /** The most dates a packet keeps. */
 export const MAX_DATES = 60;
 /** A Nevada trustee sale's 90-day limit (NRS 107.080(6)) still ahead of the challenge window's own end, and of today. */
@@ -906,10 +906,11 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const closingDone = stageOf(d) === 'contract' && isOffer(d) && p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved && (!x.when || x.when <= localDayOf(now)));
   // FLOW-4: before you win, a sale day that has passed asks "did you win?" (no countdown to the rows after the sale).
   const saleDone = early && !isOffer(d) && saleOver(p, now);
-  const nd = stageOf(d) === 'passed' || finishedDeal(d) || closingDone || saleDone ? null : nextDate(remindable(capSid(pk, d), now, early, behindStage(d, stageOf(d))), now);
+  const nd = stageOf(d) === 'passed' || finishedDeal(d) || closingDone || saleDone ? null : nextDate(remindable(capSid(pk, d), now, early, [...behindStage(d, stageOf(d)), ...notYet(d, stageOf(d))]), now);
   // Rows the stage has put behind you read "passed", not "open" (the sale day once won; the offer once accepted).
   const behind = behindStage(d, stageOf(d));
-  const pastRow = (x: { what: string; when: string }) => !['researching', 'offer'].includes(stageOf(d)) && (['Sale day', 'Bidder registration', 'Registration', 'Offer accepted', 'Acceptance', 'Contract signed'].some((n) => sameDate(x.what, n)) || (behind.some((n) => sameDate(x.what, n)) && !sameDate(x.what, 'Lienholder approval deadline')) || (sameDate(x.what, 'Approval notice received') && !!x.when && x.when <= localDayOf(now)));
+  // (At a win, a row dated after today isn't "passed"; after the closing it's "not needed now".)
+  const pastRow = (x: { what: string; when: string }) => !['researching', 'offer'].includes(stageOf(d)) && !(stageOf(d) === 'contract' && x.when && x.when > localDayOf(now)) && (['Sale day', 'Bidder registration', 'Registration', 'Offer accepted', 'Acceptance', 'Contract signed'].some((n) => sameDate(x.what, n)) || (behind.some((n) => sameDate(x.what, n)) && !sameDate(x.what, 'Lienholder approval deadline')) || (sameDate(x.what, 'Approval notice received') && !!x.when && x.when <= localDayOf(now)));
   // V-7: a short sale's lienholder deadline, met by an approval on or before it.
   const approvalOn = d.kind === 'short' ? p.dates.find((x) => sameDate(x.what, 'Approval notice received') && x.when && x.when <= localDayOf(now))?.when ?? '' : '';
   const lienMet = (x: { what: string; when: string }) => !!approvalOn && sameDate(x.what, 'Lienholder approval deadline') && (!x.when || approvalOn <= x.when);
