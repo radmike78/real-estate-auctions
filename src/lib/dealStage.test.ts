@@ -96,6 +96,7 @@ describe('the next action follows the stage', () => {
   it('moves a researched deal on only after a decision', () => {
     withNumbers();
     saveLog('analyzed:d1', cleanLog({ rows: Object.fromEntries(['sale', 'income', 'insurance'].map((k) => [k, { done: true }])), gate: 'proceed' }));
+    localStorage.setItem('deedowl.buybox.v1', JSON.stringify({ priceMax: 300000 }));
     const p = { ...EMPTY_PACKET, fit: 'fits' as const, fitWhy: 'Under my price limit' };
     const t = dealNextTask(deal, p, now, 'researching');
     expect(t.setStage).toBe('offer');
@@ -1217,5 +1218,20 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(hoa, soon, now, 'closed').label).toMatch(/is before the redemption period ends/);
     const keys = stageTasks({ ...nvFlip, kind: 'court' as const }, 'closed', { ...EMPTY_PACKET, dates: [{ when: '2026-08-03', what: 'Sale day', who: 'S', resolved: true }] }, now).map((t) => t.key);
     if (keys.includes('won-price')) expect(keys.indexOf('won-price')).toBeLessThan(keys.indexOf('redemption-wait'));
+  });
+
+  it('round 17 flow: "It was redeemed" during the wait; the inspection answers before the deadline; a short sale waits for approval', () => {
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const wait = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'HOA', resolved: true }, { when: '2026-11-19', what: 'Redemption period ends', who: 'HOA' }] };
+    const t = dealNextTask(hoa, wait, now, 'closed');
+    expect(t.advance2?.label).toBe('It was redeemed: collect the payoff');
+    const offer = { ...deal, id: 'f1', state: 'NV' as const, county: 'Washoe', kind: 'listing' as const };
+    const insp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-30', what: 'Contract signed', who: 'Me', resolved: true }, { when: '2026-09-30', what: 'Earnest money due', who: 'Me', resolved: true }, { when: '2026-10-09', what: 'Inspection period ends', who: 'Me' }] };
+    const i = dealNextTask(offer, insp, now, 'contract');
+    expect(i.advance2?.label).toBe('I cancelled in writing: mark it passed');
+    expect(i.tick?.label).toBe('Inspections done: mark it handled');
+    const short = { ...offer, kind: 'short' as const };
+    const keys = stageTasks(short, 'contract', insp, now).map((x) => x.key);
+    expect(keys.indexOf('short-approval')).toBeLessThan(keys.indexOf('inspection-complete'));
   });
 });
