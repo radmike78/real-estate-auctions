@@ -14,7 +14,7 @@ import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
 import { DEAL_STAGES, type DealStage } from '../lib/analyze';
-import { asksHome, forCalendar, liveIn, setDealHome, sidState, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
+import { asksHome, voidByLaw, forCalendar, liveIn, setDealHome, sidState, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { planNow } from '../lib/planNext';
 import TaskActions from './TaskActions';
@@ -189,7 +189,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
               <label className="packet-f"><span aria-hidden="true">Who handles it</span><input aria-label={`Who handles ${x.what || 'this date'}`} placeholder="Who" maxLength={120} value={x.who} onChange={(e) => update({ dates: p.dates.map((y, j) => (j === i ? { ...y, who: e.target.value } : y)) }, !laterRow(x.what))} /></label>
               <label><input type="checkbox" aria-label={`${x.what || 'This date'}: handled`} checked={!!x.resolved} onChange={(e) => update({ dates: p.dates.map((y, j) => j === i ? { ...y, resolved: e.target.checked } : y) }, false)} /> Handled</label>
               <button type="button" className="linkish" aria-label={`Remove ${x.what || 'date'}`} onClick={() => update({ dates: p.dates.filter((_, j) => j !== i) })}>Remove</button>
-              {deal.state === 'NV' && deal.kind === 'taxSale' && sameDate(x.what, 'SID certificate payoff') && !!x.when && !!sidDeadline(p) && x.when > sidDeadline(p) && <p className="caution small packet-row-note" role="note">{sidState(deal) === 'void' ? 'Paid after the deadline: the sale is void.' : <>This is after {prettyDay(sidDeadline(p))}, 20 days after the sale. If it isn’t paid by then, the sale is void (NRS 361.595(6)). Check the date with the Treasurer.</>}</p>}
+              {deal.state === 'NV' && deal.kind === 'taxSale' && sameDate(x.what, 'SID certificate payoff') && !!x.when && !!sidDeadline(p) && x.when > sidDeadline(p) && <p className="caution small packet-row-note" role="note">{sidState(deal) === 'void' ? (voidByLaw(p) ? 'Not paid within 20 days: the sale is void.' : 'Paid after the deadline: the sale is void.') : <>This is after {prettyDay(sidDeadline(p))}, 20 days after the sale. If it isn’t paid by then, the sale is void (NRS 361.595(6)). Check the date with the Treasurer.</>}</p>}
             </li>
           ))}
         </ul>

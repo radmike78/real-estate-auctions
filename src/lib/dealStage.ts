@@ -147,13 +147,13 @@ export const SID_VOID_ROW = 'The sale is void';
 const VOID_SAID = `${SID_VOID_ROW} (the Treasurer said so)`;
 const VOID_UNPAID = `${SID_VOID_ROW} (the SID payoff wasn’t made within 20 days, NRS 361.595(6))`;
 /** Whether the reader recorded the void from their own unpaid answer (not the Treasurer's). */
-const voidByLaw = (p: PacketData) => p.dates.some((x) => sameDate(x.what, VOID_UNPAID));
+export const voidByLaw = (p: PacketData) => p.dates.some((x) => sameDate(x.what, VOID_UNPAID));
 /** The reader entered the price paid at the win in Analyze (and said so). */
 export const WON_BID_ROW = 'Winning bid entered in Analyze';
 /** The packet as the calendar review sees it: a paid win's undated payment row is behind you. */
 export const forCalendar = (d: { id?: string; kind: Deal['kind']; state?: Deal['state']; plan?: Deal['plan'] }, p: PacketData, stage: string): PacketData => (stage === 'contract' && wayOf(d) !== 'offer' && paidAtWin(d) ? { ...p, dates: p.dates.filter((x) => !(sameEvent(x.what, 'Payment deadline') && !x.when)) } : p);
 /** At a won auction, the payment is made (its evidence ticked, or its row handled). */
-export const paidAtWin = (d: { id?: string }) => !!d.id && loadPacket(`analyzed:${d.id}`).dates.some((x) => sameEvent(x.what, 'Payment deadline') && !!x.resolved);
+export const paidAtWin = (d: { id?: string }) => !!d.id && loadPacket(`analyzed:${d.id}`).dates.some((x) => sameDate(x.what, 'Payment deadline') && !!x.resolved);
 /** A Nevada tax sale where nothing records the SID answer (no payoff row handled, no "no affidavit"), with its 20-day date known. */
 const sidUnasked = (d: { id?: string }) => { if (!d.id) return false; const p = loadPacket(`analyzed:${d.id}`); return !!sidDeadline(p) && !p.dates.some((x) => (sameDate(x.what, 'SID certificate payoff') && x.resolved) || sameDate(x.what, NO_SID_ROW) || sameDate(x.what, SID_VOID_ROW)); };
 /** A Nevada tax sale's SID payoff after its 20 days: 'late' (no answer from the Treasurer yet), 'void', or ''. */
@@ -387,7 +387,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     }));
   };
   // Paying at a win: done once the payment is marked (its row handled), not by the pre-sale "funds ready" tick.
-  const payTask = (label: string, produces: string) => out.push(task({ key: 'ev-terms', label, produces, href: packetHref(d, 'dates'), tick: { label: 'I paid: mark it handled', row: 'Payment deadline', who: 'Me' }, support: [L.guides], done: p.dates.some((x) => sameEvent(x.what, 'Payment deadline') && !!x.resolved) }));
+  const payTask = (label: string, produces: string) => out.push(task({ key: 'ev-terms', label, produces, href: packetHref(d, 'dates'), tick: { label: 'I paid: mark it handled', row: 'Payment deadline', who: 'Me' }, support: [L.guides], done: p.dates.some((x) => sameDate(x.what, 'Payment deadline') && !!x.resolved) }));
   const area = (k: string, label: string, produces: string, support: Support[] = [], also = false) => { const t = areasFor(d.kind).find((x) => x.key === k)?.title; out.push(task({ key: `ev-${k}`, label, produces: t ? `${produces} (tick “${t}”)` : produces, href: packetHref(d, 'evidence'), support, done: ev(k) || also })); };
   const fit = () => out.push(task({ key: 'fit', label: `Check ${n} against your buy box`, produces: 'a fits or doesn’t-fit call with the reason, in its deal packet', href: packetHref(d, 'plan'), support: [L.buyBox], done: !!(p.fit && p.fitWhy.trim()) }));
   const decide = () => out.push(task({ key: 'decide', label: `Decide on ${n}: pass, or go on to ${w === 'offer' ? 'an offer' : w === 'lien' && d.state === 'NV' ? 'the sale' : 'bidding'}`, produces: 'your decision and the reason, recorded in its evidence log', href: packetHref(d, 'decision'), support: [L.walkAway], done: log.gate === 'pass' || log.gate === 'proceed' }));
@@ -632,7 +632,9 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
       const paidTick = stage === 'contract' && sameEvent(nd.what, 'Payment deadline') ? { label: 'I paid: mark it handled', row: nd.what } : stage === 'contract' && (sameEvent(nd.what, 'Earnest money due') || sameEvent(nd.what, 'Option fee')) ? { label: 'I sent it: mark it handled', row: nd.what } : sameDate(nd.what, 'SID certificate payoff') ? (sidDeadline(p) && sidDeadline(p) < localDay(now) && d.state === 'NV' && d.kind === 'taxSale' && (p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && x.when)?.when ?? '') <= sidDeadline(p) ? { label: `I paid it by ${prettyDay(sidDeadline(p))}: mark it handled`, row: nd.what } : { label: 'I paid it: mark it handled', row: nd.what, ...((p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && x.when)?.when ?? '') > localDay(now) ? { setWhen: localDay(now) } : {}) }) : undefined;
       const sidUnpaid = sameDate(nd.what, 'SID certificate payoff') && d.state === 'NV' && d.kind === 'taxSale' && sidDeadline(p) && sidDeadline(p) < localDay(now) ? { label: `I didn’t pay it by ${prettyDay(sidDeadline(p))}: the sale is void`, row: { when: localDay(now), what: VOID_UNPAID, who: 'You', resolved: true } } : undefined;
       // A passed row with no other answer: mark it handled from here (registration, inspections, a contract date).
-      const passedTick = nd.days < 0 && !sameDate(nd.what, 'SID certificate payoff') && !windowEnded(nd.what, -nd.days, d.kind) ? { label: /^(bidder )?registration/i.test(nd.what.trim()) ? 'I registered (or none was needed): mark it handled' : sameEvent(nd.what, 'Inspection period ends') ? 'Inspections done, or I cancelled in time: mark it handled' : 'Done (or it no longer applies): mark it handled', row: nd.what } : undefined;
+      // (Never a stage's own event: the sale, a closing, a recording or the deed. Those have their own answers.)
+      const ownEvent = ['Sale day', 'Closing', 'Offer accepted', 'Acceptance', 'Contract signed', 'Payment deadline', 'Earnest money due', 'Option fee', 'Approval notice received', DEED_AFTER_WAIT].some((n) => sameEvent(nd.what, n)) || RECORDED_ROWS.some((r) => sameDate(nd.what, r)) || AFTER_SALE.some((n) => sameDate(nd.what, n));
+      const passedTick = nd.days < 0 && !ownEvent && !sameDate(nd.what, 'SID certificate payoff') && !windowEnded(nd.what, -nd.days, d.kind) ? { label: /^(bidder )?registration/i.test(nd.what.trim()) ? 'I registered (or none was needed): mark it handled' : sameEvent(nd.what, 'Inspection period ends') ? 'Inspections done, or I cancelled in time: mark it handled' : 'Done (or it no longer applies): mark it handled', row: nd.what } : undefined;
       const sidNone = sameDate(nd.what, 'SID certificate payoff') ? { label: 'No SID affidavit after all: remove the payoff row', removeRow: nd.what, addRow: { when: localDay(now), what: NO_SID_ROW, who: 'The county treasurer', resolved: true } } : undefined;
       const sidLate = nd.days < 0 && sameDate(nd.what, 'SID certificate payoff') && d.state === 'NV' && stage === 'contract';
       const sidAfterDeed = sameDate(nd.what, 'SID certificate payoff') && d.state === 'NV' && (stage === 'closed' || stage === 'owned');

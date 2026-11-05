@@ -1119,6 +1119,17 @@ describe('Nevada round 4 flow', () => {
     expect(settled(ROADMAP.find((x) => x.id === 'a-bid')!)).toBe(true);
   });
 
+  it('round 15 code: no shortcut answer on the deed or a stage event; a renamed payment row can be paid', async () => {
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const dp = { ...EMPTY_PACKET, dates: [{ when: '2026-08-01', what: 'Sale day', who: 'A', resolved: true }, { when: '2026-10-01', what: 'Deed delivered (if no one redeemed)', who: 'A' }] };
+    expect(dealNextTask(hoa, dp, now, 'closed').tick?.label ?? '').not.toMatch(/no longer applies/);
+    const listing = { ...nvFlip, kind: 'listing' as const };
+    const cl = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Closing', who: 'Escrow' }] };
+    expect(dealNextTask(listing, cl, now, 'contract').tick?.label ?? '').not.toMatch(/no longer applies/);
+    const rp = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Payment deadline for the balance', who: 'Me', resolved: true }] };
+    expect(stageTasks(nvFlip, 'contract', rp, now).find((x) => x.key === 'ev-terms')!.done).toBe(true);
+  });
+
   it('says so when the deed row is ticked at a win', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);
