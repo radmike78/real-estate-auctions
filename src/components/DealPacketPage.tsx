@@ -90,7 +90,8 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
   // (A void sale marked passed went past the sale too: its parts are records.)
   const pastSale = ['closed', 'owned'].includes(stageOf(deal)) || finishedDeal(deal) || wonAuction || sidState(deal) === 'void';
   // The parts from before you bought: records now, not homework.
-  const RECORD_PARTS = sidState(deal) === 'void' ? ['plan', 'property', 'cash', 'numbers', 'evidence', 'pros', 'decision'] : ['plan', 'property', 'cash', 'numbers', 'decision'];
+  // (After the closing or the deed, the evidence log and the questions were for before you bought: records too.)
+  const RECORD_PARTS = sidState(deal) === 'void' || ['closed', 'owned'].includes(stageOf(deal)) || finishedDeal(deal) ? ['plan', 'property', 'cash', 'numbers', 'evidence', 'pros', 'decision'] : ['plan', 'property', 'cash', 'numbers', 'pros', 'decision'];
   const Head = ({ k }: { k: string }) => {
     const s = sec(k);
     return (

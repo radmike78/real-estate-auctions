@@ -932,7 +932,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   });
 
   // 4. Cash needed, by when (from the deal's own strategy)
-  const strategy = STRATEGY_LABEL[d.plan];
+  const strategy = liveIn(d) && d.plan === 'rent' ? 'a home you’ll live in (worked out in Analyze’s Buy and hold tab)' : STRATEGY_LABEL[d.plan];
   const cash: string[] = [];
   if (offer) {
     cash.push(p.earnest ? `By the contract's deposit deadline: ${money(p.earnest)} earnest money` : 'By the contract’s deposit deadline: earnest money (enter it below)');

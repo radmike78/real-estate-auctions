@@ -49,7 +49,7 @@ const money = (n: number) => (n < 0 ? `−${fmtMoney(Math.round(-n))}` : `+${fmt
  * month" (blue, solid) reads differently from "Walk-away price: $123,205 → +$273 a month" (green, dashed), and the asking
  * price or opening bid gets a plain grey bar.
  */
-export function PriceHead({ kind, label, price, result, unit = 'a month', note, id, tag, level = 4 }: { /** Heading level: 3 directly under a section's h2. */ level?: 3 | 4; kind: 'yours' | 'target' | 'listed'; label: string; price: number | null; /** Monthly cash flow or profit at that price. */ result?: number | null; unit?: string; note?: string; id?: string; /** Replaces the small label above the line. */ tag?: string }) {
+export function PriceHead({ kind, label, price, result, unit = 'a month', note, id, tag, level = 4, cost = false }: { /** Heading level: 3 directly under a section's h2. */ level?: 3 | 4; /** A home's cost (no rent): shown as a positive cost to live there. */ cost?: boolean; kind: 'yours' | 'target' | 'listed'; label: string; price: number | null; /** Monthly cash flow or profit at that price. */ result?: number | null; unit?: string; note?: string; id?: string; /** Replaces the small label above the line. */ tag?: string }) {
   const H = level === 3 ? 'h3' : 'h4';
   const tagText = tag ?? (kind === 'yours' ? 'Your number' : kind === 'target' ? 'What-if: the price that meets the target' : 'From the listing');
   return (
@@ -62,8 +62,8 @@ export function PriceHead({ kind, label, price, result, unit = 'a month', note, 
         {result !== undefined && result !== null && Number.isFinite(result) && (
           <>
             <span className="price-head-arrow" aria-hidden> → </span>
-            <span className="sr-only"> gives </span>
-            <strong className={`price-head-result${result < 0 ? ' neg' : ''}`}>{money(result)} {unit} before income tax</strong>
+            <span className="sr-only">{cost && result <= 0 ? ' costs ' : ' gives '}</span>
+            <strong className={`price-head-result${result < 0 && !cost ? ' neg' : ''}`}>{cost && result <= 0 ? `${fmtMoney(Math.round(-result))} ${unit} to live there` : money(result)}{cost && result <= 0 ? '' : ` ${unit}`} before income tax</strong>
           </>
         )}
       </span>

@@ -62,7 +62,7 @@ function Band({ tone, icon, title, sub, children, id, other }: { tone: 'county' 
 
 export default function FindDealsPage() {
   useMarkStep('deals');
-  const openSources = (id: string) => { const target = document.getElementById(id); const panel = target?.closest('details'); if (panel) panel.open = true; target?.scrollIntoView({ block: 'start', behavior: 'smooth' }); };
+  const openSources = (id: string) => { const target = document.getElementById(id); const panel = target?.closest('details'); if (panel) panel.open = true; target?.scrollIntoView({ block: 'start', behavior: 'smooth' }); const h = (target?.matches('h2, h3, summary') ? target : target?.querySelector('h2, h3, summary')) as HTMLElement | null; if (h) { if (h.tagName !== 'SUMMARY') h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); } };
   useLastActivity('#/find-deals', 'Find deals');
   // The visitor's area (myArea.ts): their state and county, from the city they chose or picked here.
   const [mine, setMine] = useMyArea();

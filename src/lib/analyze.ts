@@ -156,7 +156,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
   }
   if (d.kind === 'lien') {
     if (st === 'AZ') sale.push({ id: 'az-lien', text: 'Arizona: liens are sold in February. You bid the interest rate down from 16% a year; the owner can pay you off any time. After three years (and within ten) you can go to court for a deed. Or, if you or the owner ask and the property is likely to sell for more than $2,500 above what’s owed, the court must order an auction instead, and you’re paid in cash (A.R.S. 42-18204).', href: '#/learn/forced-sales' });
-    if (st === 'NV') sale.push({ id: 'nv-sid', text: 'Nevada SID lien certificates earn interest of up to 1% a month until paid (NRS 271.595(1)); confirm the rate on the notice of sale*. Read how they work before you buy.', href: '#/playbooks/sid' });
+    if (st === 'NV') sale.push({ id: 'nv-sid', text: 'Nevada SID lien certificates earn 1% a month simple interest on the price until paid (NRS 271.610); confirm the terms on the Treasurer’s notice of sale. Read how they work before you buy.', href: '#/playbooks/sid' });
   }
   if (d.kind === 'court') {
     const r: Record<StateCode, string> = {

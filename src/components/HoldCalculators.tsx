@@ -326,7 +326,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
   const neg = (n: number) => (n > 0 ? `−\u2060${mo(n)}` : mo(0)); // word joiner: the minus never wraps away from the amount
   return (
     <section className="at-price price-block price-block-yours" aria-labelledby="at-price-head">
-      <PriceHead level={3} id="at-price-head" kind="yours" label={word} price={price > 0 ? price : null} result={price > 0 ? a.cashFlow / 12 : null} note={price > 0 ? 'Your actual price: the result for the property as you’d buy it.' : 'Enter the price you’d pay to see this property’s own result.'} />
+      <PriceHead level={3} id="at-price-head" kind="yours" label={word} price={price > 0 ? price : null} result={price > 0 ? a.cashFlow / 12 : null} cost={livingThere && !(v.monthlyRent > 0)} note={price > 0 ? 'Your actual price: the result for the property as you’d buy it.' : 'Enter the price you’d pay to see this property’s own result.'} />
       <label className="field">
         <span>{word} ($)</span>
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
@@ -512,13 +512,13 @@ function RentDealLab({ v, at: atP, onPrice, living = false }: { v: RentInputs; a
     <div className="deal-lab">
       <h4>Explain this deal at {atP.label}</h4>
       <ul className="deal-explain">{explainRent(v, at, onPrice, living).map((x) => <li key={x}>{x}</li>)}</ul>
-      <h4>Stress test: {living ? 'what living there costs or leaves you' : 'cash flow'} per month at {atP.label}</h4>
+      <h4>Stress test: {living && !(v.monthlyRent > 0) ? 'what living there costs' : living ? 'what living there costs or leaves you' : 'cash flow'} per month at {atP.label}</h4>
       <table className="deal-stress">
         <tbody>
           {rows.map((r) => (
-            <tr key={r.key} className={r.monthly < 0 ? 'neg' : undefined}>
+            <tr key={r.key} className={r.monthly < 0 && !(living && !(v.monthlyRent > 0)) ? 'neg' : undefined}>
               <th scope="row">{r.label}</th>
-              <td>{r.monthly < 0 ? `−${fmtMoney(Math.round(-r.monthly))}` : fmtMoney(Math.round(r.monthly))}</td>
+              <td>{living && !(v.monthlyRent > 0) ? fmtMoney(Math.round(-r.monthly)) : r.monthly < 0 ? `−${fmtMoney(Math.round(-r.monthly))}` : fmtMoney(Math.round(r.monthly))}</td>
             </tr>
           ))}
         </tbody>

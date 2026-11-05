@@ -1135,7 +1135,7 @@ describe('Nevada round 4 flow', () => {
     expect(stageTasks(nvFlip, 'closed', EMPTY_PACKET, now).map((x) => x.key)).toContain('won-price');
     const rp = { ...EMPTY_PACKET, dates: [{ when: '2026-07-08', what: 'Deed recorded', who: 'Trustee' }] };
     const t = dealNextTask(nvFlip, rp, now, 'contract');
-    expect(t.label).toMatch(/^Deed recorded on Jul 8, 2026 for 2210 Mesa Verde Ln\? If it’s recorded, mark it to go on/);
+    expect(t.label).toMatch(/^Deed recorded for 2210 Mesa Verde Ln: expected on Jul 8, 2026. If it’s recorded, mark it handled/);
     const tax = { ...nvFlip, kind: 'taxSale' as const };
     const sp = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-01', what: 'Payment deadline', who: 'Me', resolved: true }] };
     expect(stageTasks(tax, 'contract', sp, now).find((x) => x.key === 'sid-affidavit')!.redate).toMatchObject({ when: '2026-10-21', who: 'Me' });

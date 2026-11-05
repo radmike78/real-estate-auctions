@@ -327,7 +327,7 @@ export const DRILLS: Drill[] = [
           { label: 'Past-due dues and costs after the sale (example)', value: '$3,000' },
           { label: 'Repairs (example)', value: '$20,000' },
           { label: 'Total', value: '$263,000 for a $310,000 townhouse, before holding and selling costs' },
-          { label: 'Wait before you get a deed', value: '60 days: the former owner can redeem (NRS 116.31166)' },
+          { label: 'Wait before you get a deed', value: '60 days: the former owner, or a lender ranked below the HOA lien, can redeem (NRS 116.31166(3))' },
         ],
         lesson: 'With the loan surviving, the margin is about $47,000 before holding and selling costs, the 60-day wait, and the risk the lender forecloses if the loan isn’t paid off.',
       },

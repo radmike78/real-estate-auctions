@@ -212,7 +212,7 @@ const NEVADA: Playbook[] = [
     short: 'HOA foreclosures',
     oneLine: 'A homeowners association (HOA) sells a home to collect unpaid dues (NRS 116).',
     youGet: 'The owner’s title, subject to a 60-day redemption period, and possibly subject to the first mortgage.',
-    plain: 'The house, but the owner can buy it back within 60 days, and the first mortgage may stay with it.',
+    plain: 'The house, but for 60 days the former owner, or a lender whose loan ranked below the HOA’s lien, can buy it back (NRS 116.31166(3)), and the first mortgage may stay with it.',
     forSale: true,
     glance: [
       { label: 'Law', value: 'NRS 116 (common-interest communities)' },
@@ -220,7 +220,7 @@ const NEVADA: Playbook[] = [
       { label: 'Lender payoff', value: 'The first deed of trust (the main home loan) survives if the lender paid the priority amount at least 5 days before the sale. It also survives if the lender offered to pay it and the HOA refused (Bank of America v. SFR, 2018)' },
       { label: 'Fannie Mae / Freddie Mac loans', value: 'If one of them owned the loan, the mortgage survives an HOA sale unless the Federal Housing Finance Agency (FHFA, which oversees Fannie Mae and Freddie Mac) consented. This federal rule is called the Foreclosure Bar' },
       { label: 'Redemption', value: '60 days after the sale. The redeemer pays your price plus 1% a month, plus taxes, assessments and upkeep you paid' },
-      { label: 'What you get first', value: 'A certificate of sale; a deed without warranty after the redemption period (NRS 116.31166). If the sale wiped out a junior federal tax lien, the U.S. can buy it back for 120 days, longer than the owner’s 60 days (26 U.S.C. 7425); a lien the sale didn’t wipe out stays on the home. Ask a title company before bidding whether it will insure without a quiet title lawsuit' },
+      { label: 'What you get first', value: 'A certificate of sale; a deed without warranty after the redemption period (NRS 116.31166). If the sale wiped out a junior federal tax lien, the U.S. can buy it back for 120 days, longer than the 60 days for the owner or a junior lender (26 U.S.C. 7425); a lien the sale didn’t wipe out stays on the home. Ask a title company before bidding whether it will insure without a quiet title lawsuit' },
       { label: 'Payment', value: 'Certified funds; confirm the terms with the HOA’s foreclosure agent' },
     ],
     steps: [
@@ -234,7 +234,7 @@ const NEVADA: Playbook[] = [
     ],
     survives: {
       wipedOut: ['The HOA lien being foreclosed', 'The first mortgage, only if three things are true. The lender did not pay the priority amount. The loan wasn’t owned by Fannie Mae or Freddie Mac. And the sale was proper'],
-      mayStay: ['The first mortgage, if the lender paid the priority amount at least 5 days before the sale, or validly offered it and was refused. Also if Fannie Mae or Freddie Mac owned the loan (while they are under federal conservatorship)', 'Property taxes', 'Federal tax liens. Even when wiped out, the U.S. can buy the home back within 120 days, longer than the owner’s 60 days (26 U.S.C. 7425)', 'The 60-day redemption right'],
+      mayStay: ['The first mortgage, if the lender paid the priority amount at least 5 days before the sale, or validly offered it and was refused. Also if Fannie Mae or Freddie Mac owned the loan (while they are under federal conservatorship)', 'Property taxes', 'Federal tax liens. Even when wiped out, the U.S. can buy the home back within 120 days, longer than the 60 days for the owner or a junior lender (26 U.S.C. 7425)', 'The 60-day redemption right'],
     },
     mistakes: [
       { mistake: 'Assuming every HOA sale wipes out the mortgage', prevent: 'Check the Recorder for the lender’s payment before bidding. No recorded payment doesn’t prove the mortgage is gone. An offer to pay that the HOA refused, or Fannie Mae or Freddie Mac owning the loan, can keep it. Have an attorney check.' },
@@ -259,7 +259,7 @@ const NEVADA: Playbook[] = [
     short: 'Sheriff sales',
     oneLine: 'Property sold to pay a court judgment, including judicial foreclosures.',
     youGet: 'The debtor’s interest, subject to a 1-year redemption right, and to anything senior to the judgment.',
-    plain: 'The house as the owner held it. The owner can buy it back for 1 year. Debts recorded ahead of the judgment stay with it.',
+    plain: 'The house as the owner held it. The owner, or a creditor whose lien came after the judgment, can buy it back for 1 year (NRS 21.200, 21.210). Debts recorded ahead of the judgment stay with it.',
     forSale: true,
     glance: [
       { label: 'Law', value: 'NRS 21 (execution sales)' },

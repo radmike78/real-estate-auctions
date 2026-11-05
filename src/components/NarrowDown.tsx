@@ -69,13 +69,13 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
           )}
           <div className="decide-nav">
             <button type="button" className="btn btn-secondary" onClick={() => { window.clearTimeout(timer.current); if (step) setStep((s) => s - 1); else setOpen(false); }}>{step ? 'Back' : 'Close'}</button>
-            <button type="button" className="btn" disabled={!picked} onClick={() => setStep((s) => s + 1)}>{step + 1 === qs.length ? 'Show me where to start' : 'Next'}</button>
+            <button type="button" className="btn" disabled={!picked} onClick={() => { moved.current = true; setStep((s) => s + 1); }}>{step + 1 === qs.length ? 'Show me where to start' : 'Next'}</button>
           </div>
         </>
       ) : (
         <>
           <p ref={resultHead} tabIndex={-1}><strong>Start with the first one.</strong> The others are good next steps, and everything else is still on the page below.{' '}
-            <button type="button" className="linkish" onClick={() => { setStep(0); setAnswers({}); }}>Start over</button>
+            <button type="button" className="linkish" onClick={() => { moved.current = true; setStep(0); setAnswers({}); }}>Start over</button>
           </p>
           <ol className="team-result">
             {config.result(resolveAnswers(config, answers)).map((r, i) => (
