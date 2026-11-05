@@ -577,6 +577,21 @@ describe('Nevada round 4 flow', () => {
     expect(stageTasks(hoa, 'closed', hp, now).find((x) => x.key === 'redemption-wait')!.label).toMatch(/ends Nov 20, 2026/);
   });
 
+  it('round 9: a passed computed redemption end asks, a Closing Disclosure tick isn’t closing, a finished chosen deal gives way', () => {
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-08-01', what: 'Sale day', who: 'A', resolved: true }, { when: '', what: 'Redemption period ends', who: '' }] };
+    const t = dealNextTask(hoa, p, now, 'closed');
+    expect(t.label).toMatch(/^The redemption period ended 6 days ago \(Sep 30, 2026\)/);
+    expect(t.tick?.when).toBe('2026-09-30');
+    const reo = { ...nvFlip, kind: 'reo' as const };
+    const cd = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Closing Disclosure received', who: 'Lender', resolved: true }] };
+    expect(dealNextTask(reo, cd, now, 'contract').key).not.toBe('close');
+    saveDeals([{ ...nvFlip, stage: 'owned' }, { ...nvFlip, id: 'f2', name: 'Open One', stage: 'contract', updatedAt: '2026-09-01T00:00:00Z' }]);
+    saveOwned({ f1: { boughtOn: '2026-06-01', months: [], sold: { on: '2026-09-15', price: 300000 } } });
+    localStorage.setItem(DEAL_KEY, JSON.stringify('analyzed:f1'));
+    expect(focusDealId()).toBe('analyzed:f2');
+  });
+
   it('says so when the deed row is ticked at a win', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);

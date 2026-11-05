@@ -6,7 +6,7 @@ import PageHero from './PageHero';
 import EvidenceLog, { DecisionGate } from './EvidenceLog';
 import { kindLabel, loadDeals, openDeal, SALE_KINDS } from '../lib/analyze';
 import { countyName } from '../lib/regions';
-import { laterRow, calendarRows, dateRowComplete, roleTitleFor, dateGuide, calendarReady, sameDate, dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus, teamRolesFor } from '../lib/dealPacket';
+import { laterRow, MAX_DATES, calendarRows, dateRowComplete, roleTitleFor, dateGuide, calendarReady, sameDate, dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus, teamRolesFor } from '../lib/dealPacket';
 import { TEAM_ROLES } from '../lib/myPlan';
 import { downloadText, fileName } from '../lib/download';
 import { EVIDENCE_EVENT } from '../lib/evidence';
@@ -204,7 +204,8 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
               setTimeout(() => document.querySelectorAll<HTMLInputElement>('.packet-dates input[type="date"]')[first]?.focus(), 0);
             }}>Add the usual dates that are missing ({missing.length})</button> : null;
           })()}
-          <button type="button" className="btn btn-secondary" onClick={() => { const at = p.dates.length; update({ dates: [...p.dates, { when: '', what: '', who: '' }] }); setTimeout(() => document.querySelector<HTMLElement>(`[aria-label="Name of date ${at + 1}"]`)?.focus(), 0); }}>Add a date</button>
+          <button type="button" className="btn btn-secondary" disabled={p.dates.length >= MAX_DATES} onClick={() => { const at = p.dates.length; update({ dates: [...p.dates, { when: '', what: '', who: '' }] }); setTimeout(() => document.querySelector<HTMLElement>(`[aria-label="Name of date ${at + 1}"]`)?.focus(), 0); }}>Add a date</button>
+          {p.dates.length >= MAX_DATES && <span className="muted small">{MAX_DATES} dates is the most a packet keeps: remove one you don’t need.</span>}
         </div>
         <label className="field">
           <span><input type="checkbox" checked={p.calendarReviewedFor === stageOf(deal)} disabled={!calendarReady(p, stageOf(deal))} onChange={(e) => update({ calendarReviewedFor: e.target.checked ? stageOf(deal) : undefined })} /> I checked every applicable deadline for this stage against the signed contract or official notice, including who acts and how notice must be delivered.{!calendarReady(p, stageOf(deal)) && <span className="muted"> (Still needed: {calendarRows(p, stageOf(deal)).filter((x) => !dateRowComplete(x)).map((x) => x.what || 'an unnamed date').join('; ')}. Fill in the date, task and who handles it for every entry first; a date marked “(if …)” {['researching', 'offer'].includes(stageOf(deal)) ? 'and the dates after the sale' : 'and one that counts from a later event'} can stay blank for now.)</span>}</span>

@@ -1,7 +1,7 @@
 import { calculatorInputError, midNumber, parseCalcInput } from './CalcFields';
 import { useEffect, useState } from 'react';
 import type { Deal } from '../lib/analyze';
-import { flipBudget, flipBudgetLine, flipSaleLine, loadPacket, sameDate, savedNumbers } from '../lib/dealPacket';
+import { flipBudget, flipBudgetLine, flipSaleLine, loadPacket, sameEvent, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
 import { certificateFirst, finishedDeal, liveIn, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
@@ -36,7 +36,7 @@ const thisMonth = () => {
 
 /** The purchase date from its packet (the closing, the deed or the sale), else today. */
 function boughtDate(d: Deal): string {
-  const rows = loadPacket(`analyzed:${d.id}`).dates.filter((x) => x.when && x.resolved && ['Closing', 'Deed recorded', 'Treasurer’s deed recorded', 'Certificate of sale recorded', 'Sale day'].some((n) => sameDate(x.what, n)));
+  const rows = loadPacket(`analyzed:${d.id}`).dates.filter((x) => x.when && x.resolved && ['Closing', 'Deed recorded', 'Treasurer’s deed recorded', 'Certificate of sale recorded', 'Sale day'].some((n) => sameEvent(x.what, n)));
   const latest = rows.map((x) => x.when).sort().pop();
   return latest && latest <= today() ? latest : today();
 }
@@ -145,8 +145,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <>
           <dl className="calc-kv">
             <div><dt>Months recorded</dt><dd>{s.months}</dd></div>
-            <div><dt>{liveIn(deal) ? 'What it cost, in total' : 'Actual cash flow, in total'}</dt><dd>{signed(s.actual)}</dd></div>
-            <div><dt>Average month</dt><dd>{signed(s.averageMonthly)}</dd></div>
+            <div><dt>{liveIn(deal) ? 'What it cost, in total (after any rent)' : 'Actual cash flow, in total'}</dt><dd>{signed(liveIn(deal) ? -s.actual : s.actual)}</dd></div>
+            <div><dt>{liveIn(deal) ? 'Average cost a month' : 'Average month'}</dt><dd>{signed(liveIn(deal) ? -s.averageMonthly : s.averageMonthly)}</dd></div>
             {flip && budget && <div><dt>Paid so far, against your {fmtMoney(Math.round(budget.total))} budget</dt><dd>{fmtMoney(Math.round(s.costs))} {s.costs > budget.total ? `(${fmtMoney(Math.round(s.costs - budget.total))} over)` : `(${fmtMoney(Math.round(budget.total - s.costs))} left)`}</dd></div>}
             {s.gapMonthly !== null && <div><dt>Against your plan, a month</dt><dd>{signed(s.gapMonthly)} {s.gapMonthly < 0 ? '(behind)' : '(ahead)'}</dd></div>}
           </dl>

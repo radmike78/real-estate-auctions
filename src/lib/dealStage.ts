@@ -9,7 +9,7 @@ import { workStorage as localStorage } from './workStorage';
 import { CURRENT_KEY, DEAL_STAGES, isDealStage, loadDeals, saveDeals, type Deal, type DealStage } from './analyze';
 import { investorProfile } from './myPlan';
 import { readConfirmed } from './calcConfirmation';
-import { calendarReady, flipSaleLine, savePacket, irsWithoutRedemption, RECORDED_ROWS, sameEvent, windowEnded, sameDate, roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
+import { calendarReady, challenge90Ahead, flipSaleLine, savePacket, irsWithoutRedemption, RECORDED_ROWS, sameEvent, windowEnded, sameDate, roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
 import { areasFor, loadLog, type EvidenceLog } from './evidence';
 import { loadOwned, type Owned } from './owned';
 import { proGuideByKey } from './proGuide';
@@ -201,7 +201,7 @@ export interface PlanTask {
   /** The task is a question its buttons answer: no Continue or "Go there" link beside them. */
   answer?: boolean;
   /** A button that marks one of its date rows handled (then, optionally, moves the deal on). */
-  tick?: { label: string; row: string; then?: DealStage; closes?: string; /** Fills a blank "who" (and adds the row if it's missing). */ who?: string };
+  tick?: { label: string; row: string; then?: DealStage; closes?: string; /** Fills a blank "who" (and adds the row if it's missing). */ who?: string; /** The date to record when the row has none (else today). */ when?: string };
   /** Moves a row's date ("The 90-day limit still runs: move the end to …"). */
   redate?: { label: string; row: string; when: string };
   /** Takes back an answer: removes the row it added ("Not redeemed after all? Undo"). */
@@ -490,8 +490,7 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
     const nd = nextDate(remindable(p, now, early, behindStage(d, stage)), now);
     if (nd && nd.days <= 7) {
       const ended = nd.days < 0 ? windowEnded(nd.what, -nd.days, d.kind) : null;
-      const sale90 = (() => { const sd = p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when; if (!sd) return ''; const t = new Date(`${sd}T12:00:00`); t.setDate(t.getDate() + 90); return localDay(t); })();
-      const late90Ahead = ended && d.state === 'NV' && d.kind === 'trustee' && sameDate(nd.what, 'Challenge window ends') && sale90 > (p.dates.find((x) => sameDate(x.what, 'Challenge window ends'))?.when ?? '') && sale90 >= localDay(now) ? sale90 : '';
+      const late90Ahead = ended && d.state === 'NV' && d.kind === 'trustee' && sameDate(nd.what, 'Challenge window ends') ? challenge90Ahead(p, now) : '';
       const deedTick = stage === 'closed' && certificateFirst(d) && sameDate(nd.what, DEED_AFTER_WAIT) && ticked(p, 'Redemption period ends') ? { label: 'I have the deed: mark it handled', row: nd.what, who: deedWho(d) } : undefined;
       const paidTick = stage === 'contract' && nd.days <= 0 && sameEvent(nd.what, 'Payment deadline') ? { label: 'I paid: mark it handled', row: nd.what } : stage === 'contract' && nd.days <= 0 && (sameEvent(nd.what, 'Earnest money due') || sameEvent(nd.what, 'Option fee')) ? { label: 'I sent it: mark it handled', row: nd.what } : sameDate(nd.what, 'SID certificate payoff') && nd.days <= 0 ? { label: 'I paid it: mark it handled', row: nd.what } : undefined;
       const sidNone = sameDate(nd.what, 'SID certificate payoff') ? { label: 'The Treasurer confirmed no SID affidavit', removeRow: nd.what, addRow: { when: localDay(now), what: NO_SID_ROW, who: 'The county treasurer', resolved: true } } : undefined;
@@ -508,6 +507,14 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
       const countdown = stage === 'researching' && wayOf(d) !== 'offer' && nd.days > 0 && sameEvent(nd.what, 'Sale day');
       return { key: 'date', label: text, produces: countdown ? `${wayOf(d) === 'lien' ? 'the most you’ll put into one certificate' : 'your maximum bid'} set and the funds ready before then: finish the research and move it to ${stageLabel('offer', d)} in its deal packet` : ended ? `a written answer on whether ${/suit/i.test(ended.tick ?? '') ? 'a suit was filed' : sameDate(nd.what, 'Redemption period ends') ? 'anyone redeemed' : 'it’s still unpaid'}, noted in its deal packet` : 'the deadline met, with what you did noted in its deal packet', href: `#/deals/packet/${d.id}/dates`, ...(own ? { advance: own } : todayAdvance ? { advance: todayAdvance } : {}), ...(todayLost ? { advance2: todayLost } : {}), ...(late90Ahead ? { redate: { label: `The 90-day limit still runs: move the end to ${prettyDay(late90Ahead)}`, row: nd.what, when: late90Ahead } } : {}), ...(ended?.tick ? { tick: { label: ended.tick, row: nd.what }, answer: true } : paidTick ? { tick: paidTick } : deedTick ? { tick: deedTick } : {}), ...(sidNone ? { undo: sidNone } : {}), ...(redeemable ? { advance2: redeemButton(d) } : wayOf(d) === 'lien' && d.state === 'NV' && (stage === 'closed' || stage === 'owned') && !redeemedIn(p) ? { advance2: lienPaidButton(d, stage) } : {}), support: [], done: false, urgent: !ended && !deedTick && !countdown, text };
     }
+    // A redemption end worked out from the sale day (the row has no date) that has passed: did anyone redeem?
+    const computedEnd = stage === 'closed' && certificateFirst(d) && !ticked(p, 'Redemption period ends') && !redeemedIn(p) && !p.dates.some((x) => sameDate(x.what, 'Redemption period ends') && x.when) ? redemptionEnd(d, p) : '';
+    if (computedEnd && computedEnd < localDay(now)) {
+      const daysAgo = Math.round((new Date(`${localDay(now)}T12:00:00`).getTime() - new Date(`${computedEnd}T12:00:00`).getTime()) / 864e5);
+      const e = windowEnded('Redemption period ends', daysAgo, d.kind)!;
+      const text = `The redemption period ended ${daysAgo} day${daysAgo === 1 ? '' : 's'} ago (${prettyDay(computedEnd)}): ${e.then}.`;
+      return { key: 'date', label: text, produces: 'a written answer on whether anyone redeemed, noted in its deal packet', href: `#/deals/packet/${d.id}/dates`, tick: { label: e.tick!, row: 'Redemption period ends', when: computedEnd }, answer: true, advance2: redeemButton(d), support: [], done: false, urgent: false, text };
+    }
     const log = loadLog(`analyzed:${d.id}`);
     const openRow = areasFor(d.kind).map((a) => ({ a, r: log.rows[a.key] })).find(({ r }) => r?.open && !r.done);
     if (openRow) {
@@ -522,7 +529,7 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
   }
   const tasks = stageTasks(d, stage, p, now);
   // An offer's closing marked handled: "It closed" comes first.
-  if (stage === 'contract' && wayOf(d) === 'offer' && ticked(p, 'Closing')) { const c = tasks.find((x) => x.key === 'close'); if (c) return c; }
+  if (stage === 'contract' && wayOf(d) === 'offer' && p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved)) { const c = tasks.find((x) => x.key === 'close'); if (c) return c; }
   const t = tasks.find((x) => !x.done) ?? tasks[tasks.length - 1];
   // Every date it needs is in: what's left is the review for this stage.
   if (t.key === 'dates' && !t.done && calendarReady(p, stage)) return { ...t, label: `Confirm ${d.name || 'this property'}’s calendar for this stage`, produces: 'a tick on “I checked every applicable deadline” under Key dates, once each date matches the official notice or contract', text: `Confirm ${d.name || 'this property'}’s calendar for this stage.` };

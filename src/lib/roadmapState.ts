@@ -97,7 +97,11 @@ export function focusDealId(deals: Deal[] = loadDeals()): string {
   const chosen = rawDealChoice();
   if (chosen === NO_DEAL) return '';
   // A chosen property you've since passed on gives way to the next one you save.
-  if (chosen && deals.some((d) => `analyzed:${d.id}` === chosen && (d.stage !== 'passed' || !deals.some((x) => x.stage !== 'passed' && !x.practice && x.updatedAt > d.updatedAt)))) return chosen;
+  // (A chosen deal that's finished, sold or repaid, gives way to any deal still open.)
+  const ownedNow = loadOwned();
+  const done = (d: Deal) => !!ownedNow[d.id]?.sold || repaid(d.id);
+  const openOther = (d: Deal) => deals.some((x) => x.id !== d.id && x.stage !== 'passed' && !x.practice && !ownedNow[x.id]?.sold && !repaid(x.id));
+  if (chosen && deals.some((d) => `analyzed:${d.id}` === chosen && !(done(d) && openOther(d)) && (d.stage !== 'passed' || done(d) || !deals.some((x) => x.stage !== 'passed' && !x.practice && x.updatedAt > d.updatedAt)))) return chosen;
   // Practice analyses are never picked on their own. A deal under way (an offer, a contract, a win, a home just bought,
   // or a flip still to sell) leads over a newer candidate you're only researching.
   const all = [...deals].filter((d) => d.stage !== 'passed' && !d.practice).sort((x, y) => y.updatedAt.localeCompare(x.updatedAt));
@@ -106,6 +110,14 @@ export function focusDealId(deals: Deal[] = loadDeals()): string {
   const open = all.some((d) => !owned[d.id]?.sold) ? all.filter((d) => !owned[d.id]?.sold) : all;
   const recent = open.find((d) => underWay(d)) ?? open[0];
   return recent ? `analyzed:${recent.id}` : '';
+}
+
+/** A deal whose redemption payoff is marked collected in its packet (read directly: no import cycle). */
+function repaid(id: string): boolean {
+  try {
+    const all = JSON.parse(localStorage.getItem('deedowl.dealPacket.v1') ?? '{}') as Record<string, { dates?: { what?: string; resolved?: boolean }[] }>;
+    return !!all[`analyzed:${id}`]?.dates?.some((x) => /^redemption money collected/i.test((x.what ?? '').trim()) && !!x.resolved);
+  } catch { return false; }
 }
 
 /** A deal past researching that still has work before it's done: an owned rental or home (ongoing) and a sold flip don't count. */

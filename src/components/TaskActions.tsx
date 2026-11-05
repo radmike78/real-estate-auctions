@@ -20,7 +20,7 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
           edit((p) => {
             const i = p.dates.findIndex((x) => sameDate(x.what, tick.row) && !x.resolved);
             // (An event with no date yet, such as the payoff, is dated today.)
-            const rows = i < 0 ? (p.dates.some((x) => sameDate(x.what, tick.row)) ? p.dates : [...p.dates, { what: tick.row, when: today(), who: tick.who ?? '', resolved: true }]) : p.dates.map((x, j) => (j === i ? { ...x, resolved: true, when: x.when || today(), who: x.who || tick.who || '' } : x));
+            const rows = i < 0 ? (p.dates.some((x) => sameDate(x.what, tick.row)) ? p.dates : [...p.dates, { what: tick.row, when: tick.when ?? today(), who: tick.who ?? '', resolved: true }]) : p.dates.map((x, j) => (j === i ? { ...x, resolved: true, when: x.when || tick.when || today(), who: x.who || tick.who || '' } : x));
             return { ...p, dates: tick.closes ? rows.map((x) => (sameDate(x.what, tick.closes!) ? { ...x, resolved: true } : x)) : rows };
           });
           if (tick.then) setDealStage(dealId, tick.then);
