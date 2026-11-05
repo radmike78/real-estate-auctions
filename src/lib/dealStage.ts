@@ -96,43 +96,35 @@ export const earlyDeedEnd = (d: Pick<Deal, 'kind' | 'state'> & { id?: string; pl
 /** An offer's earnest money marked sent on the roadmap counts as its date row handled (one answer, not two). */
 const STEP_ROWS: Record<string, string[]> = { deposit: ['Earnest money due'], inspect: ['Inspection period ends', 'Option period ends'], 'loan-approval': ['Loan approval deadline'], appraise: ['Appraisal deadline'] };
 let settling = false;
-const SETTLED_KEY = 'deedowl.stepRows.v1';
-/** Which date row each roadmap step ticked, per deal: each step settles once, so a row you untick stays unticked. */
-const settledRows = (): Record<string, Record<string, string>> => { try { const v = JSON.parse(localStorage.getItem(SETTLED_KEY) ?? '{}'); return v && typeof v === 'object' && !Array.isArray(v) ? v : {}; } catch { return {}; } };
-const saveSettled = (all: Record<string, Record<string, string>>) => { try { localStorage.setItem(SETTLED_KEY, JSON.stringify(all)); } catch { /* storage unavailable */ } };
 /** Every roadmap step marked done (or, but for the deposit, "doesn't apply") for this offer ticks one date row of its
- * kind, once: when it's marked, or when that row is added or dated later. */
+ * kind, once: when it's marked, or when that row is added or dated later. The row carries the step's name, so the
+ * answer travels with the packet (backups too), survives a rename, and a row you untick stays unticked. */
 export function settleAllSteps(dealKey: string) {
   if (settling || !dealKey.startsWith('analyzed:')) return;
   settling = true;
   try {
     const prog = dealProgress(dealKey);
-    const all = settledRows();
-    const mine = { ...(all[dealKey] ?? {}) };
-    let changed = false;
     for (const id of Object.keys(STEP_ROWS).filter((k) => prog.done.includes(k) || (k !== 'deposit' && prog.status[k] === 'na'))) {
-      if (mine[id]) continue;
       const p = loadPacket(dealKey);
-      if (p.dates.some((x) => x.resolved && STEP_ROWS[id].some((n) => sameEvent(x.what, n)))) { mine[id] = '(already handled)'; changed = true; continue; }
-      const what = settleStepRow(dealKey, id);
-      if (what) { mine[id] = what; changed = true; }
+      if (p.dates.some((x) => x.step === id || x.step === `~${id}`)) continue;
+      const own = p.dates.findIndex((x) => x.resolved && STEP_ROWS[id].some((n) => sameEvent(x.what, n)));
+      if (own >= 0) { savePacket(dealKey, { ...p, dates: p.dates.map((x, k) => (k === own ? { ...x, step: `~${id}` } : x)) }); continue; }
+      settleStepRow(dealKey, id);
     }
-    if (changed) saveSettled({ ...all, [dealKey]: mine });
   } finally {
     settling = false;
   }
 }
-/** A roadmap step set back to "To do": untick the row it ticked (and let it settle again later). */
+/** A roadmap step set back (to do, or a deposit that doesn't apply): untick the row it ticked; let it settle again later. */
 export function unsettleStep(dealKey: string, stepId: string) {
-  const all = settledRows();
-  const what = all[dealKey]?.[stepId];
-  if (!what) return;
-  const { [stepId]: _gone, ...rest } = all[dealKey];
-  saveSettled({ ...all, [dealKey]: rest });
-  if (what === '(already handled)') return;
   const p = loadPacket(dealKey);
-  const k = p.dates.findIndex((x) => x.what === what && x.resolved);
-  if (k >= 0) { settling = true; try { savePacket(dealKey, { ...p, dates: p.dates.map((x, i) => (i === k ? { ...x, resolved: false } : x)) }); } finally { settling = false; } }
+  if (!p.dates.some((x) => x.step === stepId || x.step === `~${stepId}`)) return;
+  settling = true;
+  try {
+    savePacket(dealKey, { ...p, dates: p.dates.map((x) => (x.step === stepId ? (({ step: _s, ...rest }) => ({ ...rest, resolved: false }))(x) : x.step === `~${stepId}` ? (({ step: _s, ...rest }) => rest)(x) : x)) });
+  } finally {
+    settling = false;
+  }
 }
 onPacketSaved(settleAllSteps);
 /** A roadmap step marked done on an offer: tick its one date row in the packet (the row named for it, else the
@@ -146,7 +138,7 @@ export function settleStepRow(dealKey: string, stepId: string): string {
   const open = p.dates.map((x, k) => ({ x, k })).filter(({ x }) => !x.resolved && names.some((n) => sameEvent(x.what, n)));
   const pick = open.find(({ x }) => names.some((n) => x.what.trim() === n)) ?? [...open].sort((a, b) => (a.x.when || '9999').localeCompare(b.x.when || '9999'))[0];
   if (!pick) return '';
-  savePacket(dealKey, { ...p, dates: p.dates.map((x, k) => (k === pick.k ? { ...x, resolved: true } : x)) });
+  savePacket(dealKey, { ...p, dates: p.dates.map((x, k) => (k === pick.k ? { ...x, resolved: true, step: stepId } : x)) });
   return pick.x.what;
 }
 /** The packet parts that, at this stage, are records from before you bought (the page and the download agree). */

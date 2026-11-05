@@ -1282,7 +1282,8 @@ describe('Nevada round 4 flow', () => {
     localStorage.setItem(DEAL_STEPS_KEY, JSON.stringify({ 'analyzed:f1': { done: ['inspect'], status: {} } }));
     savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-10', what: 'Inspection period ends', who: 'Me' }] });
     expect(loadPacket('analyzed:f1').dates[0].resolved).toBe(true);
-    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-10', what: 'Inspection period ends', who: 'Me', resolved: false }] });
+    // (Unticked on the page: the same row, its step tag kept.)
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ ...loadPacket('analyzed:f1').dates[0], resolved: false }] });
     expect(loadPacket('analyzed:f1').dates[0].resolved).toBeFalsy();
     savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-10', what: 'Inspection period ends', who: 'Me', resolved: true }] });
     localStorage.setItem(DEAL_STEPS_KEY, JSON.stringify({ 'analyzed:f1': { done: [], status: {} } }));
@@ -1291,5 +1292,23 @@ describe('Nevada round 4 flow', () => {
     saveDeals([{ ...offer, id: 'f2', stage: 'passed' }]);
     settleAllSteps('analyzed:f2');
     expect(dealNextTask({ ...offer, id: 'f2' }, { ...EMPTY_PACKET }, now, 'passed').key).not.toBe('deposit-back');
+  });
+
+  it('round 19: the row carries its step, so a rename keeps it and To do unticks it', async () => {
+    const { loadPacket } = await import('./dealPacket');
+    const { DEAL_STEPS_KEY } = await import('./roadmapDeals');
+    const { unsettleStep } = await import('./dealStage');
+    const offer = { ...deal, id: 'f1', state: 'NV' as const, county: 'Washoe', kind: 'listing' as const };
+    saveDeals([{ ...offer, stage: 'contract' }]);
+    localStorage.setItem(DEAL_STEPS_KEY, JSON.stringify({ 'analyzed:f1': { done: ['deposit'], status: {} } }));
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Earnest money due', who: 'Me' }] });
+    const r = loadPacket('analyzed:f1').dates[0];
+    expect(r).toMatchObject({ resolved: true, step: 'deposit' });
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ ...r, what: 'Earnest money due (to Ticor)' }] });
+    localStorage.setItem(DEAL_STEPS_KEY, JSON.stringify({ 'analyzed:f1': { done: [], status: {} } }));
+    unsettleStep('analyzed:f1', 'deposit');
+    const after = loadPacket('analyzed:f1').dates[0];
+    expect(after.resolved).toBeFalsy();
+    expect(after.step).toBeUndefined();
   });
 });

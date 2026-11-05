@@ -118,7 +118,7 @@ export function DecisionGate({ dealId, onPass, record = false, passed = false }:
   useReloadOnSave(dealId, setLog);
   const choose = (gate: Log['gate']) => { const next = { ...loadLog(dealId), gate }; saveLog(dealId, next); setLog(next); };
   const [moved, setMoved] = useState(false);
-  if (record) return <p className="evidence-gate-record"><strong>{passed ? 'Your decision:' : 'Your decision before you bought:'}</strong> {passed ? 'Pass (you moved it to Passed)' : GATES.find((g) => g.key === log.gate)?.label ?? 'none recorded'}.</p>;
+  if (record) return <p className="evidence-gate-record"><strong>{passed ? 'Your decision:' : 'Your decision before you bought:'}</strong> {passed ? (log.gate && log.gate !== 'pass' ? `${GATES.find((g) => g.key === log.gate)?.label ?? log.gate}; it’s now Passed` : 'Pass (you moved it to Passed)') : GATES.find((g) => g.key === log.gate)?.label ?? 'none recorded'}.</p>;
   return (
     <fieldset className="evidence-gate">
       <legend>Your decision</legend>

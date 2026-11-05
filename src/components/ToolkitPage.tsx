@@ -400,7 +400,7 @@ export function FirstDealRoadmap() {
       const all = { ...stored, [k]: { done: nextDone(cur.done, s.id, v), status: nextStatus(cur.status, s.id, v) } };
       setPerDeal(all);
       save(DEAL_STEPS_KEY, all);
-      if (v === 'done' || v === 'na') settleAllSteps(k);
+      if (v === 'done' || (v === 'na' && s.id !== 'deposit')) settleAllSteps(k);
       else unsettleStep(k, s.id);
       return;
     }
