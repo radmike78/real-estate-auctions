@@ -16,6 +16,7 @@ import { useNoIndex } from '../lib/noindex';
 import { DEAL_STAGES, type DealStage } from '../lib/analyze';
 import { dealNextTask, setDealStage, stageHint, stageLabel, stageOf } from '../lib/dealStage';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
+import { planNow } from '../lib/planNext';
 import { OWNED_EVENT } from '../lib/owned';
 
 const STATUS_LABEL: Record<SectionStatus, string> = { done: 'Complete', started: 'In progress', missing: 'Missing' };
@@ -115,7 +116,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
             {DEAL_STAGES.map((st) => <option key={st} value={st}>{stageLabel(st, deal)}</option>)}
           </select>
         </label>
-        <p className="muted">{stageHint(stage, deal)} The stage picks the next action here and in My plan.</p>
+        <p className="muted">{stageHint(stage, deal)} {(() => { const plan = planNow(); return plan.source === 'deal' && plan.deal?.id === deal.id ? 'The stage picks the next action here and in My plan.' : stage === 'passed' ? 'The stage picks the next action here.' : <>The stage picks the next action here. <a href="#/toolkit">My plan</a> {plan.source === 'deal' ? 'is working on another property' : 'shows the lessons and practice first'}; choose this property there to work on it now.</>; })()}</p>
       </div>
       <div className="packet-next">
         <strong id="packet-next-head" tabIndex={-1}>Your next action</strong>
@@ -187,7 +188,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
               setTimeout(() => document.querySelectorAll<HTMLInputElement>('.packet-dates input[type="date"]')[first]?.focus(), 0);
             }}>Add the usual dates that are missing ({missing.length})</button> : null;
           })()}
-          <button type="button" className="btn btn-secondary" onClick={() => update({ dates: [...p.dates, { when: '', what: '', who: '' }] })}>Add a date</button>
+          <button type="button" className="btn btn-secondary" onClick={() => { const at = p.dates.length; update({ dates: [...p.dates, { when: '', what: '', who: '' }] }); setTimeout(() => document.querySelector<HTMLElement>(`[aria-label="Name of date ${at + 1}"]`)?.focus(), 0); }}>Add a date</button>
         </div>
         <label className="field">
           <span><input type="checkbox" checked={p.calendarReviewedFor === stageOf(deal)} disabled={!calendarReady(p, stageOf(deal))} onChange={(e) => update({ calendarReviewedFor: e.target.checked ? stageOf(deal) : undefined })} /> I checked every applicable deadline for this stage against the signed contract or official notice, including who acts and how notice must be delivered.{!calendarReady(p, stageOf(deal)) && <span className="muted"> (Fill in the date, task and who handles it for every entry first; a date marked “(if …)” {['researching', 'offer'].includes(stageOf(deal)) ? 'and the dates after the sale' : 'and one that counts from a later event'} can stay blank for now.)</span>}</span>
@@ -262,7 +263,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
             </li>
           ))}
         </ul>
-        <button type="button" className="btn btn-secondary" onClick={() => { const team = teamRolesFor(deal); update({ qa: [...p.qa, { role: team.length ? team[p.qa.length % team.length] : TEAM_ROLES[p.qa.length % TEAM_ROLES.length], q: '', a: '', on: '' }] }); }}>Add a question</button>
+        <button type="button" className="btn btn-secondary" onClick={() => { const team = teamRolesFor(deal); update({ qa: [...p.qa, { role: team.length ? team[p.qa.length % team.length] : TEAM_ROLES[p.qa.length % TEAM_ROLES.length], q: '', a: '', on: '' }] }); setTimeout(() => [...document.querySelectorAll<HTMLElement>('textarea[aria-label="Your question"]')].pop()?.focus(), 0); }}>Add a question</button>
         <Lines k="pros" />
       </section>
 

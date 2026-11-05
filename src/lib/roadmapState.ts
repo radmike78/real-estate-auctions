@@ -2,6 +2,7 @@ import { workStorage as localStorage } from './workStorage';
 // What My plan's roadmap has stored in this browser: the steps ticked, their statuses, the way of buying and the
 // property being worked on. Read here so the roadmap, the home page and My plan's next step all count the same way.
 import { loadDeals, type Deal } from './analyze';
+import { loadOwned } from './owned';
 import { getMyState } from './myState';
 import { DECIDE_KEY, QUESTIONS, rank, type Answers } from './decide';
 import { ROADMAP, roadmapFor, type RoadmapPath, type RoadmapStep, type StepStatus } from './roadmap';
@@ -97,9 +98,18 @@ export function focusDealId(deals: Deal[] = loadDeals()): string {
   if (chosen === NO_DEAL) return '';
   // A chosen property you've since passed on gives way to the next one you save.
   if (chosen && deals.some((d) => `analyzed:${d.id}` === chosen && (d.stage !== 'passed' || !deals.some((x) => x.stage !== 'passed' && !x.practice && x.updatedAt > d.updatedAt)))) return chosen;
-  // Practice analyses are never picked on their own.
-  const recent = [...deals].filter((d) => d.stage !== 'passed' && !d.practice).sort((x, y) => y.updatedAt.localeCompare(x.updatedAt))[0];
+  // Practice analyses are never picked on their own. A deal under way (an offer, a contract, a win, a home just bought,
+  // or a flip still to sell) leads over a newer candidate you're only researching.
+  const open = [...deals].filter((d) => d.stage !== 'passed' && !d.practice).sort((x, y) => y.updatedAt.localeCompare(x.updatedAt));
+  const recent = open.find((d) => underWay(d)) ?? open[0];
   return recent ? `analyzed:${recent.id}` : '';
+}
+
+/** A deal past researching that still has work before it's done: an owned rental or home (ongoing) and a sold flip don't count. */
+export function underWay(d: Deal): boolean {
+  if (d.practice || !d.stage || d.stage === 'researching' || d.stage === 'passed') return false;
+  if (d.stage !== 'owned') return true;
+  return d.plan === 'flip' && !loadOwned()[d.id]?.sold;
 }
 
 /** Whether a property (or "None yet") was chosen in the roadmap. */

@@ -18,6 +18,8 @@ export interface OwnedMonth {
 export interface Owned {
   boughtOn: string; // YYYY-MM-DD
   months: OwnedMonth[];
+  /** A flip's sale: its closing date and price (it finishes the deal). */
+  sold?: { on: string; price: number };
 }
 
 const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
@@ -30,7 +32,7 @@ export function cleanOwned(v: unknown): Record<string, Owned> {
   if (!v || typeof v !== 'object' || Array.isArray(v)) return out;
   for (const [id, raw] of Object.entries(v as Record<string, unknown>).slice(0, 200)) {
     if (!/^[A-Za-z0-9_-]{1,40}$/.test(id) || !raw || typeof raw !== 'object') continue;
-    const r = raw as { boughtOn?: unknown; months?: unknown };
+    const r = raw as { boughtOn?: unknown; months?: unknown; sold?: unknown };
     if (typeof r.boughtOn !== 'string' || !DATE_RE.test(r.boughtOn)) continue;
     const seen = new Set<string>();
     const months = (Array.isArray(r.months) ? r.months : [])
@@ -39,7 +41,8 @@ export function cleanOwned(v: unknown): Record<string, Owned> {
       .map((m) => ({ month: m.month as string, rent: num(m.rent), costs: num(m.costs), note: typeof m.note === 'string' ? m.note.slice(0, 200) : '' }))
       .sort((a, b) => b.month.localeCompare(a.month))
       .slice(0, 120);
-    out[id] = { boughtOn: r.boughtOn, months };
+    const sold = r.sold && typeof r.sold === 'object' ? (r.sold as { on?: unknown; price?: unknown }) : null;
+    out[id] = { boughtOn: r.boughtOn, months, ...(sold && typeof sold.on === 'string' && DATE_RE.test(sold.on) && typeof sold.price === 'number' && sold.price > 0 ? { sold: { on: sold.on, price: num(sold.price) } } : {}) };
   }
   return out;
 }

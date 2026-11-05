@@ -45,3 +45,14 @@ it('keeps a location confirmation only for a valid property county', () => {
   expect(cleanDeal({ ...d, county: 'Wrong county' })?.locationConfirmed).toBeUndefined();
   expect(cleanDeal({ ...d, locationConfirmed: undefined })?.locationConfirmed).toBeUndefined();
 });
+
+describe('a buyer who lives there', () => {
+  it('gets homeowner items, with the same ids, instead of landlord ones', () => {
+    const d = { state: 'NV', county: 'Clark', kind: 'short', plan: 'rent' } as const;
+    const items = checklistFor(d, { liveIn: true }).flatMap((g) => g.items);
+    const t = items.map((i) => i.text).join('\n');
+    expect(t).not.toMatch(/landlord insurance|Fair Market Rents/);
+    expect(t).toMatch(/what you pay to live where you are now/);
+    expect(items.map((i) => i.id).sort()).toEqual(checklistFor(d).flatMap((g) => g.items).map((i) => i.id).sort());
+  });
+});

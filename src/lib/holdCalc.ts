@@ -273,9 +273,10 @@ export function rentStress(i: RentInputs, price = nz(i.value), onPrice = false):
   const at = (patch: Partial<RentInputs>, oneOff = 0) => r2(rentMonthlyCashFlow({ ...i, ...patch }, price, onPrice) - oneOff / 12);
   const rows = [
     { key: 'base', label: 'As entered', monthly: at({}) },
-    { key: 'rent', label: 'Rent 10% lower', monthly: at({ monthlyRent: nz(i.monthlyRent) * 0.9 }) },
+    // (No rent counted: a lower rent or an empty spell changes nothing.)
+    ...(nz(i.monthlyRent) > 0 ? [{ key: 'rent', label: 'Rent 10% lower', monthly: at({ monthlyRent: nz(i.monthlyRent) * 0.9 }) }] : []),
     { key: 'insurance', label: 'Insurance up $1,200 a year', monthly: at({ insuranceYear: nz(i.insuranceYear) + 1200 }) },
-    { key: 'vacant', label: 'Empty for two months', monthly: at({ vacancyPct: Math.max(nz(i.vacancyPct), 100 / 6) }) },
+    ...(nz(i.monthlyRent) > 0 ? [{ key: 'vacant', label: 'Empty for two months', monthly: at({ vacancyPct: Math.max(nz(i.vacancyPct), 100 / 6) }) }] : []),
     { key: 'tax', label: 'Property tax 20% higher', monthly: at({ propertyTaxYear: nz(i.propertyTaxYear) * 1.2 }) },
     { key: 'repair', label: 'A $5,000 repair this year', monthly: at({}, 5000) },
   ];
@@ -292,7 +293,7 @@ export function explainRent(i: RentInputs, price = nz(i.value), onPrice = false,
   if (living && Math.round(Math.abs(base)) === 0) {
     out.push('With your numbers, the rent you collect about breaks even with every cost. Compare what living there costs you with what you pay to live where you are now.');
   } else if (base <= 0 && living) {
-    out.push(`With your numbers, living there costs you about ${money(base)} a month after the rent you collect${nz(i.loanPct) > 0 ? ' and the loan payment' : ''}. Compare that with what you pay to live where you are now.`);
+    out.push(`With your numbers, living there costs you about ${money(base)} a month${nz(i.monthlyRent) > 0 ? ' after the rent you collect' : ''}${nz(i.loanPct) > 0 ? `${nz(i.monthlyRent) > 0 ? ' and' : ', with'} the loan payment` : ''}. Compare that with what you pay to live where you are now.`);
   } else if (base <= 0) {
     out.push(`With your numbers, this rental loses about ${money(base)} a month after all costs${nz(i.loanPct) > 0 ? ' and the loan payment' : ''}. Unless the rent can be higher or the costs lower, it isn’t a rental that pays for itself.`);
   } else {
@@ -304,9 +305,10 @@ export function explainRent(i: RentInputs, price = nz(i.value), onPrice = false,
     if (!breaks.length) out.push('It stays positive in every stress test below.');
   }
   if (!(nz(i.capexPct) > 0)) out.push('You set nothing aside for big replacements like the roof, HVAC and water heater. Leaving them out is the most common way rental numbers look better than they are.');
-  if (nz(i.vacancyPct) < 5) out.push(`Your vacancy of ${nz(i.vacancyPct)}% is below the 5–8% that’s common for homes.`);
-  if (!(nz(i.managementPct) > 0)) out.push('You assumed you’ll manage it yourself. If you later hire a property manager, that fee comes out of your cash flow.');
-  out.push('Before you go further, check the rent against homes that actually rented nearby, get an insurance quote, ask the county what the property tax will be after you buy, and have the roof and systems inspected.');
+  if (nz(i.monthlyRent) > 0 && nz(i.vacancyPct) < 5) out.push(`Your vacancy of ${nz(i.vacancyPct)}% is below the 5–8% that’s common for homes.`);
+  const rented = nz(i.monthlyRent) > 0;
+  if (rented && !(nz(i.managementPct) > 0)) out.push('You assumed you’ll manage it yourself. If you later hire a property manager, that fee comes out of your cash flow.');
+  out.push(rented ? 'Before you go further, check the rent against homes that actually rented nearby, get an insurance quote, ask the county what the property tax will be after you buy, and have the roof and systems inspected.' : 'Before you go further, get an insurance quote, ask the county what the property tax will be after you buy, and have the roof and systems inspected.');
   return out;
 }
 

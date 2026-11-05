@@ -1,3 +1,4 @@
+import { liveIn } from '../lib/dealStage';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
 import { planNow, practiceLienDeal, roadmapNextStep } from '../lib/planNext';
 import { lienDealFor, planPath, progressChanged } from '../lib/roadmapState';
@@ -358,7 +359,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const kinds = kindsFor(deal.state);
   const plans = PLANS.filter((p) => plansFor(deal.kind).includes(p.key));
   // (The IRS redemption line follows a rule picked in Fix and sell, re-read when it's saved.)
-  const groups = checklistFor(deal);
+  const groups = checklistFor(deal, { liveIn: liveIn(deal) });
   const all = groups.flatMap((g) => g.items);
   const doneCount = all.filter((i) => deal.done.includes(i.id)).length;
   const toggle = (id: string) => set({ done: deal.done.includes(id) ? deal.done.filter((x) => x !== id) : [...deal.done, id] });

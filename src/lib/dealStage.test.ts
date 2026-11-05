@@ -114,7 +114,9 @@ describe('the next action follows the stage', () => {
 
   it('brings in the contract deadlines once it’s under contract', () => {
     withNumbers();
-    const t = dealNextTask(deal, EMPTY_PACKET, now, 'contract');
+    // The earnest money is due right after signing: it comes before the calendar.
+    expect(dealNextTask(deal, EMPTY_PACKET, now, 'contract').label).toBe('Send the earnest money for 123 Main St and confirm receipt');
+    const t = stageTasks(deal, 'contract', EMPTY_PACKET, now).find((x) => x.key === 'dates')!;
     expect(t.label).toBe('Put 123 Main St’s contract deadlines on its calendar');
     expect(t.produces).toMatch(/Offer accepted/);
     expect(t.produces).toMatch(/Option period ends/);
@@ -381,4 +383,42 @@ it('round 4: researching past sale day, two answers, deed ends the redemption re
   localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { borrow: 'live' } }));
   expect(stageLabel('owned', { ...deal, id: 'dl9', state: 'NV', kind: 'reo', plan: 'rent' })).toBe('Living there');
   localStorage.removeItem('deedowl.decide.v1');
+});
+
+describe('Nevada round 4 flow', () => {
+  const nvFlip: Deal = { ...deal, id: 'f1', name: '2210 Mesa Verde Ln', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip' };
+
+  it('finishes a flip once its sale is recorded', () => {
+    saveDeals([{ ...nvFlip, stage: 'owned' }]);
+    saveOwned({ f1: { boughtOn: '2026-09-01', months: [] } });
+    expect(stageTasks(nvFlip, 'owned', EMPTY_PACKET, now).find((x) => x.key === 'sold')!.done).toBe(false);
+    saveOwned({ f1: { boughtOn: '2026-09-01', months: [], sold: { on: '2026-10-01', price: 430000 } } });
+    expect(stageTasks(nvFlip, 'owned', EMPTY_PACKET, now).find((x) => x.key === 'sold')!.done).toBe(true);
+    expect(dealNextTask(nvFlip, EMPTY_PACKET, now, 'owned').key).toBe('next');
+  });
+
+  it('keeps a deal under way in focus when a newer candidate is saved', () => {
+    saveDeals([{ ...nvFlip, stage: 'closed' }, { ...nvFlip, id: 'f2', name: '9 New St', stage: 'researching', updatedAt: '2026-10-07T00:00:00Z' }]);
+    expect(focusDealId()).toBe('analyzed:f1');
+    // An owned rental is ongoing: a newer candidate leads.
+    saveDeals([{ ...nvFlip, plan: 'rent', stage: 'owned' }, { ...nvFlip, id: 'f2', name: '9 New St', stage: 'researching', updatedAt: '2026-10-07T00:00:00Z' }]);
+    expect(focusDealId()).toBe('analyzed:f2');
+  });
+
+  it('lets a short sale’s approval-dependent dates wait, and calls an ended window ended', async () => {
+    const { calendarRows, windowEnded } = await import('./dealPacket');
+    const rows = [{ when: '2026-11-06', what: 'Contract signed', who: 'You' }, { when: '', what: 'Approval notice received (dates count from here)', who: '' }, { when: '', what: 'Inspection period ends', who: '' }, { when: '', what: 'Closing', who: '' }];
+    expect(calendarRows({ ...EMPTY_PACKET, dates: rows }, 'contract').map((x) => x.what)).toEqual(['Contract signed']);
+    rows[1] = { ...rows[1], when: '2027-01-10', who: 'Lender' };
+    expect(calendarRows({ ...EMPTY_PACKET, dates: rows }, 'contract')).toHaveLength(4);
+    expect(windowEnded('Challenge window ends', 27)!.text).toBe('the challenge window ended 27 days ago');
+    expect(windowEnded('Sale day', 2)).toBeNull();
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-08', what: 'Challenge window ends', who: 'Title company' }] };
+    expect(dealNextTask({ ...nvFlip, stage: 'closed' }, p, now, 'closed').label).toBe('The challenge window ended 28 days ago: if no one sued, mark it handled.');
+  });
+
+  it('says so when the deed row is ticked at a win', () => {
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
+    expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);
+  });
 });

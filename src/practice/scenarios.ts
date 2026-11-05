@@ -253,7 +253,7 @@ function numbersInputs(p: PracticeProperty, o: { holdingMonths: number; titleLeg
   };
 }
 
-const numbersTask = (p: PracticeProperty, inputs: BidInputs, compareTo: { label: string; amount: number }, lesson: string, auction: boolean): Task => ({
+const numbersTask = (p: PracticeProperty, inputs: BidInputs, compareTo: { label: string; amount: number }, lesson: string, auction: boolean, waitMonths?: number): Task => ({
   kind: 'numbers',
   id: 'numbers',
   title: auction ? 'Set your maximum bid' : 'Set your maximum offer',
@@ -262,6 +262,7 @@ const numbersTask = (p: PracticeProperty, inputs: BidInputs, compareTo: { label:
   compareTo,
   lesson,
   asIsValue: practiceAsIsValue(p.value, p.repairs),
+  ...(waitMonths ? { waitMonths } : {}),
 });
 
 const bidDecision = (maxBid: number, compare: { label: string; amount: number }, auction: boolean): Task => {
@@ -314,6 +315,8 @@ const auctionWin = (n: Numbers, extra: string): Task[] => [
 
 interface Numbers {
   inputs: BidInputs;
+  /** Months of redemption wait before you can sell (a certificate of sale first). */
+  waitMonths?: number;
   maxBid: number;
   compare: { label: string; amount: number };
   win: number; // the price the practice buyer pays, when they go ahead
@@ -697,7 +700,7 @@ const HOA: Flow = {
   own: () => ({ correct: 'A certificate of sale, then a deed after the 60-day redemption period, and possibly still subject to the first mortgage', wrong: ['The home free of the mortgage, right away', 'A lien certificate earning 1% a month'] }),
   numbers: (p) => {
     const first = roundTo(p.value * 0.72, 1000);
-    return auctionNumbers(p, { label: 'Opening bid', amount: roundTo((p.hoaMonthly ?? 0) * 18 + 3_000, 100) }, { holdingMonths: 7, titleLegal: 2_800, survivingLiens: first });
+    return { ...auctionNumbers(p, { label: 'Opening bid', amount: roundTo((p.hoaMonthly ?? 0) * 18 + 3_000, 100) }, { holdingMonths: 7, titleLegal: 2_800, survivingLiens: first }), waitMonths: 2 };
   },
   research: (p, n) => [
     {
@@ -784,7 +787,7 @@ const SHERIFF: Flow = {
   checklist: 'sheriff',
   available: () => null,
   own: () => ({ correct: 'A certificate of sale for the debtor’s interest, with a deed after the redemption period', wrong: ['A deed right away, free of all liens', 'A lien certificate earning interest'] }),
-  numbers: (p) => auctionNumbers(p, { label: 'Opening bid (the creditor’s credit bid)', amount: roundTo(p.value * 0.2, 1000) }, { holdingMonths: 15, titleLegal: 1_500, survivingLiens: roundTo(p.value * 0.3, 1000) }),
+  numbers: (p) => ({ ...auctionNumbers(p, { label: 'Opening bid (the creditor’s credit bid)', amount: roundTo(p.value * 0.2, 1000) }, { holdingMonths: 15, titleLegal: 1_500, survivingLiens: roundTo(p.value * 0.3, 1000) }), waitMonths: 12 }),
   research: (p, n) => [
     {
       kind: 'document',
@@ -856,7 +859,7 @@ const IRS: Flow = {
   checklist: 'sheriff',
   available: () => null,
   own: () => ({ correct: 'A certificate of sale for the taxpayer’s interest, then a deed after the 180-day redemption period', wrong: ['Free and clear title from the federal government', 'The property with the IRS paying off the mortgage'] }),
-  numbers: (p) => auctionNumbers(p, { label: 'Minimum bid', amount: roundTo(p.value * 0.15, 1000) }, { holdingMonths: 9, titleLegal: 1_500, survivingLiens: roundTo(p.value * 0.25, 1000) }),
+  numbers: (p) => ({ ...auctionNumbers(p, { label: 'Minimum bid', amount: roundTo(p.value * 0.15, 1000) }, { holdingMonths: 9, titleLegal: 1_500, survivingLiens: roundTo(p.value * 0.25, 1000) }), waitMonths: 6 }),
   research: (p, n) => [
     {
       kind: 'document',
@@ -1309,7 +1312,7 @@ export function buildScenario(sale: SaleKey, p: PracticeProperty): Scenario | nu
             title: 'Run the numbers',
             summary: 'Your maximum, set before the sale.',
             tasks: [
-              numbersTask(p, n.inputs, n.compare, sale === 'hoa' ? 'The surviving first mortgage is counted as a cost. That is what makes most HOA sales with a paid-up lender a pass.' : 'Everything is in there: repairs with a cushion, surviving liens, title and legal work, holding, selling costs and your target profit.', auction),
+              numbersTask(p, n.inputs, n.compare, sale === 'hoa' ? 'The surviving first mortgage is counted as a cost. That is what makes most HOA sales with a paid-up lender a pass.' : 'Everything is in there: repairs with a cushion, surviving liens, title and legal work, holding, selling costs and your target profit.', auction, n.waitMonths),
               bidDecision(n.maxBid, n.compare, auction),
             ],
           },

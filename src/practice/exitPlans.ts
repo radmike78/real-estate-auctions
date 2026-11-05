@@ -52,10 +52,11 @@ function plan(key: ExitPlan['key'], label: string, inputs: BidInputs, start: num
   };
 }
 
-/** Selling as it stands (when there are repairs to skip) and fixing then selling, both from the same starting price. */
-export function exitPlans(fix: BidInputs, asIsValue: number, start: number): ExitPlan[] {
+/** Selling as it stands (when there are repairs to skip) and fixing then selling, both from the same starting price.
+ *  Either way you can sell with a clear title only after any redemption wait (waitMonths) ends and you have the deed. */
+export function exitPlans(fix: BidInputs, asIsValue: number, start: number, waitMonths = 0): ExitPlan[] {
   const fixed = plan('fix', fix.repairs > 0 ? 'Fix and sell' : 'Sell', fix, start);
   if (!(fix.repairs > 0)) return [fixed];
-  const asIs = plan('as-is', 'Sell as-is', { ...fix, exitValue: asIsValue, repairs: 0, holdingMonths: Math.min(AS_IS_MONTHS, fix.holdingMonths) }, start);
+  const asIs = plan('as-is', 'Sell as-is', { ...fix, exitValue: asIsValue, repairs: 0, holdingMonths: Math.min(AS_IS_MONTHS + waitMonths, fix.holdingMonths) }, start);
   return [asIs, fixed];
 }

@@ -24,7 +24,7 @@ import { dealNumbers } from '../lib/propertyPacket';
 import { flipNeedsRepairs, nextAction, savedNumbers } from '../lib/dealPacket';
 import { investorProfile } from '../lib/myPlan';
 import { capMisses, capText, dscrText, refiValueWords, rentVerdict } from '../lib/holdCalc';
-import { stageLabel, stageOf, setDealStage } from '../lib/dealStage';
+import { liveIn, stageLabel, stageOf, setDealStage } from '../lib/dealStage';
 import AdSpot from './AdSpot';
 
 function DealCard({ d, p, loading, known }: { d: SavedDeal; p: Property | undefined; loading: boolean; known: boolean }) {
@@ -269,7 +269,7 @@ export default function DealsPage() {
           <ul className="deal-list">
             {analyzed.map((d) => {
               const k = SALE_KINDS.find((x) => x.key === d.kind)!;
-              const all = checklistFor(d).flatMap((g) => g.items);
+              const all = checklistFor(d, { liveIn: liveIn(d) }).flatMap((g) => g.items);
               const done = all.filter((i) => d.done.includes(i.id)).length;
               return (
                 <li key={d.id} className="deal-card">

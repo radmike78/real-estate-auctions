@@ -302,3 +302,14 @@ it('shows income coverage rounded down without losing a hundredth to float error
   expect(dscrText(1.2499)).toBe('1.24');
   expect(dscrText(1.25)).toBe('1.25');
 });
+
+describe('no rent counted (living there)', () => {
+  it('drops the rent and vacancy stress rows and the landlord lines', async () => {
+    const { rentStress, explainRent, RENT_DEFAULTS } = await import('./holdCalc');
+    const i = { ...RENT_DEFAULTS, value: 385000, monthlyRent: 0, managementPct: 0 };
+    expect(rentStress(i).map((r) => r.key)).not.toContain('rent');
+    expect(rentStress(i).map((r) => r.key)).not.toContain('vacant');
+    const t = explainRent(i, 385000, false, true).join(' ');
+    expect(t).not.toMatch(/property manager|actually rented|after the rent you collect/);
+  });
+});

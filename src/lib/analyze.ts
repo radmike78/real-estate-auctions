@@ -91,7 +91,7 @@ export interface CheckGroup {
 const AUCTIONS: SaleKind[] = ['trustee', 'taxSale', 'lien', 'court', 'hoa', 'irs'];
 
 /** The checklist for a deal: what to confirm, research, and plan for, in this state and county. */
-export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>): CheckGroup[] {
+export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>, o: { liveIn?: boolean } = {}): CheckGroup[] {
   const st = d.state;
   const state = stateByCode(st)!.name;
   const offices = COUNTY_OFFICES[`${st}/${d.county}`];
@@ -203,7 +203,12 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     money.push({ id: 'arv', text: 'Base your resale value on sold homes already in finished condition, not asking prices.' });
     money.push({ id: 'contractor', text: st === 'TX' ? 'Get written bids with a scope and payment schedule. Texas has no state license for general contractors or remodelers: check the trade licenses (electrician, plumber, air conditioning) for that work, the city’s registration and permits, insurance and references.' : `Get a bid from a contractor licensed in ${state}, and check permits with the building department.`, href: '#/pros/contractor' });
   }
-  if (d.plan === 'rent') {
+  // Living there (no rent counted): the same items, for a home rather than a rental.
+  if (d.plan === 'rent' && o.liveIn) {
+    money.push({ id: 'rent', text: 'Compare the monthly cost with what you pay to live where you are now.' });
+    money.push({ id: 'landlord', text: `If you’ll rent out a room or unit, read ${state}’s landlord-tenant rules first.` });
+    money.push({ id: 'insurance', text: 'Get a homeowner’s insurance quote before you commit (tell the insurer about any part you’ll rent out).', href: '#/pros/insurance' });
+  } else if (d.plan === 'rent') {
     money.push({ id: 'rent', text: 'Check the rent against HUD’s Fair Market Rents and nearby rentals, and count vacancy, repairs and management.', href: '#/learn/tools' });
     money.push({ id: 'landlord', text: st === 'CA' ? 'California limits most rent increases to 10%, or 5% plus inflation if lower, in 12 months. Check whether your property is covered.' : `Read ${state}’s landlord-tenant rules before you rent it out.` });
     money.push({ id: 'insurance', text: 'Get landlord insurance quotes before you commit.', href: '#/pros/insurance' });

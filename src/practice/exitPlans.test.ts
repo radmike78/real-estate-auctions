@@ -24,3 +24,10 @@ describe('practice exit plans', () => {
     expect(plans.map((p) => p.label)).toEqual(['Sell']);
   });
 });
+
+describe('a redemption wait', () => {
+  it('holds an as-is sale too', () => {
+    const [a] = exitPlans({ ...fix, holdingMonths: 15 }, practiceAsIsValue(345_000, 25_000), 173_000, 12);
+    expect(a.months).toBe(14);
+  });
+});

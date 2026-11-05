@@ -406,7 +406,7 @@ function NumbersTask({ task, k, done, head, markDone }: { task: Extract<Task, { 
   const start = task.compareTo.amount;
   const startName = task.compareTo.label.replace(/ \(.*\)$/, '').toLowerCase();
   const buy = buyingCosts(i, start);
-  const plans = exitPlans(i, task.asIsValue, start);
+  const plans = exitPlans(i, task.asIsValue, start, task.waitMonths ?? 0);
   const fix = plans[plans.length - 1];
   const two = plans.length > 1;
   const buyRows: [string, number][] = [
@@ -471,6 +471,7 @@ function NumbersTask({ task, k, done, head, markDone }: { task: Extract<Task, { 
           <tfoot>{row('Your maximum', (p) => (p.maxBid ? fmtMoney(p.maxBid) : 'No price works'), true)}</tfoot>
         </table>
       </div>
+      {two && !!task.waitMonths && <p className="numbers-note">Both ways count the {task.waitMonths === 12 ? '1-year' : `${task.waitMonths}-month`} redemption wait: you can’t sell with a clear title until the redemption period ends and you have the deed.</p>}
       {two && <p>Selling as-is means less work, less cash tied up and a quicker exit, for a smaller profit. Fixing it up can earn more, but your money is tied up longer, and you carry the risk of repairs running over, a slow sale or a lower price. {fix.maxBid ? `This practice buyer plans to fix and sell, so the maximum is ${fmtMoney(fix.maxBid)}.` : 'Here, no price leaves the target profit either way.'}</p>}
       <p>{task.lesson}</p>
       <p className="small muted">Practice numbers, not market data. <a href="#/analyze?plan=flip">Try your own in Analyze a deal (Fix and sell)</a>.</p>

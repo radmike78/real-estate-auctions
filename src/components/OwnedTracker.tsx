@@ -34,6 +34,22 @@ const thisMonth = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 };
 
+/** A flip's sale: the closing date and price, which finish the deal (its last task). */
+function SoldForm({ o, put }: { o: Owned; put: (next: Owned | null) => void }) {
+  const [on, setOn] = useState(o.sold?.on ?? today());
+  const [price, setPrice] = useState(o.sold ? String(o.sold.price) : '');
+  const p = parseCalcInput(price);
+  const ok = /^\d{4}-\d{2}-\d{2}$/.test(on) && Number.isFinite(p) && p > 0;
+  if (o.sold) return <p className="notice" role="status">Sold on {o.sold.on} for {fmtMoney(o.sold.price)}. Compare it with the walk-away price in your Fix and sell numbers, and keep the closing statement for your taxes. <button type="button" className="linkish" onClick={() => { const { sold: _sold, ...rest } = o; put(rest); }}>Undo</button></p>;
+  return (
+    <div className="row owned-add">
+      <label className="field"><span>Sold on (closing date)</span><input type="date" value={on} onChange={(e) => setOn(e.target.value)} /></label>
+      <label className="field"><span>Sale price ($)</span><input type="text" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} /></label>
+      <button type="button" className="btn btn-secondary" disabled={!ok} onClick={() => put({ ...o, sold: { on, price: p } })}>It sold: record the sale</button>
+    </div>
+  );
+}
+
 /**
  * After you buy: record each month's rent and costs, and see them against the cash flow you planned. The numbers you
  * bought on stay as they were; this shows how the property is really doing.
@@ -95,6 +111,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
         <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
       </div>
+      {flip && <SoldForm o={o} put={put} />}
       {(showBad(rent, 'rent') || showBad(costs, 'costs')) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
       {negative && <p className="caution small" role="alert">Enter rent and costs as $0 or more. Record a refund to a tenant as a cost.</p>}
       <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs, management and utilities, and any money you moved into your repair savings.</p>

@@ -542,7 +542,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     specialAssessment: { url: "https://www.clarkcountynv.gov/government/elected_officials/county_treasurer/faqs", checked: "2026-11-03", note: "The Treasurer’s FAQ covers SID lien certificate sales: you register on sale day, a random number generator picks the buyer for each parcel, and you pay by 10:00 a.m. the next business day in cash, a cashier’s check or a money order, with a W-9." },
   },
   "NV/Douglas": {
-    taxSale: { url: "https://cltr.douglascountynv.gov/treasury-taxes/delinquent-property-list-tax-sales", checked: "2026-09-29" },
+    taxSale: { url: "https://cltr.douglascountynv.gov/treasury-taxes/delinquent-property-list-tax-sales", checked: "2026-11-05", note: "Recent sales ran online through Bid4Assets; start from the county’s page for the current sale." },
     treasurer: { url: "https://cltr.douglascountynv.gov/treasury-taxes", checked: "2026-09-29" },
     assessor: { url: "https://www.douglascountynv.gov/government/departments/assessor", checked: "2026-09-29" },
     recorder: { url: "https://www.douglascountynv.gov/government/departments/recorder", checked: "2026-09-29" },
