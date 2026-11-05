@@ -9,7 +9,7 @@ import { workStorage as localStorage } from './workStorage';
 import { CURRENT_KEY, DEAL_STAGES, isDealStage, loadDeals, saveDeals, type Deal, type DealStage } from './analyze';
 import { investorProfile } from './myPlan';
 import { cleanBuyBox, EMPTY_BUY_BOX } from './toolkit';
-import { bidTyped, CONTRACT_ROWS, calendarReady, sale90, capSid, challenge90Ahead, challengeEnded, sidDeadline, flipSaleLine, savePacket, irsWithoutRedemption, RECORDED_ROWS, sameEvent, windowEnded, sameDate, roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
+import { bidTyped, CONTRACT_ROWS, calendarReady, sale90, capSid, challenge90Ahead, challengeEnded, sidDeadline, flipSaleLine, savePacket, irsWithoutRedemption, RECORDED_ROWS, sameEvent, windowEnded, sameDate, roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData, onPacketSaved } from './dealPacket';
 import { areasFor, loadLog, type EvidenceLog } from './evidence';
 import { loadOwned, type Owned } from './owned';
 import { proGuideByKey } from './proGuide';
@@ -95,6 +95,23 @@ export const notYet = (d: { kind: Deal['kind']; state?: Deal['state']; id?: stri
 export const earlyDeedEnd = (d: Pick<Deal, 'kind' | 'state'> & { id?: string; plan?: Deal['plan'] }, p: PacketData, now: Date, deedOn = p.dates.find((x) => sameDate(x.what, DEED_AFTER_WAIT) && x.when && !x.resolved)?.when ?? '') => { if (!certificateFirst(d) || ticked(p, 'Redemption period ends') || !deedOn) return ''; const e = p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when || redemptionEnd(d, p); return e && e >= localDay(now) && deedOn < e ? e : ''; };
 /** An offer's earnest money marked sent on the roadmap counts as its date row handled (one answer, not two). */
 const STEP_ROWS: Record<string, string[]> = { deposit: ['Earnest money due'], inspect: ['Inspection period ends', 'Option period ends'], 'loan-approval': ['Loan approval deadline'], appraise: ['Appraisal deadline'] };
+let settling = false;
+/** Every roadmap step marked done (or "doesn't apply") for this offer ticks one date row of its kind, once: when it's
+ * marked, and when that row is added or dated later. (A kind that already has a handled row is left alone.) */
+export function settleAllSteps(dealKey: string) {
+  if (settling || !dealKey.startsWith('analyzed:')) return;
+  settling = true;
+  try {
+    const prog = dealProgress(dealKey);
+    for (const id of Object.keys(STEP_ROWS).filter((k) => prog.done.includes(k) || prog.status[k] === 'na')) {
+      const p = loadPacket(dealKey);
+      if (!p.dates.some((x) => x.resolved && STEP_ROWS[id].some((n) => sameEvent(x.what, n)))) settleStepRow(dealKey, id);
+    }
+  } finally {
+    settling = false;
+  }
+}
+onPacketSaved(settleAllSteps);
 /** A roadmap step marked done on an offer: tick its one date row in the packet (the row named for it, else the
  * earliest open one of that kind), so the table, Key dates and the reminders all agree. */
 export function settleStepRow(dealKey: string, stepId: string) {
@@ -558,7 +575,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     if (!deedFirst) out.push(withRedeem(firstWeek));
     const wonLater = w === 'auction' && (d.plan === 'flip' || d.plan === 'rent') ? wonPrice(d as Deal, p, n) : undefined;
     const won = wonLater && !wonLater.done && !bidTyped(d as Deal) ? wonLater : undefined;
-    if (won) out.push(withRedeem(won));
+    if (won && !deedFirst) out.push(withRedeem(won));
     const nvTrustee = d.state === 'NV' && d.kind === 'trustee';
     const nvTax = d.state === 'NV' && d.kind === 'taxSale';
     const redemptionDone = certificateFirst(d) && ticked(p, 'Redemption period ends');
@@ -570,6 +587,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       out.push(task({ key: 'deed', label: ticked(p, 'Redemption period ends') ? `Get the deed for ${n} and record it` : `Get the deed for ${n} and record it, if no one redeemed`, produces: `the deed from ${d.kind === 'hoa' ? 'whoever conducted the sale' : d.kind === 'irs' ? 'the IRS, for your certificate of sale' : 'the sheriff'}, recorded, then enter the date you got it and mark “${DEED_AFTER_WAIT}” handled in its dates${ticked(p, 'Redemption period ends') ? '' : '. If it was redeemed instead, you’re repaid your price plus what the law adds: press “It was redeemed” to collect the payoff'}`, href: packetHref(d, 'dates'), tick: { label: 'I have the deed, and it’s recorded: mark it handled', row: DEED_AFTER_WAIT, who: deedWho(d) }, ...(ticked(p, 'Redemption period ends') ? {} : { advance2: redeemButton(d) }), support: [L.pro('title')], done: ticked(p, DEED_AFTER_WAIT) }));
       if (deedFirst) out.push({ ...firstWeek, label: `Secure and insure ${n}` });
       if (deedFirst && w === 'auction' && !nvTrustee && !nvTax) out.push(beforeRemodel);
+      if (won && deedFirst) out.push(won);
     }
     // Nevada: a trustee's sale can be challenged for 30 days after the deed is recorded (NRS 107.080(5)), a tax sale's
     // land recovered by a suit within 2 years after the Treasurer's deed (NRS 361.600): their end on the calendar first.
@@ -630,7 +648,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     return out;
   }
 
-  if (stage === 'passed' && wayOf(d) === 'offer' && p.dates.some((x) => (sameEvent(x.what, 'Earnest money due') || sameDate(x.what, 'Earnest money')) && !!x.resolved)) out.push(task({ key: 'deposit-back', label: `Get your earnest money back for ${n}`, produces: 'escrow’s written release of your earnest money under the contract’s cancellation terms*, kept with its records. Ask your agent or attorney if the seller disputes it', href: packetHref(d, 'dates'), tick: { label: 'I got it back: mark it handled', row: EARNEST_BACK, who: 'Escrow' }, support: [L.pro('attorney')], done: p.dates.some((x) => sameDate(x.what, EARNEST_BACK) && !!x.resolved) }));
+  if (stage === 'passed' && wayOf(d) === 'offer' && (stepDone('deposit') || p.dates.some((x) => (sameEvent(x.what, 'Earnest money due') || sameDate(x.what, 'Earnest money')) && !!x.resolved))) out.push(task({ key: 'deposit-back', label: `Get your earnest money back for ${n}`, produces: 'escrow’s written release of your earnest money under the contract’s cancellation terms*, kept with its records. Ask your agent or attorney if the seller disputes it', href: packetHref(d, 'dates'), tick: { label: 'I got it back: mark it handled', row: EARNEST_BACK, who: 'Escrow' }, support: [L.pro('attorney')], done: p.dates.some((x) => sameDate(x.what, EARNEST_BACK) && !!x.resolved) }));
   findNext();
   return out;
 }
@@ -640,6 +658,11 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
  * waiting for comes first; then the first unfinished task of its stage.
  */
 export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date(), stage: DealStage = stageOf(d)): PlanTask {
+  const t = nextTaskFor(d, p, now, stage);
+  // A certificate-first win, paid: the redemption period is running, so someone can redeem any day.
+  return stage === 'contract' && certificateFirst(d) && paidIn(p) && !redeemedIn(p) && !t.advance2 && !t.done ? { ...t, advance2: redeemButton(d) } : t;
+}
+function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanTask {
   if (stage !== 'passed') {
     // Sale day has passed with the deal still before the sale: whether you won comes first.
     if (stage === 'offer' && wayOf(d) !== 'offer' && saleOver(p, now)) {
@@ -669,7 +692,7 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
     const sidOpen = ['contract', 'closed', 'owned'].includes(stage) && d.state === 'NV' && d.kind === 'taxSale' ? sidTasks(d, p, now, d.name || 'this property').find((t) => !t.done) : undefined;
     if (sidOpen) return sidOpen;
     // (Preparing to bid, with the sale days away: that stage's own tasks lead; Key dates keeps the countdown.)
-    const bidPrep = stage === 'offer' && wayOf(d) !== 'offer' && nd && nd.days > 0 && sameEvent(nd.what, 'Sale day') && stageTasks(d, stage, p, now).some((t) => !t.done && t.key !== 'dates');
+    const bidPrep = (stage === 'offer' || stage === 'researching') && wayOf(d) !== 'offer' && nd && nd.days > 0 && sameEvent(nd.what, 'Sale day') && stageTasks(d, stage, p, now).some((t) => !t.done && t.key !== 'dates' && t.key !== 'stage');
     if (nd && !bidPrep && (nd.days <= 7 || (stage === 'contract' && sameDate(nd.what, 'SID certificate payoff')))) {
       const ended = nd.days < 0 ? windowEnded(nd.what, -nd.days, d.kind) : null;
       const late90Ahead = ended && d.state === 'NV' && d.kind === 'trustee' && sameDate(nd.what, 'Challenge window ends') ? challenge90Ahead(p, now) : '';

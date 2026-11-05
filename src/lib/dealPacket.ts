@@ -186,6 +186,10 @@ function loadAll(): Record<string, unknown> {
 
 export const loadPacket = (dealId: string): PacketData => cleanPacket(loadAll()[dealId]);
 
+/** Runs after each save (dealStage settles roadmap steps' date rows there). A hoisted function holds the hook, so
+ * registering works while the two modules are still loading each other. */
+type SaveHook = { hook?: (dealId: string) => void };
+export function onPacketSaved(f: (dealId: string) => void) { (onPacketSaved as unknown as SaveHook).hook = f; }
 export function savePacket(dealId: string, p: PacketData) {
   try {
     const all = loadAll();
@@ -194,6 +198,7 @@ export function savePacket(dealId: string, p: PacketData) {
   } catch {
     /* storage unavailable: the packet lasts for this visit */
   }
+  try { (onPacketSaved as unknown as SaveHook).hook?.(dealId); } catch { /* a settle that fails leaves the save as it was */ }
 }
 
 export function removePacket(dealId: string) {
@@ -1164,7 +1169,7 @@ export function nextAction(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}
 /** The whole packet as plain text, to download, print or share with your professionals. */
 export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date()): string {
   // Bought, finished, or a won auction: the parts from before you bought are records (as the page says).
-  const pastSale = ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) || (stageOf(d) === 'contract' && !isOffer(d));
+  const pastSale = ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) || (stageOf(d) === 'contract' && !isOffer(d)) || sidState(d) === 'void';
   const lines = [`DEAL PACKET: ${d.name}`, 'DeedOwl educational worksheet. Every number is your estimate until a source backs it; a checkmark records your review, not a clear title.', ''];
   lines.push(`STAGE: ${stageLabel(stageOf(d), d)}`, `NEXT ACTION: ${nextAction(d, p, now).text}`, ...(flipSaleLine(d) ? [`SALE: ${flipSaleLine(d)}`] : []), '');
   for (const s of packetSections(d, p, now)) {

@@ -1248,4 +1248,17 @@ describe('Nevada round 4 flow', () => {
     const p = { ...EMPTY_PACKET, fit: 'fits' as const, fitWhy: 'In Reno' };
     expect(stageTasks({ ...offer, stage: 'researching' }, 'researching', p, now).find((t) => t.key === 'fit')?.done).toBe(true);
   });
+
+  it('round 18: a step marked done before its row exists settles the row when it is added', async () => {
+    const { loadPacket } = await import('./dealPacket');
+    const { DEAL_STEPS_KEY } = await import('./roadmapDeals');
+    const offer = { ...deal, id: 'f1', state: 'NV' as const, county: 'Washoe', kind: 'listing' as const };
+    saveDeals([{ ...offer, stage: 'contract' }]);
+    localStorage.setItem(DEAL_STEPS_KEY, JSON.stringify({ 'analyzed:f1': { done: ['deposit'], status: {} } }));
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Earnest money due', who: 'Me' }] });
+    expect(loadPacket('analyzed:f1').dates[0].resolved).toBe(true);
+    savePacket('analyzed:f1', { ...loadPacket('analyzed:f1'), dates: [...loadPacket('analyzed:f1').dates, { when: '2026-10-20', what: 'Earnest money due (additional deposit)', who: 'Me' }] });
+    expect(loadPacket('analyzed:f1').dates.map((x) => !!x.resolved)).toEqual([true, false]);
+    expect(dealNextTask(offer, { ...EMPTY_PACKET }, now, 'passed').key).toBe('deposit-back');
+  });
 });
