@@ -1130,6 +1130,23 @@ describe('Nevada round 4 flow', () => {
     expect(stageTasks(nvFlip, 'contract', rp, now).find((x) => x.key === 'ev-terms')!.done).toBe(true);
   });
 
+  it('round 15 flow: the winning bid after the deed; a past recording date; SID yes; future closing; passed vs not needed', async () => {
+    const { packetSections } = await import('./dealPacket');
+    expect(stageTasks(nvFlip, 'closed', EMPTY_PACKET, now).map((x) => x.key)).toContain('won-price');
+    const rp = { ...EMPTY_PACKET, dates: [{ when: '2026-07-08', what: 'Deed recorded', who: 'Trustee' }] };
+    const t = dealNextTask(nvFlip, rp, now, 'contract');
+    expect(t.label).toMatch(/^Deed recorded on Jul 8, 2026 for 2210 Mesa Verde Ln\? If it’s recorded, mark it to go on/);
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    const sp = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-01', what: 'Payment deadline', who: 'Me', resolved: true }] };
+    expect(stageTasks(tax, 'contract', sp, now).find((x) => x.key === 'sid-affidavit')!.redate).toMatchObject({ when: '2026-10-21', who: 'The city or county' });
+    const listing = { ...nvFlip, kind: 'listing' as const };
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-12-10', what: 'Closing', who: 'Escrow', resolved: true }] });
+    expect(stageHint('contract', listing)).not.toMatch(/^Closed\?/);
+    saveDeals([{ ...listing, stage: 'closed' }]);
+    const lines = packetSections({ ...listing, stage: 'closed' }, { ...EMPTY_PACKET, dates: [{ when: '2026-11-20', what: 'Seller’s disclosure form due', who: 'Seller' }] }, now).find((x) => x.key === 'dates')!.lines.join(' | ');
+    expect(lines).toMatch(/Seller’s disclosure form due \(Seller\) — not needed now \(it closed\)/);
+  });
+
   it('says so when the deed row is ticked at a win', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     expect(stageTasks(nvFlip, 'contract', p, now).find((x) => x.key === 'record')!.label).toMatch(/^The deed for 2210 Mesa Verde Ln is recorded/);

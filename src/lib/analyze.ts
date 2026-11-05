@@ -156,7 +156,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
   }
   if (d.kind === 'lien') {
     if (st === 'AZ') sale.push({ id: 'az-lien', text: 'Arizona: liens are sold in February. You bid the interest rate down from 16% a year; the owner can pay you off any time. After three years (and within ten) you can go to court for a deed. Or, if you or the owner ask and the property is likely to sell for more than $2,500 above what’s owed, the court must order an auction instead, and you’re paid in cash (A.R.S. 42-18204).', href: '#/learn/forced-sales' });
-    if (st === 'NV') sale.push({ id: 'nv-sid', text: 'Nevada SID lien certificates earn 1% a month until paid; read how they work before you buy.', href: '#/playbooks/sid' });
+    if (st === 'NV') sale.push({ id: 'nv-sid', text: 'Nevada SID lien certificates earn interest of up to 1% a month until paid (NRS 271.595(1)); the notice of sale sets the rate. Read how they work before you buy.', href: '#/playbooks/sid' });
   }
   if (d.kind === 'court') {
     const r: Record<StateCode, string> = {
@@ -168,7 +168,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
     };
     sale.push({ id: 'court-redeem', text: st === 'TX' ? r[st] : `${r[st]} You own it subject to that right; secure and maintain it, and hold off on remodeling until it ends.` });
   }
-  if (d.kind === 'hoa' && st === 'NV') sale.push({ id: 'nv-hoa', text: 'Nevada HOA foreclosures: the owner can redeem for 60 days. Check with a title company whether the first loan survives.', href: '#/playbooks/hoa' });
+  if (d.kind === 'hoa' && st === 'NV') sale.push({ id: 'nv-hoa', text: 'Nevada HOA foreclosures: the former owner, or a lender whose recorded loan ranked below the HOA’s lien, can redeem for 60 days (NRS 116.31166(3)). Check with a title company whether the first loan survives.', href: '#/playbooks/hoa' });
   if (d.kind === 'hoa' && st === 'CA') sale.push({ id: 'ca-hoa', text: 'California HOA sales: an HOA can foreclose only when unpaid assessments reach $1,800 or are more than 12 months late (Civil Code 5720). A first deed of trust recorded before the HOA’s notice usually stays (Civil Code 5680), and after a nonjudicial HOA sale the home can be redeemed for 90 days (Civil Code 5715).', href: '#/playbooks/cahoa' });
   if (d.kind === 'hoa' && st === 'TX') {
     sale.push({ id: 'tx-hoa-type', text: 'Texas: read the recorded declaration first. It decides whether this is a subdivision HOA (Property Code 209) or a condominium association (82); a townhome can be either.', href: '#/playbooks/txhoa' });

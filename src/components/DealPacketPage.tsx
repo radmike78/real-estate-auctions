@@ -98,7 +98,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <h2 id={`packet-${k}`}>
           {s.title} {pastSale && RECORD_PARTS.includes(k) && s.status !== 'done' ? <span className="packet-status record">{s.status === 'missing' ? 'Left blank' : 'Partly filled in'}</span> : (s.status === 'missing' && ['researching', 'offer'].includes(stageOf(deal)) ? <span className="packet-status record">{k === 'dates' && wayOf(deal) === 'offer' ? 'Not needed yet' : 'Not started'}</span> : <span className={`packet-status ${s.status}`}>{s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>)}
         </h2>
-        {pastSale && RECORD_PARTS.includes(k) && <p className="muted small">{sidState(deal) === 'void' ? 'From before the sale: kept as your records.' : 'From before you bought: kept as your records.'}</p>}
+        {pastSale && RECORD_PARTS.includes(k) && <p className="muted small">{sidState(deal) === 'void' ? 'From before the sale: kept as your records.' : deal.kind === 'lien' ? 'From before you were picked: kept as your records.' : 'From before you bought: kept as your records.'}</p>}
       </>
     );
   };
@@ -253,7 +253,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <section className="deal-setup packet-section" aria-labelledby="packet-cash">
         <Head k="cash" />
         <label className="field">
-          <span>{deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short' ? 'Earnest money deposit' : 'Bidder deposit, if the sale requires one'}</span>
+          <span>{deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short' ? 'Earnest money deposit' : (deal.kind === 'lien' ? 'Certificate payment, due by the Treasurer’s deadline' : 'Bidder deposit, if the sale requires one')}</span>
           <NumInput blank value={p.earnest} onValue={(n) => update({ earnest: n ?? 0 })} />
         </label>
         {(deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short') && <details><summary>{deal.state === 'TX' ? 'Separate fees and confirmed deposit credits' : 'Confirmed deposit credits'}</summary>
