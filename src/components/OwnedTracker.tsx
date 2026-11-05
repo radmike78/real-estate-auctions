@@ -118,7 +118,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const add = () => {
     const r = parseCalcInput(rent);
     const c = parseCalcInput(costs);
-    if (unreadable || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || !Number.isFinite(r) || !Number.isFinite(c) || r < 0 || c < 0) return;
+    if (unreadable || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || month < o.boughtOn.slice(0, 7) || !Number.isFinite(r) || !Number.isFinite(c) || r < 0 || c < 0) return;
     // (Saved: the cursor goes back to the month, for the next one.)
     setTimeout(() => document.getElementById('owned-month')?.focus(), 0);
     put({ ...o, months: [{ month, rent: Math.max(0, r), costs: Math.max(0, c), note: note.slice(0, 200) }, ...o.months.filter((m) => m.month !== month)].sort((a, b) => b.month.localeCompare(a.month)) });
@@ -133,6 +133,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const rentCovers = trackerAsksHome(deal);
   return (
     <div>
+      {month < o.boughtOn.slice(0, 7) && <p className="caution" role="note">That month is before you bought it ({prettyDay(o.boughtOn)}): pick a later month.</p>}
+      {!rentCovers && deal.home === 'live' && s.months > 0 && s.rent > 0 && s.rent >= s.costs && <p className="muted small">Rent now covers this home’s costs. Still your home? You can change it under “Your plan and buy box”.</p>}
       {rentCovers && (
         <fieldset className="packet-fit">
           <legend>Rent now covers this home’s costs. Do you still live there?</legend>
@@ -147,7 +149,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <label className="field"><span>{liveIn(deal) ? 'Rent from a room or unit ($)' : 'Rent collected ($)'}</span><input type="text" inputMode="decimal" value={rent} aria-invalid={showBad(rent, 'rent') || undefined} onFocus={() => setFocusBox('rent')} onBlur={() => setFocusBox(null)} onChange={(e) => setRent(e.target.value)} /></label>
         <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} aria-invalid={showBad(costs, 'costs') || undefined} onFocus={() => setFocusBox('costs')} onBlur={() => setFocusBox(null)} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
-        <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
+        <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable || month < o.boughtOn.slice(0, 7)} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
       </div>}
       {(showBad(rent, 'rent') || showBad(costs, 'costs')) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
       {negative && <p className="caution small" role="alert">Enter rent and costs as $0 or more. Record a refund to a tenant as a cost.</p>}

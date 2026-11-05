@@ -332,7 +332,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
       </label>
       {/* My deals and the packet count only a typed rent: say so here, so the pages agree. */}
-      {price > 0 && !rentTyped && (living ? <p className="calc-note small" role="note"><strong>No rent is counted.</strong> If you’ll rent out a room or unit, type that rent; type 0 to save these results to My deals and the deal packet.</p> : <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the property’s rent to save these results to My deals and the deal packet.</p>)}
+      {price > 0 && !rentTyped && (living ? <p className="calc-note small" role="note"><strong>No rent is counted.</strong> If you’ll rent out a room or unit, type that rent. To save these results to My deals and the deal packet, type the rent in Monthly rent, even if it’s 0.</p> : <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the property’s rent to save these results to My deals and the deal packet.</p>)}
       {/* An investment-property loan over 85% of the price: said here, beside the result it changes (with no price
           typed yet, the mortgage-insurance note below says it). */}
       {price > 0 && onPrice && !living && Math.round(v.loanPct * 100) / 100 > 85 && (

@@ -932,7 +932,30 @@ describe('Nevada round 4 flow', () => {
     const lien = { ...nvFlip, kind: 'lien' as const, plan: 'lien' as const };
     saveDeals([{ ...lien, stage: 'closed' }]);
     const lp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'City', resolved: true }] };
-    expect(packetSections({ ...lien, stage: 'closed' }, lp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Dec 30, 2026: Earliest you may act \(unpaid lien\) \(120 days after the sale if the parcel has no building, 2 years if it has one/);
+    expect(packetSections({ ...lien, stage: 'closed' }, lp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Still to add: when the owner can no longer redeem: 120 days after the certificate of sale \(dated the sale day\), about Dec 30, 2026, if the parcel has no building; 2 years if it has one/);
+  });
+
+  it('round 12 verifier: the winning bid is marked; postponed summary; void recording rows; homes settled', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const { settleHomes } = await import('./dealStage');
+    const won = stageTasks(nvFlip, 'contract', EMPTY_PACKET, now).find((x) => x.key === 'won-price')!;
+    expect(won.tick?.label).toBe('I entered my winning bid: mark it');
+    expect(stageTasks(nvFlip, 'contract', { ...EMPTY_PACKET, dates: [{ when: '2026-10-06', what: 'Winning bid entered in Analyze', who: 'Me', resolved: true }] }, now).find((x) => x.key === 'won-price')!.done).toBe(true);
+    const keys = stageTasks(nvFlip, 'contract', EMPTY_PACKET, now).map((x) => x.key);
+    expect(keys.indexOf('ev-insurance')).toBeLessThan(keys.indexOf('won-price'));
+    saveDeals([{ ...nvFlip, stage: 'researching' }]);
+    const pp = { ...EMPTY_PACKET, postponedSale: true, dates: [{ when: '', what: 'Sale day', who: 'Trustee' }, { when: '2026-10-01', what: 'Sale postponed (was Oct 1, 2026)', who: 'Trustee', resolved: true }] };
+    expect(packetSections({ ...nvFlip, stage: 'researching' }, pp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Next: enter the new sale date \(the sale was postponed\)\./);
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    const vp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-09', what: 'Treasurer’s deed recorded', who: 'Treasurer' }, { when: '2026-10-05', what: 'Treasurer: the sale is void', who: 'The county treasurer', resolved: true }] };
+    savePacket('analyzed:f1', vp);
+    saveDeals([{ ...tax, stage: 'contract' }]);
+    expect(packetSections({ ...tax, stage: 'contract' }, vp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Treasurer’s deed recorded \(Treasurer\) — not needed \(the sale is void\)/);
+    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { borrow: 'live' } }));
+    saveDeals([{ ...nvFlip, kind: 'listing', plan: 'rent', stage: 'owned' }]);
+    settleHomes();
+    expect(loadDeals()[0].home).toBe('live');
+    localStorage.removeItem('deedowl.decide.v1');
   });
 
   it('says so when the deed row is ticked at a win', () => {

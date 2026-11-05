@@ -1420,6 +1420,7 @@ html { scroll-padding-top: 88px; }
 .calc-kv dt { flex: 1 1 auto; }
 /* A value with words ("1.03× · below…"): it wraps in its own column instead of squeezing the label. */
 .calc-kv dd.wrap { white-space: normal; flex: 0 1 60%; text-align: right; }
+@media (max-width: 600px) { .calc-kv div:has(> dd.wrap) { flex-direction: column; gap: 4px; } .calc-kv dd.wrap { text-align: left; flex: none; } }
 /* Tables start on the same left edge as the text above them. */
 .page table th:first-child, .page table td:first-child { padding-left: 0; }
 .page table th:last-child, .page table td:last-child { padding-right: 0; }

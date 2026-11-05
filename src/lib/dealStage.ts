@@ -8,7 +8,6 @@ import { workStorage as localStorage } from './workStorage';
 // team, public records and the county only.
 import { CURRENT_KEY, DEAL_STAGES, isDealStage, loadDeals, saveDeals, type Deal, type DealStage } from './analyze';
 import { investorProfile } from './myPlan';
-import { readConfirmed } from './calcConfirmation';
 import { CONTRACT_ROWS, calendarReady, sale90, capSid, challenge90Ahead, challengeEnded, sidDeadline, flipSaleLine, savePacket, irsWithoutRedemption, RECORDED_ROWS, sameEvent, windowEnded, sameDate, roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData } from './dealPacket';
 import { areasFor, loadLog, type EvidenceLog } from './evidence';
 import { loadOwned, type Owned } from './owned';
@@ -45,6 +44,12 @@ export function liveIn(d: { kind: Deal['kind']; plan?: Deal['plan']; id?: string
 }
 /** Whether to ask "do you live there?" for this property: a reader buying a home to live in, keeping one bought by offer. */
 export const asksHome = (d: { kind: Deal['kind']; plan?: Deal['plan']; id?: string; home?: Deal['home'] }) => d.plan === 'rent' && wayOf(d) === 'offer' && (!!investorProfile().ownerOccupant || !!d.home || (!!d.id && !!loadDeals().find((x) => x.id === d.id)?.home));
+/** Homes already bought with no answer yet keep the one they have now (so a later Decide change doesn't switch them). */
+export function settleHomes() {
+  const all = loadDeals();
+  const fix = all.filter((d) => (d.stage === 'closed' || d.stage === 'owned') && !d.home && asksHome(d));
+  if (fix.length) saveDeals(all.map((d) => (fix.includes(d) ? { ...d, home: liveIn(d) ? 'live' as const : 'rent' as const } : d)));
+}
 /** The tracker asks "Do you still live there?": rent recorded covers the costs, and this property has no answer yet. */
 export const trackerAsksHome = (d: { id: string; kind: Deal['kind']; plan?: Deal['plan']; home?: Deal['home'] }) => {
   if (d.home || (loadDeals().find((x) => x.id === d.id)?.home) || !asksHome(d)) return false;
@@ -126,8 +131,8 @@ const windowEndOf = (d: { id?: string }) => (d.id ? loadPacket(`analyzed:${d.id}
 export const SID_STANDS_ROW = 'Treasurer confirmed the sale stands';
 /** …or that the sale is void (the payoff wasn't made within 20 days). */
 export const SID_VOID_ROW = 'Treasurer: the sale is void';
-/** The price paid at a win is in Analyze (Fix and flip's "Check a bid", or Buy and hold's "Your bid"). */
-const winningBidTyped = (d: Deal) => { try { if (d.plan === 'flip') return flipBudget(d)?.source === 'yours'; const k = `fsf.calc.rent.${d.id}.v1`; return readConfirmed(k).has('atPrice'); } catch { return false; } };
+/** The reader entered the price paid at the win in Analyze (and said so). */
+export const WON_BID_ROW = 'Winning bid entered in Analyze';
 /** A Nevada tax sale's SID payoff after its 20 days: 'late' (no answer from the Treasurer yet), 'void', or ''. */
 export const sidState = (d: { id?: string; state?: Deal['state']; kind: Deal['kind'] }): '' | 'late' | 'void' => {
   if (!d.id || d.state !== 'NV' || d.kind !== 'taxSale') return '';
@@ -437,8 +442,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       if (sidLateRow) out.push(task({ key: 'sid-void', days: -1, label: `The SID payoff for ${n} is dated ${prettyDay(sidLateRow.when)}, after the 20-day deadline (${prettyDay(sidDeadline(p))}): ask the Treasurer in writing whether the sale stands*`, produces: 'a written answer from the Treasurer, in its evidence log. If the payoff wasn’t made within 20 days, the sale is void and the Treasurer may keep up to 10% of what you paid (NRS 361.595(6))', href: packetHref(d, 'dates'), tick: { label: 'The Treasurer confirmed in writing that the sale stands: mark it', row: SID_STANDS_ROW, who: 'The county treasurer' }, undo: { label: 'The Treasurer said the sale is void: mark it', removeRow: SID_VOID_ROW, addRow: { when: localDay(now), what: SID_VOID_ROW, who: 'The county treasurer', resolved: true } }, answer: true, urgent: true, support: [L.guides], done: p.dates.some((x) => sameDate(x.what, SID_STANDS_ROW) || sameDate(x.what, SID_VOID_ROW)) }));
       if (d.state === 'NV' && d.kind === 'taxSale' && p.dates.some((x) => sameDate(x.what, SID_VOID_ROW))) out.push(task({ key: 'sid-refund', days: -1, label: `The sale of ${n} is void: ask the Treasurer in writing for the rest of what you paid*`, produces: `the refund and a receipt, in its evidence log. The Treasurer may keep up to 10% of what you paid for administrative costs (NRS 361.595(6))${p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && x.resolved) ? '. Ask the city or county you paid for the SID certificate what happens to that payment*; your attorney can help' : ''}. Then mark it passed`, href: packetHref(d, 'dates'), tick: { label: 'I got the refund: mark it passed', row: 'Refund received from the Treasurer', who: 'The county treasurer', then: 'passed' }, answer: true, urgent: true, support: [L.guides], done: false }));
       if (d.state === 'NV' && d.kind === 'taxSale' && p.dates.some((x) => sameDate(x.what, SID_VOID_ROW))) return out;
-      if (w === 'auction' && (d.plan === 'flip' || d.plan === 'rent')) out.push(task({ key: 'won-price', label: `Enter your winning bid for ${n} in Analyze`, produces: `the price you paid, in “${d.plan === 'flip' ? 'Check a bid' : 'Your bid'}” under ${d.plan === 'flip' ? 'Fix and flip' : 'Buy and hold'}, so the packet’s cash and numbers use it instead of the opening bid`, href: '#/analyze', openDeal: true, support: [], done: winningBidTyped(d) }));
       if (w === 'auction' && !ev('insurance')) area('insurance', `Insure ${n} right away`, certificateFirst(d) ? 'a policy that covers your interest from the day of the sale (ask your insurance agent how to insure a certificate of sale)*, in its evidence log' : 'a policy in your name from the day you own it, in its evidence log', [L.pro('insurance')]);
+      if (w === 'auction' && (d.plan === 'flip' || d.plan === 'rent')) out.push(task({ key: 'won-price', label: `Enter your winning bid for ${n} in Analyze`, produces: `the price you paid, in ${d.plan === 'flip' ? '“Check a bid” under Fix and flip (it appears once the resale value is in)' : '“Your bid” under Buy and hold'}, so the packet’s cash and numbers use it instead of the opening bid. Then mark it here`, href: '#/analyze', openDeal: true, tick: { label: 'I entered my winning bid: mark it', row: WON_BID_ROW, who: 'Me' }, support: [], done: p.dates.some((x) => sameDate(x.what, WON_BID_ROW)) }));
       out.push(task({ key: 'dates', label: w === 'lien' ? `Put ${n}’s payment deadline on its calendar` : `Put ${n}’s payment and recording deadlines on its calendar`, produces: w === 'lien' ? 'the payment deadline and when you’ll receive the certificate, on one calendar' : d.kind === 'irs' && certificateFirst(d) ? 'the payment deadline and when you’ll receive the certificate of sale, on one calendar' : ca2924m ? 'the payment deadline and when the deed should be recorded, on one calendar; for a home of 1–4 units, also the eligible-bidder windows (15 and 45 days after the sale), since your win isn’t final until they close, unless an exception applies*' : certificateFirst(d) ? 'the payment deadline and when the certificate of sale should be recorded, on one calendar' : 'the payment deadline and when the deed or certificate should be recorded, on one calendar', href: packetHref(d, 'dates'), support: [L.guides], done: calendarComplete(p, stage) }));
       if (w === 'auction') {
         area('title', certificateFirst(d) ? `Have a title professional review ${n}’s certificate of sale` : `Have a title professional review ${n}’s deed`, certificateFirst(d) ? 'what the certificate gives you, what still stands against it, and when a deed can follow, in its evidence log' : 'what the deed gives you and what still stands against it, in its evidence log', [L.pro('title')]);
