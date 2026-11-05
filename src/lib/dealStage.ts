@@ -189,9 +189,9 @@ export const finishedDeal = (d: { id?: string }) => !!soldOf(d) || redeemedOf(d)
 export const deedInHand = (d: { kind: Deal['kind']; state?: Deal['state']; id?: string; plan?: Deal['plan'] }) => !!d.id && certificateFirst(d) && ticked(loadPacket(`analyzed:${d.id}`), DEED_AFTER_WAIT);
 
 /** The stage's name for this kind of sale (you make an offer on a listing, but bid at an auction) and plan. */
-export function stageLabel(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Deal['plan']; state?: Deal['state']; id?: string }): string {
+export function stageLabel(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: Deal['plan']; state?: Deal['state']; id?: string; stage?: DealStage }): string {
   const w = wayOf(d);
-  if (stage !== 'passed' && (d as { stage?: DealStage }).stage === stage && sidState(d) === 'void') return 'Void: refund due';
+  if (stage !== 'passed' && d.stage === stage && sidState(d) === 'void') return 'Void: refund due';
   switch (stage) {
     case 'researching': return 'Researching';
     case 'offer': return w === 'offer' ? 'Preparing an offer' : w === 'lien' && d.state === 'NV' ? 'Preparing for the sale' : 'Preparing to bid';
