@@ -459,7 +459,7 @@ export function FirstDealRoadmap() {
             <option value="">None yet (learning)</option>
             {/* A practice analysis isn't a property you work on (Analyze says so): only one already chosen stays listed. */}
             {/* Nor one you passed on (none of its tasks are next), unless it's the one shown. */}
-            {deals.filter((d) => (!d.practice && d.stage !== 'passed') || (deal && deal.id === `analyzed:${d.id}`)).map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : finishedDeal(d) ? ` (${stageLabel(stageOf(d), d).toLowerCase()})` : d.stage === 'passed' ? ' (passed)' : ''}</option>)}
+            {deals.filter((d) => (!d.practice && d.stage !== 'passed') || (deal && deal.id === `analyzed:${d.id}`)).map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : finishedDeal(d) ? ` (${stageLabel(stageOf(d), d).toLowerCase().replace(/ \((.*)\)$/, ', $1')})` : d.stage === 'passed' ? ' (passed)' : ''}</option>)}
           </select>
         </label>
         <p className="muted">

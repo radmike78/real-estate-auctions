@@ -93,7 +93,7 @@ export const RECORDED_ROWS = ['Deed recorded', 'Deed or certificate recorded', '
 const WINDOWS: { name: string; what: string; then: (kind?: string) => string; tick?: string }[] = [
   { name: 'Redemption period ends', what: 'the redemption period', tick: 'No one redeemed: mark it handled',
     then: (k) => `ask ${k === 'court' ? 'the sheriff’s civil office' : k === 'hoa' ? 'the HOA’s foreclosure agent' : k === 'irs' ? 'the IRS sale officer' : 'whoever ran the sale'} in writing whether anyone redeemed. If no one did, mark it handled and ask for the deed` },
-  { name: 'Challenge window ends', what: 'the challenge window', tick: 'No suit was filed: mark it handled', then: () => 'ask your title company or attorney whether any suit was filed. If not, mark it handled' },
+  { name: 'Challenge window ends', what: 'the challenge window', tick: 'No suit was filed: mark it handled', then: () => 'ask your title company or attorney whether any suit was filed, and whether the 90-day limit for anyone not properly notified (NRS 107.080(6)) still runs. If not, mark it handled' },
   { name: 'Recovery-suit window ends', what: 'the recovery-suit window', tick: 'No suit was filed: mark it handled', then: () => 'ask your title company or attorney whether any suit was filed. If not, mark it handled' },
   { name: 'Earliest you may act (unpaid lien)', what: 'the wait before you may act on an unpaid lien', then: () => 'if it’s still unpaid, ask your attorney about your next step, or mark it handled' },
 ];

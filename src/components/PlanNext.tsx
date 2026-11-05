@@ -87,6 +87,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   // The property My plan follows (none while a guided learner's property waits), as the roadmap below counts it.
   const prog = roadmapProgress(deal ? `analyzed:${deal.id}` : '');
   const chooseDeal = (v: string) => {
+    setFinishedNote('');
     write(DEAL_KEY, v || NO_DEAL);
     const d = deals.find((x) => `analyzed:${x.id}` === v);
     if (d) write(ROADMAP_PATH_KEY, pathForDeal(d));
@@ -148,7 +149,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
               <span>Property you’re working on</span>
               <select value={focus} onChange={(e) => chooseDeal(e.target.value)}>
                 <option value="">None yet (learning)</option>
-                {choices.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : finishedDeal(d) ? ` (${stageLabel(stageOf(d), d).toLowerCase()})` : d.stage === 'passed' ? ' (passed)' : ''}</option>)}
+                {choices.map((d) => <option key={d.id} value={`analyzed:${d.id}`}>{d.name}{d.practice ? " (practice)" : finishedDeal(d) ? ` (${stageLabel(stageOf(d), d).toLowerCase().replace(/ \((.*)\)$/, ', $1')})` : d.stage === 'passed' ? ' (passed)' : ''}</option>)}
               </select>
             </label>
             {(() => {
@@ -176,7 +177,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           <p className="plan-now-produces"><strong>You’ll have:</strong> {task.produces}.</p>
           <div className="plan-now-actions">
             {!(task.answer && deal) && <ContinueButton task={task} dealId={deal?.id} onPlan={onPlan} label={planStarted(now) ? undefined : 'Start'} />}
-            {deal && <TaskActions task={task} dealId={deal.id} big edit={(f) => { const k = `analyzed:${deal.id}`; savePacket(k, f(loadPacket(k))); progressChanged(); }} after={(el, done) => { if (done) { setFinishedNote(`${deal.name} is finished: ${stageLabel('passed', deal).toLowerCase()}. My plan has moved on to what’s next.`); setTimeout(() => document.getElementById('plan-finished-note')?.focus(), 0); } else { setFinishedNote(''); focusTaskIn(el.closest('.plan-now-actions')?.parentElement); } }} />}
+            {deal && <TaskActions task={task} dealId={deal.id} big edit={(f) => { const k = `analyzed:${deal.id}`; savePacket(k, f(loadPacket(k))); progressChanged(); }} after={(el, done) => { if (done) { setFinishedNote(finishedDeal(deal) ? `${deal.name} is finished: ${stageLabel('passed', deal).toLowerCase().replace(/ \((.*)\)$/, ', $1')}. My plan has moved on to what’s next.` : `You marked ${deal.name} passed. My plan has moved on to what’s next.`); setTimeout(() => document.getElementById('plan-finished-note')?.focus(), 0); } else { setFinishedNote(''); /* (stays on the deal just answered) */ write(DEAL_KEY, `analyzed:${deal.id}`); progressChanged(); focusTaskIn(el.closest('.plan-now-actions')?.parentElement); } }} />}
           </div>
           {task.support.length > 0 && (
             <details className="plan-now-support"><summary>Help with this step</summary><p>

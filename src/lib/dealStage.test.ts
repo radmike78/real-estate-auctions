@@ -414,7 +414,7 @@ describe('Nevada round 4 flow', () => {
     expect(windowEnded('Challenge window ends', 27)!.text).toBe('the challenge window ended 27 days ago');
     expect(windowEnded('Sale day', 2)).toBeNull();
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-08', what: 'Challenge window ends', who: 'Title company' }] };
-    expect(dealNextTask({ ...nvFlip, stage: 'closed' }, p, now, 'closed').label).toBe('The challenge window ended 28 days ago: ask your title company or attorney whether any suit was filed. If not, mark it handled.');
+    expect(dealNextTask({ ...nvFlip, stage: 'closed' }, p, now, 'closed').label).toBe('The challenge window ended 28 days ago: ask your title company or attorney whether any suit was filed, and whether the 90-day limit for anyone not properly notified (NRS 107.080(6)) still runs. If not, mark it handled.');
   });
 
   it('drops past registration and signing rows once they’re behind you, and keeps “It was redeemed” in the last week', () => {
@@ -499,7 +499,7 @@ describe('Nevada round 4 flow', () => {
   it('round 6 flow: work after the challenge window, SID payoff, paid tick, calendar review, deed tick', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'Trustee', resolved: true }, { when: '2026-09-20', what: 'Deed recorded', who: 'Trustee', resolved: true }] };
     const rep = stageTasks(nvFlip, 'closed', p, now).find((x) => x.key === 'repairs')!;
-    expect(rep.label).toMatch(/start the work after the challenge window ends \(2026-10-20\)/);
+    expect(rep.label).toMatch(/start the work after the challenge window ends \(2026-10-20, or 2026-11-30 if anyone wasn’t properly notified/);
     expect(stageTasks(nvFlip, 'closed', p, now).find((x) => x.key === 'window')!.produces).toMatch(/90 days after the sale \(2026-11-30\)/);
     const lien = { ...nvFlip, kind: 'lien' as const, plan: 'lien' as const };
     const hold = stageTasks(lien, 'owned', EMPTY_PACKET, now).find((x) => x.key === 'hold')!;
@@ -511,6 +511,16 @@ describe('Nevada round 4 flow', () => {
     const hoa = { ...nvFlip, kind: 'hoa' as const };
     const deedP = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Redemption period ends', who: 'Owner', resolved: true }] };
     expect(stageTasks(hoa, 'closed', deedP, now).find((x) => x.key === 'deed')!.tick?.label).toBe('I have the deed: mark it handled');
+  });
+
+  it('round 6 verifier: no sale-day reminder once won; the deed reminder carries its answer', () => {
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-06', what: 'Sale day', who: 'Trustee' }, { when: '2026-10-06', what: 'Payment deadline', who: 'Me' }] };
+    expect(dealNextTask(nvFlip, p, now, 'contract').label).toMatch(/Payment deadline/);
+    const hoa = { ...nvFlip, kind: 'hoa' as const };
+    const d = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Redemption period ends', who: 'Owner', resolved: true }, { when: '2026-10-04', what: 'Deed delivered (if no one redeemed)', who: 'Agent' }] };
+    const t = dealNextTask(hoa, d, now, 'closed');
+    expect(t.tick?.label).toBe('I have the deed: mark it handled');
+    expect(t.urgent).toBe(false);
   });
 
   it('says so when the deed row is ticked at a win', () => {

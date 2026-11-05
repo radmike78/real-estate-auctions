@@ -120,7 +120,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   };
   return (
     <div>
-      <p className="muted">{flip ? (budgetLine ?? 'Record what you pay each month, with $0 rent, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : projected === null ? 'Renting it out? Save this deal’s numbers in Keep and rent to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : `You planned on ${signed(projected)} a month of cash flow.`}</p>
+      {!o.sold && <p className="muted">{flip ? (budgetLine ?? 'Record what you pay each month, with $0 rent, and compare it yourself with the repairs and holding costs in Fix and sell (Analyze).') : projected === null ? 'Renting it out? Save this deal’s numbers in Keep and rent to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : `You planned on ${signed(projected)} a month of cash flow.`}</p>}
       {o.sold ? <p className="muted">Bought on {o.boughtOn}. Sold: the months you recorded are below.</p> : <div className="row owned-add">
         <label className="field"><span>Bought on</span><input id="owned-bought-on" type="date" value={o.boughtOn} max={today()} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
         <label className="field"><span>Month</span><input id="owned-month" type="month" value={month} onChange={(e) => setMonth(e.target.value)} /></label>
@@ -131,7 +131,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
       </div>}
       {(showBad(rent, 'rent') || showBad(costs, 'costs')) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
       {negative && <p className="caution small" role="alert">Enter rent and costs as $0 or more. Record a refund to a tenant as a cost.</p>}
-      <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs, management and utilities, and any money you moved into your repair savings.</p>
+      {!o.sold && <p className="small muted">Count everything you paid that month: the loan, taxes, insurance, HOA, repairs, management and utilities, and any money you moved into your repair savings.</p>}
       {s.months > 0 ? (
         <>
           <dl className="calc-kv">

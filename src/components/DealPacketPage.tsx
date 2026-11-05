@@ -118,7 +118,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <div className="packet-stage">
         <label className="field">
           <span>Where it stands</span>
-          <select value={stage} onChange={(e) => setDealStage(deal.id, e.target.value as DealStage)}>
+          <select value={stage} onChange={(e) => { const st = e.target.value as DealStage; /* Moved back off a repaid finish: the payoff isn't collected after all. */ if (st !== 'passed' && p.dates.some((x) => sameDate(x.what, REDEEMED_ROW) && x.resolved)) update({ dates: p.dates.map((x) => (sameDate(x.what, REDEEMED_ROW) ? { ...x, resolved: false } : x)) }, false); setDealStage(deal.id, st); }}>
             {DEAL_STAGES.map((st) => <option key={st} value={st}>{stageLabel(st, deal)}</option>)}
           </select>
         </label>
@@ -181,7 +181,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           {(() => {
             // Usual dates removed (or added since the packet was started): add back only those, at the end.
             // (Past the sale, not the dates already behind it; once redeemed, not the deed.)
-            const behind = behindStage(deal, stageOf(deal));
+            const behind = behindStage(deal, finishedDeal(deal) ? 'closed' : stageOf(deal));
             const redeemed = p.dates.some((x) => sameDate(x.what, REDEEMED_ROW));
             const missing = p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x.what, w)) && !behind.some((b) => sameDate(w, b)) && !(redeemed && sameDate(w, DEED_AFTER_WAIT))) : [];
             return missing.length ? <button type="button" className="btn btn-secondary" onClick={() => {
@@ -295,7 +295,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <section className="deal-setup packet-section" aria-labelledby="packet-owned">
         <h2 id="packet-owned">After you buy: actual results</h2>
         {/* A lien certificate earns interest, not rent: no monthly rent tracker. */}
-        {deal.kind === 'lien' ? <p>Holding the certificate? Keep the county’s certificate record, any later taxes you pay to protect it, and the payoff when the owner redeems, with your notes and the county’s receipts.</p> : <OwnedTracker deal={deal} />}
+        {deal.kind === 'lien' ? <p>{finishedDeal(deal) ? 'Paid off: keep the Treasurer’s payoff receipt with the certificate record for your taxes.' : 'Holding the certificate? Keep the county’s certificate record, any later taxes you pay to protect it, and the payoff when the owner redeems, with your notes and the county’s receipts.'}</p> : <OwnedTracker deal={deal} />}
       </section>
       <AdSpot spot="dealPacket" allow={analyzeAllowsAds(deal.kind)} />
       <p className="muted">This packet is not included in account saves. Download it to keep a copy; guest packets also stay in this browser. This packet records your own review; it doesn’t clear title or certify a deal.</p>

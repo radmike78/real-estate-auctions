@@ -541,7 +541,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             <ul>
               {saved.map((d) => (
                 <li key={d.id} className={d.id === deal.id ? 'on' : ''}>
-                  <button type="button" className="linkish" onClick={() => { try { localStorage.setItem(OPENED_KEY, JSON.stringify(d.id)); } catch { /* storage unavailable */ } const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); setDeal({ ...d, updatedAt: nextStamp(d.updatedAt) }); } else setDeal(d); }}>{d.name}{d.practice ? ' (practice)' : ''}{finishedDeal(d) ? ` (${stageLabel(stageOf(d), d).toLowerCase()})` : d.stage === 'passed' ? ' (passed)' : ''}</button>
+                  <button type="button" className="linkish" onClick={() => { try { localStorage.setItem(OPENED_KEY, JSON.stringify(d.id)); } catch { /* storage unavailable */ } const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); setDeal({ ...d, updatedAt: nextStamp(d.updatedAt) }); } else setDeal(d); }}>{d.name}{d.practice ? ' (practice)' : ''}{finishedDeal(d) ? ` (${stageLabel(stageOf(d), d).toLowerCase().replace(/ \((.*)\)$/, ', $1')})` : d.stage === 'passed' ? ' (passed)' : ''}</button>
                   <span className="muted"> · {countyName(d.county)}, {d.state}</span>
                   <button type="button" className="linkish danger" aria-label={`Delete ${d.name}`} onClick={() => remove(d.id)}>Delete</button>
                 </li>
