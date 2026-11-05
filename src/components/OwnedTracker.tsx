@@ -1,7 +1,7 @@
 import { calculatorInputError, midNumber, parseCalcInput } from './CalcFields';
 import { useEffect, useState } from 'react';
 import type { Deal } from '../lib/analyze';
-import { flipBudget, flipBudgetLine, flipSaleLine, loadPacket, sameEvent, savedNumbers } from '../lib/dealPacket';
+import { flipBudget, flipBudgetLine, flipSaleLine, loadPacket, sameDate, sameEvent, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
 import { setDealHome, sidState, trackerAsksHome, certificateFirst, finishedDeal, liveIn, prettyDay, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
@@ -34,6 +34,8 @@ const today = () => {
 
 /** The purchase date from its packet (the closing, the deed or the sale), else today. */
 function boughtDate(d: Deal): string {
+  // An auction: you bought it when you paid (the money went in at the sale, not when the deed came).
+  if (wayOf(d) !== 'offer') { const pk = loadPacket(`analyzed:${d.id}`); const paid = pk.dates.filter((x) => x.when && x.resolved && sameDate(x.what, 'Payment deadline')).map((x) => x.when).sort().pop() ?? pk.dates.find((x) => x.when && sameEvent(x.what, 'Sale day'))?.when; if (paid && paid <= today()) return paid; }
   const rows = loadPacket(`analyzed:${d.id}`).dates.filter((x) => x.when && (x.resolved || sameEvent(x.what, 'Closing')) && ['Closing', 'Deed recorded', 'Treasurer’s deed recorded', 'Certificate of sale recorded', 'Sale day'].some((n) => sameEvent(x.what, n)));
   const latest = rows.map((x) => x.when).sort().pop();
   return latest && latest <= today() ? latest : today();
@@ -149,7 +151,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
           <label className="check"><input type="radio" name={`still-home-${deal.id}`} onChange={() => { setDealHome(deal.id, 'rent'); setTimeout(() => { const h = document.getElementById('packet-owned'); if (h) { h.setAttribute('tabindex', '-1'); h.focus(); } }, 0); }} /> No, it’s a rental now</label>
         </fieldset>
       )}
-      {!o.sold && <p className="muted">{flip ? (budgetLine ?? 'Record what you pay each month, with $0 rent, and compare it yourself with the repairs and holding costs under Fix and flip in Analyze.') : liveIn(deal) && projected === null ? 'Record what your home costs each month (and any rent from a room or unit). Save its numbers in Analyze to compare with your plan.' : projected === null ? 'Renting it out? Save this deal’s numbers in Buy and hold to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : liveIn(deal) ? `You planned on about ${signed(-projected)} a month to live there (after any rent you collect).` : `You planned on ${signed(projected)} a month of cash flow.`}</p>}
+      {!o.sold && <p className="muted">{flip ? (budgetLine ?? 'Record what you pay each month, with $0 rent, and compare it yourself with the repairs and holding costs under Fix and flip in Analyze.') : liveIn(deal) && projected === null ? 'Record what your home costs each month (and any rent from a room or unit). Save its numbers in Analyze to compare with your plan.' : projected === null ? 'Renting it out? Save this deal’s numbers in Buy and hold to compare each month with your plan. Fixing it to sell? Record what you pay each month, with $0 rent.' : liveIn(deal) ? `You planned on about ${signed(-projected)} a month to live there (after any rent you collect)${(savedNumbers(deal).rent?.mi ?? 0) > 0 ? `, before mortgage insurance (about ${fmtMoney(Math.round(savedNumbers(deal).rent!.mi))} a month more)` : ''}.` : `You planned on ${signed(projected)} a month of cash flow.`}</p>}
       {o.sold ? <p className="muted">Bought on {prettyDay(o.boughtOn)}. Sold: the months you recorded are below.</p> : <div className="row owned-add">
         <label className="field"><span>Bought on</span><input id="owned-bought-on" type="date" value={o.boughtOn} max={today()} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
         <label className="field"><span>Month</span><input id="owned-month" type="month" value={month} min={o.boughtOn.slice(0, 7)} max={maxMonth} onChange={(e) => setMonth(e.target.value)} /></label>
@@ -193,7 +195,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
           <SoldForm o={o} put={put} deal={deal} />
         </>
       )}
-      {!o.sold && <p><button type="button" className="linkish" onClick={() => { if (!window.confirm('Stop tracking this property, delete its monthly records and move it back to before closing?')) return; put(null); if (['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'contract'); }}>I didn’t buy it, stop tracking</button></p>}
+      {!o.sold && o.months.length === 0 && stageOf(deal) !== 'owned' && <p><button type="button" className="linkish" onClick={() => { if (!window.confirm('Stop tracking this property, delete its monthly records and move it back to before closing?')) return; put(null); if (['closed', 'owned'].includes(stageOf(deal))) setDealStage(deal.id, 'contract'); }}>I didn’t buy it, stop tracking</button></p>}
     </div>
   );
 }

@@ -1087,7 +1087,8 @@ describe('Nevada round 4 flow', () => {
     const ip = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Inspection period ends', who: 'Me' }] };
     const it2 = dealNextTask(listing, ip, now, 'contract');
     expect(it2.label).toMatch(/inspection period for 2210 Mesa Verde Ln ended 5 days ago/);
-    expect(it2.tick?.label).toBe('Inspections done, or I cancelled in time: mark it handled');
+    expect(it2.tick?.label).toBe('Inspections done: mark it handled');
+    expect(it2.advance2).toMatchObject({ stage: 'passed', label: 'I cancelled in writing: mark it passed' });
     // NV sheriff: the sheriff files the certificate.
     const court = { ...nvFlip, kind: 'court' as const };
     expect(stageTasks(court, 'contract', EMPTY_PACKET, now).find((x) => x.key === 'record')!.label).toMatch(/the sheriff files a copy with the county recorder, NRS 21\.190/);
