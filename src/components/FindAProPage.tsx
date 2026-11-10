@@ -8,6 +8,8 @@ import TeamList from './TeamList';
 import ProDirectory, { useDirectory } from './ProDirectory';
 import { FeaturedAds, RotatingAd } from './AdBoxes';
 import { AreaLine } from './AreaPicker';
+import { useMyArea } from '../lib/myArea';
+import { prosInArea } from '../lib/adAreas';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPercent, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 import { guidesFor, stateOf } from '../lib/playbooks';
@@ -304,8 +306,15 @@ export default function FindAProPage({ section }: { section?: string }) {
   const build = section === 'build';
   useLastActivity(open ? `#/pros/${section}` : '#/pros', open ? `Your team: ${proGuideByKey(section!)!.title}` : 'Your team');
   const all = !open && !build; // the full page: #/pros (and the old #/pros/all)
-  const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
   const [mine, setMine] = useMyState();
+  // Each role's tile names how many of that kind of professional are listed near the reader: their chosen city or
+  // county, else Las Vegas for Nevada (real listings only; sample profiles never count).
+  const { pros: listedPros } = useDirectory();
+  const [myArea] = useMyArea();
+  const near = myArea?.county ? myArea : (myArea?.state ?? mine) === 'NV' ? { state: 'NV' as StateCode, county: 'Clark', city: 'Las Vegas' } : null;
+  const nearName = near ? near.city ?? `${near.county} County` : '';
+  const listedFor = (g: ProGuide) => (near && g.directory ? prosInArea(listedPros.filter((x) => !x.isSample && g.directory!.includes(x.category)), near).length : 0);
+  const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: listedFor(g) ? <>{g.summary} <strong className="drill-listed">{listedFor(g)} listed in {nearName}&nbsp;→</strong></> : g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
   // The lien deal you're working on can be in Nevada or Arizona while your own state is another: its lien team is
   // offered too (the same state practiceState() gives the roadmap's lien practice).
   const teamGuides = () => {

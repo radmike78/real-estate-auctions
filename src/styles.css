@@ -3052,3 +3052,4 @@ main h1[tabindex="-1"]:focus:not(:focus-visible), main h2[tabindex="-1"]:focus:n
 /* The redemption rule's "I've checked the records" box: on its own line, with a target big enough to tap. */
 .calc-check-block { display: flex; gap: 10px; align-items: flex-start; margin-top: 10px; }
 .calc-check-block input[type="checkbox"] { width: 22px; height: 22px; flex: none; margin: 1px 0 0; }
+.drill-listed { display: block; margin-top: 6px; color: var(--accent-strong); font-weight: 700; }
