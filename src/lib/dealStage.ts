@@ -408,7 +408,7 @@ export interface PlanTask {
 
 const packetHref = (d: Deal, section: string) => `#/deals/packet/${d.id}/${section}`;
 /** My plan, opened at a roadmap step. */
-const stepHref = (id: string) => `#/toolkit/roadmap?step=${encodeURIComponent(id)}`;
+const stepHrefFor = (id: string, dealId?: string) => `#/toolkit/roadmap?${dealId ? `deal=${encodeURIComponent(`analyzed:${dealId}`)}&` : ''}step=${encodeURIComponent(id)}`;
 const ROADMAP_HREF = '#/toolkit/roadmap';
 const L = {
   analyze: { label: 'Lesson: Analyzing a deal', href: '#/learn/analyze' },
@@ -456,6 +456,8 @@ function task(t: Omit<PlanTask, 'text' | 'support'> & { support?: Support[]; tex
  * never done: it's the event that moves the deal on.
  */
 export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date(), log: EvidenceLog = loadLog(`analyzed:${d.id}`), owned: Record<string, Owned> = loadOwned()): PlanTask[] {
+  // (A step link names this property, so the roadmap opens on it.)
+  const stepHref = (id: string) => stepHrefFor(id, d.id);
   const n = d.name || 'this property';
   const w = wayOf(d);
   const ev = (k: string) => !!log.rows[k]?.done;
@@ -827,7 +829,8 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
   const tasks = stageTasks(d, stage, p, now);
   // An offer's closing marked handled: "It closed" comes first.
   if (stage === 'contract' && wayOf(d) === 'offer' && closingDoneIn(p, now)) { const c = tasks.find((x) => x.key === 'close'); if (c) return c; }
-  const t = tasks.find((x) => !x.done) ?? tasks[tasks.length - 1];
+  // (The winning bid, while it still needs numbers in Analyze, waits behind the sale's own steps.)
+  const t = tasks.find((x) => !x.done && !(x.key === 'won-price' && !x.tick)) ?? tasks.find((x) => !x.done) ?? tasks[tasks.length - 1];
   // Every date it needs is in: what's left is the review for this stage.
   if (t.key === 'dates' && !t.done && calendarReady(forCalendar(d, p, stage), stage)) return { ...t, label: `Confirm ${d.name || 'this property'}’s calendar for this stage`, produces: 'a tick on “I checked every deadline for this stage” under Key dates, once each date matches the official notice or contract', text: `Confirm ${d.name || 'this property'}’s calendar for this stage.` };
   return t;

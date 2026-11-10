@@ -292,7 +292,7 @@ it('walks a Nevada HOA sale through the certificate, the redemption wait and the
 
 it('opens the roadmap step a deal task is backed by', () => {
   const hoa: Deal = { ...deal, id: 'dh2', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip' };
-  expect(stageTasks(hoa, 'closed', EMPTY_PACKET, now).find((t) => t.key === 'first-week')?.href).toBe('#/toolkit/roadmap?step=first-week');
+  expect(stageTasks(hoa, 'closed', EMPTY_PACKET, now).find((t) => t.key === 'first-week')?.href).toBe('#/toolkit/roadmap?deal=analyzed%3Adh2&step=first-week');
 });
 
 it('an IRS sale with "No redemption" picked gets the deed at once; a ticked deed row is enough', () => {
