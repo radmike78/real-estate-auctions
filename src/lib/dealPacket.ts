@@ -17,7 +17,7 @@ import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
-import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat } from './dealStage';
+import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -801,7 +801,7 @@ export function flipSaleLine(d: Deal): string | null {
     if (!o) return [] as string[];
     const out: string[] = [];
     const end = sold.on.slice(0, 7);
-    for (let [y, m] = o.boughtOn.slice(0, 7).split('-').map(Number), i = 0; i < 600; i++) {
+    for (let [y, m] = firstFullMonth(o), i = 0; i < 600; i++) {
       const k = `${y}-${String(m).padStart(2, '0')}`;
       if (k > end || k >= `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`) break;
       if (!o.months.some((x) => x.month === k)) out.push(k);
@@ -967,7 +967,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const strategyLine = liveIn(d) && d.plan === 'rent' ? 'a home you’ll live in (worked out in Analyze’s Buy and hold tab)' : strategy;
   const cash: string[] = [];
   if (offer) {
-    cash.push(p.earnest ? (stageOf(d) === 'passed' && !finishedDeal(d) ? `Earnest money: ${money(p.earnest)} (if you cancelled in time, get it back from escrow)` : ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? `Earnest money: ${money(p.earnest)} (paid; credited at closing per your closing statement)` : `By the contract's deposit deadline: ${money(p.earnest)} earnest money`) : p.dates.some((x) => sameEvent(x.what, 'Earnest money due') && x.resolved) ? 'Earnest money: sent (the amount isn’t entered; add it under Earnest money deposit)' : stageOf(d) === 'passed' || ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? 'Earnest money: none recorded' : 'By the contract’s deposit deadline: earnest money (enter it in the Cash part of the packet)');
+    cash.push(p.earnest ? (stageOf(d) === 'passed' && !finishedDeal(d) ? `Earnest money: ${money(p.earnest)} (if you cancelled in time, ask escrow to return it*)` : ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? `Earnest money: ${money(p.earnest)} (paid; credited at closing per your closing statement)` : `By the contract's deposit deadline: ${money(p.earnest)} earnest money`) : p.dates.some((x) => sameEvent(x.what, 'Earnest money due') && x.resolved) ? 'Earnest money: sent (the amount isn’t entered; add it under Earnest money deposit)' : stageOf(d) === 'passed' || ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? 'Earnest money: none recorded' : 'By the contract’s deposit deadline: earnest money (enter it in the Cash part of the packet)');
     if (p.optionFee && d.state === 'TX') cash.push(`By the contract's fee deadline, if applicable: ${money(p.optionFee)} option fee, recorded separately from earnest money.`);
     if (!['closed', 'owned', 'passed'].includes(stageOf(d)) && !finishedDeal(d)) cash.push(d.state === 'TX' ? 'A deposit or fee may be credited toward the purchase. Confirm its treatment with your title or escrow professional; do not add an amount twice.' : 'Your earnest money is usually credited toward the purchase at closing. Confirm with your title or escrow professional; don’t count it twice.');
   }
@@ -1167,7 +1167,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     status: answered.length && !waiting.length ? 'done' : p.qa.length ? 'started' : 'missing',
     lines: p.qa.length
       ? p.qa.filter((x) => x.q).map((x) => `${proGuideByKey(x.role as never) ? roleTitleFor(d, x.role as never) : 'Other'}: ${x.q} → ${x.a ? `${x.a}${x.on ? ` (${prettyDay(x.on)})` : ''}` : 'waiting for an answer'}`)
-      : stageOf(d) === 'passed' && !finishedDeal(d) ? ['Nothing was recorded here before you passed.'] : stageOf(d) === 'contract' && !isOffer(d) ? [`Nothing was recorded here before you ${d.kind === 'lien' ? 'were picked' : 'won'}. Add a question if you want it on file.`] : ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? [`Nothing was recorded here before ${beforeWhat(d)}. Add a question if you want it on file.`] : [`Write down the question this deal raises for each of: ${teamRolesFor(d).map((k) => roleTitleFor(d, k)).join(', ')}. Add any other professional you’ll use.`],
+      : stageOf(d) === 'passed' && !finishedDeal(d) ? ['Nothing was recorded here before you passed.'] : stageOf(d) === 'contract' && !isOffer(d) ? [`Nothing was recorded here before ${beforeWhat(d)}. Add a question if you want it on file.`] : ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? [`Nothing was recorded here before ${beforeWhat(d)}. Add a question if you want it on file.`] : [`Write down the question this deal raises for each of: ${teamRolesFor(d).map((k) => roleTitleFor(d, k)).join(', ')}. Add any other professional you’ll use.`],
   });
 
   // 8. Decision

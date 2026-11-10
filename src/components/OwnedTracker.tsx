@@ -18,7 +18,8 @@ export function useOwned(): Record<string, Owned> {
   useEffect(() => {
     const on = () => setAll(loadOwned());
     window.addEventListener(OWNED_EVENT, on);
-    return () => window.removeEventListener(OWNED_EVENT, on);
+    window.addEventListener('storage', on);
+    return () => { window.removeEventListener(OWNED_EVENT, on); window.removeEventListener('storage', on); };
   }, []);
   return all;
 }
@@ -107,7 +108,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const budget = flipBudget(deal);
   const budgetLine = flipBudgetLine(deal);
   const put = (next: Owned | null) => {
-    const copy = { ...all };
+    // (From storage now, not this page's copy: another tab may have recorded another property since.)
+    const copy = { ...loadOwned() };
     if (next) copy[deal.id] = next;
     else delete copy[deal.id];
     saveOwned(copy);
@@ -159,7 +161,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   return (
     <div>
       {/^\d{4}-\d{2}$/.test(month) && month > maxMonth && <p className="caution" role="note">That month isn’t over yet: record it once it ends.</p>}
-      {month === '' && !o.sold && <p className="muted" role="note">{o.months.length ? 'Every finished month is recorded. Come back once this month ends, or pick an earlier month to change it.' : `Your first month ends ${prettyDay((() => { const [y, m] = o.boughtOn.split('-').map(Number); const t = new Date(y, m, 0); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })())}. Come back after that to record what it ${liveIn(deal) ? 'cost' : 'brought in and cost'}.`}</p>}
+      {month === '' && !o.sold && <p className="muted" role="note">{o.months.length ? 'Every finished month is recorded. Come back once this month ends, or pick an earlier month to change it.' : `Your first month ends ${prettyDay((() => { const [y, m] = firstFullMonth(o); const t = new Date(y, m, 0); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })())}. Come back after that to record what it ${liveIn(deal) ? 'cost' : 'brought in and cost'}.`}</p>}
       {/^\d{4}-\d{2}$/.test(month) && month < o.boughtOn.slice(0, 7) && <p className="caution" role="note">That month is before you bought it ({prettyDay(o.boughtOn)}): pick a later month.</p>}
       {o.months.some((m) => m.month < o.boughtOn.slice(0, 7)) && <p className="caution" role="note">{o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).map((m) => monthWords(m.month)).join(', ')} {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'is' : 'are'} before the date you bought it ({prettyDay(o.boughtOn)}): remove {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'it' : 'them'} or check the date.</p>}
       {!rentCovers && deal.home === 'live' && deal.homeFrom !== 'plan' && s.months > 0 && s.rent > 0 && s.rent >= s.costs && <p className="muted small">Rent now covers this home’s costs. Still your home? You can change it under “Your plan and buy box”.</p>}

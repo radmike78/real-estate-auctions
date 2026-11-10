@@ -263,6 +263,10 @@ function decideRoute(): RoadmapPath | null {
 }
 
 /** Roadmap progress kept for one property (steps 4 to 7). */
+/** A property picked by hand: a step link's ?deal= in the address no longer applies. */
+export function dropLinkedDeal() {
+  try { const u = new URL(window.location.href); if (u.searchParams.has('deal')) { u.searchParams.delete('deal'); u.searchParams.delete('step'); window.history.replaceState(window.history.state, '', u.toString()); } } catch { /* no address */ }
+}
 /** A step link that names a property (?deal=analyzed:<id>), clicked: My plan works on that property, so the step opens on it. */
 export function adoptLinkedDeal(search: string) {
   try {

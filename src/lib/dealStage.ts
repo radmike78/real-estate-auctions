@@ -177,7 +177,7 @@ export function settleStepRow(dealKey: string, stepId: string): string {
 /** The first month to record: the purchase month if bought on the 1st (or it's already recorded), else the next one. */
 export const firstFullMonth = (o: { boughtOn: string; months: { month: string }[] }): [number, number] => { let [y, m] = o.boughtOn.slice(0, 7).split('-').map(Number); if (Number(o.boughtOn.slice(8, 10)) > 1 && !o.months.some((x) => x.month === o.boughtOn.slice(0, 7))) { m += 1; if (m > 12) { m = 1; y += 1; } } return [y, m]; };
 /** What the records came before: the sale (void), being picked (a lien), the win (an auction won or redeemed), else the purchase. */
-export const beforeWhat = (d: Deal) => (sidState(d) === 'void' ? 'the sale' : d.kind === 'lien' ? 'you were picked' : wayOf(d) !== 'offer' && (stageOf(d) === 'contract' || redeemedOf(d)) ? 'you won' : 'you bought');
+export const beforeWhat = (d: Deal) => (sidState(d) === 'void' ? 'the sale' : d.kind === 'lien' ? 'you were picked' : wayOf(d) !== 'offer' && (stageOf(d) === 'contract' || redeemedOf(d) || (certificateFirst(d) && !!d.id && redeemedIn(loadPacket(`analyzed:${d.id}`)))) ? 'you won' : 'you bought');
 /** The packet parts that, at this stage, are records from before you bought (the page and the download agree). */
 export const recordParts = (d: Deal) => (sidState(d) === 'void' || ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? ['plan', 'property', 'cash', 'numbers', 'evidence', 'pros', 'decision'] : stageOf(d) === 'contract' && !paidAtWin(d) ? ['plan', 'property', 'numbers', 'pros', 'decision'] : ['plan', 'property', 'cash', 'numbers', 'pros', 'decision']);
 /** A passed offer's earnest money, back from escrow. */

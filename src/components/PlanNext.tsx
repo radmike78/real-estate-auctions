@@ -18,7 +18,7 @@ import { DECIDE_KEY, rank, type Answers } from '../lib/decide';
 import { currentProgress, getMode } from '../lib/journey';
 import { ROADMAP_PHASES, roadmapFor } from '../lib/roadmap';
 import { DEAL_KEY } from '../lib/roadmapDeals';
-import { focusDealId, NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_PATH_KEY, roadmapProgress, settledFor } from '../lib/roadmapState';
+import { focusDealId, NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_PATH_KEY, roadmapProgress, settledFor, dropLinkedDeal } from '../lib/roadmapState';
 
 /** The top strategy from a finished Decide quiz, so "Your goal" points forward instead of back to the quiz. */
 function decidedPick(): string | null {
@@ -87,6 +87,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   // The property My plan follows (none while a guided learner's property waits), as the roadmap below counts it.
   const prog = roadmapProgress(deal ? `analyzed:${deal.id}` : '');
   const chooseDeal = (v: string) => {
+    dropLinkedDeal();
     setFinishedNote('');
     write(DEAL_KEY, v || NO_DEAL);
     // (Home has no list of deals: look it up, so the route follows the property there too.)
