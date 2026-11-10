@@ -465,7 +465,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   else if (typedWait(d)) out.push('Redemption period ends');
   // Then the deed, if no one redeemed (NRS 116.31166(7); NRS 21.220(4); 26 U.S.C. 6338(b)).
   if (certFirst && out.includes('Redemption period ends')) out.push('Deed delivered (if no one redeemed)');
-  const deedRow = certFirst ? { what: 'Deed delivered (if no one redeemed)', when: `After the redemption period, if no one redeemed${d.kind === 'irs' ? ': hand in the certificate of sale for the deed' : ''}.`, who: d.kind === 'hoa' ? 'The person who conducted the sale (the HOA’s agent)' : d.kind === 'irs' ? 'The IRS' : 'The sheriff', todo: 'Record the deed and get title insurance before you remodel or sell. If it was redeemed instead, you’re repaid your price plus what the law adds: use the “Was it redeemed? Collect the payoff” button in Your next action, then “I was repaid” once you have it.', missed: d.kind === 'hoa' ? 'Ask the HOA’s agent who ran the sale when the deed will be delivered.' : d.kind === 'irs' ? 'Ask the IRS sale officer when the deed will be delivered.' : 'Ask the sheriff’s civil office when the deed will be delivered.', why: d.kind === 'hoa' ? 'NRS 116.31166(5) and (7)' : d.kind === 'irs' ? '26 U.S.C. 6338(b)' : 'NRS 21.220(4) and (5)' } : null;
+  const deedRow = certFirst ? { what: 'Deed delivered (if no one redeemed)', when: `After the redemption period, if no one redeemed${d.kind === 'irs' ? ': hand in the certificate of sale for the deed' : ''}.`, who: d.kind === 'hoa' ? 'The person who conducted the sale (the HOA’s agent)' : d.kind === 'irs' ? 'The IRS' : 'The sheriff', todo: 'Record the deed and get title insurance before you remodel or sell. If it was redeemed instead, you’re repaid your price plus what the law adds: use the redemption button in Your next action (“It was redeemed” or “Was it redeemed?”), then “I was repaid” once you have it.', missed: d.kind === 'hoa' ? 'Ask the HOA’s agent who ran the sale when the deed will be delivered.' : d.kind === 'irs' ? 'Ask the IRS sale officer when the deed will be delivered.' : 'Ask the sheriff’s civil office when the deed will be delivered.', why: d.kind === 'hoa' ? 'NRS 116.31166(5) and (7)' : d.kind === 'irs' ? '26 U.S.C. 6338(b)' : 'NRS 21.220(4) and (5)' } : null;
   // When the owner's period starts, where the rule says (not under a United States redemption, which has its own).
   const ownerRule = !['usCourt', 'usFederal'].includes(savedRule(d) ?? '');
   // Nevada (leg.state.nv.us): an HOA sale's owner or a junior lienholder may redeem within 60 days (NRS 116.31166(3)), a
@@ -803,7 +803,7 @@ export function flipSaleLine(d: Deal): string | null {
     const end = sold.on.slice(0, 7);
     for (let [y, m] = o.boughtOn.slice(0, 7).split('-').map(Number), i = 0; i < 600; i++) {
       const k = `${y}-${String(m).padStart(2, '0')}`;
-      if (k >= end) break;
+      if (k > end) break;
       if (!o.months.some((x) => x.month === k)) out.push(k);
       m += 1; if (m > 12) { m = 1; y += 1; }
     }
@@ -964,7 +964,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const strategyLine = liveIn(d) && d.plan === 'rent' ? 'a home you’ll live in (worked out in Analyze’s Buy and hold tab)' : strategy;
   const cash: string[] = [];
   if (offer) {
-    cash.push(p.earnest ? `By the contract's deposit deadline: ${money(p.earnest)} earnest money` : stageOf(d) === 'passed' ? 'Earnest money: none recorded' : 'By the contract’s deposit deadline: earnest money (enter it in the Cash part of the packet)');
+    cash.push(p.earnest ? `By the contract's deposit deadline: ${money(p.earnest)} earnest money` : stageOf(d) === 'passed' || ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? 'Earnest money: none recorded' : 'By the contract’s deposit deadline: earnest money (enter it in the Cash part of the packet)');
     if (p.optionFee && d.state === 'TX') cash.push(`By the contract's fee deadline, if applicable: ${money(p.optionFee)} option fee, recorded separately from earnest money.`);
     cash.push(d.state === 'TX' ? 'A deposit or fee may be credited toward the purchase. Confirm its treatment with your title or escrow professional; do not add an amount twice.' : 'Your earnest money is usually credited toward the purchase at closing. Confirm with your title or escrow professional; don’t count it twice.');
   }
@@ -1196,7 +1196,7 @@ export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   lines.push(`STAGE: ${stageLabel(stageOf(d), d)}`, `NEXT ACTION: ${nextAction(d, p, now).text}`, ...(flipSaleLine(d) ? [`SALE: ${flipSaleLine(d)}`] : []), '');
   for (const s of packetSections(d, p, now)) {
     lines.push(`${s.title.toUpperCase()} [${s.key === 'dates' && (stageOf(d) === 'passed' || !!loadOwned()[d.id]?.sold || finishedDeal(d)) && p.dates.length ? 'kept as a record' : s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : stageOf(d) === 'passed' && sidState(d) !== 'void' && !finishedDeal(d) && (s.key !== 'dates' || !p.dates.length) && s.key !== 'decision' ? 'not needed (you passed)' : pastSale && recordParts(d).includes(s.key) ? (s.status === 'missing' ? 'left blank: from before you bought' : 'partly filled in: from before you bought') : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines);
-    if (s.key === 'dates' && stageOf(d) !== 'passed' && dateGuideLines(d).length) lines.push(`What the less familiar ${d.state === 'TX' ? (isOffer(d) ? 'Texas contract ' : 'Texas ') : ''}dates mean (${isOffer(d) ? 'the signed contract wins' : 'the official notice wins'}):`, ...dateGuideLines(d).map((l) => `- ${l}`));
+    if (s.key === 'dates' && stageOf(d) !== 'passed' && !loadOwned()[d.id]?.sold && !finishedDeal(d) && dateGuideLines(d).length) lines.push(`What the less familiar ${d.state === 'TX' ? (isOffer(d) ? 'Texas contract ' : 'Texas ') : ''}dates mean (${isOffer(d) ? 'the signed contract wins' : 'the official notice wins'}):`, ...dateGuideLines(d).map((l) => `- ${l}`));
     lines.push('');
   }
   const own = loadOwned()[d.id];

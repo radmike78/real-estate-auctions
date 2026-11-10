@@ -276,6 +276,8 @@ function adoptLinkedDeal() {
     const k = new URLSearchParams(q).get('deal');
     if (!k || adoptedLink === q) return;
     adoptedLink = q;
+    // (Once per tab for a link: reloading it later doesn't undo a property you picked since.)
+    try { const seen = sessionStorage.getItem('deedowl.adopted-link.v1'); if (seen === q) return; sessionStorage.setItem('deedowl.adopted-link.v1', q); } catch { /* storage unavailable */ }
     const d = loadAnalyzed().find((x) => `analyzed:${x.id}` === k);
     if (!d) return;
     write(DEAL_KEY, k);

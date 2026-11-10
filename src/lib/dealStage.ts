@@ -64,6 +64,8 @@ export function settleHomes() {
   if (localStorage.getItem(HOMES_SETTLED_KEY)) return;
   localStorage.setItem(HOMES_SETTLED_KEY, '1');
   const all = loadDeals();
+  // (Decide skipped: nothing to keep; the property asks instead.)
+  if (!decideAnswered()) return;
   const fix = all.filter((d) => (d.stage === 'closed' || d.stage === 'owned') && !d.home && d.plan === 'rent' && wayOf(d) === 'offer');
   if (fix.length) saveDeals(all.map((d) => (fix.includes(d) ? { ...d, home: liveIn(d) ? 'live' as const : 'rent' as const, homeFrom: 'plan' as const } : d)));
 }
@@ -830,7 +832,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
   // An offer's closing marked handled: "It closed" comes first.
   if (stage === 'contract' && wayOf(d) === 'offer' && closingDoneIn(p, now)) { const c = tasks.find((x) => x.key === 'close'); if (c) return c; }
   // (The winning bid, while it still needs numbers in Analyze, waits behind the sale's own steps.)
-  const t = tasks.find((x) => !x.done && !(x.key === 'won-price' && !x.tick)) ?? tasks.find((x) => !x.done) ?? tasks[tasks.length - 1];
+  const t = tasks.find((x) => !x.done && !(stage === 'contract' && x.key === 'won-price' && !x.tick)) ?? tasks.find((x) => !x.done) ?? tasks[tasks.length - 1];
   // Every date it needs is in: what's left is the review for this stage.
   if (t.key === 'dates' && !t.done && calendarReady(forCalendar(d, p, stage), stage)) return { ...t, label: `Confirm ${d.name || 'this property'}’s calendar for this stage`, produces: 'a tick on “I checked every deadline for this stage” under Key dates, once each date matches the official notice or contract', text: `Confirm ${d.name || 'this property'}’s calendar for this stage.` };
   return t;

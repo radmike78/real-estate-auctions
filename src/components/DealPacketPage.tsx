@@ -92,6 +92,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
   // (A void sale marked passed went past the sale too: its parts are records.)
   // Passed, sold or repaid: its dates are a record (the rows fold under "Edit these dates").
   const finalDeal = stageOf(deal) === 'passed' || !!soldOf(deal) || finishedDeal(deal);
+  const [editDates, setEditDates] = useState(false);
   const pastSale = ['closed', 'owned'].includes(stageOf(deal)) || finishedDeal(deal) || wonAuction || sidState(deal) === 'void';
   // The parts from before you bought: records now, not homework.
   // (After the closing or the deed, the evidence log and the questions were for before you bought: records too.)
@@ -101,7 +102,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
     return (
       <>
         <h2 id={`packet-${k}`}>
-          {s.title} {pastSale && RECORD_PARTS.includes(k) && s.status !== 'done' ? <span className="packet-status record">{s.status === 'missing' ? 'Left blank' : 'Partly filled in'}</span> : (stageOf(deal) === 'passed' && sidState(deal) !== 'void' && s.status !== 'done' && (k !== 'dates' || p.dates.length === 0) && k !== 'decision' ? <span className="packet-status record">Not needed (you passed)</span> : s.status === 'missing' && (stageOf(deal) === 'researching' || (wayOf(deal) === 'offer' && stageOf(deal) === 'offer' && k === 'dates')) ? <span className="packet-status record">{k === 'dates' && wayOf(deal) === 'offer' ? 'Not needed yet' : 'Not started'}</span> : <span className={`packet-status ${s.status}`}>{k === 'dates' && finalDeal && p.dates.length ? 'Kept as a record' : s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>)}
+          {s.title} {pastSale && RECORD_PARTS.includes(k) && s.status !== 'done' ? <span className="packet-status record">{s.status === 'missing' ? 'Left blank' : 'Partly filled in'}</span> : (stageOf(deal) === 'passed' && sidState(deal) !== 'void' && s.status !== 'done' && (k !== 'dates' || p.dates.length === 0) && k !== 'decision' ? <span className="packet-status record">Not needed (you passed)</span> : s.status === 'missing' && (stageOf(deal) === 'researching' || (wayOf(deal) === 'offer' && stageOf(deal) === 'offer' && k === 'dates')) ? <span className="packet-status record">{k === 'dates' && wayOf(deal) === 'offer' ? 'Not needed yet' : 'Not started'}</span> : <span className={`packet-status ${k === 'dates' && finalDeal && p.dates.length ? 'record' : s.status}`}>{k === 'dates' && finalDeal && p.dates.length ? 'Kept as a record' : s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>)}
         </h2>
         {pastSale && RECORD_PARTS.includes(k) && <p className="muted small">{sidState(deal) === 'void' ? 'From before the sale: kept as your records.' : deal.kind === 'lien' ? 'From before you were picked: kept as your records.' : 'From before you bought: kept as your records.'}</p>}
       </>
@@ -187,7 +188,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
 
       <section className="deal-setup packet-section" aria-labelledby="packet-dates">
         <Head k="dates" />
-        {stageOf(deal) === 'passed' ? (p.dates.length > 0 ? <p className="muted">Kept as a record of the dates you had when you passed.</p> : null) : <p className="muted">{wayOf(deal) === 'offer' ? (['researching', 'offer'].includes(stageOf(deal)) ? 'From the listing and your offer; once it’s signed, the contract wins over anything here.' : 'From the signed contract: the contract wins over anything here.') : 'From the official notice: the notice wins over anything here.'}</p>}
+        {finalDeal ? (p.dates.some((x) => x.when) ? <p className="muted">{stageOf(deal) === 'passed' ? 'Kept as a record of the dates you had when you passed.' : 'Kept as a record of this property’s dates.'}</p> : null) : <p className="muted">{wayOf(deal) === 'offer' ? (['researching', 'offer'].includes(stageOf(deal)) ? 'From the listing and your offer; once it’s signed, the contract wins over anything here.' : 'From the signed contract: the contract wins over anything here.') : 'From the official notice: the notice wins over anything here.'}</p>}
         {p.dates.length === 0 && <OwlNote>{stageOf(deal) === 'passed' ? 'No dates were added before you passed. Add one if you want it on file.' : wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'No dates yet. Nothing needs a date until your offer is accepted; then the contract’s deadlines go here.' : `No dates yet. Start with the usual dates for this kind of sale below (the ${wayOf(deal) === 'offer' ? 'signed contract' : 'official notice'} wins), then fill in each one.`}</OwlNote>}
         {(() => { const rows = (<>
         <ul className="packet-dates">
@@ -210,7 +211,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
             const behind = wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? [] : behindStage(deal, finishedDeal(deal) ? 'closed' : stageOf(deal));
             const redeemed = p.dates.some((x) => sameDate(x.what, REDEEMED_ROW));
             const missing = p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x.what, w)) && !behind.some((b) => sameDate(w, b)) && !(redeemed && sameDate(w, DEED_AFTER_WAIT)) && !(sidState(deal) === 'void' && (RECORDED_ROWS.some((r) => sameDate(w, r)) || sameDate(w, 'Recovery-suit window ends') || sameDate(w, 'SID certificate payoff'))) && !(sameDate(w, 'SID certificate payoff') && p.dates.some((x) => sameDate(x.what, NO_SID_ROW)))) : [];
-            return missing.length && stageOf(deal) !== 'passed' ? <button type="button" className="btn btn-secondary" onClick={() => {
+            return missing.length && !finalDeal ? <button type="button" className="btn btn-secondary" onClick={() => {
               // Each one after the nearest usual date before it that's still there (the list reads as a timeline).
               const usual = suggestedDates(deal);
               const rows = [...p.dates];
@@ -225,17 +226,17 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
               setTimeout(() => document.querySelectorAll<HTMLInputElement>('.packet-dates input[type="date"]')[first]?.focus(), 0);
             }}>Add the usual dates that are missing ({missing.length})</button> : null;
           })()}
-          <button type="button" className="btn btn-secondary" disabled={p.dates.length >= MAX_DATES} onClick={() => { const at = p.dates.length; update({ dates: [...p.dates, { when: '', what: '', who: '' }] }); setTimeout(() => document.querySelector<HTMLElement>(`[aria-label="Name of date ${at + 1}"]`)?.focus(), 0); }}>Add a date</button>
+          <button type="button" className="btn btn-secondary" disabled={p.dates.length >= MAX_DATES} onClick={() => { setEditDates(true); const at = p.dates.length; update({ dates: [...p.dates, { when: '', what: '', who: '' }] }); setTimeout(() => document.querySelector<HTMLElement>(`[aria-label="Name of date ${at + 1}"]`)?.focus(), 0); }}>Add a date</button>
           {p.dates.length >= MAX_DATES && <span className="muted small">{MAX_DATES} dates is the most a packet keeps: remove one you don’t need.</span>}
         </div>
-        </>); return finalDeal && p.dates.length ? <details><summary>Edit these dates</summary>{rows}</details> : rows; })()}
+        </>); return finalDeal && p.dates.length ? <details open={editDates} onToggle={(e) => setEditDates(e.currentTarget.open)}><summary>Edit these dates</summary>{rows}</details> : rows; })()}
         {p.dates.length > 0 && !finalDeal && !(wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal))) && sidState(deal) !== 'void' && <>
         <label className="check packet-reviewed"><input type="checkbox" checked={p.calendarReviewedFor === stageOf(deal)} disabled={!calendarReady(forCalendar(deal, p, stageOf(deal)), stageOf(deal))} onChange={(e) => update({ calendarReviewedFor: e.target.checked ? stageOf(deal) : undefined })} /> <strong>I checked every deadline for this stage against the {wayOf(deal) === 'offer' ? 'signed contract' : 'official notice'}, including who acts and how notice must be delivered.</strong></label>
         <p className="muted small">{stageOf(deal) !== 'passed' && !calendarReady(forCalendar(deal, p, stageOf(deal)), stageOf(deal)) && <span>{p.dates.length === 0 ? (wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'Nothing needs a date until your offer is accepted. ' : 'Add this sale’s dates first: use “Start with the usual dates for this sale” above. ') : `${(() => { const miss = calendarRows(forCalendar(deal, p, stageOf(deal)), stageOf(deal)).filter((x) => !dateRowComplete(x)); const noDate = miss.filter((x) => !x.when || !x.what.trim()).map((x) => x.what || 'an unnamed date'); const noWho = miss.filter((x) => x.when && x.what.trim()).map((x) => x.what); return [noDate.length ? `No date yet: ${noDate.join('; ')}.` : '', noWho.length ? `Who handles it is still blank for: ${noWho.join('; ')}.` : ''].filter(Boolean).join(' '); })()} `}{wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) && p.dates.length === 0 ? null : <>Fill in the date, task and who handles it for every entry first; a date marked “(if …)” {['researching', 'offer'].includes(stageOf(deal)) ? (wayOf(deal) === 'offer' ? 'and the contract’s dates (until your offer is accepted)' : 'and the dates after the sale') : 'and one that counts from a later event'} can stay blank for now.</>}</span>}</p>
         </>}
         {p.dates.length > 0 && !finalDeal && <p className="muted small">Past dates stay open until you mark them handled. Confirm completion or an agreed resolution with your team, and remove entries that do not apply. Ask your {wayOf(deal) === 'offer' ? 'agent' : 'title company'} or attorney to confirm the calendar.{!(wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal))) && sidState(deal) !== 'void' ? ' Adding or changing a date requires another review.' : ''}</p>}
         {!(stageOf(deal) === 'passed' && p.dates.length === 0) && <Lines k="dates" />}
-        {guideRows.length > 0 && (
+        {guideRows.length > 0 && !finalDeal && (
           <>
             <details><summary>What the less familiar {deal.state === 'TX' ? (['listing', 'reo', 'short'].includes(deal.kind) ? 'Texas contract ' : 'Texas ') : ''}dates mean</summary>
             <div className="table-wrap">

@@ -638,7 +638,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         )}
         {livesHere && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
         <AtThisPrice v={v} start={noReal ? NaN : r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} targetTyped={typedKeys.has('targetCocPct')} dscrTyped={typedKeys.has('minDscr')} rentTyped={!exactKey || typedKeys.has('monthlyRent')} living={livesHere} />
-        {living ? (
+        {living && bought ? null : living ? (
           <details className="calc-assumptions">
             <summary>{r.limitedBy === 'dscr' ? `Investor yardstick: the most an investor’s loan allows at ${v.minDscr}× income coverage` : `Investor yardstick: the price that meets an investor’s ${v.targetCocPct}% return`}</summary>
             <p className="muted small">You plan to live there, so this isn’t your limit: it’s what an investor renting out the whole property would pay for that return. Your own limit is the monthly cost you’re comfortable with and the loan your lender approves.</p>
