@@ -15,7 +15,8 @@ import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayer
 import { guidesFor, stateOf } from '../lib/playbooks';
 import { CURRENT_KEY, type Deal } from '../lib/analyze';
 import { COMMERCIAL_OFFER_ROLES, guideKeyFor } from '../lib/dealPacket';
-import { STATES, stateByCode, type StateCode } from '../lib/regions';
+import { STATES, stateByCode, countyName, type StateCode } from '../lib/regions';
+import { isListable } from '../lib/pros';
 import { LICENSE_LOOKUPS, type Lookup } from '../lib/licenseLookups';
 import { useMyState, forStateText, showFor, mentionsOtherState } from '../lib/myState';
 import { useMarkStep, stepEyebrow } from '../lib/path';
@@ -312,9 +313,9 @@ export default function FindAProPage({ section }: { section?: string }) {
   const { pros: listedPros } = useDirectory();
   const [myArea] = useMyArea();
   const near = myArea?.county ? myArea : (myArea?.state ?? mine) === 'NV' ? { state: 'NV' as StateCode, county: 'Clark', city: 'Las Vegas' } : null;
-  const nearName = near ? near.city ?? `${near.county} County` : '';
-  const listedFor = (g: ProGuide) => (near && g.directory ? prosInArea(listedPros.filter((x) => !x.isSample && g.directory!.includes(x.category)), near).length : 0);
-  const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: listedFor(g) ? <>{g.summary} <strong className="drill-listed">{listedFor(g)} listed in {nearName}&nbsp;→</strong></> : g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
+  const nearName = near ? near.city ?? (near.county ? countyName(near.county) : '') : '';
+  const listedFor = (g: ProGuide) => (near && g.directory ? prosInArea(listedPros.filter((x) => !x.isSample && isListable(x) && g.directory!.includes(x.category)), near).length : 0);
+  const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: listedFor(g) ? <>{g.summary} <strong className="drill-listed">{listedFor(g)} listed in {nearName}</strong></> : g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
   // The lien deal you're working on can be in Nevada or Arizona while your own state is another: its lien team is
   // offered too (the same state practiceState() gives the roadmap's lien practice).
   const teamGuides = () => {
@@ -388,8 +389,8 @@ export default function FindAProPage({ section }: { section?: string }) {
                 <span>Or see who you need for one kind of sale:</span>
                 <select value={sale} onChange={(e) => setSale(e.target.value)}>
                   <option value="start">Kind of sale: not sure yet</option>
-                  <option value="listing">A listed home (through an agent)</option>
-                  <option value="commercial-offer">A commercial building you make an offer on (through a broker, or from a bank)</option>
+                  <option value="listing">A listed home (agent)</option>
+                  <option value="commercial-offer">A commercial building (offer)</option>
                   {teamGuides().map((p) => <option key={p.key} value={p.key}>{p.short}{/commercial$/.test(p.key) ? ' at a forced sale' : ''}{mine && !guidesFor(mine).includes(p) ? ` (${p.key === 'sid' ? 'Nevada' : 'Arizona'}, your lien deal)` : ''}</option>)}
                 </select>
               </label>

@@ -103,6 +103,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const [focusBox, setFocusBox] = useState<'rent' | 'costs' | null>(null);
   const [costs, setCosts] = useState('');
   const [note, setNote] = useState('');
+  // Another tab recorded the month shown here: move on to the next open month, unless you've started typing.
+  useEffect(() => { if (o && month && o.months.some((m) => m.month === month) && costs === '' && note === '' && (rent === '' || rent === (deal.plan === 'flip' ? '0' : ''))) setMonth(openMonth(o)); }, [o?.months.length]); // eslint-disable-line react-hooks/exhaustive-deps
   const projected = projectedMonthly(deal);
   const flip = deal.plan === 'flip';
   const budget = flipBudget(deal);
@@ -161,7 +163,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   return (
     <div>
       {/^\d{4}-\d{2}$/.test(month) && month > maxMonth && <p className="caution" role="note">That month isn’t over yet: record it once it ends.</p>}
-      {month === '' && !o.sold && <p className="muted" role="note">{o.months.length ? 'Every finished month is recorded. Come back once this month ends, or pick an earlier month to change it.' : `Your first month ends ${prettyDay((() => { const [y, m] = firstFullMonth(o); const t = new Date(y, m, 0); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })())}. Come back after that to record what it ${liveIn(deal) ? 'cost' : 'brought in and cost'}.`}</p>}
+      {month === '' && !o.sold && <p className="muted" role="note">{o.months.length ? 'Every finished month is recorded. Come back once this month ends, or pick an earlier month to change it.' : `Your first full month ends ${prettyDay((() => { const [y, m] = firstFullMonth(o); const t = new Date(y, m, 0); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })())}. Come back after that to record what it ${liveIn(deal) || deal.plan === 'flip' ? 'cost' : 'brought in and cost'}.`}</p>}
       {/^\d{4}-\d{2}$/.test(month) && month < o.boughtOn.slice(0, 7) && <p className="caution" role="note">That month is before you bought it ({prettyDay(o.boughtOn)}): pick a later month.</p>}
       {o.months.some((m) => m.month < o.boughtOn.slice(0, 7)) && <p className="caution" role="note">{o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).map((m) => monthWords(m.month)).join(', ')} {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'is' : 'are'} before the date you bought it ({prettyDay(o.boughtOn)}): remove {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'it' : 'them'} or check the date.</p>}
       {!rentCovers && deal.home === 'live' && deal.homeFrom !== 'plan' && s.months > 0 && s.rent > 0 && s.rent >= s.costs && <p className="muted small">Rent now covers this home’s costs. Still your home? You can change it under “Your plan and buy box”.</p>}

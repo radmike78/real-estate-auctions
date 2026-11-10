@@ -204,7 +204,7 @@ describe('who takes turns in the one-advertiser ad boxes', () => {
   });
 
   it('describes the plans the way they work', () => {
-    expect(TIER_INFO.standard.includes.join(' ')).toMatch(/rotating ad at the top of the Your team page/);
+    expect(TIER_INFO.standard.includes.join(' ')).toMatch(/rotating ad on the Your team page, right after the list of who you need/);
     expect(TIER_INFO.premium.includes.join(' ')).toMatch(/doesn’t rotate/);
     expect(TIER_INFO.premium_plus.includes.join(' ')).toMatch(/optional fixed ad linked/);
   });

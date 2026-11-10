@@ -799,3 +799,19 @@ it('gives Washoe County’s published tax sale deposit and payment terms', () =>
   const clark: Deal = { ...washoe, id: 'w2', county: 'Clark' };
   expect(dealPacketText(clark, EMPTY_PACKET, new Date('2026-10-06T00:00:00Z'))).not.toContain('pre-bid deposit');
 });
+
+describe('a passed offer’s earnest money line', () => {
+  const base = { id: 'dpe', name: '1 Test St', state: 'NV', county: 'Washoe', kind: 'listing', plan: 'rent', stage: 'passed', notes: '', done: [], updatedAt: '2026-10-06T00:00:00Z' } as unknown as Deal;
+  const cashOf = (p: typeof EMPTY_PACKET) => packetSections(base, p, new Date('2026-11-01T12:00:00')).find((s) => s.key === 'cash')!.lines.join(' | ');
+  it('names a deposit that was never marked sent', () => {
+    expect(cashOf({ ...EMPTY_PACKET, earnest: 5000 })).toMatch(/\$5,000 planned, not marked sent/);
+  });
+  it('asks escrow to return a deposit that was sent', () => {
+    expect(cashOf({ ...EMPTY_PACKET, earnest: 5000, dates: [{ when: '2026-10-01', what: 'Earnest money due', who: 'Me', resolved: true }] })).toMatch(/ask escrow to return it\*/);
+  });
+  it('says a returned deposit came back', () => {
+    const line = cashOf({ ...EMPTY_PACKET, earnest: 5000, dates: [{ when: '2026-10-01', what: 'Earnest money due', who: 'Me', resolved: true }, { when: '2026-10-20', what: 'Earnest money returned', who: 'Escrow', resolved: true }] });
+    expect(line).toMatch(/returned by escrow on Oct 20, 2026/);
+    expect(line).not.toMatch(/ask escrow/);
+  });
+});

@@ -46,7 +46,7 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
         </>
       ) : q ? (
         <>
-          <p className="team-progress" ref={progress} tabIndex={-1}>Question {step + 1} of {qs.length}</p>
+          <p className="team-progress" ref={progress} tabIndex={-1}>{qs.length === 1 ? 'One quick question' : `Question ${step + 1} of ${qs.length}`}</p>
           <fieldset className="team-q" key={q.key}>
             <legend>{q.question}</legend>
             <div className="team-options">

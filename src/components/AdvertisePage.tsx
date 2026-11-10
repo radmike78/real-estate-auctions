@@ -118,7 +118,7 @@ export default function AdvertisePage() {
       </ol>
 
       <h2>Where your category appears</h2>
-      <p>Spotlight and Mentor Connect advertisers get a Featured ad on their category’s page, after “What to say” and above the directory list, and also show at the placements below for their kind of professional (the ones that are on today). Rotating advertisers take turns in the ad at the top of Your team.</p>
+      <p>Spotlight and Mentor Connect advertisers get a Featured ad on their category’s page, after “What to say” and above the directory list, and also show at the placements below for their kind of professional (the ones that are on today). Rotating advertisers take turns in the ad on Your team, right after the list of who you need.</p>
       <p>No ads appear on pages about forced sales (trustee, tax, HOA, sheriff and IRS sales) or lien certificates, or on pages for homeowners and business closures, so an ad is never placed beside owners in distress.</p>
       <div className="table-wrap"><table className="lesson-table where-cats">
         <thead><tr><th scope="col">Professional</th><th scope="col">Spotlight and Mentor Connect also show on</th></tr></thead>
@@ -148,7 +148,7 @@ export default function AdvertisePage() {
       <h2>How placement works</h2>
       <ul className="ad-placement">
         <li><strong>Directory list: </strong>every listed professional appears in a fair rotating order, whatever plan they pay for.</li>
-        <li><strong>Rotating ad: </strong>Rotating advertisers of every kind in the visitor’s area take turns in one ad box at the top of the Your team page; one is chosen at random on each page view. Spotlight and Mentor Connect do not take part.</li>
+        <li><strong>Rotating ad: </strong>Rotating advertisers of every kind in the visitor’s area take turns in one ad box on the Your team page, right after the list of who you need; one is chosen at random on each page view. Spotlight and Mentor Connect do not take part.</li>
         <li><strong>Limited spots: </strong>up to {CAPS.listing} advertisers per category and {CAPS.featured} Featured ad spots per category in each city, so ads stay useful.</li>
         <li><strong>Featured ads (Spotlight): </strong>a separate, labeled Featured ad on your category’s page for your city or county, above the list. Every eligible fixed advertiser in the visitor’s selected area shows on each page view; neither selection nor order rotates. Fixed ads also appear at site placements that match your category and area{mentorSpots.length ? <> (now: {mentorSpots.map((s) => s.label).join(', ')})</> : null}.</li>
         <li><strong>Counties and cities: </strong>a whole county takes one spot in each of its cities, so county and city advertisers share the same spots: no one gets a city to themselves. An advertiser appears once in a box, however many of its areas cover the visitor. Where no one has bought a spot, your category’s page, Your team, Find deals (agent route) and the next step in My plan show an “Advertise here” box, and the Financing page invites professionals to apply; other pages show nothing.</li>

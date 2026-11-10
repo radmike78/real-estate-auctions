@@ -23,7 +23,7 @@ export const isAdTier = (v: unknown): v is AdTier => typeof v === 'string' && (A
 export const TIER_INFO: Record<AdTier, { label: string; includes: string[]; badge?: string }> = {
   standard: {
     label: 'Rotating',
-    includes: ['Your own profile page with a contact form', 'A place in your category’s directory list, in fair rotating order', 'A turn in the rotating ad at the top of the Your team page (for buyers using an agent: listed, bank-owned and short-sale homes)', 'A results dashboard and a monthly report'],
+    includes: ['Your own profile page with a contact form', 'A place in your category’s directory list, in fair rotating order', 'A turn in the rotating ad on the Your team page, right after the list of who you need (for buyers using an agent: listed, bank-owned and short-sale homes)', 'A results dashboard and a monthly report'],
   },
   premium: {
     label: 'Spotlight',
