@@ -452,7 +452,7 @@ export function FirstDealRoadmap() {
         let k = '';
         try { k = new URLSearchParams(window.location?.search ?? '').get('deal') ?? ''; } catch { /* no address */ }
         const other = k && (!deal || deal.id !== k) ? deals.find((x) => `analyzed:${x.id}` === k) : undefined;
-        const closedOut = !!other && (other.stage === 'passed' || other.practice);
+        const closedOut = !!other && (other.stage === 'passed' || other.practice || finishedDeal(other));
         if (other && closedOut) return <p className="caution" role="note">This step link is for {other.name || 'another property'}, which is finished or passed: its record is in <a href={`#/deals/packet/${other.id}`}>its deal packet</a>.</p>;
         return other ? <p className="caution" role="note" tabIndex={-1} ref={(el) => { if (el && !el.dataset.shown) { el.dataset.shown = '1'; setTimeout(() => { el.scrollIntoView({ block: 'center' }); el.focus({ preventScroll: true }); }, 250); } }}>This step link is for {other.name || 'another property'}; the roadmap below is {deal?.name ? `for ${deal.name}` : 'your learning roadmap (no property picked)'}. <button type="button" className="linkish" onClick={() => { adoptLinkedDeal(window.location.search); setDealId(k); setTimeout(() => window.dispatchEvent(new CustomEvent('deedowl:navigate')), 0); }}>Switch to {other.name || 'it'}</button></p> : null;
       })()}

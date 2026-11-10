@@ -4,7 +4,7 @@ import type { Deal } from '../lib/analyze';
 import { flipBudget, flipBudgetLine, flipSaleLine, loadPacket, sameDate, sameEvent, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
-import { setDealHome, sidState, trackerAsksHome, certificateFirst, finishedDeal, liveIn, prettyDay, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
+import { firstFullMonth, setDealHome, sidState, trackerAsksHome, certificateFirst, finishedDeal, liveIn, prettyDay, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
 
 /** The monthly cash flow the deal was bought on, from its Keep and rent numbers (null without them). */
 export function projectedMonthly(d: Deal): number | null {
@@ -41,7 +41,7 @@ function openMonth(o?: Owned): string {
   const b = o?.boughtOn?.slice(0, 7) ?? '';
   if (!o || !/^\d{4}-\d{2}$/.test(b)) return lm;
   if (b > lm) return ''; // bought this month: nothing is over yet (the note says when)
-  for (let [y, m] = b.split('-').map(Number), i = 0; i < 1200; i++) {
+  for (let [y, m] = firstFullMonth(o), i = 0; i < 1200; i++) {
     const k = `${y}-${String(m).padStart(2, '0')}`;
     if (k > lm) break;
     if (!o.months.some((x) => x.month === k)) return k;
@@ -159,7 +159,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   return (
     <div>
       {/^\d{4}-\d{2}$/.test(month) && month > maxMonth && <p className="caution" role="note">That month isn’t over yet: record it once it ends.</p>}
-      {month === '' && <p className="muted" role="note">{o.months.length ? 'Every finished month is recorded. Come back once this month ends, or pick an earlier month to change it.' : `Your first month ends ${prettyDay((() => { const [y, m] = o.boughtOn.split('-').map(Number); const t = new Date(y, m, 0); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })())}. Come back after that to record what it ${liveIn(deal) ? 'cost' : 'brought in and cost'}.`}</p>}
+      {month === '' && !o.sold && <p className="muted" role="note">{o.months.length ? 'Every finished month is recorded. Come back once this month ends, or pick an earlier month to change it.' : `Your first month ends ${prettyDay((() => { const [y, m] = o.boughtOn.split('-').map(Number); const t = new Date(y, m, 0); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })())}. Come back after that to record what it ${liveIn(deal) ? 'cost' : 'brought in and cost'}.`}</p>}
       {/^\d{4}-\d{2}$/.test(month) && month < o.boughtOn.slice(0, 7) && <p className="caution" role="note">That month is before you bought it ({prettyDay(o.boughtOn)}): pick a later month.</p>}
       {o.months.some((m) => m.month < o.boughtOn.slice(0, 7)) && <p className="caution" role="note">{o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).map((m) => monthWords(m.month)).join(', ')} {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'is' : 'are'} before the date you bought it ({prettyDay(o.boughtOn)}): remove {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'it' : 'them'} or check the date.</p>}
       {!rentCovers && deal.home === 'live' && deal.homeFrom !== 'plan' && s.months > 0 && s.rent > 0 && s.rent >= s.costs && <p className="muted small">Rent now covers this home’s costs. Still your home? You can change it under “Your plan and buy box”.</p>}
