@@ -263,6 +263,18 @@ function decideRoute(): RoadmapPath | null {
 }
 
 /** Roadmap progress kept for one property (steps 4 to 7). */
+/** A step link that names a property (?deal=analyzed:<id>), clicked: My plan works on that property, so the step opens on it. */
+export function adoptLinkedDeal(search: string) {
+  try {
+    const k = new URLSearchParams(search).get('deal');
+    if (!k) return;
+    const d = loadDeals().find((x) => `analyzed:${x.id}` === k);
+    if (!d) return;
+    localStorage.setItem(DEAL_KEY, JSON.stringify(k));
+    localStorage.setItem(ROADMAP_PATH_KEY, JSON.stringify(pathForDeal(d)));
+    progressChanged();
+  } catch { /* storage unavailable */ }
+}
 export const dealProgress = (dealKey: string) => readKey(DEAL_STEPS_KEY, {}, cleanDealSteps)[dealKey] ?? { done: [] as string[], status: {} as Record<string, StepStatus> };
 
 /** Whether a step is settled (done, or marked "doesn't apply"), counting steps 4 to 7 for the property in focus. */

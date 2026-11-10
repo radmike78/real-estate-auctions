@@ -810,7 +810,10 @@ export function flipSaleLine(d: Deal): string | null {
     return out;
   })();
   const mo = (k: string) => new Date(`${k}-15T12:00:00`).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-  const gapNote = recorded && gaps.length ? ` No costs are recorded for ${gaps.length === 1 ? mo(gaps[0]) : `${mo(gaps[0])}–${mo(gaps[gaps.length - 1])} (${gaps.length} months)`}: add ${gaps.length === 1 ? 'that month' : 'those months'} for a truer figure.` : '';
+  const next = (k: string) => { const [y, m] = k.split('-').map(Number); return m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, '0')}`; };
+  const runOn = gaps.every((g, i) => i === 0 || next(gaps[i - 1]) === g);
+  const gapWords = gaps.length === 1 ? mo(gaps[0]) : runOn ? `${mo(gaps[0])}–${mo(gaps[gaps.length - 1])} (${gaps.length} months)` : gaps.length <= 4 ? gaps.map(mo).join(', ') : `${gaps.length} months between ${mo(gaps[0])} and ${mo(gaps[gaps.length - 1])}`;
+  const gapNote = recorded && gaps.length ? ` No costs are recorded for ${gapWords}: add ${gaps.length === 1 ? 'that month' : 'those months'} for a truer figure.` : '';
   const low = recorded && budget > 0 && paid < budget / 2 ? ` You recorded ${money(paid)} of your ${money(budget)} repairs, holding and loan budget: if you paid more, add those months for a truer figure.` : '';
   const lowOrGaps = gapNote || low;
   return `${head}${planned}. Rough profit before income tax: about ${money(profit)} (the sale, less your ${money(proposed.price)} ${isOffer(d) ? 'price' : 'bid'}, about ${money(buy)} to buy it, ${recorded ? `the ${money(paid)} you recorded paying` : `your planned repairs, holding and loan costs, about ${money(paid)} (no months recorded: add them for a truer figure)`}, and selling costs at ${i.sellingCostPct || 0}%, about ${money(selling)}).${plan} Your closing statement and your tax advisor have the exact figures.` + lowOrGaps;
@@ -1195,7 +1198,7 @@ export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const lines = [`DEAL PACKET: ${d.name}`, 'DeedOwl educational worksheet. Every number is your estimate until a source backs it; a checkmark records your review, not a clear title.', ''];
   lines.push(`STAGE: ${stageLabel(stageOf(d), d)}`, `NEXT ACTION: ${nextAction(d, p, now).text}`, ...(flipSaleLine(d) ? [`SALE: ${flipSaleLine(d)}`] : []), '');
   for (const s of packetSections(d, p, now)) {
-    lines.push(`${s.title.toUpperCase()} [${s.key === 'dates' && (stageOf(d) === 'passed' || !!loadOwned()[d.id]?.sold || finishedDeal(d)) && p.dates.length ? 'kept as a record' : s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : stageOf(d) === 'passed' && sidState(d) !== 'void' && !finishedDeal(d) && (s.key !== 'dates' || !p.dates.length) && s.key !== 'decision' ? 'not needed (you passed)' : pastSale && recordParts(d).includes(s.key) ? (s.status === 'missing' ? 'left blank: from before you bought' : 'partly filled in: from before you bought') : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines);
+    lines.push(`${s.title.toUpperCase()} [${s.key === 'dates' && (stageOf(d) === 'passed' || !!loadOwned()[d.id]?.sold || finishedDeal(d)) ? (p.dates.length ? 'kept as a record' : 'not needed now') : s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : stageOf(d) === 'passed' && sidState(d) !== 'void' && !finishedDeal(d) && (s.key !== 'dates' || !p.dates.length) && s.key !== 'decision' ? 'not needed (you passed)' : pastSale && recordParts(d).includes(s.key) ? (s.status === 'missing' ? 'left blank: from before you bought' : 'partly filled in: from before you bought') : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines);
     if (s.key === 'dates' && stageOf(d) !== 'passed' && !loadOwned()[d.id]?.sold && !finishedDeal(d) && dateGuideLines(d).length) lines.push(`What the less familiar ${d.state === 'TX' ? (isOffer(d) ? 'Texas contract ' : 'Texas ') : ''}dates mean (${isOffer(d) ? 'the signed contract wins' : 'the official notice wins'}):`, ...dateGuideLines(d).map((l) => `- ${l}`));
     lines.push('');
   }

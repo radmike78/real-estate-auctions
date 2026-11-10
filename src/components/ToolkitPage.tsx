@@ -268,27 +268,7 @@ function StepBody({ s, status, setStatus, deal, elsewhere, past }: { s: RoadmapS
 }
 
 /** The investing roadmap in six phases and three routes, with the next step open. */
-let adoptedLink = '';
-/** A step link that names a property (?deal=analyzed:<id>) makes it the one My plan works on, once per link. */
-function adoptLinkedDeal() {
-  try {
-    const q = window.location?.search ?? '';
-    const k = new URLSearchParams(q).get('deal');
-    if (!k || adoptedLink === q) return;
-    adoptedLink = q;
-    // (Once per tab for a link: reloading it later doesn't undo a property you picked since.)
-    try { const seen = sessionStorage.getItem('deedowl.adopted-link.v1'); if (seen === q) return; sessionStorage.setItem('deedowl.adopted-link.v1', q); } catch { /* storage unavailable */ }
-    const d = loadAnalyzed().find((x) => `analyzed:${x.id}` === k);
-    if (!d) return;
-    write(DEAL_KEY, k);
-    write(ROADMAP_PATH_KEY, pathForDeal(d));
-    // (Other parts of the page, My plan's next step among them, follow the change.)
-    queueMicrotask(progressChanged);
-  } catch { /* storage unavailable */ }
-}
-
 export function FirstDealRoadmap() {
-  adoptLinkedDeal();
   const [done, setDone] = useState<string[]>(roadmapDone);
   const [status, setStatusMap] = useState<Record<string, StepStatus>>(() => read(STATUS_KEY, {}, cleanStatus));
   const [path, setPath] = useState<RoadmapPath>(() => planPath());

@@ -1,4 +1,5 @@
 import { loadDeals } from './lib/analyze';
+import { adoptLinkedDeal } from './lib/roadmapState';
 import AccountPage, { AccountBar } from './components/AccountPage';
 import { settleHomes, settleAllSteps } from './lib/dealStage';
 import { continueAsGuest, useAccountRuntime } from './lib/account';
@@ -347,6 +348,8 @@ export default function App() {
         t.focus({ preventScroll: true });
         return;
       }
+      // A step link that names a property opens on that property (only when clicked: a reload keeps your own pick).
+      if (/[?&]deal=/.test(to)) adoptLinkedDeal(to.split('?')[1] ?? '');
       navigate(to);
     };
     // Show every "#/x" link as a real "/x" address, now and whenever the page changes.

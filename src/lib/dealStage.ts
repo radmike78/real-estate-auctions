@@ -62,10 +62,10 @@ const HOMES_SETTLED_KEY = 'deedowl.homes-settled.v1';
 export function settleHomes() {
   // Once per device: later Decide changes never relabel a bought property.
   if (localStorage.getItem(HOMES_SETTLED_KEY)) return;
+  // (Decide skipped: wait until it's answered, then keep what it says.)
+  if (!decideAnswered()) return;
   localStorage.setItem(HOMES_SETTLED_KEY, '1');
   const all = loadDeals();
-  // (Decide skipped: nothing to keep; the property asks instead.)
-  if (!decideAnswered()) return;
   const fix = all.filter((d) => (d.stage === 'closed' || d.stage === 'owned') && !d.home && d.plan === 'rent' && wayOf(d) === 'offer');
   if (fix.length) saveDeals(all.map((d) => (fix.includes(d) ? { ...d, home: liveIn(d) ? 'live' as const : 'rent' as const, homeFrom: 'plan' as const } : d)));
 }
@@ -128,7 +128,8 @@ export function settleAllSteps(dealKey: string) {
           const exact = what === '(already handled)' ? pk.dates.findIndex((x) => x.resolved && STEP_ROWS[id].some((n) => sameEvent(x.what, n))) : pk.dates.findIndex((x) => x.what === what);
           // (Renamed, or ticked by hand first: mark the first row of its kind as settled, leaving its tick as it is.)
           const k = exact >= 0 ? exact : pk.dates.findIndex((x) => STEP_ROWS[id].some((n) => sameEvent(x.what, n)));
-          if (k >= 0) pk = { ...pk, dates: pk.dates.map((x, i) => (i === k ? { ...x, step: exact >= 0 && what !== '(already handled)' ? id : `~${id}` } : x)) };
+          // (The step's own tick: the step can undo it. A row you unticked, or ticked yourself: yours.)
+          if (k >= 0) pk = { ...pk, dates: pk.dates.map((x, i) => (i === k ? { ...x, step: what !== '(already handled)' && (exact >= 0 || x.resolved) ? id : `~${id}` } : x)) };
         }
         savePacket(dealKey, pk);
         const { [dealKey]: _done, ...rest } = old!;
