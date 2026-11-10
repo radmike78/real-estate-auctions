@@ -853,7 +853,7 @@ describe('Nevada round 4 flow', () => {
     const stands = { ...late, dates: [...late.dates, { when: '2026-10-05', what: 'Treasurer confirmed the sale stands', who: 'The county treasurer', resolved: true }] };
     expect(dealNextTask(tax, stands, now, 'contract').label).not.toMatch(/whether the sale stands/);
     // The download: the pre-sale parts read "left blank" after a win.
-    expect(dealPacketText({ ...tax, stage: 'contract' }, late, now)).toMatch(/YOUR DECISION \[left blank: from before you bought\]/);
+    expect(dealPacketText({ ...tax, stage: 'contract' }, late, now)).toMatch(/YOUR DECISION \[left blank: from before you won\]/);
     // Still to add: no "(if …)" rows.
     const short = { ...nvFlip, kind: 'short' as const };
     const sp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Contract signed', who: 'Me' }, { when: '2026-10-02', what: 'Approval notice received (dates count from here)', who: 'Lender' }, { when: '', what: 'Defect cancellation deadline (if a defect is disclosed)', who: '' }, { when: '', what: 'Closing', who: '' }] };

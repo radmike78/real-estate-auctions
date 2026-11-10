@@ -1,3 +1,4 @@
+import { settleHomes } from '../lib/dealStage';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { getMyArea } from '../lib/myArea';
 import { useEffect, useRef, useState } from 'react';
@@ -57,6 +58,8 @@ function seenDone(c: { id?: string; text: string; href?: string }): boolean {
 function save(s: Saved) {
   try {
     localStorage.setItem(DECIDE_KEY, JSON.stringify(s));
+    // (Bought homes with no answer keep this first answer, so a later change doesn't relabel them.)
+    if (typeof s.answers.borrow === 'string') settleHomes();
     // Finishing Decide is the roadmap's "Choose one strategy" step.
     if (QUESTIONS.every((q) => typeof s.answers[q.key] === 'string')) creditStep('strategy');
   } catch {

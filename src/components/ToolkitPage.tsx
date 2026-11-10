@@ -179,7 +179,11 @@ if (typeof window !== 'undefined') {
 /** The step a link names (/toolkit/roadmap?step=goal), if any. */
 const linkedStep = (): string | null => {
   try {
-    return new URLSearchParams(window.location?.search ?? '').get('step');
+    const q = new URLSearchParams(window.location?.search ?? '');
+    // (A link for another property than the one in focus: the notice above leads, not the step.)
+    const k = q.get('deal');
+    if (k && focusDealId() !== k) return null;
+    return q.get('step');
   } catch {
     return null;
   }
@@ -448,7 +452,7 @@ export function FirstDealRoadmap() {
         let k = '';
         try { k = new URLSearchParams(window.location?.search ?? '').get('deal') ?? ''; } catch { /* no address */ }
         const other = k && (!deal || deal.id !== k) ? deals.find((x) => `analyzed:${x.id}` === k) : undefined;
-        return other ? <p className="caution" role="note">This step link is for {other.name || 'another property'}; the roadmap below is for {deal?.name || 'no property'}. <button type="button" className="linkish" onClick={() => { adoptLinkedDeal(window.location.search); setDealId(k); }}>Switch to {other.name || 'it'}</button></p> : null;
+        return other ? <p className="caution" role="note" tabIndex={-1} ref={(el) => { if (el && !el.dataset.shown) { el.dataset.shown = '1'; setTimeout(() => { el.scrollIntoView({ block: 'center' }); el.focus({ preventScroll: true }); }, 250); } }}>This step link is for {other.name || 'another property'}; the roadmap below is for {deal?.name || 'no property'}. <button type="button" className="linkish" onClick={() => { adoptLinkedDeal(window.location.search); setDealId(k); setTimeout(() => window.dispatchEvent(new CustomEvent('deedowl:navigate')), 0); }}>Switch to {other.name || 'it'}</button></p> : null;
       })()}
       <div className="roadmap-deal">
         <label className="field">
