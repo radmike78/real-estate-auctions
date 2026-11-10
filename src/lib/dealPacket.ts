@@ -813,7 +813,7 @@ export function flipSaleLine(d: Deal): string | null {
   const next = (k: string) => { const [y, m] = k.split('-').map(Number); return m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, '0')}`; };
   const runOn = gaps.every((g, i) => i === 0 || next(gaps[i - 1]) === g);
   const gapWords = gaps.length === 1 ? mo(gaps[0]) : runOn ? `${mo(gaps[0])}–${mo(gaps[gaps.length - 1])} (${gaps.length} months)` : gaps.length <= 4 ? gaps.map(mo).join(', ') : `${gaps.length} months between ${mo(gaps[0])} and ${mo(gaps[gaps.length - 1])}`;
-  const gapNote = recorded && gaps.length ? ` No costs are recorded for ${gapWords}: add ${gaps.length === 1 ? 'that month' : 'those months'} for a truer figure.` : '';
+  const gapNote = recorded && gaps.length ? ` No costs are recorded for ${gapWords}, so this leaves them out. To add ${gaps.length === 1 ? 'it' : 'them'}, undo the sale, record the ${gaps.length === 1 ? 'month' : 'months'}, then record the sale again.` : '';
   const low = recorded && budget > 0 && paid < budget / 2 ? ` You recorded ${money(paid)} of your ${money(budget)} repairs, holding and loan budget: if you paid more, add those months for a truer figure.` : '';
   const lowOrGaps = gapNote || low;
   return `${head}${planned}. Rough profit before income tax: about ${money(profit)} (the sale, less your ${money(proposed.price)} ${isOffer(d) ? 'price' : 'bid'}, about ${money(buy)} to buy it, ${recorded ? `the ${money(paid)} you recorded paying` : `your planned repairs, holding and loan costs, about ${money(paid)} (no months recorded: add them for a truer figure)`}, and selling costs at ${i.sellingCostPct || 0}%, about ${money(selling)}).${plan} Your closing statement and your tax advisor have the exact figures.` + lowOrGaps;

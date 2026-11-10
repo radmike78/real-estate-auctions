@@ -49,7 +49,7 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
         <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const r = task.record!; edit((p) => { const rows = p.dates.some((x) => sameDate(x.what, r.row.what)) ? p.dates : [...p.dates, { ...r.row }]; return { ...p, dates: r.closes ? rows.map((x) => (x.what === r.closes ? { ...x, resolved: true } : x)) : rows }; }); after(el); }}>{task.record.label}</button>
       )}
       {task.undo && (
-        <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const u = task.undo!; edit((p) => { const kept = p.dates.filter((x) => !sameDate(x.what, u.removeRow)); return { ...p, dates: [...kept, ...(u.addRow && !kept.some((x) => sameDate(x.what, u.addRow!.what)) ? [{ ...u.addRow }] : [])] }; }); after(el); }}>{task.undo.label}</button>
+        <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const u = task.undo!; edit((p) => { const kept = p.dates.filter((x) => !sameDate(x.what, u.removeRow)); return { ...p, dates: [...kept, ...(u.addRow && !kept.some((x) => sameDate(x.what, u.addRow!.what)) ? [{ ...u.addRow }] : [])] }; }); if (u.then) setDealStage(dealId, u.then); after(el); }}>{task.undo.label}</button>
       )}
     </>
   );

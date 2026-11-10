@@ -23,7 +23,7 @@ import { toolkitConfig } from '../lib/narrow';
 import DocGuideView from './DocGuideView';
 import { EvidenceArea } from './EvidenceLog';
 import { cleanDealSteps, DEAL_KEY, DEAL_STEPS_KEY, type DealSteps } from '../lib/roadmapDeals';
-import { cleanStatus, creditStep, dealScoped, focusDealId, NO_DEAL, pathForDeal, planPath, practiceDoneElsewhere, PRACTICE_NAME, PROGRESS_EVENT, progressChanged, ROADMAP_KEY, ROADMAP_PATH_KEY, roadmapDone, roadmapPath, roadmapProgress, STATUS_KEY, pastStage } from '../lib/roadmapState';
+import { cleanStatus, creditStep, dealScoped, focusDealId, NO_DEAL, pathForDeal, planPath, practiceDoneElsewhere, PRACTICE_NAME, PROGRESS_EVENT, progressChanged, ROADMAP_KEY, ROADMAP_PATH_KEY, roadmapDone, roadmapPath, roadmapProgress, STATUS_KEY, pastStage, adoptLinkedDeal } from '../lib/roadmapState';
 import type { Deal } from '../lib/analyze';
 import { ASTERISK_NOTE } from '../lib/disclaimers';
 import AnnouncedResults from './AnnouncedResults';
@@ -442,6 +442,13 @@ export function FirstDealRoadmap() {
         return <p className="notice" role="note">“{active.name || 'Your property'}” is bought {mm === 'listing' ? 'through an agent' : 'at an auction'}, but this roadmap (and Download my plan) shows the {ROUTE_STEPS_WORD[path]} steps.{' '}
           <button type="button" className="linkish" onClick={() => { choosePath(mm); requestAnimationFrame(() => document.querySelector<HTMLButtonElement>('.roadmap-path button[aria-pressed="true"]')?.focus()); }}>Switch the roadmap to {mm === 'listing' ? 'buying through an agent' : 'buying at an auction'}</button>
         </p>;
+      })()}
+      {(() => {
+        // Opened from a link for another property (a new tab, a bookmark): say so, and offer to switch.
+        let k = '';
+        try { k = new URLSearchParams(window.location?.search ?? '').get('deal') ?? ''; } catch { /* no address */ }
+        const other = k && (!deal || deal.id !== k) ? deals.find((x) => `analyzed:${x.id}` === k) : undefined;
+        return other ? <p className="caution" role="note">This step link is for {other.name || 'another property'}; the roadmap below is for {deal?.name || 'no property'}. <button type="button" className="linkish" onClick={() => { adoptLinkedDeal(window.location.search); setDealId(k); }}>Switch to {other.name || 'it'}</button></p> : null;
       })()}
       <div className="roadmap-deal">
         <label className="field">

@@ -60,9 +60,9 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
   // A forced sale (auction): paid to the officer or trustee on the sale's terms, often with no inside look.
   if (saleKind && ['trustee', 'taxSale', 'court', 'hoa', 'irs'].includes(saleKind) && plan !== 'lien') return (
     <section className="before-commit" aria-labelledby="before-commit-head">
-      <h3 id="before-commit-head">Before you commit, check these</h3>
+      <h3 id="before-commit-head">{won ? 'Check these now that you won it' : 'Before you commit, check these'}</h3>
       <ul>
-        <li><strong>The sale’s payment rules:</strong> the form, amount and deadline, paid to the officer or trustee, from the official notice.</li>
+        {!won && <li><strong>The sale’s payment rules:</strong> the form, amount and deadline, paid to the officer or trustee, from the official notice.</li>}
         <li><strong>Liens and taxes that survive this sale,</strong> from a title search.</li>
         {/* Nevada's own periods, from statute (leg.state.nv.us; 26 U.S.C. 6337(b) for the IRS): no asterisk there. */}
         {state === 'NV' && saleKind === 'court' ? <li><strong>The right to buy it back:</strong> the former owner (the judgment debtor), or a creditor whose judgment or mortgage lien came after the one sold on, has 1 year after a sheriff’s sale, at your price plus 1% a month, plus taxes, assessments and earlier liens you paid (NRS 21.200, 21.210). You get a certificate of sale first.</li>
