@@ -35,7 +35,7 @@ export const PRO_WHY = {
       },
       {
         who: "Tax-sale and courthouse-auction buyer",
-        text: "Skip one for county tax sales and trustee auctions. The county or trustee runs the sale, so a buyer’s agent has no deal to manage. You may still want an agent’s price estimate before you bid.",
+        text: "You may not need one for county tax sales and trustee auctions: the county or trustee runs the sale, so there’s no offer for a buyer’s agent to manage. Some buyers still pay for an agent’s price estimate before they bid; your situation decides.",
         example: "In California, the Sonoma County treasurer-tax collector says the only way to get legal title to a tax-defaulted parcel is to win the county’s auction.",
         source: {
           label: "Sonoma County (CA) Treasurer-Tax Collector, Tax-defaulted property auctions FAQs",

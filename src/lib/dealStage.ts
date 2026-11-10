@@ -200,7 +200,7 @@ export const redeemedIn = (p: PacketData) => p.dates.some((x) => sameDate(x.what
  *  an IRS sale's, you, or the IRS if you can't be found in the county (26 U.S.C. 6337(b)(2)). */
 const payoffRow = (d: Pick<Deal, 'kind'>) => ({ when: '', what: REDEEMED_ROW, who: d.kind === 'court' ? 'The person who redeemed, or the sheriff for them' : d.kind === 'irs' ? 'The person who redeemed (the IRS, if you couldn’t be found)' : 'The person who redeemed' });
 /** On a task about something else: the redemption is a different event, so the button names it. */
-const redeemLabel = (d: Pick<Deal, 'kind' | 'state'> & { id?: string; plan?: Deal['plan'] }, p: PacketData) => { const e = p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when || redemptionEnd(d, p); return `Someone redeemed${e ? ` (by ${prettyDay(e)})` : ''}? Collect the payoff`; };
+const redeemLabel = (d: Pick<Deal, 'kind' | 'state'> & { id?: string; plan?: Deal['plan'] }, p: PacketData) => { const e = p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when || redemptionEnd(d, p); return `Was it redeemed? Collect the payoff${e ? ` (they can redeem until ${prettyDay(e)})` : ''}`; };
 const redeemButton = (d: Pick<Deal, 'kind'>, label = 'It was redeemed: collect the payoff') => ({ stage: 'closed' as DealStage, label, addRow: payoffRow(d) });
 /** A flip's recorded sale (in its packet's owned section). */
 export const soldOf = (d: { id?: string }) => (d.id ? loadOwned()[d.id]?.sold : undefined);
@@ -265,7 +265,7 @@ const POSTPONE = { label: 'It was postponed: clear its dates to enter the new on
 /** How much a passed deadline costs if missed (lower first): a sale that may be void, then the SID payoff, then other dates. */
 export const pressingWeight = (t: Pick<PlanTask, 'key' | 'label'>) => (t.key === 'sid-void' || t.key === 'sid-refund' ? 0 : /SID/.test(t.label) ? 1 : t.key === 'bid' ? 1.5 : t.key === 'date' ? 2 : 3);
 /** Another property needs an answer now: a deadline passed, or its sale day passed ("did you win?"). */
-export const needsAnswerNow = (t: PlanTask) => deadlinePassed(t) || (t.key === 'bid' && !!t.answer);
+export const needsAnswerNow = (t: PlanTask) => deadlinePassed(t) || (t.key === 'bid' && !!t.answer) || (t.key === 'date' && t.days !== undefined && t.days <= 1 && !!t.urgent);
 /** A deadline that has passed (a window ended, the SID payoff's 20 days): it needs an answer before routine work. */
 export const deadlinePassed = (t: Pick<PlanTask, 'days'>) => t.days !== undefined && t.days < 0;
 /** Who to ask whether anyone redeemed (and who answers on its row). */
