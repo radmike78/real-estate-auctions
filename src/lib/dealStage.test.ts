@@ -1228,7 +1228,7 @@ describe('Nevada round 4 flow', () => {
     const hoa = { ...nvFlip, kind: 'hoa' as const };
     const wait = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'HOA', resolved: true }, { when: '2026-11-19', what: 'Redemption period ends', who: 'HOA' }] };
     const t = dealNextTask(hoa, wait, now, 'closed');
-    expect(t.advance2?.label).toBe('Someone redeemed it: collect the payoff (they can redeem until Nov 19, 2026)');
+    expect(t.advance2?.label).toBe('Someone redeemed it: collect the payoff (the redemption period runs until Nov 19, 2026)');
     const offer = { ...deal, id: 'f1', state: 'NV' as const, county: 'Washoe', kind: 'listing' as const };
     const insp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-30', what: 'Contract signed', who: 'Me', resolved: true }, { when: '2026-09-30', what: 'Earnest money due', who: 'Me', resolved: true }, { when: '2026-10-09', what: 'Inspection period ends', who: 'Me' }] };
     const i = dealNextTask(offer, insp, now, 'contract');

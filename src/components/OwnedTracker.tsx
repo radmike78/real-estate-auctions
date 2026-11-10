@@ -71,7 +71,7 @@ function SoldForm({ o, put, deal }: { o: Owned; put: (next: Owned | null) => voi
   // A closing that hasn't happened yet, or before you bought it, doesn't finish the deal.
   const dateWhy = !dateOk ? 'Enter the closing date.' : on > today() ? 'Record the sale once it has closed: the closing date can’t be in the future.' : on < o.boughtOn ? `The closing date can’t be before you bought it (${prettyDay(o.boughtOn)}).` : '';
   const ok = dateOk && !dateWhy && !priceBad && Number.isFinite(p) && p > 0;
-  if (o.sold) return <p className="notice" id="owned-sold" tabIndex={-1} role="status">{flipSaleLine(deal) ?? `Sold on ${o.sold.on} for ${fmtMoney(o.sold.price)}.`} <button type="button" className="linkish" onClick={() => { const { sold: _sold, ...rest } = o; put(rest); setTimeout(() => document.getElementById('owned-sold-on')?.focus(), 0); }}>Undo</button></p>;
+  if (o.sold) return <p className="notice" id="owned-sold" tabIndex={-1} role="status">{flipSaleLine(deal) ?? `Sold on ${o.sold.on} for ${fmtMoney(o.sold.price)}.`} <button type="button" className="linkish" onClick={() => { const { sold: _sold, ...rest } = o; put(rest); setTimeout(() => document.getElementById('owned-sold-on')?.focus(), 0); }}>Undo the sale</button></p>;
   return (
     <>
       <div className="row owned-add">

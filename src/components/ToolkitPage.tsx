@@ -452,7 +452,9 @@ export function FirstDealRoadmap() {
         let k = '';
         try { k = new URLSearchParams(window.location?.search ?? '').get('deal') ?? ''; } catch { /* no address */ }
         const other = k && (!deal || deal.id !== k) ? deals.find((x) => `analyzed:${x.id}` === k) : undefined;
-        return other ? <p className="caution" role="note" tabIndex={-1} ref={(el) => { if (el && !el.dataset.shown) { el.dataset.shown = '1'; setTimeout(() => { el.scrollIntoView({ block: 'center' }); el.focus({ preventScroll: true }); }, 250); } }}>This step link is for {other.name || 'another property'}; the roadmap below is for {deal?.name || 'no property'}. <button type="button" className="linkish" onClick={() => { adoptLinkedDeal(window.location.search); setDealId(k); setTimeout(() => window.dispatchEvent(new CustomEvent('deedowl:navigate')), 0); }}>Switch to {other.name || 'it'}</button></p> : null;
+        const closedOut = !!other && (other.stage === 'passed' || other.practice);
+        if (other && closedOut) return <p className="caution" role="note">This step link is for {other.name || 'another property'}, which is finished or passed: its record is in <a href={`#/deals/packet/${other.id}`}>its deal packet</a>.</p>;
+        return other ? <p className="caution" role="note" tabIndex={-1} ref={(el) => { if (el && !el.dataset.shown) { el.dataset.shown = '1'; setTimeout(() => { el.scrollIntoView({ block: 'center' }); el.focus({ preventScroll: true }); }, 250); } }}>This step link is for {other.name || 'another property'}; the roadmap below is {deal?.name ? `for ${deal.name}` : 'your learning roadmap (no property picked)'}. <button type="button" className="linkish" onClick={() => { adoptLinkedDeal(window.location.search); setDealId(k); setTimeout(() => window.dispatchEvent(new CustomEvent('deedowl:navigate')), 0); }}>Switch to {other.name || 'it'}</button></p> : null;
       })()}
       <div className="roadmap-deal">
         <label className="field">
@@ -460,6 +462,8 @@ export function FirstDealRoadmap() {
           <select
             value={deal ? deal.id : ''}
             onChange={(e) => {
+              // (A step link's property no longer applies: drop it from the address, so its notice doesn't come back.)
+              try { const u = new URL(window.location.href); if (u.searchParams.has('deal')) { u.searchParams.delete('deal'); u.searchParams.delete('step'); window.history.replaceState(window.history.state, '', u.toString()); } } catch { /* no address */ }
               setDealId(e.target.value);
               write(DEAL_KEY, e.target.value || NO_DEAL);
               // The route follows the property's kind of sale, so its steps fit it.
