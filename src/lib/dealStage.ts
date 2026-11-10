@@ -203,7 +203,7 @@ export const redeemedIn = (p: PacketData) => p.dates.some((x) => sameDate(x.what
  *  an IRS sale's, you, or the IRS if you can't be found in the county (26 U.S.C. 6337(b)(2)). */
 const payoffRow = (d: Pick<Deal, 'kind'>) => ({ when: '', what: REDEEMED_ROW, who: d.kind === 'court' ? 'The person who redeemed, or the sheriff for them' : d.kind === 'irs' ? 'The person who redeemed (the IRS, if you couldn’t be found)' : 'The person who redeemed' });
 /** On a task about something else: the redemption is a different event, so the button names it. */
-const redeemLabel = (d: Pick<Deal, 'kind' | 'state'> & { id?: string; plan?: Deal['plan'] }, p: PacketData) => { const e = p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when || redemptionEnd(d, p); return `Was it redeemed? Collect the payoff${e ? ` (they can redeem until ${prettyDay(e)})` : ''}`; };
+const redeemLabel = (d: Pick<Deal, 'kind' | 'state'> & { id?: string; plan?: Deal['plan'] }, p: PacketData) => { const e = p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when || redemptionEnd(d, p); return `Someone redeemed it: collect the payoff${e ? ` (they can redeem until ${prettyDay(e)})` : ''}`; };
 const redeemButton = (d: Pick<Deal, 'kind'>, label = 'It was redeemed: collect the payoff') => ({ stage: 'closed' as DealStage, label, addRow: payoffRow(d) });
 /** A flip's recorded sale (in its packet's owned section). */
 export const soldOf = (d: { id?: string }) => (d.id ? loadOwned()[d.id]?.sold : undefined);

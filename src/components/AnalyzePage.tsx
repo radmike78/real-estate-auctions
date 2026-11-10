@@ -588,7 +588,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <CalcRegion.Provider value={{ state: deal.state, county: deal.county }}>
         <Calculators key={`${deal.id}-${deal.state}-${deal.county}-${deal.kind}`} dealId={deal.id || undefined} onAnalyze initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} saleKind={deal.kind} offer={deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short'} lien={deal.kind === 'lien'} />
         {/* For a listed, bank-owned or short-sale home, the seller may offer to carry the loan. */}
-        {(deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short') && (
+        {(deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short') && !['closed', 'owned'].includes(deal.stage ?? '') && (
           <details className="plan-section" id="seller-financing">
             <summary>If the seller offers financing</summary>
             <p>The payment, the balloon you’d owe, and the cash it saves against a bank loan.</p>

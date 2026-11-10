@@ -445,7 +445,7 @@ export function FirstDealRoadmap() {
       })()}
       <div className="roadmap-deal">
         <label className="field">
-          <span>Property you’re working on</span>
+          <span>Roadmap for</span>
           <select
             value={deal ? deal.id : ''}
             onChange={(e) => {

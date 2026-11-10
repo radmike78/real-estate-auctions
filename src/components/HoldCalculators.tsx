@@ -596,7 +596,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const groups0 = withTaxHint(offer ? forOffer(rt.groups) : rt.groups);
   // Living there: that's a rental's rate; a home you live in may get an owner-occupant (homestead) exemption.
   const groups = livesHere
-    ? groups0.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} ${ownerOccupiedTaxNote(region.state)}`.trim() } : f.k === 'insuranceYear' ? { ...f, hint: 'A homeowner’s policy for the home you’ll live in. If you’ll rent out a room or unit, tell the insurer.*' } : f.k === 'repairs' ? { ...f, hint: 'To make it ready to move in.' } : f.k === 'monthlyRent' ? { ...f, hint: '0, or only the rent from space you’ll rent out.' } : f.k === 'cashAvailable' ? { ...f, hint: 'All the cash you can put in: the price and every cost until you move in. Leave 0 for no limit.' } : f)) }))
+    ? groups0.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} ${ownerOccupiedTaxNote(region.state)}`.trim() } : f.k === 'insuranceYear' ? { ...f, hint: 'A homeowner’s policy for the home you’ll live in. If you’ll rent out a room or unit, tell the insurer.*' } : f.k === 'repairs' ? { ...f, hint: bought ? 'Repairs you’ve made or still plan.' : 'To make it ready to move in.' } : f.k === 'monthlyRent' ? { ...f, hint: '0, or only the rent from space you’ll rent out.' } : f.k === 'cashAvailable' ? { ...f, hint: 'All the cash you can put in: the price and every cost until you move in. Leave 0 for no limit.' } : f)) }))
     : groups0;
   // Numbers from your plan or the property (`start`) aren't our examples.
   const still = exampleLabels(visibleFields(groups, v), v, examples, typedKeys, new Set([...NOT_EXAMPLES, ...Object.keys(start)]));
@@ -636,7 +636,8 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
             <label className="check"><input type="radio" name={`home-${ownDeal.id}`} checked={ownDeal.home === 'rent' && ownDeal.homeFrom !== 'plan'} onChange={() => { setDealHome(ownDeal.id, 'rent'); bumpHome((n) => n + 1); }} /> No, it’s a rental</label>
           </fieldset>
         )}
-        {livesHere && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
+        {livesHere && bought && <p className="calc-note small" role="note"><strong>You live here.</strong> Enter any rent a room or unit brings in, or 0. The results show what your home costs each month.</p>}
+        {livesHere && !bought && <p className="calc-note small" role="note"><strong>Living there?</strong> Enter only the rent from the space you’ll rent out (another unit or a room), or 0. The results then show what living there costs you after that rent; the return target and walk-away price are an investor’s yardstick, so compare the monthly cost with what you pay to live now too.</p>}
         <AtThisPrice v={v} start={noReal ? NaN : r.maxBid} onPrice={offer} setPrice={(n) => set('atPrice', n)} word={word} exampleValue={exampleValue} cashTyped={typedKeys.has('cashAvailable')} targetTyped={typedKeys.has('targetCocPct')} dscrTyped={typedKeys.has('minDscr')} rentTyped={!exactKey || typedKeys.has('monthlyRent')} living={livesHere} />
         {living && bought ? null : living ? (
           <details className="calc-assumptions">

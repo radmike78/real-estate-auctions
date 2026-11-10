@@ -93,6 +93,10 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
   // (A void sale marked passed went past the sale too: its parts are records.)
   // Passed, sold or repaid: its dates are a record (the rows fold under "Edit these dates").
   const finalDeal = stageOf(deal) === 'passed' || !!soldOf(deal) || finishedDeal(deal);
+  // (A deal moved to Passed by its repayment is finished, not passed on.)
+  const passedOn = stageOf(deal) === 'passed' && !finishedDeal(deal);
+  // An offer bought with no dates in its packet: Key dates is a record left blank, like the other parts from before.
+  const boughtNoDates = wayOf(deal) === 'offer' && ['closed', 'owned'].includes(stageOf(deal)) && p.dates.length === 0;
   const pastSale = ['closed', 'owned'].includes(stageOf(deal)) || finishedDeal(deal) || wonAuction || sidState(deal) === 'void';
   // The parts from before you bought: records now, not homework.
   // (After the closing or the deed, the evidence log and the questions were for before you bought: records too.)
@@ -102,7 +106,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
     return (
       <>
         <h2 id={`packet-${k}`}>
-          {s.title} {pastSale && RECORD_PARTS.includes(k) && s.status !== 'done' ? <span className="packet-status record">{s.status === 'missing' ? 'Left blank' : 'Partly filled in'}</span> : (k === 'dates' && finalDeal && stageOf(deal) !== 'passed' && p.dates.length === 0 ? <span className="packet-status record">Not needed now</span> : stageOf(deal) === 'passed' && sidState(deal) !== 'void' && s.status !== 'done' && (k !== 'dates' || p.dates.length === 0) && k !== 'decision' ? <span className="packet-status record">Not needed (you passed)</span> : s.status === 'missing' && (stageOf(deal) === 'researching' || (wayOf(deal) === 'offer' && stageOf(deal) === 'offer' && k === 'dates')) ? <span className="packet-status record">{k === 'dates' && wayOf(deal) === 'offer' ? 'Not needed yet' : 'Not started'}</span> : <span className={`packet-status ${k === 'dates' && finalDeal && p.dates.length ? 'record' : s.status}`}>{k === 'dates' && finalDeal && p.dates.length ? 'Kept as a record' : s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>)}
+          {s.title} {pastSale && RECORD_PARTS.includes(k) && s.status !== 'done' ? <span className="packet-status record">{s.status === 'missing' ? 'Left blank' : 'Partly filled in'}</span> : (k === 'dates' && boughtNoDates ? <span className="packet-status record">Left blank</span> : k === 'dates' && finalDeal && stageOf(deal) !== 'passed' && p.dates.length === 0 ? <span className="packet-status record">Not needed now</span> : stageOf(deal) === 'passed' && sidState(deal) !== 'void' && s.status !== 'done' && (k !== 'dates' || p.dates.length === 0) && k !== 'decision' ? <span className="packet-status record">Not needed (you passed)</span> : s.status === 'missing' && (stageOf(deal) === 'researching' || (wayOf(deal) === 'offer' && stageOf(deal) === 'offer' && k === 'dates')) ? <span className="packet-status record">{k === 'dates' && wayOf(deal) === 'offer' ? 'Not needed yet' : 'Not started'}</span> : <span className={`packet-status ${k === 'dates' && finalDeal && p.dates.length ? 'record' : s.status}`}>{k === 'dates' && finalDeal && p.dates.length ? 'Kept as a record' : s.status === 'done' && s.doneLabel ? s.doneLabel : STATUS_LABEL[s.status]}</span>)}
         </h2>
         {pastSale && RECORD_PARTS.includes(k) && <p className="muted small">{sidState(deal) === 'void' ? 'From before the sale: kept as your records.' : deal.kind === 'lien' ? 'From before you were picked: kept as your records.' : 'From before you bought: kept as your records.'}</p>}
       </>
@@ -188,8 +192,8 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
 
       <section className="deal-setup packet-section" aria-labelledby="packet-dates">
         <Head k="dates" />
-        {finalDeal ? (p.dates.some((x) => x.when) ? <p className="muted">{stageOf(deal) === 'passed' ? 'Kept as a record of the dates you had when you passed.' : 'Kept as a record of this property’s dates.'}</p> : null) : <p className="muted">{wayOf(deal) === 'offer' ? (['researching', 'offer'].includes(stageOf(deal)) ? 'From the listing and your offer; once it’s signed, the contract wins over anything here.' : 'From the signed contract: the contract wins over anything here.') : 'From the official notice: the notice wins over anything here.'}</p>}
-        {p.dates.length === 0 && <OwlNote>{stageOf(deal) === 'passed' ? 'No dates were added before you passed. Add one if you want it on file.' : finalDeal ? 'No dates were added for this property. Add one if you want it on file.' : wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'No dates yet. Nothing needs a date until your offer is accepted; then the contract’s deadlines go here.' : `No dates yet. Start with the usual dates for this kind of sale below (the ${wayOf(deal) === 'offer' ? 'signed contract' : 'official notice'} wins), then fill in each one.`}</OwlNote>}
+        {finalDeal || boughtNoDates ? null : <p className="muted">{wayOf(deal) === 'offer' ? (['researching', 'offer'].includes(stageOf(deal)) ? 'From the listing and your offer; once it’s signed, the contract wins over anything here.' : 'From the signed contract: the contract wins over anything here.') : 'From the official notice: the notice wins over anything here.'}</p>}
+        {p.dates.length === 0 && <OwlNote>{boughtNoDates ? 'No dates were recorded before you bought. Add one if you want it on file.' : passedOn ? 'No dates were added before you passed. Add one if you want it on file.' : finalDeal ? 'No dates were added for this property. Add one if you want it on file.' : wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'No dates yet. Nothing needs a date until your offer is accepted; then the contract’s deadlines go here.' : `No dates yet. Start with the usual dates for this kind of sale below (the ${wayOf(deal) === 'offer' ? 'signed contract' : 'official notice'} wins), then fill in each one.`}</OwlNote>}
         {(() => { const rows = (<>
         <ul className="packet-dates">
           {p.dates.map((x, i) => (
@@ -204,7 +208,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           ))}
         </ul>
         <div className="row">
-          {p.dates.length === 0 && !finalDeal && <button type="button" className={wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'btn btn-secondary' : 'btn'} onClick={() => { update({ dates: suggestedDates(deal).map((what) => ({ when: '', what, who: '' })) }); setTimeout(() => document.querySelector<HTMLInputElement>('#dates input, [data-section="dates"] input, .packet-dates input')?.focus(), 0); }}>{wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'Add the contract’s usual dates now (they can stay blank)' : 'Start with the usual dates for this sale'}</button>}
+          {p.dates.length === 0 && !finalDeal && !boughtNoDates && <button type="button" className={wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'btn btn-secondary' : 'btn'} onClick={() => { update({ dates: suggestedDates(deal).map((what) => ({ when: '', what, who: '' })) }); setTimeout(() => document.querySelector<HTMLInputElement>('#dates input, [data-section="dates"] input, .packet-dates input')?.focus(), 0); }}>{wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'Add the contract’s usual dates now (they can stay blank)' : 'Start with the usual dates for this sale'}</button>}
           {(() => {
             // Usual dates removed (or added since the packet was started): add back only those, at the end.
             // (Past the sale, not the dates already behind it; once redeemed, not the deed.)
@@ -235,7 +239,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
         <p className="muted small">{stageOf(deal) !== 'passed' && !calendarReady(forCalendar(deal, p, stageOf(deal)), stageOf(deal)) && <span>{p.dates.length === 0 ? (wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? 'Nothing needs a date until your offer is accepted. ' : 'Add this sale’s dates first: use “Start with the usual dates for this sale” above. ') : `${(() => { const miss = calendarRows(forCalendar(deal, p, stageOf(deal)), stageOf(deal)).filter((x) => !dateRowComplete(x)); const noDate = miss.filter((x) => !x.when || !x.what.trim()).map((x) => x.what || 'an unnamed date'); const noWho = miss.filter((x) => x.when && x.what.trim()).map((x) => x.what); return [noDate.length ? `No date yet: ${noDate.join('; ')}.` : '', noWho.length ? `Who handles it is still blank for: ${noWho.join('; ')}.` : ''].filter(Boolean).join(' '); })()} `}{wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) && p.dates.length === 0 ? null : <>Fill in the date, task and who handles it for every entry first; a date marked “(if …)” {['researching', 'offer'].includes(stageOf(deal)) ? (wayOf(deal) === 'offer' ? 'and the contract’s dates (until your offer is accepted)' : 'and the dates after the sale') : 'and one that counts from a later event'} can stay blank for now.</>}</span>}</p>
         </>}
         {p.dates.length > 0 && !finalDeal && <p className="muted small">Past dates stay open until you mark them handled. Confirm completion or an agreed resolution with your team, and remove entries that do not apply. Ask your {wayOf(deal) === 'offer' ? 'agent' : 'title company'} or attorney to confirm the calendar.{!(wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal))) && sidState(deal) !== 'void' ? ' Adding or changing a date requires another review.' : ''}</p>}
-        {!(stageOf(deal) === 'passed' && p.dates.length === 0) && <Lines k="dates" />}
+        {!((passedOn || boughtNoDates) && p.dates.length === 0) && <Lines k="dates" />}
         {guideRows.length > 0 && !finalDeal && (
           <>
             <details><summary>What the less familiar {deal.state === 'TX' ? (['listing', 'reo', 'short'].includes(deal.kind) ? 'Texas contract ' : 'Texas ') : ''}dates mean</summary>
@@ -310,8 +314,8 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
 
       <section className="deal-setup packet-section" aria-labelledby="packet-decision">
         <Head k="decision" />
-        <DecisionGate dealId={key} record={pastSale || stageOf(deal) === 'passed'} passed={stageOf(deal) === 'passed'} onPass={stageOf(deal) === 'passed' ? undefined : () => { setDealStage(deal.id, 'passed'); }} />
-        {stageOf(deal) === 'passed' ? <p className="muted">You passed on this property: nothing needs deciding here now.</p> : pastSale ? <p className="muted">{loadLog(key).gate ? 'This records the choice you made before you bought: nothing needs deciding here now.' : 'No decision was recorded before you bought. Nothing needs deciding here now; add your reasons below if you’d like them on file.'}</p> : <p className="muted">Write down why, and anything that must be true before you sign or bid. The same choice shows at the end of the evidence log.</p>}
+        <DecisionGate dealId={key} record={pastSale || stageOf(deal) === 'passed'} passed={passedOn} onPass={stageOf(deal) === 'passed' ? undefined : () => { setDealStage(deal.id, 'passed'); }} />
+        {passedOn ? <p className="muted">You passed on this property: nothing needs deciding here now.</p> : pastSale ? <p className="muted">{loadLog(key).gate ? 'This records the choice you made before you bought: nothing needs deciding here now.' : 'No decision was recorded before you bought. Nothing needs deciding here now; add your reasons below if you’d like them on file.'}</p> : <p className="muted">Write down why, and anything that must be true before you sign or bid. The same choice shows at the end of the evidence log.</p>}
         {(() => { const boxes = (<>
         <label className="field wide">
           <span>Why</span>
@@ -321,7 +325,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
           <span>{pastSale || stageOf(deal) === 'passed' ? 'Conditions you had (optional)' : 'Still to resolve before you commit'}</span>
           <textarea rows={2} maxLength={1000} value={p.conditions} onChange={(e) => update({ conditions: e.target.value })} placeholder="e.g. Title company confirms the 2023 lien will be released; insurance quote under $1,500." />
         </label>
-        </>); return pastSale || stageOf(deal) === 'passed' ? <details open={p.decisionWhy || p.conditions ? true : undefined}><summary>{stageOf(deal) === 'passed' ? 'Add why you passed (optional)' : 'Add to the record'}</summary>{boxes}</details> : boxes; })()}
+        </>); return pastSale || stageOf(deal) === 'passed' ? <details open={p.decisionWhy || p.conditions ? true : undefined}><summary>{passedOn ? (p.decisionWhy || p.conditions ? 'Why you passed' : 'Add why you passed (optional)') : 'Add to the record'}</summary>{boxes}</details> : boxes; })()}
         {!(pastSale || stageOf(deal) === 'passed') && <Lines k="decision" />}
       </section>
       <section className="deal-setup packet-section" aria-labelledby="packet-owned">
