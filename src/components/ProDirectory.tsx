@@ -8,7 +8,7 @@ import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
 import OwlNote from './OwlNote';
 import ProAvatar from './ProAvatar';
 import { FeaturedAds, inArea } from './AdBoxes';
-import { areaLong, useMyArea } from '../lib/myArea';
+import { areaLong, useMyArea, type Area } from '../lib/myArea';
 import { AreaDialog } from './AreaPicker';
 import { stateByCode } from '../lib/regions';
 import { VERIFIED_NOTICE } from '../lib/proVerification';
@@ -74,13 +74,15 @@ interface Props {
   header?: ReactNode; // a heading for the section, shown with the listings
   hideWhenEmpty?: boolean; // for a directory that's a side section of another page: nothing at all until someone is listed
   featured?: boolean; // show the Featured ad box above the list (off where the page shows it elsewhere)
+  fallbackArea?: Area; // the area to show when the visitor chose only a state (Las Vegas for Nevada on Your team)
 }
 
-export default function ProDirectory({ categories, initialCategory = 'any', showCategoryFilter = true, initialLocation = '', notice, header, hideWhenEmpty = false, featured = true }: Props) {
+export default function ProDirectory({ categories, initialCategory = 'any', showCategoryFilter = true, initialLocation = '', notice, header, hideWhenEmpty = false, featured = true, fallbackArea }: Props) {
   const { pros: all, usingSamples, error, loading } = useDirectory();
   // Advertisers in the visitor's state (every state until they pick one), and of those, the ones advertising in the
   // visitor's city or county when they chose one, unless they ask to see the whole state.
-  const [area] = useMyArea();
+  const [myArea] = useMyArea();
+  const area = !myArea?.county && fallbackArea && (!myArea || myArea.state === fallbackArea.state) ? fallbackArea : myArea;
   const [wide, setWide] = useState(false);
   const [picking, setPicking] = useState(false);
   const stateWide = area ? all.filter((p) => p.state === area.state) : all;

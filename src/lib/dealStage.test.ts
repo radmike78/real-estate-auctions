@@ -825,6 +825,24 @@ describe('Nevada round 4 flow', () => {
     expect(stageHint('contract', tax)).toBe('Payment and recording deadlines are running.');
   });
 
+  it('round 23 flow: a paid Nevada tax-sale win names the SID payoff next; a sold flip names its sale month and the purchase month’s days', async () => {
+    const { sidPending } = await import('./dealStage');
+    const { flipSaleLine } = await import('./dealPacket');
+    const tax = { ...nvFlip, id: 'tx23', kind: 'taxSale' as const, stage: 'contract' as const };
+    saveDeals([tax]);
+    savePacket('analyzed:tx23', { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '', what: 'SID certificate payoff (affidavit filed)', who: 'City' }] });
+    expect(sidPending(tax, new Date('2026-10-06T12:00:00'))).toBe('pay the SID certificate by Oct 21, 2026, or the sale is void (NRS 361.595(6))');
+    expect(sidPending(tax, new Date('2026-10-25T12:00:00'))).toMatch(/^the 20 days for any SID payoff ended Oct 21, 2026/);
+    // A trustee win shows no SID step.
+    expect(sidPending(nvFlip, new Date('2026-10-06T12:00:00'))).toBe('');
+    // Bought Sep 16, October recorded, sold Nov 6: November (the sale month) and Sep 16–30 are named.
+    localStorage.setItem('fsf.bid.analyzed-f1.v1', JSON.stringify({ exitValue: 340000, proposedPrice: 180000, sellingCostPct: 6 }));
+    saveOwned({ f1: { boughtOn: '2026-09-16', months: [{ month: '2026-10', rent: 0, costs: 31000, note: '' }], sold: { on: '2026-11-06', price: 335000 } } });
+    const line = flipSaleLine({ ...nvFlip, stage: 'owned' })!;
+    expect(line).toMatch(/No costs are recorded for Nov 2026 \(the sale month, through Nov 6, 2026\), so this leaves it out/);
+    expect(line).toMatch(/Costs from Sep 16, 2026 to the end of that month count only if you included them in Oct 2026\./);
+  });
+
   it('round 11 flow: a late SID payoff; Still to add; hints; time order after the deed; registration passed', async () => {
     const { packetSections, dealPacketText } = await import('./dealPacket');
     const tax = { ...nvFlip, kind: 'taxSale' as const };

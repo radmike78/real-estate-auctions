@@ -8,7 +8,7 @@ import TeamList from './TeamList';
 import ProDirectory, { useDirectory } from './ProDirectory';
 import { FeaturedAds, RotatingAd } from './AdBoxes';
 import { AreaLine } from './AreaPicker';
-import { useMyArea } from '../lib/myArea';
+import { useMyArea, type Area } from '../lib/myArea';
 import { prosInArea } from '../lib/adAreas';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPercent, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
@@ -160,8 +160,12 @@ const oneBar = (st: string | null, x: string) => (st && BAR[st] ? x.replace(ALL_
 /** Keyword-led text ("Dual agency: …") split into its label and the rest. */
 const keyword = (t: string) => t.match(/^([A-Z][A-Za-z’' -]{1,30}): (.+)$/s);
 
+/** Nevada readers who chose only the state see Las Vegas (Clark) first, on the tiles and in each role's list. */
+const nvFallback = (st: StateCode | null | undefined): Area | null => (st === 'NV' ? { state: 'NV', county: 'Clark', city: 'Las Vegas' } : null);
+
 function GuideBody({ g }: { g: ProGuide }) {
   const [st] = useMyState();
+  const [myArea] = useMyArea();
   const keep = (x: string) => showFor(st, x) && forStateText(st, x) !== '';
   const fit = (xs: string[]) => xs.filter(keep).map((x) => oneBar(st, forStateText(st, x))).filter(Boolean);
   // A paragraph cut down to just its opening line (the rest was about other states) would dangle: leave it out.
@@ -280,6 +284,7 @@ function GuideBody({ g }: { g: ProGuide }) {
           showCategoryFilter={g.directory.length > 1}
           hideWhenEmpty
           featured={!script}
+          fallbackArea={myArea?.county ? undefined : nvFallback(myArea?.state ?? st) ?? undefined}
           header={
             <>
               <h2 className="part-head">Listed on DeedOwl{st ? ` (${stateByCode(st)?.name})` : ''}</h2>
@@ -312,7 +317,7 @@ export default function FindAProPage({ section }: { section?: string }) {
   // county, else Las Vegas for Nevada (real listings only; sample profiles never count).
   const { pros: listedPros } = useDirectory();
   const [myArea] = useMyArea();
-  const near = myArea?.county ? myArea : (myArea?.state ?? mine) === 'NV' ? { state: 'NV' as StateCode, county: 'Clark', city: 'Las Vegas' } : null;
+  const near = myArea?.county ? myArea : nvFallback(myArea?.state ?? mine);
   const nearName = near ? near.city ?? (near.county ? countyName(near.county) : '') : '';
   const listedFor = (g: ProGuide) => (near && g.directory ? prosInArea(listedPros.filter((x) => !x.isSample && isListable(x) && g.directory!.includes(x.category)), near).length : 0);
   const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: listedFor(g) ? <>{g.summary} <strong className="drill-listed">{listedFor(g)} listed in {nearName}</strong></> : g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
