@@ -123,7 +123,7 @@ export const FACTS: Fact[] = [
     claim: 'The owner has 120 days to redeem, or 2 years if there is a home or significant improvements.',
     sources: ['nrs-271'],
     checked: '2026-09-27',
-    where: [{ file: PB, text: 'the redemption period is 2 years, not 120 days' }],
+    where: [{ file: PB, text: 'the wait can be 2 years instead of 120 days' }],
   },
   {
     id: 'sid-expiry',

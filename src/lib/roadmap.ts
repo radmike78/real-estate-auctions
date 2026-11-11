@@ -258,11 +258,11 @@ export const ROADMAP: RoadmapStep[] = [
   },
   {
     id: 'c-paper', phase: 3, path: LIEN, title: 'Research real parcels on paper',
-    text: 'Pick parcels from your county’s published lien list and research them as if you were bidding. You’re judging the lien’s risk, not a property’s rent.',
+    text: 'Pick parcels from your county’s published lien list and research them as if you were going to buy them. You’re judging the lien’s risk, not a property’s rent.',
     outcome: 'Three parcels researched, with one you’d skip and why.',
     steps: [
       'Choose three parcels from the official list for your county’s next lien sale.',
-      'For each, write: the parcel number, what’s on the land and its assessed value (from the assessor), the lien amount, and the rate or bid rules.',
+      'For each, write: the parcel number, what’s on the land and its assessed value (from the assessor), the lien amount, and how buyers are picked (the rate and bidding rules, where there are any).',
       'Note anything that makes payoff or enforcement harder: other liens, a parcel too small or odd to use, or a property in bankruptcy.',
       'Run each one in the lien calculator, and write one reason you’d skip at least one of them.',
     ],
@@ -377,7 +377,7 @@ export const ROADMAP: RoadmapStep[] = [
   {
     id: 'c-budget', phase: 4, path: LIEN, title: 'Budget for the whole holding period',
     evidence: 'exit',
-    text: 'Plan for more than the purchase: later years’ taxes you may pay, fees, and what it costs if a lien is never paid. In Arizona, that’s an attorney for a foreclosure case. In Nevada, it’s serving notice on the owner and asking the treasurer for a deed.',
+    text: 'Plan for more than the purchase: later years’ taxes you may pay, fees, and what it costs if a lien is never paid. In Arizona, that’s an attorney for a foreclosure case. In Nevada, if a lien is never paid, getting the property means serving formal notice on the owner, then asking the Treasurer for a deed.',
     outcome: 'A budget for the purchase, later taxes, fees, and a possible attorney.',
     steps: ['Total what you’ll pay at the sale, with fees.', 'Estimate later years’ taxes you may choose to pay.', 'Arizona: get an attorney’s rough cost for a foreclosure case, in case you need one. Nevada (SID): budget for the formal notice to the owner (an attorney or process server) and the delinquent taxes and assessments you must pay before the treasurer issues a deed.'],
     doneWhen: 'Your budget covers the purchase, later taxes, fees and a possible attorney.',
@@ -534,7 +534,7 @@ export const ROADMAP: RoadmapStep[] = [
     text: 'Go after only parcels on your list, and pay in full by the county’s deadline.',
     outcome: 'Your certificates paid for and listed with the county.',
     steps: ['In Arizona, bid on your researched parcels only.', 'In Nevada, sign up only for parcels on your list: buyers are picked by a drawing or a show of hands, so be ready to pay for any you’re picked for.', 'Pay in full, in the form the county requires, by its deadline.', 'Save each certificate and receipt.'],
-    docs: ['Certificate of purchase (or the county’s record of it)', 'Payment receipts'],
+    docs: ['Your certificate of sale or purchase (the name depends on your state), or the county’s record of it', 'Payment receipts'],
     doneWhen: 'Each certificate is paid for and saved.',
     action: 'Lien guides', href: '#/playbooks',
   },
@@ -625,7 +625,7 @@ export const ROADMAP: RoadmapStep[] = [
     outcome: 'A refinance closed, or a written reason to wait: the appraised value, the new payment, the cash you got back and what stays in the property.',
     steps: [
       'Ask two or three lenders their waiting period before a cash-out refinance, and whether the “delayed financing” exception fits a cash purchase.',
-      'Before you apply, run the numbers at a conservative value: the new payment must still leave positive cash flow and your reserves.',
+      'Before you apply, run the numbers at a conservative value: check whether the new payment still leaves positive cash flow and your reserves. If it doesn’t, see “When to pause” below.',
       'Gather the lease, rent history, repair receipts and your closing statement. Compare the lenders’ written quotes the same day: a refinance of a rental you don’t live in is usually a business loan, so expect a term sheet rather than a Loan Estimate.',
     ],
     say: { to: 'Lender', script: '“I own a rental at [address], bought on [date] for [price], rented at [rent]. What’s your waiting period for a cash-out refinance, what loan-to-value can you do, and what will you need from me?”' },
@@ -656,7 +656,7 @@ export const ROADMAP: RoadmapStep[] = [
     steps: [
       'Before you accept an offer, choose a qualified intermediary and sign the exchange agreement.',
       'Start looking for the replacement before you sell: 45 days goes fast.',
-      'Buy a replacement of equal or greater value and reinvest all the cash; debt you pay off must be replaced with new debt or added cash, or expect tax on the difference.',
+      'To put off all of the tax, the replacement generally has to cost at least as much as what you sold, all the cash has to be reinvested, and any debt paid off has to be replaced with new debt or added cash; anything less is taxed (called boot).* Whether that’s worth it depends on your situation; ask your tax advisor.',
     ],
     say: { to: 'Qualified intermediary', script: '“I’m selling a rental at [address], closing around [date]. I want a 1031 exchange. What do you need from me, how is my money held, and are you bonded and insured?”' },
     stop: 'If no replacement works on its own numbers, compare paying the tax now with buying a weaker property to defer it. A tax advisor can show both; what fits depends on your situation.',
@@ -683,7 +683,7 @@ const ROUTE_WORDING: Record<string, Partial<Record<RoadmapPath, Partial<RoadmapS
     certificate: {
       text: 'Decide in advance what makes you skip a parcel or stop buying. A certificate’s price is the amount owed, so your limits are what you’ll tie up, how long you’ll wait, and which parcels you won’t take.',
       outcome: 'Your skip-and-stop rules, written next to your lien limits.',
-      steps: ['Read the walk-away lesson.', 'Write the most you’ll tie up in one certificate, the longest you’ll wait to be paid, and three kinds of parcel you won’t take even at the full rate.'],
+      steps: ['Read the walk-away lesson.', 'Write the most you’ll tie up in one certificate, the longest you’ll wait to be paid, and three kinds of parcel you won’t take at any price.'],
       doneWhen: 'Your skip-and-stop rules are written down.',
     },
   },

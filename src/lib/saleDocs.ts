@@ -51,7 +51,7 @@ export const SALE_DOCS: Record<SaleKindKey, SaleDoc[]> = {
     { name: 'Bidder registration (often online)', check: 'Register by the county’s deadline. The county may ask for a W-9 so it can report the interest you earn.' },
     { name: 'Your parcel research notes', check: 'For each parcel: map, access, zoning and use. Bid only on parcels you’d be willing to own.' },
     FUNDS,
-    { name: 'Certificate of purchase (or the county’s record of it)', check: 'Parcel number, amount paid and your interest rate. Keep it with your receipt.' },
+    { name: 'Your certificate of sale or purchase (the name depends on your state), or the county’s record of it', check: 'Parcel number, amount paid and your interest rate. Keep it with your receipt.' },
     { name: 'Your payoff record', check: 'For each certificate: what you paid, the rate, and every payment the county sends you. Match each payoff to your record.' },
   ],
   sid: [

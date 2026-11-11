@@ -82,7 +82,7 @@ export const OTHER_SITES: { group: string; sites: DealSource[] }[] = [
 export const STATE_SALES: Record<StateCode, string[]> = {
   NV: [
     'Lien certificates: counties and cities with special improvement districts (Clark and Washoe counties and some cities) sell their SID lien certificates under NRS 271. You buy the lien, not the property; the owner can redeem for 120 days, or 2 years with a building.',
-    'Tax sales: about a year after taxes go unpaid, the county issues a tax certificate, and the owner has 2 years (1 if abandoned) to pay. If they don’t, the county treasurer takes title in trust and auctions it with a quitclaim deed (a deed with no promise about title). In all, about 3 years of unpaid taxes (2 if abandoned).',
+    'Tax sales: about a year after taxes go unpaid, the county issues a certificate (a county record, not something you can buy), and the owner has 2 years (1 if abandoned) to pay. If they don’t, the Treasurer takes a deed and holds the property in trust for the state and county, then auctions it with a quitclaim deed (a deed with no promise about title). In all, about 3 years of unpaid taxes (2 if abandoned).',
     'Foreclosures: trustee auctions at least 3 months after the notice of default, with 20 days’ posted notice. The owner can’t redeem afterward, but if the sale wiped out a junior federal tax lien, the United States can redeem within 120 days (26 USC 7425).',
   ],
   CA: [

@@ -503,6 +503,8 @@ export function rank(answers: Answers): Match[] {
       else if (v && w < 0) weak.push(answerText(q, v));
       if (q.key === 'goal' && w >= 3) goalFit = true;
     }
+    // (A house hack needs a home loan: paying cash only, the budget isn't a reason it fits.)
+    if (s.key === 'househack' && answers.borrow === 'cash' && answers.cash) { const q = QUESTIONS.find((x) => x.key === 'cash'); if (q) { const t = answerText(q, answers.cash); const k = fits.indexOf(t); if (k >= 0) fits.splice(k, 1); } }
     // (Rent income while living in the property is the house hack's own goal.)
     if (s.key === 'househack' && answers.goal === 'income' && answers.borrow === 'live') goalFit = true;
     return { strategy: s, score, fits, cautions, weak, goalFit };

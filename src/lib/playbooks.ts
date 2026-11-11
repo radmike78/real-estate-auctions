@@ -125,7 +125,7 @@ const NEVADA: Playbook[] = [
       { title: 'Research the parcels', detail: 'The Assessor has parcel details but not liens, so search the Recorder too. Know what the land is in case you end up owning it.' },
       { title: 'Register in person', detail: 'Bring government photo ID with your current mailing address and fill out the buyer registration form. You must be present. Friends and family can’t register for you, and late arrivals can’t take part.' },
       { title: 'Drawing and payment', detail: "A random number generator picks the winner and two alternates for each parcel. Pay by 10:00 a.m. the next business day in cash, cashier's check or money order. Otherwise, the certificate goes to the first alternate (then the second). If nobody pays for a certificate, it’s sold first come, first served at the Treasurer’s window the next business day from 8:00 a.m. After noon, what’s left goes to the County. The County may sell them over the counter later for the price plus 1% a month." },
-      { title: 'Wait for redemption', detail: 'Most owners pay.* You get back the price plus 1% a month, usually 30–60 days after they redeem. If later taxes go unpaid, you may pay them and add them to the certificate. To do that, give the Treasurer written notice and your receipts.' },
+      { title: 'Wait for redemption', detail: 'The wait is 120 days, or 2 years if there was a home or other significant improvement on the land at the sale, as the county or city decides (NRS 271.595). Most owners pay.* You get back the price plus 1% a month, usually 30–60 days after they redeem. If later taxes go unpaid, you may pay them and add them to the certificate. To do that, give the Treasurer written notice and your receipts.' },
       { title: 'If there is no redemption', detail: 'After the period ends, the owner must be formally served with notice that a deed will be requested. Certified mail isn’t enough: have your attorney or a process server handle the service, the posting on the property and, if the owner can’t be found, publication (the Treasurer suggests a process server). Don’t contact the owner yourself. If they still don’t redeem within 60 days, pay any delinquent taxes and assessments and request the deed. Don’t wait: the certificate expires 3 years after the redemption period ends.' },
     ],
     survives: {
@@ -135,7 +135,7 @@ const NEVADA: Playbook[] = [
     mistakes: [
       { mistake: 'Expecting to get the property', prevent: 'Treat it as an investment in a debt. Most certificates are redeemed.*' },
       { mistake: 'Treating the land as yours', prevent: 'A certificate is only a lien. You have no right to enter, mow, cut trees or use the property.' },
-      { mistake: 'Ignoring what’s on the land', prevent: 'If there is a building, the redemption period is 2 years, not 120 days.' },
+      { mistake: 'Ignoring what’s on the land', prevent: 'If there’s a home or other significant improvement, the wait can be 2 years instead of 120 days: budget for the longer one.' },
       { mistake: 'Forgetting later taxes', prevent: 'Pay later delinquent taxes and notify the Treasurer in writing so they’re added to your certificate.' },
     ],
     example: {
@@ -217,7 +217,7 @@ const NEVADA: Playbook[] = [
     glance: [
       { label: 'Law', value: 'NRS 116 (common-interest communities)' },
       { label: 'Super-priority', value: 'Up to 9 months of dues (plus certain charges) rank ahead of the first mortgage' },
-      { label: 'Lender payoff', value: 'The first deed of trust (the main home loan) survives if the lender paid the priority amount at least 5 days before the sale. It also survives if the lender offered to pay it and the HOA refused (Bank of America v. SFR, 2018)' },
+      { label: 'Lender payoff', value: 'The first deed of trust (the main home loan) survives if the lender paid the super-priority amount (up to 9 months of dues that rank ahead of the first mortgage) at least 5 days before the sale and that payment was recorded at least 2 days before (NRS 116.31164(2)). It also survives if the lender offered to pay it and the HOA refused (Bank of America v. SFR, 2018)' },
       { label: 'Fannie Mae / Freddie Mac loans', value: 'If one of them owned the loan, the mortgage survives an HOA sale unless the Federal Housing Finance Agency (FHFA, which oversees Fannie Mae and Freddie Mac) consented. This federal rule is called the Foreclosure Bar' },
       { label: 'Redemption', value: '60 days after the sale. The redeemer pays your price plus 1% a month, plus taxes, assessments and upkeep you paid' },
       { label: 'What you get first', value: 'A certificate of sale; a deed without warranty after the redemption period (NRS 116.31166). If the sale wiped out a junior federal tax lien, the U.S. can buy it back for 120 days, longer than the 60 days for the owner or a junior lender (26 U.S.C. 7425); a lien the sale didn’t wipe out stays on the home. Ask a title company before bidding whether it will insure without a quiet title lawsuit' },
@@ -234,7 +234,7 @@ const NEVADA: Playbook[] = [
     ],
     survives: {
       wipedOut: ['The HOA lien being foreclosed', 'The first mortgage, only if three things are true. The lender did not pay the priority amount. The loan wasn’t owned by Fannie Mae or Freddie Mac. And the sale was proper'],
-      mayStay: ['The first mortgage, if the lender paid the priority amount at least 5 days before the sale, or validly offered it and was refused. Also if Fannie Mae or Freddie Mac owned the loan (while they are under federal conservatorship)', 'Property taxes', 'Federal tax liens. Even when wiped out, the U.S. can buy the home back within 120 days, longer than the 60 days for the owner or a junior lender (26 U.S.C. 7425)', 'The 60-day redemption right'],
+      mayStay: ['The first mortgage, if the lender paid the super-priority amount at least 5 days before the sale, or validly offered it and was refused. Also if Fannie Mae or Freddie Mac owned the loan (while they are under federal conservatorship)', 'Property taxes', 'Federal tax liens. Even when wiped out, the U.S. can buy the home back within 120 days, longer than the 60 days for the owner or a junior lender (26 U.S.C. 7425)', 'The 60-day redemption right'],
     },
     mistakes: [
       { mistake: 'Assuming every HOA sale wipes out the mortgage', prevent: 'Check the Recorder for the lender’s payment before bidding. No recorded payment doesn’t prove the mortgage is gone. An offer to pay that the HOA refused, or Fannie Mae or Freddie Mac owning the loan, can keep it. Have an attorney check.' },
@@ -342,7 +342,7 @@ const NEVADA: Playbook[] = [
       { label: 'How it’s sold', value: 'Listed by the lender’s broker, or at an auction the lender chooses' },
       { label: 'Financing', value: 'Allowed; get pre-approved first' },
       { label: 'Inspection', value: 'Usually allowed within your contingency period. Bank-owned doesn’t mean good condition, empty or clear title. Inspect, ask whether it will be delivered vacant, and read the title report' },
-      { label: 'Disclosures', value: 'Nevada’s exemption from the seller disclosure form covers a trustee’s foreclosure sale itself (NRS 107), not a later resale by the bank (NRS 113.130).* Ask for the form, but expect the bank to know little about the home. Your inspection is your main protection' },
+      { label: 'Disclosures', value: 'Nevada’s exemption from the seller disclosure form covers the trustee’s foreclosure sale itself (NRS 107, 113.130); a bank’s later resale generally isn’t exempt, though some banks say it is.* Ask for the form in your offer, but expect the bank to know little about the home. Your inspection is your main protection' },
       { label: 'Title', value: 'Normal title insurance and escrow' },
       { label: 'HUD homes', value: 'Bid through a HUD-registered broker. For homes listed since May 30, 2025, owner-occupants, government entities and HUD-approved nonprofits get the first 15 days (5 days for homes marked “uninsured”) (HUD Mortgagee Letter 2025-13)' },
       { label: 'Fannie Mae & Freddie Mac', value: 'Owner-occupants, public entities and some nonprofits get a 30-day “First Look” period on Fannie Mae and Freddie Mac homes before investors can offer (since September 2021). The listing shows the days left' },

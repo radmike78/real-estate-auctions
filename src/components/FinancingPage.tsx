@@ -15,9 +15,9 @@ import { FINANCING_ADVICE, FINANCING_FACTORS, FINANCING_POSITION } from '../lib/
 
 const OPTIONS: [string, string, ReactNode][] = [
   ['Buying a home to live in', 'Conventional, FHA, VA and USDA loans from loan officers, banks and credit unions. FHA 203k and Fannie Mae HomeStyle loans include repair money in the loan.', <IconHome />],
-  ['Buying at auction', 'Most auctions need cash or certified funds within hours or days. Depending on your situation, options may include savings, home equity, or a hard-money or bridge loan arranged before the sale. Compare the risks and confirm funds will be available by the seller’s deadline.', <IconGavel />],
-  ['Fix and flip', 'Short-term fix-and-flip, bridge and hard-money loans lend against the property and the renovation plan. Costs are higher, and terms are short.', <IconTools />],
-  ['Rental investors', 'DSCR loans (debt-service coverage ratio) qualify on the rent a property earns rather than your paycheck. Portfolio loans, which a bank keeps instead of selling, are another option.', <IconHouses />],
+  ['Buying at auction', 'Most auctions need cash or certified funds within hours or days. Depending on your situation, options may include savings, home equity, or a hard-money loan (a short-term loan from a private lender, based mostly on the property, at higher rates and fees) or a bridge loan (a short loan that covers you until you sell or refinance) arranged before the sale. Compare the risks and confirm funds will be available by the seller’s deadline.', <IconGavel />],
+  ['Fix and flip', 'Short-term fix-and-flip, bridge and hard-money loans (see above) lend against the property and the renovation plan. Costs are higher, and terms are short.', <IconTools />],
+  ['Rental investors', 'DSCR loans (debt-service coverage ratio: the rent compared with the loan payment) qualify on the rent a property earns rather than your paycheck. Portfolio loans, which a bank keeps instead of selling, are another option.', <IconHouses />],
   ['Credit challenges', 'FHA and non-QM loans (loans outside the standard mortgage rules, usually at higher rates) can work with lower scores or recent credit problems. Some non-QM and private lenders work with ITIN borrowers (a tax ID for people without a Social Security number). Compare several offers.', <IconPercent />],
 ];
 
@@ -82,7 +82,7 @@ export default function FinancingPage({ initialLocation = '' }: { initialLocatio
             <ul className="fin-ready">
               <li><strong>Any loan: </strong>{PRO_SCRIPTS.lender.bring!.map((x, i) => (i && !/^[A-Z](?:[A-Z]|-)/.test(x) ? x.charAt(0).toLowerCase() + x.slice(1) : x)).join('; ')}.</li>
               <li><strong>For a DSCR loan (approved on the rent): </strong>the lease or the appraiser’s rent estimate, your LLC papers if it borrows, and statements showing the down payment and reserves.</li>
-              <li><strong>For a hard-money loan (a flip or a repair): </strong>the purchase contract, a scope of work with contractor bids, the after-repair value with comparable sales, your experience, and how you’ll repay it.</li>
+              <li><strong>For a hard-money loan (a flip or a repair): </strong>the purchase contract, a scope of work with contractor bids, the after-repair value (what it should sell for once fixed) with comparable sales, your experience, and how you’ll repay it.</li>
             </ul>
             <p><a className="btn btn-secondary" href="#/learn/financing">Compare ways to pay&nbsp;→</a></p>
           </div>

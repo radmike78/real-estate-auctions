@@ -30,7 +30,7 @@ export default function DocGuideView({ g, label }: { g: DocGuide; label?: string
           </tbody>
         </table>
       </div>
-      <p><strong>What changes a deadline or your decision:</strong> {g.changes}</p>
+      <p><strong>What changes a deadline or your decision:</strong> {forStateText(state, g.changes)}</p>
       <p><strong>Checking a corrected version:</strong> {g.corrected}</p>
       <p className="muted">A general guide to common forms, not your state’s required form. Have a professional review any form that commits you.</p>
     </details>

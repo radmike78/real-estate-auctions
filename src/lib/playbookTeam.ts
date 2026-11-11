@@ -19,7 +19,7 @@ export const TEAM = {
   offerAttorney: { role: 'Real estate attorney', when: 'Reviewing the short-sale contract and the lender’s approval letter, and which liens and judgments are released at closing', href: '#/pros/attorney', pro: 'attorney' },
   offerInsurance: { role: 'Insurance agent', when: 'A quote early in escrow, and coverage in force by closing (vacant-property coverage if no one will live there yet)', href: '#/pros/insurance', pro: 'insurance' },
   /** Lien certificates: you buy a lien, not the property (no insurance, repairs or rent). */
-  lienTitle: { role: 'Title and escrow company', when: 'A title report on a parcel before you bid; title insurance matters only if you later take the property', href: '#/pros/title', pro: 'title' },
+  lienTitle: { role: 'Title and escrow company', when: 'A title report on a parcel before you sign up for it; title insurance matters only if you later take the property', href: '#/pros/title', pro: 'title' },
   lienAttorney: { role: 'Real estate attorney', when: 'Before you act on a lien that isn’t paid: the notices, deadlines and cost of getting the property, which your state’s law sets', href: '#/pros/attorney', pro: 'attorney' },
   lienCpa: { role: 'CPA or tax advisor', when: 'Before you buy: how the interest a certificate earns is taxed, and what to keep for records', href: '#/pros/cpa', pro: 'cpa' },
   cpa: { role: 'CPA or tax advisor', when: 'Before you buy: flips and rentals are taxed differently', href: '#/pros/cpa', pro: 'cpa' },
