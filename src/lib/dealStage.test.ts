@@ -891,7 +891,16 @@ describe('Nevada round 4 flow', () => {
     const other = { ...nvFlip, id: 'dot25', name: '1470 Kingsbury Grade', stage: 'researching' as const };
     saveDeals([offer, other]);
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-12', what: 'Appraisal deadline', who: 'Lender' }, { when: '2026-11-15', what: 'Closing', who: 'Escrow' }] };
-    expect(dealNextTask(offer, p, now, 'contract').label).toMatch(/^Appraisal deadline in 6 days\. Meanwhile: review the title commitment/);
+    // An appraisal deadline 6 days away leads as itself (its own answers stay).
+    expect(dealNextTask(offer, p, now, 'contract').label).toMatch(/Appraisal deadline/);
+    expect(dealNextTask(offer, p, now, 'contract').label).not.toMatch(/title commitment/);
+    // The closing a week away: the title review leads first, with its own button; then insurance; a COE row counts.
+    const cp = { ...EMPTY_PACKET, dates: [{ when: '2026-10-12', what: 'COE', who: 'Escrow' }] };
+    const t1 = dealNextTask(offer, cp, now, 'contract');
+    expect(t1.label).toMatch(/^Closing is in 6 days \(Oct 12, 2026\): before then, review the title commitment/);
+    expect(t1.record?.label).toBe('I reviewed it: mark it done');
+    const cp2 = { ...cp, dates: [...cp.dates, { when: '2026-10-06', what: 'Title commitment reviewed', who: 'Me', resolved: true }] };
+    expect(dealNextTask(offer, cp2, now, 'contract').label).toMatch(/before then, have insurance in place/);
     const late = dealNextTask(offer, p, new Date('2026-10-14T15:00:00Z'), 'contract');
     expect(late.label).toMatch(/^The appraisal deadline for .* ended 2 days ago/);
     expect(late.advance2?.label).toBe('I cancelled in writing: mark it passed');

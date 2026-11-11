@@ -67,12 +67,16 @@ export const EMPTY_PACKET: PacketData = { fit: '', fitWhy: '', dates: [], qa: []
 /** A date that applies only if something happens (its name says “(if …)”): it can stay undated. */
 const ifOnly = (what: string) => /\(if /.test(what);
 /** A packet row is this date, even renamed by the reader: its name starts with the date's own (without any “(if …)”). */
-export const sameDate = (rowWhat: string, name: string) => rowWhat.trim().toLowerCase().startsWith(dateBase(name).toLowerCase()) || (/^(bidder )?registration/i.test(name) && /^(bidder )?registration/i.test(rowWhat.trim()));
+/** Other names a closing row goes by in Nevada (close of escrow, COE, settlement). */
+const CLOSING_ALIAS = /^(close of escrow|coe|settlement( date)?)(\s*($|[(:–—-]|\d)|\s+(on|at)\b)/i;
+const closingAlias = (rowWhat: string, name: string) => /^closing$/i.test(dateBase(name)) && CLOSING_ALIAS.test(rowWhat.trim());
+export const sameDate = (rowWhat: string, name: string) => closingAlias(rowWhat, name) || rowWhat.trim().toLowerCase().startsWith(dateBase(name).toLowerCase()) || (/^(bidder )?registration/i.test(name) && /^(bidder )?registration/i.test(rowWhat.trim()));
 /** A date's name without its trailing note in parentheses ("Bidder registration (if required)" -> "Bidder registration"). */
 const dateBase = (name: string) => name.replace(/\s*\([^)]*\)$/, '');
 /** A row that is this event itself, not another date that starts with its words ("Closing Disclosure received" isn't
  *  "Closing"): after the name, only the end, a note in parentheses, a colon or dash, a date or "on"/"at". */
 export const sameEvent = (rowWhat: string, name: string) => {
+  if (closingAlias(rowWhat, name)) return true;
   const base = dateBase(name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return new RegExp(`^${base}(\\s*($|[(:–—-]|\\d)|\\s+(on|at|date|day)\\b)`, 'i').test(rowWhat.trim());
 };
@@ -794,10 +798,11 @@ export function flipSaleLine(d: Deal): string | null {
   // No months recorded: count the planned repairs, holding and loan costs, so it compares with the plan.
   // (Months recorded after the sale month don't belong to this sale: they're left out and named.)
   const monthsAfterSale = recorded ? o!.months.filter((m) => m.month > sold.on.slice(0, 7)) : [];
-  const paid = recorded ? o!.months.filter((m) => m.month <= sold.on.slice(0, 7)).reduce((t, m) => t + m.costs - m.rent, 0) : c.repairs + c.holding + c.financing;
+  // (What you paid, as the tracker shows it; any rent recorded comes back off the profit separately.)
+  const paid = recorded ? o!.months.filter((m) => m.month <= sold.on.slice(0, 7)).reduce((t, m) => t + m.costs, 0) : c.repairs + c.holding + c.financing;
   const rentBack = recorded ? o!.months.filter((m) => m.month <= sold.on.slice(0, 7)).reduce((t, m) => t + m.rent, 0) : 0;
   const selling = (sold.price * (i.sellingCostPct || 0)) / 100;
-  const profit = sold.price - proposed.price - buy - paid - selling;
+  const profit = sold.price - proposed.price - buy - paid - selling + rentBack;
   const plan = c.total > 0 ? ` You planned about ${money(i.exitValue - c.total)} at your ${money(proposed.price)} ${isOffer(d) ? 'price' : 'bid'} and ${money(i.exitValue)} resale.` : '';
   const budget = c.repairs + c.holding + c.financing;
   // Finished months between the purchase and the sale month with nothing recorded.
@@ -829,7 +834,7 @@ export function flipSaleLine(d: Deal): string | null {
   const low = recorded && budget > 0 && paid < budget / 2 ? ` You recorded ${money(paid)} of your ${money(budget)} repairs, holding and loan budget: if you paid more, add those months for a truer figure.` : '';
   const afterNote = monthsAfterSale.length ? ` ${monthsAfterSale.map((m) => mo(m.month)).join(', ')} ${monthsAfterSale.length === 1 ? 'is' : 'are'} recorded after the sale month, so ${monthsAfterSale.length === 1 ? 'it’s' : 'they’re'} left out: check the sale date.` : '';
   const lowOrGaps = (gapNote || low) + partNote + afterNote;
-  return `${head}${planned}. Rough profit before income tax: about ${money(profit)} (the sale, less your ${money(proposed.price)} ${isOffer(d) ? 'price' : 'bid'}, about ${money(buy)} to buy it, ${recorded ? `the ${money(paid)} you recorded paying${rentBack > 0 ? ` (after ${money(rentBack)} of rent you recorded)` : ''}` : `your planned repairs, holding and loan costs, about ${money(paid)} (no months recorded: add them for a truer figure)`}, and selling costs at ${i.sellingCostPct || 0}%, about ${money(selling)}).${plan} Your closing statement and your tax advisor have the exact figures.` + lowOrGaps;
+  return `${head}${planned}. Rough profit before income tax: about ${money(profit)} (the sale, less your ${money(proposed.price)} ${isOffer(d) ? 'price' : 'bid'}, about ${money(buy)} to buy it, ${recorded ? `the ${money(paid)} you recorded paying${rentBack > 0 ? ` (less ${money(rentBack)} of rent you recorded)` : ''}` : `your planned repairs, holding and loan costs, about ${money(paid)} (no months recorded: add them for a truer figure)`}, and selling costs at ${i.sellingCostPct || 0}%, about ${money(selling)}).${plan} Your closing statement and your tax advisor have the exact figures.` + lowOrGaps;
 }
 
 export function flipBudgetLine(d: Deal): string | null {

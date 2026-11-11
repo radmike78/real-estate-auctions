@@ -202,7 +202,7 @@ export default function DecidePage() {
                     </div>
                   </div>
                   {m.fits.length > 0 && <p className="decide-why"><strong>Fits you</strong> because you {joinReasons(m.fits)}.</p>}
-                  {i === 0 && m.fits.length === 0 && m.cautions.length === 0 && m.strategy.key !== 'practice' && <p className="decide-why"><strong>Why it’s first:</strong> none of your answers rules it out, and none points strongly to one strategy, so compare it with the next ones too.</p>}
+                  {i === 0 && m.fits.length === 0 && m.cautions.length === 0 && m.strategy.key !== 'practice' && <p className="decide-why"><strong>Why it’s first:</strong> none of your answers rules it out, and it scores highest on the rest of them. Compare it with the next ones too.</p>}
                   {m.cautions.length > 0 && <p className="decide-why caution"><strong>Holding it back:</strong> you {joinReasons(m.cautions)}.</p>}
                   {note && <p className="decide-note">{note}</p>}
                   {m.strategy.key === 'auction' && <p className="decide-note">{AUCTION_REALITY}</p>}

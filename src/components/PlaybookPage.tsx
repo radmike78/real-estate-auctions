@@ -318,7 +318,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
               : a.county === 'Washoe' && p.key === 'sid'
                 ? 'Washoe County runs its own SID sale. Its Treasurer’s page says the parcel goes to the first person willing to pay, chosen by a show of hands, with buyer numbers drawn when more than one wants it, and payment is due by 10:00 a.m. the following day. The redemption period is 2 years with a home or other significant improvement, else 120 days, and the 1% monthly interest isn’t prorated. Confirm each sale’s terms in its notice.'
               : p.key === 'sid' && !offices?.specialAssessment
-                ? `Lien certificates are sold by Clark and Washoe counties and some cities. Ask ${place}’s treasurer whether it holds a special assessment (SID) lien sale before you plan on one.`
+                ? `Lien certificates are sold by Clark and Washoe counties and some cities. Ask ${place}’s treasurer whether it holds a special improvement district (SID) lien sale before you plan on one.`
               : p.key === 'tax' && offices?.taxSale?.note && /online through (\w+)/i.test(offices.taxSale.note)
                 ? `${place}’s recent sales ran online through ${/online through (\w+)/i.exec(offices.taxSale.note)![1]}, not in person: register and bid on the site its page names, and follow that site’s deposit and payment rules.* Its dates, deposits and payment rules also differ from Clark’s: confirm them with its treasurer before a real sale.`
               : ['tax', 'sid', 'sheriff'].includes(p.key)

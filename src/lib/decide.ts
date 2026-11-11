@@ -477,9 +477,13 @@ export const joinReasons = (r: string[]) => (r.length < 2 ? r.join('') : `${r.sl
 export const notYetWhy = (answers: Answers): 'debt' | 'nofund' | 'under10' | null => (answers.ready === 'debt' ? 'debt' : answers.ready === 'nofund' ? 'nofund' : answers.cash === 'under10' ? 'under10' : null);
 const notYet = (answers: Answers, m: { strategy: Strategy }) => (m.strategy.key === 'practice' && notYetWhy(answers) ? 1 : 0);
 
-/** How far behind a goal-fitting strategy may score and still rank first (only one none of your answers rules out). */
+/** How far behind a goal-fitting strategy may score and still rank first (only one none of your answers rules out),
+ *  against another with a stated reason. */
 const GOAL_MARGIN = 3;
-const goalBonus = (m: { goalFit: boolean; cautions: string[] }) => (m.goalFit && m.cautions.length === 0 ? GOAL_MARGIN + 0.5 : 0);
+const goalBonus = (m: { goalFit: boolean; cautions: string[] }) => (m.goalFit && m.cautions.length === 0 ? GOAL_MARGIN + 0.5 + REASON_EDGE : 0);
+/** A purchase strategy with a stated reason to fit you edges ahead of a close one with none (so the top card says why). */
+const REASON_EDGE = 1.5;
+const reasonBonus = (m: { strategy: { key: string }; fits: string[] }) => (m.strategy.key !== 'practice' && m.fits.length > 0 ? REASON_EDGE : 0);
 
 /** Strategies ranked for these answers, best first. */
 export function rank(answers: Answers): Match[] {
@@ -506,10 +510,8 @@ export function rank(answers: Answers): Match[] {
   });
   // (When a purchase strategy none of your answers hold back exists, the held-back ones rank after it.)
   const cleanExists = list.some((m) => m.strategy.key !== 'practice' && m.cautions.length === 0);
-  // (And one with a stated reason to fit you ranks ahead of one with none, so the top card always says why.)
-  const reasonExists = list.some((m) => m.strategy.key !== 'practice' && m.cautions.length === 0 && m.fits.length > 0);
-  const heldBack = (m: Match) => (m.strategy.key === 'practice' ? 0 : cleanExists && m.cautions.length > 0 ? 2 : reasonExists && m.cautions.length === 0 && m.fits.length === 0 ? 1 : 0);
-  return list.sort((a, b) => notYet(answers, b) - notYet(answers, a) || heldBack(a) - heldBack(b) || (b.score + goalBonus(b)) - (a.score + goalBonus(a)) || b.score - a.score);
+  const heldBack = (m: Match) => (m.strategy.key !== 'practice' && cleanExists && m.cautions.length > 0 ? 1 : 0);
+  return list.sort((a, b) => notYet(answers, b) - notYet(answers, a) || heldBack(a) - heldBack(b) || (b.score + Math.max(goalBonus(b), reasonBonus(b))) - (a.score + Math.max(goalBonus(a), reasonBonus(a))) || b.score - a.score);
 }
 
 /** A state-specific note for a strategy, when the rules differ. */
