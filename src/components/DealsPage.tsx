@@ -25,7 +25,7 @@ import { dealNumbers } from '../lib/propertyPacket';
 import { flipNeedsRepairs, nextAction, savedNumbers } from '../lib/dealPacket';
 import { investorProfile } from '../lib/myPlan';
 import { capMisses, capText, dscrText, refiValueWords, rentVerdict } from '../lib/holdCalc';
-import { deadlinePassed, pressingWeight, redeemingNow, sidState, redemptionOver, dealNextTask, finishedDeal, prettyDay, liveIn, soldOf, stageLabel, stageOf, setDealStage } from '../lib/dealStage';
+import { beforeDeed, deadlinePassed, pressingWeight, redeemingNow, sidState, redemptionOver, dealNextTask, finishedDeal, prettyDay, liveIn, soldOf, stageLabel, stageOf, setDealStage } from '../lib/dealStage';
 import AdSpot from './AdSpot';
 
 function DealCard({ d, p, loading, known }: { d: SavedDeal; p: Property | undefined; loading: boolean; known: boolean }) {
@@ -307,7 +307,7 @@ export default function DealsPage() {
                       {d.practice && !savingPractice() && stageOf(d) !== 'passed' && <button type="button" className="btn btn-secondary" onClick={() => { makeRealDeal(d.id); setAnalyzed(loadAnalyzed()); progressChanged(); setMadeReal(d.id); /* the button goes away: a short line says what changed, and focus moves there */ setTimeout(() => document.getElementById(`made-real-${d.id}`)?.focus(), 0); }}>Make it a real deal</button>}
                     </div>
                   </div>
-                  {finishedDeal(d) ? <p className="muted small">Finished: its evidence log and records stay in its <a href={`#/deals/packet/${d.id}`}>deal packet</a>.</p> : ['closed', 'owned'].includes(stageOf(d)) ? <p className="muted small">Bought: its evidence log is kept as a record in its <a href={`#/deals/packet/${d.id}`}>deal packet</a>.</p> : <EvidenceLog dealId={`analyzed:${d.id}`} name={d.name} kind={d.kind} onPass={stageOf(d) === 'passed' ? undefined : () => { setDealStage(d.id, 'passed'); setAnalyzed(loadAnalyzed()); }} />}
+                  {finishedDeal(d) ? <p className="muted small">Finished: its evidence log and records stay in its <a href={`#/deals/packet/${d.id}`}>deal packet</a>.</p> : ['closed', 'owned'].includes(stageOf(d)) ? <p className="muted small">{d.kind === 'lien' ? 'Certificate held' : beforeDeed(d) ? 'Certificate of sale (no deed yet)' : 'Bought'}: its evidence log is kept as a record in its <a href={`#/deals/packet/${d.id}`}>deal packet</a>.</p> : <EvidenceLog dealId={`analyzed:${d.id}`} name={d.name} kind={d.kind} onPass={stageOf(d) === 'passed' ? undefined : () => { setDealStage(d.id, 'passed'); setAnalyzed(loadAnalyzed()); }} />}
                 </li>
               );
             })}

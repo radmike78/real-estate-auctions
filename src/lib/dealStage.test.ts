@@ -1078,6 +1078,19 @@ describe('Nevada round 4 flow', () => {
     expect(rentWaitNote('NV', 'hoa')).toMatch(/60 days/);
   });
 
+  it('round 32: a sheriff win moved to the owner stage before its deed keeps the wait and the deed first', async () => {
+    const sh = { ...nvFlip, id: 'dsw32', kind: 'court' as const, stage: 'owned' as const };
+    saveDeals([sh]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'Sheriff', resolved: true }, { when: '2026-09-10', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-09-20', what: 'Certificate of sale recorded', who: 'Sheriff', resolved: true }] };
+    savePacket('analyzed:dsw32', p);
+    const later = new Date('2026-11-11T15:00:00Z');
+    const keys = stageTasks(sh, 'owned', p, later).map((t) => t.key);
+    expect(keys[0]).toBe('redemption-wait');
+    expect(dealNextTask(sh, p, later, 'owned').label).not.toMatch(/for sale/);
+    const { beforeDeed } = await import('./dealStage');
+    expect(beforeDeed(sh)).toBe('2027-09-10');
+  });
+
   it('round 30 verifier: a redemption ticked early still runs, a redeemed deal isn’t “over”, and a passed closing asks for the new date', async () => {
     const { rentWaitNote } = await import('./dealPacket');
     const { redemptionPast } = await import('./dealStage');

@@ -214,7 +214,7 @@ export const remindable = (p: PacketData, now: Date, early: boolean, behind: str
 };
 /** The usual dates a stage has put behind you: once it's closed or owned, the ones before closing and the recording rows. */
 export const behindStage = (d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan']; id?: string }, stage: DealStage): string[] =>
-  (stage === 'researching' || stage === 'offer') && wayOf(d) === 'offer' ? CONTRACT_ROWS.filter((n) => n !== 'Offer accepted' && n !== 'Acceptance') : stage === 'contract' && wayOf(d) !== 'offer' ? ['Bidder registration', 'Registration', 'Sale day', ...(paidAtWin(d) ? ['Payment deadline'] : [])] : stage === 'contract' && d.kind === 'short' && approvedOn(d) && approvedOn(d) <= localDay(new Date()) && d.id && loadPacket(`analyzed:${d.id}`).dates.every((x) => !sameDate(x.what, 'Lienholder approval deadline') || !x.when || approvedOn(d) <= x.when) ? ['Lienholder approval deadline'] : stage === 'closed' || stage === 'owned' ? [...suggestedDates(d).filter((n) => !afterSale(n) || RECORDED_ROWS.some((r) => sameDate(n, r))), ...(stage === 'owned' && certificateFirst(d) ? ['Redemption period ends', DEED_AFTER_WAIT] : [])] : [];
+  (stage === 'researching' || stage === 'offer') && wayOf(d) === 'offer' ? CONTRACT_ROWS.filter((n) => n !== 'Offer accepted' && n !== 'Acceptance') : stage === 'contract' && wayOf(d) !== 'offer' ? ['Bidder registration', 'Registration', 'Sale day', ...(paidAtWin(d) ? ['Payment deadline'] : [])] : stage === 'contract' && d.kind === 'short' && approvedOn(d) && approvedOn(d) <= localDay(new Date()) && d.id && loadPacket(`analyzed:${d.id}`).dates.every((x) => !sameDate(x.what, 'Lienholder approval deadline') || !x.when || approvedOn(d) <= x.when) ? ['Lienholder approval deadline'] : stage === 'closed' || stage === 'owned' ? [...suggestedDates(d).filter((n) => !afterSale(n) || RECORDED_ROWS.some((r) => sameDate(n, r))), ...(stage === 'owned' && certificateFirst(d) && deedInHand(d) ? ['Redemption period ends', DEED_AFTER_WAIT] : [])] : [];
 /** Rows that mark an event, not a deadline: once their date has passed, they aren't a reminder. */
 const EVENTS = ['Sale day', 'Contract signed', 'Offer accepted (Day 0)', 'Acceptance (Day 0)', 'Approval notice received'];
 /** Registration rows: past the bidding (won, closed), they're behind you. */
@@ -334,6 +334,8 @@ export const redemptionPast = (d: { kind: Deal['kind']; state?: Deal['state']; i
   return ticked(loadPacket(`analyzed:${d.id}`), 'Redemption period ends') && !(e && e >= localDay(new Date()));
 };
 export const redemptionEndedOn = (d: { kind: Deal['kind']; state?: Deal['state']; id?: string; plan?: Deal['plan'] }) => endedOn(d);
+/** A certificate-first deal without its deed yet (and not redeemed): the redemption end, or 'unknown'. Else ''. */
+export const beforeDeed = (d: { kind: Deal['kind']; state?: Deal['state']; id?: string; plan?: Deal['plan'] }) => (d.id && wayOf(d as Deal) !== 'lien' && certificateFirst(d) && !deedInHand(d) && !redeemedDeal(d) ? redemptionEnd({ ...d, state: d.state ?? 'NV' }, loadPacket(`analyzed:${d.id}`)) || 'unknown' : '');
 /** The deal is marked redeemed (someone bought it back). */
 export const redeemedDeal = (d: { id?: string }) => !!d.id && redeemedIn(loadPacket(`analyzed:${d.id}`));
 /** A deal that's finished: a sold flip, or a redemption repaid. */
@@ -761,6 +763,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
   }
 
   if (stage === 'owned') {
+    // (A certificate-first deal moved here before the deed: the wait and the deed still come first.)
+    if (wayOf(d) !== 'lien' && certificateFirst(d) && !deedInHand(d) && !redeemedIn(p) && !owned[d.id]?.sold) { const cl = stageTasks(d, 'closed', p, now).filter((t) => !t.done && (t.key === 'redemption-wait' || t.key === 'deed')); if (cl.length) { out.push(...cl); return out; } }
     if (d.state === 'NV' && d.kind === 'taxSale' && sidUnasked(d) && !p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && !!x.when)) out.push(sidAffidavitTask(d, p, now, n));
     if (d.state === 'NV' && d.kind === 'taxSale') { const t = sidPaidAffidavit(d, p, now, n); if (t && !t.done) out.push(t); }
     if (d.state === 'NV' && d.kind === 'taxSale') { const due = sidPayDue(p, now); if (due) out.push(task({ key: 'sid-pay', label: `Pay the special improvement district (SID) certificate for ${n} by ${prettyDay(due.dl)}, or the sale is void (NRS 361.595(6))`, produces: 'the payment to the city or county, with its receipt, and its affidavit sent to the Treasurer', href: packetHref(d, 'dates'), tick: { label: 'I paid it: mark it handled', row: due.row, setWhen: localDay(now) }, support: [], done: false })); }

@@ -315,6 +315,13 @@ function GuideBody({ g }: { g: ProGuide }) {
 
 /** "Your deal team" (the Your team tab): who helps with a forced-sale purchase, when you need each one, and how to find them. */
 /** The deal open in Analyze is a rental (keep and rent): an auction team adds the refinance and management roles. */
+/** The listed-home team for the deal open in Analyze: a flip trades the property manager for a contractor. */
+const listingTeam = (): ProKey[] => {
+  try {
+    const d = JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as { plan?: string; kind?: string } | null;
+    return d?.plan === 'flip' && (!d.kind || d.kind === 'listing') ? [...LISTING_TEAM.filter((k) => k !== 'property_manager'), 'contractor'] : LISTING_TEAM;
+  } catch { return LISTING_TEAM; }
+};
 const rentalInAnalyze = (guideKey: string) => {
   try {
     const d = JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as { plan?: string; kind?: string; state?: string } | null;
@@ -373,7 +380,7 @@ export default function FindAProPage({ section }: { section?: string }) {
   const team = book
     ? book.team
     : sale === 'listing' || sale === 'commercial-offer'
-      ? (sale === 'listing' ? LISTING_TEAM : COMMERCIAL_OFFER_ROLES).map((k) => proGuideByKey(k)!).filter(Boolean).map((g) => ({
+      ? (sale === 'listing' ? listingTeam() : COMMERCIAL_OFFER_ROLES).map((k) => proGuideByKey(k)!).filter(Boolean).map((g) => ({
           // Worded for buying through an agent: the attorney for contract and title questions (not a forced sale's
           // quiet-title case), and the commercial team's broker by that name, as Find deals calls them.
           role: sale === 'commercial-offer' && g.key === 'agent' ? 'Commercial real estate broker' : g.title,
