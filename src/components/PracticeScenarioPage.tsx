@@ -1,3 +1,4 @@
+import { useSiteFeatures } from '../lib/siteFeatures';
 import { practiceState } from '../lib/planNext';
 import { getMyState } from '../lib/myState';
 import { shuffled } from '../lib/shuffle';
@@ -23,6 +24,7 @@ const taskKey = (stage: Stage, t: Task) => `${stage.key}/${t.id}`;
 
 /** One practice run: a fictional listing, then stage by stage through the purchase. */
 export default function PracticeScenarioPage({ id, stageKey }: { id: string; stageKey?: string }) {
+  const accountsReady = !!useSiteFeatures()?.accounts;
   const scenario = useMemo(() => scenarioById(id), [id]);
   useLastActivity(`#/practice/${id}${stageKey ? `/${stageKey}` : ''}`, scenario ? `Practice purchase: ${scenario.headline}` : undefined);
   const [progress, setProgress] = useState<ScenarioProgress>(() => loadProgress(id));
@@ -129,7 +131,7 @@ export default function PracticeScenarioPage({ id, stageKey }: { id: string; sta
               <a className="btn big" href={`#/practice/${s.id}`}>Finish: see your results&nbsp;→</a>
             )}
           </div>
-          {!stageDone(stage) && <p className="small muted">Work through every card to complete this step. Guest progress stays in this browser. If signed in, use Save my work to keep progress in your account.</p>}
+          {!stageDone(stage) && <p className="small muted">Work through every card to complete this step. Guest progress stays in this browser. {accountsReady ? 'If signed in, use Save my work to keep progress in your account.' : ''}</p>}
         </section>
       )}
       {!stage && allDone && <Results s={s} progress={progress} />}
@@ -471,6 +473,7 @@ function NumbersTask({ task, k, done, head, markDone }: { task: Extract<Task, { 
           <tfoot>{row('Your maximum', (p) => (p.maxBid ? fmtMoney(p.maxBid) : 'No price works'), true)}</tfoot>
         </table>
       </div>
+      {two && task.asIsNote && <p className="numbers-note">{task.asIsNote}</p>}
       {two && !!task.waitMonths && <p className="numbers-note">Both ways count the {task.waitMonths === 12 ? '1-year' : task.waitMonths === 6 ? '180-day' : task.waitMonths === 2 ? '60-day' : `${task.waitMonths}-month`} redemption wait: you can’t sell with a clear title until the redemption period ends and you have the deed.</p>}
       {two && <p>Selling as-is means less work, less cash tied up and a quicker exit, for a smaller profit. Fixing it up can earn more, but your money is tied up longer, and you carry the risk of repairs running over, a slow sale or a lower price. {fix.maxBid ? `This practice buyer plans to fix and sell, so the maximum is ${fmtMoney(fix.maxBid)}.` : 'Here, no price leaves the target profit either way.'}</p>}
       <p>{task.lesson}</p>

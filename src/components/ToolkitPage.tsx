@@ -1,3 +1,4 @@
+import { useSiteFeatures } from '../lib/siteFeatures';
 import { roadmapNextStep, stepContext } from '../lib/planNext';
 import { AreaLine } from './AreaPicker';
 import NumInput from './NumInput';
@@ -1150,6 +1151,7 @@ function printWith(cls: string) {
 }
 
 function ProgressBackup() {
+  const accountsOn = !!useSiteFeatures()?.accounts;
   const account = useAccount();
   const [msg, setMsg] = useState('');
   // Guests get their download back into a browser here; nothing is uploaded. Signed in, the account holds the work.
@@ -1185,7 +1187,7 @@ function ProgressBackup() {
             <input type="file" accept="application/json,.json" onChange={(e) => onFile(e.target)} />
           </label>
         )}
-        <a className="btn btn-secondary" href="#/account">Optional account saving</a>
+        <a className="btn btn-secondary" href="#/account">{accountsOn ? 'Optional account saving' : 'Account saving (coming soon)'}</a>
       </div>
       <p role="status" aria-live="polite">{msg}</p>
     </section>
@@ -1194,6 +1196,7 @@ function ProgressBackup() {
 
 /** Everything free in one place: the first-deal roadmap, a buy box, and the calculators and checklists. */
 export default function ToolkitPage({ section }: { section?: string }) {
+  const accountsReady = !!useSiteFeatures()?.accounts;
   useEffect(() => syncRoadmapCredits(), []);
   useLastActivity('#/toolkit', 'My plan');
   useEffect(() => {
@@ -1219,7 +1222,7 @@ export default function ToolkitPage({ section }: { section?: string }) {
       <details className="plan-section"><summary>Your team and contacts</summary><TeamListSection /></details>
       <section className="plan-download" aria-labelledby="plan-dl-head">
         <h2 id="plan-dl-head">Print or share your plan</h2>
-        <p>Download a summary of your goal, budget, property preferences, checklist progress and contacts. You can keep it or share it with your agent or lender. Optional account saving keeps supported property work and learning progress across devices. This summary is for reading and sharing; it can’t be loaded back. To move your work to another browser, use Download my progress below.</p>
+        <p>Download a summary of your goal, budget, property preferences, checklist progress and contacts. You can keep it or share it with your agent or lender. {accountsReady ? 'Optional account saving keeps supported property work and learning progress across devices.' : 'Account saving is coming soon; until then, use Download my progress below to keep or move your work.'} This summary is for reading and sharing; it can’t be loaded back. To move your work to another browser, use Download my progress below.</p>
         <div className="decide-nav">
           <button type="button" className="btn" onClick={() => downloadText('my-investing-plan.txt', planText())}>Download my plan</button>
           <button type="button" className="btn btn-secondary" onClick={() => { document.querySelectorAll<HTMLDetailsElement>('.toolkit details.plan-section').forEach((d) => { d.open = true; }); window.print(); }}>Print this page</button>

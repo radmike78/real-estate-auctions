@@ -253,7 +253,7 @@ function numbersInputs(p: PracticeProperty, o: { holdingMonths: number; titleLeg
   };
 }
 
-const numbersTask = (p: PracticeProperty, inputs: BidInputs, compareTo: { label: string; amount: number }, lesson: string, auction: boolean, waitMonths?: number): Task => ({
+const numbersTask = (p: PracticeProperty, inputs: BidInputs, compareTo: { label: string; amount: number }, lesson: string, auction: boolean, waitMonths?: number, asIsNote?: string): Task => ({
   kind: 'numbers',
   id: 'numbers',
   title: auction ? 'Set your maximum bid' : 'Set your maximum offer',
@@ -263,6 +263,7 @@ const numbersTask = (p: PracticeProperty, inputs: BidInputs, compareTo: { label:
   lesson,
   asIsValue: practiceAsIsValue(p.value, p.repairs),
   ...(waitMonths ? { waitMonths } : {}),
+  ...(asIsNote ? { asIsNote } : {}),
 });
 
 const bidDecision = (maxBid: number, compare: { label: string; amount: number }, auction: boolean): Task => {
@@ -1312,7 +1313,7 @@ export function buildScenario(sale: SaleKey, p: PracticeProperty): Scenario | nu
             title: 'Run the numbers',
             summary: 'Your maximum, set before the sale.',
             tasks: [
-              numbersTask(p, n.inputs, n.compare, sale === 'hoa' ? 'The surviving first mortgage is counted as a cost. That is what makes most HOA sales with a paid-up lender a pass.' : 'Everything is in there: repairs with a cushion, surviving liens, title and legal work, holding, selling costs and your target profit.', auction, n.waitMonths),
+              numbersTask(p, n.inputs, n.compare, sale === 'hoa' ? 'The surviving first mortgage is counted as a cost. That is what makes most HOA sales with a paid-up lender a pass.' : 'Everything is in there: repairs with a cushion, surviving liens, title and legal work, holding, selling costs and your target profit.', auction, n.waitMonths, sale === 'tax' ? 'Selling as-is this fast assumes a cash buyer who takes it without title insurance. Most buyers’ title companies will want a quiet title action first, or the 2 years after the deed to pass (NRS 361.600). Count those months before you rely on the as-is column.' : undefined),
               bidDecision(n.maxBid, n.compare, auction),
             ],
           },

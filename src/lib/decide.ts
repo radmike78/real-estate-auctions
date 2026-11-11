@@ -76,9 +76,9 @@ export const QUESTIONS: Question[] = [
     ask: 'Repairs and tenants: how hands-on do you want to be?',
     label: 'how hands-on you are',
     options: [
-      { value: 'diy', text: 'I’ll handle a lot myself', why: 'will handle a lot yourself' },
-      { value: 'hire', text: 'I’ll hire contractors and a property manager', why: 'will hire contractors and a property manager' },
-      { value: 'none', text: 'I don’t want to deal with either', why: 'don’t want to deal with repairs or tenants' },
+      { value: 'diy', text: 'I’ll handle a lot myself', why: 'said you’d handle a lot yourself' },
+      { value: 'hire', text: 'I’ll hire contractors and a property manager', why: 'said you’d hire contractors and a property manager' },
+      { value: 'none', text: 'I don’t want to deal with either', why: 'said you don’t want to deal with repairs or tenants' },
     ],
   },
   {

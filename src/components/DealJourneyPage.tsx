@@ -1,3 +1,4 @@
+import { useSiteFeatures } from '../lib/siteFeatures';
 import { stateByCode } from '../lib/regions';
 import PageHero from './PageHero';
 import { LEARN_MODULES } from '../lib/learn';
@@ -26,6 +27,7 @@ export function CedarDrawing() {
 }
 
 export default function DealJourneyPage({ chapterKey }: { chapterKey?: string }) {
+  const accountsReady = !!useSiteFeatures()?.accounts;
   const account=useAccount();
   const [p, setP] = useState<JourneyProgress>(loadJourney);
   const [storageProblem, setStorageProblem] = useState(false);
@@ -53,7 +55,7 @@ export default function DealJourneyPage({ chapterKey }: { chapterKey?: string })
       <progress max={CHAPTERS.length} value={p.completed.length} aria-label="Practice chapters completed" />
     </PageHero>
     {account.account && <p className="deal-input-hint">Account saves keep your choices, numbers and self-review completion. Written answers stay in this visit and your workbook download; write them again if you want to review them on another device.</p>}
-    {storageProblem && <p className="deal-alert" role="status">This browser could not save your progress. Keep this page open and <button type="button" className="linkish" onClick={() => downloadText('deedowl-practice-workbook.txt', workbookText(p))}>download your workbook</button>. Download your workbook to keep a readable copy. Optional account saving can keep supported choices and deal numbers across devices.</p>}
+    {storageProblem && <p className="deal-alert" role="status">This browser could not save your progress. Keep this page open and <button type="button" className="linkish" onClick={() => downloadText('deedowl-practice-workbook.txt', workbookText(p))}>download your workbook</button>. Download your workbook to keep a readable copy. {accountsReady ? 'Optional account saving can keep supported choices and deal numbers across devices.' : ''}</p>}
     <details className="deal-outline"><summary>See all chapters {chapter && <span> · Chapter {current + 1} of {CHAPTERS.length}</span>}</summary><nav aria-label="Practice deal chapters"><a href={journeyHref()}>Start</a>{CHAPTERS.map((c, i) => <a key={c.id} href={journeyHref(c.id)} aria-current={c.id === chapter?.id ? 'step' : undefined}><span>{p.completed.includes(c.id) ? '✓' : i + 1}</span>{c.title}</a>)}<a href={journeyHref('workbook')}>Your workbook</a></nav></details>
     {unknown ? <section className="deal-task-card"><h2>That chapter isn’t in this exercise</h2><a className="btn" href={journeyHref()}>Open the practice deal</a></section> : workbook ? <Workbook p={p} /> : specialties ? <SpecialtyView p={p} update={update} /> : chapter ? <div className="deal-workspace">
       <section className="deal-main"><p className="deal-practice-note" role="note">Practice only: the numbers and papers are made up. Check real deals with local offices and professionals.</p><ChapterView key={chapter.id} chapter={chapter} p={p} update={update} /><div className="deal-reference"><details><summary>Why this works · explanations and sources</summary><p>{chapter.detail}</p>{chapter.sources.length > 0 && <p className="deal-reviewed">The linked official sources were checked October 9, 2026.</p>}<ul>{SOURCES.filter((s) => chapter.sources.includes(s.id)).map((s) => <li key={s.id}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.title} ↗</a></li>)}</ul></details><details><summary>Check what varies where you invest</summary><p>{LOCAL_NOTE}</p></details></div></section>
