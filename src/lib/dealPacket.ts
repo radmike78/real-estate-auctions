@@ -406,7 +406,7 @@ const NV_OFFER_DATES: DateGuide[] = [
 ];
 
 /** The dates most deals of this kind need on the calendar, each with how it works where we have it (Texas contracts). */
-export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan']; id?: string }): DateGuide[] {
+export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan']; id?: string; county?: string }): DateGuide[] {
   const tx = d.state === 'TX';
   // A commercial building isn't bought on a home contract (Texas: TREC's one-to-four-family form), so no home-form dates.
   if (d.plan === 'commercial' && isOffer(d)) return [
@@ -424,7 +424,9 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   if (isOffer(d)) return [...names(['Offer accepted (Day 0)']), ...(tx ? TX_DEPOSIT_DATES : names(['Earnest money due'])), ...(tx ? [TX_OPTION_END, txDisclosureDate(false), txHoaDate(false), TX_TITLE_DATE, txWaterDate(false), txAppraisalDate(false), ...txLoanDates(false)] : names(['Inspection period ends', 'Appraisal deadline', 'Loan approval deadline'])), ...names(['Closing'])];
   // Nevada tax sale (leg.state.nv.us): the Treasurer gives a quitclaim deed and records it at the purchaser's expense (NRS
   // 361.595(5), (7)); no action to recover the land lies unless brought within 2 years after its delivery (361.600).
-  if (d.kind === 'taxSale' && d.state === 'NV') return [...names(['Bidder registration deadline', 'Sale day', 'Payment deadline']),
+  // (Eureka County: a sealed-bid sale; the bid and full payment are due the day before, Eureka County Treasurer.)
+  const eurekaSealed: DateGuide[] = d.county === 'Eureka' ? [{ what: 'Sealed bid and full payment due', when: 'By 4 p.m. the day before the sale date: one bid per parcel on the county’s form, mailed or hand-delivered, with full payment enclosed.', who: 'You', todo: 'Send it with a money order, a cashier’s check or a card (2.5% card fee); emails and faxes aren’t accepted.', missed: 'A late bid isn’t accepted.', why: 'Eureka County Treasurer sealed-bid sale terms' }] : [];
+  if (d.kind === 'taxSale' && d.state === 'NV') return [...eurekaSealed, ...names(d.county === 'Eureka' ? ['Sale day', 'Payment deadline'] : ['Bidder registration deadline', 'Sale day', 'Payment deadline']),
     { what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', when: 'Within 20 days after the sale, if a city or county gave the Treasurer an affidavit, by 3 business days before the sale, that the parcel has an unpaid special improvement district (SID) certificate of sale. Ask the Treasurer after the sale.', who: 'You, with that city or county', todo: 'Pay what the certificate is owed, get a receipt, and ask the city or county to send the Treasurer its affidavit that you paid; the Treasurer can’t issue your deed until it has it.', missed: 'The tax sale is void, and the Treasurer may keep up to 10% of what you paid.', why: 'NRS 361.595(6)' },
     { what: 'Treasurer’s deed recorded', when: 'The county treasurer records the quitclaim deed at your expense after you pay.', who: 'The county treasurer', todo: 'Get a recorded copy, and insure the property right away.', missed: 'Ask the Treasurer when it will be recorded.', why: 'NRS 361.595(5) and (7)' },
     { what: 'Recovery-suit window ends', when: '2 years after the Treasurer’s deed is delivered to you.', who: 'The former owner, or anyone claiming the land', todo: 'Ask your title company when it will insure the title; a quiet title action may let you sell sooner.', missed: 'After it, no one can sue under that law to take the property back from you.', why: 'NRS 361.600' }];

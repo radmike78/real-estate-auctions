@@ -96,6 +96,8 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
 // A listed or bank-owned home: you make an offer instead of bidding. Auction-only fields (buyer's premium, cash on
 // auction day, redemption) drop out and the words change; the math is the same.
 /** A field's unit by key, for checking a typed value outside the field list. */
+/** After an auction win: the sale's own figures are a record, not a plan. */
+const WON_FIELDS: Partial<Record<string, Partial<Field>>> = { minimumBid: { label: 'Opening (minimum) bid at the sale', hint: 'For your records: the bid the sale opened at.' } };
 const fieldUnit = (k: string) => GROUPS.flatMap((g) => g.fields).find((f) => f.k === k)?.unit;
 
 const OFFER_FIELDS: Partial<Record<keyof BidInputs, Partial<Field>>> = {
@@ -176,6 +178,7 @@ const unitText = (u: Field['unit']) => (u === '$/500' ? 'per $500' : u === 'mo' 
 export default function BidCalculator({ propertyId, saveAs, defaults = START_INPUTS, openingBid, headingLevel = 3, commercial = false, offer = false, saleKind }: { propertyId?: string; /** Keep the numbers under this id (a deal saved in Analyze) when there's no listing. */ saveAs?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3; commercial?: boolean; offer?: boolean; /** The kind of sale chosen in Analyze: picks the redemption rules that fit it. */ saleKind?: string }) {
   const storeId = propertyId ?? saveAs;
   // (A saved auction deal you've already won: its price is the winning bid, not a planned one.)
+  const boughtOffer = offer && !!saveAs && saveAs.startsWith('analyzed-') && ['closed', 'owned'].includes(loadDeals().find((x) => `analyzed-${x.id}` === saveAs)?.stage ?? '');
   const wonBid = !offer && !!saveAs && saveAs.startsWith('analyzed-') && ['contract', 'closed', 'owned'].includes(loadDeals().find((x) => `analyzed-${x.id}` === saveAs)?.stage ?? '');
   // Words for an auction bid, or an offer on a listed home.
   const w = offer
@@ -495,7 +498,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <span className="small muted">{mode === 'quick' ? 'The deal, repairs and liens. This quick view hides some costs. Hidden ones use our starting estimates, except holding, title and possession, which stay at $0 until you add them in Detailed.' : 'The deal first, then every cost in the order you’d meet it.'}</span>
         </div>
         {GROUPS.map((g) => {
-          const fields = g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : f)).map((f) =>
+          const fields = g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : wonBid && WON_FIELDS[f.k] ? { ...f, ...WON_FIELDS[f.k] } as Field : f)).map((f) =>
             f.k === 'redemptionRatePct' && i.redemptionFlat
               ? { ...f, label: i.redemptionFlat2Pct ? 'Premium a redemption pays you (first year)' : 'Premium a redemption pays you', unit: '%' as const, hint: i.redemptionFlat2Pct ? `A flat % of your price set by law, not a yearly rate; ${i.redemptionFlat2Pct}% in the second year.` : ruleNow === 'txTaxOther' ? 'A % of your price plus the costs the law repays, not a yearly rate. Texas law caps it at 25% (Tax Code 34.21(e)); this calculator applies the full 25% to your price only.' : 'A flat % of your price set by law, not a yearly rate.' }
               : f);
@@ -608,7 +611,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </div>
           ) : (
           <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`}>
-            <span>{offer ? 'Walk-away price: your highest offer' : 'Walk-away price: stop bidding here'}</span>
+            <span>{offer ? 'Walk-away price: your highest offer' : wonBid ? 'Walk-away price: the most this plan could have paid' : 'Walk-away price: stop bidding here'}</span>
             <strong>{r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
             <small>
               {r.noBidWorks
@@ -661,7 +664,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         )}
         {!r.noBidWorks && !needsValue && (
           <dl className="calc-kv">
-            {!offer && <div><dt>Cash needed on auction day, at the walk-away price</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
+            {!offer && <div><dt>{wonBid ? 'Cash needed at the walk-away price' : 'Cash needed on auction day, at the walk-away price'}</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
             <div><dt>Estimated cash you’d put in, at the walk-away price, under these assumptions</dt><dd>{fmtMoney(r.cashPeak)}</dd></div>
             {i.financedPct > 0 && r.cashToStabilize < r.cashPeak && <div><dt>Cash left in after the loan funds, at the walk-away price</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>}
             <div><dt>Profit at the walk-away price{Math.round(r.profit) !== Math.round(target) ? (noTarget0 ? ' (no profit target set yet)' : ` (${targetIsExample ? 'our example target' : 'your target'}: ${fmtMoney(Math.round(target))})`) : ''}</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
@@ -702,7 +705,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {!needsValue && (
         <>
         <div className="calc-field calc-bid">
-          <label className="calc-label" htmlFor={`${uid}-bid`}>{wonBid ? 'Your winning bid' : <>Check {offer ? 'an offer' : 'a bid'}</>}</label>
+          <label className="calc-label" htmlFor={`${uid}-bid`}>{wonBid ? 'Your winning bid' : boughtOffer ? 'The price you paid' : <>Check {offer ? 'an offer' : 'a bid'}</>}</label>
           <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="text" inputMode="decimal" autoComplete="off" value={bidText} placeholder={offer ? 'e.g. the offer you plan to make' : wonBid ? 'the bid you won with' : 'e.g. a bid you expect to beat'} aria-invalid={bidBad || undefined} aria-describedby={bidBad ? `${uid}-bid-err` : undefined} onBlur={rerender} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); if (e.target.value.trim() !== '' && calculatorInputError(e.target.value, '$')) return; update({ proposedPrice: clampInput('proposedPrice', toNum(e.target.value)) }); }} /></span>
           {bidBad && <small className="deal-urgent" role="status" id={`${uid}-bid-err`}>{calculatorInputError(bidText, '$')}</small>}
         </div>

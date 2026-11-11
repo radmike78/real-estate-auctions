@@ -5,7 +5,7 @@ export interface TeamEntry { role: string; when: string; href?: string; pro?: Pr
 /** The professionals a guide can list, and when each one comes in. */
 export const TEAM = {
   agent: { role: 'Real estate agent', when: 'Finding and pricing the property, and selling or renting it after', href: '#/pros/agent', pro: 'agent' },
-  lender: { role: 'Hard-money or private lender', when: 'Talk to one before the sale: most auctions want full payment from your own funds the same day or the next business day, so a loan comes after, once a lender will take the title (after an HOA, sheriff or IRS sale, usually not until the deed)*', href: '#/pros/private_lender', pro: 'private_lender' },
+  lender: { role: 'Hard-money or private lender', when: 'Before the sale: most auctions want full payment the same day or the next business day, so any loan for the purchase (a hard-money or bridge loan, or a home-equity line) has to be arranged before it; a loan on the property itself usually comes after, once a lender will take the title (after an HOA, sheriff or IRS sale, usually not until the deed)*', href: '#/pros/private_lender', pro: 'private_lender' },
   mortgage: { role: 'Loan officer or mortgage company', when: 'Pre-approval before you make an offer', href: '#/pros/lender', pro: 'lender' },
   title: { role: 'Title and escrow company', when: 'A title search before you bid, and title insurance when available', href: '#/pros/title', pro: 'title' },
   attorney: { role: 'Real estate attorney', when: 'Reviewing surviving liens, sale validity and quiet title', href: '#/pros/attorney', pro: 'attorney' },

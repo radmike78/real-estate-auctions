@@ -815,3 +815,13 @@ describe('a passed offer’s earnest money line', () => {
     expect(line).not.toMatch(/ask escrow/);
   });
 });
+
+describe('round 38 verifier: Eureka County sealed-bid tax sale', () => {
+  it('starts its usual dates with the sealed bid due the day before, without bidder registration', async () => {
+    const { dateGuide } = await import('./dealPacket');
+    const rows = dateGuide({ kind: 'taxSale', state: 'NV', county: 'Eureka' }).map((g) => g.what);
+    expect(rows[0]).toBe('Sealed bid and full payment due');
+    expect(rows).not.toContain('Bidder registration deadline');
+    expect(dateGuide({ kind: 'taxSale', state: 'NV', county: 'Clark' }).map((g) => g.what)).toContain('Bidder registration deadline');
+  });
+});
