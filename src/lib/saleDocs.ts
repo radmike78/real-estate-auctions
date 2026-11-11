@@ -25,8 +25,9 @@ export function saleKindOf(guideKey: string): SaleKindKey {
 }
 
 const NOTICE: SaleDoc = { name: 'The official notice of sale', check: 'Save a copy with the date you saved it. Check the sale date, place or website, opening bid, deposit, form of payment and deadline. Check again the day before: sales are often postponed or cancelled.' };
+const NOTICE_SID: SaleDoc = { name: 'The official notice of sale', check: 'Save a copy with the date you saved it. Check the sale date and place, the parcel list, the certificate price, the forms of payment and the 10:00 a.m. payment deadline. Check again the day before: sales are often postponed or cancelled.' };
 const TITLE_SEARCH: SaleDoc = { name: 'A title search or report', check: 'Lists the recorded owner, loans and liens. Ask the title company which liens would survive this kind of sale, and whether it would insure the title after you buy.' };
-const FUNDS: SaleDoc = { name: 'Certified funds (in the form the notice requires)', check: 'Often a cashier’s check or a wire, in the exact amounts the notice requires. Ask your bank how long they take. Never send money from instructions in an email without calling to confirm.' };
+const FUNDS: SaleDoc = { name: 'Certified funds (in the form the notice requires)', check: 'Usually certified funds (such as a cashier’s check) in the exact amounts the notice requires; some sellers take a wire, so confirm in the notice. Ask your bank how long they take. Never send money from instructions in an email without calling to confirm.' };
 const RECEIPT: SaleDoc = { name: 'Your payment receipt', check: 'Keep it with the sale notice. It proves what you paid and when.' };
 const PREAPPROVAL: SaleDoc = { name: 'Pre-approval letter or proof of funds', check: 'A lender’s pre-approval for the price you’re offering, or a recent bank statement for a cash offer. Sellers usually want one with every offer.' };
 const BUYER_AGREEMENT: SaleDoc = { name: 'Buyer agreement with your agent', check: 'Read what your agent will do, how and by whom they’re paid, how long it lasts and how to end it, before you sign.' };
@@ -55,7 +56,7 @@ export const SALE_DOCS: Record<SaleKindKey, SaleDoc[]> = {
     { name: 'Your payoff record', check: 'For each certificate: what you paid, the rate, and every payment the county sends you. Match each payoff to your record.' },
   ],
   sid: [
-    NOTICE,
+    NOTICE_SID,
     { name: 'Buyer registration form', check: 'Fill it in exactly as the notice says, with the ID it asks for.' },
     { name: 'Your parcel research notes', check: 'Map, access, zoning and other liens. Ask for certificates only on parcels you’d be willing to own.' },
     FUNDS,
@@ -73,7 +74,7 @@ export const SALE_DOCS: Record<SaleKindKey, SaleDoc[]> = {
     TITLE_SEARCH,
     { name: 'Any recorded payment of the super-priority amount', check: 'In Nevada, search the Recorder for it before the sale: it changes whether the first mortgage survives.' },
     FUNDS,
-    { name: 'Certificate of sale, then the deed', check: 'In Nevada, you get a certificate of sale first. The owner or a junior lender can redeem for 60 days. If no one does, you get a deed without warranty. Don’t renovate before then.' },
+    { name: 'Certificate of sale, then the deed', check: 'In Nevada, you get a certificate of sale first. The owner or a junior lender can redeem for 60 days. If no one does, you get a deed without warranty. Renovating before then puts that money at risk if someone redeems.' },
   ],
   sheriff: [
     NOTICE,
@@ -196,8 +197,8 @@ const TX_DOCS: Partial<Record<SaleKindKey, SaleDoc[]>> = {
 // The HOA deed and buy-back period differ by state, so the Nevada certificate entry is swapped for the state's own
 // (Civ. Code 5715 and CCP 729.035; A.R.S. 12-1282, 12-1286; Utah Code 57-1-28, URCP 69C).
 const HOA_DEED: Partial<Record<string, SaleDoc>> = {
-  CA: { name: 'The trustee’s deed, and the 90-day redemption deadline', check: 'After a nonjudicial HOA sale, the home can be bought back for 90 days (Civil Code 5715, CCP 729.035). Ask the trustee when it will deliver your deed and put the 90th day on your calendar. Don’t renovate before then; spend only to protect the property.' },
-  AZ: { name: 'Certificate of sale, then the sheriff’s deed', check: 'An Arizona HOA forecloses in court. You get a certificate of sale at the sheriff’s sale, and the owner can redeem for 6 months. It’s 30 days only if the judgment found the home both abandoned and not used mainly for farming or grazing (A.R.S. 12-1282). If the owner doesn’t redeem, creditors with liens behind the one foreclosed can redeem one after another, in order of priority, each within 5 days after the one before, so every such creditor adds up to 5 more days to the wait (12-1282(C)). The sheriff’s deed comes only after every redemption period ends (12-1286). The judgment tells you which owner period applies, and your title report shows which creditors could redeem. Don’t renovate before then.' },
+  CA: { name: 'The trustee’s deed, and the 90-day redemption deadline', check: 'After a nonjudicial HOA sale, the home can be bought back for 90 days (Civil Code 5715, CCP 729.035). Ask the trustee when it will deliver your deed and put the 90th day on your calendar. Renovating before then puts that money at risk if someone redeems.' },
+  AZ: { name: 'Certificate of sale, then the sheriff’s deed', check: 'An Arizona HOA forecloses in court. You get a certificate of sale at the sheriff’s sale, and the owner can redeem for 6 months. It’s 30 days only if the judgment found the home both abandoned and not used mainly for farming or grazing (A.R.S. 12-1282). If the owner doesn’t redeem, creditors with liens behind the one foreclosed can redeem one after another, in order of priority, each within 5 days after the one before, so every such creditor adds up to 5 more days to the wait (12-1282(C)). The sheriff’s deed comes only after every redemption period ends (12-1286). The judgment tells you which owner period applies, and your title report shows which creditors could redeem. Renovating before then puts that money at risk if someone redeems.' },
   UT: { name: 'The deed, or the certificate of sale', check: 'Trustee sale: the trustee sends the trustee’s deed for recording within 5 business days after you pay, and the former owner has no right to buy it back (Utah Code 57-1-28). Court foreclosure: you get a certificate of sale, and the owner or a junior creditor can redeem for 180 days (URCP 69C). Either way, if the sale wiped out a junior federal tax lien, the United States can still redeem: within 120 days or the state redemption period, whichever is longer, so 120 days after a trustee sale and 180 days after a court sale (26 U.S.C. 7425(d); 28 U.S.C. 2410(c)). If the sale didn’t wipe the lien out (the IRS didn’t get the required notice, or the United States wasn’t named in the court case), the lien simply stays on the home. Ask your title company before you renovate.' },
 };
 

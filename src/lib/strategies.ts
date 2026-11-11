@@ -122,7 +122,7 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
       'Then reselling or renting once title is insurable and any redemption period has ended.',
     ],
     watchFor: [
-      'Each kind of sale differs by state: what survives the sale, redemption periods, and how you pay.',
+      'Each kind of sale differs: what survives the sale, redemption periods, and how you pay. Your state’s sale guides give the details.',
       'You usually can’t see inside, and occupants must be removed through the courts.',
       'Title companies may not insure right away: after some tax sales, not without a quiet title case; after some trustee sales, not until a challenge window passes.* Ask a title company before you bid, and include any quiet title cost they expect in your maximum.',
     ],

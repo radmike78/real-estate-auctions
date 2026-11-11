@@ -43,8 +43,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       {
         text: "Nevada: acting for both sides without each party’s written consent breaks state law (NRS 645.252).",
         source: {
-          label: "Nevada Real Estate Commission: Findings of Fact, Conclusions of Law and Order, Case 2017-64 (Jun 2019)",
-          url: "https://red.nv.gov/uploadedFiles/rednvgov/Content/Meetings/REC/2019/Orders/LeBeau-Witty_Patricia_2017-64.pdf"
+          label: "Nevada Revised Statutes 645.252: duties of a licensee acting for more than one party",
+          url: "https://www.leg.state.nv.us/NRS/NRS-645.html#NRS645Sec252"
         }
       },
       {
@@ -110,18 +110,6 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       },
       {
         tone: "caution",
-        who: "A cash buyer of a home in Henderson, Nevada",
-        year: "2016",
-        title: "Agent sold her own home, acted for both sides, then tried to change the deal",
-        happened: "A licensee wrote a contract to sell her own home. She listed herself as agent for both seller and buyer, without the required duties-owed form or written consent. She then tried to remove the buyer’s 3% closing-cost credit and threatened to relist the home. The buyer cancelled when HOA resale packages never arrived. In 2019 the Nevada Real Estate Commission downgraded her license and fined her $11,616.64 including costs.",
-        lesson: "Be careful when the “agent” is also the seller or represents both sides. Insist on the written disclosures your state requires.",
-        source: {
-          label: "Nevada Real Estate Commission: Findings of Fact, Conclusions of Law and Order, Case 2017-64 (Jun 2019)",
-          url: "https://red.nv.gov/uploadedFiles/rednvgov/Content/Meetings/REC/2019/Orders/LeBeau-Witty_Patricia_2017-64.pdf"
-        }
-      },
-      {
-        tone: "caution",
         who: "A buyer of a Malibu, California, luxury home (one brokerage on both sides)",
         year: "2016",
         title: "Marketed as 15,000 sq ft; public records said about 9,400",
@@ -139,8 +127,8 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         url: "https://tcss.legis.texas.gov/resources/OC/htm/OC.1101.htm#1101.559"
       },
       {
-        label: "Nevada Real Estate Commission: Findings of Fact, Conclusions of Law and Order, Case 2017-64 (Jun 2019)",
-        url: "https://red.nv.gov/uploadedFiles/rednvgov/Content/Meetings/REC/2019/Orders/LeBeau-Witty_Patricia_2017-64.pdf"
+        label: "Nevada Revised Statutes 645.252: duties of a licensee acting for more than one party",
+        url: "https://www.leg.state.nv.us/NRS/NRS-645.html#NRS645Sec252"
       },
       {
         label: "Nevada Real Estate Commission: Stipulation and Order, Case 2021-93 (Feb 2023)",

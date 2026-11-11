@@ -41,7 +41,7 @@ describe('Decide', () => {
 
   it('reminds auction buyers to buy only from the official seller (CLAUDE.md)', () => {
     const a = STRATEGIES.find((s) => s.key === 'auction')!;
-    expect(a.checklist.some((c) => /official seller/.test(c.text) && /Never contact homeowners/.test(c.text))).toBe(true);
+    expect(a.checklist.some((c) => /official seller/.test(c.text) && /Don’t contact the owner or anyone living there/.test(c.text))).toBe(true);
   });
 });
 

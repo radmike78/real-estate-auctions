@@ -103,10 +103,10 @@ export const forcedSales: Lesson = {
           'Evaluate how you will pay before you bid. Home equity, savings or other financing may be options depending on your situation; DeedOwl does not recommend for or against any method. Compare your current finances, repayment ability, risk tolerance and possible losses, including risks to your home or 401(k). Check alternative funding if your first plan fails, and seek independent financial, investment, tax and legal advice. Most forced sales are as-is, with no refund if you change your mind.',
           'Plan for people living there. Owners and tenants have legal rights, and removing them takes a court process.',
         ] },
-        'Find deals lists each county’s tax sale page and records offices. Never contact homeowners facing foreclosure. Buy from the official seller.',
-        'Our step-by-step guides walk you through each kind of sale in your state, every step from the notice to getting possession.',
+        'Find deals lists each county’s tax sale page and records offices. Don’t contact owners or occupants; buy from the official seller.',
+        'Our step-by-step guides walk you through each kind of sale in your state, from the notice to the deed (or, for lien certificates, to being repaid).',
         { links: [
-          { label: 'Nevada guides (Clark County)', url: '#/playbooks?state=NV', what: 'Tax sales, lien certificates, foreclosure auctions, HOA foreclosures, sheriff sales, IRS sales, bank-owned homes, commercial property and short sales.' },
+          { label: 'Nevada sale guides (with Clark County details)', url: '#/playbooks?state=NV', what: 'Tax sales, lien certificates, foreclosure auctions, HOA foreclosures, sheriff sales, IRS sales, bank-owned homes, commercial property and short sales.' },
           { label: 'California guides', url: '#/playbooks?state=CA', what: 'Tax sales, trustee sales, sheriff sales, HOA foreclosures, IRS sales, bank-owned homes, short sales and commercial property.' },
           { label: 'Arizona guides', url: '#/playbooks?state=AZ', what: 'Tax lien sales, trustee sales, sheriff sales, HOA foreclosures, IRS sales, bank-owned homes, short sales and commercial property.' },
           { label: 'Utah guides', url: '#/playbooks?state=UT', what: 'Tax sales, trustee sales, sheriff sales, HOA foreclosures, IRS sales, bank-owned homes, short sales and commercial property.' },

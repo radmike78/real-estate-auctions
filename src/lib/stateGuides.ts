@@ -1761,7 +1761,7 @@ export const STATE_GUIDES: Playbook[] = [
     },
     {
       title: "Plan for 180 days",
-      detail: "The property can be bought back (redeemed) for 180 days. Whoever redeems pays you your price plus interest at 20% a year, compounded daily (26 U.S.C. 6337(b), 6622; IRM 5.10.6.8). If it’s vacant you may enter only as needed to prevent damage. If it’s occupied, the IRS and its lawyers decide whether a court order is needed (IRM 5.10.5.19). Don’t renovate yet."
+      detail: "The property can be bought back (redeemed) for 180 days. Whoever redeems pays you your price plus interest at 20% a year, compounded daily (26 U.S.C. 6337(b), 6622; IRM 5.10.6.8). If it’s vacant you may enter only as needed to prevent damage. If it’s occupied, the IRS and its lawyers decide whether a court order is needed (IRM 5.10.5.19). Remodeling before the 180 days end puts that money at risk: a redemption repays your price plus interest, not improvements."
     },
     {
       title: "Get and record the deed",

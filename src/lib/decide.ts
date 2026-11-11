@@ -299,7 +299,7 @@ export const STRATEGIES: Strategy[] = [
   {
     key: 'auction',
     title: 'Tax and foreclosure auctions',
-    what: 'Buy at county tax sales, trustee auctions or sheriff sales. Prices can be lower, but you usually pay cash, buy as-is and do all the research yourself.',
+    what: 'Buy at county tax sales, trustee (foreclosure) auctions, or sheriff, HOA or IRS sales. Prices can be lower, but you usually pay cash, buy as-is and do all the research yourself.',
     weights: {
       goal: { income: 0, growth: 1, quick: 3, handsoff: -3, learn: -1 },
       cash: { under10: -3, '10to50': -1, '50to150': 2, over150: 3 },
@@ -323,7 +323,7 @@ export const STRATEGIES: Strategy[] = [
       { id: 'au-max', text: 'Set your maximum bid before the sale, so you know when the price stops fitting your numbers.', href: '#/analyze?plan=flip' },
       { id: 'au-redeem', text: 'Plan for any redemption period and for occupants, who have legal rights.' },
       { id: 'au-practice', text: 'Practice a purchase first.', href: '#/practice' },
-      { id: 'au-seller', text: 'Buy only from the official seller. Never contact homeowners facing foreclosure.' },
+      { id: 'au-seller', text: 'Buy only from the official seller. Don’t contact the owner or anyone living there; send every question to the seller named on the notice.' },
     ],
   },
   {

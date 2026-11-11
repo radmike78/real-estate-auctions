@@ -23,7 +23,7 @@ describe('Analyze a deal checklist', () => {
     const groups = checklistFor({ state: 'UT', county: 'Salt Lake', kind: 'taxSale', plan: 'flip' });
     const items = groups.flatMap((g) => g.items);
     expect(items.find((i) => i.id === 'taxes')?.href).toMatch(/^https:\/\/.*saltlakecounty\.gov/);
-    expect(items.some((i) => /official seller/.test(i.text) && /Never contact homeowners/.test(i.text))).toBe(true);
+    expect(items.some((i) => /official seller/.test(i.text) && /Don’t contact the owner or anyone living there/.test(i.text))).toBe(true);
   });
 
   it('gives Texas short sales, HOA and court sales their own checklist lines', () => {

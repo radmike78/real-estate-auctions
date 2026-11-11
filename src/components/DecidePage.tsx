@@ -184,7 +184,7 @@ export default function DecidePage() {
           )}
           {sharedOwing && (
             <OwlNote>
-              <strong>What you keep owing with {joinReasons(matches.filter((m) => m.strategy.risk.ongoing === sharedOwing).map((m) => m.strategy.title))}:</strong> {sharedOwing}
+              <strong>What you keep owing with {joinReasons(matches.filter((m) => m.strategy.risk.ongoing === sharedOwing).map((m) => `“${m.strategy.title}”`))}:</strong> {sharedOwing}
             </OwlNote>
           )}
           <ol className="decide-matches">

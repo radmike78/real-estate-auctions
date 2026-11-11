@@ -577,7 +577,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.humboldtcountynv.gov/526/Civil-Division", checked: "2026-10-08" },
   },
   "NV/Lander": {
-    taxSale: { url: "https://www.landercountynv.org/government/treasurer/index.php", checked: "2026-09-29", contactOnly: true, note: "No separate tax sale page is listed here. Contact the office for current sale notices and bidding rules. Recent sales ran online through Bid4Assets; start from the county’s page for the current sale." },
+    taxSale: { url: "https://www.landercountynv.org/government/treasurer/tax_sale_.php", checked: "2026-11-11", note: "Recent sales ran online through Bid4Assets; start from the county’s page for the current sale." },
     treasurer: { url: "https://www.landercountynv.org/government/treasurer/index.php", checked: "2026-09-29" },
     assessor: { url: "https://www.landercountynv.org/government/assessor/index.php", checked: "2026-09-29" },
     recorder: { url: "https://www.landercountynv.org/government/recorder_s_office/index.php", checked: "2026-09-29" },

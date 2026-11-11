@@ -185,7 +185,7 @@ export default function PracticePage({ sale }: { sale?: string }) {
           <span className="practice-case-meta">About 45 minutes · {practiceCase.property} · {practiceCase.stateName} rules{practiceCase.state === 'TX' ? ', with the TREC contract' : ''}</span>
         </div>
         {!otherState && <>
-        <h2 id="practice-auction" tabIndex={-1} className="practice-step">Nevada auction practice: choose a kind of sale</h2>
+        <h2 id="practice-auction" tabIndex={-1} className="practice-step">Nevada practice by kind of sale: auctions, bank-owned homes and short sales</h2>
         <p className="practice-step-intro">Buy a fictional property at one kind of sale, step by step, from research to the day after.</p>
         <p className="practice-nv-note" role="note"><strong>Clark County practice.</strong> These sales follow local rules. Check your county’s requirements before a real purchase.</p>
         {auctionTiles}

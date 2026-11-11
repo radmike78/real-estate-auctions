@@ -43,14 +43,14 @@ export default function HomeownerHelpPage() {
           ? <>On this page: free help, the deadlines in {stateName}, scams to watch for, tenants’ rights, and how to claim money left over after a sale.</>
           : <>This page covers Nevada, California, Arizona, Utah and Texas: free help, the deadlines in your state, scams to watch for, tenants’ rights, and how to claim money left over after a sale. Pick your state to see only its rules.</>}
       </p>
-      <p className="page-starter"><a className="btn" href="https://answers.hud.gov/housingcounseling/" {...ext}>Find a free HUD-approved housing counselor&nbsp;↗</a> <span className="muted">The best first call, in any state.</span></p>
+      <p className="page-starter"><a className="btn" href="https://answers.hud.gov/housingcounseling/" {...ext}>Find a free HUD-approved housing counselor&nbsp;↗</a> <span className="muted">The best first call.</span></p>
       {stateName && <p className="hh-showing"><strong>Showing {stateName} rules.</strong> Pick another state to see its rules instead.</p>}
       <StatePicker label="Where is the home?" />
 
       <section>
         <h2>Free, trustworthy help: start here</h2>
         <ul className="hh-lead">
-          <li><strong>Housing counselor: </strong>In every state, a HUD-approved counselor can help you talk to your servicer about a repayment plan, a loan modification or a short sale, usually for free. Call HUD’s line at {phoneLinks('(800) 569-4287')}, or search by ZIP code. <span className="hh-links"><a href="https://answers.hud.gov/housingcounseling/" {...ext}>Find a counselor (HUD)&nbsp;↗</a> <a href="https://www.consumerfinance.gov/find-a-housing-counselor/" {...ext}>CFPB counselor search&nbsp;↗</a></span></li>
+          <li><strong>Housing counselor: </strong>A HUD-approved counselor can help you talk to your servicer about a repayment plan, a loan modification or a short sale, usually for free. Call HUD’s line at {phoneLinks('(800) 569-4287')}, or search by ZIP code. <span className="hh-links"><a href="https://answers.hud.gov/housingcounseling/" {...ext}>Find a counselor (HUD)&nbsp;↗</a> <a href="https://www.consumerfinance.gov/find-a-housing-counselor/" {...ext}>CFPB counselor search&nbsp;↗</a></span></li>
         </ul>
         <ByState lines={HELP} />
       </section>
@@ -58,7 +58,7 @@ export default function HomeownerHelpPage() {
       <section>
         <h2>Deadlines in your state: act early, while you have the most options</h2>
         <ul className="hh-lead">
-          <li><strong>Call early: </strong>In every state, call your lender or servicer as soon as you fall behind, and keep notes of every call.</li>
+          <li><strong>Call early: </strong>Call your lender or servicer as soon as you fall behind, and keep notes of every call.</li>
         </ul>
         <ByState lines={DEADLINES} />
       </section>
@@ -83,7 +83,7 @@ export default function HomeownerHelpPage() {
       <section>
         <h2>Watch out for foreclosure scams</h2>
         <ul className="hh-lead">
-          <li><strong>Fees in advance: </strong>Never pay anyone up front who promises to “save” your home. Counselors above are free.</li>
+          <li><strong>Fees in advance: </strong>Under federal law, most companies that offer to save your home can’t charge you until you’ve signed an agreement with your lender based on an offer they got for you (12 CFR 1015.5). Anyone asking for money first is a warning sign. The counselors above are free.</li>
           <li><strong>Your deed: </strong>Be very wary of anyone who asks you to sign your deed over to them to “save” your home; that is a common scam. A deed in lieu of foreclosure with your own lender is a different, legitimate option. Have a HUD-approved housing counselor or an attorney review any deed or agreement before you sign, and don’t sign papers you don’t understand.</li>
           <li><strong>Strangers who contact you: </strong>Be wary of anyone who reaches out because they saw your home in public records.</li>
         </ul>
@@ -98,7 +98,7 @@ export default function HomeownerHelpPage() {
 
       <section>
         <h2>If your home was sold: claim any money left over</h2>
-        <p>If your home sold at a tax sale or a foreclosure (trustee’s) sale for more than what was owed, the extra money, called surplus or excess proceeds, goes, in most cases, to lienholders in order of priority and then to you. You can usually claim it yourself, without paying a finder; some claims go through a court and have a filing fee. In 2023 the U.S. Supreme Court ruled that when a county keeps more than the tax debt, it takes property without just compensation (<a href="https://www.law.cornell.edu/supremecourt/text/22-166" {...ext}>Tyler v. Hennepin County&nbsp;↗</a>).</p>
+        <p>If your home sold at a tax sale or a foreclosure (trustee’s) sale for more than what was owed, in most cases the extra money (called surplus or excess proceeds) pays lienholders first, in order, and then the rest goes to you. You can usually claim it yourself, without paying a finder; some claims go through a court and have a filing fee. In 2023 the U.S. Supreme Court ruled that when a county keeps more than the tax debt, it takes property without just compensation (<a href="https://www.law.cornell.edu/supremecourt/text/22-166" {...ext}>Tyler v. Hennepin County&nbsp;↗</a>).</p>
         <ul>
           <li><strong>“Finders”: </strong>People who find your name in sale records may offer to get the money for a share of it. Ask {state === 'TX' ? 'the clerk of the court that ordered the sale, or the trustee,' : state ? 'the county treasurer or the trustee' : 'the county treasurer (in Texas, the clerk of the court that ordered the sale) or the trustee'} first: you can usually claim directly without paying anyone a share, though some procedures, such as a court petition, have a filing fee. Read any agreement before you sign, and never sign one you don’t understand.</li>
           {SURPLUS.filter((x) => showFor(state, x.text)).map((x) => (

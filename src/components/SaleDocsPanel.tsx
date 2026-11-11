@@ -1,4 +1,4 @@
-import { saleDocsFor, saleScriptsFor } from '../lib/saleDocs';
+import { saleDocsFor, saleKindOf, saleScriptsFor } from '../lib/saleDocs';
 
 /** "[date]" in a script becomes a blank to fill in, so it doesn't read as leftover placeholder text. */
 function withBlanks(script: string) {
@@ -16,7 +16,7 @@ export default function SaleDocsPanel({ guideKey, state }: { guideKey: string; s
         <ul className="sale-doc-list">
           {saleDocsFor(guideKey, state).map((d) => <li key={d.name}><strong>{d.name}</strong> <span>{d.check}</span></li>)}
         </ul>
-        <p className="muted">Start with the official notice and your contract. Confirm applicable forms, amounts, deadlines and any missing details with the official seller and your own team.</p>
+        <p className="muted">{['reo', 'short', 'commercial'].includes(saleKindOf(guideKey)) ? 'Start with the official notice or listing and your contract.' : 'Start with the official notice of sale.'} Confirm applicable forms, amounts, deadlines and any missing details with the official seller and your own team.</p>
       </div>
       <div>
         <h3 className="guide-sub">What to say</h3>
