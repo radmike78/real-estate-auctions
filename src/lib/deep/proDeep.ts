@@ -964,7 +964,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     facts: [
       {
-        text: "Nevada’s Residential Recovery Fund (created 1999) has paid about $15 million to harmed homeowners. It covers owners who live in the single-family home where the work was done. You must file a complaint within four years after the work was finished, and the fund pays at most $40,000 per claim (NRS 624.480, 624.510).",
+        text: "Nevada’s Residential Recovery Fund (created 1999) has paid about $15 million to harmed homeowners, a news report says.* It covers owners who live in the single-family home where the work was done. You must file a complaint within four years after the work was finished, and the fund pays at most $40,000 per claim (NRS 624.480, 624.510).",
         source: {
           label: "KTNV Las Vegas: Homeowners harmed by contractors awarded almost $400K through recovery fund (Jan. 23, 2024)",
           url: "https://www.ktnv.com/news/homeowners-harmed-by-contractors-awarded-almost-400k-through-recovery-fund"

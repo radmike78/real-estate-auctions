@@ -6,7 +6,7 @@ function withBlanks(script: string) {
 }
 
 /** Documents to have, check or sign for a kind of sale, and words to use with the official seller or your own team. */
-export default function SaleDocsPanel({ guideKey, state }: { guideKey: string; state: string }) {
+export default function SaleDocsPanel({ guideKey, state, county }: { guideKey: string; state: string; county?: string | null }) {
   const scripts = saleScriptsFor(guideKey, state);
   const blanks = scripts.some((x) => /\[[^\]]+\]/.test(x.script));
   return (
@@ -14,7 +14,7 @@ export default function SaleDocsPanel({ guideKey, state }: { guideKey: string; s
       <div>
         <h3 className="guide-sub">Documents</h3>
         <ul className="sale-doc-list">
-          {saleDocsFor(guideKey, state).map((d) => <li key={d.name}><strong>{d.name}</strong> <span>{d.check}</span></li>)}
+          {saleDocsFor(guideKey, state, county).map((d) => <li key={d.name}><strong>{d.name}</strong> <span>{d.check}</span></li>)}
         </ul>
         <p className="muted">{['reo', 'short', 'commercial'].includes(saleKindOf(guideKey)) ? 'Start with the official notice or listing and your contract.' : 'Start with the official notice of sale.'} Confirm applicable forms, amounts, deadlines and any missing details with the official seller and your own team.</p>
       </div>

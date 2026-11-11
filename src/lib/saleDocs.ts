@@ -210,11 +210,17 @@ const NV_FUNDS_DEED: SaleDoc = { name: 'Certified funds (cash, cashier’s check
 const NV_REGISTRATION: SaleDoc = { name: 'Bidder registration form', check: 'Clark County requires an individual’s name, not a company, LLC or trust, and the deed goes to exactly that name. To hold it in an entity, record your own deed afterward (ask an attorney first).' };
 const NV_FUNDS_SID: SaleDoc = { name: 'Cash, cashier’s check or money order', check: 'The forms the Clark County Treasurer lists for this sale; wire isn’t listed. Confirm them in the current notice, and have the exact amount ready by the payment deadline.' };
 
-export function saleDocsFor(guideKey: string, state: string): SaleDoc[] {
+// Washoe County Treasurer's FAQ: "We only accept cash, cashier's check, certified check and/or money orders."
+const WASHOE_FUNDS_DEED: SaleDoc = { name: 'Cash, cashier’s check, certified check or money order', check: 'The forms the Washoe County Treasurer’s FAQ lists (no wire). Confirm them in the current sale notice, and have the exact amount ready by the payment deadline.' };
+
+/** The documents for a guide. Nevada's tax and SID guides follow Clark County; another chosen county gets the general
+ *  lines (Washoe its own payment forms) instead of Clark's. */
+export function saleDocsFor(guideKey: string, state: string, county?: string | null): SaleDoc[] {
   const kind = saleKindOf(guideKey);
   if (state === 'TX' && TX_DOCS[kind]) return TX_DOCS[kind];
-  const nvFunds = state !== 'NV' ? undefined : kind === 'deed' ? NV_FUNDS_DEED : kind === 'sid' ? NV_FUNDS_SID : undefined;
-  const docs = SALE_DOCS[kind].filter((d) => state === 'NV' || !/super-priority/.test(d.name)).map((d) => (nvFunds && d === FUNDS ? nvFunds : state === 'NV' && kind === 'deed' && d.name === 'Bidder registration form' ? NV_REGISTRATION : d));
+  const clark = !county || county === 'Clark';
+  const nvFunds = state !== 'NV' ? undefined : kind === 'deed' ? (clark ? NV_FUNDS_DEED : county === 'Washoe' ? WASHOE_FUNDS_DEED : undefined) : kind === 'sid' && clark ? NV_FUNDS_SID : undefined;
+  const docs = SALE_DOCS[kind].filter((d) => state === 'NV' || !/super-priority/.test(d.name)).map((d) => (nvFunds && d === FUNDS ? nvFunds : state === 'NV' && clark && kind === 'deed' && d.name === 'Bidder registration form' ? NV_REGISTRATION : d));
   const deed = kind === 'hoa' ? HOA_DEED[state] : undefined;
   return deed ? docs.map((d) => (/^Certificate of sale, then the deed/.test(d.name) ? deed : d)) : docs;
 }

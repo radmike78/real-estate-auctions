@@ -130,7 +130,7 @@ export function sections(p: Playbook): DrillSection[] {
       title: 'Documents and what to say',
       icon: <IconCheckList />,
       summary: `${saleDocsFor(p.key, stateOf(p)).length} documents to have, check or sign, and what to ask`,
-      content: () => <SaleDocsPanel guideKey={p.key} state={stateOf(p)} />,
+      content: () => { const ar = getMyArea(); return <SaleDocsPanel guideKey={p.key} state={stateOf(p)} county={ar?.state === stateOf(p) ? ar.county : null} />; },
     },
     {
       key: 'what-survives',
@@ -314,7 +314,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
           <p className="other-state-guide" role="note">
             {['tax', 'sid', 'sheriff'].includes(p.key) ? 'This guide follows Clark County. ' : ''}
             {a.county === 'Washoe' && p.key === 'tax'
-              ? 'Washoe County’s tax sale differs. It’s held once a year, usually in April. Register in person at the Treasurer’s office, starting at 9:00 a.m. two business days before the sale, with photo ID and a $500 pre-bid deposit in certified funds. Registration closes at 5:00 p.m. on a date the sale notice gives (the Treasurer’s FAQ calls it the Tuesday deadline).* The opening bid is what’s owed or the assessed value, whichever is greater. If you win, the FAQ lists a $500 non-refundable deposit (it doesn’t say whether that’s the pre-bid deposit)* and the balance due by 5:00 p.m. the day after the sale.'
+              ? 'Washoe County’s tax sale differs. It’s held once a year, usually in April. Its Treasurer’s FAQ accepts only cash, cashier’s checks, certified checks or money orders (no wire). Register in person at the Treasurer’s office, starting at 9:00 a.m. two business days before the sale, with photo ID and a $500 pre-bid deposit in certified funds. Registration closes at 5:00 p.m. on a date the sale notice gives (the Treasurer’s FAQ calls it the Tuesday deadline).* The opening bid is what’s owed or the assessed value, whichever is greater. If you win, the FAQ lists a $500 non-refundable deposit (it doesn’t say whether that’s the pre-bid deposit)* and the balance due by 5:00 p.m. the day after the sale.'
               : a.county === 'Washoe' && p.key === 'sid'
                 ? 'Washoe County runs its own SID sale. Its Treasurer’s page says the parcel goes to the first person willing to pay, chosen by a show of hands, with buyer numbers drawn when more than one wants it, and payment is due by 10:00 a.m. the following day. The redemption period is 2 years with a home or other significant improvement, else 120 days, and the 1% monthly interest isn’t prorated. Confirm each sale’s terms in its notice.'
               : p.key === 'sid' && !offices?.specialAssessment
