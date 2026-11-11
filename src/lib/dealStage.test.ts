@@ -1091,6 +1091,18 @@ describe('Nevada round 4 flow', () => {
     expect(beforeDeed(sh)).toBe('2027-09-10');
   });
 
+  it('round 32 verifier: an HOA win moved to the owner stage after its redemption ended asks whether anyone redeemed', async () => {
+    const h = { ...nvFlip, id: 'dho32', kind: 'hoa' as const, stage: 'owned' as const };
+    saveDeals([h]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-08-20', what: 'Sale day', who: 'HOA agent', resolved: true }, { when: '2026-08-20', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-08-25', what: 'Certificate of sale recorded', who: 'HOA agent', resolved: true }] };
+    savePacket('analyzed:dho32', p);
+    const later = new Date('2026-11-11T15:00:00Z');
+    const t = dealNextTask(h, p, later, 'owned');
+    expect(t.label).toMatch(/redemption period .*ended|did anyone redeem|whether anyone redeemed/i);
+    expect(t.label).not.toMatch(/^Wait out/);
+    expect(stageHint('owned', h)).toMatch(/^The redemption period ended on Oct 19, 2026/);
+  });
+
   it('round 30 verifier: a redemption ticked early still runs, a redeemed deal isn’t “over”, and a passed closing asks for the new date', async () => {
     const { rentWaitNote } = await import('./dealPacket');
     const { redemptionPast } = await import('./dealStage');

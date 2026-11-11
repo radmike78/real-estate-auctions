@@ -177,6 +177,7 @@ function Listing({ s, progress, total, onReset }: { s: Scenario; progress: Scena
 }
 
 function Results({ s, progress }: { s: Scenario; progress: ScenarioProgress }) {
+  const accountsReady = !!useSiteFeatures()?.accounts;
   const decisions = s.stages.flatMap((st) => st.tasks.filter((t) => t.kind === 'decision').map((t) => `${st.key}/${t.id}`));
   const right = decisions.filter((k) => progress.firstTry[k]).length;
   const lien = s.playbookKey === 'sid';
@@ -193,7 +194,7 @@ function Results({ s, progress }: { s: Scenario; progress: ScenarioProgress }) {
         <li><a href="#/pros">Learn who you need and how to find them</a></li>
         <li><a href="#/practice">Practice another kind of sale or property</a></li>
       </ul>
-      <p className="small muted">Guest results stay in this browser; account progress is kept when you use Save my work. Our guides are general education; for your own deal, work with qualified professionals.</p>
+      <p className="small muted">Guest results stay in this browser{accountsReady ? '; account progress is kept when you use Save my work' : ''}. Our guides are general education; for your own deal, work with qualified professionals.</p>
     </section>
   );
 }

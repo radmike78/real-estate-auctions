@@ -240,7 +240,7 @@ const NEVADA: Playbook[] = [
     },
     mistakes: [
       { mistake: 'Assuming every HOA sale wipes out the mortgage', prevent: 'Check the Recorder for the lender’s payment before bidding. No recorded payment doesn’t prove the mortgage is gone. An offer to pay that the HOA refused, or Fannie Mae or Freddie Mac owning the loan, can keep it. Have an attorney check.' },
-      { mistake: 'Renovating right away', prevent: 'Only spend what’s needed to maintain and repair the unit to the HOA’s standards. A redeemer repays that. Upgrades before the 60-day redemption period ends put that money at risk.' },
+      { mistake: 'Renovating right away', prevent: 'Spending needed to maintain and repair the unit to the HOA’s standards is repaid if someone redeems. Upgrades before the 60-day redemption period ends put that money at risk.' },
     ],
     example: {
       title: 'The $9,000 condo',

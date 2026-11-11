@@ -91,7 +91,7 @@ export const SALE_DOCS: Record<SaleKindKey, SaleDoc[]> = {
     { name: 'Certificate of sale', check: 'You get it when you pay in full. Ask a title company or attorney about recording it.' },
     { name: 'The deed, after 180 days', check: 'If no one redeems, turn in the certificate of sale for the deed, then record the deed.' },
   ],
-  reo: [PREAPPROVAL, BUYER_AGREEMENT, CONTRACT, { name: 'The bank’s addendum', check: '“As-is” terms, who pays which costs, deposit and closing deadlines, any per-day fee for closing late, and any waiver of your disclosure rights (in Nevada, one must be signed and notarized to count, NRS 113.150(6)); ask your agent or attorney before you sign a waiver. It usually overrides the standard contract.' }, INSPECTION, COMMITMENT, CLOSING, DEED],
+  reo: [PREAPPROVAL, BUYER_AGREEMENT, CONTRACT, { name: 'The bank’s addendum', check: '“As-is” terms, who pays which costs, deposit and closing deadlines, any per-day fee for closing late, and any waiver of your disclosure remedies, such as cancelling or suing over a known defect (in Nevada, one must be signed and notarized to count, NRS 113.150(6)); ask your agent or attorney before you sign a waiver. It usually overrides the standard contract.' }, INSPECTION, COMMITMENT, CLOSING, DEED],
   short: [PREAPPROVAL, BUYER_AGREEMENT, CONTRACT, { name: 'Short-sale addendum', check: 'Says the sale depends on the lender’s approval. Check how long you’ll wait and whether you can cancel while you wait.' }, { name: 'The lender’s approval letter', check: 'The price it accepts, the closing deadline, and which costs it will and won’t pay. Close by its deadline.' }, INSPECTION, COMMITMENT, CLOSING, DEED],
   commercial: [
     PREAPPROVAL,

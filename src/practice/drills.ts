@@ -539,7 +539,7 @@ export const DRILLS: Drill[] = [
       {
         kind: 'pick',
         id: 'renovate',
-        title: 'Mission 2: Start the $50,000 renovation now?',
+        title: 'Mission 2: The $50,000 renovation and the redemption year',
         question: 'You renovate during the redemption year, and the debtor redeems in month eleven. What happens to the $50,000?',
         multi: false,
         options: [

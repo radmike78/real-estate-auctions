@@ -14,7 +14,7 @@ import OwlNote from './OwlNote';
 import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
-import { beforeWhat, paidAtWin, decideAnswered, recordParts, asksHome, voidByLaw, forCalendar, liveIn, setDealHome, sidState, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageOf } from '../lib/dealStage';
+import { beforeDeed, beforeWhat, paidAtWin, decideAnswered, recordParts, asksHome, voidByLaw, forCalendar, liveIn, setDealHome, sidState, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageOf } from '../lib/dealStage';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { planNow } from '../lib/planNext';
 import TaskActions from './TaskActions';
@@ -330,7 +330,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <section className="deal-setup packet-section" aria-labelledby="packet-owned">
         <h2 id="packet-owned">After you buy: actual results</h2>
         {/* A lien certificate earns interest, not rent: no monthly rent tracker. */}
-        {deal.kind === 'lien' ? <p>{finishedDeal(deal) ? 'Paid off: keep the Treasurer’s payoff receipt with the certificate record for your taxes.' : redeemingNow(deal) ? 'Paid off: collect the Treasurer’s payoff and keep the receipt with the certificate record.' : 'Holding the certificate? Keep the Treasurer’s certificate record (the city or county that sold it), any later taxes you pay to protect it, and the payoff when the owner redeems, with your notes and the Treasurer’s receipts.'}</p> : <OwnedTracker deal={deal} />}
+        {deal.kind === 'lien' ? <p>{finishedDeal(deal) ? 'Paid off: keep the Treasurer’s payoff receipt with the certificate record for your taxes.' : redeemingNow(deal) ? 'Paid off: collect the Treasurer’s payoff and keep the receipt with the certificate record.' : 'Holding the certificate? Keep the Treasurer’s certificate record (the city or county that sold it), any later taxes you pay to protect it, and the payoff when the owner redeems, with your notes and the Treasurer’s receipts.'}</p> : beforeDeed(deal) ? <p className="caution" role="note">You hold a certificate of sale, not the deed yet{beforeDeed(deal) !== 'unknown' ? ` (the redemption period ends ${prettyDay(beforeDeed(deal))})` : ''}. Keep receipts for what you pay while you wait; Key dates say what a redemption repays. Tracking costs and a sale start here once you have the deed.</p> : <OwnedTracker deal={deal} />}
       </section>
       <AdSpot spot="dealPacket" allow={analyzeAllowsAds(deal.kind)} />
       <p className="muted">This packet is not included in account saves. Download it to keep a copy; guest packets also stay in this browser. This packet records your own review; it doesn’t clear title or certify a deal.</p>
