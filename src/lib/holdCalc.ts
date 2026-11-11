@@ -285,7 +285,7 @@ export function rentStress(i: RentInputs, price = nz(i.value), onPrice = false):
 }
 
 /** The deal in plain words: what it earns, what could break it, and what to check before going further. */
-export function explainRent(i: RentInputs, price = nz(i.value), onPrice = false, living = false): string[] {
+export function explainRent(i: RentInputs, price = nz(i.value), onPrice = false, living = false, auction = false): string[] {
   const money = (n: number) => `$${Math.round(Math.abs(n)).toLocaleString('en-US')}`;
   const stress = rentStress(i, price, onPrice);
   const base = stress[0].monthly;
@@ -308,7 +308,7 @@ export function explainRent(i: RentInputs, price = nz(i.value), onPrice = false,
   if (nz(i.monthlyRent) > 0 && nz(i.vacancyPct) < 5) out.push(`Your vacancy of ${nz(i.vacancyPct)}% is below the 5–8% that’s common for homes.`);
   const rented = nz(i.monthlyRent) > 0;
   if (rented && !(nz(i.managementPct) > 0)) out.push('You assumed you’ll manage it yourself. If you later hire a property manager, that fee comes out of your cash flow.');
-  out.push(rented ? 'Before you go further, check the rent against homes that actually rented nearby, get an insurance quote, ask the county what the property tax will be after you buy, and have the roof and systems inspected.' : 'Before you go further, get an insurance quote, ask the county what the property tax will be after you buy, and have the roof and systems inspected.');
+  out.push(rented ? `Before you go further, check the rent against homes that actually rented nearby, get an insurance quote, ask the county what the property tax will be after you buy, and ${auction ? 'look the outside over from the street (at an auction you usually can’t see inside, so budget for what you can’t check)' : 'have the roof and systems inspected'}.` : `Before you go further, get an insurance quote, ask the county what the property tax will be after you buy, and ${auction ? 'look the outside over from the street (at an auction you usually can’t see inside, so budget for what you can’t check)' : 'have the roof and systems inspected'}.`);
   return out;
 }
 

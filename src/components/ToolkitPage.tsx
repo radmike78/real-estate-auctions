@@ -1055,7 +1055,7 @@ function planText(): string {
   const team = read(TEAM_LIST_KEY, {}, cleanTeamList);
   const cash = investableCash();
   const now = planNow();
-  const lines = ['MY INVESTING PLAN', 'DeedOwl educational worksheet.', '', 'GOAL', read(GOAL_KEY, '', cleanGoal) || '(not written yet)', '', `NEXT STEP (${now.context})`, `${now.task.label}. You’ll have ${now.task.produces}.`, '', 'CASH'];
+  const lines = ['MY INVESTING PLAN', 'DeedOwl educational worksheet.', '', 'GOAL', read(GOAL_KEY, '', cleanGoal) || '(not written yet)', '', `NEXT STEP (${now.context})`, `${now.task.label.replace(/[.?!]$/, '')}${/\?$/.test(now.task.label) ? '?' : '.'} You’ll have ${now.task.produces.replace(/\.$/, '')}.`, '', 'CASH'];
   // The estimates the cash worksheet uses (the ones you changed there, else the buy box's, else ours).
   const pa = read(ESTIMATES_KEY, null, cleanAssumptions) ?? b.priceAssumptions ?? PRICE_DEFAULTS;
   const supports = priceForCash(cash, pa);

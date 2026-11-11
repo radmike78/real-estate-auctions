@@ -355,7 +355,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         </p>
       )}
       {price > 0 && cashShort && <p className="small"><button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>{cashTyped ? 'Change your cash' : 'Enter your cash'}</button></p>}
-      {price === 0 && <p className="muted small">{word === 'The price you paid' ? 'Enter the price you paid to see your numbers at that price.' : <>Enter the price you’d pay ({onPrice ? 'the asking price, or your offer' : 'your planned bid'}) to see your numbers at that price.</>}</p>}
+      {price === 0 && <p className="muted small">{word === 'The price you paid' ? 'Enter the price you paid to see your numbers at that price.' : word === 'Your winning bid' ? 'Enter your winning bid to see your numbers at that price: an estimate, not advice.' : <>Enter the price you’d pay ({onPrice ? 'the asking price, or your offer' : 'your planned bid'}) to see your numbers at that price.</>}</p>}
       {walkAway > 0 && price !== walkAway && !livingThere && <button type="button" className="linkish" onClick={() => setPrice(walkAway)}>Use the walk-away price ({fmtMoney(walkAway)})</button>}
       {price > 0 && (<>
       <table className="deal-stress waterfall">
@@ -504,14 +504,14 @@ function HoldAndSell({ v, onPrice, target = 0, exampleValue = false }: { v: Rent
 /** A price the panels are figured at, and how to say which one it is. */
 type PriceAt = { price: number; label: string };
 
-function RentDealLab({ v, at: atP, onPrice, living = false }: { v: RentInputs; at: PriceAt; onPrice: boolean; /** You plan to live there: a loss is your monthly cost of living there. */ living?: boolean }) {
+function RentDealLab({ v, at: atP, onPrice, living = false, auction = false }: { v: RentInputs; at: PriceAt; onPrice: boolean; /** You plan to live there: a loss is your monthly cost of living there. */ living?: boolean; /** Bought at an auction: no inside inspection. */ auction?: boolean }) {
   const at = atP.price;
   const rows = rentStress(v, at, onPrice);
   const [ticked, setTicked] = useState<string[]>([]);
   return (
     <div className="deal-lab">
       <h4>Explain this deal at {atP.label}</h4>
-      <ul className="deal-explain">{explainRent(v, at, onPrice, living).map((x) => <li key={x}>{x}</li>)}</ul>
+      <ul className="deal-explain">{explainRent(v, at, onPrice, living, auction).map((x) => <li key={x}>{x}</li>)}</ul>
       <h4>Stress test: {living && !(v.monthlyRent > 0) ? 'what living there costs' : living ? 'what living there costs or leaves you' : 'cash flow'} per month at {atP.label}</h4>
       <table className="deal-stress">
         <tbody>
@@ -558,6 +558,8 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const livesHere = offer && (ownDeal ? liveIn({ ...ownDeal, plan: 'rent' }) : !!investorProfile().ownerOccupant);
   // Already bought (closed or owned): the price is the one you paid.
   const bought = offer && !!ownDeal && ['closed', 'owned'].includes(ownDeal.stage ?? '');
+  // (Won at an auction: the price is the winning bid, not a planned one.)
+  const wonBid = !offer && !!ownDeal && ['contract', 'closed', 'owned'].includes(ownDeal.stage ?? '');
   // In a deal with a state, the example tax and insurance follow that state (a Texas rental's tax is about three
   // times a Nevada one's); they're starting numbers only and give way to anything typed or prefilled.
   const stateStart = regional ? rentalStartFor(region.state, start.value ?? RENT_DEFAULTS.value, region.county) : {};
@@ -604,7 +606,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const basicFields = groups.flatMap((g) => g.fields).filter((f) => basics.has(f.k));
   const moreGroups = groups.map((g) => ({ ...g, fields: g.fields.filter((f) => !basics.has(f.k)) }));
   const allExample = !typed && Object.keys(start).length === 0;
-  const word = bought ? 'The price you paid' : offer ? 'Your offer' : 'Your bid';
+  const word = bought ? 'The price you paid' : wonBid ? 'Your winning bid' : offer ? 'Your offer' : 'Your bid';
   // Which price the panels below are figured at: yours once you enter it, else the target price.
   // You plan to live there (Decide: a home loan and live in it): the investor's walk-away price is a yardstick only, so
   // the panels below wait for your offer instead of using it.
@@ -666,7 +668,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         )}
         {/* No price to figure them at yet (no offer, no walk-away price, no value): ask for one instead of showing $0. */}
         {at.price > 0 ? <CashCushion v={v} price={at.price} at={at.label} onPrice={offer} /> : null}
-        {at.price > 0 ? <RentDealLab v={v} at={at} onPrice={offer} living={living} /> : <p className="calc-note small">Enter {bought ? 'the price you paid' : offer ? 'your offer (the asking price)' : 'your bid'} to see the cash cushion, the stress test and how a lender sees this rent at that price.</p>}
+        {at.price > 0 ? <RentDealLab v={v} at={at} onPrice={offer} living={living} auction={!offer && !!saleKind && saleKind !== 'listing'} /> : <p className="calc-note small">Enter {bought ? 'the price you paid' : offer ? 'your offer (the asking price)' : 'your bid'} to see the cash cushion, the stress test and how a lender sees this rent at that price.</p>}
         <HoldAndSell v={living && !(v.atPrice > 0) ? { ...v, value: 0 } : v} onPrice={offer} target={living || noReal ? 0 : r.maxBid} exampleValue={v.value === RENT_DEFAULTS.value && !typedKeys.has('value')} />
         {/* (A home you live in with no rent: the lender's rent test and nightly renting don't apply.) */}
         {at.price > 0 && !(living && !(v.monthlyRent > 0)) ? <LenderView v={v} at={at} onPrice={offer} /> : null}
