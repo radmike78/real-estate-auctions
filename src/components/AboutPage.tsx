@@ -10,9 +10,10 @@ import { ROLE_SHORT } from '../lib/disclaimers';
 import { forStateText, useMyState } from '../lib/myState';
 
 const SALE_TYPES: [string, string, string][] = [
-  ['Tax-deed sale', 'The property (quitclaim deed); anyone claiming the land can sue to recover it for 2 years after the deed (NRS 361.600)', 'A county treasurer’s auction (in person or online, depending on the county); the notice gives the payment terms'],
+  ['Tax sale (Treasurer’s deed)', 'The property, by the Treasurer’s deed (a quitclaim deed); anyone claiming the land can sue to recover it for 2 years after the deed (NRS 361.600)', 'A county treasurer’s auction (in person or online, depending on the county); the notice gives the payment terms'],
   ['Special improvement district (SID) lien certificate', 'The right to be repaid the certificate price plus 1% a month, not ownership. A deed only if not redeemed in 2 years (120 days if the county or city decides there was no home or other significant improvement), and only after formal notice to the owner and 60 more days; the certificate expires 3 years after redemption ends', 'A county or city treasurer’s SID sale (Clark and Washoe counties and some cities); buyers are picked by drawing or a show of hands'],
-  ['Mortgage foreclosure', 'The property, after the lender forecloses', 'Trustee, sheriff or judicial auction'],
+  ['Mortgage foreclosure (trustee sale)', 'The property, by trustee’s deed; a lawsuit can still void the sale for 30 days after the deed is recorded (90 days after the sale for anyone not properly notified, NRS 107.080)', 'Trustee’s auction'],
+  ['Judicial foreclosure', 'A certificate of sale first; the owner or a later lienholder can redeem for 1 year, then the sheriff’s deed (NRS 40.430, 21.190–21.210)', 'Sheriff’s sale'],
   ['HOA foreclosure', 'The owner’s title after a 60-day redemption period; the first mortgage may survive', 'HOA agent / trustee auction'],
   ['Sale to pay a court judgment', "Whatever the debtor owned in the property", 'Sheriff sale, with a period when it can be bought back (redemption)'],
   ['Federal tax seizure', "The taxpayer's interest, which the owner or anyone with an interest can buy back for 180 days (26 U.S.C. 6337(b))", 'IRS public auction or sealed bid'],

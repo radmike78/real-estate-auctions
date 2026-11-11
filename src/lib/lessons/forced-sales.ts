@@ -118,7 +118,7 @@ export const forcedSales: Lesson = {
   ],
   terms: [
     { term: 'Tax lien', meaning: 'A claim for unpaid taxes. Some states sell these liens to investors, who earn interest until it’s paid; others sell the property itself (the table above shows which yours does).' },
-    { term: 'Tax deed', meaning: 'A deed to the property itself, sold by the county for unpaid taxes.' },
+    { term: 'Tax deed', meaning: 'A deed to the property itself, sold by the county for unpaid taxes. In Nevada it’s the Treasurer’s deed, a quitclaim deed from the county treasurer.' },
     { term: 'Trustee sale', meaning: 'An out-of-court foreclosure auction held by the trustee under a deed of trust.' },
     { term: 'Right of redemption', meaning: 'The owner’s right to buy the property back for a time after certain sales.' },
     { term: 'Quitclaim deed', meaning: 'A deed that passes whatever interest the seller has, with no promise that title is clear.' },

@@ -155,9 +155,9 @@ const NEVADA: Playbook[] = [
   },
   {
     key: 'foreclosure',
-    title: 'Nevada foreclosure auctions',
-    short: 'Foreclosure auctions',
-    oneLine: 'Most Nevada foreclosures are non-judicial. After the owner defaults, a trustee sells the property at auction.',
+    title: 'Nevada trustee sales (foreclosure auctions)',
+    short: 'Trustee sales (foreclosure auctions)',
+    oneLine: 'Most Nevada home loans are foreclosed out of court (non-judicial): after the owner defaults, a trustee sells the property at auction.',
     youGet: 'The owner’s interest by trustee’s deed, subject to anything senior to the loan being foreclosed.',
     plain: 'The house as the owner held it. Debts recorded ahead of the loan being foreclosed stay with it.',
     forSale: true,
@@ -236,7 +236,7 @@ const NEVADA: Playbook[] = [
     ],
     survives: {
       wipedOut: ['The HOA lien being foreclosed', 'The first mortgage, only if three things are true. The lender did not pay the super-priority amount. The loan wasn’t owned by Fannie Mae or Freddie Mac. And the sale was proper'],
-      mayStay: ['The first mortgage, if the lender paid the super-priority amount at least 5 days before the sale, or validly offered it and was refused. Also if Fannie Mae or Freddie Mac owned the loan (while they are under federal conservatorship)', 'Property taxes', 'Federal tax liens. Even when wiped out, the U.S. can buy the home back within 120 days, longer than the 60 days for the owner or a junior lender (26 U.S.C. 7425)', 'The 60-day redemption right'],
+      mayStay: ['The first mortgage, if the lender paid the super-priority amount at least 5 days before the sale, or offered it and was refused, if a court would find the offer valid (Bank of America v. SFR, 2018)*. Also if Fannie Mae or Freddie Mac owned the loan (while they are under federal conservatorship)', 'Property taxes', 'Federal tax liens. Even when wiped out, the U.S. can buy the home back within 120 days, longer than the 60 days for the owner or a junior lender (26 U.S.C. 7425)', 'The 60-day redemption right'],
     },
     mistakes: [
       { mistake: 'Assuming every HOA sale wipes out the mortgage', prevent: 'Check the Recorder for the lender’s payment before bidding. No recorded payment doesn’t prove the mortgage is gone. An offer to pay that the HOA refused, or Fannie Mae or Freddie Mac owning the loan, can keep it. Have an attorney check.' },

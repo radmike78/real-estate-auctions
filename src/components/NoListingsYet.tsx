@@ -32,7 +32,7 @@ const OFFICIAL_ANY_STATE = [
 const TYPES = [
   { href: '#/live', icon: <IconFile />, title: 'Tax sales', summary: 'Upcoming county tax sales, and Clark County, Nevada parcels when an auction is scheduled' },
   { href: '#/playbooks/sid', icon: <IconShield />, title: 'Lien certificates (SID)', summary: 'Special improvement district (SID) liens sold by the Clark County Treasurer (Nevada)', nvOnly: true },
-  { href: '#/playbooks/foreclosure', icon: <IconCalendar />, title: 'Foreclosure auctions', summary: 'Trustee and court-ordered sales after a mortgage default' },
+  { href: '#/playbooks/foreclosure', icon: <IconCalendar />, title: 'Trustee sales (foreclosure auctions)', summary: 'Trustee and court-ordered sales after a mortgage default' },
   { href: '#/playbooks/hoa', icon: <IconLayers />, title: 'HOA foreclosures', summary: 'Sales to collect unpaid HOA dues' },
   { href: '#/playbooks/sheriff', icon: <IconFlag />, title: 'Sheriff sales', summary: 'Sales to pay a court judgment, run by the sheriff' },
   { href: '#/playbooks/irs', icon: <IconBadge />, title: 'IRS sales', summary: 'Property seized for unpaid federal taxes' },
