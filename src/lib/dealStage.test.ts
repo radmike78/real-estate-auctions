@@ -964,6 +964,23 @@ describe('Nevada round 4 flow', () => {
     expect(stageTasks(flip, 'owned', wp, now)[0].label).toMatch(/^Wait for 2210 Mesa Verde Ln’s challenge window to end \(Oct 31, 2026\)/);
   });
 
+  it('round 27: closing-week text; an unticked record row reopens its task; a trimmed packet stays on a county change', async () => {
+    const { nextAction, loadPacket, suggestedDates } = await import('./dealPacket');
+    const offer = { ...nvFlip, id: 'dof27', kind: 'reo' as const, plan: 'rent' as const, stage: 'contract' as const };
+    saveDeals([offer]);
+    const base = [{ when: '2026-10-01', what: 'Earnest money due', who: 'Escrow', resolved: true }, { when: '2026-10-07', what: 'Closing', who: 'Escrow' }];
+    expect(nextAction(offer, { ...EMPTY_PACKET, dates: base }, now).text).toMatch(/^Closing is tomorrow/);
+    const unticked = { ...EMPTY_PACKET, dates: [...base, { when: '2026-10-05', what: 'Title commitment reviewed', who: 'Me', resolved: false }] };
+    expect(stageTasks(offer, 'contract', unticked, now).find((t) => t.key === 'contract-title')!.done).toBe(false);
+    expect(dealNextTask(offer, unticked, now, 'contract').label).not.toMatch(/Overdue/);
+    const d = { ...nvFlip, id: 'dtrim27', kind: 'court' as const, stage: 'researching' as const };
+    saveDeals([d]);
+    const trimmed = suggestedDates(d).slice(1).map((what) => ({ when: '', what, who: '' }));
+    savePacket('analyzed:dtrim27', { ...EMPTY_PACKET, dates: trimmed });
+    saveDeals([{ ...d, county: 'Washoe' }]);
+    expect(loadPacket('analyzed:dtrim27').dates.length).toBe(trimmed.length);
+  });
+
   it('round 11 flow: a late SID payoff; Still to add; hints; time order after the deed; registration passed', async () => {
     const { packetSections, dealPacketText } = await import('./dealPacket');
     const tax = { ...nvFlip, kind: 'taxSale' as const };

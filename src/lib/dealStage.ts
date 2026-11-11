@@ -186,6 +186,8 @@ export const EARNEST_BACK = 'Earnest money returned';
 export const TITLE_REVIEWED = 'Title commitment reviewed';
 export const INSURED_ROW = 'Insurance in place';
 export const WALKTHROUGH_ROW = 'Final walkthrough done';
+/** A task recorded by its own row: the row decides (unticked, it's open again); without one, the roadmap step does. */
+const recordDone = (p: PacketData, row: string, step: boolean) => { const r = p.dates.find((x) => sameDate(x.what, row)); return r ? !!r.resolved : step; };
 /** Set while a finished deal looks for the next open one (its tasks never look again). */
 let findingNext = false;
 /** The open property to go on to after another is finished or passed: one with a date that has passed, then one with
@@ -198,7 +200,9 @@ export function nextOpenDeal(fromId: string): Deal | undefined {
   try {
     // (Then the one My plan would focus on among them: a property under way before one you're only researching.)
     const focus = focusDealId(others);
-    return others.find((x) => deadlinePassed(dealNextTask(x))) ?? others.find((x) => dealNextTask(x).urgent) ?? others.find((x) => `analyzed:${x.id}` === focus) ?? others[0];
+    // (The most serious first, the same order My plan's "Another property needs your attention" uses.)
+    const pressing = others.filter((x) => needsAnswerNow(dealNextTask(x))).sort((a, b) => pressingWeight(dealNextTask(a)) - pressingWeight(dealNextTask(b)));
+    return pressing[0] ?? others.find((x) => dealNextTask(x).urgent) ?? others.find((x) => `analyzed:${x.id}` === focus) ?? others[0];
   } finally { if (outer) findingNext = false; }
 }
 /** The row a Nevada tax-sale buyer records once the city or county has sent the Treasurer its SID payment affidavit. */
@@ -629,9 +633,9 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       out.push(task({ key: 'inspection-complete', label: `Inspect ${n} before the ${d.plan === 'commercial' ? 'feasibility (due-diligence) period ends' : tx ? 'option period ends' : d.state === 'UT' ? 'Due Diligence Deadline' : 'inspection period ends'}`, produces: 'the report, repair bids and written decision before the deadline; mark the inspection roadmap task done', href: stepHref('inspect'), support: d.plan === 'commercial' ? [L.pro('environmental'), L.pro('appraiser')] : [L.pro('inspector'), L.caseStage('inspection', 'The inspection')], done: stepDone('inspect') || ticked(p, 'Inspection period ends') || ticked(p, 'Option period ends') }));
       out.push(task({ key: 'final-financing', label: `Get the loan approved for ${n}, or confirm your cash`, produces: 'final lender approval with conditions satisfied, or verified available closing funds; mark the final financing roadmap task done', href: stepHref('loan-approval'), support: [L.pro('lender')], done: stepDone('loan-approval') || ticked(p, 'Loan approval deadline') }));
       out.push(task({ key: 'appraisal-complete', label: `Resolve the appraisal for ${n}`, produces: 'the appraisal and any gap resolved before the deadline, or a documented cash-purchase choice not to obtain one', href: stepHref('appraise'), support: [L.pro('appraiser')], done: stepDone('appraise') || ticked(p, 'Appraisal deadline') }));
-      out.push(task({ key: 'contract-title', label: `Review the title commitment for ${n}`, produces: 'requirements and HOA restrictions reviewed within the contract period; mark the title roadmap task done', href: stepHref('title'), record: { label: 'I reviewed it: mark it done', row: { when: localDay(now), what: TITLE_REVIEWED, who: 'Me', resolved: true }, step: 'title' }, support: [L.pro('title'), L.caseStage('appraisal', 'Appraisal and title')], done: stepDone('title') || p.dates.some((x) => sameDate(x.what, TITLE_REVIEWED)) }));
-      out.push(task({ key: 'bound-insurance', label: `Have insurance in place for ${n} by closing`, produces: 'written coverage confirmation and its start date; mark the insurance activation roadmap task done', href: stepHref('bind-insurance'), record: { label: 'It’s in place: mark it done', row: { when: localDay(now), what: INSURED_ROW, who: 'Me', resolved: true }, step: 'bind-insurance' }, support: [L.pro('insurance')], done: stepDone('bind-insurance') || p.dates.some((x) => sameDate(x.what, INSURED_ROW)) }));
-      out.push(task({ key: 'final-walkthrough', label: `Do the final walkthrough of ${n}`, produces: 'agreed repairs, condition and possession checked with your agent; mark the walkthrough roadmap task done', href: stepHref('walkthrough'), record: { label: 'I did the walkthrough: mark it done', row: { when: localDay(now), what: WALKTHROUGH_ROW, who: 'Me', resolved: true }, step: 'walkthrough' }, done: stepDone('walkthrough') || p.dates.some((x) => sameDate(x.what, WALKTHROUGH_ROW)) }));
+      out.push(task({ key: 'contract-title', label: `Review the title commitment for ${n}`, produces: 'requirements and HOA restrictions reviewed within the contract period; mark the title roadmap task done', href: stepHref('title'), record: { label: 'I reviewed it: mark it done', row: { when: localDay(now), what: TITLE_REVIEWED, who: 'Me', resolved: true }, step: 'title' }, support: [L.pro('title'), L.caseStage('appraisal', 'Appraisal and title')], done: recordDone(p, TITLE_REVIEWED, stepDone('title')) }));
+      out.push(task({ key: 'bound-insurance', label: `Have insurance in place for ${n} by closing`, produces: 'written coverage confirmation and its start date; mark the insurance activation roadmap task done', href: stepHref('bind-insurance'), record: { label: 'It’s in place: mark it done', row: { when: localDay(now), what: INSURED_ROW, who: 'Me', resolved: true }, step: 'bind-insurance' }, support: [L.pro('insurance')], done: recordDone(p, INSURED_ROW, stepDone('bind-insurance')) }));
+      out.push(task({ key: 'final-walkthrough', label: `Do the final walkthrough of ${n}`, produces: 'agreed repairs, condition and possession checked with your agent; mark the walkthrough roadmap task done', href: stepHref('walkthrough'), record: { label: 'I did the walkthrough: mark it done', row: { when: localDay(now), what: WALKTHROUGH_ROW, who: 'Me', resolved: true }, step: 'walkthrough' }, done: recordDone(p, WALKTHROUGH_ROW, stepDone('walkthrough')) }));
       const closedTick = p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved && (!x.when || x.when <= localDay(now)));
       out.push(task({ key: 'close', label: closedTick ? `The closing is marked handled: mark ${n} closed` : `Close on ${n}`, produces: closedTick ? 'the new-owner tasks here (keep the signed closing statement and the recorded deed)' : 'the signed closing statement and the deed. Then mark it closed and the new-owner tasks appear here', href: ROADMAP_HREF, advance: { stage: 'closed', label: 'It closed: mark it closed' }, support: [L.caseStage('closing', 'Closing')], done: false }));
     } else {
@@ -749,7 +753,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       out.push(task({ key: 'decide-unpaid', label: `Decide what to do if ${n} is never paid`, produces: 'a dated plan, with your attorney, for an unpaid lien', href: stepHref('c-decide'), support: [L.pro('attorney')], done: stepDone('c-decide') }));
     } else if (d.plan === 'flip') {
       // (A Nevada trustee buy: the challenge window comes before repairs and a resale, as at Deed recorded.)
-      if (d.state === 'NV' && d.kind === 'trustee' && !owned[d.id]?.sold && !p.dates.some((x) => sameDate(x.what, 'Challenge window ends') && x.resolved)) { const w0 = stageTasks(d, 'closed', p, now).find((t) => t.key === 'window' && !t.done); const endRow = p.dates.find((x) => sameDate(x.what, 'Challenge window ends') && x.when && !x.resolved); if (w0) out.push(w0); else if (endRow && endRow.when > localDay(now)) out.push(task({ key: 'window-wait', label: `Wait for ${n}’s challenge window to end (${prettyDay(endRow.when)}) before repairs or a resale`, produces: 'no challenge filed by then, confirmed with your title company, before you spend on repairs or sign a sale (NRS 107.080(5)–(6))', href: packetHref(d, 'dates'), support: [L.pro('title')], done: false })); }
+      if (d.state === 'NV' && d.kind === 'trustee' && !owned[d.id]?.sold && !p.dates.some((x) => sameDate(x.what, 'Challenge window ends') && x.resolved)) { const cn = dealNextTask(d, p, now, 'closed'); const w0 = cn.key === 'date' && /challenge window|90-day/i.test(cn.label) ? cn : stageTasks(d, 'closed', p, now).find((t) => t.key === 'window' && !t.done); const endRow = p.dates.find((x) => sameDate(x.what, 'Challenge window ends') && x.when && !x.resolved); if (w0) out.push(w0); else if (endRow && endRow.when > localDay(now)) out.push(task({ key: 'window-wait', label: `Wait for ${n}’s challenge window to end (${prettyDay(endRow.when)}) before repairs or a resale`, produces: 'no challenge filed by then, confirmed with your title company, before you spend on repairs or sign a sale (NRS 107.080(5)–(6))', href: packetHref(d, 'dates'), support: [L.pro('title')], done: false })); }
       // (A finished month not recorded yet: record it before the sale, so the profit counts it.)
       // (Last month too, once it's over: a flipper who records each month is asked for the latest one.)
       const lastKey = (() => { const t = new Date(now.getFullYear(), now.getMonth() - 1, 1); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}`; })();
@@ -811,7 +815,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const early = stage === 'researching' || stage === 'offer';
     // (On or after sale day, the sale day leads: registration is behind it.)
     const saleNow = early && p.dates.some((x) => sameDate(x.what, 'Sale day') && x.when && x.when <= localDay(now));
-    let nd = nextDate(remindable(capSid(p, d), now, early, [...behindStage(d, stage), ...notYet(d, stage, p, now), ...(saleNow ? ['Bidder registration', 'Registration'] : [])]), now);
+    let nd = nextDate(remindable(capSid(p, d), now, early, [...behindStage(d, stage), ...notYet(d, stage, p, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT, ...(saleNow ? ['Bidder registration', 'Registration'] : [])]), now);
     nd = contingencyFirst(nd, p, now, stage, d.kind);
     // A Nevada tax sale whose SID payoff came after the 20 days: whether the sale stands (or the refund) comes first.
     const sidOpen = ['contract', 'closed', 'owned'].includes(stage) && d.state === 'NV' && d.kind === 'taxSale' ? sidTasks(d, p, now, d.name || 'this property').find((t) => !t.done) : undefined;
@@ -824,7 +828,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     if (nd && stage === 'contract' && wayOf(d) === 'offer' && sameEvent(nd.what, 'Closing') && nd.days >= 0 && nd.days <= 7) {
       const t0 = stageTasks(d, stage, p, now).find((t) => !t.done && ['deposit-sent', 'contract-title', 'bound-insurance', 'final-walkthrough'].includes(t.key));
       const what = t0 ? t0.label.replace(/ by closing$/, '') : '';
-      if (t0) return { ...t0, days: nd.days, urgent: nd.days <= 1, label: `Closing is ${nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`} (${prettyDay(nd.when)}): ${nd.days === 0 ? 'first' : 'before then'}, ${what.charAt(0).toLowerCase()}${what.slice(1)}` };
+      if (t0) { const label = `Closing is ${nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`} (${prettyDay(nd.when)}): ${nd.days === 0 ? 'first' : 'before then'}, ${what.charAt(0).toLowerCase()}${what.slice(1)}`; return { ...t0, days: nd.days, urgent: nd.days <= 1, label, text: label }; }
     }
     if (nd && !bidPrep && (nd.days <= 7 || (stage === 'contract' && sameDate(nd.what, 'SID certificate payoff')))) {
       const ended = nd.days < 0 ? windowEnded(nd.what, -nd.days, d.kind) : null;

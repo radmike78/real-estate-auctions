@@ -1251,7 +1251,8 @@ onDealChanged((d, was) => {
   const p = loadPacket(key);
   const before = suggestedDates(was);
   // (Only the old kind's own rows, as they were added: a row renamed or added by hand keeps the packet as it is.)
-  if (!p.dates.length || !p.dates.every((x) => !x.when && !x.who.trim() && !x.resolved && before.includes(x.what))) return;
+  // (Exactly the old kind's rows, none deleted: a packet you trimmed stays as it is.)
+  if (p.dates.length !== before.length || !p.dates.every((x, i) => !x.when && !x.who.trim() && !x.resolved && x.what === before[i])) return;
   const usual = suggestedDates(d);
   if (p.dates.length === usual.length && p.dates.every((x, i) => x.what === usual[i])) return;
   savePacket(key, { ...p, dates: usual.map((what) => ({ when: '', what, who: '' })) });
