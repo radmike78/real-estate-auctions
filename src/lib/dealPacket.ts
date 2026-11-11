@@ -557,8 +557,9 @@ export function teamRolesFor(d: Deal): ProKey[] {
   const book = key ? PLAYBOOKS.find((p) => p.key === key) : undefined;
   const roles = book ? [...new Set(book.team.map((t) => t.pro).filter((k): k is ProKey => !!k))] : d.plan === 'commercial' && isOffer(d) ? COMMERCIAL_OFFER_ROLES : LISTING_ROLES;
   const cash = investorProfile().loan === 'cash';
-  // A home you'll live in has no property manager.
-  return roles.filter((k) => !(cash && (k === 'lender' || k === 'private_lender')) && !(k === 'property_manager' && liveIn(d)));
+  // A rental gets a property manager to compare (a home you'll live in has none).
+  const all = d.plan === 'rent' && !roles.includes('property_manager') ? [...roles, 'property_manager' as ProKey] : roles;
+  return all.filter((k) => !(cash && (k === 'lender' || k === 'private_lender')) && !(k === 'property_manager' && liveIn(d)));
 }
 
 /** A home you'll live in: no rent is counted unless the reader typed one (the calculator shows 0 too). */

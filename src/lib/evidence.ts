@@ -16,7 +16,7 @@ export const EVIDENCE_AREAS: EvidenceArea[] = [
   { key: 'condition', title: 'Condition and repairs', what: 'Inspections and written bids: roof, systems, sewer or septic, foundation.' },
   { key: 'use', title: 'Use and permits', what: 'Zoning, permit history, access and any rental license your city requires.' },
   { key: 'insurance', title: 'Insurance and flood zone', what: 'A written quote for this property, exclusions, and the FEMA flood zone.' },
-  { key: 'income', title: 'Income and expenses', what: 'Rent from leases signed nearby, tax after purchase, HOA, utilities and other costs.' },
+  { key: 'income', title: 'Income and expenses', what: 'For a rental, rent from leases signed nearby; for every plan, tax after purchase, HOA, utilities and other costs.' },
   { key: 'terms', title: 'Financing and sale terms', what: 'Cash ready, loan conditions, deposits, payment deadlines and any way out.' },
   { key: 'exit', title: 'Exit and reserves', what: 'A downside case that still works, cash reserves, and a fallback plan.' },
 ];

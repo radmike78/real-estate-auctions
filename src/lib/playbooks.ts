@@ -288,7 +288,7 @@ const NEVADA: Playbook[] = [
       story: 'A buyer paid $120,000 at a sheriff’s sale and started repairs. Eleven months later the debtor redeemed. The debtor repaid the price plus 1% a month, but not the repair spending.',
       lesson: 'The interest covered the wait, not the repairs. Any rent collected during the year is also subtracted from the payoff (NRS 21.250). Repairs aren’t repaid if the owner redeems, so many buyers hold off on improvements until the redemption period ends.',
     },
-    team: [T.attorney, T.title, T.insurance, T.agent],
+    team: [T.attorney, T.title, T.lender, T.insurance, T.eviction, T.contractor, T.agent],
     sources: [
       { label: 'NRS 21 (execution sales; NRS 21.210 redemption)', url: NRS('021') },
       { label: 'NRS 115 (homestead exemption)', url: NRS('115') },
@@ -328,7 +328,7 @@ const NEVADA: Playbook[] = [
       story: 'A buyer planned a 4-month flip on an IRS sale property. Then the buyer learned the owner could redeem for 180 days. Any money spent on repairs was at risk.',
       lesson: 'Build the redemption period into holding costs from the start.',
     },
-    team: [T.title, T.attorney, T.insurance, T.agent],
+    team: [T.title, T.attorney, T.lender, T.insurance, T.eviction, T.contractor, T.agent],
     sources: [{ label: 'IRS auctions', url: 'https://www.irsauctions.gov/' }],
     lastReviewed: REVIEWED,
   },
