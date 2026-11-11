@@ -60,7 +60,7 @@ const NEVADA: Playbook[] = [
       { label: 'Deposit', value: '$5,000 per bidder in certified funds; credited if you win' },
       { label: 'Payment', value: "Pay the full price the same day by 1:00 p.m. (4:30 p.m. for parcels re-auctioned at 2:00 p.m.). Pay in certified funds: cash, a cashier's check, a wire or a money order (the Treasurer's May 2026 auction notice and FAQ). If you plan to wire, confirm the instructions with the Treasurer's office by phone first. No financing." },
       { label: 'Deed', value: 'A quitclaim deed to the name on your Trustee Auction Registration Form (Clark County’s name for its bidder registration form; it isn’t a foreclosure trustee’s sale). It is recorded within 30 days and mailed to you. To change the name later, you record your own new deed' },
-      { label: 'After the sale', value: 'There’s no redemption: the owner can’t buy it back. But for 2 years after the Treasurer’s deed is delivered, the former owner, or anyone else claiming the land, can sue to recover it (NRS 361.600). County FAQs say title companies may not insure during that time; a quiet title action, or (Douglas County’s FAQ says) the former owner claiming the excess proceeds, can shorten it' },
+      { label: 'After the sale', value: 'The former owner can’t buy it back (if the sale wiped out a federal tax lien, the United States can redeem within 120 days, 26 U.S.C. 7425(d)). But for 2 years after the Treasurer’s deed is delivered, the former owner, or anyone else claiming the land, can sue to recover it (NRS 361.600). County FAQs say title companies may not insure during that time; a quiet title action, or (Douglas County’s FAQ says) the former owner claiming the excess proceeds, can shorten it' },
     ],
     steps: [
       { title: 'Get the list and the notice', detail: 'The Treasurer publishes the parcel list and the auction information notice before each sale. The owner and others the law lists (such as a lender, a judgment creditor or the person the property was assessed to) can pay the taxes, penalties, interest and costs until close of business on the third business day before the sale. Parcels that get paid are crossed off the list (called lined out) (NRS 361.585).' },
@@ -213,7 +213,7 @@ const NEVADA: Playbook[] = [
     short: 'HOA foreclosures',
     oneLine: 'A homeowners association (HOA) sells a home to collect unpaid dues (NRS 116).',
     youGet: 'The owner’s title, subject to a 60-day redemption period, and possibly subject to the first mortgage.',
-    plain: 'The house, but for 60 days the former owner, or a lender whose loan ranked below the HOA’s lien, can buy it back (NRS 116.31166(3)), and the first mortgage may stay with it.',
+    plain: 'A certificate of sale first, and the house by deed only if no one buys it back: for 60 days the former owner, or a lender whose loan ranked below the HOA’s lien, can redeem (NRS 116.31166(3)). The first mortgage may stay with it.',
     forSale: true,
     glance: [
       { label: 'Law', value: 'NRS 116 (common-interest communities)' },
@@ -261,7 +261,7 @@ const NEVADA: Playbook[] = [
     short: 'Sheriff sales',
     oneLine: 'Property sold to pay a court judgment, including judicial foreclosures.',
     youGet: 'The debtor’s interest, subject to a 1-year redemption right, and to anything senior to the judgment.',
-    plain: 'The house as the owner held it. The owner, or a creditor whose lien came after the judgment, can buy it back for 1 year (NRS 21.200, 21.210). Debts recorded ahead of the judgment stay with it.',
+    plain: 'A certificate of sale first, and the house as the owner held it by deed only if no one buys it back: the owner, or a creditor whose lien came after the judgment, can redeem for 1 year (NRS 21.200, 21.210). Debts recorded ahead of the judgment stay with it.',
     forSale: true,
     glance: [
       { label: 'Law', value: 'NRS 21 (execution sales)' },

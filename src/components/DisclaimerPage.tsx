@@ -57,12 +57,12 @@ export const SECTIONS: DrillSection[] = [
     summary: 'From choosing a kind of sale to bidding, one step at a time',
     content: () => (
       <ol>
-        <li>Choose the kind of sale that fits your money and timeline, and read its <a href="#/playbooks">sale guide</a>.</li>
-        <li>Find properties on <a href="#/find-deals">Find deals</a> or the official lists we link to.</li>
-        <li>Research each one: records, liens, occupancy and condition from the outside.</li>
+        <li>Decide your goal, cash and strategy in <a href="#/decide">Decide</a>.</li>
+        <li>Learn how it works, and read the <a href="#/playbooks">sale guide</a> for your kind of purchase.</li>
+        <li>Practice on a fictional property in <a href="#/practice">Practice</a>.</li>
+        <li>Line up your team and your money: a pre-approval or proof of funds to buy through an agent; certified funds by the sale’s deadline for an auction (a loan, if any, comes after the sale).</li>
+        <li>Find a property on <a href="#/find-deals">Find deals</a> or the official lists we link to, and research it: records, liens, occupancy and condition from the outside.</li>
         <li>Set your limit in <a href="#/analyze?plan=flip">Analyze a deal</a>.</li>
-        <li>Line up your money: certified funds for auctions, or a lender for after.</li>
-        <li>Build your team: attorney, title company, tax advisor, agent and financial advisor.</li>
         <li>Confirm every detail with the official source, then bid or make your offer.</li>
       </ol>
     ),
