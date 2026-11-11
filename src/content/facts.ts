@@ -115,7 +115,7 @@ export const FACTS: Fact[] = [
     checked: '2026-10-04',
     where: [
       { file: PB, text: '1% a month simple interest on the certificate pric' },
-      { file: PB, text: '(NRS 271.610; NRS 271.595 caps the redemption interest at 1%)' },
+      { file: PB, text: '(NRS 271.610; NRS 271.595 caps the redemption interest at 1% a month)' },
     ],
   },
   {
