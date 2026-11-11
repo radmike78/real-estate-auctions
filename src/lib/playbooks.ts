@@ -59,7 +59,7 @@ const NEVADA: Playbook[] = [
       { label: 'Register', value: 'Opens about 3–4 weeks before and closes about a week before. Capped at 280 bidders. No registration on the day.' },
       { label: 'Deposit', value: '$5,000 per bidder in certified funds; credited if you win' },
       { label: 'Payment', value: "Pay the full price the same day by 1:00 p.m. (4:30 p.m. for parcels re-auctioned at 2:00 p.m.). Plan on cash, a cashier's check or a money order. The May 2025 notice didn't list wire for the final payment, though the Treasurer's FAQ mentions it, so confirm in the current notice. No financing." },
-      { label: 'Deed', value: 'A quitclaim deed to the name on your Trustee Auction Registration Form (Clark County’s name for its bidder registration form, because the Treasurer holds the property as trustee; it isn’t a foreclosure trustee’s sale). It is recorded within 30 days and mailed to you. To change the name later, you record your own new deed' },
+      { label: 'Deed', value: 'A quitclaim deed to the name on your Trustee Auction Registration Form (Clark County’s name for its bidder registration form; it isn’t a foreclosure trustee’s sale). It is recorded within 30 days and mailed to you. To change the name later, you record your own new deed' },
       { label: 'After the sale', value: 'There’s no redemption: the owner can’t buy it back. But for 2 years after the Treasurer’s deed is delivered, the former owner, or anyone else claiming the land, can sue to recover it (NRS 361.600). County FAQs say title companies may not insure during that time; a quiet title action, or (Douglas County’s FAQ says) the former owner claiming the excess proceeds, can shorten it' },
     ],
     steps: [

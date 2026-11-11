@@ -1022,6 +1022,13 @@ describe('Nevada round 4 flow', () => {
     savePacket('analyzed:dhoa28', p);
     expect(dealNextTask(hoa, p, now, 'contract').label).toMatch(/redeem/i);
     expect(stageHint('contract', hoa)).toMatch(/^Paid, and the redemption period has ended/);
+    // Answered 'no one redeemed' at Won: the deed comes next, with no redeem button.
+    const answered = { ...p, dates: [...p.dates, { when: '2026-09-02', what: 'Redemption period ends', who: 'Agent', resolved: true }] };
+    savePacket('analyzed:dhoa28', answered);
+    const t2 = dealNextTask(hoa, answered, now, 'contract');
+    expect(t2.label).toMatch(/deed/i);
+    expect(t2.advance2?.label ?? '').not.toMatch(/redeemed it/);
+    expect(stageHint('contract', hoa)).toMatch(/^Paid, and no one redeemed: the deed is next/);
     const flip = { ...nvFlip, id: 'dfl28', stage: 'owned' as const };
     saveDeals([flip]);
     const fp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-28', what: 'Deed recorded', who: 'Trustee', resolved: true }, { when: '', what: 'Challenge window ends', who: '' }] };
