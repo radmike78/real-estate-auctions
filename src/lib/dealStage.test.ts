@@ -1725,6 +1725,15 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(t.label).toMatch(/Sealed bid and full payment due/);
     expect(t.tick?.label).toMatch(/I sent my sealed bid/);
   });
+  it('round 40 verifier: a ticked sealed-bid row carried to a Clark sale is not its payment', async () => {
+    const { paidIn, fillSealedDay } = await import('./dealStage');
+    const rows = { ...EMPTY_PACKET, dates: [{ when: '2026-09-30', what: 'Sealed bid and full payment due', who: 'You', resolved: true }, { when: '2026-10-01', what: 'Sale day', who: 'T' }, { when: '2026-10-01', what: 'Payment deadline', who: 'Me' }] };
+    expect(paidIn(rows, { state: 'NV', kind: 'taxSale', county: 'Clark' })).toBe(false);
+    expect(paidIn(rows, { state: 'NV', kind: 'taxSale', county: 'Eureka' })).toBe(true);
+    const blank = { ...EMPTY_PACKET, dates: [{ when: '', what: 'Sealed bid and full payment due', who: '' }, { when: '2026-12-02', what: 'Sale day', who: 'T' }] };
+    expect(fillSealedDay({ state: 'NV', kind: 'taxSale', county: 'Eureka' }, blank).dates[0].when).toBe('2026-12-01');
+    expect(fillSealedDay({ state: 'NV', kind: 'taxSale', county: 'Clark' }, blank).dates[0].when).toBe('');
+  });
   it('round 39 verifier: other sales keep their payment step when moved by the stage list', async () => {
     const { loadPacket } = await import('./dealPacket');
     const cl: Deal = { ...deal, id: 'dcl40', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'offer' };

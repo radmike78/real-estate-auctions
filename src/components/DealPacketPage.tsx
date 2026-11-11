@@ -14,7 +14,7 @@ import OwlNote from './OwlNote';
 import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
-import { beforeDeed, beforeWhat, paidAtWin, sealedBid, decideAnswered, recordParts, asksHome, voidByLaw, forCalendar, liveIn, setDealHome, sidState, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageOf } from '../lib/dealStage';
+import { beforeDeed, beforeWhat, paidAtWin, sealedBid, fillSealedDay, decideAnswered, recordParts, asksHome, voidByLaw, forCalendar, liveIn, setDealHome, sidState, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageOf } from '../lib/dealStage';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { planNow } from '../lib/planNext';
 import TaskActions from './TaskActions';
@@ -42,7 +42,8 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
   useEffect(() => { if (fieldSizing) return; window.addEventListener('resize', growAll); return () => window.removeEventListener('resize', growAll); }, []);
   const deal = loadDeals().find((d) => d.id === dealId);
   const key = `analyzed:${dealId}`;
-  const [p, setP] = useState<PacketData>(() => loadPacket(key));
+  // (A sealed-bid sale with a dated sale day: a blank bid deadline is filled in, the day before, and kept.)
+  const [p, setP] = useState<PacketData>(() => { const raw = loadPacket(key); const f = deal ? fillSealedDay(deal, raw) : raw; if (f !== raw) savePacket(key, f); return f; });
   // (Saved in another tab: show that, so editing here doesn't save an old copy over it.)
   useEffect(() => { const on = (e: StorageEvent) => { if (!e.key || e.key === PACKET_KEY) setP(loadPacket(key)); else if (e.key === 'deedowl.analyze.v1' || e.key === 'deedowl.owned.v1') bump((n) => n + 1); }; window.addEventListener('storage', on); return () => window.removeEventListener('storage', on); }, [key]);
   // The evidence log below saves on its own; re-render so the status and next action follow it.
@@ -60,7 +61,9 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
   }, [section]);
   const update = (patch: Partial<PacketData>, reviewDates = true) =>
     setP((cur) => {
-      const next = { ...cur, ...patch, ...(patch.dates && reviewDates ? { calendarReviewedFor: undefined } : {}) };
+      const merged = { ...cur, ...patch, ...(patch.dates && reviewDates ? { calendarReviewedFor: undefined } : {}) };
+      // (A sealed-bid sale's new or first sale date: its bid deadline follows, the day before.)
+      const next = patch.dates && deal ? fillSealedDay(deal, merged) : merged;
       savePacket(key, next);
       // (Saving can settle a row a roadmap step answered: show what was saved.)
       return patch.dates ? loadPacket(key) : next;

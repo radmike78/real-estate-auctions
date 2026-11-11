@@ -247,9 +247,9 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     items: [
       {
         text: 'Do not contact the homeowner',
-        detail: 'Every state we cover regulates deals with owners in foreclosure. In Nevada, buyers who use fraud or deceit on owners in foreclosure face criminal penalties and can have the sale undone (NRS 645F). Our rule is simple: no contact.',
+        detail: 'Every state we cover regulates deals with owners in foreclosure. In Nevada, buyers who use fraud or deceit on owners in foreclosure face criminal penalties, and the owner may be able to have the sale undone (NRS 645F).* Our rule is simple: no contact.',
         detailFor: {
-          NV: 'Buyers who use fraud or deceit on owners in foreclosure face criminal penalties and can have the sale undone (NRS 645F). Our rule is simple: no contact.',
+          NV: 'Buyers who use fraud or deceit on owners in foreclosure face criminal penalties, and the owner may be able to have the sale undone (NRS 645F).* Our rule is simple: no contact.',
           CA: 'An investor buying a 1 to 4 unit home from an owner who lives there, after a notice of default is recorded, must follow the Home Equity Sales Contract Act, and breaking it can bring fines and jail time (Civil Code 1695.3, 1695.8). Our rule is simple: no contact.',
           AZ: 'A foreclosure consultant can’t take payment before the work is done or take the owner’s deed, and one who commits fraud or deceit against a homeowner commits a crime (A.R.S. 44-1378.02, 44-1378.06). Our rule is simple: no contact.',
           UT: 'Anyone paid to offer an owner a deal involving the home’s title that they say will stop a foreclosure is doing “foreclosure rescue,” which needs a real estate license and a written agreement (Utah Code 61-2f-102, 61-2f-401). Our rule is simple: no contact.',

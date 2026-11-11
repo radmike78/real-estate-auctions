@@ -281,17 +281,25 @@ export const forCalendar = (d: { id?: string; kind: Deal['kind']; state?: Deal['
 /** Eureka's sealed-bid row: the bid and full payment go in together, the day before the sale. */
 export const SEALED_ROW = 'Sealed bid and full payment due';
 export const sealedBid = (d: { state?: Deal['state']; kind?: Deal['kind']; county?: string }) => d.state === 'NV' && d.kind === 'taxSale' && d.county === 'Eureka';
-export const paidAtWin = (d: { id?: string }) => !!d.id && paidIn(loadPacket(`analyzed:${d.id}`));
+export const paidAtWin = (d: { id?: string; state?: Deal['state']; kind?: Deal['kind']; county?: string }) => !!d.id && paidIn(loadPacket(`analyzed:${d.id}`), d);
 /** Every payment row is handled (a deposit ticked with the balance still open isn't paid). */
-export const paidIn = (p: PacketData) => {
-  // (A sealed-bid sale: the full payment went in with the bid, so the bid sent is the payment made.)
-  const sealed = p.dates.filter((x) => sameDate(x.what, SEALED_ROW));
+export const paidIn = (p: PacketData, d?: { state?: Deal['state']; kind?: Deal['kind']; county?: string }) => {
+  // (A sealed-bid sale: the full payment went in with the bid, so the bid sent is the payment made. Only there:
+  // a row carried to another county's sale, where payment is due after the win, isn't a payment.)
+  const sealed = d && sealedBid(d) ? p.dates.filter((x) => sameDate(x.what, SEALED_ROW)) : [];
   if (sealed.length > 0 && sealed.every((x) => !!x.resolved)) return true;
   const rows = p.dates.filter((x) => sameDate(x.what, 'Payment deadline'));
   return rows.length > 0 && rows.every((x) => !!x.resolved);
 };
 /** The day a sealed bid was due: the day before the sale, when the sale is dated (else blank, never today). */
 export const sealedDay = (p: PacketData) => { const s = p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when; if (!s) return p.dates.find((x) => sameDate(x.what, SEALED_ROW) && x.when)?.when ?? ''; const t = new Date(`${s}T12:00:00`); t.setDate(t.getDate() - 1); return t.toLocaleDateString('en-CA'); };
+/** A sealed-bid sale with its sale day dated: a blank sealed-bid row gets its deadline, the day before (a new sale
+ * date after a postponement, or a row never dated). */
+export const fillSealedDay = (d: { state?: Deal['state']; kind?: Deal['kind']; county?: string }, p: PacketData): PacketData => {
+  if (!sealedBid(d) || !p.dates.some((x) => sameDate(x.what, 'Sale day') && x.when) || !p.dates.some((x) => sameDate(x.what, SEALED_ROW) && !x.when && !x.resolved)) return p;
+  const due = sealedDay(p);
+  return { ...p, dates: p.dates.map((x) => (sameDate(x.what, SEALED_ROW) && !x.when && !x.resolved ? { ...x, when: due } : x)) };
+};
 /** An offer's closing is marked handled, and its date (if any) has come. */
 export const closingDoneIn = (p: PacketData, now: Date) => p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved && (!x.when || x.when <= localDay(now)));
 /** A paid Nevada tax sale whose SID question is still open: what to do about it (or '' when nothing is pending). */
@@ -563,6 +571,7 @@ function task(t: Omit<PlanTask, 'text' | 'support'> & { support?: Support[]; tex
  * never done: it's the event that moves the deal on.
  */
 export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date(), log: EvidenceLog = loadLog(`analyzed:${d.id}`), owned: Record<string, Owned> = loadOwned()): PlanTask[] {
+  p = fillSealedDay(d, p);
   // (A step link names this property, so the roadmap opens on it.)
   const stepHref = (id: string) => stepHrefFor(id, d.id);
   const n = d.name || 'this property';
@@ -595,7 +604,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     }));
   };
   // Paying at a win: done once the payment is marked (its row handled), not by the pre-sale "funds ready" tick.
-  const payTask = (label: string, produces: string) => out.push(task({ key: 'ev-terms', label, produces, href: packetHref(d, 'dates'), tick: { label: 'I paid: mark it handled', row: 'Payment deadline', who: 'Me', noDate: true }, support: [L.guides], done: paidIn(p) }));
+  const payTask = (label: string, produces: string) => out.push(task({ key: 'ev-terms', label, produces, href: packetHref(d, 'dates'), tick: { label: 'I paid: mark it handled', row: 'Payment deadline', who: 'Me', noDate: true }, support: [L.guides], done: paidIn(p, d) }));
   const area = (k: string, label: string, produces: string, support: Support[] = [], also = false) => { const t = areasFor(d.kind, liveIn(d)).find((x) => x.key === k)?.title; out.push(task({ key: `ev-${k}`, label, produces: t ? `${produces} (tick “${t}”)` : produces, href: packetHref(d, 'evidence'), support, done: ev(k) || also })); };
   const noBox = (() => { try { const b = cleanBuyBox(JSON.parse(localStorage.getItem('deedowl.buybox.v1') ?? 'null') ?? EMPTY_BUY_BOX); return !(b.area.trim() || b.types.length || b.strategy || b.priceMax || b.repairsMax || b.cashMax || b.minCashFlow || b.beds || b.dealBreakers.length || b.notes.trim()); } catch { return true; } })();
   const fit = () => out.push(task({ key: 'fit', label: noBox ? `Write your buy box (about 2 minutes), then check ${n} against it` : `Check ${n} against your buy box`, produces: 'a fits or doesn’t-fit call with the reason, in its deal packet', href: noBox ? L.buyBox.href : packetHref(d, 'plan'), support: [L.buyBox], done: !!(p.fit && p.fitWhy.trim()) && (!noBox || p.fit !== 'fits') }));
@@ -855,14 +864,15 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
  * waiting for comes first; then the first unfinished task of its stage.
  */
 export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date(), stage: DealStage = stageOf(d)): PlanTask {
+  p = fillSealedDay(d, p);
   const t = nextTaskFor(d, p, now, stage);
   // A certificate-first win, paid: the redemption period is running, so someone can redeem any day.
-  return stage === 'contract' && certificateFirst(d) && paidIn(p) && !redeemedIn(p) && !ticked(p, 'Redemption period ends') && !t.advance2 && !t.done ? { ...t, advance2: redeemButton(d, redeemLabel(d, p, now)) } : t;
+  return stage === 'contract' && certificateFirst(d) && paidIn(p, d) && !redeemedIn(p) && !ticked(p, 'Redemption period ends') && !t.advance2 && !t.done ? { ...t, advance2: redeemButton(d, redeemLabel(d, p, now)) } : t;
 }
 function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanTask {
   // A certificate-first win left at Won, paid, after its redemption period ended: whether anyone redeemed comes first,
   // as at Certificate of sale recorded.
-  if (stage === 'contract' && wayOf(d) !== 'offer' && certificateFirst(d) && paidIn(p) && !redeemedIn(p)) {
+  if (stage === 'contract' && wayOf(d) !== 'offer' && certificateFirst(d) && paidIn(p, d) && !redeemedIn(p)) {
     if (ticked(p, DEED_AFTER_WAIT)) { const next = stageLabel('closed', d); return task({ key: 'move-closed', label: `You have the deed for ${d.name || 'this property'}: move it to “${next}”`, produces: 'the owner tasks: securing and insuring it, then its costs', href: packetHref(d, 'dates'), advance: { stage: 'closed', label: `Move it to “${next}”` }, support: [], done: false }); }
     const e = p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when || redemptionEnd(d, p);
     // (Ended, or answered: the rest happens at the next stage, so the step is to move it there.)
@@ -927,7 +937,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
       const ended = nd.days < 0 ? windowEnded(nd.what, -nd.days, d.kind) : null;
       const late90Ahead = ended && d.state === 'NV' && d.kind === 'trustee' && sameDate(nd.what, 'Challenge window ends') ? challenge90Ahead(p, now) : '';
       const deedTick = stage === 'closed' && certificateFirst(d) && sameDate(nd.what, DEED_AFTER_WAIT) && ticked(p, 'Redemption period ends') ? { label: 'I have the deed, and it’s recorded: mark it handled', row: nd.what, who: deedWho(d) } : undefined;
-      const paidTick = early && sameDate(nd.what, SEALED_ROW) ? { label: nd.days < 0 ? 'I sent it by the deadline: mark it handled' : 'I sent my sealed bid and payment: mark it handled', row: nd.what, who: 'You' } : stage === 'contract' && sameDate(nd.what, 'Payment deadline') ? { label: 'I paid: mark it handled', row: nd.what } : stage === 'contract' && (sameEvent(nd.what, 'Earnest money due') || sameEvent(nd.what, 'Option fee')) ? { label: 'I sent it: mark it handled', row: nd.what, ...(sameEvent(nd.what, 'Earnest money due') ? { step: 'deposit' } : {}) } : sameDate(nd.what, 'SID certificate payoff') ? (sidDeadline(p) && sidDeadline(p) < localDay(now) && d.state === 'NV' && d.kind === 'taxSale' && (p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && x.when)?.when ?? '') <= sidDeadline(p) ? { label: `I paid it by ${prettyDay(sidDeadline(p))}: mark it handled`, row: nd.what } : { label: 'I paid it: mark it handled', row: nd.what, ...((p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && x.when)?.when ?? '') > localDay(now) ? { setWhen: localDay(now) } : {}) }) : undefined;
+      const paidTick = early && sameDate(nd.what, SEALED_ROW) ? { label: nd.days < 0 ? 'I sent it by the deadline: mark it handled' : 'I sent my sealed bid and payment: mark it handled', row: nd.what, who: 'You', ...(nd.when ? { setWhen: nd.when } : {}) } : stage === 'contract' && sameDate(nd.what, 'Payment deadline') ? { label: 'I paid: mark it handled', row: nd.what } : stage === 'contract' && (sameEvent(nd.what, 'Earnest money due') || sameEvent(nd.what, 'Option fee')) ? { label: 'I sent it: mark it handled', row: nd.what, ...(sameEvent(nd.what, 'Earnest money due') ? { step: 'deposit' } : {}) } : sameDate(nd.what, 'SID certificate payoff') ? (sidDeadline(p) && sidDeadline(p) < localDay(now) && d.state === 'NV' && d.kind === 'taxSale' && (p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && x.when)?.when ?? '') <= sidDeadline(p) ? { label: `I paid it by ${prettyDay(sidDeadline(p))}: mark it handled`, row: nd.what } : { label: 'I paid it: mark it handled', row: nd.what, ...((p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && x.when)?.when ?? '') > localDay(now) ? { setWhen: localDay(now) } : {}) }) : undefined;
       const sidUnpaid = sameDate(nd.what, 'SID certificate payoff') && d.state === 'NV' && d.kind === 'taxSale' && sidDeadline(p) && sidDeadline(p) < localDay(now) ? { label: `I didn’t pay it by ${prettyDay(sidDeadline(p))}: the sale is void`, row: { when: localDay(now), what: VOID_UNPAID, who: 'You', resolved: true } } : undefined;
       const approvalMissedRow = stage === 'contract' && d.kind === 'short' && sameDate(nd.what, 'Lienholder approval deadline');
       // A passed row with no other answer: mark it handled from here (registration, inspections, a contract date).

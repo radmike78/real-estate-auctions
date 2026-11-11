@@ -61,7 +61,7 @@ export const NOTES: ByStateLines = {
 /** Don't contact homeowners: the state law that applies. Each ends by pointing buyers to agents and the tracker (on the page). */
 export const OWNERS: ByStateLines = {
   NV: [
-    { text: 'In Nevada, foreclosure consultants must be licensed, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties and can have the purchase undone (NRS Chapter 645F).', links: [['NRS Chapter 645F', 'https://www.leg.state.nv.us/NRS/NRS-645F.html']] },
+    { text: 'In Nevada, foreclosure consultants must be licensed, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties, and the owner may be able to have the purchase undone (NRS Chapter 645F).*', links: [['NRS Chapter 645F', 'https://www.leg.state.nv.us/NRS/NRS-645F.html']] },
   ],
   CA: [
     { text: 'In California, an investor (any buyer who won’t live in it) buying a 1 to 4 unit home from an owner who lives there after a notice of default is recorded is covered by the Home Equity Sales Contract Act. It requires a written contract and gives the owner a right to cancel, and breaking it carries fines and jail (Civil Code 1695 and following).', links: [['Civil Code 1695.1', 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=1695.1']] },
