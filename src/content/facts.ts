@@ -57,9 +57,9 @@ export const FACTS: Fact[] = [
     id: 'tax-deed-name',
     claim: 'The deed goes to the bidder name on the registration form, which must be an individual, not a company, LLC or trust.',
     sources: ['treasurer-notice-2025-05'],
-    checked: '2026-09-27',
+    checked: '2026-11-11',
     where: [
-      { file: PB, text: 'Treasurer’s form requires an individual’s name, not a company, LLC or trust' },
+      { file: PB, text: 'registration form requires an individual’s name, not a company, LLC or trust' },
       { file: CL, text: 'which must be an individual’s name, not a company, LLC or trust' },
       { file: 'src/practice/scenarios.ts', text: 'which must be an individual’s name' },
     ],

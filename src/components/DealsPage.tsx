@@ -297,7 +297,7 @@ export default function DealsPage() {
                       })()}
                       {!d.locationConfirmed && <p className="muted">Its location isn’t confirmed: open it in Analyze and confirm it, so its costs follow its state and county.</p>}
                       {madeReal === d.id && !d.practice && <p className="note" tabIndex={-1} id={`made-real-${d.id}`}>“{d.name}” is now a real deal, so My plan can follow it.</p>}
-                      <p><strong>Next action.</strong> {nextAction(d).text}{(() => { const t = dealNextTask(d); return t.tick || t.advance || t.advance2 || t.undo || t.redate ? <> <a href={`#/deals/packet/${d.id}`}>{t.answer && t.key !== 'sid-refund' ? 'Answer it in its deal packet' : 'Do it in its deal packet'}&nbsp;→</a></> : null; })()}</p>
+                      <p><strong>Next action.</strong> {nextAction(d).text}{(() => { const t = dealNextTask(d); return t.tick || t.advance || t.advance2 || t.undo || t.redate ? <> {t.href.startsWith('#/toolkit') && !t.answer ? <a href={t.href}>Open its step in My plan&nbsp;→</a> : <a href={`#/deals/packet/${d.id}`}>{t.answer && t.key !== 'sid-refund' ? 'Answer it in its deal packet' : 'Do it in its deal packet'}&nbsp;→</a>}</> : null; })()}</p>
                     </div>
                     <div className="deal-actions">
                       <a className="btn" href={`#/deals/packet/${d.id}`} aria-label={`Deal packet: ${d.name}`}>Deal packet&nbsp;→</a>
