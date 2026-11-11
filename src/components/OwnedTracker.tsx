@@ -127,6 +127,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   if (!o && stageOf(deal) === 'contract' && wayOf(deal) !== 'offer') return <p className="muted">Once you’ve paid and the {certificateFirst(deal) ? 'certificate of sale' : 'deed'} is {certificateFirst(deal) && deal.kind === 'irs' ? 'in hand' : 'recorded'}, mark it in Your next action above; then start tracking its costs here.</p>;
   // An offer before it's under contract: nothing is bought yet.
   if (!o && ['researching', 'offer'].includes(stageOf(deal)) && wayOf(deal) === 'offer') return <p className="muted">Once your offer is accepted and it closes, start tracking it here.</p>;
+  // Under contract by offer: it's bought once it closes, from the closing task above.
+  if (!o && stageOf(deal) === 'contract' && wayOf(deal) === 'offer') return <p className="muted">Once it closes, mark “It closed” in Your next action above; then start tracking it here.</p>;
   if (!o) {
     // At Closed or later you did buy it: start tracking (not "did you buy it?").
     const bought = ['closed', 'owned'].includes(stageOf(deal));

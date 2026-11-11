@@ -11,6 +11,8 @@ export const TEAM = {
   attorney: { role: 'Real estate attorney', when: 'Reviewing surviving liens, sale validity and quiet title', href: '#/pros/attorney', pro: 'attorney' },
   eviction: { role: 'Eviction help', when: 'An eviction attorney or process server, right after the sale if anyone lives there', href: '#/pros/eviction', pro: 'eviction' },
   insurance: { role: 'Insurance agent', when: 'Vacant-property coverage starting the day you own it', href: '#/pros/insurance', pro: 'insurance' },
+  evictionAfterDeed: { role: 'Eviction help', when: 'An eviction attorney, once you have the deed if anyone still lives there (until then, ask your attorney what you may do*)', href: '#/pros/eviction', pro: 'eviction' },
+  insuranceCert: { role: 'Insurance agent', when: 'Coverage from the day you get the certificate of sale (ask about insuring a home you don’t own yet, vacant or occupied*)', href: '#/pros/insurance', pro: 'insurance' },
   contractor: { role: 'Contractor and home inspector', when: 'An exterior look before the sale; a full scope once you have the keys (check the contractor’s license where your state requires one)', href: '#/pros/contractor', pro: 'contractor' },
   /** For an offer on a listed home (bank-owned, short sale): you inspect during the contract, not after. */
   offerInspector: { role: 'Home inspector and contractors', when: 'Inspection and written repair bids before your inspection deadline, with the access the seller allows; ask the listing agent to turn on utilities for it', href: '#/pros/inspector', pro: 'inspector' },
