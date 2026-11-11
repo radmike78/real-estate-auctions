@@ -591,7 +591,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://lincolncountynv.org/departments/sheriffs-office/", checked: "2026-10-08", contactOnly: true },
   },
   "NV/Lyon": {
-    taxSale: { url: "https://www.lyon-county.org/1113/Tax-Sale-Information", checked: "2026-11-11", note: "Recent sales ran online through Bid4Assets; start from the county’s page for the current sale. Lyon adds a 10% buyer’s premium, recording fees and the transfer tax to your bid: enter them in Analyze." },
+    taxSale: { url: "https://www.lyon-county.org/1113/Tax-Sale-Information", checked: "2026-11-11", note: "Lyon sells every odd-numbered year (its page lists June 2027 next), online through Bid4Assets; start from the county’s page for the current sale. Lyon adds a 10% buyer’s premium, recording fees and the transfer tax to your bid: enter them in Analyze." },
     treasurer: { url: "https://www.lyon-county.org/16/Clerk-Treasurer", checked: "2026-09-29" },
     assessor: { url: "https://www.lyon-county.org/55/Assessor", checked: "2026-09-29" },
     recorder: { url: "https://www.lyon-county.org/108/Recorder", checked: "2026-09-29" },
@@ -605,7 +605,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://mineralcountynv.us/government/sheriff/index.php", checked: "2026-10-08", contactOnly: true },
   },
   "NV/Nye": {
-    taxSale: { url: "https://www.nyecountynv.gov/1118/2026-Online-Only-Tax-Sale-Auctions", checked: "2026-11-11", note: "Recent sales ran online through Bid4Assets; start from the county’s page for the current sale." },
+    taxSale: { url: "https://www.nyecountynv.gov/1118/2026-Online-Only-Tax-Sale-Auctions", checked: "2026-11-11", note: "Recent sales ran online through Bid4Assets (the county says there’s no live auction in 2026). Nye adds a 10% fee (at least $100) to the final bid, and bidders send a $500 deposit in certified funds plus a $35 processing fee: enter the fee as the buyer’s premium in Analyze. Start from the county’s page for the current sale." },
     treasurer: { url: "https://www.nyecountynv.gov/253/Treasurer", checked: "2026-09-29" },
     assessor: { url: "https://www.nyecountynv.gov/267/Assessor", checked: "2026-09-29" },
     recorder: { url: "https://www.nyecountynv.gov/210/Recorder", checked: "2026-09-29" },
