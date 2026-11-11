@@ -34,7 +34,7 @@ export default function TeamBuilder() {
   const q = done ? null : TEAM_QUESTIONS[step];
   const picked = q ? answers[q.key] : undefined;
   const suggestion = q && picked === UNSURE ? q.suggest(resolved(answers)) : null;
-  const next = () => setStep((s) => (s + 1 >= TEAM_QUESTIONS.length ? -1 : s + 1));
+  const next = () => { moved.current = true; setStep((s) => (s + 1 >= TEAM_QUESTIONS.length ? -1 : s + 1)); };
   // Choosing an answer moves on by itself (Back changes it); "I'm not sure" waits so the suggestion can be read.
   const choose = (v: string) => {
     setAnswers((a) => ({ ...a, [q!.key]: v }));
@@ -47,9 +47,11 @@ export default function TeamBuilder() {
   const timer = useRef<number | undefined>(undefined);
   const moved = useRef(false);
   const progress = useRef<HTMLParagraphElement>(null);
+  // (On the results, focus goes to the summary of your answers.)
+  const summary = useRef<HTMLParagraphElement>(null);
   useEffect(() => () => window.clearTimeout(timer.current), []);
   useEffect(() => {
-    if (moved.current) progress.current?.focus();
+    if (moved.current) (progress.current ?? summary.current)?.focus();
     moved.current = false;
   }, [step]);
   const final = resolved(answers);
@@ -89,9 +91,9 @@ export default function TeamBuilder() {
         </>
       ) : (
         <>
-          <p>
+          <p ref={summary} tabIndex={-1}>
             For <strong>{labelOf('property').replace(/^A /, 'a ').replace(/^An /, 'an ')}</strong>, bought <strong>{labelOf('buy').toLowerCase()}</strong>, paid <strong>{final.pay === 'cash' ? 'with cash' : 'with a loan'}</strong>, to <strong>{labelOf('plan').toLowerCase()}</strong>.{' '}
-            <button type="button" className="linkish" onClick={() => setStep(0)}>Change my answers</button>
+            <button type="button" className="linkish" onClick={() => { moved.current = true; setStep(0); }}>Change my answers</button>
           </p>
           <ol className="team-result">
             {teamFor(answers).map((t, i) => {

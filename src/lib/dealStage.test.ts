@@ -831,12 +831,12 @@ describe('Nevada round 4 flow', () => {
     const tax = { ...nvFlip, id: 'tx23', kind: 'taxSale' as const, stage: 'contract' as const };
     saveDeals([tax]);
     savePacket('analyzed:tx23', { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-10-21', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }] });
-    expect(sidPending(tax, new Date('2026-10-06T12:00:00'))).toBe('pay the SID certificate by Oct 21, 2026, or the sale is void (NRS 361.595(6)); the Treasurer then records the deed (NRS 361.595(7))');
-    expect(sidPending(tax, new Date('2026-10-25T12:00:00'))).toMatch(/^ask the Treasurer in writing whether the sale stands\*: the 20 days for the SID payoff ended Oct 21, 2026, and if it wasn’t paid by then the sale is void/);
+    expect(sidPending(tax, new Date('2026-10-06T12:00:00'))).toBe('pay the special improvement district (SID) certificate by Oct 21, 2026, or the sale is void (NRS 361.595(6)); the Treasurer then records the deed (NRS 361.595(7))');
+    expect(sidPending(tax, new Date('2026-10-25T12:00:00'))).toMatch(/^ask the Treasurer in writing whether the sale stands\*: the 20 days for the special improvement district \(SID\) payoff ended Oct 21, 2026, and if it wasn’t paid by then the sale is void/);
     // The usual undated row is only a reminder: the affidavit question stays open.
     savePacket('analyzed:tx23', { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City' }] });
-    expect(sidPending(tax, new Date('2026-10-06T12:00:00'))).toMatch(/^ask the Treasurer whether an SID affidavit was filed; if one was, pay/);
-    expect(sidPending(tax, new Date('2026-10-25T12:00:00'))).toBe('ask the Treasurer whether an SID affidavit was filed; the 20 days for any SID payoff ended Oct 21, 2026 (NRS 361.595(6))');
+    expect(sidPending(tax, new Date('2026-10-06T12:00:00'))).toMatch(/^ask the Treasurer whether a special improvement district \(SID\) affidavit was filed; if one was, pay the SID certificate/);
+    expect(sidPending(tax, new Date('2026-10-25T12:00:00'))).toBe('ask the Treasurer whether a special improvement district (SID) affidavit was filed; the 20 days for any SID payoff ended Oct 21, 2026 (NRS 361.595(6))');
     expect(sidPending(tax, new Date('2026-10-25T12:00:00'))).not.toMatch(/records the deed/);
     expect(sidPending({ ...tax, id: 'tx24' }, new Date('2026-10-25T12:00:00'))).toBe('');
     // A trustee win shows no SID step.
@@ -856,7 +856,7 @@ describe('Nevada round 4 flow', () => {
     localStorage.setItem(DEAL_STEPS_KEY, JSON.stringify({ 'analyzed:do24': { done: ['deposit'], status: {} } }));
     const cash = (p: typeof EMPTY_PACKET) => packetSections(offer, p, now).find((x) => x.key === 'cash')!.lines.join(' | ');
     expect(cash({ ...EMPTY_PACKET, earnest: 5000 })).toMatch(/\$5,000 \(if you cancelled in time, ask escrow to return it\*\)/);
-    expect(cash(EMPTY_PACKET)).toMatch(/Earnest money: sent \(the amount isn’t entered/);
+    expect(cash(EMPTY_PACKET)).toMatch(/Earnest money: sent, amount not entered \(if you cancelled in time, ask escrow to return it\*\)/);
     localStorage.setItem('fsf.bid.analyzed-f1.v1', JSON.stringify({ exitValue: 340000, proposedPrice: 180000, sellingCostPct: 6 }));
     saveOwned({ f1: { boughtOn: '2026-07-01', months: [{ month: '2026-07', rent: 0, costs: 1000, note: '' }, { month: '2026-08', rent: 0, costs: 1000, note: '' }, { month: '2026-09', rent: 0, costs: 1000, note: '' }, { month: '2026-10', rent: 0, costs: 500, note: '' }], sold: { on: '2026-09-30', price: 335000 } } });
     const line = flipSaleLine({ ...nvFlip, stage: 'owned' })!;

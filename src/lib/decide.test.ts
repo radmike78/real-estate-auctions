@@ -5,6 +5,8 @@ const top = (a: Answers) => rank(a)[0].strategy.key;
 
 describe('Decide', () => {
   it('points typical people to the strategy that fits', () => {
+    // Round 24: a reader whose goal is reselling, ready and borrowing to invest, gets the flip first.
+    expect(top({ goal: 'quick', cash: '50to150', ready: 'ready', borrow: 'invest', time: 'weekly', hands: 'hire', risk: 'medium', market: 'res' } as Answers)).toBe('flip');
     expect(top({ goal: 'learn', cash: 'under10', borrow: 'unsure', time: 'weekly', hands: 'hire', risk: 'low', market: 'unsure' })).toBe('practice');
     expect(top({ goal: 'income', cash: '10to50', borrow: 'live', time: 'weekly', hands: 'diy', risk: 'medium', market: 'res' })).toBe('househack');
     expect(top({ goal: 'income', cash: '50to150', borrow: 'invest', time: 'weekly', hands: 'hire', risk: 'medium', market: 'res' })).toBe('rental');

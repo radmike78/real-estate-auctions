@@ -45,7 +45,7 @@ export default function AdvertisePage() {
         title={<>Reach buyers at the moment <span className="grad">they need you</span></>}
         sub="People come here to learn real estate investing step by step, practice on sample deals, then analyze real listed and bank-owned homes in their county. Along the way they need agents, lenders, title and escrow, inspectors, contractors, insurance, and legal and tax help."
       >
-        {!features || features.unavailable ? <FeatureStatus features={features} /> : (
+        {!features || features.unavailable ? <FeatureStatus features={features} meanwhile="Meanwhile, you can read how placement and verification work below." /> : (
           <div className="row">
             {open ? <a className="btn big hero-cta" href="#/advertise/apply">Apply to advertise</a> : <><span className="badge tone-info">Coming soon</span> <span>Applications open soon.</span></>}
           </div>
@@ -152,7 +152,7 @@ export default function AdvertisePage() {
         <li><strong>Limited spots: </strong>up to {CAPS.listing} advertisers per category and {CAPS.featured} Featured ad spots per category in each city, so ads stay useful.</li>
         <li><strong>Featured ads (Spotlight): </strong>a separate, labeled Featured ad on your category’s page for your city or county, above the list. Every eligible fixed advertiser in the visitor’s selected area shows on each page view; neither selection nor order rotates. Fixed ads also appear at site placements that match your category and area{mentorSpots.length ? <> (now: {mentorSpots.map((s) => s.label).join(', ')})</> : null}.</li>
         <li><strong>Counties and cities: </strong>a whole county takes one spot in each of its cities, so county and city advertisers share the same spots: no one gets a city to themselves. An advertiser appears once in a box, however many of its areas cover the visitor. Where no one has bought a spot, your category’s page, Your team, Find deals (agent route) and the next step in My plan show an “Advertise here” box, and the Financing page invites professionals to apply; other pages show nothing.</li>
-        <li><strong>Topic ads: </strong>they appear beside {AD_TOPICS.map((t) => t.label.toLowerCase()).join(', ')} topics. Agents, lenders, title and escrow companies and attorneys share up to {CAPS.topicSettlement} spots per topic, shown together without rotation. Other kinds of professionals get {CAPS.topicOther} spot per topic, shown every time.</li>
+        <li><strong>Topic ads (Mentor Connect): </strong>they appear beside {AD_TOPICS.map((t) => t.label.toLowerCase()).join(', ')} topics. Agents, lenders, title and escrow companies and attorneys share up to {CAPS.topicSettlement} spots per topic, shown together without rotation. Other kinds of professionals get {CAPS.topicOther} spot per topic, shown every time.</li>
         <li><strong>Mentor Connect: </strong>everything in Spotlight, plus an optional fixed ad beside one Learn or Practice topic you choose.</li>
         <li><strong>What we don’t do: </strong>every ad is labeled as paid. We don’t rank professionals, charge per lead or per closing, or take a share of any transaction, and we aren’t a party to any agreement between you and a buyer.</li>
       </ul>

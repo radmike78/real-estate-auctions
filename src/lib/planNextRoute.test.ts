@@ -96,7 +96,7 @@ describe('practice part 2 follows your route', () => {
   it('follows Decide’s top strategy for the route until one is picked', async () => {
     const { planNow } = await import('./planNext');
     const { planPath } = await import('./roadmapState');
-    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { ready: 'ready', goal: 'income', cash: '10to50', borrow: 'cash', time: 'parttime', hands: 'diy', risk: 'high', market: 'com' } }));
+    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { ready: 'ready', goal: 'quick', cash: '10to50', borrow: 'cash', time: 'parttime', hands: 'diy', risk: 'high', market: 'com' } }));
     expect(planPath()).toBe('auction');
     expect(planNow(new Date('2026-11-03T12:00:00Z')).context).toBe('Step 3 · Practice part 2: Finish a practice auction');
     // "None yet (learning)" keeps it.
@@ -109,7 +109,7 @@ describe('practice part 2 follows your route', () => {
 
   it('follows a saved property’s route over Decide’s pick once it leads, and Decide’s pick while it waits or with none', async () => {
     const { planPath } = await import('./roadmapState');
-    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { ready: 'ready', goal: 'income', cash: '10to50', borrow: 'cash', time: 'parttime', hands: 'diy', risk: 'high', market: 'com' } }));
+    localStorage.setItem('deedowl.decide.v1', JSON.stringify({ answers: { ready: 'ready', goal: 'quick', cash: '10to50', borrow: 'cash', time: 'parttime', hands: 'diy', risk: 'high', market: 'com' } }));
     expect(planPath()).toBe('auction');
     const listing = { id: 'dl1', name: '12 Elm St', state: 'NV', county: 'Clark', kind: 'listing', plan: 'rent', notes: '', done: [], stage: 'researching', updatedAt: '2026-11-01T00:00:00.000Z', locationConfirmed: true };
     localStorage.setItem('deedowl.analyze.v1', JSON.stringify([listing]));

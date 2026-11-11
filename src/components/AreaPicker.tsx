@@ -193,7 +193,7 @@ export function AreaDialog({ onClose }: { onClose: () => void }) {
 }
 
 /** "Your area: Henderson (Clark County) · Change": the saved area, on pages that use it, with a way to switch. */
-export function AreaLine({ what, county = false }: { what: string; /** Asks for a county until one is chosen (the "Pick a county" step). */ county?: boolean }) {
+export function AreaLine({ what, county = false, fallback }: { what: string; /** Asks for a county until one is chosen (the "Pick a county" step). */ county?: boolean; /** Said instead of `what` while no county is chosen (e.g. the lists start with Las Vegas). */ fallback?: string }) {
   const [area] = useMyArea();
   const [open, setOpen] = useState(false);
   if (county) return (
@@ -205,7 +205,7 @@ export function AreaLine({ what, county = false }: { what: string; /** Asks for 
   );
   return (
     <p className="area-line">
-      {area ? <>Your area: <strong>{areaLong(area)}</strong>. {what}</> : <>Choose your city or county to see {what.replace(/^Showing /, '').replace(/\.$/, '')}.</>}{' '}
+      {fallback && !area?.county ? <>{area ? <>Your area: <strong>{areaLong(area)}</strong>. </> : null}{fallback}</> : area ? <>Your area: <strong>{areaLong(area)}</strong>. {what}</> : <>Choose your city or county to see {what.replace(/^Showing /, '').replace(/\.$/, '')}.</>}{' '}
       <button type="button" className="linkish" onClick={() => setOpen(true)}>{area ? 'Change' : 'Choose your area'}</button>
       {open && <AreaDialog onClose={() => setOpen(false)} />}
     </p>

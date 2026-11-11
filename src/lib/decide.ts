@@ -477,6 +477,9 @@ export const joinReasons = (r: string[]) => (r.length < 2 ? r.join('') : `${r.sl
 export const notYetWhy = (answers: Answers): 'debt' | 'nofund' | 'under10' | null => (answers.ready === 'debt' ? 'debt' : answers.ready === 'nofund' ? 'nofund' : answers.cash === 'under10' ? 'under10' : null);
 const notYet = (answers: Answers, m: { strategy: Strategy }) => (m.strategy.key === 'practice' && notYetWhy(answers) ? 1 : 0);
 
+/** How far behind a goal-fitting strategy may score and still rank first. */
+const GOAL_MARGIN = 3;
+
 /** Strategies ranked for these answers, best first. */
 export function rank(answers: Answers): Match[] {
   return STRATEGIES.map((s) => {
@@ -496,7 +499,8 @@ export function rank(answers: Answers): Match[] {
       if (q.key === 'goal' && w >= 3) goalFit = true;
     }
     return { strategy: s, score, fits, cautions, weak, goalFit };
-  }).sort((a, b) => notYet(answers, b) - notYet(answers, a) || b.score - a.score);
+  // (A strategy that fits the reader's goal ranks ahead of one that doesn't, unless the other scores clearly higher.)
+  }).sort((a, b) => notYet(answers, b) - notYet(answers, a) || (b.score + (b.goalFit ? GOAL_MARGIN + 0.5 : 0)) - (a.score + (a.goalFit ? GOAL_MARGIN + 0.5 : 0)) || b.score - a.score);
 }
 
 /** A state-specific note for a strategy, when the rules differ. */

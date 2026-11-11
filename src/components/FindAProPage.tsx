@@ -1,4 +1,4 @@
-import { planPath } from '../lib/roadmapState';
+import { focusDealId, planPath } from '../lib/roadmapState';
 import { practiceState } from '../lib/planNext';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useState, type ReactElement } from 'react';
@@ -13,7 +13,7 @@ import { prosInArea } from '../lib/adAreas';
 import Disclaimer from './Disclaimer';
 import { IconBadge, IconBank, IconCalc, IconClock, IconFile, IconHome, IconLayers, IconLock, IconPercent, IconPulse, IconSearch, IconShield, IconTools } from './Icons';
 import { guidesFor, stateOf } from '../lib/playbooks';
-import { CURRENT_KEY, type Deal } from '../lib/analyze';
+import { CURRENT_KEY, loadDeals, type Deal } from '../lib/analyze';
 import { COMMERCIAL_OFFER_ROLES, guideKeyFor } from '../lib/dealPacket';
 import { STATES, stateByCode, countyName, type StateCode } from '../lib/regions';
 import { isListable } from '../lib/pros';
@@ -160,8 +160,20 @@ const oneBar = (st: string | null, x: string) => (st && BAR[st] ? x.replace(ALL_
 /** Keyword-led text ("Dual agency: …") split into its label and the rest. */
 const keyword = (t: string) => t.match(/^([A-Z][A-Za-z’' -]{1,30}): (.+)$/s);
 
-/** Nevada readers who chose only the state see Las Vegas (Clark) first, on the tiles and in each role's list. */
-const nvFallback = (st: StateCode | null | undefined): Area | null => (st === 'NV' ? { state: 'NV', county: 'Clark', city: 'Las Vegas' } : null);
+/** Nevada readers who chose only the state see the county of the Nevada property they're working on (My plan's, else
+ *  the one open in Analyze), else Las Vegas (Clark), on the tiles and in each role's list. */
+const nvFallback = (st: StateCode | null | undefined): Area | null => {
+  if (st !== 'NV') return null;
+  try {
+    const id = focusDealId();
+    const d = loadDeals().find((x) => `analyzed:${x.id}` === id || x.id === id);
+    const cur = JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as { state?: string; county?: string; practice?: boolean } | null;
+    const county = d && !d.practice && d.state === 'NV' && d.county ? d.county : cur && !cur.practice && cur.state === 'NV' && cur.county ? cur.county : '';
+    if (county) return { state: 'NV', county, city: null };
+  } catch { /* storage unreadable: Las Vegas */ }
+  return { state: 'NV', county: 'Clark', city: 'Las Vegas' };
+};
+const fallbackName = (a: Area) => (a.city ? `${a.city} (${countyName(a.county ?? '')})` : countyName(a.county ?? ''));
 
 function GuideBody({ g }: { g: ProGuide }) {
   const [st] = useMyState();
@@ -379,7 +391,7 @@ export default function FindAProPage({ section }: { section?: string }) {
         title={open ? proGuideByKey(section)!.title : build ? <>Build <span className="grad">your team</span></> : <>Your <span className="grad">team</span></>}
         sub={open ? undefined : build ? undefined : 'Who helps with a purchase, when you need each one, and how to find them.'}
       />
-      {all && <AreaLine what="Showing professionals advertising there." />}
+      {all && <AreaLine what="Showing professionals advertising there." fallback={((fb) => (fb ? `Lists start with ${fallbackName(fb)}: choose your city or county to see who serves it.` : undefined))(nvFallback(myArea?.state ?? mine))} />}
       {build && <TeamBuilder />}
       {all && (
         // One way in: five questions (Help me choose), or pick the kind of sale for its team, in order. The rotating ad spot
