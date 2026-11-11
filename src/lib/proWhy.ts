@@ -333,7 +333,7 @@ export const PRO_WHY = {
       },
       {
         who: "Experienced investor",
-        text: "Small cosmetic jobs like paint may not need a general contractor. Managing trades yourself saves markup but costs your time. Jobs that need a permit still need one. Most electrical, plumbing and heating or air-conditioning work needs a permit, and so a licensed contractor. In Nevada, the small-job exemption covers only repair or maintenance under $1,000 (labor and materials), and never work that needs a permit or these trades; bigger jobs need a licensed contractor. In Utah, the handyman exemption never covers these trades. In Texas, electricians, plumbers and air-conditioning contractors must hold a state license."
+        text: "Small repairs may not need a general contractor. Managing trades yourself saves markup but costs your time. Jobs that need a permit still need one. Most electrical, plumbing and heating or air-conditioning work needs a permit, and so a licensed contractor. In Nevada, the small-job exemption covers only repair or maintenance under $1,000 (labor and materials), not work that’s part of a larger project worth $500 or more, and never work that needs a permit or these trades; painting is its own licensed trade there too. Bigger jobs need a licensed contractor. In Utah, the handyman exemption never covers these trades. In Texas, electricians, plumbers and air-conditioning contractors must hold a state license."
       },
       {
         who: "Everyone",
