@@ -146,7 +146,7 @@ function OwnedPortfolio({ deals }: { deals: ReturnType<typeof loadAnalyzed> }) {
               <td><a href={`#/deals/packet/${d.id}`}>{d.name}</a>{o.sold ? <span className="muted"> · sold {prettyDay(o.sold.on)} for {fmtMoney(o.sold.price)}</span> : null}</td>
               <td data-label="Bought">{prettyDay(o.boughtOn)}</td>
               <td data-label="Months recorded">{s.months}</td>
-              <td data-label="Average month">{s.months ? (liveIn(d) && s.averageMonthly > 0 ? <>{fmtMoney(Math.round(s.averageMonthly))}<span className="muted"> to spare (the rent covers your home’s costs)</span></> : <>{signed(liveIn(d) ? -s.averageMonthly : s.averageMonthly)}{liveIn(d) ? <span className="muted"> (your home’s cost)</span> : null}</>) : '—'}</td>
+              <td data-label="Average month">{s.months ? (liveIn(d) && s.averageMonthly > 0 ? <>{fmtMoney(Math.round(s.averageMonthly))}<span className="muted"> to spare (the rent covers your home’s costs)</span></> : d.plan === 'flip' ? <>{fmtMoney(Math.round(s.costs / s.months))}<span className="muted"> paid</span></> : <>{signed(liveIn(d) ? -s.averageMonthly : s.averageMonthly)}{liveIn(d) ? <span className="muted"> (your home’s cost)</span> : null}</>) : '—'}</td>
               <td data-label="Against your plan">{s.gapMonthly === null ? '—' : Math.round(s.gapMonthly) === 0 ? 'on plan' : liveIn(d) ? `${fmtMoney(Math.abs(Math.round(s.gapMonthly)))} a month ${s.gapMonthly < 0 ? 'more' : 'less'} than planned` : `${signed(s.gapMonthly)} a month (${s.gapMonthly < 0 ? 'behind' : 'ahead'})`}</td>
             </tr>
           ))}

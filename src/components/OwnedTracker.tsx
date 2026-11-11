@@ -155,8 +155,9 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     const c = parseCalcInput(costs);
     if (unreadable || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || month < o.boughtOn.slice(0, 7) || month > maxMonth || !Number.isFinite(r) || !Number.isFinite(c) || r < 0 || c < 0) return;
     // (Saved: the cursor goes back to the month, for the next one.)
-    setTimeout(() => document.getElementById('owned-month')?.focus(), 0);
     const nextO = { ...o, months: [{ month, rent: Math.max(0, r), costs: Math.max(0, c), note: note.slice(0, 200) }, ...o.months.filter((m) => m.month !== month)].sort((a, b) => b.month.localeCompare(a.month)) };
+    // (Every finished month in: focus goes to the line that says so, not an empty box.)
+    setTimeout(() => document.getElementById(openMonth(nextO) ? 'owned-month' : 'owned-all-in')?.focus(), 0);
     put(nextO);
     setRent(deal.plan === 'flip' ? '0' : '');
     setCosts('');
@@ -171,7 +172,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   return (
     <div>
       {/^\d{4}-\d{2}$/.test(month) && month > maxMonth && <p className="caution" role="note">That month isn’t over yet: record it once it ends.</p>}
-      {month === '' && !o.sold && <p className="muted" role="note">{o.months.length ? 'Every finished month is recorded. Come back once this month ends, or pick an earlier month to change it.' : `Your first full month ends ${prettyDay((() => { const [y, m] = firstFullMonth(o); const t = new Date(y, m, 0); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })())}. Come back after that to record what it ${liveIn(deal) || deal.plan === 'flip' ? 'cost' : 'brought in and cost'}${Number(o.boughtOn.slice(8, 10)) > 1 ? `, including what you paid from ${prettyDay(o.boughtOn)}` : ''}.`}</p>}
+      {month === '' && !o.sold && <p className="muted" id="owned-all-in" tabIndex={-1} role="status">{o.months.length ? 'Every finished month is recorded. Come back once this month ends, or pick an earlier month to change it.' : `Your first full month ends ${prettyDay((() => { const [y, m] = firstFullMonth(o); const t = new Date(y, m, 0); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })())}. Come back after that to record what it ${liveIn(deal) || deal.plan === 'flip' ? 'cost' : 'brought in and cost'}${Number(o.boughtOn.slice(8, 10)) > 1 ? `, including what you paid from ${prettyDay(o.boughtOn)}` : ''}.`}</p>}
       {wayOf(deal) !== 'offer' && (() => { const s = loadPacket(`analyzed:${deal.id}`).dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when; return s && o.boughtOn < s ? <p className="caution" role="note">You bought it at the {prettyDay(s)} sale: check the Bought on date.</p> : null; })()}
       {!o.months.length && !o.sold && Number(o.boughtOn.slice(8, 10)) > 1 && month === `${firstFullMonth(o)[0]}-${String(firstFullMonth(o)[1]).padStart(2, '0')}` && <p className="muted" role="note">Include what you paid from {prettyDay(o.boughtOn)} in this first full month.</p>}
       {/^\d{4}-\d{2}$/.test(month) && month < o.boughtOn.slice(0, 7) && <p className="caution" role="note">That month is before you bought it ({prettyDay(o.boughtOn)}): pick a later month.</p>}
@@ -193,7 +194,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} aria-invalid={showBad(costs, 'costs') || undefined} onFocus={() => setFocusBox('costs')} onBlur={() => setFocusBox(null)} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
         <button type="button" className="btn" disabled={rentIn === '' || costs === '' || negative || unreadable || month < o.boughtOn.slice(0, 7) || month > maxMonth} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
-        {(rentIn === '' || costs === '') && <span className="muted small owned-missing">{flip ? 'Enter what you paid.' : 'Enter the rent (0 if none) and what you paid.'}</span>}
+        {month !== '' && (rentIn === '' || costs === '') && <span className="muted small owned-missing">{flip ? 'Enter what you paid.' : 'Enter the rent (0 if none) and what you paid.'}</span>}
         </>}
       </div>}
       {(showBad(rent, 'rent') || showBad(costs, 'costs')) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
