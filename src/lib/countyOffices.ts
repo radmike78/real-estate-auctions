@@ -563,7 +563,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.accessesmeralda.com/county_offices/sheriff.php", checked: "2026-10-08", contactOnly: true },
   },
   "NV/Eureka": {
-    taxSale: { url: "https://www.eurekacountynv.gov/departments/treasurerpublic-guardian/delinquent-tax-auction/", checked: "2026-09-29" },
+    taxSale: { url: "https://www.eurekacountynv.gov/departments/treasurerpublic-guardian/delinquent-tax-auction/", checked: "2026-11-11", note: "Sealed-bid only: mail or hand-deliver one bid per parcel on the county’s bid form, with full payment enclosed (money order, cashier’s check or card, with a 2.5% card fee), by 4 p.m. the day before the sale date. There’s no bidding at the sale.* Confirm the dates in the current notice." },
     treasurer: { url: "https://www.eurekacountynv.gov/departments/treasurerpublic-guardian/", checked: "2026-09-29" },
     assessor: { url: "https://www.eurekacountynv.gov/departments/assessor/", checked: "2026-09-29" },
     recorder: { url: "https://www.eurekacountynv.gov/departments/clerk-recorder/", checked: "2026-09-29" },
@@ -591,7 +591,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://lincolncountynv.org/departments/sheriffs-office/", checked: "2026-10-08", contactOnly: true },
   },
   "NV/Lyon": {
-    taxSale: { url: "https://www.lyon-county.org/1113/Tax-Sale-Information", checked: "2026-09-29", note: "Recent sales ran online through Bid4Assets; start from the county’s page for the current sale." },
+    taxSale: { url: "https://www.lyon-county.org/1113/Tax-Sale-Information", checked: "2026-11-11", note: "Recent sales ran online through Bid4Assets; start from the county’s page for the current sale. Lyon adds a 10% buyer’s premium, recording fees and the transfer tax to your bid: enter them in Analyze." },
     treasurer: { url: "https://www.lyon-county.org/16/Clerk-Treasurer", checked: "2026-09-29" },
     assessor: { url: "https://www.lyon-county.org/55/Assessor", checked: "2026-09-29" },
     recorder: { url: "https://www.lyon-county.org/108/Recorder", checked: "2026-09-29" },
