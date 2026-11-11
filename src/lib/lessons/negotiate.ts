@@ -79,7 +79,7 @@ export const negotiate: Lesson = {
           'Deposit: deliver your earnest money to the escrow or title company by the contract’s deadline. Confirm wiring instructions by phone first (see below).',
           'Inspection: schedule it right away, so you can decide before your inspection period ends (your contract may call it something else, such as the due-diligence period).',
           'Appraisal: if you’re borrowing, the lender orders it. If it comes in low, you can renegotiate, bring more cash, or cancel if your contract allows it.',
-          'Title and HOA: the title company searches the records and sends a title commitment (some states call it a preliminary report). Read what it lists as exceptions, and read any HOA documents as soon as they arrive (your state’s law may set its own deadline to cancel over them).',
+          'Title and HOA: the title company searches the records and sends a title commitment (some states call it a preliminary report). Read what it lists as exceptions, and read any HOA documents as soon as they arrive (the table above gives any deadline the law sets to cancel over them).',
           'Final loan approval: the lender confirms your income, savings and the property. For most home loans, you get a Closing Disclosure at least three business days before closing. A loan made for a business purpose, as many investment-property loans are, may not come with one; ask your lender what you’ll receive and when.',
           'Insurance: have the policy in place from the day the property becomes yours.',
           'Final walkthrough: check that the property is in the condition the contract promises.',

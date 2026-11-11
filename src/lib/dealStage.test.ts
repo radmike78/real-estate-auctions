@@ -1091,6 +1091,25 @@ describe('Nevada round 4 flow', () => {
     expect(beforeDeed(sh)).toBe('2027-09-10');
   });
 
+  it('round 34: a closing tomorrow ranks above a passed sale day; a missed short-sale approval can be answered; Key dates wait for an asked row', async () => {
+    const { pressingWeight } = await import('./dealStage');
+    expect(pressingWeight({ key: 'closing-week', label: 'Closing is tomorrow', days: 1, urgent: true })).toBeLessThan(pressingWeight({ key: 'bid', label: 'Did you win?' }));
+    expect(pressingWeight({ key: 'sid-void', label: 'void' })).toBeLessThan(pressingWeight({ key: 'closing-week', label: 'x', days: 0, urgent: true }));
+    const short = { ...nvFlip, id: 'dsa34', kind: 'short' as const, plan: 'rent' as const, stage: 'contract' as const };
+    saveDeals([short]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Earnest money due', who: 'Escrow', resolved: true }, { when: '2026-10-01', what: 'Lienholder approval deadline (from the short sale addendum)', who: 'Lender' }, { when: '2026-12-15', what: 'Closing', who: 'Escrow' }] };
+    savePacket('analyzed:dsa34', p);
+    const t = dealNextTask(short, p, now, 'contract');
+    expect(t.record?.row.what).toBe('Approval notice received');
+    expect(t.advance2?.stage).toBe('passed');
+    const { packetSections } = await import('./dealPacket');
+    const tx = { ...nvFlip, id: 'dtk34', kind: 'taxSale' as const, stage: 'owned' as const };
+    saveDeals([tx]);
+    const tp = { ...EMPTY_PACKET, calendarReviewedFor: 'owned', dates: [{ when: '2026-06-01', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-06-20', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }, { when: '2026-06-25', what: 'Treasurer confirmed the sale had no SID affidavit', who: 'Treasurer', resolved: true }, { when: '', what: 'Recovery-suit window ends', who: '' }] };
+    savePacket('analyzed:dtk34', tp);
+    expect(packetSections(tx, tp, now).find((x) => x.key === 'dates')!.status).not.toBe('done');
+  });
+
   it('round 33 verifier: a Nevada tax-sale flip moved to the owner stage keeps its window and before-remodel checks first', () => {
     const tx = { ...nvFlip, id: 'dtx33', kind: 'taxSale' as const, stage: 'owned' as const };
     saveDeals([tx]);

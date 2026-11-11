@@ -309,8 +309,9 @@ export const sidState = (d: { id?: string; state?: Deal['state']; kind: Deal['ki
 const workedWindow = (d: { id?: string; state?: Deal['state']; kind: Deal['kind'] }) => { if (!d.id || d.state !== 'NV' || d.kind !== 'trustee') return ''; const on = loadPacket(`analyzed:${d.id}`).dates.find((x) => sameDate(x.what, 'Deed recorded') && x.when)?.when; if (!on) return ''; const t = new Date(`${on}T12:00:00`); t.setDate(t.getDate() + 30); return localDay(t); };
 /** A sale postponed: clear its date, registration and payment dates for the new ones. */
 const POSTPONE = { label: 'It was postponed: clear its dates to enter the new ones' };
-/** How much a passed deadline costs if missed (lower first): a sale that may be void, then the SID payoff, then other dates. */
-export const pressingWeight = (t: Pick<PlanTask, 'key' | 'label'> & { days?: number; urgent?: boolean }) => (t.key === 'sid-void' || t.key === 'sid-refund' ? 0 : t.urgent && t.days !== undefined && t.days >= 0 ? 0.5 : /SID/.test(t.label) ? 1 : t.key === 'bid' ? 1.5 : t.key === 'date' ? 2 : 3);
+/** What to answer first (lower first): a sale that may be void, then a task due today or tomorrow (a closing; not a
+ *  plain date reminder), then the SID payoff, a passed sale day, other dates. */
+export const pressingWeight = (t: Pick<PlanTask, 'key' | 'label'> & { days?: number; urgent?: boolean }) => (t.key === 'sid-void' || t.key === 'sid-refund' ? 0 : t.urgent && t.days !== undefined && t.days >= 0 && t.key !== 'date' ? 0.5 : /SID/.test(t.label) ? 1 : t.key === 'bid' ? 1.5 : t.key === 'date' ? 2 : 3);
 /** Another property needs an answer now: a deadline passed, or its sale day passed ("did you win?"). */
 export const needsAnswerNow = (t: PlanTask) => deadlinePassed(t) || (t.key === 'bid' && !!t.answer) || (t.days !== undefined && t.days <= 1 && !!t.urgent);
 /** A deadline that has passed (a window ended, the SID payoff's 20 days): it needs an answer before routine work. */
