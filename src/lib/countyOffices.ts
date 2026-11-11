@@ -5,7 +5,7 @@
 
 export interface Office { url: string; checked: string | null; note?: string; contactOnly?: boolean }
 
-export interface CountyOffices { taxSale?: Office; /** Special assessment (SID) lien certificate sales (NRS 271), where the county holds them. */ specialAssessment?: Office; treasurer?: Office; assessor?: Office; recorder?: Office; sheriff?: Office }
+export interface CountyOffices { taxSale?: Office; /** Special improvement district (SID) lien certificate sales (NRS 271), where the county holds them. */ specialAssessment?: Office; treasurer?: Office; assessor?: Office; recorder?: Office; sheriff?: Office }
 
 export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   "AZ/Apache": {

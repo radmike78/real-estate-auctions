@@ -895,7 +895,7 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(offer, p, now, 'contract').label).toMatch(/Appraisal deadline/);
     expect(dealNextTask(offer, p, now, 'contract').label).not.toMatch(/title commitment/);
     // The closing a week away: the title review leads first, with its own button; then insurance; a COE row counts.
-    const cp = { ...EMPTY_PACKET, dates: [{ when: '2026-10-12', what: 'COE', who: 'Escrow' }] };
+    const cp = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Earnest money due', who: 'Escrow', resolved: true }, { when: '2026-10-12', what: 'COE', who: 'Escrow' }] };
     const t1 = dealNextTask(offer, cp, now, 'contract');
     expect(t1.label).toMatch(/^Closing is in 6 days \(Oct 12, 2026\): before then, review the title commitment/);
     expect(t1.record?.label).toBe('I reviewed it: mark it done');

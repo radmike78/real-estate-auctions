@@ -180,7 +180,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
   if (d.kind === 'lien' && offices?.specialAssessment) sale.push({ id: 'county-sale-page', text: `Read ${place}’s special assessment sale page: sale dates, how a buyer is chosen, the payment deadline and the owner’s time to redeem.`, href: offices.specialAssessment.url });
   // Other Nevada counties: ask the treasurer (its tax sale sells deeds). Clark: the sale guide item above already
   // links its SID guide, so no second link.
-  else if (d.kind === 'lien' && st === 'NV' && offices?.treasurer && d.county !== 'Clark') sale.push({ id: 'county-sale-page', text: `Ask ${place}’s treasurer whether it holds special assessment (SID) lien sales, and get its rules: its tax sale sells deeds, not liens.`, href: offices.treasurer.url });
+  else if (d.kind === 'lien' && st === 'NV' && offices?.treasurer && d.county !== 'Clark') sale.push({ id: 'county-sale-page', text: `Ask ${place}’s treasurer whether it holds special improvement district (SID) lien sales, and get its rules: its tax sale sells deeds, not liens.`, href: offices.treasurer.url });
   else if (d.kind === 'lien' && st === 'NV') { /* Clark: no duplicate link */ }
   else if (d.kind === 'lien' && offices?.taxSale) sale.push({ id: 'county-sale-page', text: `Read ${place}’s lien sale page: dates, deposit, payment deadline and the owner’s time to redeem.`, href: offices.taxSale.url });
   if (sale.length) groups.push({ title: 'The sale', items: sale });

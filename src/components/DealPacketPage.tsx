@@ -82,7 +82,8 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
   }
 
   const kind = SALE_KINDS.find((k) => k.key === deal.kind);
-  const sections = packetSections(deal, p);
+  // (Key dates read 'Complete' only with no past date still open.)
+  const sections = packetSections(deal, p).map((x) => (x.key === 'dates' && x.status === 'done' && !finishedDeal(deal) && stageOf(deal) !== 'passed' && p.dates.some((y) => y.when && !y.resolved && y.when < new Date().toLocaleDateString('en-CA') && !/^(offer accepted|acceptance|contract signed|sale day|(bidder )?registration)/i.test(y.what.trim())) ? { ...x, status: 'started' as const } : x));
   const stage = stageOf(deal);
   const next = dealNextTask(deal, p, undefined, stage);
   const done = sections.filter((s) => s.status === 'done').length;

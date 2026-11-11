@@ -15,7 +15,7 @@ export default function SidCertificates({ certificates, ago }: { certificates: F
   const publisher = certificates[0].publishedBy;
   return (
     <section aria-labelledby="sid-head">
-      <h2 id="sid-head">Special assessment (SID) lien certificates</h2>
+      <h2 id="sid-head">Special improvement district (SID) lien certificates</h2>
       <p><span className="badge tone-info badge-wrap">Lien certificate sale, not a property sale</span></p>
       <p>
         You buy the right to be repaid an unpaid special improvement district assessment plus 1% a month. The owner keeps the home and

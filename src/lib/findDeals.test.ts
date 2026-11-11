@@ -42,7 +42,7 @@ describe('county office directory', () => {
 describe('special assessment (SID) lien sales', () => {
   it('lists Washoe County’s special assessment sale page, and no such card where a county has none', () => {
     const w = countyOfficeCards('NV', COUNTY_OFFICES['NV/Washoe']);
-    expect(w.find((c) => /Special assessment/.test(c.name))?.url).toBe('https://www.washoecounty.gov/treas/SpecialAssessments.php');
-    expect(countyOfficeCards('NV', COUNTY_OFFICES['NV/Douglas']).some((c) => /Special assessment/.test(c.name))).toBe(false);
+    expect(w.find((c) => /Special improvement district/.test(c.name))?.url).toBe('https://www.washoecounty.gov/treas/SpecialAssessments.php');
+    expect(countyOfficeCards('NV', COUNTY_OFFICES['NV/Douglas']).some((c) => /Special improvement district/.test(c.name))).toBe(false);
   });
 });
