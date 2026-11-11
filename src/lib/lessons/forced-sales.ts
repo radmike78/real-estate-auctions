@@ -55,7 +55,7 @@ export const forcedSales: Lesson = {
           table: {
             head: ['State', 'Timeline and notice', 'Paying'],
             rows: [
-              ['Nevada', 'At least 3 months after the notice of default is recorded. The notice of sale is posted 20 days and published once a week for 3 weeks.', 'Set by the trustee; see our guide.'],
+              ['Nevada', 'At least 3 months after the notice of default is recorded. The notice of sale is posted 20 days and published once a week for 3 weeks. For 30 days after the trustee’s deed is recorded (90 days after the sale for anyone who wasn’t properly notified), a lawsuit can still void the sale (NRS 107.080(5), (6)), so ask your title company or attorney before you spend on repairs.', 'Set by the trustee; see our guide.'],
               ['California', 'At least 3 months after the notice of default. The notice of sale is posted at least 20 days before.', 'The trustee can require bidders to show they can pay the full bid in cash or cashier’s checks. The trustee can also require the full amount from the winner.'],
               ['Arizona', 'The sale can’t happen before the 91st day after the notice of sale is recorded. Notice is posted 20 days before and published four weeks in a row.', 'The winner pays by 5 p.m. the next business day.'],
               ['Utah', 'At least 3 months after the notice of default. The notice of sale is published three times and posted at least 20 days before.', 'As the trustee directs. A bid can’t be withdrawn, and the trustee’s deed comes with no right of redemption.'],
