@@ -42,6 +42,7 @@ export const forcedSales: Lesson = {
             ],
           },
         },
+        'In Nevada, property taxes aren’t sold as liens, but Clark and Washoe counties and some cities sell special improvement district (SID) lien certificates for unpaid local improvement assessments (NRS 271). You buy the right to be repaid the price plus 1% a month, not the property. The owner can redeem for 2 years if there’s a home or other significant improvement on the land (otherwise 120 days, as the city or county decides); after that, and formal notice to the owner, you can ask for a deed. The SID lien certificate guide has the steps.',
         'A tax sale doesn’t clear everything. Read the county’s rules before every sale.',
         'In Nevada, Washoe County warns that some government liens and other encumbrances may remain, and that the former owner can challenge the sale for two years, when title insurance may be hard to get.',
         'In California, San Diego County sells “as is” and takes no responsibility for other liens, encumbrances or easements.',
