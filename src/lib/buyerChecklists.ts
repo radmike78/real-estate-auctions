@@ -61,7 +61,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
   sid: {
     key: 'sid',
     forSale: true,
-    title: 'Buying a special assessment lien certificate',
+    title: 'Buying a special improvement district (SID) lien certificate',
     intro: 'When special improvement district (SID) assessments go unpaid, the Clark County Treasurer sells the lien. You buy a certificate that earns 1% a month, not the property (NRS 271).',
     items: [
       { text: 'Register in person on sale day', detail: 'About an hour before the sale, with government photo ID. The certificate is issued in the name on your ID. There is no deposit or registration fee at present. You must be 18 or older, arrive on time, and register yourself.' },

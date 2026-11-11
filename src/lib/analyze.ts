@@ -370,9 +370,9 @@ export function loadDeals(): Deal[] {
   }
 }
 
-type ChangeHook = { hook?: (d: Deal) => void };
+type ChangeHook = { hook?: (d: Deal, was: Deal) => void };
 /** Called when a saved deal's kind of sale, state, county or plan changes (its packet's untouched usual dates follow). */
-export function onDealChanged(f: (d: Deal) => void) { (onDealChanged as unknown as ChangeHook).hook = f; }
+export function onDealChanged(f: (d: Deal, was: Deal) => void) { (onDealChanged as unknown as ChangeHook).hook = f; }
 export function saveDeals(list: Deal[]) {
   const prev = new Map(loadDeals().map((d) => [d.id, d]));
   // Properties you own are never dropped for space; the oldest of the rest go first.
@@ -391,7 +391,7 @@ export function saveDeals(list: Deal[]) {
   }
   // Deals past the limit are dropped: forget their evidence and roadmap progress too.
   for (const d of list) if (!kept.includes(d)) forgetDeal(d.id);
-  for (const d of kept) { const o = prev.get(d.id); if (o && (o.kind !== d.kind || o.state !== d.state || o.county !== d.county || o.plan !== d.plan)) try { (onDealChanged as unknown as ChangeHook).hook?.(d); } catch { /* the packet stays as it was */ } }
+  for (const d of kept) { const o = prev.get(d.id); if (o && (o.kind !== d.kind || o.state !== d.state || o.county !== d.county || o.plan !== d.plan)) try { (onDealChanged as unknown as ChangeHook).hook?.(d, o); } catch { /* the packet stays as it was */ } }
 }
 
 const MAX_DEALS = 50;

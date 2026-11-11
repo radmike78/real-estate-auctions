@@ -30,6 +30,7 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
             const kept = tick.drops ? rows.filter((x) => !(sameDate(x.what, tick.drops!) && !x.when)) : rows;
             return { ...p, dates: tick.closes ? kept.map((x) => (sameDate(x.what, tick.closes!) ? { ...x, resolved: true } : x)) : kept };
           });
+          if (tick.step) markDealStepDone(`analyzed:${dealId}`, tick.step);
           if (tick.then) setDealStage(dealId, tick.then);
           after(el, tick.then === 'passed');
         }}>{tick.label}</button>

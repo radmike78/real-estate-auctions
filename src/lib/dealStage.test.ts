@@ -944,6 +944,26 @@ describe('Nevada round 4 flow', () => {
     expect(loadPacket('analyzed:dkind26').dates.map((x) => x.what)).toEqual(suggestedDates(lien));
   });
 
+  it('round 26 verifier: closing-week urgency counts; renamed rows stay; a dated open window waits', async () => {
+    const { needsAnswerNow } = await import('./dealStage');
+    const offer = { ...nvFlip, id: 'dof26c', kind: 'reo' as const, plan: 'rent' as const, stage: 'contract' as const };
+    saveDeals([offer]);
+    const t = dealNextTask(offer, { ...EMPTY_PACKET, dates: [{ when: '2026-10-07', what: 'Closing', who: 'Escrow' }] }, now, 'contract');
+    expect(needsAnswerNow(t)).toBe(true);
+    const { loadPacket, suggestedDates } = await import('./dealPacket');
+    const sheriff = { ...nvFlip, id: 'dkind26b', kind: 'court' as const, stage: 'researching' as const };
+    saveDeals([sheriff]);
+    const rows = suggestedDates(sheriff).map((what) => ({ when: '', what, who: '' }));
+    rows[1] = { ...rows[1], what: 'Sale day (per the sheriff notice)' };
+    savePacket('analyzed:dkind26b', { ...EMPTY_PACKET, dates: rows });
+    saveDeals([{ ...sheriff, kind: 'trustee' as const }]);
+    expect(loadPacket('analyzed:dkind26b').dates.map((x) => x.what)).toContain('Sale day (per the sheriff notice)');
+    const flip = { ...nvFlip, stage: 'owned' as const };
+    saveDeals([flip]);
+    const wp = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }, { when: '2026-10-31', what: 'Challenge window ends', who: 'Title company' }] };
+    expect(stageTasks(flip, 'owned', wp, now)[0].label).toMatch(/^Wait for 2210 Mesa Verde Ln’s challenge window to end \(Oct 31, 2026\)/);
+  });
+
   it('round 11 flow: a late SID payoff; Still to add; hints; time order after the deed; registration passed', async () => {
     const { packetSections, dealPacketText } = await import('./dealPacket');
     const tax = { ...nvFlip, kind: 'taxSale' as const };

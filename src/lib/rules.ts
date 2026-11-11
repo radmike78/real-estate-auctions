@@ -55,7 +55,7 @@ function assess(lien: Lien, saleType: SaleType, foreclosing: Lien | undefined): 
     case 'TAX_LIEN_CERTIFICATE':
       return {
         outcome: 'LIKELY_SURVIVES',
-        reason: 'A special assessment lien certificate transfers only the assessment debt; existing liens stay unless the holder later takes a deed, which conveys title free of most other liens (NRS 271.600). Taxes, assessments and some government liens may remain.',
+        reason: 'A special improvement district (SID) lien certificate transfers only the assessment debt; existing liens stay unless the holder later takes a deed, which conveys title free of most other liens (NRS 271.600). Taxes, assessments and some government liens may remain.',
       };
 
     case 'REO':
