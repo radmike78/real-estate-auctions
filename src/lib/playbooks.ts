@@ -166,7 +166,7 @@ const NEVADA: Playbook[] = [
       { label: 'Timeline', value: 'Notice of default, then at least 3 months, then a notice of sale, then the auction. These are legal minimums; many foreclosures take longer or never reach a sale' },
       { label: 'Notice of sale', value: 'Posted for 20 days and published once a week for 3 weeks' },
       { label: 'Mediation', value: 'Owner-occupants can petition the court for foreclosure mediation within 30 days after the notice of default is served. A sale of an owner-occupied home needs a recorded mediation certificate' },
-      { label: 'Payment', value: "Usually cashier's checks for the full bid at the sale. Each trustee sets its terms" },
+      { label: 'Payment', value: "Usually cashier's checks for the full bid at the sale.* Each trustee sets its terms" },
       { label: 'Redemption', value: 'None for the owner. If the sale wiped out a junior federal tax lien, the U.S. can still redeem within 120 days (26 U.S.C. § 7425)' },
       { label: 'Challenges', value: 'If the trustee didn’t substantially follow the law, a lawsuit filed within 30 days after the trustee’s deed is recorded, with a lis pendens (a recorded notice that a lawsuit affects the property) recorded within 5 days, can void the sale. Someone who didn’t get proper notice has 90 days from the sale date (NRS 107.080)' },
       { label: 'Postponements', value: 'Common. Confirm with the trustee the day before' },
