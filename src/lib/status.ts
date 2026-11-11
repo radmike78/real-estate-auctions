@@ -133,7 +133,7 @@ export function purchaseSteps(p: Property): string[] {
     case 'PRE_FORECLOSURE_NOT_YET_PURCHASABLE':
       return [
         'There is no auction yet. Track this property in the Pre-foreclosure tracker. If it proceeds, a Notice of Sale will be recorded and an auction date set.',
-        'Do not contact the homeowner. Nevada licenses foreclosure consultants, buyers who use fraud or deceit on owners in foreclosure face criminal penalties, and the owner can undo such a sale for up to 2 years (NRS 645F).',
+        'Do not contact the homeowner. Nevada licenses foreclosure consultants, buyers who use fraud or deceit on owners in foreclosure face criminal penalties, and the owner may be able to undo such a sale within 2 years after the deed was recorded (NRS 645F).*',
         'If the owner decides to sell, the home will be listed through a licensed agent, often as a short sale. Ask a short-sale agent to watch for it.',
       ];
     case 'LIEN_CERTIFICATE_ONLY':

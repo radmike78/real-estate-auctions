@@ -1681,7 +1681,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'Treasurer' }] };
     savePacket('analyzed:deu39', p);
     const t = dealNextTask(eu, p, now, 'offer');
-    expect(t.advance?.ticks).toEqual(['Payment deadline', 'Sealed bid and full payment due']);
+    expect(t.advance?.ticks).toEqual(['Sealed bid and full payment due']);
     expect(t.advance2?.label).toMatch(/enclosed payment/);
   });
   it('round 39 verifier: a win from the stage list (or any button) marks the sealed bid and its payment made', async () => {
@@ -1692,11 +1692,38 @@ describe('round 39: Eureka sealed-bid sale', () => {
     setDealStage('deu40', 'contract');
     const p = loadPacket('analyzed:deu40');
     expect(p.dates.find((x) => x.what === 'Sealed bid and full payment due')?.resolved).toBe(true);
-    expect(p.dates.find((x) => x.what === 'Payment deadline')).toMatchObject({ resolved: true, when: '2026-09-30' });
+    expect(p.dates.find((x) => x.what === 'Sealed bid and full payment due')?.when).toBe('2026-09-30');
+    expect(p.dates.some((x) => x.what === 'Payment deadline')).toBe(false);
     const won = loadDeals()[0];
     const t = dealNextTask(won, p, now, 'contract');
     expect(t.label).not.toMatch(/Pay for|Overdue/);
     expect(stageHint('contract', won)).not.toMatch(/Payment and recording deadlines are running/);
+  });
+  it('round 40: a blank sealed-bid row is dated the day before the sale on a win, and sale day leads over it', async () => {
+    const { loadPacket } = await import('./dealPacket');
+    const eu: Deal = { ...deal, id: 'deu41', state: 'NV', county: 'Eureka', kind: 'taxSale', plan: 'flip', stage: 'offer' };
+    saveDeals([eu]);
+    const today = now.toLocaleDateString('en-CA');
+    const y = new Date(now); y.setDate(y.getDate() - 1);
+    const sp = { ...EMPTY_PACKET, dates: [{ when: y.toLocaleDateString('en-CA'), what: 'Sealed bid and full payment due', who: 'You' }, { when: today, what: 'Sale day', who: 'Treasurer' }] };
+    savePacket('analyzed:deu41', sp);
+    const t = dealNextTask(eu, sp, now, 'offer');
+    expect(t.label).not.toMatch(/Overdue/);
+    expect(t.advance?.label).toMatch(/I won the bid/);
+    expect(t.advance?.tickWhen).toBe(y.toLocaleDateString('en-CA'));
+    savePacket('analyzed:deu41', { ...EMPTY_PACKET, dates: [{ when: '', what: 'Sealed bid and full payment due', who: '' }, { when: '2026-10-01', what: 'Sale day', who: 'Treasurer' }] });
+    setDealStage('deu41', 'contract');
+    expect(loadPacket('analyzed:deu41').dates.find((x) => x.what === 'Sealed bid and full payment due')).toMatchObject({ resolved: true, when: '2026-09-30' });
+  });
+  it('round 40: the sealed-bid row has its own "I sent it" button before the sale', () => {
+    const eu: Deal = { ...deal, id: 'deu42', state: 'NV', county: 'Eureka', kind: 'taxSale', plan: 'flip', stage: 'offer' };
+    saveDeals([eu]);
+    const t1 = new Date(now); t1.setDate(t1.getDate() + 1);
+    const t2 = new Date(now); t2.setDate(t2.getDate() + 2);
+    const sp = { ...EMPTY_PACKET, dates: [{ when: t1.toLocaleDateString('en-CA'), what: 'Sealed bid and full payment due', who: 'You' }, { when: t2.toLocaleDateString('en-CA'), what: 'Sale day', who: 'Treasurer' }] };
+    const t = dealNextTask(eu, sp, now, 'offer');
+    expect(t.label).toMatch(/Sealed bid and full payment due/);
+    expect(t.tick?.label).toMatch(/I sent my sealed bid/);
   });
   it('round 39 verifier: other sales keep their payment step when moved by the stage list', async () => {
     const { loadPacket } = await import('./dealPacket');

@@ -33,7 +33,7 @@ export const HELP: ByStateLines = {
 export const DEADLINES: ByStateLines = {
   NV: [
     { topic: 'Notice of sale timing', text: 'In Nevada, a notice of sale can’t come until at least 3 months after the notice of default is recorded, and the sale notice must be published for 3 weeks (NRS 107.080).' },
-    { topic: 'Catching up (reinstating)', text: 'In Nevada, if you live in the home, you can generally catch up on what you owe (called reinstating) until 5 days before the sale (NRS 107.0805). You can also work out a modification or repayment plan, sell (including a short sale), or get legal help to review your case.' },
+    { topic: 'Catching up (reinstating)', text: 'In Nevada, if you live in the home, you can generally catch up on the missed payments and costs (called reinstating) until 5 days before the sale (NRS 107.0805). If you don’t live there, the law gives at least 35 days after the notice of default is recorded (NRS 107.080(2)); after that, ask the servicer in writing whether it will still accept it.* Either way, ask the servicer for the exact amount in writing. You can also work out a modification or repayment plan, sell (including a short sale), or get legal help to review your case.' },
     { topic: 'Mediation deadline', text: 'In Nevada, you have to ask for foreclosure mediation within 30 days after the notice of default is served (NRS 107.086); how to file is under Foreclosure mediation above.' },
     { topic: 'Property taxes', text: 'In Nevada, about a year after property taxes go unpaid, the county issues a certificate, and you then have 2 years (1 if the home is found abandoned) to pay. After that you can still pay the taxes, penalties, interest and costs until the Treasurer’s office closes on the third business day before the sale (NRS 361.570, 361.585). Call your county treasurer.' },
     { topic: 'Before an HOA sale', text: 'In Nevada, no earlier than 60 days after a payment is past due, the HOA must first mail you its fee schedule, a proposed repayment plan and your right to a hearing before its board; you then have 30 days to pay, agree to the plan or ask for the hearing before it can take collection steps (NRS 116.31162(4)). After that it can mail a notice of delinquent assessment. At least 30 days later it can record a notice of default, and it can sell only if what’s owed, with costs, is still unpaid 90 days after that notice is recorded or mailed to you, whichever is later (NRS 116.31162). Paying in that time stops the sale; ask the HOA’s collection agent for the exact amount, and a housing counselor or legal aid about a payment plan.*' },
@@ -74,7 +74,7 @@ export const DEADLINES: ByStateLines = {
 
 export const SCAMS: ByStateLines = {
   NV: [
-    { topic: 'Foreclosure consultants', text: 'In Nevada, they need a license, and buyers who use fraud or deceit on owners in foreclosure face criminal penalties (NRS 645F). If a buyer used fraud or deceit, you can cancel the sale within 2 years.' },
+    { topic: 'Foreclosure consultants', text: 'In Nevada, they need a license, and buyers who use fraud or deceit on owners in foreclosure face criminal penalties (NRS 645F). If a buyer who took your home while it was in foreclosure used fraud or deceit, you may be able to cancel that sale within 2 years after the deed to them was recorded.* A legal aid office can tell you whether this applies to you.' },
     { topic: 'Report a scam', text: 'In Nevada, the Attorney General takes scam reports.', links: [['Nevada Attorney General', 'https://ag.nv.gov/']] },
   ],
   CA: [

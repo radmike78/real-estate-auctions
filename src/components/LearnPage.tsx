@@ -39,7 +39,7 @@ function SaleGuides() {
   return (
     <section className="learn-path" aria-labelledby="path-guides">
       <h2 id="path-guides">{st ? `Sale guides for ${st.name}` : 'Sale guides for your state'}</h2>
-      <p className="muted">How each kind of forced sale works, step by step: who sells, what you pay and when, and what can go wrong.</p>
+      <p className="muted">How each kind of sale works, from forced sales to bank-owned homes, step by step: who sells, what you pay and when, and what can go wrong.</p>
       <ul className="lesson-list sale-guide-list">
         {st
           ? guidesFor(st.code).map((g) => (

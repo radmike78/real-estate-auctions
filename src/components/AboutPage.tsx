@@ -73,7 +73,7 @@ export const SECTIONS: DrillSection[] = [
     key: 'sale-types',
     title: 'Types of sale',
     icon: <IconGavel />,
-    summary: `${SALE_TYPES.length} kinds of forced sale: what you receive and how each is sold`,
+    summary: `${SALE_TYPES.length - 1} kinds of forced sale, plus bank-owned homes: what you receive and how each is sold`,
     content: () => <SaleTypesInfo />,
   },
   {

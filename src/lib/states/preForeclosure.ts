@@ -112,7 +112,7 @@ export const READ_NOTICE: ByStateLines = {
 /** The caution box: why the site never helps anyone contact owners in foreclosure. */
 export const NO_CONTACT: ByStateLines = {
   NV: [
-    { topic: 'Foreclosure consultants', text: 'In Nevada, they need a license, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties. The owner can also cancel such a purchase for up to 2 years (NRS Chapter 645F). Owners may be in the state’s Foreclosure Mediation Program, too.' },
+    { topic: 'Foreclosure consultants', text: 'In Nevada, they need a license, and a buyer who uses fraud or deceit on an owner in foreclosure faces criminal penalties. The owner may also be able to cancel such a purchase within 2 years after the deed was recorded (NRS Chapter 645F).* Owners may be in the state’s Foreclosure Mediation Program, too.' },
   ],
   CA: [
     { topic: 'Investor purchases', text: 'In California, an investor (any buyer who won’t live in it) buying a 1 to 4 unit home from an owner who lives there after a notice of default is recorded must follow the Home Equity Sales Contract Act. The contract must be in writing, with set terms and a cancellation notice. The owner can cancel until midnight of the 5th business day after signing, or until 8 a.m. on the sale day, whichever comes first. Until then the buyer can’t take a deed, record anything or pay the owner (Civil Code 1695.3, 1695.4, 1695.6).' },

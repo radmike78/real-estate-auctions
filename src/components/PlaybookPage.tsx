@@ -220,7 +220,7 @@ export default function PlaybookPage({ playbook, section }: { playbook?: string;
         <PageHero
           eyebrow={<span className="eyebrow">{st ? `${st.name} law` : 'Nevada, California, Arizona, Utah and Texas'}</span>}
           title={<>Sale <span className="grad">guides</span></>}
-          sub={st ? `How each kind of forced sale works in ${st.name}, step by step, and the mistakes that cost money.` : 'How each kind of forced sale works, step by step, and the mistakes that cost money. Choose your state to see only its guides.'}
+          sub={st ? `How each kind of sale works in ${st.name}, from forced sales to bank-owned homes and short sales, step by step, and the mistakes that cost money.` : 'How each kind of sale works, from forced sales to bank-owned homes and short sales, step by step, and the mistakes that cost money. Choose your state to see only its guides.'}
         >
           <GuideSearchForm />
         </PageHero>

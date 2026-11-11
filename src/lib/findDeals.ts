@@ -49,7 +49,7 @@ export const COUNTY_PAGES: Record<string, DealSource[]> = {
 };
 /** Statewide pages for a Nevada county with no county-specific list yet. */
 export const NV_STATEWIDE_PAGES: DealSource[] = [
-  { name: 'Sale guides', url: '#/playbooks', what: 'Nevada’s tax, trustee, HOA, sheriff and IRS sales, step by step (with Clark County details; check your county’s own rules).' },
+  { name: 'Sale guides', url: '#/playbooks', what: 'Nevada’s tax sales, SID lien certificates, trustee, HOA, sheriff and IRS sales, bank-owned homes, short sales and commercial property, step by step (with Clark County details; check your county’s own rules).' },
   { name: 'Bank-owned & government homes', url: '#/bank-owned', what: 'Where Nevada bank-owned and government homes are listed, and how each one sells.' },
   { name: 'Short sales', url: '#/short-sales', what: 'How short sales work in Nevada and how to find them through an agent.' },
 ];
