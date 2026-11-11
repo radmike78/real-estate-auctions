@@ -605,7 +605,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://mineralcountynv.us/government/sheriff/index.php", checked: "2026-10-08", contactOnly: true },
   },
   "NV/Nye": {
-    taxSale: { url: "https://www.nyecountynv.gov/264/More-Information", checked: "2026-09-29", note: "Recent sales ran online through Bid4Assets; start from the county’s page for the current sale." },
+    taxSale: { url: "https://www.nyecountynv.gov/1118/2026-Online-Only-Tax-Sale-Auctions", checked: "2026-11-11", note: "Recent sales ran online through Bid4Assets; start from the county’s page for the current sale." },
     treasurer: { url: "https://www.nyecountynv.gov/253/Treasurer", checked: "2026-09-29" },
     assessor: { url: "https://www.nyecountynv.gov/267/Assessor", checked: "2026-09-29" },
     recorder: { url: "https://www.nyecountynv.gov/210/Recorder", checked: "2026-09-29" },
@@ -619,7 +619,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.pershingcountynv.gov/government/sheriff_s_office/index.php", checked: "2026-10-08", contactOnly: true },
   },
   "NV/Storey": {
-    taxSale: { url: "https://www.storeycounty.org/140/Tax-Lien-Sale-Information", checked: "2026-09-29" },
+    taxSale: { url: "https://www.storeycounty.org/140/Tax-Lien-Sale-Information", checked: "2026-11-11", note: "The county’s page calls it a “tax lien sale”, but the county sells the property itself after the Treasurer takes a trustee deed (NRS 361.595). Contact the Treasurer for sale dates and rules." },
     treasurer: { url: "https://www.storeycounty.org/210/Treasurer", checked: "2026-09-29" },
     assessor: { url: "https://www.storeycounty.org/132/Assessor", checked: "2026-09-29" },
     recorder: { url: "https://www.storeycounty.org/338/Recorder", checked: "2026-09-29" },

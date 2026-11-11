@@ -235,7 +235,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: 'Earnest money deposit, held in escrow' },
       { text: 'Patience for lender approval', detail: 'Often weeks to months. The lender may counter or say no.' },
       { text: 'A home inspection within your contingency period' },
-      { text: 'Everything paid through escrow', detail: 'Never pay side fees to anyone outside escrow.' },
+      { text: 'Everything paid through escrow', detail: 'A fee paid outside escrow is hidden from the lender and can void the approval or be mortgage fraud.* Keep every payment on the closing statement.' },
     ],
     link: { href: '#/pros/agent', label: 'How to find a short-sale agent' },
   },

@@ -58,7 +58,7 @@ const NEVADA: Playbook[] = [
       { label: 'Where', value: 'In person, Commission Chambers, 500 S. Grand Central Pkwy (confirm in the notice)' },
       { label: 'Register', value: 'Opens about 3–4 weeks before and closes about a week before. Capped at 280 bidders. No registration on the day.' },
       { label: 'Deposit', value: '$5,000 per bidder in certified funds; credited if you win' },
-      { label: 'Payment', value: "Pay the full price the same day by 1:00 p.m. (4:30 p.m. for parcels re-auctioned at 2:00 p.m.). Plan on cash, a cashier's check or a money order. The May 2025 notice didn't list wire for the final payment, though the Treasurer's FAQ mentions it, so confirm in the current notice. No financing." },
+      { label: 'Payment', value: "Pay the full price the same day by 1:00 p.m. (4:30 p.m. for parcels re-auctioned at 2:00 p.m.). Pay in certified funds: cash, a cashier's check, a wire or a money order (the Treasurer's May 2026 auction notice and FAQ). If you plan to wire, confirm the instructions with the Treasurer's office by phone first. No financing." },
       { label: 'Deed', value: 'A quitclaim deed to the name on your Trustee Auction Registration Form (Clark County’s name for its bidder registration form; it isn’t a foreclosure trustee’s sale). It is recorded within 30 days and mailed to you. To change the name later, you record your own new deed' },
       { label: 'After the sale', value: 'There’s no redemption: the owner can’t buy it back. But for 2 years after the Treasurer’s deed is delivered, the former owner, or anyone else claiming the land, can sue to recover it (NRS 361.600). County FAQs say title companies may not insure during that time; a quiet title action, or (Douglas County’s FAQ says) the former owner claiming the excess proceeds, can shorten it' },
     ],
@@ -91,7 +91,8 @@ const NEVADA: Playbook[] = [
     team: [T.title, T.attorney, T.lender, T.insurance, T.eviction, T.contractor, T.agent, T.cpa],
     sources: [
       { label: 'Clark County Treasurer: tax auction FAQs', url: TREASURER_FAQ },
-      { label: 'Treasurer: auction notice and registration form (May 2025, the latest posted)', url: 'https://treasurer.co.clark.nv.us/pdf/May%202025%20Trustee%20Auction%20Info.pdf' },
+      { label: 'Treasurer: auction list and terms (May 2026 sale)', url: 'https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList' },
+      { label: 'Treasurer: auction notice and registration form (May 2025, an older record)', url: 'https://treasurer.co.clark.nv.us/pdf/May%202025%20Trustee%20Auction%20Info.pdf' },
       { label: 'Clark County Treasurer: auction list', url: 'https://treasurer.clarkcountynv.gov/auction' },
       { label: 'Treasurer: past auction results', url: 'https://www.clarkcountynv.gov/government/elected_officials/county_treasurer/real-property-tax-auction-information' },
       { label: 'NRS 361 (property tax, tax sales)', url: NRS('361') },
@@ -239,7 +240,7 @@ const NEVADA: Playbook[] = [
     },
     mistakes: [
       { mistake: 'Assuming every HOA sale wipes out the mortgage', prevent: 'Check the Recorder for the lender’s payment before bidding. No recorded payment doesn’t prove the mortgage is gone. An offer to pay that the HOA refused, or Fannie Mae or Freddie Mac owning the loan, can keep it. Have an attorney check.' },
-      { mistake: 'Renovating right away', prevent: 'Only spend what’s needed to maintain and repair the unit to the HOA’s standards. A redeemer repays that. Save upgrades until the 60-day redemption period ends.' },
+      { mistake: 'Renovating right away', prevent: 'Only spend what’s needed to maintain and repair the unit to the HOA’s standards. A redeemer repays that. Upgrades before the 60-day redemption period ends put that money at risk.' },
     ],
     example: {
       title: 'The $9,000 condo',
@@ -464,7 +465,7 @@ const NEVADA: Playbook[] = [
       { title: 'Wait, and keep your options open', detail: 'Approval can take weeks or months. Ask whether a foreclosure sale date is scheduled and whether it’s postponed for the short sale. You can usually keep looking at other homes while you wait.' },
       { title: 'Read the approval letter', detail: 'When a lender approves, read its letter closely: the price it accepts, the closing deadline, and which costs it will and won’t pay. If the terms change your numbers, talk with your agent before you go on.' },
       { title: 'Inspect', detail: 'Use your inspection period. Many short sales are sold as-is, and the seller may not be able to pay for repairs.' },
-      { title: 'Close through escrow', detail: 'Close by the approval letter’s deadline. Every payment goes through escrow and shows on the closing statement. Never pay side fees outside escrow.' },
+      { title: 'Close through escrow', detail: 'Close by the approval letter’s deadline. Every payment goes through escrow and shows on the closing statement. A fee paid outside escrow is hidden from the lender, who approved the sale on the closing statement; a payment like that can void the approval or be mortgage fraud.*' },
     ],
     survives: { wipedOut: ['Liens released by the lenders who approve the sale'], mayStay: ['Any lien whose holder doesn’t agree. The sale can’t close until they do'] },
     mistakes: [{ mistake: 'Paying a “negotiator” outside escrow', prevent: 'All payments go through escrow and are disclosed to the lender.' }],

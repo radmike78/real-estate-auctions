@@ -280,7 +280,7 @@ export const DRILLS: Drill[] = [
           { label: 'The former owner, or a lender ranked below the HOA lien, can redeem by repaying my price plus 1% a month and certain costs', good: true, why: 'Right (NRS 116.31166). You get a certificate of sale first and a deed after 60 days. Upgrades you make aren’t repaid.' },
           { label: 'Nothing: I get the deed the same day and can start renovating', good: false, why: 'You get a certificate of sale first. Spending on upgrades during the 60 days is at risk.' },
         ],
-        lesson: 'Plan for a 60-day wait, and spend only on what the law repays if someone redeems.',
+        lesson: 'Plan for a 60-day wait. Spending beyond what the law repays is at risk if someone redeems.',
       },
     ],
     verdict: {
@@ -540,11 +540,11 @@ export const DRILLS: Drill[] = [
         kind: 'pick',
         id: 'renovate',
         title: 'Mission 2: Start the $50,000 renovation now?',
-        question: 'Do you renovate during the redemption year?',
+        question: 'You renovate during the redemption year, and the debtor redeems in month eleven. What happens to the $50,000?',
         multi: false,
         options: [
-          { label: 'No. Wait until the redemption period ends', good: true, why: 'Right. If someone redeems, you get your price plus 1% a month and the taxes and earlier-lien payments you made, but not what you spent on repairs.' },
-          { label: 'Yes. The sooner it’s fixed, the sooner I can sell', good: false, why: 'If the debtor redeems in month eleven, your repair spending is lost.' },
+          { label: 'It isn’t repaid', good: true, why: 'Right. A redemption repays your price plus 1% a month and the taxes and earlier-lien payments you made, not repairs (NRS 21.210). Whether to start before the year ends depends on your situation, finances and how much risk you can take.' },
+          { label: 'The redeemer pays it back with the rest', good: false, why: 'No. A redemption repays your price plus 1% a month and the taxes and earlier-lien payments you made, not what you spent on repairs, so renovating before the year ends puts that money at risk.' },
         ],
         lesson: 'Build a year or more of holding costs into your bid: taxes, insurance and the cost of your money while you wait.',
       },
@@ -556,7 +556,7 @@ export const DRILLS: Drill[] = [
         { label: 'Investigate', feedback: 'Good. Check senior liens, the occupants and your holding costs for a year, then set your walk-away price.' },
         { label: 'Pass', feedback: 'Reasonable if you can’t leave $150,000 idle for a year.' },
       ],
-      expert: 'Investigate. The spread looks large, but your cash sits for a year, you can’t safely renovate meanwhile, and a redemption ends the deal with 1% a month instead of a profit.',
+      expert: 'Investigate. The spread looks large, but your cash sits for a year, renovating meanwhile puts that money at risk, and a redemption ends the deal with 1% a month instead of a profit.',
     },
   },
   {

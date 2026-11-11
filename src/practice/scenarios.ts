@@ -846,8 +846,8 @@ const SHERIFF: Flow = {
         ? 'A builder can start $20,000 of site work (grading and utility trenches) next week. Do it now?'
         : `A contractor can start a ${money(roundTo(Math.max(p.repairs, 20_000), 1000))} renovation next week. Do it now?`,
       choices: [
-        { label: 'No. Wait until the redemption period ends', correct: true, feedback: `Right. If someone redeems, you get your price plus 1% a month and the taxes and earlier-lien payments you made, but not what you spent on ${isLand(p) ? 'site work' : 'repairs'}.` },
-        { label: 'Yes. The sooner it’s fixed, the sooner I can sell', correct: false, feedback: `In the guide’s example, the debtor redeemed after eleven months and the buyer’s repair spending was lost. ${pb.mistakes[0].prevent}` },
+        { label: 'Start only if I can afford to lose that money if someone redeems', correct: true, feedback: `Right. If someone redeems, you get your price plus 1% a month and the taxes and earlier-lien payments you made, but not what you spent on ${isLand(p) ? 'site work' : 'repairs'}. Whether to start now depends on your situation, finances and how much risk you can take.` },
+        { label: 'Yes. A redeemer would pay it back anyway', correct: false, feedback: `No. In the guide’s example, the debtor redeemed after eleven months and the buyer’s repair spending was lost. ${pb.mistakes[0].prevent}` },
       ],
     },
   ],
