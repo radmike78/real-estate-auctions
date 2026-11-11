@@ -149,10 +149,11 @@ describe('the next action follows the stage', () => {
     expect(last(closed)?.label).toBe('Mark 123 Main St as fixing and selling');
     expect(stageLabel('owned', flip)).toBe('Fixing and selling');
     expect(stageLabel('owned', deal)).toBe('Owned and operating');
+    // (No tracker yet: starting it comes first, then the listing.)
     const owned = stageTasks(flip, 'owned', EMPTY_PACKET, now);
-    expect(owned.map((t) => t.key)).toEqual(['list', 'sold', 'next']);
-    expect(owned[0].label).toMatch(/price backed by sold comps/);
-    expect(owned[1].label).toMatch(/sale and your actual profit/);
+    expect(owned.map((t) => t.key)).toEqual(['owned', 'list', 'sold', 'next']);
+    expect(owned[1].label).toMatch(/price backed by sold comps/);
+    expect(owned[2].label).toMatch(/sale and your actual profit/);
     expect(owned.map((t) => t.label).join(' | ')).not.toMatch(/rent/i);
     // A rental keeps its monthly tasks.
     expect(stageTasks(deal, 'closed', EMPTY_PACKET, now).map((t) => t.key)).toContain('owned');
