@@ -483,7 +483,7 @@ const goalBonus = (m: { goalFit: boolean; cautions: string[] }) => (m.goalFit &&
 
 /** Strategies ranked for these answers, best first. */
 export function rank(answers: Answers): Match[] {
-  return STRATEGIES.map((s) => {
+  const list = STRATEGIES.map((s) => {
     let score = 0;
     const fits: string[] = [];
     const cautions: string[] = [];
@@ -503,7 +503,11 @@ export function rank(answers: Answers): Match[] {
     if (s.key === 'househack' && answers.goal === 'income' && answers.borrow === 'live') goalFit = true;
     return { strategy: s, score, fits, cautions, weak, goalFit };
   // (A strategy that fits the reader's goal ranks ahead of one that doesn't, unless the other scores clearly higher.)
-  }).sort((a, b) => notYet(answers, b) - notYet(answers, a) || (b.score + goalBonus(b)) - (a.score + goalBonus(a)) || b.score - a.score);
+  });
+  // (When a purchase strategy none of your answers hold back exists, the held-back ones rank after it.)
+  const cleanExists = list.some((m) => m.strategy.key !== 'practice' && m.cautions.length === 0);
+  const heldBack = (m: Match) => (cleanExists && m.strategy.key !== 'practice' && m.cautions.length > 0 ? 1 : 0);
+  return list.sort((a, b) => notYet(answers, b) - notYet(answers, a) || heldBack(a) - heldBack(b) || (b.score + goalBonus(b)) - (a.score + goalBonus(a)) || b.score - a.score);
 }
 
 /** A state-specific note for a strategy, when the rules differ. */

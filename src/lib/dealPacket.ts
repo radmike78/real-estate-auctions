@@ -795,6 +795,7 @@ export function flipSaleLine(d: Deal): string | null {
   // (Months recorded after the sale month don't belong to this sale: they're left out and named.)
   const monthsAfterSale = recorded ? o!.months.filter((m) => m.month > sold.on.slice(0, 7)) : [];
   const paid = recorded ? o!.months.filter((m) => m.month <= sold.on.slice(0, 7)).reduce((t, m) => t + m.costs - m.rent, 0) : c.repairs + c.holding + c.financing;
+  const rentBack = recorded ? o!.months.filter((m) => m.month <= sold.on.slice(0, 7)).reduce((t, m) => t + m.rent, 0) : 0;
   const selling = (sold.price * (i.sellingCostPct || 0)) / 100;
   const profit = sold.price - proposed.price - buy - paid - selling;
   const plan = c.total > 0 ? ` You planned about ${money(i.exitValue - c.total)} at your ${money(proposed.price)} ${isOffer(d) ? 'price' : 'bid'} and ${money(i.exitValue)} resale.` : '';
@@ -828,7 +829,7 @@ export function flipSaleLine(d: Deal): string | null {
   const low = recorded && budget > 0 && paid < budget / 2 ? ` You recorded ${money(paid)} of your ${money(budget)} repairs, holding and loan budget: if you paid more, add those months for a truer figure.` : '';
   const afterNote = monthsAfterSale.length ? ` ${monthsAfterSale.map((m) => mo(m.month)).join(', ')} ${monthsAfterSale.length === 1 ? 'is' : 'are'} recorded after the sale month, so ${monthsAfterSale.length === 1 ? 'it’s' : 'they’re'} left out: check the sale date.` : '';
   const lowOrGaps = (gapNote || low) + partNote + afterNote;
-  return `${head}${planned}. Rough profit before income tax: about ${money(profit)} (the sale, less your ${money(proposed.price)} ${isOffer(d) ? 'price' : 'bid'}, about ${money(buy)} to buy it, ${recorded ? `the ${money(paid)} you recorded paying` : `your planned repairs, holding and loan costs, about ${money(paid)} (no months recorded: add them for a truer figure)`}, and selling costs at ${i.sellingCostPct || 0}%, about ${money(selling)}).${plan} Your closing statement and your tax advisor have the exact figures.` + lowOrGaps;
+  return `${head}${planned}. Rough profit before income tax: about ${money(profit)} (the sale, less your ${money(proposed.price)} ${isOffer(d) ? 'price' : 'bid'}, about ${money(buy)} to buy it, ${recorded ? `the ${money(paid)} you recorded paying${rentBack > 0 ? ` (after ${money(rentBack)} of rent you recorded)` : ''}` : `your planned repairs, holding and loan costs, about ${money(paid)} (no months recorded: add them for a truer figure)`}, and selling costs at ${i.sellingCostPct || 0}%, about ${money(selling)}).${plan} Your closing statement and your tax advisor have the exact figures.` + lowOrGaps;
 }
 
 export function flipBudgetLine(d: Deal): string | null {
@@ -931,7 +932,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const workedEnd = stageOf(d) === 'closed' && !p.dates.some((x) => sameDate(x.what, 'Redemption period ends') && (x.when || x.resolved)) && !p.dates.some((x) => (sameDate(x.what, DEED_AFTER_WAIT) || sameDate(x.what, 'Redemption money collected')) && (x.resolved || sameDate(x.what, 'Redemption money collected'))) ? redemptionEndFrom(d, p) : '';
   const pk0: PacketData = workedEnd ? { ...p, dates: [...p.dates.filter((x) => !(sameDate(x.what, 'Redemption period ends') && !x.when)), { when: workedEnd, what: 'Redemption period ends (worked out from the sale day; confirm it)', who: '' }] } : p;
   // FLOW-1: a Nevada tax sale's SID payoff deadline, worked out from the sale day, until it's dated or the Treasurer says there's no affidavit.
-  const sidWorked = d.state === 'NV' && d.kind === 'taxSale' && stageOf(d) === 'contract' && !p.dates.some((x) => (sameDate(x.what, 'SID certificate payoff') && (x.when || x.resolved)) || sameDate(x.what, 'Treasurer confirmed no SID affidavit') || sameDate(x.what, 'The sale is void')) ? sidDeadline(p) : '';
+  const sidWorked = d.state === 'NV' && d.kind === 'taxSale' && ['contract', 'closed', 'owned'].includes(stageOf(d)) && !p.dates.some((x) => (sameDate(x.what, 'SID certificate payoff') && (x.when || x.resolved)) || sameDate(x.what, 'Treasurer confirmed no SID affidavit') || sameDate(x.what, 'The sale is void')) ? sidDeadline(p) : '';
   // FLOW-14: a Nevada trustee sale's challenge window, 30 days after the deed was recorded, until its row is dated.
   const deedOn = d.state === 'NV' && d.kind === 'trustee' && stageOf(d) === 'closed' && !p.dates.some((x) => sameDate(x.what, 'Challenge window ends') && (x.when || x.resolved)) ? p.dates.find((x) => sameDate(x.what, 'Deed recorded') && x.when)?.when ?? '' : '';
   const winWorked = deedOn ? (() => { const t = new Date(`${deedOn}T12:00:00`); t.setDate(t.getDate() + 30); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })() : '';

@@ -141,13 +141,17 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   // Redeemed and repaid: no more months to record; what was recorded stays for your taxes.
   if (finishedDeal(deal) && !o.sold) return <p className="notice" role="note">It was redeemed and you were repaid. The {o.months.length} {o.months.length === 1 ? 'month' : 'months'} you recorded stay here for your records and taxes.</p>;
   const s = ownedSummary(o, projected);
-  const negative = parseCalcInput(rent) < 0 || parseCalcInput(costs) < 0;
+  // (Rent recorded on a flip before it had no rent box: still shown, so the totals add up.)
+  const flipRent = flip && o.months.some((m) => m.rent > 0);
+  // (A flip has no rent box: it records $0, even if the plan changed in another tab.)
+  const rentIn = flip ? '0' : rent;
+  const negative = parseCalcInput(rentIn) < 0 || parseCalcInput(costs) < 0;
   // A misplaced comma ("250,00") would record a number ten or a hundred times off, so it's refused, not guessed.
-  const unreadable = !negative && [rent, costs].some((t) => t.trim() !== '' && !!calculatorInputError(t, '$'));
+  const unreadable = !negative && [rentIn, costs].some((t) => t.trim() !== '' && !!calculatorInputError(t, '$'));
   // Each box's message waits while you're still typing a comma number in it ("1,25" on the way to 1,250).
   const showBad = (t: string, box: 'rent' | 'costs') => t.trim() !== '' && !!calculatorInputError(t, '$') && !(focusBox === box && midNumber(t));
   const add = () => {
-    const r = parseCalcInput(rent);
+    const r = parseCalcInput(rentIn);
     const c = parseCalcInput(costs);
     if (unreadable || !/^\d{4}-(0[1-9]|1[0-2])$/.test(month) || month < o.boughtOn.slice(0, 7) || month > maxMonth || !Number.isFinite(r) || !Number.isFinite(c) || r < 0 || c < 0) return;
     // (Saved: the cursor goes back to the month, for the next one.)
@@ -188,8 +192,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         {!flip && <label className="field"><span>{liveIn(deal) ? 'Rent you collected ($)' : 'Rent collected ($)'}</span><input type="text" inputMode="decimal" value={rent} aria-invalid={showBad(rent, 'rent') || undefined} onFocus={() => setFocusBox('rent')} onBlur={() => setFocusBox(null)} onChange={(e) => setRent(e.target.value)} /></label>}
         <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} aria-invalid={showBad(costs, 'costs') || undefined} onFocus={() => setFocusBox('costs')} onBlur={() => setFocusBox(null)} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>
-        <button type="button" className="btn" disabled={rent === '' || costs === '' || negative || unreadable || month < o.boughtOn.slice(0, 7) || month > maxMonth} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
-        {(rent === '' || costs === '') && <span className="muted small owned-missing">{flip ? 'Enter what you paid.' : 'Enter the rent (0 if none) and what you paid.'}</span>}
+        <button type="button" className="btn" disabled={rentIn === '' || costs === '' || negative || unreadable || month < o.boughtOn.slice(0, 7) || month > maxMonth} onClick={add}>{o.months.some((m) => m.month === month) ? 'Replace this month' : 'Add month'}</button>
+        {(rentIn === '' || costs === '') && <span className="muted small owned-missing">{flip ? 'Enter what you paid.' : 'Enter the rent (0 if none) and what you paid.'}</span>}
         </>}
       </div>}
       {(showBad(rent, 'rent') || showBad(costs, 'costs')) && <p className="caution small" role="status">Check the rent and costs: use commas only between thousands, like 1,250.</p>}
@@ -199,18 +203,18 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
         <>
           <dl className="calc-kv">
             <div><dt>Months recorded</dt><dd>{s.months}</dd></div>
-            <div><dt>{flip ? 'Paid, in total' : liveIn(deal) ? (s.actual > 0 ? 'Left over, in total (after rent)' : (o.months.some((m) => m.rent > 0) ? 'What it cost, in total (after any rent)' : 'What it cost, in total')) : 'Actual cash flow, in total'}</dt><dd>{flip ? fmtMoney(Math.round(-s.actual)) : liveIn(deal) && s.actual > 0 ? fmtMoney(Math.round(s.actual)) : signed(liveIn(deal) ? -s.actual : s.actual)}</dd></div>
-            <div><dt>{flip ? 'Paid, average month' : liveIn(deal) ? (s.averageMonthly > 0 ? 'Left over, average month' : 'Average cost a month') : 'Average month'}</dt><dd>{flip ? fmtMoney(Math.round(-s.averageMonthly)) : liveIn(deal) && s.averageMonthly > 0 ? fmtMoney(Math.round(s.averageMonthly)) : signed(liveIn(deal) ? -s.averageMonthly : s.averageMonthly)}</dd></div>
+            <div><dt>{flip ? 'Paid, in total' : liveIn(deal) ? (s.actual > 0 ? 'Left over, in total (after rent)' : (o.months.some((m) => m.rent > 0) ? 'What it cost, in total (after any rent)' : 'What it cost, in total')) : 'Actual cash flow, in total'}</dt><dd>{flip ? fmtMoney(Math.round(s.costs)) : liveIn(deal) && s.actual > 0 ? fmtMoney(Math.round(s.actual)) : signed(liveIn(deal) ? -s.actual : s.actual)}</dd></div>
+            <div><dt>{flip ? 'Paid, average month' : liveIn(deal) ? (s.averageMonthly > 0 ? 'Left over, average month' : 'Average cost a month') : 'Average month'}</dt><dd>{flip ? fmtMoney(Math.round(s.months ? s.costs / s.months : 0)) : liveIn(deal) && s.averageMonthly > 0 ? fmtMoney(Math.round(s.averageMonthly)) : signed(liveIn(deal) ? -s.averageMonthly : s.averageMonthly)}</dd></div>
             {flip && budget && <div><dt>Paid so far, against your {fmtMoney(Math.round(budget.total))} budget</dt><dd>{fmtMoney(Math.round(s.costs))} {s.costs > budget.total ? `(${fmtMoney(Math.round(s.costs - budget.total))} over)` : `(${fmtMoney(Math.round(budget.total - s.costs))} left)`}</dd></div>}
             {s.gapMonthly !== null && <div><dt>Against your plan, a month</dt><dd>{signed(s.gapMonthly)} {s.gapMonthly < 0 ? '(behind)' : '(ahead)'}</dd></div>}
           </dl>
           {s.gapMonthly !== null && s.gapMonthly < -50 && <p className="caution small" role="note">{liveIn(deal) ? 'It’s costing more than you planned. Look at which costs ran over and whether your savings can carry it.' : <>It’s earning less than you planned. Look at which costs ran over, whether the rent matches new leases nearby, and whether your repair savings can carry it. Review it before you buy the next one.</>}</p>}
           <table className="lesson-table owned-table">
-            <thead><tr><th>Month</th>{!flip && <th>Rent</th>}<th>Paid</th>{!flip && <th>{liveIn(deal) ? 'After rent' : 'Cash flow'}</th>}<th>Note</th><th><span className="sr-only">Remove</span></th></tr></thead>
+            <thead><tr><th>Month</th>{(!flip || flipRent) && <th>Rent</th>}<th>Paid</th>{!flip && <th>{liveIn(deal) ? 'After rent' : 'Cash flow'}</th>}<th>Note</th><th><span className="sr-only">Remove</span></th></tr></thead>
             <tbody>
               {o.months.map((m) => (
                 <tr key={m.month}>
-                  <td data-label="Month">{monthWords(m.month)}</td>{!flip && <td data-label="Rent">{fmtMoney(m.rent)}</td>}<td data-label="Paid">{fmtMoney(m.costs)}</td>{!flip && <td data-label={liveIn(deal) ? 'After rent' : 'Cash flow'}>{liveIn(deal) ? (m.rent > m.costs ? `${fmtMoney(m.rent - m.costs)} to spare` : `${fmtMoney(m.costs - m.rent)} cost`) : signed(m.rent - m.costs)}</td>}<td data-label={m.note ? 'Note' : ''}>{m.note}</td>
+                  <td data-label="Month">{monthWords(m.month)}</td>{(!flip || flipRent) && <td data-label="Rent">{fmtMoney(m.rent)}</td>}<td data-label="Paid">{fmtMoney(m.costs)}</td>{!flip && <td data-label={liveIn(deal) ? 'After rent' : 'Cash flow'}>{liveIn(deal) ? (m.rent > m.costs ? `${fmtMoney(m.rent - m.costs)} to spare` : `${fmtMoney(m.costs - m.rent)} cost`) : signed(m.rent - m.costs)}</td>}<td data-label={m.note ? 'Note' : ''}>{m.note}</td>
                   <td><button type="button" className="linkish" aria-label={`Remove ${monthWords(m.month)}`} onClick={() => put({ ...o, months: o.months.filter((x) => x.month !== m.month) })}>Remove</button></td>
                 </tr>
               ))}

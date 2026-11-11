@@ -875,6 +875,17 @@ describe('Nevada round 4 flow', () => {
     expect(stageTasks({ ...nvFlip, stage: 'owned' }, 'owned', EMPTY_PACKET, now).map((t) => t.label)).toContain('Record last month’s costs for 2210 Mesa Verde Ln');
   });
 
+  it('round 25: an NV tax sale moved to Deed recorded or Owned keeps the unanswered SID question', async () => {
+    const tax = { ...nvFlip, id: 'tx25', kind: 'taxSale' as const, stage: 'closed' as const };
+    saveDeals([tax]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-02', what: 'Payment deadline', who: 'Me', resolved: true }] };
+    savePacket('analyzed:tx25', p);
+    for (const st of ['closed', 'owned'] as const) expect(stageTasks({ ...tax, stage: st }, st, p, now).map((t) => t.key)).toContain('sid-affidavit');
+    const answered = { ...p, dates: [...p.dates, { when: '2026-10-05', what: 'Treasurer confirmed no SID affidavit', who: 'Treasurer', resolved: true }] };
+    savePacket('analyzed:tx25', answered);
+    expect(stageTasks(tax, 'closed', answered, now).map((t) => t.key)).not.toContain('sid-affidavit');
+  });
+
   it('round 11 flow: a late SID payoff; Still to add; hints; time order after the deed; registration passed', async () => {
     const { packetSections, dealPacketText } = await import('./dealPacket');
     const tax = { ...nvFlip, kind: 'taxSale' as const };

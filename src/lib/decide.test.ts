@@ -10,6 +10,8 @@ describe('Decide', () => {
     expect(top({ goal: 'growth', cash: '10to50', ready: 'ready', borrow: 'cash', time: 'parttime', hands: 'diy', risk: 'low', market: 'res' } as Answers)).not.toBe('brrrr');
     expect(top({ goal: 'income', cash: '10to50', ready: 'ready', borrow: 'live', time: 'weekly', hands: 'hire', risk: 'low', market: 'res' } as Answers)).toBe('househack');
     expect(top({ goal: 'income', cash: '10to50', ready: 'ready', borrow: 'cash', time: 'parttime', hands: 'diy', risk: 'high', market: 'com' } as Answers)).not.toBe('apartments');
+    // Round 25: with hired help or none, the cash answer still holds Apartments back behind a clean rental.
+    for (const hands of ['hire', 'none']) expect(top({ goal: 'income', cash: '10to50', ready: 'ready', borrow: 'cash', time: 'parttime', hands, risk: 'high', market: 'com' } as Answers)).not.toBe('apartments');
     // Round 24: a reader whose goal is reselling, ready and borrowing to invest, gets the flip first.
     expect(top({ goal: 'quick', cash: '50to150', ready: 'ready', borrow: 'invest', time: 'weekly', hands: 'hire', risk: 'medium', market: 'res' } as Answers)).toBe('flip');
     expect(top({ goal: 'learn', cash: 'under10', borrow: 'unsure', time: 'weekly', hands: 'hire', risk: 'low', market: 'unsure' })).toBe('practice');
