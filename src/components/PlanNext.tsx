@@ -181,10 +181,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
               return <p className="muted small">{waiting.length > 1 ? `Your ${waiting.length} saved properties wait` : `Your saved property, ${waiting[0].name || 'unnamed'}, waits`} while you finish the lessons and practice. Choose {waiting.length > 1 ? 'one' : 'it'} here to work on it now.</p>;
             })()}
             {deal && stage && (
-              <label className="field">
-                <span>Where it stands</span>
-                <StageSelect stage={stage} deal={deal} onMove={(st) => { setDealStage(deal.id, st); /* Passed or finished here: the next property comes up, as from the packet. */ const after = loadDeals().find((x) => x.id === deal.id); if (after && (st === 'passed' || finishedDeal(after)) && nextOpenDeal(deal.id)) handOff(after); }} />
-              </label>
+              <StageSelect stage={stage} deal={deal} onMove={(st) => { setDealStage(deal.id, st); /* Passed or finished here: the next property comes up, as from the packet. */ const after = loadDeals().find((x) => x.id === deal.id); if (after && (st === 'passed' || finishedDeal(after)) && nextOpenDeal(deal.id)) handOff(after); }} />
             )}
             {deal && stage && <p className="muted plan-now-hint">{stageHint(stage, deal)}{deal.stage ? '' : ' (We worked this out from what you’ve recorded; change it if it’s wrong.)'}</p>}
           </div>

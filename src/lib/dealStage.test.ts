@@ -997,6 +997,23 @@ describe('Nevada round 4 flow', () => {
     for (const w of suggestedDates(reo).filter((x) => !suggestedDates(auction).includes(x)).slice(1)) expect(after).not.toContain(w);
   });
 
+  it('round 27 verifier: the SID affidavit at Deed recorded after paying; a kind change keeps the new kind’s order', async () => {
+    const { loadPacket, suggestedDates } = await import('./dealPacket');
+    const tax = { ...nvFlip, id: 'tx27', kind: 'taxSale' as const, stage: 'closed' as const };
+    saveDeals([tax]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-10-05', what: 'SID certificate payoff (affidavit filed)', who: 'Me', resolved: true }] };
+    savePacket('analyzed:tx27', p);
+    expect(stageTasks(tax, 'closed', p, now)[0].key).toBe('sid-paid-affidavit');
+    expect(stageHint('closed', tax)).toMatch(/^Paid: next, confirm the city or county sent the Treasurer its affidavit/);
+    const reo = { ...nvFlip, id: 'dord27', kind: 'reo' as const, plan: 'rent' as const, stage: 'researching' as const };
+    saveDeals([reo]);
+    savePacket('analyzed:dord27', { ...EMPTY_PACKET, dates: [...suggestedDates(reo).map((what) => ({ when: '', what, who: '' })), { when: '', what: 'Ask about the roof', who: '' }] });
+    const auction = { ...reo, kind: 'trustee' as const, plan: 'flip' as const };
+    saveDeals([auction]);
+    const order = loadPacket('analyzed:dord27').dates.map((x) => x.what).filter((w) => suggestedDates(auction).includes(w));
+    expect(order).toEqual(suggestedDates(auction).filter((w) => order.includes(w)));
+  });
+
   it('round 11 flow: a late SID payoff; Still to add; hints; time order after the deed; registration passed', async () => {
     const { packetSections, dealPacketText } = await import('./dealPacket');
     const tax = { ...nvFlip, kind: 'taxSale' as const };

@@ -18,7 +18,7 @@ import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
 import { dealProgress } from './roadmapState';
-import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow } from './dealStage';
+import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -955,7 +955,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const closingDone = stageOf(d) === 'contract' && isOffer(d) && p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved && (!x.when || x.when <= localDayOf(now)));
   // FLOW-4: before you win, a sale day that has passed asks "did you win?" (no countdown to the rows after the sale).
   const saleDone = early && !isOffer(d) && saleOver(p, now);
-  const nd = stageOf(d) === 'passed' || finishedDeal(d) || closingDone || saleDone ? null : contingencyFirst(nextDate(remindable(capSid(pk, d), now, early, [...behindStage(d, stageOf(d)), ...notYet(d, stageOf(d), pk, now)]), now), pk, now, stageOf(d), d.kind);
+  const nd = stageOf(d) === 'passed' || finishedDeal(d) || closingDone || saleDone ? null : contingencyFirst(nextDate(remindable(capSid(pk, d), now, early, [...behindStage(d, stageOf(d)), ...notYet(d, stageOf(d), pk, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT]), now), pk, now, stageOf(d), d.kind);
   // Rows the stage has put behind you read "passed", not "open" (the sale day once won; the offer once accepted).
   const behind = behindStage(d, stageOf(d));
   // (At a win, a row dated after today isn't "passed"; after the closing it's "not needed now".)
@@ -1256,7 +1256,12 @@ onDealChanged((d, was) => {
   // untouched. Added: the new kind's own rows; a shared row you deleted stays deleted.)
   const touched = (x: PacketData['dates'][number]) => !!x.when || !!x.who.trim() || !!x.resolved || !before.includes(x.what);
   const keep = p.dates.filter((x) => touched(x) || after.includes(x.what));
-  const add = after.filter((w) => !before.includes(w) && !keep.some((x) => x.what === w));
+  const add = after.filter((w) => !before.includes(w) && !keep.some((x) => sameDate(x.what, w)));
   if (keep.length === p.dates.length && !add.length) return;
-  savePacket(key, { ...p, dates: [...keep, ...add.map((what) => ({ when: '', what, who: '' }))] });
+  // (In the new kind's order: each row by its usual place; a row of yours right after the one it followed.)
+  const rank = (w: string) => after.findIndex((u) => sameDate(w, u));
+  let last = -1;
+  const placed = keep.map((x, i) => { const r = rank(x.what); last = r >= 0 ? r : last; return { x, at: r >= 0 ? r : last + 0.5, i }; });
+  const rows = [...placed, ...add.map((what, i) => ({ x: { when: '', what, who: '' }, at: rank(what), i: keep.length + i }))].sort((a, b) => a.at - b.at || a.i - b.i).map((r) => r.x);
+  savePacket(key, { ...p, dates: rows });
 });
