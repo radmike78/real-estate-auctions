@@ -1734,6 +1734,21 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(fillSealedDay({ state: 'NV', kind: 'taxSale', county: 'Eureka' }, blank).dates[0].when).toBe('2026-12-01');
     expect(fillSealedDay({ state: 'NV', kind: 'taxSale', county: 'Clark' }, blank).dates[0].when).toBe('');
   });
+  it('round 41: the sealed-bid deadline follows a corrected sale date, and a sent bid counts down only to the sale', async () => {
+    const { fillSealedDay } = await import('./dealStage');
+    const eu = { state: 'NV' as const, kind: 'taxSale' as const, county: 'Eureka' };
+    const moved = { ...EMPTY_PACKET, dates: [{ when: '2026-11-19', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-11-13', what: 'Sale day', who: 'T' }] };
+    expect(fillSealedDay(eu, moved).dates[0].when).toBe('2026-11-12');
+    const sent = { ...moved, dates: [{ ...moved.dates[0], resolved: true }, moved.dates[1]] };
+    expect(fillSealedDay(eu, sent).dates[0].when).toBe('2026-11-19');
+    const d: Deal = { ...deal, id: 'deu43', state: 'NV', county: 'Eureka', kind: 'taxSale', plan: 'flip', stage: 'offer' };
+    saveDeals([d]);
+    const t2 = new Date(now); t2.setDate(t2.getDate() + 2);
+    const t1 = new Date(now); t1.setDate(t1.getDate() + 1);
+    const p = { ...EMPTY_PACKET, dates: [{ when: t1.toLocaleDateString('en-CA'), what: 'Sealed bid and full payment due', who: 'You', resolved: true }, { when: t2.toLocaleDateString('en-CA'), what: 'Sale day', who: 'T' }] };
+    const t = dealNextTask(d, p, now, 'offer');
+    expect(t.label).not.toMatch(/walk-away/);
+  });
   it('round 39 verifier: other sales keep their payment step when moved by the stage list', async () => {
     const { loadPacket } = await import('./dealPacket');
     const cl: Deal = { ...deal, id: 'dcl40', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'offer' };
