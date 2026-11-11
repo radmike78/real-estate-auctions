@@ -180,7 +180,7 @@ const NEVADA: Playbook[] = [
       { title: 'Set your maximum bid', detail: 'Include surviving debts, repairs, eviction and holding costs. Use Analyze a deal (Fix and flip) to find your walk-away price.' },
       { title: 'Confirm the sale is on', detail: 'Call the trustee the day before. Sales are often postponed or cancelled when owners reinstate, sell or file bankruptcy.' },
       { title: 'Bid with certified funds', detail: "Bring cashier's checks in amounts that let you pay exactly your bid. Follow the trustee's terms." },
-      { title: 'After you win', detail: 'Get the trustee’s deed recorded and insure the property. If the trustee gives you the deed, record it within 10 days, then post a copy on the property within 5 days after recording (NRS 107.080(10), (11)); your title company or attorney can arrange it. If anyone lives there, have an attorney give the notices Nevada requires (NRS 40.255) and handle possession.' },
+      { title: 'After you win', detail: 'Get the trustee’s deed recorded and insure the property. If the trustee gives you the deed, record it within 10 days, then post a copy on the property within 5 days after recording (NRS 107.080(10), (11)); your title company or attorney can arrange it. If anyone lives there, have an attorney give the notices Nevada requires (NRS 40.255) and handle possession. For 30 days after the trustee’s deed is recorded (90 days after the sale for anyone who didn’t get proper notice), a lawsuit can still void the sale (NRS 107.080(5), (6)): ask your attorney or title company before you spend on repairs during that time.' },
     ],
     survives: {
       wipedOut: ['The loan being foreclosed', 'In most cases, liens recorded after it (junior liens)'],
@@ -189,7 +189,7 @@ const NEVADA: Playbook[] = [
     mistakes: [
       { mistake: 'Buying at a second mortgage’s sale', prevent: 'Confirm which lien is foreclosing. The first deed of trust survives a junior lien’s sale.' },
       { mistake: 'Driving to a sale that was postponed', prevent: 'Call the trustee the day before. Postponements are announced by the trustee, not on DeedOwl.' },
-      { mistake: 'Forgetting occupants', prevent: 'Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act). A lease can run to its end unless the buyer will live there. For homes with up to 4 units, Nevada also requires a written notice of the change of ownership. Tenants keep their lease rights for a notice period, generally at least 60 days (NRS 40.255). You take on the landlord’s duties, including their existing security deposits (NRS 118A.244). Former owners get a 3-day notice (NRS 40.255).' },
+      { mistake: 'Forgetting occupants', prevent: 'Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act). A lease can run to its end unless the buyer will live there. For homes with up to 4 units, Nevada also requires a written notice of the change of ownership. Tenants keep their lease rights for a notice period: at least 60 days for a month-to-month tenant (NRS 40.255(2)). The federal 90 days is longer, so plan on it.* You take on the landlord’s duties, including their existing security deposits (NRS 118A.244). Former owners get a 3-day notice (NRS 40.255).' },
     ],
     example: {
       title: 'The $40,000 opening bid',

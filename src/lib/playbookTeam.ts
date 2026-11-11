@@ -9,7 +9,7 @@ export const TEAM = {
   mortgage: { role: 'Loan officer or mortgage company', when: 'Pre-approval before you make an offer', href: '#/pros/lender', pro: 'lender' },
   title: { role: 'Title and escrow company', when: 'A title search before you bid, and title insurance when available', href: '#/pros/title', pro: 'title' },
   attorney: { role: 'Real estate attorney', when: 'Reviewing surviving liens, sale validity and quiet title', href: '#/pros/attorney', pro: 'attorney' },
-  eviction: { role: 'Eviction help', when: 'An eviction attorney or process server, right after the sale if anyone lives there', href: '#/pros/eviction', pro: 'eviction' },
+  eviction: { role: 'Eviction help', when: 'An eviction attorney or process server, once your deed is recorded, if anyone lives there (in Nevada, title under the sale must be perfected first, NRS 40.255)*', href: '#/pros/eviction', pro: 'eviction' },
   insurance: { role: 'Insurance agent', when: 'Vacant-property coverage starting the day you own it', href: '#/pros/insurance', pro: 'insurance' },
   evictionAfterDeed: { role: 'Eviction help', when: 'An eviction attorney, once you have the deed if anyone still lives there (until then, ask your attorney what you may do*)', href: '#/pros/eviction', pro: 'eviction' },
   insuranceCert: { role: 'Insurance agent', when: 'Coverage from the day you get the certificate of sale (ask about insuring a home you don’t own yet, vacant or occupied*)', href: '#/pros/insurance', pro: 'insurance' },
