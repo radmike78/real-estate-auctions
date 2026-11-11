@@ -477,8 +477,9 @@ export const joinReasons = (r: string[]) => (r.length < 2 ? r.join('') : `${r.sl
 export const notYetWhy = (answers: Answers): 'debt' | 'nofund' | 'under10' | null => (answers.ready === 'debt' ? 'debt' : answers.ready === 'nofund' ? 'nofund' : answers.cash === 'under10' ? 'under10' : null);
 const notYet = (answers: Answers, m: { strategy: Strategy }) => (m.strategy.key === 'practice' && notYetWhy(answers) ? 1 : 0);
 
-/** How far behind a goal-fitting strategy may score and still rank first. */
+/** How far behind a goal-fitting strategy may score and still rank first (only one none of your answers rules out). */
 const GOAL_MARGIN = 3;
+const goalBonus = (m: { goalFit: boolean; cautions: string[] }) => (m.goalFit && m.cautions.length === 0 ? GOAL_MARGIN + 0.5 : 0);
 
 /** Strategies ranked for these answers, best first. */
 export function rank(answers: Answers): Match[] {
@@ -498,9 +499,11 @@ export function rank(answers: Answers): Match[] {
       else if (v && w < 0) weak.push(answerText(q, v));
       if (q.key === 'goal' && w >= 3) goalFit = true;
     }
+    // (Rent income while living in the property is the house hack's own goal.)
+    if (s.key === 'househack' && answers.goal === 'income' && answers.borrow === 'live') goalFit = true;
     return { strategy: s, score, fits, cautions, weak, goalFit };
   // (A strategy that fits the reader's goal ranks ahead of one that doesn't, unless the other scores clearly higher.)
-  }).sort((a, b) => notYet(answers, b) - notYet(answers, a) || (b.score + (b.goalFit ? GOAL_MARGIN + 0.5 : 0)) - (a.score + (a.goalFit ? GOAL_MARGIN + 0.5 : 0)) || b.score - a.score);
+  }).sort((a, b) => notYet(answers, b) - notYet(answers, a) || (b.score + goalBonus(b)) - (a.score + goalBonus(a)) || b.score - a.score);
 }
 
 /** A state-specific note for a strategy, when the rules differ. */

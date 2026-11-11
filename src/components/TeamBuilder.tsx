@@ -85,7 +85,7 @@ export default function TeamBuilder() {
             </p>
           )}
           <div className="decide-nav">
-            {step > 0 && <button type="button" className="btn btn-secondary" onClick={() => { window.clearTimeout(timer.current); setStep((s) => s - 1); }}>Back</button>}
+            {step > 0 && <button type="button" className="btn btn-secondary" onClick={() => { window.clearTimeout(timer.current); moved.current = true; setStep((s) => s - 1); }}>Back</button>}
             <button type="button" className="btn" disabled={!picked} onClick={next}>{step + 1 === TEAM_QUESTIONS.length ? 'Show my team' : 'Next'}</button>
           </div>
         </>

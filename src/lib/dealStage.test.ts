@@ -864,6 +864,17 @@ describe('Nevada round 4 flow', () => {
     expect(line).toMatch(/Oct 2026 is recorded after the sale month, so it’s left out: check the sale date\./);
   });
 
+  it('round 24 verifier: an offer calendar reviewed before the closing row counts it missing; a flip is asked for last month', async () => {
+    const offer = { ...nvFlip, id: 'dov24', kind: 'listing' as const, plan: 'rent' as const, stage: 'contract' as const };
+    saveDeals([offer]);
+    const p = { ...EMPTY_PACKET, calendarReviewedFor: 'contract', dates: [{ when: '2026-10-01', what: 'Earnest money due', who: 'Escrow', resolved: true }] };
+    expect(stageTasks(offer, 'contract', p, now).find((x) => x.key === 'dates')!.done).toBe(false);
+    const withClose = { ...p, dates: [...p.dates, { when: '2026-11-20', what: 'Close of escrow', who: 'Escrow' }] };
+    expect(stageTasks(offer, 'contract', withClose, now).find((x) => x.key === 'dates')!.done).toBe(true);
+    saveOwned({ f1: { boughtOn: '2026-08-01', months: [{ month: '2026-08', rent: 0, costs: 900, note: '' }] } });
+    expect(stageTasks({ ...nvFlip, stage: 'owned' }, 'owned', EMPTY_PACKET, now).map((t) => t.label)).toContain('Record last month’s costs for 2210 Mesa Verde Ln');
+  });
+
   it('round 11 flow: a late SID payoff; Still to add; hints; time order after the deed; registration passed', async () => {
     const { packetSections, dealPacketText } = await import('./dealPacket');
     const tax = { ...nvFlip, kind: 'taxSale' as const };
