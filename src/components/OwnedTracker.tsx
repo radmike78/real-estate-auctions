@@ -1,5 +1,5 @@
 import { calculatorInputError, midNumber, parseCalcInput } from './CalcFields';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Deal } from '../lib/analyze';
 import { flipBudget, flipBudgetLine, flipSaleLine, loadPacket, sameDate, sameEvent, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
@@ -94,6 +94,8 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const o = all[deal.id];
   // (It opens on the earliest finished month not yet recorded, so an entry never replaces one by accident.)
   const [month, setMonth] = useState(() => openMonth(o));
+  // (A month the reader picked by hand, to change it, stays put when another tab records a month.)
+  const pickedMonth = useRef(false);
   // (A flip collects no rent: it starts at 0.)
   const [rent, setRent] = useState(deal.plan === 'flip' ? '0' : '');
   // Tracking just started (or the purchase date moved later): the month can't be before the purchase.
@@ -104,7 +106,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   const [costs, setCosts] = useState('');
   const [note, setNote] = useState('');
   // Another tab recorded the month shown here: move on to the next open month, unless you've started typing.
-  useEffect(() => { if (o && month && o.months.some((m) => m.month === month) && costs === '' && note === '' && (rent === '' || rent === (deal.plan === 'flip' ? '0' : ''))) setMonth(openMonth(o)); }, [o?.months.length]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (o && month && !pickedMonth.current && o.months.some((m) => m.month === month) && costs === '' && note === '' && (rent === '' || rent === (deal.plan === 'flip' ? '0' : ''))) setMonth(openMonth(o)); }, [o?.months.length]); // eslint-disable-line react-hooks/exhaustive-deps
   const projected = projectedMonthly(deal);
   const flip = deal.plan === 'flip';
   const budget = flipBudget(deal);
@@ -156,6 +158,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     setNote('');
     // Move on to the next finished month not yet recorded, so the next entry doesn't replace one.
     // (Every finished month is in: the month box empties until the next one ends.)
+    pickedMonth.current = false;
     setMonth(openMonth(nextO));
   };
   // A home whose recorded rent now covers its costs: ask whether you still live there (never switch it on its own).
@@ -180,7 +183,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
       {o.sold ? <p className="muted">Bought on {prettyDay(o.boughtOn)}. Sold: the months you recorded are below.</p> : <div className="row owned-add">
         <label className="field"><span>Bought on</span><input id="owned-bought-on" type="date" value={o.boughtOn} max={today()} onChange={(e) => /^\d{4}-\d{2}-\d{2}$/.test(e.target.value) && put({ ...o, boughtOn: e.target.value })} /></label>
         {month === '' && !o.months.length ? null : <>
-        <label className="field"><span>Month</span><input id="owned-month" type="month" value={month} min={o.boughtOn.slice(0, 7)} max={maxMonth} onChange={(e) => setMonth(e.target.value)} /></label>
+        <label className="field"><span>Month</span><input id="owned-month" type="month" value={month} min={o.boughtOn.slice(0, 7)} max={maxMonth} onChange={(e) => { pickedMonth.current = true; setMonth(e.target.value); }} /></label>
         <label className="field"><span>{liveIn(deal) ? 'Rent you collected ($)' : 'Rent collected ($)'}</span><input type="text" inputMode="decimal" value={rent} aria-invalid={showBad(rent, 'rent') || undefined} onFocus={() => setFocusBox('rent')} onBlur={() => setFocusBox(null)} onChange={(e) => setRent(e.target.value)} /></label>
         <label className="field"><span>Everything you paid ($)</span><input type="text" inputMode="decimal" value={costs} aria-invalid={showBad(costs, 'costs') || undefined} onFocus={() => setFocusBox('costs')} onBlur={() => setFocusBox(null)} onChange={(e) => setCosts(e.target.value)} /></label>
         <label className="field"><span>Note (optional)</span><input type="text" maxLength={200} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. water heater replaced" /></label>

@@ -17,6 +17,7 @@ import { cleanGoal, GOAL_KEY, investorProfile } from './myPlan';
 import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
+import { dealProgress } from './roadmapState';
 import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
@@ -791,7 +792,9 @@ export function flipSaleLine(d: Deal): string | null {
   const o = loadOwned()[d.id];
   const recorded = !!o && o.months.length > 0;
   // No months recorded: count the planned repairs, holding and loan costs, so it compares with the plan.
-  const paid = recorded ? o!.months.reduce((t, m) => t + m.costs - m.rent, 0) : c.repairs + c.holding + c.financing;
+  // (Months recorded after the sale month don't belong to this sale: they're left out and named.)
+  const monthsAfterSale = recorded ? o!.months.filter((m) => m.month > sold.on.slice(0, 7)) : [];
+  const paid = recorded ? o!.months.filter((m) => m.month <= sold.on.slice(0, 7)).reduce((t, m) => t + m.costs - m.rent, 0) : c.repairs + c.holding + c.financing;
   const selling = (sold.price * (i.sellingCostPct || 0)) / 100;
   const profit = sold.price - proposed.price - buy - paid - selling;
   const plan = c.total > 0 ? ` You planned about ${money(i.exitValue - c.total)} at your ${money(proposed.price)} ${isOffer(d) ? 'price' : 'bid'} and ${money(i.exitValue)} resale.` : '';
@@ -820,10 +823,11 @@ export function flipSaleLine(d: Deal): string | null {
   const saleWords = saleGap ? `${mo(saleGap)} (the sale month, through ${prettyDay(sold.on)})` : '';
   const n = gaps.length + (saleGap ? 1 : 0);
   const bought = o?.boughtOn ?? '';
-  const partNote = recorded && bought && Number(bought.slice(8, 10)) > 1 && bought.slice(0, 7) < sold.on.slice(0, 7) && !o!.months.some((x) => x.month === bought.slice(0, 7)) ? ` Costs from ${prettyDay(bought)} to the end of that month count only if you included them in ${mo(next(bought.slice(0, 7)))}.` : '';
+  const partNote = recorded && bought && Number(bought.slice(8, 10)) > 1 && bought.slice(0, 7) < sold.on.slice(0, 7) && !o!.months.some((x) => x.month === bought.slice(0, 7)) && !gaps.includes(next(bought.slice(0, 7))) ? ` Costs from ${prettyDay(bought)} to the end of that month count only if you included them in ${mo(next(bought.slice(0, 7)))}.` : '';
   const gapNote = recorded && n ? ` No costs are recorded for ${[gaps.length ? gapWords : '', saleWords].filter(Boolean).join(' or ')}, so this leaves ${n === 1 ? 'it' : 'them'} out. To add ${n === 1 ? 'it' : 'them'}, undo the sale, record the ${n === 1 ? 'month' : 'months'}${saleGap && saleGap >= thisMonth ? ' (the sale month once it ends)' : ''}, then record the sale again.` : '';
   const low = recorded && budget > 0 && paid < budget / 2 ? ` You recorded ${money(paid)} of your ${money(budget)} repairs, holding and loan budget: if you paid more, add those months for a truer figure.` : '';
-  const lowOrGaps = (gapNote || low) + partNote;
+  const afterNote = monthsAfterSale.length ? ` ${monthsAfterSale.map((m) => mo(m.month)).join(', ')} ${monthsAfterSale.length === 1 ? 'is' : 'are'} recorded after the sale month, so ${monthsAfterSale.length === 1 ? 'it’s' : 'they’re'} left out: check the sale date.` : '';
+  const lowOrGaps = (gapNote || low) + partNote + afterNote;
   return `${head}${planned}. Rough profit before income tax: about ${money(profit)} (the sale, less your ${money(proposed.price)} ${isOffer(d) ? 'price' : 'bid'}, about ${money(buy)} to buy it, ${recorded ? `the ${money(paid)} you recorded paying` : `your planned repairs, holding and loan costs, about ${money(paid)} (no months recorded: add them for a truer figure)`}, and selling costs at ${i.sellingCostPct || 0}%, about ${money(selling)}).${plan} Your closing statement and your tax advisor have the exact figures.` + lowOrGaps;
 }
 
@@ -976,8 +980,9 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const cash: string[] = [];
   if (offer) {
     const earnestBack = p.dates.find((x) => sameDate(x.what, EARNEST_BACK) && !!x.resolved);
-    const earnestSent = p.dates.some((x) => (sameEvent(x.what, 'Earnest money due') || sameDate(x.what, 'Earnest money')) && !!x.resolved);
-    cash.push(p.earnest ? (stageOf(d) === 'passed' && !finishedDeal(d) ? (earnestBack ? `Earnest money: ${money(p.earnest)} (returned by escrow${earnestBack.when ? ` on ${prettyDay(earnestBack.when)}` : ''})` : earnestSent ? `Earnest money: ${money(p.earnest)} (if you cancelled in time, ask escrow to return it*)` : `Earnest money: ${money(p.earnest)} planned, not marked sent (if you did send it, add an “Earnest money due” date under Key dates, mark it handled and ask escrow to return it*)`) : ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? `Earnest money: ${money(p.earnest)} (paid; credited at closing per your closing statement)` : `By the contract's deposit deadline: ${money(p.earnest)} earnest money`) : stageOf(d) === 'passed' && earnestBack ? `Earnest money: returned by escrow${earnestBack.when ? ` on ${prettyDay(earnestBack.when)}` : ''} (the amount isn’t entered)` : p.dates.some((x) => sameEvent(x.what, 'Earnest money due') && x.resolved) ? 'Earnest money: sent (the amount isn’t entered; add it under Earnest money deposit)' : stageOf(d) === 'passed' || ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? 'Earnest money: none recorded' : 'By the contract’s deposit deadline: earnest money (enter it in the Cash part of the packet)');
+    // (Sent: its row ticked, or the roadmap's deposit step marked done for this property, as the deposit-back task counts it.)
+    const earnestSent = dealProgress(`analyzed:${d.id}`).done.includes('deposit') || p.dates.some((x) => (sameEvent(x.what, 'Earnest money due') || sameDate(x.what, 'Earnest money')) && !!x.resolved);
+    cash.push(p.earnest ? (stageOf(d) === 'passed' && !finishedDeal(d) ? (earnestBack ? `Earnest money: ${money(p.earnest)} (returned by escrow${earnestBack.when ? ` on ${prettyDay(earnestBack.when)}` : ''})` : earnestSent ? `Earnest money: ${money(p.earnest)} (if you cancelled in time, ask escrow to return it*)` : `Earnest money: ${money(p.earnest)} planned, not marked sent (if you did send it, add an “Earnest money due” date under Key dates, mark it handled and ask escrow to return it*)`) : ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? `Earnest money: ${money(p.earnest)} (paid; credited at closing per your closing statement)` : `By the contract's deposit deadline: ${money(p.earnest)} earnest money`) : stageOf(d) === 'passed' && earnestBack ? `Earnest money: returned by escrow${earnestBack.when ? ` on ${prettyDay(earnestBack.when)}` : ''} (the amount isn’t entered)` : (stageOf(d) === 'passed' ? earnestSent : p.dates.some((x) => sameEvent(x.what, 'Earnest money due') && x.resolved)) ? 'Earnest money: sent (the amount isn’t entered; add it under Earnest money deposit)' : stageOf(d) === 'passed' || ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) ? 'Earnest money: none recorded' : 'By the contract’s deposit deadline: earnest money (enter it in the Cash part of the packet)');
     if (p.optionFee && d.state === 'TX') cash.push(`By the contract's fee deadline, if applicable: ${money(p.optionFee)} option fee, recorded separately from earnest money.`);
     if (!['closed', 'owned', 'passed'].includes(stageOf(d)) && !finishedDeal(d)) cash.push(d.state === 'TX' ? 'A deposit or fee may be credited toward the purchase. Confirm its treatment with your title or escrow professional; do not add an amount twice.' : 'Your earnest money is usually credited toward the purchase at closing. Confirm with your title or escrow professional; don’t count it twice.');
   }

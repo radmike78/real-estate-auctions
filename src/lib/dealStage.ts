@@ -259,8 +259,9 @@ export const sidPending = (d: { id?: string; state?: Deal['state']; kind: Deal['
   if (!d.id || d.state !== 'NV' || d.kind !== 'taxSale' || !sidUnasked(d)) return '';
   const p = loadPacket(`analyzed:${d.id}`);
   const dl = sidDeadline(p);
-  const row = p.dates.some((x) => sameDate(x.what, 'SID certificate payoff'));
-  if (dl < localDay(now)) return row ? `the 20 days for the SID payoff ended ${prettyDay(dl)}: if it wasn’t paid by then, the sale is void (NRS 361.595(6)); ask the Treasurer in writing whether the sale stands*` : `the 20 days for any SID payoff ended ${prettyDay(dl)}: ask the Treasurer whether an SID affidavit was filed (NRS 361.595(6))`;
+  // (A yes answer dates or ticks the payoff row; the usual undated row is only a reminder to ask.)
+  const row = p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && (!!x.when || !!x.resolved));
+  if (dl < localDay(now)) return row ? `ask the Treasurer in writing whether the sale stands*: the 20 days for the SID payoff ended ${prettyDay(dl)}, and if it wasn’t paid by then the sale is void (NRS 361.595(6))` : `ask the Treasurer whether an SID affidavit was filed; the 20 days for any SID payoff ended ${prettyDay(dl)} (NRS 361.595(6))`;
   return `${row ? '' : 'ask the Treasurer whether an SID affidavit was filed; if one was, '}pay the SID certificate by ${prettyDay(dl)}, or the sale is void (NRS 361.595(6)); the Treasurer then records the deed (NRS 361.595(7))`;
 };
 /** A Nevada tax sale where nothing records the SID answer (no payoff row handled, no "no affidavit"), with its 20-day date known. */
