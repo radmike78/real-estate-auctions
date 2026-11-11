@@ -961,7 +961,7 @@ describe('Nevada round 4 flow', () => {
     const flip = { ...nvFlip, stage: 'owned' as const };
     saveDeals([flip]);
     const wp = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Deed recorded', who: 'Trustee', resolved: true }, { when: '2026-10-31', what: 'Challenge window ends', who: 'Title company' }] };
-    expect(stageTasks(flip, 'owned', wp, now)[0].label).toMatch(/^Wait for 2210 Mesa Verde Ln’s challenge window to end \(Oct 31, 2026\)/);
+    expect(stageTasks(flip, 'owned', wp, now)[0].label).toMatch(/^Before you spend on repairs or sign a sale for 2210 Mesa Verde Ln, ask your title company whether a challenge was filed; the window ends Oct 31, 2026/);
   });
 
   it('round 27: closing-week text; an unticked record row reopens its task; a trimmed packet stays on a county change', async () => {

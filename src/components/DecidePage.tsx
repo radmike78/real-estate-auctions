@@ -202,8 +202,8 @@ export default function DecidePage() {
                     </div>
                   </div>
                   {m.fits.length > 0 && <p className="decide-why"><strong>Fits you</strong> because you {joinReasons(m.fits)}.</p>}
-                  {m.fits.length === 0 && m.cautions.length === 0 && (m.weak?.length ?? 0) > 0 && <p className="decide-why"><strong>Worth knowing:</strong> you {joinReasons(m.weak ?? [])}.</p>}
-                  {i === 0 && m.fits.length === 0 && m.cautions.length === 0 && m.strategy.key !== 'practice' && <p className="decide-why"><strong>Why it’s first:</strong> none of your answers holds it back{rank(saved.answers).some((x) => x.score > m.score) ? '. Some strategies below score higher on your other answers, but one of your answers holds each of them back (see why on their cards)' : ', and it scores at least as well as the others on the rest'}. Compare it with the next ones too.</p>}
+                  {m.fits.length === 0 && m.cautions.length === 0 && (m.weak?.length ?? 0) > 0 && <p className="decide-why caution"><strong>Counts against it:</strong> you {joinReasons(m.weak ?? [])}, though none of these rules it out.</p>}
+                  {i === 0 && m.fits.length === 0 && m.cautions.length === 0 && m.strategy.key !== 'practice' && <p className="decide-why"><strong>Why it’s first:</strong> none of your answers rules it out{rank(saved.answers).some((x) => x.score > m.score) ? '. The strategies that score higher on your other answers each have an answer that rules them out (see their cards)' : ', and it scores at least as well as the others on the rest'}. Compare it with the next ones too.</p>}
                   {m.cautions.length > 0 && <p className="decide-why caution"><strong>Holding it back:</strong> you {joinReasons(m.cautions)}.</p>}
                   {note && <p className="decide-note">{note}</p>}
                   {m.strategy.key === 'auction' && <p className="decide-note">{AUCTION_REALITY}</p>}

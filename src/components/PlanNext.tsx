@@ -3,7 +3,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
 import { DEAL_STAGES, loadDeals, openDeal, type Deal, type DealStage } from '../lib/analyze';
-import { nextOpenDeal, deadlinePassed, needsAnswerNow, pressingWeight, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
+import { nextOpenDeal, stageTasks, deadlinePassed, needsAnswerNow, pressingWeight, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
@@ -108,7 +108,8 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   // Working on a property doesn't finish the groundwork: the goal, cash, buy box and payment plan still open stay in view.
   const settledOwn = settledFor('');
   // (Not on a finished deal, sold or passed: nothing is running on it.)
-  const finished = !!deal && (stage === 'passed' || finishedDeal(deal) || stage === 'closed' || stage === 'owned' || (stage === 'contract' && wayOf(deal) !== 'offer'));
+  // (Under contract too: the groundwork can wait while the purchase runs.)
+  const finished = !!deal && (stage === 'passed' || finishedDeal(deal) || stage === 'closed' || stage === 'owned' || stage === 'contract');
   const foundations = deal && !finished ? roadmapFor(planPath(), practiceState()).filter((s) => s.phase <= 2 && !settledOwn(s)) : [];
 
   // The same label My plan's roadmap uses: "Next roadmap task · Get ready".
@@ -181,7 +182,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
             {deal && stage && (
               <label className="field">
                 <span>Where it stands</span>
-                <select value={stage} onChange={(e) => setDealStage(deal.id, e.target.value as DealStage)}>
+                <select value={stage} onChange={(e) => { const st = e.target.value as DealStage; setDealStage(deal.id, st); /* Passed or finished here: the next property comes up, as from the packet. */ const after = loadDeals().find((x) => x.id === deal.id); if (after && (st === 'passed' || finishedDeal(after)) && nextOpenDeal(deal.id)) handOff(after); }}>
                   {DEAL_STAGES.map((s) => <option key={s} value={s}>{stageLabel(s, deal)}</option>)}
                 </select>
               </label>
@@ -205,7 +206,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
             </p></details>
           )}
         </div>
-        {onPlan && deal && stage === 'contract' && wayOf(deal) === 'offer' && (
+        {onPlan && deal && stage === 'contract' && wayOf(deal) === 'offer' && stageTasks(deal, 'contract').some((t) => !t.done && ['deposit-sent', 'inspection-complete', 'final-financing', 'appraisal-complete', 'contract-title'].includes(t.key)) && (
           <section aria-labelledby="contract-workstreams">
             <p id="contract-workstreams"><strong>Arrange the deposit, inspection, loan and title work promptly.</strong> These tasks run together.</p><details><summary>Who does what, and when</summary>
             <p>Do not wait for one to finish before arranging the others. Your signed contract controls deadlines; ask your team to confirm them.</p>
