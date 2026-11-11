@@ -11,7 +11,7 @@ import OwlNote from './OwlNote';
 import PathNext from './PathNext';
 import { IconBank, IconBuilding, IconGavel, IconHome, IconLayers, IconSteps, IconFile } from './Icons';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
-import { COUNTY_PAGES, nationalOfficialFor, officeLabelsFor, countyOfficeCards, OTHER_SITES, STATE_SALES, WHERE_TO_LOOK, countyKey, type DealSource } from '../lib/findDeals';
+import { COUNTY_PAGES, NV_STATEWIDE_PAGES, nationalOfficialFor, officeLabelsFor, countyOfficeCards, OTHER_SITES, STATE_SALES, WHERE_TO_LOOK, countyKey, type DealSource } from '../lib/findDeals';
 import { COUNTY_OFFICES } from '../lib/countyOffices';
 import { useMarkStep, stepEyebrow } from '../lib/path';
 import { useMyArea } from '../lib/myArea';
@@ -85,7 +85,7 @@ export default function FindDealsPage() {
   const setArea = (a: { state: StateCode; county: string }) =>
     setMine({ state: a.state, county: a.county, city: mine && mine.state === a.state && mine.county === a.county ? mine.city : null });
   const st = stateByCode(area.state)!;
-  const local = COUNTY_PAGES[countyKey(area.state, area.county)];
+  const local = COUNTY_PAGES[countyKey(area.state, area.county)] ?? (area.state === 'NV' && area.county ? NV_STATEWIDE_PAGES : undefined);
   const offices = COUNTY_OFFICES[countyKey(area.state, area.county)];
   const missingOffices = officeLabelsFor(area.state).filter((o) => !offices?.[o.key]);
   const officeCards = countyOfficeCards(area.state, offices);

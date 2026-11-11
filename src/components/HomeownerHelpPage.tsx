@@ -56,7 +56,7 @@ export default function HomeownerHelpPage() {
       </section>
 
       <section>
-        <h2>Deadlines in your state: act early, while you have the most options</h2>
+        <h2>Deadlines in {stateName ?? 'your state'}: act early, while you have the most options</h2>
         <ul className="hh-lead">
           <li><strong>Call early: </strong>Call your lender or servicer as soon as you fall behind, and keep notes of every call.</li>
         </ul>

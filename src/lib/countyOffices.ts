@@ -619,7 +619,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.pershingcountynv.gov/government/sheriff_s_office/index.php", checked: "2026-10-08", contactOnly: true },
   },
   "NV/Storey": {
-    taxSale: { url: "https://www.storeycounty.org/140/Tax-Lien-Sale-Information", checked: "2026-11-11", note: "The county’s page calls it a “tax lien sale”, but the county sells the property itself after the Treasurer takes a trustee deed (NRS 361.595). Contact the Treasurer for sale dates and rules." },
+    taxSale: { url: "https://www.storeycounty.org/140/Tax-Lien-Sale-Information", checked: "2026-11-11", note: "The county’s page calls it a “tax lien sale”, but the county sells the property itself after the Treasurer takes title in trust for the county (a “trustee deed”, not a foreclosure trustee’s deed; NRS 361.595). Contact the Treasurer for sale dates and rules." },
     treasurer: { url: "https://www.storeycounty.org/210/Treasurer", checked: "2026-09-29" },
     assessor: { url: "https://www.storeycounty.org/132/Assessor", checked: "2026-09-29" },
     recorder: { url: "https://www.storeycounty.org/338/Recorder", checked: "2026-09-29" },

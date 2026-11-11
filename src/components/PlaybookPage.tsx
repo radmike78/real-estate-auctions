@@ -142,7 +142,7 @@ export function sections(p: Playbook): DrillSection[] {
         <div className="survive-grid">
           <div className="survive-col good"><h3 className="guide-sub">Usually wiped out</h3><ul>{p.survives.wipedOut.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></div>
           <div className="survive-col bad"><h3 className="guide-sub">Can stay with the property</h3><ul>{p.survives.mayStay.map((x) => <li key={x}><Cited text={x} /></li>)}</ul></div>
-          <p className="muted survive-note">Lien priority is a legal question. Confirm with a title company or real estate attorney before you bid.</p>
+          <p className="muted survive-note">Lien priority is a legal question. Confirm with a title company or real estate attorney before you {p.key === 'sid' ? 'take part in the drawing' : ['reo', 'short'].includes(p.key) ? 'make an offer' : 'bid'}.</p>
         </div>
       ),
     },
