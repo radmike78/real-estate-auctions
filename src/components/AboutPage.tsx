@@ -15,7 +15,7 @@ const SALE_TYPES: [string, string, string][] = [
   ['Mortgage foreclosure', 'The property, after the lender forecloses', 'Trustee, sheriff or judicial auction'],
   ['HOA foreclosure', 'The owner’s title after a 60-day redemption period; the first mortgage may survive', 'HOA agent / trustee auction'],
   ['Sale to pay a court judgment', "Whatever the debtor owned in the property", 'Sheriff sale, with a period when it can be bought back (redemption)'],
-  ['Federal tax seizure', "The taxpayer's interest", 'IRS public auction or sealed bid'],
+  ['Federal tax seizure', "The taxpayer's interest, which the owner or anyone with an interest can buy back for 180 days (26 U.S.C. 6337(b))", 'IRS public auction or sealed bid'],
   ['REO / bank-owned', 'The property from the lender', 'Offer through the lender’s broker or its auction'],
 ];
 
