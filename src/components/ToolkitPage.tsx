@@ -31,7 +31,7 @@ import { settleAllSteps, unsettleStep, stageLabel, stageOf, stageOfStep, STAGE_S
 import PlanNext from './PlanNext';
 import { planNow, practiceLienDeal, practiceState } from '../lib/planNext';
 import { CORE_TEAM } from '../lib/proGuide';
-import { COMMERCIAL_OFFER_ROLES } from '../lib/dealPacket';
+import { COMMERCIAL_OFFER_ROLES, teamRolesFor } from '../lib/dealPacket';
 import { cashForPrice, cleanGoal, investorProfile, cleanTeamList, GOAL_KEY, PLAN_EVENT, PRICE_DEFAULTS, priceForCash, TEAM_LIST_KEY, TEAM_ROLES, type PriceAssumptions, type TeamList, type TeamMember } from '../lib/myPlan';
 import { currentProgress } from '../lib/journey';
 import { DECIDE_KEY, QUESTIONS, rank, type Answers } from '../lib/decide';
@@ -1077,7 +1077,7 @@ function planText(): string {
   if (cash > 0 && path === 'certificate') lines.push(`Investable cash: ${fmtMoney(cash)}. Buying lien certificates, that’s the most you’d tie up: the certificate prices and fees, paid by the county’s deadline, plus any later taxes you pay to protect them.`);
   else if (cash > 0 && paysCash(b.strategy).cash) lines.push(`Investable cash: ${fmtMoney(cash)}. Paying cash, that’s your limit for the price plus closing costs, repairs and reserves${atSale ? '; an auction wants the full amount by its payment deadline, with no loan at the sale' : ''}, so the price itself is less than ${fmtMoney(cash)}.`);
   else lines.push(cash > 0 ? `Investable cash: ${fmtMoney(cash)}. With ${pa.downPct}% down, ${pa.closingPct}% closing costs and ${pa.reserveMonths} months of reserves, it supports ${Number.isFinite(supports) ? `a price up to about ${fmtMoney(supports)}` : 'any price (these assumptions set no limit)'}.${Number.isFinite(supports) && pa.downPct < 15 && investorProfile().loan === 'yes' && !investorProfile().ownerOccupant ? ' Caution: loans for a property you won’t live in usually need 15% to 25% down,* so this price is likely too high; low-down-payment programs are for homes you live in. Ask your lender. Mortgage insurance, which most loans add with under 20% down, isn’t included either.' : Number.isFinite(supports) && pa.downPct < 25 && investorProfile().loan === 'yes' && !investorProfile().ownerOccupant && b.types.includes('Duplex to fourplex') ? ` Caution: loans for a duplex to fourplex you won’t live in usually need 25% down,* so for one of those this price is likely too high. Ask your lender.${pa.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included.' : ''}` : Number.isFinite(supports) && pa.downPct < 20 ? ' Mortgage insurance, which most loans add with under 20% down, isn’t included: ask your lender for it.' : Number.isFinite(supports) && investorProfile().ownerOccupant ? ` ${pa.downPct}% down is common for an investment; a home you’ll live in can need less, so replace it in the cash worksheet with your lender’s figure.` : ''}${taxNote}` : '(not worked out yet)');
-  lines.push('', isBlank(b) ? 'BUY BOX: not written yet (My plan → Your buy box)' : buyBoxText(b, STATES.find((x) => x.code === b.state)?.name).replace('\nDeedOwl educational worksheet.', ''), '', `ROADMAP: ${ROADMAP_PATHS[path].label}${now.deal && !now.deal.practice ? `. Phases 1 to 3 are your own; phases 4 to 7 track ${now.deal.name || 'the property you’re working on'}` : ''}`);
+  lines.push('', isBlank(b) ? 'BUY BOX: not written yet (My plan → Your buy box)' : buyBoxText(b, STATES.find((x) => x.code === b.state)?.name).replace('\nDeedOwl educational worksheet.', ''), '', `ROADMAP: ${ROADMAP_PATHS[path].label}${now.deal && !now.deal.practice ? `. Phases 1 to 3 are your own; phase 4 on tracks ${now.deal.name || 'the property you’re working on'}` : ''}`);
   { const mm = routeMismatch(now.deal, path); if (mm && now.deal) lines.push(`Note: ${now.deal.name || 'the property you’re working on'} is bought ${mm === 'listing' ? 'through an agent' : 'at an auction'}, and the next step above follows that, but this plan’s cash, roadmap and team lines are for ${path === 'listing' ? 'buying a listed home' : path === 'auction' ? 'buying at an auction' : 'buying lien certificates'}. Use “Switch the roadmap” in My plan → See my full roadmap if this property is your plan.`); }
   // (The property you're working on: its own steps from phase 4 on, as My plan shows them.)
   const fd = now.deal && !now.deal.practice ? now.deal : null;
@@ -1093,13 +1093,15 @@ function planText(): string {
   const open: string[] = [];
   // A commercial building bought through a broker or from a bank: the commercial team, as Your team shows it.
   const commercialPlan = path === 'listing' && b.strategy === 'Apartments and commercial property';
-  const core: string[] = commercialPlan ? COMMERCIAL_OFFER_ROLES : CORE_TEAM;
+  // (The property you're working on: its own team, as its packet lists it.)
+  const dealRoles: string[] | null = fd ? teamRolesFor(fd) : null;
+  const core: string[] = dealRoles ?? (commercialPlan ? COMMERCIAL_OFFER_ROLES : CORE_TEAM);
   for (const k of TEAM_ROLES) {
     const m = team[k];
     const g = proGuideByKey(k);
     // Anything entered for the role counts (a contact or fees with no name yet, a credentials check).
     // Only the core team is listed as still open (the other professionals come in only for some deals).
-    if (!m?.name?.trim() && !m?.contact?.trim() && !m?.fees?.trim() && !m?.licenseChecked) { if (core.includes(k) || (path === 'certificate' && k === 'cpa')) open.push(g?.title ?? k); continue; }
+    if (!m?.name?.trim() && !m?.contact?.trim() && !m?.fees?.trim() && !m?.licenseChecked) { if (core.includes(k) || (!dealRoles && path === 'certificate' && k === 'cpa')) open.push(g?.title ?? k); continue; }
     lines.push(`${g?.title ?? k}: ${m.name.trim() || '(name not entered)'}${m.contact ? `, ${m.contact}` : ''}${m.licenseChecked ? ', credentials checked' : ''}${m.fees ? `. Fees: ${m.fees}` : ''}`);
     // The scripts are written for a listed home's purchase: not printed on an auction or lien plan.
     if (PRO_SCRIPTS[k] && path === 'listing' && !commercialPlan) lines.push(`  What to say: ${PRO_SCRIPTS[k].say}`);
@@ -1107,8 +1109,8 @@ function planText(): string {
   // At an auction or for lien certificates there's no agent, loan or inspection at the sale: those roles aren't listed as open.
   // (A lien certificate has no property to insure either; its team adds a tax adviser.)
   const skip = path === 'listing' ? [] : [...['agent', 'lender', 'inspector'], ...(path === 'certificate' ? ['insurance'] : [])].map((k) => proGuideByKey(k as Parameters<typeof proGuideByKey>[0])?.title ?? k);
-  const openShown = open.filter((t) => !skip.includes(t));
-  if (openShown.length) lines.push(`Not chosen yet: ${openShown.join(', ')}. The Your team page shows who you need for your route and when.`);
+  const openShown = dealRoles ? open : open.filter((t) => !skip.includes(t));
+  if (openShown.length) lines.push(`Not chosen yet${fd ? ` (for ${fd.name || 'the property you’re working on'})` : ''}: ${openShown.join(', ')}. The Your team page shows who you need for your route and when.`);
   // A line above marked with an asterisk: say what it means, as every page's footer does.
   if (lines.some((l) => l.includes('*'))) lines.push('', ASTERISK_NOTE);
   return lines.join('\n');

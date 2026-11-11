@@ -558,7 +558,7 @@ export function teamRolesFor(d: Deal): ProKey[] {
   const roles = book ? [...new Set(book.team.map((t) => t.pro).filter((k): k is ProKey => !!k))] : d.plan === 'commercial' && isOffer(d) ? COMMERCIAL_OFFER_ROLES : LISTING_ROLES;
   const cash = investorProfile().loan === 'cash';
   // A rental gets a property manager to compare (a home you'll live in has none).
-  const all = d.plan === 'rent' && !roles.includes('property_manager') ? [...roles, 'property_manager' as ProKey] : roles;
+  const all = d.plan === 'rent' && !roles.includes('property_manager') ? [...roles, 'property_manager' as ProKey] : d.plan === 'flip' ? roles.filter((k) => k !== 'property_manager') : roles;
   return all.filter((k) => !(cash && (k === 'lender' || k === 'private_lender')) && !(k === 'property_manager' && liveIn(d)));
 }
 

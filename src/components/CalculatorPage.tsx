@@ -67,7 +67,7 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
     <section className="before-commit" aria-labelledby="before-commit-head">
       <h3 id="before-commit-head">{won ? 'Check these now that you won it' : 'Before you commit, check these'}</h3>
       <ul>
-        {!won && <li><strong>The sale’s payment rules:</strong> the form, amount and deadline, paid to {({ trustee: 'the trustee', taxSale: 'the Treasurer', court: 'the sheriff', hoa: 'the HOA’s foreclosure agent', irs: 'the IRS' } as Record<string, string>)[saleKind ?? ''] ?? 'the official seller'}, from the official notice.</li>}
+        {!won && <li><strong>The sale’s payment rules:</strong> the form, amount and deadline, paid to {({ trustee: 'the trustee', taxSale: 'the Treasurer', court: 'the sheriff’s civil office', hoa: 'the HOA’s foreclosure agent', irs: 'the IRS contact on the notice' } as Record<string, string>)[saleKind ?? ''] ?? 'the official seller'}, from the official notice.</li>}
         <li><strong>Liens and taxes that survive this sale,</strong> from a title search.</li>
         {/* Nevada's own periods, from statute (leg.state.nv.us; 26 U.S.C. 6337(b) for the IRS): no asterisk there. */}
         {wasRedeemed ? <li><strong>The right to buy it back:</strong> you marked it redeemed, so these numbers no longer apply: collect the payoff (see Your next action in its deal packet).</li>

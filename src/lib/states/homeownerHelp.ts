@@ -34,9 +34,9 @@ export const DEADLINES: ByStateLines = {
   NV: [
     { topic: 'Notice of sale timing', text: 'In Nevada, a notice of sale can’t come until at least 3 months after the notice of default is recorded, and the sale notice must be published for 3 weeks (NRS 107.080).' },
     { topic: 'Catching up (reinstating)', text: 'In Nevada, if you live in the home, you can generally catch up on what you owe (called reinstating) until 5 days before the sale (NRS 107.0805). You can also work out a modification or repayment plan, sell (including a short sale), or get legal help to review your case.' },
-    { topic: 'After an HOA sale', text: 'In Nevada, after an HOA foreclosure sale you, or a lender whose loan ranked below the HOA’s lien, can buy the home back within 60 days by paying the buyer’s price plus 1% a month and the taxes, assessments and needed upkeep the buyer paid (NRS 116.31166(3)). Ask the HOA’s foreclosure agent how.' },
     { topic: 'Mediation deadline', text: 'In Nevada, you have to ask for foreclosure mediation within 30 days after the notice of default is served (NRS 107.086).' },
     { topic: 'Property taxes', text: 'In Nevada, about a year after property taxes go unpaid, the county issues a certificate, and you then have 2 years (1 if the home is found abandoned) to pay. After that you can still pay the taxes, penalties, interest and costs until the Treasurer’s office closes on the third business day before the sale (NRS 361.570, 361.585). Call your county treasurer.' },
+    { topic: 'After an HOA sale', text: 'In Nevada, you, or a lender whose loan ranked below the HOA’s lien, can buy the home back within 60 days by paying the buyer’s price plus 1% a month and the taxes, assessments and needed upkeep the buyer paid (NRS 116.31166(3)). Ask the HOA’s foreclosure agent how.' },
   ],
   CA: [
     { topic: 'Before a notice of default', text: 'In California, if you live in the home (1 to 4 units) and the loan is a first mortgage, your servicer generally has to contact you, or try hard to, at least 30 days before it records a notice of default, to talk about ways to avoid foreclosure (Civil Code 2923.5, 2923.55 and 2924.15).' },

@@ -117,13 +117,17 @@ function StoryCard({ s }: { s: Story }) {
  * Real stories in one grid, each tagged (worked or went wrong; nationwide; outside our states). With a state picked, its
  * own and nationwide stories show, and the rest wait under "From other states" (shown directly when there are no others).
  */
-function ProStories({ stories, state }: { stories: Story[]; state: StateCode | null }) {
+/** The stories a reader in this state sees (good ones first). */
+const visibleStories = (stories: Story[], state: StateCode | null) => {
   const order = (xs: Story[]) => [...xs.filter((s) => s.tone === 'good'), ...xs.filter((s) => s.tone === 'caution')];
   const mine = (s: Story) => {
     const sc = storyScope(s);
     return sc === 'nationwide' || (Array.isArray(sc) && (!state || sc.includes(state)));
   };
-  const own = order(stories.filter((story) => mine(story) && !mentionsOtherState(state, JSON.stringify(story))));
+  return order(stories.filter((story) => mine(story) && !mentionsOtherState(state, JSON.stringify(story))));
+};
+function ProStories({ stories, state }: { stories: Story[]; state: StateCode | null }) {
+  const own = visibleStories(stories, state);
   const grid = (xs: Story[]) => <ul className="story-grid">{xs.map((s) => <StoryCard key={s.title} s={s} />)}</ul>;
   return own.length ? grid(own) : <p className="muted">We don’t have a local story for this topic yet. Use the guidance and official sources for your selected state.</p>;
 }
@@ -282,9 +286,9 @@ function GuideBody({ g }: { g: ProGuide }) {
           )}
         </details>
       )}
-      {stories.length > 0 && (
+      {visibleStories(stories, st).length > 0 && (
         <details className="pro-fold pro-guide-stories">
-          <summary><h2 className="part-head">Real stories: what happened to other buyers ({stories.length})</h2></summary>
+          <summary><h2 className="part-head">Real stories: what happened to other buyers ({visibleStories(stories, st).length})</h2></summary>
           <p className="muted">True accounts from news reports, court cases and government agencies. Private people aren’t named. Each one is dated: prices, rates and rules may have changed since.</p>
           <ProStories stories={stories} state={st} />
         </details>
