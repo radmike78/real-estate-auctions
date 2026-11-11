@@ -78,7 +78,7 @@ export const sameEvent = (rowWhat: string, name: string) => {
 };
 
 /** A date row filled in: its date and who handles it, or (a date that applies only if something happens) left undated. */
-export const dateRowComplete = (d: { when: string; what: string; who: string; resolved?: boolean }) => !!d.what.trim() && (!!d.resolved || (!!d.when && !!d.who.trim()) || (!d.when && ifOnly(d.what)));
+export const dateRowComplete = (d: { when: string; what: string; who: string; resolved?: boolean }) => !!d.what.trim() && (!!d.resolved || (!!d.when && (!!d.who.trim() || /^(offer accepted|acceptance|contract signed)/i.test(d.what.trim()))) || (!d.when && ifOnly(d.what)));
 /** Dates counted from a later event (a deed recorded, a period's end): they can stay undated until that event. */
 const LATER = ['Redemption money collected', 'Challenge window ends', 'Recovery-suit window ends', 'Redemption period ends', 'Deed delivered (if no one redeemed)', 'Certificate expires', 'Earliest you may act (unpaid lien)', 'Rescission window ends', 'Intent-to-bid window ends', 'Eligible bid deadline (45 days)'];
 /** The rows this stage's calendar needs filled in: before the sale, only the dates before it; after, all but those

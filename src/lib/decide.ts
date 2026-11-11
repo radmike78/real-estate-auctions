@@ -506,7 +506,9 @@ export function rank(answers: Answers): Match[] {
   });
   // (When a purchase strategy none of your answers hold back exists, the held-back ones rank after it.)
   const cleanExists = list.some((m) => m.strategy.key !== 'practice' && m.cautions.length === 0);
-  const heldBack = (m: Match) => (cleanExists && m.strategy.key !== 'practice' && m.cautions.length > 0 ? 1 : 0);
+  // (And one with a stated reason to fit you ranks ahead of one with none, so the top card always says why.)
+  const reasonExists = list.some((m) => m.strategy.key !== 'practice' && m.cautions.length === 0 && m.fits.length > 0);
+  const heldBack = (m: Match) => (m.strategy.key === 'practice' ? 0 : cleanExists && m.cautions.length > 0 ? 2 : reasonExists && m.cautions.length === 0 && m.fits.length === 0 ? 1 : 0);
   return list.sort((a, b) => notYet(answers, b) - notYet(answers, a) || heldBack(a) - heldBack(b) || (b.score + goalBonus(b)) - (a.score + goalBonus(a)) || b.score - a.score);
 }
 

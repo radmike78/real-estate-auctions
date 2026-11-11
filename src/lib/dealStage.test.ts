@@ -886,6 +886,24 @@ describe('Nevada round 4 flow', () => {
     expect(stageTasks(tax, 'closed', answered, now).map((t) => t.key)).not.toContain('sid-affidavit');
   });
 
+  it('round 25 flow: contract tasks lead over far deadlines; a passed appraisal asks or cancels; the SID affidavit; the next property', async () => {
+    const offer = { ...nvFlip, id: 'dof25', kind: 'reo' as const, plan: 'rent' as const, stage: 'contract' as const };
+    const other = { ...nvFlip, id: 'dot25', name: '1470 Kingsbury Grade', stage: 'researching' as const };
+    saveDeals([offer, other]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-12', what: 'Appraisal deadline', who: 'Lender' }, { when: '2026-11-15', what: 'Closing', who: 'Escrow' }] };
+    expect(dealNextTask(offer, p, now, 'contract').label).toMatch(/^Appraisal deadline in 6 days\. Meanwhile: review the title commitment/);
+    const late = dealNextTask(offer, p, new Date('2026-10-14T15:00:00Z'), 'contract');
+    expect(late.label).toMatch(/^The appraisal deadline for .* ended 2 days ago/);
+    expect(late.advance2?.label).toBe('I cancelled in writing: mark it passed');
+    const tax = { ...nvFlip, id: 'tx25b', kind: 'taxSale' as const, stage: 'contract' as const };
+    saveDeals([tax]);
+    const tp = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-10-10', what: 'SID certificate payoff (affidavit filed)', who: 'Me', resolved: true }] };
+    expect(stageTasks(tax, 'contract', tp, now).map((t) => t.key)).toContain('sid-paid-affidavit');
+    const passed = { ...offer, stage: 'passed' as const };
+    saveDeals([passed, other]);
+    expect(stageTasks(passed, 'passed', EMPTY_PACKET, now).find((t) => t.key === 'next')!.label).toBe('Go on to 1470 Kingsbury Grade in My plan');
+  });
+
   it('round 11 flow: a late SID payoff; Still to add; hints; time order after the deed; registration passed', async () => {
     const { packetSections, dealPacketText } = await import('./dealPacket');
     const tax = { ...nvFlip, kind: 'taxSale' as const };
