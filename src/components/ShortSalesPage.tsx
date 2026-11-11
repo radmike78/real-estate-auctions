@@ -46,7 +46,7 @@ const RISKS: [string, string][] = [
   ['Foreclosure can happen first', 'If the owner is in foreclosure, the trustee sale may go ahead before approval arrives. Ask whether a sale date has been postponed for the short sale.'],
   ['Usually sold as-is', 'Sellers rarely make repairs or give credits. Budget for repairs and get a full inspection.'],
   ['“Approved” prices aren’t always bargains', 'Lenders approve prices close to market value, based on their own appraisal or a broker’s price opinion.'],
-  ['Watch for fraud', 'Never pay a side fee to a seller, agent or "negotiator" outside escrow. Any payment must be disclosed to the lender. Be wary of anyone asking you to wire money.'],
+  ['Watch for fraud', 'A side fee paid to a seller, agent or "negotiator" outside escrow is hidden from the lender, who approved the sale on the closing statement; it can void the approval or be mortgage fraud.* Be wary of anyone asking you to wire money.'],
   ['Occupied homes', 'Confirm the home will be vacant at closing, and whether any tenant has rights under a lease.'],
 ];
 

@@ -1176,7 +1176,7 @@ const SHORT: Flow = {
       { label: 'Ask for pre-approval', send: 'I’m offering on a short sale I’ll live in. Can you pre-approve me?', reply: `Yes. Lenders on short sales want proof you can close. Practice pre-approval: a loan up to ${money(a!.loanAmount)} with ${a!.downPct}% down. Ask about a rate lock that can be extended, since approval can take months. (Simulated reply.)` },
     ]),
     contact('title', PEOPLE.title, 'Escrow.', [
-      { label: 'Ask how payments work', send: 'Who do I pay during a short sale?', reply: 'Everything goes through escrow and is disclosed to the lenders on the settlement statement. Never pay anyone outside escrow. (Simulated reply.)' },
+      { label: 'Ask how payments work', send: 'Who do I pay during a short sale?', reply: 'Everything goes through escrow and is disclosed to the lenders on the settlement statement. A payment outside escrow is hidden from the lenders and can void their approval. (Simulated reply.)' },
     ]),
     contractorContact(p, false),
   ],
@@ -1196,7 +1196,7 @@ const SHORT: Flow = {
         question: 'Someone says they can get the second lender to agree faster for $2,000, paid to them directly. What do you do?',
         choices: [
           { label: 'Refuse. Every payment goes through escrow and is disclosed to the lenders', correct: true, feedback: 'Right. Paying a “negotiator” outside escrow is a common and serious mistake.' },
-          { label: 'Pay it: it’s cheaper than losing the deal', correct: false, feedback: 'Never pay side fees outside escrow. All payments go through escrow and are disclosed to the lender.' },
+          { label: 'Pay it: it’s cheaper than losing the deal', correct: false, feedback: 'A side fee paid outside escrow is hidden from the lender and can void the approval or be mortgage fraud.* All payments go through escrow and are disclosed to the lender.' },
         ],
       },
       { kind: 'event', id: 'close', title: 'Approval and closing', body: ['Both lenders approve and release their liens. Your inspection and appraisal are done, and you close through escrow with title insurance.'] },

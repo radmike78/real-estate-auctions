@@ -66,10 +66,10 @@ export const FACTS: Fact[] = [
   },
   {
     id: 'tax-payoff-deadline',
-    claim: 'Owners, and lenders or other lienholders of record, can pay the taxes until close of business 3 business days before the sale.',
+    claim: 'The owner, a lender, a judgment creditor, or a city or town with a lien on the parcel can pay the taxes and costs until close of business on the third business day before the sale (NRS 361.585).',
     sources: ['nrs-361', 'treasurer-faq'],
-    checked: '2026-09-28',
-    where: [{ file: PB, text: 'can pay until close of business 3 business days before the sale' }],
+    checked: '2026-11-11',
+    where: [{ file: PB, text: 'can pay the taxes and costs until close of business on the third business day before the sale' }],
   },
   {
     id: 'tax-sid-certificate',

@@ -732,12 +732,12 @@ export const DRILLS: Drill[] = [
       {
         kind: 'pick',
         id: 'lesson',
-        title: 'Mission 2: What should you have done?',
-        question: 'Pick the better plan.',
+        title: 'Mission 2: What was at risk?',
+        question: 'You spent $18,000 on repairs before day 150. What did the redemption repay?',
         multi: false,
         options: [
-          { label: 'Spend only what protects the property during the 180 days, and start repairs after the deed', good: true, why: 'Right. Then a redemption earns you the 20% return instead of a loss.' },
-          { label: 'Start repairs right away so the house sells faster', good: false, why: 'Repairs made during the redemption period are at risk if the owner redeems.' },
+          { label: 'Not the repairs: only my price plus 20% a year', good: true, why: 'Right (26 U.S.C. 6337(b)). Whether to spend before the deed depends on your situation, finances and how much risk you can take.' },
+          { label: 'The repairs, with the rest', good: false, why: 'No. A redemption repays your price plus 20% a year, not what you spend on the property, so repairs before the 180 days end put that money at risk.' },
         ],
         lesson: 'Ask an attorney what your state allows you to do with the property during the 180 days.',
       },
@@ -749,7 +749,7 @@ export const DRILLS: Drill[] = [
         { label: 'Investigate', feedback: 'Good: check what you can do during the 180 days in your state before you bid.' },
         { label: 'Pass', feedback: 'Reasonable if you can’t leave the money untouched for six months.' },
       ],
-      expert: 'IRS sales can pay well either way: a redemption returns your price plus 20% a year, and if no one redeems you get the deed. The mistake is spending on upgrades before the 180 days are up.',
+      expert: 'IRS sales can pay well either way: a redemption returns your price plus 20% a year, and if no one redeems you get the deed. Upgrades before the 180 days end put that money at risk; plan how much of it you can afford to lose.',
     },
   },
   {

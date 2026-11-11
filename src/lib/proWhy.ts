@@ -188,7 +188,7 @@ export const PRO_WHY = {
       },
       {
         who: "Everyone",
-        text: "Never follow wiring instructions from an email, even one that looks like it’s from escrow. Scammers copy real names and logos."
+        text: "Email wire instructions are a common fraud, even ones that look like they’re from escrow: before you send money, call escrow at a number you looked up yourself. Scammers copy real names and logos."
       }
     ]
   },

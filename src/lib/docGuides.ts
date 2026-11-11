@@ -86,7 +86,7 @@ export const DOC_GUIDES: DocGuide[] = [
       { part: 'Cash to close', look: 'The amount you send. It should equal price − loan + your costs − your credits.', who: 'Escrow. You confirm the amount and the wiring instructions by phone, at a number you already trust.' },
     ],
     changes: 'On a covered loan, a new 3-business-day wait starts if the APR rises beyond a small tolerance, the loan product changes, or a prepayment penalty is added. Other corrections just need a new statement before you sign.',
-    corrected: 'Get the corrected version in writing and recheck every line you questioned, plus the cash-to-close total. Never send money to new instructions that arrive by email.',
+    corrected: 'Get the corrected version in writing and recheck every line you questioned, plus the cash-to-close total. New wire instructions that arrive by email are a common fraud: call escrow at a number you looked up yourself before you send money.',
   },
   {
     key: 'repair-bid',

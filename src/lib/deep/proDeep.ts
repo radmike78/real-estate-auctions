@@ -187,7 +187,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Ask whether the rate is locked, for how long, and what it costs to extend.",
       "Look for a prepayment penalty or balloon payment and ask about other options if you see one.",
       "If a builder or agent pushes a “preferred lender”, get an outside quote too. Compare total cost, not just the incentive.",
-      "Never wire closing money based on an email. Call a known number first."
+      "Email wire instructions are a common fraud: before you send money, call escrow at a number you looked up yourself to confirm them."
     ],
     facts: [
       {

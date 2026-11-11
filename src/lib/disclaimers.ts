@@ -38,12 +38,12 @@ export const DISCLAIMERS: Record<DisclaimerKind, { title: string; text: string }
     title: "We don't offer financing",
     text:
       "We don't make, arrange, broker or negotiate loans, recommend a lender, or guarantee credit. Any terms are between you and the lender, and we aren't responsible for them. " +
-      "Compare several written offers, check each lender's license (often on NMLS), and never pay fees or wire money before you've verified the lender.",
+      "Compare several written offers, check each lender's license (often on NMLS), and verify the lender before you pay any fee or wire money: advance-fee loan scams are common.",
   },
   services: {
     title: 'Hire carefully',
     text:
       `Service providers listed here pay to advertise. ${VERIFIED_NOTICE} Check any required license and insurance yourself, get ` +
-      "written bids and contracts, and never pay large sums upfront. We aren't a party to your agreement and aren't responsible for the work.",
+      "written bids and contracts, and tie payments to finished work; a large payment up front is money you may not get back if the job stalls. We aren't a party to your agreement and aren't responsible for the work.",
   },
 };
