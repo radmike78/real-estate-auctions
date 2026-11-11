@@ -147,7 +147,7 @@ const WINDOWS: { name: string; what: string; then: (kind?: string) => string; ti
     then: (k) => `ask ${k === 'court' ? 'the sheriff’s civil office' : k === 'hoa' ? 'the HOA’s foreclosure agent' : k === 'irs' ? 'the IRS sale officer' : 'whoever ran the sale'} in writing whether anyone redeemed. If no one did, mark it handled and ask for the deed` },
   { name: 'Challenge window ends', what: 'the challenge window', tick: 'No suit was filed, and the 90-day limit doesn’t apply*: mark it handled', then: () => 'ask your title company or attorney whether any suit was filed, and whether the 90-day limit for anyone not properly notified (NRS 107.080(6)) still runs. If it does, move the end date; if not, mark it handled' },
   { name: 'Recovery-suit window ends', what: 'the recovery-suit window', tick: 'No suit was filed: mark it handled', then: () => 'ask your title company or attorney whether any suit was filed. If not, mark it handled' },
-  { name: 'Earliest you may act (unpaid lien)', what: 'the wait before you may act on an unpaid lien', then: () => 'if it’s still unpaid, ask your attorney about your next step, or mark it handled' },
+  { name: 'Earliest you may act (unpaid lien)', what: 'the wait before you may act on an unpaid lien', tick: 'Paid, or I’ve asked my attorney: mark it handled', then: () => 'if it’s still unpaid, ask your attorney about your next step, or mark it handled' },
 ];
 /** A window past its date: `text` for a sentence ("the challenge window ended 3 days ago"), `short` for a list. */
 export const windowEnded = (what: string, daysAgo: number, kind?: string): { text: string; short: string; then: string; tick?: string; ask?: string; cancel?: boolean } | null => {

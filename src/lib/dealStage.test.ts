@@ -1670,3 +1670,18 @@ describe('Nevada round 4 flow', () => {
     expect(loadDeals()[0].home).toBeUndefined();
   });
 });
+
+describe('round 39: Eureka sealed-bid sale', () => {
+  beforeEach(() => {
+    (globalThis as unknown as { localStorage: MemStorage }).localStorage = new MemStorage();
+  });
+  it('marks the payment made with the bid when won, and asks about the enclosed payment when lost', () => {
+    const eu: Deal = { ...deal, id: 'deu39', state: 'NV', county: 'Eureka', kind: 'taxSale', plan: 'flip', stage: 'offer' };
+    saveDeals([eu]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'Treasurer' }] };
+    savePacket('analyzed:deu39', p);
+    const t = dealNextTask(eu, p, now, 'offer');
+    expect(t.advance?.ticks).toEqual(['Payment deadline']);
+    expect(t.advance2?.label).toMatch(/enclosed payment/);
+  });
+});
