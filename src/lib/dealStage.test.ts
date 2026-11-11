@@ -941,7 +941,7 @@ describe('Nevada round 4 flow', () => {
     savePacket('analyzed:dkind26', { ...EMPTY_PACKET, dates: suggestedDates(sheriff).map((what) => ({ when: '', what, who: '' })) });
     const lien = { ...sheriff, kind: 'lien' as const, plan: 'lien' as const };
     saveDeals([lien]);
-    expect(loadPacket('analyzed:dkind26').dates.map((x) => x.what)).toEqual(suggestedDates(lien));
+    expect([...loadPacket('analyzed:dkind26').dates.map((x) => x.what)].sort()).toEqual([...suggestedDates(lien)].sort());
   });
 
   it('round 26 verifier: closing-week urgency counts; renamed rows stay; a dated open window waits', async () => {
@@ -979,6 +979,22 @@ describe('Nevada round 4 flow', () => {
     savePacket('analyzed:dtrim27', { ...EMPTY_PACKET, dates: trimmed });
     saveDeals([{ ...d, county: 'Washoe' }]);
     expect(loadPacket('analyzed:dtrim27').dates.length).toBe(trimmed.length);
+  });
+
+  it('round 27 flow: a kind change keeps touched rows and swaps the untouched ones', async () => {
+    const { loadPacket, suggestedDates } = await import('./dealPacket');
+    const reo = { ...nvFlip, id: 'dreo27', kind: 'reo' as const, plan: 'rent' as const, stage: 'researching' as const };
+    saveDeals([reo]);
+    const rows = suggestedDates(reo).map((what) => ({ when: '', what, who: '' }));
+    rows[0] = { ...rows[0], what: `${rows[0].what} (per bank addendum)` };
+    savePacket('analyzed:dreo27', { ...EMPTY_PACKET, dates: [...rows, { when: '', what: 'Ask the bank about the roof', who: '' }] });
+    const auction = { ...reo, kind: 'trustee' as const, plan: 'flip' as const };
+    saveDeals([auction]);
+    const after = loadPacket('analyzed:dreo27').dates.map((x) => x.what);
+    expect(after).toContain('Ask the bank about the roof');
+    expect(after).toContain(rows[0].what);
+    for (const w of suggestedDates(auction)) expect(after).toContain(w);
+    for (const w of suggestedDates(reo).filter((x) => !suggestedDates(auction).includes(x)).slice(1)) expect(after).not.toContain(w);
   });
 
   it('round 11 flow: a late SID payoff; Still to add; hints; time order after the deed; registration passed', async () => {

@@ -2,13 +2,14 @@ import { syncRoadmapCredits } from '../lib/journey';
 import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
-import { DEAL_STAGES, loadDeals, openDeal, type Deal, type DealStage } from '../lib/analyze';
+import { loadDeals, openDeal, type Deal, type DealStage } from '../lib/analyze';
 import { nextOpenDeal, stageTasks, deadlinePassed, needsAnswerNow, pressingWeight, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
 import { loadPacket, savePacket } from '../lib/dealPacket';
 import TaskActions from './TaskActions';
+import StageSelect from './StageSelect';
 import { guidedPracticeDone, practiceState, planNow, planStarted, roadmapNextStep, ROADMAP_TASK_HREF } from '../lib/planNext';
 import { stepAdCategories, stepAllowsAds } from '../lib/contextAds';
 import { useSpotCategories } from './AdSpot';
@@ -182,9 +183,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
             {deal && stage && (
               <label className="field">
                 <span>Where it stands</span>
-                <select value={stage} onChange={(e) => { const st = e.target.value as DealStage; setDealStage(deal.id, st); /* Passed or finished here: the next property comes up, as from the packet. */ const after = loadDeals().find((x) => x.id === deal.id); if (after && (st === 'passed' || finishedDeal(after)) && nextOpenDeal(deal.id)) handOff(after); }}>
-                  {DEAL_STAGES.map((s) => <option key={s} value={s}>{stageLabel(s, deal)}</option>)}
-                </select>
+                <StageSelect stage={stage} deal={deal} onMove={(st) => { setDealStage(deal.id, st); /* Passed or finished here: the next property comes up, as from the packet. */ const after = loadDeals().find((x) => x.id === deal.id); if (after && (st === 'passed' || finishedDeal(after)) && nextOpenDeal(deal.id)) handOff(after); }} />
               </label>
             )}
             {deal && stage && <p className="muted plan-now-hint">{stageHint(stage, deal)}{deal.stage ? '' : ' (We worked this out from what you’ve recorded; change it if it’s wrong.)'}</p>}

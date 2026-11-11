@@ -944,7 +944,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const localDayOf = (t: Date) => `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
   // UX-3: and, while it's ahead, the 90-day limit for anyone not properly notified (NRS 107.080(6)).
   const winEndAt = winWorked || p.dates.find((x) => sameDate(x.what, 'Challenge window ends') && x.when && !x.resolved)?.when || '';
-  const s90w = d.state === 'NV' && d.kind === 'trustee' && stageOf(d) === 'closed' && winEndAt && !p.dates.some((x) => sameDate(x.what, 'Challenge window ends') && x.resolved) && sale90(p) > winEndAt && sale90(p) >= localDayOf(now) && !p.dates.some((x) => sameDate(x.what, 'Challenge window ends') && x.when === sale90(p)) ? sale90(p) : '';
+  const s90w = d.state === 'NV' && d.kind === 'trustee' && (stageOf(d) === 'closed' || (stageOf(d) === 'owned' && !loadOwned()[d.id]?.sold)) && winEndAt && !p.dates.some((x) => sameDate(x.what, 'Challenge window ends') && x.resolved) && sale90(p) > winEndAt && sale90(p) >= localDayOf(now) && !p.dates.some((x) => sameDate(x.what, 'Challenge window ends') && x.when === sale90(p)) ? sale90(p) : '';
   // FLOW-12: a Nevada SID lien: the owner can redeem 120 days after the certificate (the sale day; 2 years with a building), NRS 271.595(1).
   const lienSale = d.state === 'NV' && d.kind === 'lien' && ['closed', 'owned'].includes(stageOf(d)) && !p.dates.some((x) => sameDate(x.what, 'Earliest you may act (unpaid lien)') && (x.when || x.resolved)) && !p.dates.some((x) => sameDate(x.what, 'Redemption money collected')) ? p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when ?? '' : '';
   const lienEnd = lienSale ? (() => { const t = new Date(`${lienSale}T12:00:00`); t.setDate(t.getDate() + 120); return localDayOf(t); })() : '';
@@ -1244,16 +1244,19 @@ export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   return lines.join('\n');
 }
 
-// A saved deal whose kind of sale, state, county or plan changed: if its dates are only the old kind's usual rows,
-// untouched (no date, no one named, nothing ticked, not renamed), they're replaced with the new kind's. Anything typed stays.
+// A saved deal whose kind of sale, state, county or plan changed: the old kind's own untouched rows go and the new
+// kind's come in; anything typed, renamed or added stays.
 onDealChanged((d, was) => {
   const key = `analyzed:${d.id}`;
   const p = loadPacket(key);
+  if (!p.dates.length) return;
   const before = suggestedDates(was);
-  // (Only the old kind's own rows, as they were added: a row renamed or added by hand keeps the packet as it is.)
-  // (Exactly the old kind's rows, none deleted: a packet you trimmed stays as it is.)
-  if (p.dates.length !== before.length || !p.dates.every((x, i) => !x.when && !x.who.trim() && !x.resolved && x.what === before[i])) return;
-  const usual = suggestedDates(d);
-  if (p.dates.length === usual.length && p.dates.every((x, i) => x.what === usual[i])) return;
-  savePacket(key, { ...p, dates: usual.map((what) => ({ when: '', what, who: '' })) });
+  const after = suggestedDates(d);
+  // (Kept: anything you touched, renamed or added, and the usual rows both kinds share. Dropped: the old kind's own rows,
+  // untouched. Added: the new kind's own rows; a shared row you deleted stays deleted.)
+  const touched = (x: PacketData['dates'][number]) => !!x.when || !!x.who.trim() || !!x.resolved || !before.includes(x.what);
+  const keep = p.dates.filter((x) => touched(x) || after.includes(x.what));
+  const add = after.filter((w) => !before.includes(w) && !keep.some((x) => x.what === w));
+  if (keep.length === p.dates.length && !add.length) return;
+  savePacket(key, { ...p, dates: [...keep, ...add.map((what) => ({ when: '', what, who: '' }))] });
 });

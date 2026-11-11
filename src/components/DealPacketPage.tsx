@@ -14,11 +14,11 @@ import OwlNote from './OwlNote';
 import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
-import { DEAL_STAGES, type DealStage } from '../lib/analyze';
-import { beforeWhat, paidAtWin, decideAnswered, recordParts, asksHome, voidByLaw, forCalendar, liveIn, setDealHome, sidState, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageLabel, stageOf } from '../lib/dealStage';
+import { beforeWhat, paidAtWin, decideAnswered, recordParts, asksHome, voidByLaw, forCalendar, liveIn, setDealHome, sidState, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageOf } from '../lib/dealStage';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { planNow } from '../lib/planNext';
 import TaskActions from './TaskActions';
+import StageSelect from './StageSelect';
 import { OWNED_EVENT } from '../lib/owned';
 
 const STATUS_LABEL: Record<SectionStatus, string> = { done: 'Complete', started: 'In progress', missing: 'Missing' };
@@ -140,9 +140,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <div className="packet-stage">
         <label className="field">
           <span>Where it stands</span>
-          <select value={stage} onChange={(e) => { const st = e.target.value as DealStage; /* Moved back off a repaid finish: the payoff isn't collected after all. */ if (st !== 'passed' && p.dates.some((x) => sameDate(x.what, REDEEMED_ROW) && x.resolved)) update({ dates: p.dates.map((x) => (sameDate(x.what, REDEEMED_ROW) ? { ...x, resolved: false } : x)) }, false); setDealStage(deal.id, st); }}>
-            {DEAL_STAGES.map((st) => <option key={st} value={st}>{stageLabel(st, deal)}</option>)}
-          </select>
+          <StageSelect stage={stage} deal={deal} onMove={(st) => { /* Moved back off a repaid finish: the payoff isn't collected after all. */ if (st !== 'passed' && p.dates.some((x) => sameDate(x.what, REDEEMED_ROW) && x.resolved)) update({ dates: p.dates.map((x) => (sameDate(x.what, REDEEMED_ROW) ? { ...x, resolved: false } : x)) }, false); setDealStage(deal.id, st); }} />
         </label>
         <p className="muted">{stageHint(stage, deal)} {(() => { const plan = planNow(); return plan.source === 'deal' && plan.deal?.id === deal.id ? 'Change the stage when something happens; Your next action below and My plan follow it.' : stage === 'passed' || soldOf(deal) ? 'Change the stage when something happens; Your next action below follows it.' : <>Change the stage when something happens; Your next action below follows it. <a href="#/toolkit">My plan</a> {plan.source === 'deal' ? 'is working on another property' : 'shows the lessons and practice first'}; choose this property there to work on it now.</>; })()}</p>
       </div>
