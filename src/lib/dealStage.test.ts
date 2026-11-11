@@ -913,6 +913,19 @@ describe('Nevada round 4 flow', () => {
     expect(stageTasks(passed, 'passed', EMPTY_PACKET, now).find((t) => t.key === 'next')!.label).toBe('Go on to 1470 Kingsbury Grade in My plan');
   });
 
+  it('round 26: the closing-week task keeps its urgency; the SID payment at Deed recorded; COE date', async () => {
+    const offer = { ...nvFlip, id: 'dof26', kind: 'reo' as const, plan: 'rent' as const, stage: 'contract' as const };
+    saveDeals([offer]);
+    const t = dealNextTask(offer, { ...EMPTY_PACKET, dates: [{ when: '2026-10-07', what: 'COE date', who: 'Escrow' }] }, now, 'contract');
+    expect(t.label).toMatch(/^Closing is tomorrow/);
+    expect(t.urgent).toBe(true);
+    const tax = { ...nvFlip, id: 'tx26', kind: 'taxSale' as const, stage: 'closed' as const };
+    saveDeals([tax]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-10-21', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }] };
+    savePacket('analyzed:tx26', p);
+    expect(stageTasks(tax, 'closed', p, now)[0].key).toBe('sid-pay');
+  });
+
   it('round 11 flow: a late SID payoff; Still to add; hints; time order after the deed; registration passed', async () => {
     const { packetSections, dealPacketText } = await import('./dealPacket');
     const tax = { ...nvFlip, kind: 'taxSale' as const };

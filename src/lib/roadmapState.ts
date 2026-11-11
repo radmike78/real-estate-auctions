@@ -305,3 +305,13 @@ export function roadmapProgress(dealKey?: string) {
   const settled = settledFor(focus);
   return { done: steps.filter(settled).length, total: steps.length };
 }
+
+/** Marks one of a property's roadmap steps done (from a task's own button, e.g. "I reviewed it: mark it done"). */
+export function markDealStepDone(dealKey: string, id: string) {
+  const all = readKey(DEAL_STEPS_KEY, {}, cleanDealSteps);
+  const cur = all[dealKey] ?? { done: [] as string[], status: {} as Record<string, StepStatus> };
+  if (cur.done.includes(id)) return;
+  const { [id]: _was, ...status } = cur.status;
+  try { localStorage.setItem(DEAL_STEPS_KEY, JSON.stringify({ ...all, [dealKey]: { done: [...cur.done, id], status } })); } catch { /* private mode: not kept */ }
+  progressChanged();
+}

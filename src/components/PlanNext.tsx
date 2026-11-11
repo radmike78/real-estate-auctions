@@ -3,7 +3,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
 import { DEAL_STAGES, loadDeals, openDeal, type Deal, type DealStage } from '../lib/analyze';
-import { deadlinePassed, needsAnswerNow, pressingWeight, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
+import { nextOpenDeal, deadlinePassed, needsAnswerNow, pressingWeight, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
@@ -18,7 +18,7 @@ import { DECIDE_KEY, rank, type Answers } from '../lib/decide';
 import { currentProgress, getMode } from '../lib/journey';
 import { ROADMAP_PHASES, roadmapFor } from '../lib/roadmap';
 import { DEAL_KEY } from '../lib/roadmapDeals';
-import { focusDealId, NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_PATH_KEY, roadmapProgress, settledFor, dropLinkedDeal } from '../lib/roadmapState';
+import { NO_DEAL, pathForDeal, planPath, PROGRESS_EVENT, progressChanged, ROADMAP_PATH_KEY, roadmapProgress, settledFor, dropLinkedDeal } from '../lib/roadmapState';
 
 /** The top strategy from a finished Decide quiz, so "Your goal" points forward instead of back to the quiz. */
 function decidedPick(): string | null {
@@ -76,11 +76,11 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   const [finishedNote, setFinishedNote] = useState('');
   // A finished or passed property leaves the plan: the next one comes up (one with a deadline first), with a note.
   // (The same whichever page marked it: My plan's buttons, or its deal packet.)
-  const handOff = (deal: Deal) => { write(DEAL_KEY, ''); progressChanged(); const others = loadDeals().filter((x) => x.id !== deal.id && !x.practice && stageOf(x) !== 'passed' && !finishedDeal(x)); const due = others.find((x) => deadlinePassed(dealNextTask(x))) ?? others.find((x) => dealNextTask(x).urgent); const focusId = focusDealId(); const nextOne = due ?? others.find((x) => `analyzed:${x.id}` === focusId) ?? others[0]; if (nextOne) { write(DEAL_KEY, `analyzed:${nextOne.id}`); write(ROADMAP_PATH_KEY, pathForDeal(nextOne)); } else { /* (nothing else open: it stays, with its "Find your next …") */ write(DEAL_KEY, `analyzed:${deal.id}`); } setFinishedNote(`${finishedDeal(deal) ? `${deal.name} is finished.` : `You marked ${deal.name} passed.`} ${nextOne ? `Next: ${nextOne.name}${due ? (dealNextTask(due).key === 'date' && dealNextTask(due).days !== undefined ? (dealNextTask(due).days! < 0 ? ', which has a date that has passed' : dealNextTask(due).days === 0 ? ', which has a date due today' : ', which has a date due within a week') : ', which has something waiting on you') : ''}.` : `Next: find your next ${deal.kind === 'lien' ? 'lien sale' : 'property'} in Find deals.`}`); setTimeout(() => document.getElementById('plan-finished-note')?.focus(), 0); };
+  const handOff = (deal: Deal) => { write(DEAL_KEY, ''); progressChanged(); const nextOne = nextOpenDeal(deal.id); const due = nextOne && (deadlinePassed(dealNextTask(nextOne)) || dealNextTask(nextOne).urgent) ? nextOne : undefined; if (nextOne) { write(DEAL_KEY, `analyzed:${nextOne.id}`); write(ROADMAP_PATH_KEY, pathForDeal(nextOne)); } else { /* (nothing else open: it stays, with its "Find your next …") */ write(DEAL_KEY, `analyzed:${deal.id}`); } setFinishedNote(`${finishedDeal(deal) ? `${deal.name} is finished.` : `You marked ${deal.name} passed.`} ${nextOne ? `Next: ${nextOne.name}${due ? (dealNextTask(due).key === 'date' && dealNextTask(due).days !== undefined ? (dealNextTask(due).days! < 0 ? ', which has a date that has passed' : dealNextTask(due).days === 0 ? ', which has a date due today' : ', which has a date due within a week') : ', which has something waiting on you') : ''}.` : `Next: find your next ${deal.kind === 'lien' ? 'lien sale' : 'property'} in Find deals.`}`); setTimeout(() => document.getElementById('plan-finished-note')?.focus(), 0); };
   useEffect(() => {
     const k = (() => { try { return JSON.parse(localStorage.getItem(DEAL_KEY) ?? '""') as string; } catch { return ''; } })();
     const d = typeof k === 'string' && k.startsWith('analyzed:') ? loadDeals().find((x) => `analyzed:${x.id}` === k) : undefined;
-    if (d && !d.practice && (stageOf(d) === 'passed' || finishedDeal(d)) && loadDeals().some((x) => x.id !== d.id && !x.practice && stageOf(x) !== 'passed' && !finishedDeal(x))) handOff(d);
+    if (d && !d.practice && (stageOf(d) === 'passed' || finishedDeal(d)) && nextOpenDeal(d.id)) handOff(d);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => syncRoadmapCredits(), []);
   usePlanTick();

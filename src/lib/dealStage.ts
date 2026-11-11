@@ -13,7 +13,7 @@ import { bidTyped, CONTRACT_ROWS, calendarReady, sale90, capSid, challenge90Ahea
 import { areasFor, loadLog, type EvidenceLog } from './evidence';
 import { loadOwned, type Owned } from './owned';
 import { proGuideByKey } from './proGuide';
-import { dealProgress, focusDealId, progressChanged } from './roadmapState';
+import { dealProgress, progressChanged } from './roadmapState';
 
 export { DEAL_STAGES, isDealStage, type DealStage };
 
@@ -188,6 +188,17 @@ export const INSURED_ROW = 'Insurance in place';
 export const WALKTHROUGH_ROW = 'Final walkthrough done';
 /** Set while a finished deal looks for the next open one (its tasks never look again). */
 let findingNext = false;
+/** The open property to go on to after another is finished or passed: one with a date that has passed, then one with
+ *  something waiting, else the most recently updated (My plan and the packet both use this). */
+export function nextOpenDeal(fromId: string): Deal | undefined {
+  const others = loadDeals().filter((x) => x.id !== fromId && !x.practice && stageOf(x) !== 'passed' && !finishedDeal(x) && !soldOf(x)).sort((a, b) => (b.updatedAt ?? '').localeCompare(a.updatedAt ?? ''));
+  if (!others.length) return undefined;
+  const outer = !findingNext;
+  findingNext = true;
+  try {
+    return others.find((x) => deadlinePassed(dealNextTask(x))) ?? others.find((x) => dealNextTask(x).urgent) ?? others[0];
+  } finally { if (outer) findingNext = false; }
+}
 /** The row a Nevada tax-sale buyer records once the city or county has sent the Treasurer its SID payment affidavit. */
 export const SID_AFFIDAVIT_SENT = 'SID payment affidavit sent to the Treasurer';
 export const remindable = (p: PacketData, now: Date, early: boolean, behind: string[] = []): PacketData => {
@@ -274,6 +285,8 @@ export const sidPending = (d: { id?: string; state?: Deal['state']; kind: Deal['
   return `${row ? 'pay the special improvement district (SID) certificate' : 'ask the Treasurer whether a special improvement district (SID) affidavit was filed; if one was, pay the SID certificate'} by ${prettyDay(dl)}, or the sale is void (NRS 361.595(6)); the Treasurer then records the deed (NRS 361.595(7))`;
 };
 /** A Nevada tax sale where nothing records the SID answer (no payoff row handled, no "no affidavit"), with its 20-day date known. */
+/** A dated SID payoff (you said an affidavit was filed) not yet paid, with the 20 days still running. */
+const sidPayDue = (p: PacketData, now: Date) => { const dl = sidDeadline(p); const r = p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && !!x.when && !x.resolved); return dl && r && dl >= localDay(now) ? { dl, row: r.what } : null; };
 const sidUnasked = (d: { id?: string }) => { if (!d.id) return false; const p = loadPacket(`analyzed:${d.id}`); return !!sidDeadline(p) && !p.dates.some((x) => (sameDate(x.what, 'SID certificate payoff') && x.resolved) || sameDate(x.what, NO_SID_ROW) || sameDate(x.what, SID_VOID_ROW)); };
 /** A Nevada tax sale's SID payoff after its 20 days: 'late' (no answer from the Treasurer yet), 'void', or ''. */
 export const sidState = (d: { id?: string; state?: Deal['state']; kind: Deal['kind'] }): '' | 'late' | 'void' => {
@@ -414,7 +427,7 @@ export interface PlanTask {
   /** Moves a row's date ("The 90-day limit still runs: move the end to …"). */
   redate?: { label: string; row: string; when: string; who?: string; /** Renames the row (the condition in its name is settled). */ as?: string };
   /** Records an answer as a new handled row ("I didn't pay it in time: the sale is void"). */
-  record?: { label: string; row: { when: string; what: string; who: string; resolved?: boolean }; /** A row this answer settles (marked handled). */ closes?: string };
+  record?: { label: string; row: { when: string; what: string; who: string; resolved?: boolean }; /** A row this answer settles (marked handled). */ closes?: string; /** The roadmap step it also marks done. */ step?: string };
   /** The sale was postponed: clears the sale day, registration and payment dates (TaskActions). */
   postpone?: { label: string };
   /** A date reminder's days until its date (below 0: it has passed). */
@@ -528,14 +541,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
   // waiting, then the one in focus, else the first.)
   const findNext = () => {
     // (Only for a deal that's done: a property still open keeps its own last task. The guard stops any loop.)
-    const others = !findingNext && (stage === 'passed' || finishedDeal(d) || !!soldOf(d)) ? loadDeals().filter((x) => x.id !== d.id && !x.practice && stageOf(x) !== 'passed' && !finishedDeal(x) && !soldOf(x)) : [];
-    const outer = !findingNext;
-    findingNext = true;
-    let nextOne: Deal | undefined;
-    try {
-    const focusId = others.length ? focusDealId() : '';
-    nextOne = others.find((x) => deadlinePassed(dealNextTask(x))) ?? others.find((x) => dealNextTask(x).urgent) ?? others.find((x) => `analyzed:${x.id}` === focusId) ?? others[0];
-    } finally { if (outer) findingNext = false; }
+    const nextOne = !findingNext && (stage === 'passed' || finishedDeal(d) || !!soldOf(d)) ? nextOpenDeal(d.id) : undefined;
     out.push(nextOne ? task({ key: 'next', label: `Go on to ${nextOne.name || 'your next property'} in My plan`, produces: 'its next task, in My plan', href: '#/toolkit', support: [], done: false }) : task({ key: 'next', label: d.kind === 'lien' ? 'Find your next lien sale' : 'Find your next property', produces: 'a new candidate saved in Analyze, starting at Researching', href: '#/find-deals', support: [L.findDeals, L.analyze], done: false }));
   };
 
@@ -618,9 +624,9 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       out.push(task({ key: 'inspection-complete', label: `Inspect ${n} before the ${d.plan === 'commercial' ? 'feasibility (due-diligence) period ends' : tx ? 'option period ends' : d.state === 'UT' ? 'Due Diligence Deadline' : 'inspection period ends'}`, produces: 'the report, repair bids and written decision before the deadline; mark the inspection roadmap task done', href: stepHref('inspect'), support: d.plan === 'commercial' ? [L.pro('environmental'), L.pro('appraiser')] : [L.pro('inspector'), L.caseStage('inspection', 'The inspection')], done: stepDone('inspect') || ticked(p, 'Inspection period ends') || ticked(p, 'Option period ends') }));
       out.push(task({ key: 'final-financing', label: `Get the loan approved for ${n}, or confirm your cash`, produces: 'final lender approval with conditions satisfied, or verified available closing funds; mark the final financing roadmap task done', href: stepHref('loan-approval'), support: [L.pro('lender')], done: stepDone('loan-approval') || ticked(p, 'Loan approval deadline') }));
       out.push(task({ key: 'appraisal-complete', label: `Resolve the appraisal for ${n}`, produces: 'the appraisal and any gap resolved before the deadline, or a documented cash-purchase choice not to obtain one', href: stepHref('appraise'), support: [L.pro('appraiser')], done: stepDone('appraise') || ticked(p, 'Appraisal deadline') }));
-      out.push(task({ key: 'contract-title', label: `Review the title commitment for ${n}`, produces: 'requirements and HOA restrictions reviewed within the contract period; mark the title roadmap task done', href: stepHref('title'), record: { label: 'I reviewed it: mark it done', row: { when: localDay(now), what: TITLE_REVIEWED, who: 'Me', resolved: true } }, support: [L.pro('title'), L.caseStage('appraisal', 'Appraisal and title')], done: stepDone('title') || p.dates.some((x) => sameDate(x.what, TITLE_REVIEWED)) }));
-      out.push(task({ key: 'bound-insurance', label: `Have insurance in place for ${n} by closing`, produces: 'written coverage confirmation and its start date; mark the insurance activation roadmap task done', href: stepHref('bind-insurance'), record: { label: 'It’s in place: mark it done', row: { when: localDay(now), what: INSURED_ROW, who: 'Me', resolved: true } }, support: [L.pro('insurance')], done: stepDone('bind-insurance') || p.dates.some((x) => sameDate(x.what, INSURED_ROW)) }));
-      out.push(task({ key: 'final-walkthrough', label: `Do the final walkthrough of ${n}`, produces: 'agreed repairs, condition and possession checked with your agent; mark the walkthrough roadmap task done', href: stepHref('walkthrough'), record: { label: 'Done: mark it', row: { when: localDay(now), what: WALKTHROUGH_ROW, who: 'Me', resolved: true } }, done: stepDone('walkthrough') || p.dates.some((x) => sameDate(x.what, WALKTHROUGH_ROW)) }));
+      out.push(task({ key: 'contract-title', label: `Review the title commitment for ${n}`, produces: 'requirements and HOA restrictions reviewed within the contract period; mark the title roadmap task done', href: stepHref('title'), record: { label: 'I reviewed it: mark it done', row: { when: localDay(now), what: TITLE_REVIEWED, who: 'Me', resolved: true }, step: 'title' }, support: [L.pro('title'), L.caseStage('appraisal', 'Appraisal and title')], done: stepDone('title') || p.dates.some((x) => sameDate(x.what, TITLE_REVIEWED)) }));
+      out.push(task({ key: 'bound-insurance', label: `Have insurance in place for ${n} by closing`, produces: 'written coverage confirmation and its start date; mark the insurance activation roadmap task done', href: stepHref('bind-insurance'), record: { label: 'It’s in place: mark it done', row: { when: localDay(now), what: INSURED_ROW, who: 'Me', resolved: true }, step: 'bind-insurance' }, support: [L.pro('insurance')], done: stepDone('bind-insurance') || p.dates.some((x) => sameDate(x.what, INSURED_ROW)) }));
+      out.push(task({ key: 'final-walkthrough', label: `Do the final walkthrough of ${n}`, produces: 'agreed repairs, condition and possession checked with your agent; mark the walkthrough roadmap task done', href: stepHref('walkthrough'), record: { label: 'Done: mark it', row: { when: localDay(now), what: WALKTHROUGH_ROW, who: 'Me', resolved: true }, step: 'walkthrough' }, done: stepDone('walkthrough') || p.dates.some((x) => sameDate(x.what, WALKTHROUGH_ROW)) }));
       const closedTick = p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved && (!x.when || x.when <= localDay(now)));
       out.push(task({ key: 'close', label: closedTick ? `The closing is marked handled: mark ${n} closed` : `Close on ${n}`, produces: closedTick ? 'the new-owner tasks here (keep the signed closing statement and the recorded deed)' : 'the signed closing statement and the deed. Then mark it closed and the new-owner tasks appear here', href: ROADMAP_HREF, advance: { stage: 'closed', label: 'It closed: mark it closed' }, support: [L.caseStage('closing', 'Closing')], done: false }));
     } else {
@@ -640,7 +646,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       // (60 days, NRS 116.31166; 1 year, NRS 21.210), if no one redeems.
       // The SID certificate paid in time: the Treasurer can't issue the deed until the city or county files its affidavit
       // that it was paid (NRS 361.595(6)).
-      if (d.state === 'NV' && d.kind === 'taxSale' && sidDeadline(p) && p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && x.resolved && (!x.when || x.when <= sidDeadline(p)))) out.push(task({ key: 'sid-paid-affidavit', label: `Confirm the city or county sent the Treasurer its affidavit that you paid the SID certificate for ${n}`, produces: 'the city or county’s confirmation that its affidavit reached the Treasurer, noted in its deal packet. The Treasurer can’t issue your deed without it (NRS 361.595(6))', href: packetHref(d, 'dates'), record: { label: 'They sent it: mark it handled', row: { when: localDay(now), what: SID_AFFIDAVIT_SENT, who: 'The city or county', resolved: true } }, support: [], done: p.dates.some((x) => sameDate(x.what, SID_AFFIDAVIT_SENT)) }));
+      if (d.state === 'NV' && d.kind === 'taxSale' && sidDeadline(p) && p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && x.resolved && (x.when ? x.when <= sidDeadline(p) : !/\(if /i.test(x.what)))) out.push(task({ key: 'sid-paid-affidavit', label: `Confirm the city or county sent the Treasurer its affidavit that you paid the SID certificate for ${n}`, produces: 'the city or county’s confirmation that its affidavit reached the Treasurer, noted in its deal packet. The Treasurer can’t issue your deed without it (NRS 361.595(6))', href: packetHref(d, 'dates'), record: { label: 'They sent it: mark it handled', row: { when: localDay(now), what: SID_AFFIDAVIT_SENT, who: 'The city or county', resolved: true } }, support: [], done: p.dates.some((x) => sameDate(x.what, SID_AFFIDAVIT_SENT)) || RECORDED_ROWS.some((r) => ticked(p, r)) }));
       const certFirst = certificateFirst(d);
       const recordedTick = w !== 'lien' && RECORDED_ROWS.some((x) => ticked(p, x));
       out.push(task({ key: 'record', label: recordedTick ? `The ${certFirst ? 'certificate of sale' : 'deed'} for ${n} is ${certFirst && d.kind === 'irs' ? 'in hand' : 'recorded'}: mark it to go on to the next tasks` : w === 'lien' ? `Get the certificate for ${n}` : certFirst ? (d.kind === 'irs' ? `Get the certificate of sale for ${n}` : d.state === 'NV' && d.kind === 'hoa' ? `Confirm the certificate of sale for ${n} is recorded (whoever ran the sale records it, NRS 116.31166(2))` : d.state === 'NV' && d.kind === 'court' ? `Confirm the certificate of sale for ${n} is recorded (the sheriff files a copy with the county recorder, NRS 21.190)` : `Get the certificate of sale for ${n} recorded`) : d.state === 'NV' && d.kind === 'taxSale' ? `Confirm the Treasurer recorded the deed for ${n} (it records it at your cost before giving it to you, NRS 361.595(7))` : d.state === 'NV' && d.kind === 'trustee' ? `Confirm the deed for ${n} is recorded (the trustee records it within 30 days of the sale, or gives it to you to record, NRS 107.080(10))` : `Get the deed for ${n} recorded`, produces: w === 'lien' ? 'the certificate in your records. Then mark it in hand and the holding tasks appear here' : certFirst ? `the ${d.kind === 'irs' ? '' : 'recorded '}certificate of sale. The deed comes after the redemption period (${waitWord(d)} after the sale), if no one redeems. Then mark it ${d.kind === 'irs' ? 'received' : 'recorded'} and the tasks for the wait appear here` : 'the recorded deed. Then mark it recorded (its date is set to today: change it to the recording date on the deed if different) and the new-owner tasks appear here', href: ROADMAP_HREF, advance: { stage: 'closed', label: w === 'lien' ? 'I have the certificate: mark it' : certFirst ? (d.kind === 'irs' ? 'I have the certificate of sale: mark it' : 'The certificate of sale is recorded: mark it') : 'The deed is recorded: mark it', ticks: w === 'lien' ? [] : [d.kind === 'taxSale' && d.state === 'NV' ? 'Treasurer’s deed recorded' : certFirst ? (d.kind === 'irs' ? 'Certificate of sale received' : 'Certificate of sale recorded') : d.kind === 'trustee' ? 'Deed recorded' : 'Deed or certificate recorded', ...RECORDED_ROWS], tickWho: d.kind === 'trustee' ? 'The trustee' : d.kind === 'taxSale' ? 'The county treasurer' : d.kind === 'irs' ? 'The IRS' : d.kind === 'hoa' ? 'The person who conducted the sale (the HOA’s agent)' : 'The sheriff' }, support: [L.guides], done: false }));
@@ -650,7 +656,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
 
   if (stage === 'closed') {
     // (A sale that may be void comes first, wherever the stage was moved.)
-    if (d.state === 'NV' && d.kind === 'taxSale' && sidUnasked(d)) out.push(sidAffidavitTask(d, p, now, n));
+    if (d.state === 'NV' && d.kind === 'taxSale' && sidUnasked(d) && !p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && !!x.when)) out.push(sidAffidavitTask(d, p, now, n));
+    if (d.state === 'NV' && d.kind === 'taxSale') { const due = sidPayDue(p, now); if (due) out.push(task({ key: 'sid-pay', label: `Pay the special improvement district (SID) certificate for ${n} by ${prettyDay(due.dl)}, or the sale is void (NRS 361.595(6))`, produces: 'the payment to the city or county, with its receipt, and its affidavit sent to the Treasurer', href: packetHref(d, 'dates'), tick: { label: 'I paid it: mark it handled', row: due.row }, support: [], done: false })); }
     if (d.state === 'NV' && d.kind === 'taxSale') { const st = sidTasks(d, p, now, n).filter((t) => !t.done); if (st.length) { out.push(...st); return out; } }
     if (w === 'lien') {
       if (d.state === 'NV' && redeemedIn(p)) { out.push(lienPayoff(d, p)); return out; }
@@ -725,7 +732,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
   }
 
   if (stage === 'owned') {
-    if (d.state === 'NV' && d.kind === 'taxSale' && sidUnasked(d)) out.push(sidAffidavitTask(d, p, now, n));
+    if (d.state === 'NV' && d.kind === 'taxSale' && sidUnasked(d) && !p.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && !!x.when)) out.push(sidAffidavitTask(d, p, now, n));
+    if (d.state === 'NV' && d.kind === 'taxSale') { const due = sidPayDue(p, now); if (due) out.push(task({ key: 'sid-pay', label: `Pay the special improvement district (SID) certificate for ${n} by ${prettyDay(due.dl)}, or the sale is void (NRS 361.595(6))`, produces: 'the payment to the city or county, with its receipt, and its affidavit sent to the Treasurer', href: packetHref(d, 'dates'), tick: { label: 'I paid it: mark it handled', row: due.row }, support: [], done: false })); }
     if (d.state === 'NV' && d.kind === 'taxSale') { const st = sidTasks(d, p, now, n).filter((t) => !t.done); if (st.length) { out.push(...st); return out; } }
     // (The first finished month not recorded, as the tracker opens on it.)
     const open = (() => { const o = owned[d.id]; const b = o?.boughtOn?.slice(0, 7); if (!o || !b) return ''; const t = new Date(now.getFullYear(), now.getMonth() - 1, 1); const lm = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}`; for (let [y, m] = firstFullMonth(o), i = 0; i < 1200; i++) { const k = `${y}-${String(m).padStart(2, '0')}`; if (k > lm) return ''; if (!o.months.some((x) => x.month === k)) return k === lm ? '' : k; m += 1; if (m > 12) { m = 1; y += 1; } } return ''; })();
@@ -808,7 +816,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     // one at a time, before "It closed".)
     if (nd && stage === 'contract' && wayOf(d) === 'offer' && sameEvent(nd.what, 'Closing') && nd.days >= 0 && nd.days <= 7) {
       const t0 = stageTasks(d, stage, p, now).find((t) => !t.done && ['contract-title', 'bound-insurance', 'final-walkthrough'].includes(t.key));
-      if (t0) return { ...t0, label: `Closing is ${nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`} (${prettyDay(nd.when)}): before then, ${t0.label.charAt(0).toLowerCase()}${t0.label.slice(1)}` };
+      if (t0) return { ...t0, days: nd.days, urgent: nd.days <= 1, label: `Closing is ${nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`} (${prettyDay(nd.when)}): before then, ${t0.label.charAt(0).toLowerCase()}${t0.label.slice(1)}` };
     }
     if (nd && !bidPrep && (nd.days <= 7 || (stage === 'contract' && sameDate(nd.what, 'SID certificate payoff')))) {
       const ended = nd.days < 0 ? windowEnded(nd.what, -nd.days, d.kind) : null;

@@ -68,7 +68,7 @@ export const EMPTY_PACKET: PacketData = { fit: '', fitWhy: '', dates: [], qa: []
 const ifOnly = (what: string) => /\(if /.test(what);
 /** A packet row is this date, even renamed by the reader: its name starts with the date's own (without any “(if …)”). */
 /** Other names a closing row goes by in Nevada (close of escrow, COE, settlement). */
-const CLOSING_ALIAS = /^(close of escrow|coe|settlement( date)?)(\s*($|[(:–—-]|\d)|\s+(on|at)\b)/i;
+const CLOSING_ALIAS = /^(close of escrow|coe|settlement)(\s*($|[(:–—-]|\d)|\s+(on|at|date|day)\b)/i;
 const closingAlias = (rowWhat: string, name: string) => /^closing$/i.test(dateBase(name)) && CLOSING_ALIAS.test(rowWhat.trim());
 export const sameDate = (rowWhat: string, name: string) => closingAlias(rowWhat, name) || rowWhat.trim().toLowerCase().startsWith(dateBase(name).toLowerCase()) || (/^(bidder )?registration/i.test(name) && /^(bidder )?registration/i.test(rowWhat.trim()));
 /** A date's name without its trailing note in parentheses ("Bidder registration (if required)" -> "Bidder registration"). */
