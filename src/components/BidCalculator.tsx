@@ -1,5 +1,5 @@
 import { noRedemptionWords, shortestRedemptionMonths, shortestRedemptionWords, shorterThanLaw, waitWords } from '../lib/dealPacket';
-import type { Deal } from '../lib/analyze';
+import { loadDeals, type Deal } from '../lib/analyze';
 import { getMyArea } from '../lib/myArea';
 import { calculatorInputError, parseCalcInput, shownInputError } from './CalcFields';
 import { workStorage as localStorage } from '../lib/workStorage';
@@ -175,6 +175,8 @@ const unitText = (u: Field['unit']) => (u === '$/500' ? 'per $500' : u === 'mo' 
 
 export default function BidCalculator({ propertyId, saveAs, defaults = START_INPUTS, openingBid, headingLevel = 3, commercial = false, offer = false, saleKind }: { propertyId?: string; /** Keep the numbers under this id (a deal saved in Analyze) when there's no listing. */ saveAs?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3; commercial?: boolean; offer?: boolean; /** The kind of sale chosen in Analyze: picks the redemption rules that fit it. */ saleKind?: string }) {
   const storeId = propertyId ?? saveAs;
+  // (A saved auction deal you've already won: its price is the winning bid, not a planned one.)
+  const wonBid = !offer && !!saveAs && saveAs.startsWith('analyzed-') && ['contract', 'closed', 'owned'].includes(loadDeals().find((x) => `analyzed-${x.id}` === saveAs)?.stage ?? '');
   // Words for an auction bid, or an offer on a listed home.
   const w = offer
     ? { bid: 'offer', Bid: 'Offer', opening: 'asking price', Opening: 'Asking price', max: 'Your maximum offer', day: 'at closing' }
@@ -700,8 +702,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {!needsValue && (
         <>
         <div className="calc-field calc-bid">
-          <label className="calc-label" htmlFor={`${uid}-bid`}>Check {offer ? 'an offer' : 'a bid'}</label>
-          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="text" inputMode="decimal" autoComplete="off" value={bidText} placeholder={offer ? 'e.g. the offer you plan to make' : 'e.g. a bid you expect to beat'} aria-invalid={bidBad || undefined} aria-describedby={bidBad ? `${uid}-bid-err` : undefined} onBlur={rerender} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); if (e.target.value.trim() !== '' && calculatorInputError(e.target.value, '$')) return; update({ proposedPrice: clampInput('proposedPrice', toNum(e.target.value)) }); }} /></span>
+          <label className="calc-label" htmlFor={`${uid}-bid`}>{wonBid ? 'Your winning bid' : <>Check {offer ? 'an offer' : 'a bid'}</>}</label>
+          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="text" inputMode="decimal" autoComplete="off" value={bidText} placeholder={offer ? 'e.g. the offer you plan to make' : wonBid ? 'the bid you won with' : 'e.g. a bid you expect to beat'} aria-invalid={bidBad || undefined} aria-describedby={bidBad ? `${uid}-bid-err` : undefined} onBlur={rerender} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); if (e.target.value.trim() !== '' && calculatorInputError(e.target.value, '$')) return; update({ proposedPrice: clampInput('proposedPrice', toNum(e.target.value)) }); }} /></span>
           {bidBad && <small className="deal-urgent" role="status" id={`${uid}-bid-err`}>{calculatorInputError(bidText, '$')}</small>}
         </div>
         {atBid && profit !== null && <PriceHead level={3} kind="yours" label={yours} price={bid} result={profit} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(cashNeededAtBid(i, bid)))}.${saveAs && !propertyId ? ' Saved with this deal as your price; its deal packet uses it.' : propertyId ? ' Saved for this property in this browser.' : ''}`} />}
@@ -751,7 +753,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {!needsValue && <p className="small">If it takes 3 months longer: <strong>{slower > 0 ? fmtMoney(slower) : `no ${w.bid} works`}</strong>.</p>}
         </>
         )}
-        <p className="muted small">An estimate to help you set a limit before you {offer ? 'make an offer' : 'bid'}, not advice. Replace every starting number with your own comps, bids and quotes.</p>
+        <p className="muted small">{wonBid ? 'An estimate of this property’s numbers at the price you paid' : <>An estimate to help you set a limit before you {offer ? 'make an offer' : 'bid'}</>}, not advice. Replace every starting number with your own comps, bids and quotes.</p>
       </div>
 
       {/* On phones the results sit below every input, so keep the answer in view while typing. */}

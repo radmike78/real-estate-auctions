@@ -36,6 +36,9 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
         }}>{tick.label}</button>
       )}
       {task.advance && <button type="button" className={task.answer ? main : 'btn btn-secondary'} onClick={(e) => { const el = e.currentTarget; const ticks = task.advance!.ticks; const who = task.advance!.tickWho ?? ''; if (ticks?.length) edit((p) => { const has = p.dates.some((x) => ticks.some((n) => sameDate(x.what, n))); const rows = p.dates.map((x) => (ticks.some((n) => sameDate(x.what, n)) ? { ...x, resolved: true, when: x.when || today(), who: x.who || who } : x)); return { ...p, dates: has ? rows : [...rows, { what: ticks[0], when: today(), who, resolved: true }] }; }); setDealStage(dealId, task.advance!.stage); after(el, task.advance!.stage === 'passed'); }}>{task.advance.label}</button>}
+      {task.record && (
+        <button type="button" className={task.answer && !task.advance && !task.tick ? main : 'btn btn-secondary'} onClick={(e) => { const el = e.currentTarget; const r = task.record!; edit((p) => { const rows = p.dates.some((x) => sameDate(x.what, r.row.what)) ? p.dates.map((x) => (sameDate(x.what, r.row.what) && r.row.resolved ? { ...x, when: x.when || r.row.when, who: x.who || r.row.who, resolved: true } : x)) : [...p.dates, { ...r.row }]; return { ...p, dates: r.closes ? rows.map((x) => (x.what === r.closes ? { ...x, resolved: true } : x)) : rows }; }); if (r.step) markDealStepDone(`analyzed:${dealId}`, r.step); after(el); }}>{task.record.label}</button>
+      )}
       {task.advance2 && (
         <button type="button" className="btn btn-secondary" onClick={(e) => {
           const el = e.currentTarget;
@@ -46,9 +49,6 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
       )}
       {task.postpone && (
         <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; edit((p) => { const was = p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when); return { ...p, postponedSale: true, calendarReviewedFor: undefined, dates: [...p.dates.map((x) => (clearsOnPostpone(x.what) ? { ...x, when: '', resolved: undefined } : x)), ...(was ? [{ when: was.when, what: (() => { const k = p.dates.filter((x) => /^Sale postponed/.test(x.what)).length; return k === 0 ? 'Sale postponed (the original sale day)' : `Sale postponed (${k + 1}${k === 1 ? 'nd' : k === 2 ? 'rd' : 'th'} time)`; })(), who: was.who || 'Whoever runs the sale', resolved: true }] : [])] }; }); after(el); }}>{task.postpone.label}</button>
-      )}
-      {task.record && (
-        <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const r = task.record!; edit((p) => { const rows = p.dates.some((x) => sameDate(x.what, r.row.what)) ? p.dates.map((x) => (sameDate(x.what, r.row.what) && r.row.resolved ? { ...x, when: x.when || r.row.when, who: x.who || r.row.who, resolved: true } : x)) : [...p.dates, { ...r.row }]; return { ...p, dates: r.closes ? rows.map((x) => (x.what === r.closes ? { ...x, resolved: true } : x)) : rows }; }); if (r.step) markDealStepDone(`analyzed:${dealId}`, r.step); after(el); }}>{task.record.label}</button>
       )}
       {task.undo && (
         <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const u = task.undo!; edit((p) => { const kept = p.dates.filter((x) => !sameDate(x.what, u.removeRow)); return { ...p, dates: [...kept, ...(u.addRow && !kept.some((x) => sameDate(x.what, u.addRow!.what)) ? [{ ...u.addRow }] : [])] }; }); if (u.then) setDealStage(dealId, u.then); after(el); }}>{task.undo.label}</button>

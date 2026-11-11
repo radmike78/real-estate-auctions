@@ -326,7 +326,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
   const neg = (n: number) => (n > 0 ? `−\u2060${mo(n)}` : mo(0)); // word joiner: the minus never wraps away from the amount
   return (
     <section className="at-price price-block price-block-yours" aria-labelledby="at-price-head">
-      <PriceHead level={3} id="at-price-head" kind="yours" label={word} price={price > 0 ? price : null} result={price > 0 ? a.cashFlow / 12 : null} cost={livingThere && !(v.monthlyRent > 0)} note={price > 0 ? (word === 'The price you paid' || word === 'Your winning bid' ? 'The price you paid: the result for the property as you bought it.' : 'Your actual price: the result for the property as you’d buy it.') : word === 'The price you paid' ? 'Enter the price you paid to see this property’s own result.' : 'Enter the price you’d pay to see this property’s own result.'} />
+      <PriceHead level={3} id="at-price-head" kind="yours" label={word} price={price > 0 ? price : null} result={price > 0 ? a.cashFlow / 12 : null} cost={livingThere && !(v.monthlyRent > 0)} note={price > 0 ? (word === 'The price you paid' || word === 'Your winning bid' ? 'The price you paid: the result for the property as you bought it.' : 'Your actual price: the result for the property as you’d buy it.') : word === 'The price you paid' ? 'Enter the price you paid to see this property’s own result.' : word === 'Your winning bid' ? 'Enter your winning bid to see this property’s own result.' : 'Enter the price you’d pay to see this property’s own result.'} />
       <label className="field">
         <span>{word} ($)</span>
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
@@ -355,7 +355,8 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
         </p>
       )}
       {price > 0 && cashShort && <p className="small"><button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>{cashTyped ? 'Change your cash' : 'Enter your cash'}</button></p>}
-      {price === 0 && <p className="muted small">{word === 'The price you paid' ? 'Enter the price you paid to see your numbers at that price.' : word === 'Your winning bid' ? 'Enter your winning bid to see your numbers at that price: an estimate, not advice.' : <>Enter the price you’d pay ({onPrice ? 'the asking price, or your offer' : 'your planned bid'}) to see your numbers at that price.</>}</p>}
+      {price === 0 && <p className="muted small">{word === 'The price you paid' ? 'Enter the price you paid to see your numbers at that price.' : word === 'Your winning bid' ? 'Enter your winning bid to see your numbers at that price: an estimate, not advice.' 
+        : <>Enter the price you’d pay ({onPrice ? 'the asking price, or your offer' : 'your planned bid'}) to see your numbers at that price.</>}</p>}
       {walkAway > 0 && price !== walkAway && !livingThere && word !== 'Your winning bid' && word !== 'The price you paid' && <button type="button" className="linkish" onClick={() => setPrice(walkAway)}>Use the walk-away price ({fmtMoney(walkAway)})</button>}
       {price > 0 && (<>
       <table className="deal-stress waterfall">
