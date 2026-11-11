@@ -1681,7 +1681,29 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'Treasurer' }] };
     savePacket('analyzed:deu39', p);
     const t = dealNextTask(eu, p, now, 'offer');
-    expect(t.advance?.ticks).toEqual(['Payment deadline']);
+    expect(t.advance?.ticks).toEqual(['Payment deadline', 'Sealed bid and full payment due']);
     expect(t.advance2?.label).toMatch(/enclosed payment/);
+  });
+  it('round 39 verifier: a win from the stage list (or any button) marks the sealed bid and its payment made', async () => {
+    const { loadPacket } = await import('./dealPacket');
+    const eu: Deal = { ...deal, id: 'deu40', state: 'NV', county: 'Eureka', kind: 'taxSale', plan: 'flip', stage: 'researching' };
+    saveDeals([eu]);
+    savePacket('analyzed:deu40', { ...EMPTY_PACKET, dates: [{ when: '2026-09-30', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-10-01', what: 'Sale day', who: 'Treasurer' }] });
+    setDealStage('deu40', 'contract');
+    const p = loadPacket('analyzed:deu40');
+    expect(p.dates.find((x) => x.what === 'Sealed bid and full payment due')?.resolved).toBe(true);
+    expect(p.dates.find((x) => x.what === 'Payment deadline')).toMatchObject({ resolved: true, when: '2026-09-30' });
+    const won = loadDeals()[0];
+    const t = dealNextTask(won, p, now, 'contract');
+    expect(t.label).not.toMatch(/Pay for|Overdue/);
+    expect(stageHint('contract', won)).not.toMatch(/Payment and recording deadlines are running/);
+  });
+  it('round 39 verifier: other sales keep their payment step when moved by the stage list', async () => {
+    const { loadPacket } = await import('./dealPacket');
+    const cl: Deal = { ...deal, id: 'dcl40', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'offer' };
+    saveDeals([cl]);
+    savePacket('analyzed:dcl40', { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'Treasurer' }] });
+    setDealStage('dcl40', 'contract');
+    expect(loadPacket('analyzed:dcl40').dates.some((x) => x.what === 'Payment deadline')).toBe(false);
   });
 });

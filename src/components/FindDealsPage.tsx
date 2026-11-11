@@ -186,7 +186,7 @@ export default function FindDealsPage() {
         </Band>
       )}
       {local && (
-        <Band tone="site" icon={<IconLayers />} title={`On DeedOwl for ${countyName(area.county)}`} sub="Live sale lists and step-by-step guides on this site.">
+        <Band tone="site" icon={<IconLayers />} title={`On DeedOwl for ${countyName(area.county)}`} sub={local === NV_STATEWIDE_PAGES ? 'Step-by-step Nevada guides on this site.' : 'Live sale lists and step-by-step guides on this site.'}>
           <ul className="deal-sources">{local.map((s) => <SourceCard key={s.name} s={s} />)}</ul>
         </Band>
       )}
