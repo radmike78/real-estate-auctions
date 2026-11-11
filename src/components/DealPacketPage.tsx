@@ -330,7 +330,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <section className="deal-setup packet-section" aria-labelledby="packet-owned">
         <h2 id="packet-owned">After you buy: actual results</h2>
         {/* A lien certificate earns interest, not rent: no monthly rent tracker. */}
-        {deal.kind === 'lien' ? <p>{finishedDeal(deal) ? 'Paid off: keep the Treasurer’s payoff receipt with the certificate record for your taxes.' : redeemingNow(deal) ? 'Paid off: collect the Treasurer’s payoff and keep the receipt with the certificate record.' : 'Holding the certificate? Keep the treasurer’s certificate record (the city or county that sold it), any later taxes you pay to protect it, and the payoff when the owner redeems, with your notes and the treasurer’s receipts.'}</p> : <OwnedTracker deal={deal} />}
+        {deal.kind === 'lien' ? <p>{finishedDeal(deal) ? 'Paid off: keep the Treasurer’s payoff receipt with the certificate record for your taxes.' : redeemingNow(deal) ? 'Paid off: collect the Treasurer’s payoff and keep the receipt with the certificate record.' : 'Holding the certificate? Keep the Treasurer’s certificate record (the city or county that sold it), any later taxes you pay to protect it, and the payoff when the owner redeems, with your notes and the treasurer’s receipts.'}</p> : <OwnedTracker deal={deal} />}
       </section>
       <AdSpot spot="dealPacket" allow={analyzeAllowsAds(deal.kind)} />
       <p className="muted">This packet is not included in account saves. Download it to keep a copy; guest packets also stay in this browser. This packet records your own review; it doesn’t clear title or certify a deal.</p>

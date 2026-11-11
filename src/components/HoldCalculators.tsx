@@ -173,7 +173,7 @@ function loanGroup<T extends LoanInputs>(valueLabel: string, valueHint: string):
     title: 'Loan after you buy',
     fields: [
       { k: 'value', label: valueLabel, unit: '$', hint: valueHint },
-      { k: 'loanPct', label: 'Loan, % of that value', unit: '%', hint: 'A refinance once it’s rented. 0 for all cash.', more: 'Auctions usually need full payment within a day of the sale, so any loan comes afterward. Lenders set their own waiting periods and limits for loans on recently bought property; ask yours.' },
+      { k: 'loanPct', label: 'Loan, % of that value', unit: '%', hint: 'A refinance once it’s rented. 0 for all cash.', more: 'Most auctions want full payment the same day or the next business day (the official notice gives the exact deadline), so any loan comes afterward. Lenders set their own waiting periods and limits for loans on recently bought property; ask yours.' },
       { k: 'ratePct', label: 'Interest rate', unit: '%/yr', when: (v) => v.loanPct > 0 },
       { k: 'years', label: 'Loan term', unit: 'yr', when: (v) => v.loanPct > 0 },
       { k: 'loanCostPct', label: 'Loan costs', unit: '%', hint: 'Points and closing costs.', when: (v) => v.loanPct > 0 },

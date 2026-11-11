@@ -711,8 +711,8 @@ const HOA: Flow = {
       purpose: 'Whether the first mortgage survives the HOA sale.',
       lines: [
         { label: 'HOA lien being foreclosed', value: 'Wiped out by its own sale.' },
-        { label: `First deed of trust to Example Bank, ${money(n!.inputs.survivingLiens)}`, value: 'Survives if the lender paid the HOA’s priority amount at least 5 days before the sale, validly offered it and was refused, or if Fannie Mae or Freddie Mac owned the loan.' },
-        { label: 'Recorder: payment of the priority amount', value: 'FOUND: the lender’s payment of the super-priority amount was recorded 10 days before the sale.' },
+        { label: `First deed of trust to Example Bank, ${money(n!.inputs.survivingLiens)}`, value: 'Survives if the lender paid the HOA’s super-priority amount at least 5 days before the sale, validly offered it and was refused, or if Fannie Mae or Freddie Mac owned the loan.' },
+        { label: 'Recorder: payment of the super-priority amount', value: 'FOUND: the lender’s payment of the super-priority amount was recorded 10 days before the sale.' },
       ],
       note: 'Practice document. In real life, get a title professional’s or attorney’s opinion before bidding.',
     },
@@ -723,7 +723,7 @@ const HOA: Flow = {
       question: 'The lender’s payment was recorded 10 days before the sale. What happens to the first mortgage?',
       choices: [
         { label: `It survives: I’d take the home subject to the ${money(n!.inputs.survivingLiens)} loan`, correct: true, feedback: 'Right. The lender paid at least 5 days before the sale, so the first deed of trust stays. Add it to your costs.' },
-        { label: 'It’s wiped out: HOA sales always wipe out the mortgage', correct: false, feedback: 'Not when the lender paid the priority amount at least 5 days before the sale (or validly offered it and was refused), or when Fannie Mae or Freddie Mac owned the loan. Here, the payment was recorded.' },
+        { label: 'It’s wiped out: HOA sales always wipe out the mortgage', correct: false, feedback: 'Not when the lender paid the super-priority amount at least 5 days before the sale (or validly offered it and was refused), or when Fannie Mae or Freddie Mac owned the loan. Here, the payment was recorded.' },
       ],
     },
     { kind: 'read', id: 'hoa-dues', title: 'The HOA itself', body: [`Dues here are ${money(p.hoaMonthly ?? 0)} a month. Ask the HOA’s foreclosure agent for the sale terms, and budget for dues from the day you own it.`] },
@@ -733,10 +733,10 @@ const HOA: Flow = {
       { label: 'Confirm the sale and terms', send: `Hello, I’m calling about the HOA foreclosure sale for ${p.address}. Is it still on, and what payment do you accept?`, reply: 'The sale is on as noticed. We need certified funds for the full bid; bring cashier’s checks. (Simulated reply.)' },
     ]),
     contact('attorney', PEOPLE.attorney, 'An opinion on the sale before you bid.', [
-      { label: 'Ask whether the mortgage survives', send: 'The Recorder shows the lender paid the HOA’s priority amount 10 days before the sale. Does the mortgage survive?', reply: 'Yes. When the lender pays the priority amount at least 5 days before the sale, the first deed of trust survives. Nevada HOA sales were heavily litigated after SFR Investments (2014), so I review every one before a client bids. (Simulated reply.)' },
+      { label: 'Ask whether the mortgage survives', send: 'The Recorder shows the lender paid the HOA’s super-priority amount 10 days before the sale. Does the mortgage survive?', reply: 'Yes. When the lender pays the super-priority amount at least 5 days before the sale, the first deed of trust survives. Nevada HOA sales were heavily litigated after SFR Investments (2014), so I review every one before a client bids. (Simulated reply.)' },
     ]),
     contact('title', PEOPLE.title, 'The Recorder check.', [
-      { label: 'Ask for a Recorder check', send: `Can you check whether the lender paid the HOA’s priority amount on ${p.apn}?`, reply: 'Yes. A payment of the super-priority amount has to be recorded at least 2 days before the sale. I found one, recorded 10 days before. (See the practice document in the research step.) (Simulated reply.)' },
+      { label: 'Ask for a Recorder check', send: `Can you check whether the lender paid the HOA’s super-priority amount on ${p.apn}?`, reply: 'Yes. A payment of the super-priority amount has to be recorded at least 2 days before the sale. I found one, recorded 10 days before. (See the practice document in the research step.) (Simulated reply.)' },
     ]),
   ],
   documents: () => [

@@ -210,7 +210,7 @@ describe('the deal packet', () => {
     expect(dateGuide({ ...deal, state: 'NV', kind: 'court' }).find((g) => g.what === 'Redemption period ends')).toMatchObject({ when: '1 year after the sale.', why: 'NRS 21.200 and 21.210' });
     // Nevada: the trustee's deed (NRS 107.080(10)-(12)), a tax sale's 2-year window (361.600), an offer's own deadlines.
     expect(dateGuide({ ...deal, state: 'NV', kind: 'trustee' }).find((g) => g.what === 'Deed recorded')?.why).toBe('NRS 107.080(10) to (12)');
-    expect(dateGuide({ ...deal, state: 'NV', kind: 'taxSale' }).find((g) => g.what === 'Recovery-suit window ends')).toMatchObject({ when: '2 years after the treasurer’s deed is delivered to you.', why: 'NRS 361.600' });
+    expect(dateGuide({ ...deal, state: 'NV', kind: 'taxSale' }).find((g) => g.what === 'Recovery-suit window ends')).toMatchObject({ when: '2 years after the Treasurer’s deed is delivered to you.', why: 'NRS 361.600' });
     expect(dateGuide({ ...deal, state: 'NV', kind: 'listing' }).map((g) => g.what)).toEqual(expect.arrayContaining(['Seller’s disclosure form due', 'Defect cancellation deadline (if a defect is disclosed)', 'HOA resale package: cancel by (if in an HOA)', 'Closing']));
     // A Nevada short sale gets Nevada's offer deadlines too; the HOA one says it's for homes in an HOA; who records a certificate.
     expect(dateGuide({ ...deal, state: 'NV', kind: 'short' }).map((g) => g.what)).toEqual(expect.arrayContaining(['Seller’s disclosure form due', 'HOA resale package: cancel by (if in an HOA)']));
@@ -226,7 +226,7 @@ describe('the deal packet', () => {
     expect(irs.find((g) => g.what === 'Redemption period ends')?.why).toBe('26 U.S.C. 6337(b)(1) and (2)');
     // No rent you can count on before the deed: said for a Nevada sheriff's or HOA sale and an IRS sale.
     const { rentWaitNote } = await import('./dealPacket');
-    expect(rentWaitNote('NV', 'court')).toMatch(/1 year.*NRS 21\.210, 21\.240/);
+    expect(rentWaitNote('NV', 'court')).toMatch(/1 year.*NRS 21\.200, 21\.210, 21\.240/);
     expect(rentWaitNote('NV', 'hoa')).toMatch(/60 days/);
     expect(rentWaitNote('TX', 'irs')).toMatch(/180 days/);
     expect(rentWaitNote('NV', 'trustee')).toBeNull();

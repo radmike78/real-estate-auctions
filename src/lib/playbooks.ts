@@ -54,7 +54,7 @@ const NEVADA: Playbook[] = [
     forSale: true,
     glance: [
       { label: 'Run by', value: 'Clark County Treasurer (holds the property in trust for the state and county)' },
-      { label: 'How often', value: 'Usually in May. Some years add a December or February auction. Some years have none: the Treasurer holds one only if needed. Dates are posted on the Treasurer’s website. There is no mailing list.' },
+      { label: 'How often', value: 'Usually in the spring; some years add a second auction in the fall. Some years have none: the Treasurer holds one only if needed. Dates are posted on the Treasurer’s website. There is no mailing list.' },
       { label: 'Where', value: 'In person, Commission Chambers, 500 S. Grand Central Pkwy (confirm in the notice)' },
       { label: 'Register', value: 'Opens about 3–4 weeks before and closes about a week before. Capped at 280 bidders. No registration on the day.' },
       { label: 'Deposit', value: '$5,000 per bidder in certified funds; credited if you win' },
@@ -217,7 +217,7 @@ const NEVADA: Playbook[] = [
     glance: [
       { label: 'Law', value: 'NRS 116 (common-interest communities)' },
       { label: 'Super-priority', value: 'Up to 9 months of dues (plus certain charges) rank ahead of the first mortgage' },
-      { label: 'Lender payoff', value: 'The first deed of trust (the main home loan) survives if the lender paid the super-priority amount (up to 9 months of dues that rank ahead of the first mortgage) at least 5 days before the sale (NRS 116.31166(1)); a record of that payment must be recorded at least 2 days before the sale for the sale to go ahead (NRS 116.31164(2)). It also survives if the lender offered to pay it and the HOA refused (Bank of America v. SFR, 2018)' },
+      { label: 'Lender payoff', value: 'The first deed of trust (the main home loan) survives if the lender paid the super-priority amount (up to 9 months of dues that rank ahead of the first mortgage) at least 5 days before the sale (NRS 116.31166(1)). If the lender paid, the sale may go ahead only once a record of the payment is recorded at least 2 days before the sale (NRS 116.31164(2)), and you’d buy the home with that loan still on it. It also survives if the lender offered to pay it and the HOA refused (Bank of America v. SFR, 2018)' },
       { label: 'Fannie Mae / Freddie Mac loans', value: 'If one of them owned the loan, the mortgage survives an HOA sale unless the Federal Housing Finance Agency (FHFA, which oversees Fannie Mae and Freddie Mac) consented. This federal rule is called the Foreclosure Bar' },
       { label: 'Redemption', value: '60 days after the sale. The redeemer pays your price plus 1% a month, plus taxes, assessments and upkeep you paid' },
       { label: 'What you get first', value: 'A certificate of sale; a deed without warranty after the redemption period (NRS 116.31166). If the sale wiped out a junior federal tax lien, the U.S. can buy it back for 120 days, longer than the 60 days for the owner or a junior lender (26 U.S.C. 7425); a lien the sale didn’t wipe out stays on the home. Ask a title company before bidding whether it will insure without a quiet title lawsuit' },
@@ -233,7 +233,7 @@ const NEVADA: Playbook[] = [
       { title: 'Get the deed', detail: 'If no one redeems within 60 days, whoever conducted the sale gives you a deed without warranty (NRS 116.31166(7)). Record it and get title insurance. If anyone lives there, plan possession with an attorney.' },
     ],
     survives: {
-      wipedOut: ['The HOA lien being foreclosed', 'The first mortgage, only if three things are true. The lender did not pay the priority amount. The loan wasn’t owned by Fannie Mae or Freddie Mac. And the sale was proper'],
+      wipedOut: ['The HOA lien being foreclosed', 'The first mortgage, only if three things are true. The lender did not pay the super-priority amount. The loan wasn’t owned by Fannie Mae or Freddie Mac. And the sale was proper'],
       mayStay: ['The first mortgage, if the lender paid the super-priority amount at least 5 days before the sale, or validly offered it and was refused. Also if Fannie Mae or Freddie Mac owned the loan (while they are under federal conservatorship)', 'Property taxes', 'Federal tax liens. Even when wiped out, the U.S. can buy the home back within 120 days, longer than the 60 days for the owner or a junior lender (26 U.S.C. 7425)', 'The 60-day redemption right'],
     },
     mistakes: [
@@ -242,7 +242,7 @@ const NEVADA: Playbook[] = [
     ],
     example: {
       title: 'The $9,000 condo',
-      story: 'A condo worth about $260,000 went to an HOA sale with a $9,000 opening bid. The Recorder showed the lender had paid the HOA’s priority amount ten days before the sale.',
+      story: 'A condo worth about $260,000 went to an HOA sale with a $9,000 opening bid. The Recorder showed the lender had paid the HOA’s super-priority amount ten days before the sale.',
       lesson: 'The $190,000 first mortgage would survive. That made the real cost about $199,000, plus unpaid dues and repairs. Not a bargain at that price, so the buyer walked away.',
     },
     team: [T.attorney, T.title, T.lender, T.insurance, T.eviction, T.contractor, T.agent],
@@ -275,7 +275,7 @@ const NEVADA: Playbook[] = [
       { title: 'Plan for a year of waiting', detail: 'The debtor, or a creditor with a later lien, can redeem for a year. It can take longer if creditors redeem from each other. Your money is tied up. If someone redeems, taxes and payments on earlier liens are repaid with interest. Repairs aren’t, so don’t improve the property until then.' },
       { title: 'Set your maximum bid', detail: 'Include a year or more of holding costs. Use Analyze a deal (Fix and flip) to find your walk-away price.' },
       { title: 'Bid and pay', detail: 'Pay in certified funds as the notice says. You get a certificate of sale; the sheriff records a copy (NRS 21.190).' },
-      { title: 'After the year', detail: 'If no one redeems, the sheriff gives you a deed (NRS 21.220(4)). Until then whoever lives there may keep using the property (NRS 21.240): plan possession after the deed, with an attorney.' },
+      { title: 'After the year', detail: 'If no one redeems, the sheriff gives you a deed (NRS 21.220(4)). Until then whoever lives there may generally keep using the property as before (NRS 21.240)*: plan possession after the deed, with an attorney.' },
     ],
     survives: {
       wipedOut: ['The judgment lien being enforced', 'Junior liens, in most cases'],
@@ -301,7 +301,7 @@ const NEVADA: Playbook[] = [
     short: 'IRS sales',
     oneLine: 'The IRS seizes and sells property to collect unpaid federal taxes, by public auction or sealed bid.',
     youGet: 'The taxpayer’s interest by quitclaim-type deed, after a 180-day redemption period (seizure sales; court-ordered sales differ).',
-    plain: 'The owner’s interest in the house, once the 180 days the owner has to buy it back are over. Court-ordered IRS sales work differently.',
+    plain: 'The owner’s interest in the house, once the 180 days for the owner (or anyone with an interest or lien) to buy it back are over. Court-ordered IRS sales work differently.',
     forSale: true,
     glance: [
       { label: 'Where listed', value: 'irsauctions.gov' },
@@ -389,7 +389,7 @@ const NEVADA: Playbook[] = [
       { label: 'Value', value: 'Rental property: by income (net operating income ÷ cap rate). Land, and buildings a business will use itself: by recent sales of similar commercial property. Not by comparing it with homes' },
       { label: 'Environmental', value: 'A Phase I environmental site assessment (ASTM E1527-21) can protect you from federal cleanup liability. To get that protection, have it completed (or updated) within one year before you take title, with key parts done or updated within 180 days. You also need to qualify for the protection and meet ongoing duties after you buy' },
       { label: 'Tenants', value: 'A lease can be wiped out unless there’s a non-disturbance agreement. That applies to a lease that comes after the loan being foreclosed, or one the tenant agreed to put behind it (subordination). If the lease is wiped out, you can remove the tenant, but the tenant can also leave. The federal tenant protection law (PTFA) covers residential tenants, including in apartment buildings. It does not cover stores, offices or other commercial tenants' },
-      { label: 'Financing', value: 'Auctions need cash. Afterwards: commercial, bridge or hard-money loans. SBA 504 and 7(a) loans are for a business that will use the building, not rental investment' },
+      { label: 'Financing', value: 'Auctions usually want full payment (cash or certified funds) the same day or the next business day; your sale guide gives the exact deadline. Afterwards: commercial, bridge or hard-money loans. SBA 504 and 7(a) loans are for a business that will use the building, not rental investment' },
       { label: 'Zoning', value: 'Confirm with the city or county planning department that the use is allowed. Check open code cases and permits too' },
       { label: 'No home-buyer programs', value: 'No owner-occupant first look. HUD Home Store, HomePath and HomeSteps sell homes with 1–4 units only. HUD sells some large apartment buildings through separate multifamily foreclosure sales' },
     ],

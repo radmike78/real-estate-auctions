@@ -50,7 +50,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     title: 'What you need to buy at a forced sale',
     intro: 'The basics for any auction or distressed sale. Choose a type of sale to see its exact requirements.',
     items: [
-      { text: 'Proof of funds or financing lined up', detail: 'Most auctions need certified funds within hours; financed purchases need pre-approval.' },
+      { text: 'Proof of funds or financing lined up', detail: 'Most auctions want certified funds the same day or the next business day (the official notice gives the exact deadline); financed purchases need pre-approval.' },
       { text: 'Government-issued photo ID' },
       { text: 'A title search on the property', detail: 'Find out which liens survive the sale before you bid.' },
       { text: 'A repair budget', detail: "You often can't inspect the inside first." },
@@ -182,7 +182,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: 'An environmental screen, and a Phase I before you’re committed', detail: 'Check EPA and state records and past uses (gas station, dry cleaner, auto repair). If you can’t get a Phase I in time, count the cleanup risk in whether to buy at all. A Phase I done within one year before you take title (with the site visit, interviews and record searches updated within 180 days), plus qualifying for the protection and meeting ongoing duties after you buy, can protect you from federal cleanup liability (40 CFR 312.20).' },
       { text: 'A title search that lists recorded leases and easements', detail: 'Know which leases, easements and agreements survive the sale.' },
       { text: 'Zoning, open code cases and permits', detail: 'Confirm your planned use is allowed with the city or county.' },
-      { text: 'Your money: certified funds for an auction, or proof of funds or a lender’s term sheet for a negotiated sale', detail: 'Auctions need cash; a commercial lender can refinance after. SBA 504 and 7(a) loans are only for a business that will use the building, not rental investment.' },
+      { text: 'Your money: certified funds for an auction, or proof of funds or a lender’s term sheet for a negotiated sale', detail: 'Auctions usually want full payment (cash or certified funds) the same day or the next business day; a commercial lender can refinance after. SBA 504 and 7(a) loans are only for a business that will use the building, not rental investment.' },
       { text: 'Commercial insurance from the day you own it', detail: 'Vacant commercial buildings need a specific policy.' },
       { text: 'Estoppel certificates from tenants after you buy', detail: 'Each tenant confirms their rent, deposit, term and any claims, in writing. Most leases require tenants to sign one.' },
     ],
@@ -361,7 +361,7 @@ const LAND_WORDING: Record<string, Partial<ChecklistItem> | null> = {
   'Rent roll and copies of the leases': null,
   'Estoppel certificates from tenants after you buy': null,
   'Commercial insurance from the day you own it': { text: 'Liability insurance from the day you own it' },
-  'Your money: certified funds for an auction, or proof of funds or a lender’s term sheet for a negotiated sale': { detail: 'Auctions need cash. Land loans are harder to get; plan on cash, or a construction lender if you’ll build.' },
+  'Your money: certified funds for an auction, or proof of funds or a lender’s term sheet for a negotiated sale': { detail: 'Auctions usually want full payment (cash or certified funds) the same day or the next business day. Land loans are harder to get; plan on cash, or a construction lender if you’ll build.' },
 };
 
 function reword(list: BuyerChecklist, wording: Record<string, Partial<ChecklistItem> | null>, suffix: string): BuyerChecklist {

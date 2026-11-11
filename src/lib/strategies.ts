@@ -105,7 +105,7 @@ export const STRATEGY_GUIDES: StrategyGuide[] = [
     ],
     watchFor: [
       'The refinance depends on the appraisal and the lender’s waiting period (often 6 to 12 months). A low appraisal leaves more cash in.',
-      'The new, bigger loan must still leave positive cash flow at the new rate.',
+      'Check whether the new, bigger loan still leaves positive cash flow at the new rate; whether a thin or negative margin is acceptable depends on your situation, finances and risk tolerance.',
       'Short-term money (hard money, credit) gets expensive if the refinance is late.',
     ],
     calc: { label: 'Run it in Buy and hold (with the refinance)', href: '#/analyze?plan=rent' },

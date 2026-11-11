@@ -261,12 +261,12 @@ export const DRILLS: Drill[] = [
       {
         kind: 'pick',
         id: 'mortgage',
-        title: 'Mission 1: The lender paid the HOA’s priority share. Does the mortgage survive?',
-        question: 'County records show the lender paid the HOA’s priority share (the part of the HOA lien that comes first) 10 days before the sale. What happens to the $195,000 first mortgage?',
+        title: 'Mission 1: The lender paid the HOA’s super-priority amount. Does the mortgage survive?',
+        question: 'County records show the lender paid the HOA’s super-priority amount (the part of the HOA lien that comes first) 10 days before the sale. What happens to the $195,000 first mortgage?',
         multi: false,
         options: [
-          { label: 'It survives: I’d own the condo subject to the $195,000 loan', good: true, why: 'Right. When the lender pays the priority amount at least 5 days before the sale, the first deed of trust stays. The same is true if Fannie Mae or Freddie Mac owns the loan.' },
-          { label: 'It’s wiped out: HOA sales always wipe out the mortgage', good: false, why: 'Not when the lender paid, or validly offered, the priority amount at least 5 days before the sale.' },
+          { label: 'It survives: I’d own the condo subject to the $195,000 loan', good: true, why: 'Right. When the lender pays the super-priority amount at least 5 days before the sale, the first deed of trust stays. The same is true if Fannie Mae or Freddie Mac owns the loan.' },
+          { label: 'It’s wiped out: HOA sales always wipe out the mortgage', good: false, why: 'Not when the lender paid, or validly offered, the super-priority amount at least 5 days before the sale.' },
         ],
         lesson: 'A $9,000 condo with a $195,000 loan attached costs $204,000 or more. That’s why most HOA sales with a paid-up lender are a pass.',
       },
@@ -290,7 +290,7 @@ export const DRILLS: Drill[] = [
         { label: 'Investigate', feedback: 'Only worth it if your math, including the surviving loan, still leaves a margin. Here it doesn’t.' },
         { label: 'Pass', feedback: 'That’s what most experienced bidders would do here.' },
       ],
-      expert: 'Pass. The first mortgage survives because the lender paid the priority amount in time, so the true price is about $204,000 before dues, repairs and the 60-day wait, on a $240,000 condo.',
+      expert: 'Pass. The first mortgage survives because the lender paid the super-priority amount in time, so the true price is about $204,000 before dues, repairs and the 60-day wait, on a $240,000 condo.',
     },
   },
   {
@@ -309,13 +309,13 @@ export const DRILLS: Drill[] = [
         kind: 'pick',
         id: 'mortgage',
         title: 'Mission 1: Does the first mortgage survive?',
-        question: 'The lender didn’t pay the HOA’s priority amount. What happens to the $228,000 loan?',
+        question: 'The lender didn’t pay the HOA’s super-priority amount. What happens to the $228,000 loan?',
         multi: false,
         options: [
           { label: 'It most likely survives: while Fannie Mae and Freddie Mac are under federal conservatorship, an HOA sale can’t wipe out a loan they own unless the FHFA consented', good: true, why: 'Right. This federal rule is often called the Foreclosure Bar. Have an attorney confirm who owned the loan on the sale date.' },
           { label: 'It’s wiped out, because the lender didn’t pay the HOA', good: false, why: 'Not when Fannie Mae or Freddie Mac owns the loan. The federal rule protects it.' },
         ],
-        lesson: 'In Nevada, check two things before any HOA sale: whether the lender paid the priority amount, and whether Fannie Mae or Freddie Mac owns the loan.',
+        lesson: 'In Nevada, check two things before any HOA sale: whether the lender paid the super-priority amount, and whether Fannie Mae or Freddie Mac owns the loan.',
       },
       {
         kind: 'facts',

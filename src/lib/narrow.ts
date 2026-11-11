@@ -48,7 +48,7 @@ const BUY_Q: NarrowQuestion = {
     { value: 'agent', label: 'Through an agent', hint: 'Listed homes, bank-owned homes and short sales' },
     { value: 'auction', label: 'At an auction', hint: 'Tax, foreclosure, sheriff, HOA and IRS sales, and lien certificates where a county sells them' },
   ],
-  suggest: () => ({ value: 'agent', why: 'Buying through an agent lets you inspect, get an appraisal and back out if something’s wrong. Auctions need cash and more research.' }),
+  suggest: () => ({ value: 'agent', why: 'Buying through an agent lets you inspect, get an appraisal and back out if something’s wrong. Auctions usually want full payment (cash or certified funds) the same day or the next business day, and need more research.' }),
 };
 
 const PROPERTY_Q: NarrowQuestion = {

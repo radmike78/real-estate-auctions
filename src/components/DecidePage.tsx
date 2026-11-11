@@ -17,7 +17,7 @@ import CheckFold from './CheckFold';
 import AdSpot from './AdSpot';
 
 /** Auctions aren't automatically cheaper: said wherever the strategy appears. */
-const AUCTION_REALITY = 'Are auctions cheaper? Sometimes, but not by default. Most auctions want full payment in certified funds the same day or the next business day, with no loan, and you buy as-is, often without seeing inside. Bidding usually rises toward what buyers think the property is worth after its liens, repairs and risks, and many sales are postponed or cancelled. The opening bid isn’t the price.';
+const AUCTION_REALITY = 'Are auctions cheaper? Sometimes, but not by default. Most auctions want full payment in certified funds the same day or the next business day, so any loan has to be arranged before the sale or come after it, and you buy as-is, often without seeing inside. Bidding usually rises toward what buyers think the property is worth after its liens, repairs and risks, and many sales are postponed or cancelled. The opening bid isn’t the price.';
 
 interface Saved {
   answers: Answers;

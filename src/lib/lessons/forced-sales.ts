@@ -67,7 +67,7 @@ export const forcedSales: Lesson = {
       ],
     },
     {
-      heading: 'Court sales and the right to redeem',
+      heading: 'Sales the owner can undo: the right to redeem',
       blocks: [
         'Sometimes a foreclosure goes through court, or a sheriff sells property to pay a judgment. When that happens, the owner (and sometimes a creditor with a later lien) may be able to buy it back for a while after the sale. You may hold only a certificate of sale until that right runs out, and get the deed after.',
         { list: [

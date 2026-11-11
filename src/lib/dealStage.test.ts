@@ -1049,6 +1049,35 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(short, approved, now, 'contract').label).not.toMatch(/hasn’t approved/);
   });
 
+  it('round 30: a short sale whose closing date passed with no approval asks what happened, with an answer for each', async () => {
+    const short = { ...nvFlip, id: 'dsh30', kind: 'short' as const, plan: 'rent' as const, stage: 'contract' as const };
+    saveDeals([short]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Earnest money due', who: 'Escrow', resolved: true }, { when: '2026-10-01', what: 'Closing', who: 'Escrow' }] };
+    savePacket('analyzed:dsh30', p);
+    const t = dealNextTask(short, p, now, 'contract');
+    expect(t.label).toMatch(/^The closing date \(Oct 1, 2026\) has passed without the lender’s approval/);
+    expect(t.record?.row.what).toBe('Approval notice received');
+    expect(t.advance2?.stage).toBe('passed');
+    const { packetSections } = await import('./dealPacket');
+    expect(packetSections(short, p, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Closing, date passed 5 days ago \(no approval yet\)/);
+  });
+
+  it('round 30: a paid HOA win with its certificate recorded and the redemption over moves on without “once you have the certificate”', async () => {
+    const hoa = { ...nvFlip, id: 'dhw30', kind: 'hoa' as const, stage: 'contract' as const };
+    saveDeals([hoa]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-08-20', what: 'Sale day', who: 'HOA agent', resolved: true }, { when: '2026-08-20', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-08-25', what: 'Certificate of sale recorded', who: 'HOA agent', resolved: true }] };
+    savePacket('analyzed:dhw30', p);
+    const later = new Date('2026-11-11T15:00:00Z');
+    const t = dealNextTask(hoa, p, later, 'contract');
+    expect(t.label).toMatch(/ended Oct 19, 2026: move it to/);
+    expect(t.label).not.toMatch(/once you have the certificate/);
+    expect(t.advance?.label).toMatch(/^Move it to/);
+    expect(stageHint('closed', hoa)).toMatch(/^The redemption period ended on Oct 19, 2026: find out whether anyone redeemed/);
+    const { rentWaitNote } = await import('./dealPacket');
+    expect(rentWaitNote('NV', 'hoa', 'dhw30')).toBeNull();
+    expect(rentWaitNote('NV', 'hoa')).toMatch(/60 days/);
+  });
+
   it('round 11 flow: a late SID payoff; Still to add; hints; time order after the deed; registration passed', async () => {
     const { packetSections, dealPacketText } = await import('./dealPacket');
     const tax = { ...nvFlip, kind: 'taxSale' as const };

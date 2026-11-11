@@ -581,7 +581,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     treasurer: { url: "https://www.landercountynv.org/government/treasurer/index.php", checked: "2026-09-29" },
     assessor: { url: "https://www.landercountynv.org/government/assessor/index.php", checked: "2026-09-29" },
     recorder: { url: "https://www.landercountynv.org/government/recorder_s_office/index.php", checked: "2026-09-29" },
-    sheriff: { url: "https://www.landercountynv.org/residents/contact_us.php", checked: "2026-11-05", contactOnly: true, note: "The Sheriff’s own site (landerso.gov) wasn’t loading on Nov 5, 2026. Use the county’s contact form and pick “Sheriff”, or ask the County Clerk, about civil sales." },
+    sheriff: { url: "https://landerso.gov/", checked: "2026-11-11", contactOnly: true, note: "The Sheriff’s site has no civil-sale details yet: call the office about civil sales, or use the county’s contact form and pick “Sheriff”." },
   },
   "NV/Lincoln": {
     taxSale: { url: "https://lincolncountynv.org/departments/treasurers-office/tax-auction/", checked: "2026-09-29" },
@@ -627,7 +627,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "NV/Washoe": {
     taxSale: { url: "https://www.washoecounty.gov/treas/TaxSale.php", checked: "2026-09-29" },
-    specialAssessment: { url: "https://www.washoecounty.gov/treas/SpecialAssessments.php", checked: "2026-11-03", note: "Buyers are chosen by a show of hands (numbers drawn if several want a parcel) or a random number program; confirm in the sale notice.* Payment is due by 10:00 a.m. the next day." },
+    specialAssessment: { url: "https://www.washoecounty.gov/treas/SpecialAssessments.php", checked: "2026-11-03", note: "Buyers are chosen by a show of hands; if several want a parcel, the County draws buyer numbers. Payment is due by 10:00 a.m. the next day. Confirm both in the sale notice." },
     treasurer: { url: "https://nv-washoe.publicaccessnow.com/Treasurer/TaxSearch.aspx", checked: "2026-10-10" },
     assessor: { url: "https://www.washoecounty.gov/assessor/cama/index.php", checked: "2026-10-10" },
     recorder: { url: "https://icris.washoecounty.us/ssrecorder/", checked: "2026-10-10" },

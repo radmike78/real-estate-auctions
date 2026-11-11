@@ -5,7 +5,7 @@ export interface TeamEntry { role: string; when: string; href?: string; pro?: Pr
 /** The professionals a guide can list, and when each one comes in. */
 export const TEAM = {
   agent: { role: 'Real estate agent', when: 'Finding and pricing the property, and selling or renting it after', href: '#/pros/agent', pro: 'agent' },
-  lender: { role: 'Hard-money or private lender', when: 'Lined up before the sale; most auctions need cash the same day, so loans usually come after', href: '#/pros/private_lender', pro: 'private_lender' },
+  lender: { role: 'Hard-money or private lender', when: 'Lined up before the sale; most auctions want full payment the same day or the next business day, so loans usually come after', href: '#/pros/private_lender', pro: 'private_lender' },
   mortgage: { role: 'Loan officer or mortgage company', when: 'Pre-approval before you make an offer', href: '#/pros/lender', pro: 'lender' },
   title: { role: 'Title and escrow company', when: 'A title search before you bid, and title insurance when available', href: '#/pros/title', pro: 'title' },
   attorney: { role: 'Real estate attorney', when: 'Reviewing surviving liens, sale validity and quiet title', href: '#/pros/attorney', pro: 'attorney' },

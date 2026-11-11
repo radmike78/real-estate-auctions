@@ -85,7 +85,7 @@ export const walkAway: Lesson = {
       blocks: [
         { list: [
           'You can’t see inside and have no budget for the worst case.',
-          'Payment is due in full within hours or a day or two, and you don’t have the cash ready.',
+          'Payment is due in full the same day or the next business day (the official notice gives the exact deadline), and you don’t have the cash ready.',
           'The sale is final, as-is, with no refund if the title or the building has problems.',
           'The deed promises little or nothing about the title.',
           'You haven’t set a walk-away price, or the bidding has already passed it.',
