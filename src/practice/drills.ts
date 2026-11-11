@@ -745,7 +745,7 @@ export const DRILLS: Drill[] = [
     verdict: {
       question: 'Next time, would you buy at an IRS sale?',
       choices: [
-        { label: 'Buy', feedback: 'Fine, with a plan to hold off on repairs until the deed, and cash you won’t need for six months.' },
+        { label: 'Buy', feedback: 'Fine, with a plan for when to spend on repairs (before the deed, that money is at risk if someone redeems), and cash you won’t need for six months.' },
         { label: 'Investigate', feedback: 'Good: check what you can do during the 180 days in your state before you bid.' },
         { label: 'Pass', feedback: 'Reasonable if you can’t leave the money untouched for six months.' },
       ],

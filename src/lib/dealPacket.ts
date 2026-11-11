@@ -6,7 +6,7 @@ import { workStorage as localStorage } from './workStorage';
 // your goal, buy box and team). This file adds the few things nothing else stores: whether it fits your buy box and
 // why, the deal's key dates, your questions to professionals and their answers, your earnest money, and the reason
 // for your decision with any conditions still open. Kept only in this browser, like the rest.
-import { kindLabel, onDealChanged, SALE_KINDS, type Deal } from './analyze';
+import { kindLabel, loadDeals, onDealChanged, SALE_KINDS, type Deal } from './analyze';
 import { loadOwned } from './owned';
 import { costsAtBid, maxSafeBid, offerInputs, redemptionOutcome, ruleOf, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, unenteredCosts, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
 import { offeredRedemptionRules, redemptionChoicesFor } from './stateCosts';
@@ -140,7 +140,7 @@ export const challenge90Ahead = (p: PacketData, now: Date): string => {
 export const RECORDED_ROWS = ['Deed recorded', 'Deed or certificate recorded', 'Treasurer’s deed recorded', 'Certificate of sale recorded', 'Certificate of sale received'];
 /** Windows that end on their own (no one acted in time): past their date, they ended; they weren't missed. */
 const WINDOWS: { name: string; what: string; then: (kind?: string) => string; tick?: string; ask?: string; cancel?: boolean }[] = [
-  { name: 'Seller’s disclosure form due', what: 'the seller’s disclosure deadline', tick: 'It arrived: mark it handled', ask: 'an answer on whether the seller’s disclosure form arrived, noted in its deal packet', then: () => 'did the seller’s disclosure form arrive? If it didn’t, you can cancel at any time before closing without penalty (NRS 113.150(1)); do it in writing, with your agent or attorney' },
+  { name: 'Seller’s disclosure form due', what: 'the seller’s disclosure deadline', tick: 'It arrived: mark it handled', ask: 'an answer on whether the seller’s disclosure form arrived, noted in its deal packet', then: () => 'did the seller’s disclosure form arrive? If it didn’t and your sale requires one, you can cancel at any time before closing without penalty (NRS 113.150(1)). Whether yours requires one (a bank’s resale, for example) is a question for your agent or attorney;* cancel in writing' },
   { name: 'HOA resale package: cancel by', what: 'your right to cancel over the HOA resale package', tick: 'I didn’t cancel: mark it handled', ask: 'your answer on whether you cancelled, noted in its deal packet', cancel: true, then: () => 'if you cancelled in writing in time, mark the deal passed; if not, mark it handled' },
   { name: 'Defect cancellation deadline', what: 'your right to cancel over a disclosed defect', tick: 'I didn’t cancel: mark it handled', ask: 'your answer on whether you cancelled, noted in its deal packet', cancel: true, then: () => 'if you cancelled in writing in time, mark the deal passed; if not, mark it handled' },
   { name: 'Redemption period ends', what: 'the redemption period', tick: 'No one redeemed: mark it handled',
@@ -381,8 +381,8 @@ export const RENT_WAIT_ADVICE = 'These numbers start the rent right away: count 
 export function rentWaitNote(state: string | null | undefined, kind: string | null | undefined, dealId?: string): string | null {
   // (An IRS sale with "No redemption" picked: none.)
   if (kind === 'irs' && dealId && state && irsWithoutRedemption({ state: state as Deal['state'], kind: 'irs', id: dealId })) return null;
-  // (Already over: no wait left to budget for.)
-  if (dealId && SALE_KINDS.some((k) => k.key === kind) && redemptionPast({ kind: kind as Deal['kind'], state: (state || undefined) as Deal['state'], id: dealId })) return null;
+  // (Already over, on a win: no wait left to budget for.)
+  if (dealId && ['contract', 'closed', 'owned'].includes(loadDeals().find((x) => x.id === dealId)?.stage ?? '') && SALE_KINDS.some((k) => k.key === kind) && redemptionPast({ kind: kind as Deal['kind'], state: (state || undefined) as Deal['state'], id: dealId })) return null;
   if (state === 'NV' && kind === 'court') return 'After a Nevada sheriff’s sale the owner, or a creditor with a later judgment or mortgage lien, can redeem for 1 year, and whoever lives there may generally keep using the property until then (NRS 21.200, 21.210, 21.240)*. If a tenant rents it, you’re entitled to that rent during the year, but it’s subtracted from what you’re repaid if someone redeems (NRS 21.250).';
   if (state === 'NV' && kind === 'hoa') return 'After a Nevada HOA sale the former owner, or a lender whose recorded loan ranked below the HOA’s lien, can redeem for 60 days, and you get the deed only after that (NRS 116.31166).';
   if (kind === 'irs') return 'After an IRS sale the owner, or anyone with an interest in the property or a lien on it, can redeem for 180 days, and you get the deed only after that (26 U.S.C. 6337(b), 6338).';

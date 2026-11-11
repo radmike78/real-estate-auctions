@@ -581,7 +581,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     treasurer: { url: "https://www.landercountynv.org/government/treasurer/index.php", checked: "2026-09-29" },
     assessor: { url: "https://www.landercountynv.org/government/assessor/index.php", checked: "2026-09-29" },
     recorder: { url: "https://www.landercountynv.org/government/recorder_s_office/index.php", checked: "2026-09-29" },
-    sheriff: { url: "https://landerso.gov/", checked: "2026-11-11", contactOnly: true, note: "The Sheriff’s site has no civil-sale details yet: call the office about civil sales, or use the county’s contact form and pick “Sheriff”." },
+    sheriff: { url: "https://landerso.gov/", checked: "2026-11-11", contactOnly: true, note: "The Sheriff’s site has no civil-sale details yet: call the office, or ask the County Clerk, about civil sales." },
   },
   "NV/Lincoln": {
     taxSale: { url: "https://lincolncountynv.org/departments/treasurers-office/tax-auction/", checked: "2026-09-29" },

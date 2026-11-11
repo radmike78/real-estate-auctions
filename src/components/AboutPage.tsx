@@ -11,7 +11,7 @@ import { forStateText, useMyState } from '../lib/myState';
 
 const SALE_TYPES: [string, string, string][] = [
   ['Tax-deed sale', 'The property (quitclaim deed); anyone claiming the land can sue to recover it for 2 years after the deed (NRS 361.600)', 'In-person county treasurer auction, certified funds the same day'],
-  ['Special improvement district (SID) lien certificate', 'The right to be repaid the assessment plus 1% a month, not ownership. A deed only if not redeemed in 2 years (120 days if the county or city decides there was no home or other significant improvement), and only after formal notice to the owner and 60 more days; the certificate expires 3 years after redemption ends', 'Clark County Treasurer (SID) sale; winners picked by random drawing'],
+  ['Special improvement district (SID) lien certificate', 'The right to be repaid the assessment plus 1% a month, not ownership. A deed only if not redeemed in 2 years (120 days if the county or city decides there was no home or other significant improvement), and only after formal notice to the owner and 60 more days; the certificate expires 3 years after redemption ends', 'A county or city treasurer’s SID sale (Clark and Washoe counties and some cities); buyers are picked by drawing or a show of hands'],
   ['Mortgage foreclosure', 'The property, after the lender forecloses', 'Trustee, sheriff or judicial auction'],
   ['HOA foreclosure', 'The owner’s title after a 60-day redemption period; the first mortgage may survive', 'HOA agent / trustee auction'],
   ['Sale to pay a court judgment', "Whatever the debtor owned in the property", 'Sheriff sale, with a period when it can be bought back (redemption)'],

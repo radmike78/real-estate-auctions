@@ -25,7 +25,7 @@ export const TEAM = {
   cpa: { role: 'CPA or tax advisor', when: 'Before you buy: flips and rentals are taxed differently', href: '#/pros/cpa', pro: 'cpa' },
   commercialBroker: { role: 'Commercial real estate broker', when: 'Current rents and cap rates for this property type, and leasing it up after', href: '#/pros/agent', pro: 'agent' },
   environmental: { role: 'Environmental consultant', when: 'A Phase I environmental site assessment completed (or updated) within one year before you take title (site visit, interviews, record and lien searches within 180 days)', href: '#/pros/environmental', pro: 'environmental' },
-  commercialLender: { role: 'Commercial or bridge lender', when: 'Before the sale: auctions need cash, so the long-term loan comes after', href: '#/pros/private_lender', pro: 'private_lender' },
+  commercialLender: { role: 'Commercial or bridge lender', when: 'Before the sale: most auctions want full payment the same day or the next business day (the official notice gives the exact deadline), so the long-term loan comes after', href: '#/pros/private_lender', pro: 'private_lender' },
   propertyManager: { role: 'Commercial property manager', when: 'From day one if there are tenants: rent collection, estoppels, repairs', href: '#/pros/property_manager', pro: 'property_manager' },
 } satisfies Record<string, TeamEntry>;
 

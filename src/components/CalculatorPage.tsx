@@ -1,4 +1,4 @@
-import { liveIn, prettyDay, redemptionEndedOn, redemptionOver, redemptionPast } from '../lib/dealStage';
+import { redeemedDeal, liveIn, prettyDay, redemptionEndedOn, redemptionOver, redemptionPast } from '../lib/dealStage';
 import type { Deal } from '../lib/analyze';
 import { useEffect, useState } from 'react';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
@@ -53,6 +53,7 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
   const won = !!dealId && ['contract', 'closed', 'owned'].includes(loadDeals().find((x) => x.id === dealId)?.stage ?? '');
   // (A win whose redemption period is already behind it: no buy-back line to plan around.)
   const certKind = (state === 'NV' && (saleKind === 'court' || saleKind === 'hoa')) || (saleKind === 'irs' && !irsNone);
+  const wasRedeemed = won && certKind && !!dealId && redeemedDeal({ id: dealId });
   const pastRedeem = won && certKind && !!dealId && !!state && redemptionPast({ kind: saleKind as Deal['kind'], state, id: dealId });
   const endedE = pastRedeem && dealId && state && !redemptionOver({ kind: saleKind as Deal['kind'], state, id: dealId }) ? redemptionEndedOn({ kind: saleKind as Deal['kind'], state, id: dealId }) : '';
   // An offer is yours from the closing (Under contract, it's still ahead).
@@ -69,12 +70,13 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
         {!won && <li><strong>The sale’s payment rules:</strong> the form, amount and deadline, paid to the officer or trustee, from the official notice.</li>}
         <li><strong>Liens and taxes that survive this sale,</strong> from a title search.</li>
         {/* Nevada's own periods, from statute (leg.state.nv.us; 26 U.S.C. 6337(b) for the IRS): no asterisk there. */}
-        {pastRedeem ? <li><strong>The right to buy it back:</strong> {endedE ? `the redemption period ended on ${prettyDay(endedE)}: confirm in writing that no one redeemed before you spend on repairs.` : 'the redemption period is over, and you marked no one redeemed (or the deed) in Key dates.'}</li>
+        {wasRedeemed ? <li><strong>The right to buy it back:</strong> you marked it redeemed, so these numbers no longer apply: collect the payoff (see Your next action in its deal packet).</li>
+          : pastRedeem ? <li><strong>The right to buy it back:</strong> {endedE ? `the redemption period ended on ${prettyDay(endedE)}: confirm in writing that no one redeemed before you spend on repairs.` : 'the redemption period is over, and you marked it (or the deed) handled in Key dates.'}</li>
           : state === 'NV' && saleKind === 'court' ? <li><strong>The right to buy it back:</strong> the former owner (the judgment debtor), or a creditor whose judgment or mortgage lien came after the one sold on, has 1 year after a sheriff’s sale, at your price plus 1% a month, plus taxes, assessments and earlier liens you paid (NRS 21.200, 21.210). You get a certificate of sale first.</li>
           : state === 'NV' && saleKind === 'hoa' ? <li><strong>The right to buy it back:</strong> the former owner, or a lender whose recorded loan ranked below the HOA’s lien, has 60 days after an HOA sale, at your price plus 1% a month, plus the taxes, assessments and needed upkeep you paid (NRS 116.31166(3)). You get a certificate of sale first.</li>
           : saleKind === 'irs' && !irsNone ? <li><strong>The right to buy it back:</strong> the owner, or anyone with an interest in the property or a lien on it, has 180 days after an IRS sale, at your price plus 20% a year, compounded daily (26 U.S.C. 6337(b), 6622). You get a certificate of sale first.</li>
           : state === 'NV' && saleKind === 'trustee' ? <li><strong>No owner buy-back after a Nevada trustee’s sale</strong> (NRS 107.080(5)), but a challenge window: 30 days after the trustee’s deed is recorded, or 90 days after the sale for anyone who didn’t get proper notice (NRS 107.080(5), (6)).</li>
-          : state === 'NV' && saleKind === 'taxSale' ? <><li><strong>No owner buy-back after the Treasurer’s sale,</strong> but a suit to recover it can be brought for 2 years after the deed is delivered (NRS 361.600).</li><li><strong>Any SID certificate on the parcel:</strong> if a city or county gave the treasurer an affidavit, by 3 business days before the sale, that the parcel has an unpaid special improvement district (SID) certificate of sale, you must pay the city or county what’s owed within 20 days after the sale, or the sale is void and the treasurer may keep up to 10% of what you paid (NRS 361.595(6)).</li></>
+          : state === 'NV' && saleKind === 'taxSale' ? <><li><strong>No owner buy-back after the Treasurer’s sale,</strong> but a suit to recover it can be brought for 2 years after the deed is delivered (NRS 361.600).</li><li><strong>Any SID certificate on the parcel:</strong> if a city or county gave the Treasurer an affidavit, by 3 business days before the sale, that the parcel has an unpaid special improvement district (SID) certificate of sale, you must pay the city or county what’s owed within 20 days after the sale, or the sale is void and the Treasurer may keep up to 10% of what you paid (NRS 361.595(6)).</li></>
           : <li><strong>Any right to buy it back (redemption)</strong> and how long it lasts for this kind of sale in your state.*</li>}
         <li><strong>Who lives there,</strong> and the court process to get possession.</li>
         <li><strong>Insurance from the day it’s yours.</strong> <a href="#/learn/analyze">What to ask</a></li>

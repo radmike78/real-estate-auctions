@@ -1078,6 +1078,28 @@ describe('Nevada round 4 flow', () => {
     expect(rentWaitNote('NV', 'hoa')).toMatch(/60 days/);
   });
 
+  it('round 30 verifier: a redemption ticked early still runs, a redeemed deal isn’t “over”, and a passed closing asks for the new date', async () => {
+    const { rentWaitNote } = await import('./dealPacket');
+    const { redemptionPast } = await import('./dealStage');
+    const hoa = { ...nvFlip, id: 'dhe30', kind: 'hoa' as const, stage: 'contract' as const };
+    saveDeals([hoa]);
+    const ahead = { ...EMPTY_PACKET, dates: [{ when: '2099-08-20', what: 'Sale day', who: 'HOA agent', resolved: true }, { when: '', what: 'Redemption period ends', who: '', resolved: true }] };
+    savePacket('analyzed:dhe30', ahead);
+    expect(redemptionPast(hoa)).toBe(false);
+    expect(rentWaitNote('NV', 'hoa', 'dhe30')).toMatch(/60 days/);
+    savePacket('analyzed:dhe30', { ...EMPTY_PACKET, dates: [{ when: '2026-08-20', what: 'Sale day', who: 'HOA agent', resolved: true }, { when: '2026-09-01', what: 'Redemption money collected', who: 'Owner' }] });
+    expect(redemptionPast(hoa)).toBe(false);
+    // (Before a win, an old sale day doesn't hide the caution.)
+    saveDeals([{ ...hoa, stage: 'researching' as const }]);
+    savePacket('analyzed:dhe30', { ...EMPTY_PACKET, dates: [{ when: '2026-01-20', what: 'Sale day', who: 'HOA agent' }] });
+    expect(rentWaitNote('NV', 'hoa', 'dhe30')).toMatch(/60 days/);
+    const short = { ...nvFlip, id: 'dsp30', kind: 'short' as const, plan: 'rent' as const, stage: 'contract' as const };
+    saveDeals([short]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Earnest money due', who: 'Escrow', resolved: true }, { when: '2026-09-20', what: 'Approval notice received', who: 'The lender', resolved: true }, { when: '2026-10-01', what: 'Closing', who: 'Escrow' }] };
+    savePacket('analyzed:dsp30', p);
+    expect(dealNextTask(short, p, now, 'contract').label).toMatch(/has passed: if it closed, mark it closed; if it moved, type the new closing date/);
+  });
+
   it('round 11 flow: a late SID payoff; Still to add; hints; time order after the deed; registration passed', async () => {
     const { packetSections, dealPacketText } = await import('./dealPacket');
     const tax = { ...nvFlip, kind: 'taxSale' as const };

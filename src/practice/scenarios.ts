@@ -257,7 +257,7 @@ const numbersTask = (p: PracticeProperty, inputs: BidInputs, compareTo: { label:
   kind: 'numbers',
   id: 'numbers',
   title: auction ? 'Set your maximum bid' : 'Set your maximum offer',
-  intro: `Practice numbers, worked in order from the starting price to your profit, using the same calculator as the real tool. ${auction ? 'Auctions need cash, so nothing is financed at the sale.' : 'This purchase can be financed, so part of the price and repairs is borrowed.'}${tenantDeposits(p) && inputs.possession > 3_500 ? ` Taking possession includes ${money(tenantDeposits(p))} of tenant security deposits you’d take on.` : ''}`,
+  intro: `Practice numbers, worked in order from the starting price to your profit, using the same calculator as the real tool. ${auction ? 'Most auctions want full payment the same day or the next business day (the official notice gives the exact deadline), so nothing is financed at the sale.' : 'This purchase can be financed, so part of the price and repairs is borrowed.'}${tenantDeposits(p) && inputs.possession > 3_500 ? ` Taking possession includes ${money(tenantDeposits(p))} of tenant security deposits you’d take on.` : ''}`,
   inputs,
   compareTo,
   lesson,
@@ -810,7 +810,7 @@ const SHERIFF: Flow = {
   ],
   team: (p) => [
     contact('attorney', PEOPLE.attorney, 'The redemption period and what you can do meanwhile.', [
-      { label: 'Ask about redemption', send: 'If I buy at the sheriff’s sale, what happens during the redemption period?', reply: 'For 1 year after the sale, the debtor, or a creditor with a later judgment or mortgage lien, can redeem by paying your price plus 1% a month, plus any taxes, assessments and payments on earlier liens you made, with interest (NRS 21.200–21.210). Those creditors can redeem from each other within 60 days of each redemption, so the deed can come later than a year (NRS 21.220). Rent you collect meanwhile is subtracted from what they pay. Repairs aren’t repaid, so don’t improve it until the redemption period is over. (Simulated reply.)' },
+      { label: 'Ask about redemption', send: 'If I buy at the sheriff’s sale, what happens during the redemption period?', reply: 'For 1 year after the sale, the debtor, or a creditor with a later judgment or mortgage lien, can redeem by paying your price plus 1% a month, plus any taxes, assessments and payments on earlier liens you made, with interest (NRS 21.200–21.210). Those creditors can redeem from each other within 60 days of each redemption, so the deed can come later than a year (NRS 21.220). Rent you collect meanwhile is subtracted from what they pay. Repairs aren’t repaid, so improving it before the redemption period is over puts that money at risk. (Simulated reply.)' },
     ]),
     contact('title', PEOPLE.title, 'What stays with the property.', [
       { label: 'Order a title search', send: `Please run a title search on ${p.apn} before the sheriff’s sale.`, reply: 'Will do. You get only the debtor’s interest, so I’ll list everything recorded before the judgment, and check for a declaration of homestead. (See the practice title search in the research step.) (Simulated reply.)' },
