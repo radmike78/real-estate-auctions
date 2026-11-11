@@ -153,7 +153,7 @@ export interface RedemptionPreset {
 }
 
 const NONE: RedemptionPreset = { label: 'No redemption', months: 0, ratePct: 0, daily: 0, flat: 0, flat2Pct: 0 };
-const IRS: RedemptionPreset = { label: 'IRS seizure sale: 180 days, +20% a year', months: 6, ratePct: 20, daily: 1, flat: 0, flat2Pct: 0 };
+const IRS: RedemptionPreset = { label: 'IRS seizure sale: 180 days, +20% a year compounded daily', months: 6, ratePct: 20, daily: 1, flat: 0, flat2Pct: 0 };
 // 26 USC 7425(d): a nonjudicial sale (trustee or HOA) that wipes out a junior federal tax lien leaves the United States
 // 120 days to redeem, paying the price plus 6% a year and certain expenses.
 const US_FEDERAL: RedemptionPreset = { label: 'The sale wiped out a junior federal tax lien: the United States can redeem for 120 days (or the state’s period, if longer), +6% a year', months: 4, ratePct: 6, daily: 0, flat: 0, flat2Pct: 0 };
@@ -235,7 +235,7 @@ export function redemptionChoicesFor(state: StateCode, kind: string): { keys: st
     return {
       keys: ['irs', 'none'],
       start: 'irs',
-      confirm: 'An IRS administrative (seizure) sale has a 180-day redemption at 20% a year (26 U.S.C. 6337). A court-ordered sale follows its court order instead, which may allow no redemption*. Check the notice of sale.',
+      confirm: 'An IRS administrative (seizure) sale has a 180-day redemption at 20% a year, compounded daily (26 U.S.C. 6337(b), 6622). A court-ordered sale follows its court order instead, which may allow no redemption*. Check the notice of sale.',
     };
   if (kind === 'taxSale' && state === 'TX')
     return {

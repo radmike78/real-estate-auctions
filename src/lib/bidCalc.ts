@@ -324,7 +324,7 @@ export const REDEMPTION_RULES = {
   none: { label: 'No redemption', months: 0, ratePct: 0, daily: 0, flat: 0, flat2Pct: 0 },
   hoa: { label: 'HOA foreclosure: 60 days, +1% a month', months: 2, ratePct: 12, daily: 0, flat: 0, flat2Pct: 0 },
   sheriff: { label: 'Sheriff’s sale: 1 year, +1% a month', months: 12, ratePct: 12, daily: 0, flat: 0, flat2Pct: 0 },
-  irs: { label: 'IRS seizure sale: 180 days, +20% a year', months: 6, ratePct: 20, daily: 1, flat: 0, flat2Pct: 0 },
+  irs: { label: 'IRS seizure sale: 180 days, +20% a year compounded daily', months: 6, ratePct: 20, daily: 1, flat: 0, flat2Pct: 0 },
 } as const;
 type RuleShape = { months: number; ratePct: number; daily: number; flat?: number; flat2Pct?: number };
 export const ruleOf = (i: BidInputs, rules: Record<string, RuleShape> = REDEMPTION_RULES): string => {

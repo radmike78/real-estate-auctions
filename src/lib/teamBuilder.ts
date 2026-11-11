@@ -52,7 +52,7 @@ export const TEAM_QUESTIONS: TeamQuestion[] = [
     ],
     suggest: (a) =>
       a.buy === 'auction'
-        ? { value: 'cash', why: 'Most auctions need the full price in cash or certified funds the same day or within days. A loan, if any, comes after.' }
+        ? { value: 'cash', why: 'Most auctions want the full price in cash or certified funds the same day or the next business day. A loan, if any, comes after.' }
         : { value: 'loan', why: 'Most buyers use a loan. A loan officer can tell you what you’d qualify for before you look.' },
   },
   {
@@ -99,7 +99,7 @@ export function teamFor(answers: TeamAnswers): { pro: ProKey; why: string }[] {
   const add = (pro: ProKey, why: string) => team.push({ pro, why });
 
   add('agent', auction ? 'To price the property before you bid, and to sell or rent it after.' : business ? 'A commercial broker finds the property, knows local rents and cap rates, and negotiates for you.' : 'Finds the property, writes your offer and negotiates for you.');
-  if (a.pay === 'loan') add(auction || a.plan === 'flip' ? 'private_lender' : 'lender', auction ? 'Auctions need cash on the day, so line up a hard-money or bridge loan before, or refinance after.' : a.plan === 'flip' ? 'Fix-and-flip loans are usually short-term loans from private or hard-money lenders.' : 'A pre-approval tells you what you can spend before you make an offer.');
+  if (a.pay === 'loan') add(auction || a.plan === 'flip' ? 'private_lender' : 'lender', auction ? 'Auctions usually need full payment within a day of the sale, so line up a hard-money or bridge loan before, or refinance after.' : a.plan === 'flip' ? 'Fix-and-flip loans are usually short-term loans from private or hard-money lenders.' : 'A pre-approval tells you what you can spend before you make an offer.');
   add('title', auction ? 'A title search before you bid shows which liens stay with the property. Then title insurance, once it’s available.' : 'Checks the records for liens and handles the closing.');
   add('appraiser', auction ? 'An exterior-only appraisal, or your agent’s estimate, helps you set your maximum bid; allow for what cannot be inspected.' : 'A professional appraisal is the best way to determine value; it is an opinion of value, not a guaranteed sale price.');
   if (auction || business || a.property === 'land') add('attorney', auction ? 'Reviews which liens survive, whether the sale was valid, and any quiet title action.' : a.property === 'land' ? 'Reviews the land contract, plus access, easements and zoning.' : 'Reviews leases, the contract and the title for a commercial purchase.');

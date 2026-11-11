@@ -196,7 +196,7 @@ export const FACTS: Fact[] = [
   },
   {
     id: 'hoa-lender-payment',
-    claim: 'If the lender pays the super-priority amount at least 5 days before the sale and it is recorded at least 2 days before, the buyer takes subject to the first mortgage (NRS 116.31164(2)).',
+    claim: 'If the lender pays the super-priority amount at least 5 days before the sale, the buyer takes subject to the first mortgage (NRS 116.31166(1)); the payment must be recorded at least 2 days before the sale for the sale to go ahead (NRS 116.31164(2)).',
     sources: ['nrs-116'],
     checked: '2026-11-11',
     where: [{ file: PB, text: 'must then be recorded at least 2 days before the sale (NRS 116.31164(2))' }],

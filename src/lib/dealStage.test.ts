@@ -1038,6 +1038,17 @@ describe('Nevada round 4 flow', () => {
     expect(packetSections(flip, fp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Oct 28, 2026: Challenge window ends \(worked out/);
   });
 
+  it('round 29 verifier: a short sale closing soon with no approval waits for the lender', async () => {
+    const short = { ...nvFlip, id: 'dsh29', kind: 'short' as const, plan: 'rent' as const, stage: 'contract' as const };
+    saveDeals([short]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Earnest money due', who: 'Escrow', resolved: true }, { when: '2026-10-06', what: 'Closing', who: 'Escrow' }] };
+    const t = dealNextTask(short, p, now, 'contract');
+    expect(t.label).toMatch(/^Closing is set for Oct 6, 2026, but the lender hasn’t approved the short sale/);
+    expect(t.advance).toBeUndefined();
+    const approved = { ...p, dates: [...p.dates, { when: '2026-10-02', what: 'Approval notice received', who: 'Lender', resolved: true }] };
+    expect(dealNextTask(short, approved, now, 'contract').label).not.toMatch(/hasn’t approved/);
+  });
+
   it('round 11 flow: a late SID payoff; Still to add; hints; time order after the deed; registration passed', async () => {
     const { packetSections, dealPacketText } = await import('./dealPacket');
     const tax = { ...nvFlip, kind: 'taxSale' as const };
@@ -1146,7 +1157,7 @@ describe('Nevada round 4 flow', () => {
     const lien = { ...nvFlip, kind: 'lien' as const, plan: 'lien' as const };
     saveDeals([{ ...lien, stage: 'closed' }]);
     const lp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'City', resolved: true }] };
-    expect(packetSections({ ...lien, stage: 'closed' }, lp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Still to add: the date for Earliest you may act \(unpaid lien\): 120 days after the certificate of sale \(the sale day\), about Dec 30, 2026, if the parcel had no home or other significant permanent improvement at the sale; 2 years if it did, as the city or county decides \(NRS 271\.595\(1\)\)\*\. After that, the owner can still redeem until 60 days after the notice/);
+    expect(packetSections({ ...lien, stage: 'closed' }, lp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Still to add: the date for Earliest you may act \(unpaid lien\): 2 years after the certificate of sale \(the sale day\) if the parcel had a home or other significant permanent improvement at the sale, as the city or county decides; otherwise 120 days \(about Dec 30, 2026\)\. Plan on 2 years until the Treasurer confirms which applies \(NRS 271\.595\(1\)\)\*\. After that, the owner can still redeem until 60 days after the notice/);
   });
 
   it('round 12 verifier: the winning bid is marked; postponed summary; void recording rows; homes settled', async () => {
