@@ -82,7 +82,7 @@ const GROUPS: { title: string; fields: Field[]; redemption?: boolean }[] = [
       { k: 'redemptionRatePct', label: 'Interest a redemption pays you', unit: '%/yr', hint: 'Set by the kind of sale.', when: (i) => i.redemptionMonths > 0 },
       { k: 'holdingMonths', label: 'Months to fix and sell', unit: 'mo', hint: 'After any redemption wait.', more: 'After a tax sale, resale may wait for a quiet title action. In Nevada, that’s the 2-year window after the Treasurer’s deed (NRS 361.600); other states’ waits are in their sale guides.' },
       { k: 'monthlyCarry', label: 'Monthly holding costs', unit: '$', hint: 'Taxes, insurance, utilities and any HOA dues, each month you own it. A listed property’s estimate leaves out HOA dues: add them.' },
-      { k: 'financedPct', label: 'Share financed after purchase', unit: '%', hint: 'Auctions need cash on the day.' },
+      { k: 'financedPct', label: 'Share financed after purchase', unit: '%', hint: 'Auctions usually need full payment within a day of the sale, so any loan comes afterward.' },
       { k: 'interestRatePct', label: 'Interest rate (yearly)', unit: '%', when: (i) => i.financedPct > 0 },
       { k: 'pointsPct', label: 'Upfront lender fee (points)', unit: '%', hint: 'Each point is 1% of the loan amount.', when: (i) => i.financedPct > 0 },
     ],

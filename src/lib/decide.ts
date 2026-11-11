@@ -291,7 +291,7 @@ export const STRATEGIES: Strategy[] = [
       { id: 'br-refi', text: 'Before you buy, ask a lender what they’ll lend on a cash-out refinance, how long you must own it first, and what they need from the appraisal.', href: '#/pros/lender' },
       { id: 'br-arv', text: 'Estimate the value after repairs from sold homes already in finished condition, and plan for an appraisal that comes in lower.' },
       { id: 'br-rehab', text: 'Get a written bid from a qualified contractor (licensed where required) and add a cushion for what you can’t see.', href: '#/pros/contractor' },
-      { id: 'br-rent', text: 'Run the rent calculator at the refinanced loan amount: the rental must still pay for itself.', href: '#/analyze?plan=rent' },
+      { id: 'br-rent', text: 'Run the rent calculator at the refinanced loan amount and check whether the rental still pays for itself; whether a thin margin is acceptable depends on your situation and risk tolerance.', href: '#/analyze?plan=rent' },
       { id: 'br-reserves', text: 'Keep cash in reserve in case the refinance takes longer or returns less than planned.' },
       { id: 'br-practice', text: 'Practice a purchase first.', href: '#/practice' },
     ],

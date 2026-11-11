@@ -202,7 +202,7 @@ export function checklistFor(d: Pick<Deal, 'state' | 'county' | 'kind' | 'plan'>
   // 3. Money and plan
   const money: CheckItem[] = [];
   money.push({ id: 'numbers', text: d.plan === 'lien' ? 'Work out what the lien earns per year, counting the wait to be paid (calculator below).' : `Set your maximum ${auction ? 'bid' : 'price'} with every cost counted (calculator below). Past it, the deal no longer meets your own numbers.` });
-  money.push({ id: 'funds', text: auction ? 'Have the money ready: most auctions want cash or cashier’s checks on a tight deadline.' : 'Get pre-approved, or have proof of funds, before you offer.', href: '#/pros/lender' });
+  money.push({ id: 'funds', text: auction ? 'Have the money ready: most auctions want full payment in cash or cashier’s checks the same day or the next business day; your sale guide and the official notice give the exact deadline.' : 'Get pre-approved, or have proof of funds, before you offer.', href: '#/pros/lender' });
   if (d.plan === 'flip') {
     money.push({ id: 'arv', text: 'Base your resale value on sold homes already in finished condition, not asking prices.' });
     money.push({ id: 'contractor', text: st === 'TX' ? 'Get written bids with a scope and payment schedule. Texas has no state license for general contractors or remodelers: check the trade licenses (electrician, plumber, air conditioning) for that work, the city’s registration and permits, insurance and references.' : `Get a bid from a contractor licensed in ${state}, and check permits with the building department.`, href: '#/pros/contractor' });

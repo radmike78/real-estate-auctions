@@ -178,7 +178,7 @@ export default function DecidePage() {
                 ? 'High-interest debt can cost more each year than a rental earns,* and lenders count it against you. Many people pay it down before buying; your situation, finances and risk tolerance decide what fits you.'
                 : notYetWhy(saved.answers) === 'nofund'
                   ? 'Every strategy has surprises. Without an emergency fund, one vacancy or repair can force you to borrow at high rates or sell at a loss. Many investors build one first; what fits depends on your situation.'
-                  : 'Under $10,000 makes most purchases hard: an auction wants the full price in cash within days, and a loan needs a down payment, closing costs and reserves. Some low-down-payment programs exist; a loan officer can tell you what you’d qualify for.'}{' '}
+                  : 'Under $10,000 makes most purchases hard: an auction wants the full price the same day or the next business day, and a loan needs a down payment, closing costs and reserves. Some low-down-payment programs exist; a loan officer can tell you what you’d qualify for.'}{' '}
               Meanwhile, learn and practice for free. <a href="#/learn/financing">Compare financing options&nbsp;→</a>{' '}<a href="#/learn/red-flags">Seminar red flags&nbsp;→</a>
             </OwlNote>
           )}
@@ -203,6 +203,7 @@ export default function DecidePage() {
                   </div>
                   {m.fits.length > 0 && <p className="decide-why"><strong>Fits you</strong> because you {joinReasons(m.fits)}.</p>}
                   {m.cautions.length === 0 && (m.weak?.length ?? 0) > 0 && <p className="decide-why caution"><strong>Counts against it:</strong> you {joinReasons(m.weak ?? [])}, though {(m.weak?.length ?? 0) === 1 ? 'it doesn’t rule it out' : 'none of these rules it out'}.</p>}
+                  {i > 0 && m.fits.length === 0 && m.cautions.length === 0 && matches.slice(i + 1).some((x) => x.fits.length > 0 && x.cautions.length > 0) && <p className="decide-why"><strong>Why it’s above the next one:</strong> none of your answers rules it out, while the one below has an answer that does.</p>}
                   {i === 0 && m.fits.length === 0 && m.cautions.length === 0 && m.strategy.key !== 'practice' && <p className="decide-why"><strong>Why it’s first:</strong> none of your answers rules it out{rank(saved.answers).some((x) => x.score > m.score) ? '. The strategies that score higher on your other answers each have an answer that rules them out (see Other strategies below)' : ', and it scores at least as well as the others on the rest'}. Compare it with the next ones too.</p>}
                   {m.cautions.length > 0 && <p className="decide-why caution"><strong>Holding it back:</strong> you {joinReasons(m.cautions)}.</p>}
                   {note && <p className="decide-note">{note}</p>}

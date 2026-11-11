@@ -19,7 +19,7 @@ export default function SidCertificates({ certificates, ago }: { certificates: F
       <p><span className="badge tone-info badge-wrap">Lien certificate sale, not a property sale</span></p>
       <p>
         You buy the right to be repaid an unpaid special improvement district assessment plus 1% a month. The owner keeps the home and
-        can still pay it off. You can ask for a deed only if they don’t redeem in time (120 days, or 2 years if there’s a building).{' '}
+        can still pay it off. You can ask for a deed only if they don’t redeem in time: 2 years if the parcel had a home or other significant permanent improvement, otherwise 120 days, as the city or county decides. After that, your attorney must give the owner the notice the law requires, the owner still has 60 days to pay, and any delinquent taxes must be paid before the deed (NRS 271.595)*.{' '}
         <a href="#/playbooks/sid">How lien certificates work&nbsp;→</a>
       </p>
       <p className="muted">

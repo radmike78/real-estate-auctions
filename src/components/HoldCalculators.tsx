@@ -173,7 +173,7 @@ function loanGroup<T extends LoanInputs>(valueLabel: string, valueHint: string):
     title: 'Loan after you buy',
     fields: [
       { k: 'value', label: valueLabel, unit: '$', hint: valueHint },
-      { k: 'loanPct', label: 'Loan, % of that value', unit: '%', hint: 'A refinance once it’s rented. 0 for all cash.', more: 'Auctions need cash on the day, so any loan comes afterward. Lenders set their own waiting periods and limits for loans on recently bought property; ask yours.' },
+      { k: 'loanPct', label: 'Loan, % of that value', unit: '%', hint: 'A refinance once it’s rented. 0 for all cash.', more: 'Auctions usually need full payment within a day of the sale, so any loan comes afterward. Lenders set their own waiting periods and limits for loans on recently bought property; ask yours.' },
       { k: 'ratePct', label: 'Interest rate', unit: '%/yr', when: (v) => v.loanPct > 0 },
       { k: 'years', label: 'Loan term', unit: 'yr', when: (v) => v.loanPct > 0 },
       { k: 'loanCostPct', label: 'Loan costs', unit: '%', hint: 'Points and closing costs.', when: (v) => v.loanPct > 0 },
@@ -897,8 +897,7 @@ export function LienCalculator({ storageKey }: { storageKey?: string } = {}) {
         ) : (
           <>
             <p className="calc-note small">
-              It’s a certificate, not the property. The owner keeps the home and can pay it off. You can ask for a deed only if they don’t redeem
-              in time (120 days, or 2 years if there’s a building). <a href="#/playbooks/sid">How lien certificates work&nbsp;→</a>
+              It’s a certificate, not the property. The owner keeps the home and can pay it off. You can ask for a deed only if they don’t redeem in time: 2 years if the parcel had a home or other significant permanent improvement, otherwise 120 days, as the city or county decides. After that, your attorney must give the owner the notice the law requires, the owner still has 60 days to pay, and any delinquent taxes must be paid before the deed (NRS 271.595)*. <a href="#/playbooks/sid">How lien certificates work&nbsp;→</a>
             </p>
             <p className="muted small">An estimate, not advice. Later taxes you pay can be added to the certificate with interest if you give the Treasurer written notice.</p>
           </>
