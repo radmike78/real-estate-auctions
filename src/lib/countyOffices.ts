@@ -563,7 +563,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.accessesmeralda.com/county_offices/sheriff.php", checked: "2026-10-08", contactOnly: true },
   },
   "NV/Eureka": {
-    taxSale: { url: "https://www.eurekacountynv.gov/departments/treasurerpublic-guardian/delinquent-tax-auction/", checked: "2026-11-11", note: "Sealed-bid only: mail or hand-deliver one bid per parcel on the county’s bid form, with full payment enclosed (money order, cashier’s check or card, with a 2.5% card fee), by 4 p.m. the day before the sale date. There’s no bidding at the sale. Confirm the dates in the current notice." },
+    taxSale: { url: "https://www.eurekacountynv.gov/departments/treasurerpublic-guardian/delinquent-tax-auction/", checked: "2026-11-11", note: "Sealed-bid only: mail or hand-deliver one bid per parcel on the county’s bid form, with full payment enclosed (money order, cashier’s check or card, with a 2.5% card fee), by 4 p.m. the day before the sale date. There’s no verbal bidding at the sale. Confirm the dates in the current notice." },
     treasurer: { url: "https://www.eurekacountynv.gov/departments/treasurerpublic-guardian/", checked: "2026-09-29" },
     assessor: { url: "https://www.eurekacountynv.gov/departments/assessor/", checked: "2026-09-29" },
     recorder: { url: "https://www.eurekacountynv.gov/departments/clerk-recorder/", checked: "2026-09-29" },
