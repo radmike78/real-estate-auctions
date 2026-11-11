@@ -48,7 +48,7 @@ const NEVADA: Playbook[] = [
     title: 'Nevada tax sales',
     short: 'Tax sales',
     teaser: 'Homes and land with three or more years of unpaid property taxes (two if the county found it abandoned), sold by the Treasurer at auction (in person in Clark County; Washoe registers bidders in person at the Treasurer’s office*; online in several rural counties).',
-    oneLine: 'Homes and land about three years behind on property taxes (two if the county found it abandoned), sold by the Treasurer at auction (in person in Clark County; Washoe registers bidders in person at the Treasurer’s office*; online in several rural counties). How it adds up: a tax certificate about a year after the taxes go unpaid, then 2 years (1 if abandoned) for the owner to pay before the Treasurer takes title in trust and can auction it.',
+    oneLine: 'Homes and land about three years behind on property taxes (two if the county found it abandoned), sold by the Treasurer at auction (in person in Clark County; Washoe registers bidders in person at the Treasurer’s office*; online in several rural counties). How it adds up: about a year after taxes go unpaid, the county issues a certificate (a county record, not something you can buy). The owner then has 2 years (1 if the county finds it abandoned) to pay; if they don’t, the Treasurer takes a deed in trust and can auction it.',
     youGet: 'The property, by quitclaim deed from the Treasurer, with no warranty of title.',
     plain: 'The house itself, but the county makes no promise that the title is clear.',
     forSale: true,
@@ -59,7 +59,7 @@ const NEVADA: Playbook[] = [
       { label: 'Register', value: 'Opens about 3–4 weeks before and closes about a week before. Capped at 280 bidders. No registration on the day.' },
       { label: 'Deposit', value: '$5,000 per bidder in certified funds; credited if you win' },
       { label: 'Payment', value: "Pay the full price the same day by 1:00 p.m. (4:30 p.m. for parcels re-auctioned at 2:00 p.m.). Plan on cash, a cashier's check or a money order. The May 2025 notice didn't list wire for the final payment, though the Treasurer's FAQ mentions it, so confirm in the current notice. No financing." },
-      { label: 'Deed', value: 'A quitclaim deed to the name on your Trustee Auction Registration Form. It is recorded within 30 days and mailed to you. To change the name later, you record your own new deed' },
+      { label: 'Deed', value: 'A quitclaim deed to the name on your Trustee Auction Registration Form (Clark County’s name for its bidder registration form, because the Treasurer holds the property as trustee; it isn’t a foreclosure trustee’s sale). It is recorded within 30 days and mailed to you. To change the name later, you record your own new deed' },
       { label: 'After the sale', value: 'There’s no redemption: the owner can’t buy it back. But for 2 years after the Treasurer’s deed is delivered, the former owner, or anyone else claiming the land, can sue to recover it (NRS 361.600). County FAQs say title companies may not insure during that time; a quiet title action, or (Douglas County’s FAQ says) the former owner claiming the excess proceeds, can shorten it' },
     ],
     steps: [
@@ -102,7 +102,7 @@ const NEVADA: Playbook[] = [
   },
   {
     key: 'sid',
-    title: 'Nevada lien certificates',
+    title: 'Nevada SID lien certificates',
     short: 'Lien certificates',
     oneLine: 'The county or city treasurer sells the lien for unpaid special improvement district (SID) assessments. You buy a debt that earns interest, not the property.',
     youGet: 'A certificate of sale: the right to be repaid plus 1% a month. You can ask for a deed only if the owner never redeems, and the certificate expires if you wait too long.',
@@ -145,7 +145,7 @@ const NEVADA: Playbook[] = [
     },
     team: [T.lienTitle, T.lienAttorney, T.lienCpa],
     sources: [
-      { label: 'Clark County Treasurer FAQs (special assessment certificates)', url: TREASURER_FAQ },
+      { label: 'Clark County Treasurer FAQs (special assessment, or SID, certificates)', url: TREASURER_FAQ },
       { label: 'Notice of sale, published by Assessment Management Group for Clark County and the cities', url: 'https://www.amgnv.com/notice-of-sale.asp' },
       { label: 'NRS 271 (local improvements, certificates of sale)', url: NRS('271') },
       { label: 'Clark County Recorder: search records', url: RECORDER },
@@ -179,7 +179,7 @@ const NEVADA: Playbook[] = [
       { title: 'Set your maximum bid', detail: 'Include surviving debts, repairs, eviction and holding costs. Use Analyze a deal (Fix and flip) to find your walk-away price.' },
       { title: 'Confirm the sale is on', detail: 'Call the trustee the day before. Sales are often postponed or cancelled when owners reinstate, sell or file bankruptcy.' },
       { title: 'Bid with certified funds', detail: "Bring cashier's checks in amounts that let you pay exactly your bid. Follow the trustee's terms." },
-      { title: 'After you win', detail: 'Get the trustee’s deed recorded and insure the property. If the trustee gives you the deed, record it within 10 days (NRS 107.080(10)). If anyone lives there, serve the right notices.' },
+      { title: 'After you win', detail: 'Get the trustee’s deed recorded and insure the property. If the trustee gives you the deed, record it within 10 days, then post a copy on the property within 5 days after recording (NRS 107.080(10), (11)); your title company or attorney can arrange it. If anyone lives there, have an attorney give the notices Nevada requires (NRS 40.255) and handle possession.' },
     ],
     survives: {
       wipedOut: ['The loan being foreclosed', 'In most cases, liens recorded after it (junior liens)'],
@@ -187,7 +187,7 @@ const NEVADA: Playbook[] = [
     },
     mistakes: [
       { mistake: 'Buying at a second mortgage’s sale', prevent: 'Confirm which lien is foreclosing. The first deed of trust survives a junior lien’s sale.' },
-      { mistake: 'Driving to a sale that was postponed', prevent: 'Call the trustee the day before and check the status here.' },
+      { mistake: 'Driving to a sale that was postponed', prevent: 'Call the trustee the day before. Postponements are announced by the trustee, not on DeedOwl.' },
       { mistake: 'Forgetting occupants', prevent: 'Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act). A lease can run to its end unless the buyer will live there. For homes with up to 4 units, Nevada also requires a written notice of the change of ownership. Tenants keep their lease rights for a notice period, generally at least 60 days (NRS 40.255). You take on the landlord’s duties, including their existing security deposits (NRS 118A.244). Former owners get a 3-day notice (NRS 40.255).' },
     ],
     example: {
@@ -200,7 +200,7 @@ const NEVADA: Playbook[] = [
       { label: 'NRS 107 (deeds of trust, trustee sales)', url: NRS('107') },
       { label: 'NRS 40 (possession after foreclosure, NRS 40.255)', url: NRS('040') },
       { label: 'NRS 113 (NRS 113.130: trustee’s notice of known defects)', url: NRS('113') },
-      { label: 'Protecting Tenants at Foreclosure Act (made permanent in 2018; see the note to 12 U.S.C. 5220)', url: 'https://uscode.house.gov/view.xhtml?req=granuleid:USC-prelim-title12-section5220&num=0&edition=prelim' },
+      { label: 'Protecting Tenants at Foreclosure Act (made permanent in 2018; see the note to 12 U.S.C. 5220)', url: 'https://www.law.cornell.edu/uscode/text/12/5220' },
       { label: 'Foreclosure mediation (Eighth Judicial District Court)', url: 'https://www.clarkcountycourts.us/departments/adr/foreclosure-mediation/' },
       { label: 'Clark County Recorder: search records', url: RECORDER },
     ],
@@ -225,7 +225,7 @@ const NEVADA: Playbook[] = [
     ],
     steps: [
       { title: 'Find the sale notice', detail: 'Notices for HOA sales are given and recorded the same way as for trustee sales. Confirm the date with the HOA’s foreclosure agent.' },
-      { title: 'Check whether the lender paid', detail: 'Search the Recorder for a recorded payment of the super-priority amount. It must be recorded at least 2 days before the sale. Also listen for the auctioneer’s announcement. If the lender paid at least 5 days before the sale, you take the home with the first mortgage. Also check whether Fannie Mae or Freddie Mac owned the loan. If so, it usually survives.' },
+      { title: 'Check whether the lender paid', detail: 'A lender can keep its loan by paying the HOA’s super-priority amount at least 5 days before the sale; a record of that payment must then be recorded at least 2 days before the sale (NRS 116.31164(2)). Search the Recorder for it, and listen for the auctioneer’s announcement. If it’s there, you’d take the home with the first mortgage still on it. Also check whether Fannie Mae or Freddie Mac owned the loan. If so, it usually survives.' },
       { title: 'Get a professional opinion', detail: 'After the SFR Investments decision (2014), Nevada HOA sales ended up in court again and again. Have a title professional or attorney review the sale before you bid.' },
       { title: 'Set your maximum bid', detail: 'If the first mortgage may survive, add it to your costs. Use Analyze a deal (Fix and flip) to find your walk-away price.' },
       { title: 'Bid and pay', detail: 'Bring certified funds, following the foreclosure agent’s terms. You get a certificate of sale, which is recorded (NRS 116.31166(2)).' },
@@ -317,7 +317,7 @@ const NEVADA: Playbook[] = [
       { title: 'Look from the street only', detail: 'You usually can’t go inside. Assume repairs are needed. Don’t contact or approach the owner or occupants. Send every question to the IRS contact on the notice.' },
       { title: 'Bid and pay on time', detail: 'Pay in the forms the notice allows. If you agreed to pay the rest later (deferred payment) and don’t pay it, the IRS can sue you for it with 6% interest, or cancel the sale and keep what you paid (26 U.S.C. 6335(e)(3)).' },
       { title: 'Record the certificate of sale', detail: 'You get a certificate of sale when you pay in full (26 U.S.C. 6338(a)). The IRS notes that recording it can stop the taxpayer from selling the property to someone else (IRM 5.10.5.17.5). Ask a title company or attorney about recording it with the county recorder.' },
-      { title: 'Plan for 180 days', detail: 'The property can be bought back (redeemed) for 180 days. Whoever redeems pays you your price plus 20% a year interest (26 U.S.C. 6337). If it’s vacant you may enter only as needed to prevent damage. If it’s occupied, the IRS and its lawyers decide whether a court order is needed (IRM 5.10.5.19). Don’t renovate yet.' },
+      { title: 'Plan for 180 days', detail: 'The property can be bought back (redeemed) for 180 days. Whoever redeems pays you your price plus interest at 20% a year, compounded daily (26 U.S.C. 6337(b), 6622). If it’s vacant you may enter only as needed to prevent damage. If it’s occupied, the IRS and its lawyers decide whether a court order is needed (IRM 5.10.5.19). Don’t renovate yet.' },
       { title: 'Get the deed, then possession', detail: 'If no one redeems, turn in the certificate of sale and the IRS gives you a deed (26 U.S.C. 6338(b)). Record it with the county recorder. If anyone still lives there, use an eviction attorney and the court process. Never remove people or belongings yourself.' },
     ],
     survives: { wipedOut: ['The federal tax lien being enforced', 'Liens and interests junior to the federal tax lien'], mayStay: ['Mortgages and liens senior to the IRS', 'Property taxes', 'The 180-day redemption right'] },

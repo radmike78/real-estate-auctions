@@ -1688,7 +1688,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         }
       },
       {
-        text: "A state auditor estimated Homekey’s average cost at $144,000 per unit.",
+        text: "California’s state auditor estimated Project Homekey’s average cost at $144,000 per unit.",
         source: {
           label: "CalMatters (via KQED): Did Newsom’s $3.8 billion hotels-to-housing program pay off? (May 7, 2026)",
           url: "https://www.kqed.org/news/12082668/did-newsoms-3-8-billion-hotels-to-housing-program-pay-off"

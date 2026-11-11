@@ -118,7 +118,7 @@ export function sections(p: Playbook): DrillSection[] {
       key: 'steps',
       title: 'Step by step',
       icon: <IconSteps />,
-      summary: `${p.steps.length} steps, from finding it to taking possession`,
+      summary: `${p.steps.length} steps, ${/sid|lien/.test(p.key) ? 'from the sale list to being repaid (or asking for a deed)' : /short|reo|listing/.test(p.key) ? 'from finding it to closing' : 'from finding it to taking possession'}`,
       content: () => (
         <ol className="steps-rich">
           {p.steps.map((s) => <li key={s.title}><strong>{s.title}</strong><span><Cited text={s.detail} plain={boldNumbers} /></span></li>)}

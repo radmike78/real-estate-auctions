@@ -3,9 +3,9 @@ import type { Lesson } from './types';
 export const forcedSales: Lesson = {
   key: 'forced-sales',
   minutes: 10,
-  intro: 'A forced sale is one the owner didn’t choose. A county may sell it for unpaid taxes, a lender’s trustee after missed loan payments, a sheriff to pay a court judgment, or the IRS after seizing it. The rules change a lot from state to state. Choose your state below to see only its rules.',
+  intro: 'A forced sale is one the owner didn’t choose. A county may sell it for unpaid taxes, a lender’s trustee after missed loan payments, a sheriff to pay a court judgment, a homeowners association (HOA) for unpaid dues, or the IRS after seizing it. The rules change a lot from state to state. Choose your state below to see only its rules.',
   takeaways: [
-    'Whether your county sells the property itself or a tax lien.',
+    'What your county’s tax sale sells, and what you get for your money.',
     'How trustee (foreclosure) auctions work: timelines, notices and payment.',
     'Which sales leave the owner a right to buy the property back after the sale.',
     'What stays with the property, and why you buy as-is.',
@@ -34,7 +34,7 @@ export const forcedSales: Lesson = {
           table: {
             head: ['State', 'What’s sold', 'Key rules'],
             rows: [
-              ['Nevada', 'The property, by quitclaim deed', 'The county treasurer holds the property for 2 years after the tax certificate (1 year if abandoned). Then the treasurer auctions it for at least the taxes, costs, penalties and interest. Owners and lenders can pay off until the third business day before the sale.'],
+              ['Nevada', 'The property, by quitclaim deed', 'About a year after taxes go unpaid, the county issues a certificate (a county record, not something you can buy). The owner then has 2 years (1 if the county finds it abandoned) to pay; if they don’t, the treasurer takes a deed in trust and auctions it for at least the taxes, costs, penalties and interest. Owners and lenders can pay off until the third business day before the sale.'],
               ['California', 'The property (tax-defaulted land)', 'The tax collector can sell after five years of default (three for nonresidential commercial property). The minimum bid is at least what it would cost to redeem (pay off) the property, plus costs.'],
               ['Arizona', 'A tax lien, not the property', 'Liens are sold in February. Bidders bid down the interest rate, which can’t be more than 16% a year. On popular parcels, competition can push it far lower, even to 0%. The owner can pay it off (redeem) at any time, which ends your interest, so plan on earning interest rather than getting a property. After three years (and within ten), the lien holder can go to court to end the right to redeem and get a deed. Or, if you or the owner ask and the property is likely to sell for more than $2,500 above what’s owed, the court must order an auction instead, and you’re paid in cash (A.R.S. 42-18204).'],
               ['Utah', 'The property', 'The county auditor sells property still unpaid four years after the taxes went delinquent (usually five years of taxes by sale day) at a tax sale in May or June. A bid must cover the taxes, penalties, interest and costs.'],
@@ -72,6 +72,7 @@ export const forcedSales: Lesson = {
         'Sometimes a foreclosure goes through court, or a sheriff sells property to pay a judgment. When that happens, the owner (and sometimes a creditor with a later lien) may be able to buy it back for a while after the sale. You may hold only a certificate of sale until that right runs out, and get the deed after.',
         { list: [
           'Nevada: after a sheriff’s execution sale, the owner (or a creditor with the right to redeem) can buy it back within 1 year by paying your price plus 1% a month, and certain taxes and liens you paid (NRS 21.210).',
+          'Nevada HOA foreclosures: the former owner, or a lender whose loan ranked below the HOA’s lien, can buy it back within 60 days by paying your price plus 1% a month and certain costs (NRS 116.31166(3)). You get a certificate of sale first, and the first mortgage may survive*.',
           'California: only when the judgment allows a deficiency (the notice of sale says whether the sale is subject to redemption): 3 months after a judicial foreclosure sale if the sale paid the debt in full, or 1 year if it didn’t (CCP 729.010, 729.030).',
           'Arizona: 6 months after a judicial foreclosure sale, or 30 days if the judgment found the property both abandoned and not used mainly for farming or grazing. After that, junior lienholders can redeem in turn, 5 days each (A.R.S. 12-1282).',
           'Utah: 180 days after a sheriff’s sale.',
@@ -84,7 +85,7 @@ export const forcedSales: Lesson = {
       heading: 'Federal sales',
       blocks: [
         { list: [
-          'IRS sales: the IRS sells seized property by public or sealed-bid auction. For 180 days afterward, the owner or anyone with an interest can buy it back (redeem it) by paying what you paid plus 20% a year interest, so you can’t count on keeping it until then.',
+          'IRS sales: the IRS sells seized property by public or sealed-bid auction. For 180 days afterward, the owner or anyone with an interest can buy it back (redeem it) by paying what you paid plus interest at 20% a year, compounded daily (about $10,400 on $100,000 over 180 days), so you can’t count on keeping it until then.',
           'HUD homes: foreclosed FHA homes sold through HUD Home Store. Bids go through a HUD-registered broker.',
           'Tenants: after a foreclosure, a new owner must give genuine tenants at least 90 days’ notice before eviction, and generally has to honor their lease. The exception is a buyer who will live there, who can end the lease with 90 days’ notice.',
         ] },
@@ -94,12 +95,12 @@ export const forcedSales: Lesson = {
       heading: 'Before any forced sale',
       blocks: [
         { list: [
-          'Read the official notice and the seller’s rules: deposit, payment deadline, and what you get (a deed or, where your county sells liens, a lien certificate).',
+          'Read the official notice and the seller’s rules: deposit, payment deadline, and what you get (a deed, or a certificate while the owner can still redeem).',
           'Get a title search. Which liens survive depends on the kind of sale.',
           'Expect to buy as-is, usually without seeing inside.',
           'Check whether the owner has filed bankruptcy, which can stop a sale.',
           'Know your walk-away price before bidding, and include the cost of any redemption period.',
-          'Evaluate how you will pay before you bid. Home equity, savings or other financing may be options depending on your situation; DeedOwl does not recommend for or against any method. Compare your current finances, repayment ability, risk tolerance and possible losses, including risks to your home or 401(k). Check alternative funding if your first plan fails, and seek independent financial, investment, tax and legal advice. Most forced sales are final and as-is.',
+          'Evaluate how you will pay before you bid. Home equity, savings or other financing may be options depending on your situation; DeedOwl does not recommend for or against any method. Compare your current finances, repayment ability, risk tolerance and possible losses, including risks to your home or 401(k). Check alternative funding if your first plan fails, and seek independent financial, investment, tax and legal advice. Most forced sales are as-is, with no refund if you change your mind.',
           'Plan for people living there. Owners and tenants have legal rights, and removing them takes a court process.',
         ] },
         'Find deals lists each county’s tax sale page and records offices. Never contact homeowners facing foreclosure. Buy from the official seller.',
@@ -115,7 +116,7 @@ export const forcedSales: Lesson = {
     },
   ],
   terms: [
-    { term: 'Tax lien', meaning: 'A claim for unpaid taxes. Where liens are sold, investors buy the lien and earn interest until it’s paid or foreclosed.' },
+    { term: 'Tax lien', meaning: 'A claim for unpaid taxes. Some states sell these liens to investors, who earn interest until it’s paid; others sell the property itself (the table above shows which yours does).' },
     { term: 'Tax deed', meaning: 'A deed to the property itself, sold by the county for unpaid taxes.' },
     { term: 'Trustee sale', meaning: 'An out-of-court foreclosure auction held by the trustee under a deed of trust.' },
     { term: 'Right of redemption', meaning: 'The owner’s right to buy the property back for a time after certain sales.' },
@@ -166,6 +167,6 @@ export const forcedSales: Lesson = {
     { label: 'HUD Home Store', url: 'https://www.hudhomestore.gov/' },
     { label: 'Federal Reserve: Protecting Tenants at Foreclosure Act restored', url: 'https://www.federalreserve.gov/supervisionreg/caletters/caltr1804.htm' },
   ],
-  practice: 'Find your county’s official sale page and write down the deposit, the payment deadline and what you get (a deed or, where your county sells liens, a lien certificate).',
+  practice: 'Find your county’s official sale page and write down the deposit, the payment deadline and what you get (a deed, or a certificate while the owner can still redeem).',
   reviewed: '2026-10-05',
 };

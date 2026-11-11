@@ -1,5 +1,5 @@
 /** The site's educational position: financing decisions depend on the individual. */
-export const FINANCING_POSITION = 'Home equity, a HELOC or a cash-out refinance can fit some people and not others. Your situation, finances and risk tolerance decide it. Before you borrow for any deal, check these four things:';
+export const FINANCING_POSITION = 'Home equity, a HELOC (a credit line against your home’s equity) or a cash-out refinance can fit some people and not others. Your situation, finances and risk tolerance decide it. Before you borrow for any deal, check these four things:';
 
 export const FINANCING_FACTORS = [
   'Compare all options relevant to you against your current income, debts, savings, cash reserves, loan costs and ability to make the payments.',

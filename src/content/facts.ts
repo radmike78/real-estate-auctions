@@ -196,10 +196,10 @@ export const FACTS: Fact[] = [
   },
   {
     id: 'hoa-lender-payment',
-    claim: 'If the lender pays the super-priority amount (recorded at least 2 days before the sale), the buyer takes subject to the first mortgage.',
+    claim: 'If the lender pays the super-priority amount at least 5 days before the sale and it is recorded at least 2 days before, the buyer takes subject to the first mortgage (NRS 116.31164(2)).',
     sources: ['nrs-116'],
-    checked: '2026-09-27',
-    where: [{ file: PB, text: 'It must be recorded at least 2 days before the sale' }],
+    checked: '2026-11-11',
+    where: [{ file: PB, text: 'must then be recorded at least 2 days before the sale (NRS 116.31164(2))' }],
   },
 
   // ---------------- Sheriff / execution sales (NRS 21) ----------------

@@ -60,7 +60,7 @@ export const ROADMAP_PHASES: Record<RoadmapStep['phase'], string> = {
 
 export const ROADMAP_PATHS: Record<RoadmapPath, { label: string; hint: string }> = {
   listing: { label: 'Through an agent', hint: 'Listed homes, bank-owned homes and short sales: make an offer, then follow the agreed contract conditions and deadlines. Your right to inspect, cancel or recover a deposit depends on the contract and local law.' },
-  auction: { label: 'At an auction', hint: 'Tax, foreclosure, sheriff and IRS sales of the property itself: you research first, then bid, usually with no inside look and no way out after you win.' },
+  auction: { label: 'At an auction', hint: 'Tax, foreclosure, HOA, sheriff and IRS sales of the property itself: you research first, then bid, usually with no inside look and no way out after you win.' },
   certificate: { label: 'Lien certificates', hint: 'You buy a lien that earns interest, not the property. Owners usually pay them off;* you own the property only if a court or the law later gives it to you. In Arizona, these are county tax liens. In Nevada, these are special improvement district (SID) liens, sold by Clark County, Washoe County and some cities.' },
 };
 
@@ -181,7 +181,7 @@ export const ROADMAP: RoadmapStep[] = [
     id: 'a-practice', phase: 3, path: AUCTION, title: 'Finish a practice auction',
     text: 'Work one auction purchase with fictional paperwork before you risk money: the notice, the title search, your maximum bid, sale day and what comes after.',
     outcome: 'Three auction drills done for your state (and a full practice sale where Practice offers one), with your written maximum bid and how you set it.',
-    steps: ['In Practice, do three auction drills for your state (topic: Auctions and tax liens), then read your state’s sale guide for the kind of sale you plan to use. Where Practice offers a full practice auction for your state, work one property to the end.', 'Write your maximum bid and the costs behind it before sale day in the practice.', 'Try at least three “Would you buy it?” drills, including one with liens that survive the sale.'],
+    steps: ['In Practice, do three auction drills for your state (topic: Auctions and lien certificates), then read your state’s sale guide for the kind of sale you plan to use. Where Practice offers a full practice auction for your state, work one property to the end.', 'Write your maximum bid and the costs behind it before sale day in the practice.', 'Try at least three “Would you buy it?” drills, including one with liens that survive the sale.'],
     doneWhen: 'You’ve finished three auction drills (and a full practice auction where your state has one), with the maximum bid you’d have set written down for one of them.',
     action: 'Practice an auction', href: '#/practice',
   },
@@ -393,7 +393,7 @@ export const ROADMAP: RoadmapStep[] = [
     steps: ['Set your walk-away price from your analysis before you write the offer.', 'Ask your agent to include inspection, appraisal and loan contingencies, with deadlines you can meet.', 'Ask your agent or attorney to confirm that the required signatures and acceptance steps are complete, and when the contract becomes binding under its terms and local law.', 'Confirm the effective date and what starts each deadline, then record the dates on your calendar.'],
     say: { to: 'Your agent', script: '“I’d like to offer [$price], with inspection, appraisal and loan contingencies. What deadlines are realistic for each, and what happens to my deposit if I cancel inside them?”' },
     docs: ['Purchase contract', 'Pre-approval letter or proof of funds'],
-    stop: 'Don’t go above your maximum or drop your contingencies to win.',
+    stop: 'Decide before you offer whether you’d go above your maximum or give up a contingency to win, and what that would put at risk (your deposit, a repair bill, a low appraisal). Your situation, finances and risk tolerance decide it; talk it through with your agent or attorney.',
     doneWhen: 'You have the completed contract, your agent or attorney has confirmed its effective date and deadline start points, and the dates are on your calendar.',
     action: 'Making an offer and closing', href: '#/learn/negotiate',
   },
@@ -629,7 +629,7 @@ export const ROADMAP: RoadmapStep[] = [
       'Gather the lease, rent history, repair receipts and your closing statement. Compare the lenders’ written quotes the same day: a refinance of a rental you don’t live in is usually a business loan, so expect a term sheet rather than a Loan Estimate.',
     ],
     say: { to: 'Lender', script: '“I own a rental at [address], bought on [date] for [price], rented at [rent]. What’s your waiting period for a cash-out refinance, what loan-to-value can you do, and what will you need from me?”' },
-    stop: 'If the appraisal comes in low or the new payment turns the cash flow negative, keep the cash in and wait. A refinance that leaves no cushion isn’t worth it.',
+    stop: 'If the appraisal comes in low or the new payment would turn the cash flow negative, compare waiting with refinancing anyway: what cushion you’d have left, and what a vacancy or repair would do. Your situation and risk tolerance decide it.',
     doneWhen: 'The refinance has closed, or you’ve written down why you’re waiting and when you’ll check again.',
     skip: 'A flip you’re selling, or a rental you’ll keep with its current loan.',
     action: 'Refinancing after a cash or hard-money buy', href: '#/learn/financing',
@@ -659,7 +659,7 @@ export const ROADMAP: RoadmapStep[] = [
       'Buy a replacement of equal or greater value and reinvest all the cash; debt you pay off must be replaced with new debt or added cash, or expect tax on the difference.',
     ],
     say: { to: 'Qualified intermediary', script: '“I’m selling a rental at [address], closing around [date]. I want a 1031 exchange. What do you need from me, how is my money held, and are you bonded and insured?”' },
-    stop: 'If you can’t find a replacement that works on its own numbers, don’t buy a bad property to save tax. Pay the tax and keep your options.',
+    stop: 'If no replacement works on its own numbers, compare paying the tax now with buying a weaker property to defer it. A tax advisor can show both; what fits depends on your situation.',
     doneWhen: 'The replacement has closed within 180 days, and Form 8824 is on your list for tax time.',
     skip: 'A flip (it can’t use a 1031), or a rental you’re keeping or selling outright.',
     action: 'Trading up: the 1031 exchange', href: '#/learn/taxes',

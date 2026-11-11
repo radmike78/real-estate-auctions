@@ -14,11 +14,11 @@ import { IconGavel, IconHome, IconHouses, IconPercent, IconTools } from './Icons
 import { FINANCING_ADVICE, FINANCING_FACTORS, FINANCING_POSITION } from '../lib/financingGuidance';
 
 const OPTIONS: [string, string, ReactNode][] = [
-  ['Buying a home to live in', 'Conventional, FHA, VA and USDA loans from loan officers, banks and credit unions. FHA 203k and HomeStyle loans cover repairs too.', <IconHome />],
+  ['Buying a home to live in', 'Conventional, FHA, VA and USDA loans from loan officers, banks and credit unions. FHA 203k and Fannie Mae HomeStyle loans include repair money in the loan.', <IconHome />],
   ['Buying at auction', 'Most auctions need cash or certified funds within hours or days. Depending on your situation, options may include savings, home equity, or a hard-money or bridge loan arranged before the sale. Compare the risks and confirm funds will be available by the seller’s deadline.', <IconGavel />],
   ['Fix and flip', 'Short-term fix-and-flip, bridge and hard-money loans lend against the property and the renovation plan. Costs are higher, and terms are short.', <IconTools />],
-  ['Rental investors', 'DSCR loans qualify on the rent a property earns rather than personal income. Portfolio loans from banks are another option.', <IconHouses />],
-  ['Credit challenges', 'FHA and non-QM loans can work with lower scores or recent credit problems. Some non-QM and private lenders work with ITIN borrowers, usually at higher rates. Compare several offers.', <IconPercent />],
+  ['Rental investors', 'DSCR loans (debt-service coverage ratio) qualify on the rent a property earns rather than your paycheck. Portfolio loans, which a bank keeps instead of selling, are another option.', <IconHouses />],
+  ['Credit challenges', 'FHA and non-QM loans (loans outside the standard mortgage rules, usually at higher rates) can work with lower scores or recent credit problems. Some non-QM and private lenders work with ITIN borrowers (a tax ID for people without a Social Security number). Compare several offers.', <IconPercent />],
 ];
 
 export default function FinancingPage({ initialLocation = '' }: { initialLocation?: string }) {

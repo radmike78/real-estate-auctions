@@ -13,7 +13,7 @@ export type Topic = 'trustee' | 'tax' | 'taxlien' | 'hoa' | 'sheriff' | 'irs' | 
 /** The filter groups readers choose from. */
 export type TopicGroup = 'auctions' | 'listed' | 'flip' | 'commercial' | 'manufactured' | 'land';
 export const TOPIC_GROUPS: { key: TopicGroup; label: string }[] = [
-  { key: 'auctions', label: 'Auctions and tax liens' },
+  { key: 'auctions', label: 'Auctions and lien certificates' },
   { key: 'listed', label: 'Listed homes and rentals' },
   { key: 'flip', label: 'Flips and BRRRR' },
   { key: 'commercial', label: 'Commercial' },
