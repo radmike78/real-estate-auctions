@@ -831,8 +831,10 @@ describe('Nevada round 4 flow', () => {
     const tax = { ...nvFlip, id: 'tx23', kind: 'taxSale' as const, stage: 'contract' as const };
     saveDeals([tax]);
     savePacket('analyzed:tx23', { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '', what: 'SID certificate payoff (affidavit filed)', who: 'City' }] });
-    expect(sidPending(tax, new Date('2026-10-06T12:00:00'))).toBe('pay the SID certificate by Oct 21, 2026, or the sale is void (NRS 361.595(6))');
-    expect(sidPending(tax, new Date('2026-10-25T12:00:00'))).toMatch(/^the 20 days for any SID payoff ended Oct 21, 2026/);
+    expect(sidPending(tax, new Date('2026-10-06T12:00:00'))).toBe('pay the SID certificate by Oct 21, 2026, or the sale is void (NRS 361.595(6)); the Treasurer then records the deed (NRS 361.595(7))');
+    expect(sidPending(tax, new Date('2026-10-25T12:00:00'))).toMatch(/^the 20 days for the SID payoff ended Oct 21, 2026: if it wasn’t paid by then, the sale is void/);
+    expect(sidPending(tax, new Date('2026-10-25T12:00:00'))).not.toMatch(/records the deed/);
+    expect(sidPending({ ...tax, id: 'tx24' }, new Date('2026-10-25T12:00:00'))).toBe('');
     // A trustee win shows no SID step.
     expect(sidPending(nvFlip, new Date('2026-10-06T12:00:00'))).toBe('');
     // Bought Sep 16, October recorded, sold Nov 6: November (the sale month) and Sep 16–30 are named.

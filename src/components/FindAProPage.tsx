@@ -396,7 +396,7 @@ export default function FindAProPage({ section }: { section?: string }) {
                   <option value="start">Kind of sale: not sure yet</option>
                   <option value="listing">A listed home (agent)</option>
                   <option value="commercial-offer">A commercial building (offer)</option>
-                  {teamGuides().map((p) => <option key={p.key} value={p.key}>{p.short}{/commercial$/.test(p.key) ? ' at a forced sale' : ''}{mine && !guidesFor(mine).includes(p) ? ` (${p.key === 'sid' ? 'Nevada' : 'Arizona'}, your lien deal)` : ''}</option>)}
+                  {teamGuides().map((p) => <option key={p.key} value={p.key}>{/commercial$/.test(p.key) ? 'Commercial, forced sale' : p.short}{mine && !guidesFor(mine).includes(p) ? ` (${p.key === 'sid' ? 'Nevada' : 'Arizona'}, your lien deal)` : ''}</option>)}
                 </select>
               </label>
             ) : (
