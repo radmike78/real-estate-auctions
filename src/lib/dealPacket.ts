@@ -6,7 +6,7 @@ import { workStorage as localStorage } from './workStorage';
 // your goal, buy box and team). This file adds the few things nothing else stores: whether it fits your buy box and
 // why, the deal's key dates, your questions to professionals and their answers, your earnest money, and the reason
 // for your decision with any conditions still open. Kept only in this browser, like the rest.
-import { kindLabel, SALE_KINDS, type Deal } from './analyze';
+import { kindLabel, onDealChanged, SALE_KINDS, type Deal } from './analyze';
 import { loadOwned } from './owned';
 import { costsAtBid, maxSafeBid, offerInputs, redemptionOutcome, ruleOf, totalMonths, proposedPriceOf, resultAtPrice, requiredProfit, sanitizeInputs, stressCases, unenteredCosts, BLANK_INPUTS, DRAW_NOTE, type BidInputs } from './bidCalc';
 import { offeredRedemptionRules, redemptionChoicesFor } from './stateCosts';
@@ -1242,3 +1242,14 @@ export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   if (lines.some((l) => l.includes('*'))) lines.push(ASTERISK_NOTE);
   return lines.join('\n');
 }
+
+// A saved deal whose kind of sale, state, county or plan changed: if its dates are only the usual rows, untouched (no
+// date, no one named, nothing ticked), they're replaced with the new kind's usual rows. Anything typed stays.
+onDealChanged((d) => {
+  const key = `analyzed:${d.id}`;
+  const p = loadPacket(key);
+  if (!p.dates.length || !p.dates.every((x) => !x.when && !x.who.trim() && !x.resolved)) return;
+  const usual = suggestedDates(d);
+  if (p.dates.length === usual.length && p.dates.every((x, i) => x.what === usual[i])) return;
+  savePacket(key, { ...p, dates: usual.map((what) => ({ when: '', what, who: '' })) });
+});
