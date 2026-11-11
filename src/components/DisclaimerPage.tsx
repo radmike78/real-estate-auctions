@@ -98,7 +98,7 @@ export const SECTIONS: DrillSection[] = [
         <li>Compare several lenders and read every disclosure before you apply or pay any fee.</li>
         <li>Get all agreements in writing, and have your own attorney review them.</li>
         <li>Talk to a tax advisor and a financial advisor about how the purchase fits your finances.</li>
-        <li>Never wire money based on an email, text or phone call alone. Confirm wiring instructions by calling a number you already know is real.</li>
+        <li>Wire instructions sent by email, text or phone are a common fraud: confirm them by calling a number you looked up yourself before you send money. Confirm wiring instructions by calling a number you already know is real.</li>
       </ol>
     ),
   },

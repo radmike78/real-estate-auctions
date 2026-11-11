@@ -66,10 +66,10 @@ export const FACTS: Fact[] = [
   },
   {
     id: 'tax-payoff-deadline',
-    claim: 'The owner, a lender, a judgment creditor, or a city or town with a lien on the parcel can pay the taxes and costs until close of business on the third business day before the sale (NRS 361.585).',
+    claim: 'The owner and others NRS 361.585 lists (such as a lender, a judgment creditor or the person the property was assessed to) can pay the taxes, penalties, interest and costs until close of business on the third business day before the sale.',
     sources: ['nrs-361', 'treasurer-faq'],
     checked: '2026-11-11',
-    where: [{ file: PB, text: 'can pay the taxes and costs until close of business on the third business day before the sale' }],
+    where: [{ file: PB, text: 'can pay the taxes, penalties, interest and costs until close of business on the third business day before the sale' }],
   },
   {
     id: 'tax-sid-certificate',

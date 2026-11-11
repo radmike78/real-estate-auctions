@@ -1176,7 +1176,7 @@ const SHORT: Flow = {
       { label: 'Ask for pre-approval', send: 'I’m offering on a short sale I’ll live in. Can you pre-approve me?', reply: `Yes. Lenders on short sales want proof you can close. Practice pre-approval: a loan up to ${money(a!.loanAmount)} with ${a!.downPct}% down. Ask about a rate lock that can be extended, since approval can take months. (Simulated reply.)` },
     ]),
     contact('title', PEOPLE.title, 'Escrow.', [
-      { label: 'Ask how payments work', send: 'Who do I pay during a short sale?', reply: 'Everything goes through escrow and is disclosed to the lenders on the settlement statement. A payment outside escrow is hidden from the lenders and can void their approval. (Simulated reply.)' },
+      { label: 'Ask how payments work', send: 'Who do I pay during a short sale?', reply: 'Everything goes through escrow and is disclosed to the lenders on the settlement statement. A payment outside escrow doesn’t appear on the closing statement the lenders approved, so it can void their approval.* (Simulated reply.)' },
     ]),
     contractorContact(p, false),
   ],

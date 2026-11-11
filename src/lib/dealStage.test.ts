@@ -1091,6 +1091,16 @@ describe('Nevada round 4 flow', () => {
     expect(beforeDeed(sh)).toBe('2027-09-10');
   });
 
+  it('round 33 verifier: a Nevada tax-sale flip moved to the owner stage keeps its window and before-remodel checks first', () => {
+    const tx = { ...nvFlip, id: 'dtx33', kind: 'taxSale' as const, stage: 'owned' as const };
+    saveDeals([tx]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-06-01', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-06-20', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }, { when: '2026-06-25', what: 'Treasurer confirmed the sale had no SID affidavit', who: 'Treasurer', resolved: true }] };
+    savePacket('analyzed:dtx33', p);
+    const keys = stageTasks(tx, 'owned', p, new Date('2026-11-11T15:00:00Z')).map((t) => t.key);
+    expect(keys.indexOf('before-remodel')).toBeGreaterThanOrEqual(0);
+    expect(keys.indexOf('before-remodel')).toBeLessThan(keys.indexOf('list'));
+  });
+
   it('round 32 verifier: an HOA win moved to the owner stage after its redemption ended asks whether anyone redeemed', async () => {
     const h = { ...nvFlip, id: 'dho32', kind: 'hoa' as const, stage: 'owned' as const };
     saveDeals([h]);

@@ -407,7 +407,7 @@ function MissionCard({ m, a, set, fresh, total }: { m: Mission; a: Answers[strin
             const best = m.options.filter((o) => o.good).map((o) => `“${o.label}”`).join(' and ');
             const text = m.multi
               ? ok ? 'Exactly the choices an experienced investor would make. Read why with each choice above.' : `Not quite: you matched ${right} of ${m.options.length} choices. An experienced investor would pick ${best}. Read why with each choice above.`
-              : ok ? 'Correct. Read why with your choice above.' : `Not quite. An experienced investor would choose ${best}. Read why with each choice above.`;
+              : ok ? 'Correct. Read why with your choice above.' : `Not quite. The better answer is ${best}. Read why with each choice above.`;
             return <Feedback focus={fresh} tone={ok ? 'good' : 'bad'}>{text}</Feedback>;
           })()}
           {right !== m.options.length && <button type="button" className="btn btn-secondary" onClick={() => set({ picks: [], done: false })}>Try this mission again</button>}

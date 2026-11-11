@@ -774,6 +774,9 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     // (A certificate-first deal moved here before its deed: once the deed comes, the first week and the
     // before-remodel check still come first, as at Deed recorded.)
     if (wayOf(d) !== 'lien' && certificateFirst(d) && !owned[d.id]?.sold) { const safe = stageTasks(d, 'closed', p, now).filter((t) => !t.done && (t.key === 'first-week' || t.key === 'before-remodel')); out.push(...safe); }
+    // (A Nevada tax-sale or trustee deal moved here with its window or before-remodel check open: those still come
+    // first. A Nevada trustee flip's window is handled below.)
+    if (d.state === 'NV' && (d.kind === 'taxSale' || (d.kind === 'trustee' && d.plan !== 'flip')) && !owned[d.id]?.sold) { const safe = stageTasks(d, 'closed', p, now).filter((t) => !t.done && (t.key === 'window' || t.key === 'before-remodel')); out.push(...safe); }
     // (The first finished month not recorded, as the tracker opens on it.)
     const open = (() => { const o = owned[d.id]; const b = o?.boughtOn?.slice(0, 7); if (!o || !b) return ''; const t = new Date(now.getFullYear(), now.getMonth() - 1, 1); const lm = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}`; for (let [y, m] = firstFullMonth(o), i = 0; i < 1200; i++) { const k = `${y}-${String(m).padStart(2, '0')}`; if (k > lm) return ''; if (!o.months.some((x) => x.month === k)) return k === lm ? '' : k; m += 1; if (m > 12) { m = 1; y += 1; } } return ''; })();
     const openWord = open ? new Date(`${open}-15T12:00:00`).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '';
