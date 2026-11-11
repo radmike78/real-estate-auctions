@@ -1004,7 +1004,7 @@ describe('Nevada round 4 flow', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-10-05', what: 'SID certificate payoff (affidavit filed)', who: 'Me', resolved: true }] };
     savePacket('analyzed:tx27', p);
     expect(stageTasks(tax, 'closed', p, now)[0].key).toBe('sid-paid-affidavit');
-    expect(stageHint('closed', tax)).toMatch(/^Paid: next, confirm the city or county sent the Treasurer its affidavit/);
+    expect(stageHint('closed', tax)).toMatch(/^Paid on time: the Treasurer can’t issue the deed until the city or county files its affidavit/);
     const reo = { ...nvFlip, id: 'dord27', kind: 'reo' as const, plan: 'rent' as const, stage: 'researching' as const };
     saveDeals([reo]);
     savePacket('analyzed:dord27', { ...EMPTY_PACKET, dates: [...suggestedDates(reo).map((what) => ({ when: '', what, who: '' })), { when: '', what: 'Ask about the roof', who: '' }] });
@@ -1012,6 +1012,20 @@ describe('Nevada round 4 flow', () => {
     saveDeals([auction]);
     const order = loadPacket('analyzed:dord27').dates.map((x) => x.what).filter((w) => suggestedDates(auction).includes(w));
     expect(order).toEqual(suggestedDates(auction).filter((w) => order.includes(w)));
+  });
+
+  it('round 28 tools: an HOA win left at Won after its redemption ended asks; a trustee flip keeps its worked-out window', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const hoa = { ...nvFlip, id: 'dhoa28', kind: 'hoa' as const, plan: 'rent' as const, stage: 'contract' as const };
+    saveDeals([hoa]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-07-01', what: 'Sale day', who: 'Agent', resolved: true }, { when: '2026-07-02', what: 'Payment deadline', who: 'Me', resolved: true }] };
+    savePacket('analyzed:dhoa28', p);
+    expect(dealNextTask(hoa, p, now, 'contract').label).toMatch(/redeem/i);
+    expect(stageHint('contract', hoa)).toMatch(/^Paid, and the redemption period has ended/);
+    const flip = { ...nvFlip, id: 'dfl28', stage: 'owned' as const };
+    saveDeals([flip]);
+    const fp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-28', what: 'Deed recorded', who: 'Trustee', resolved: true }, { when: '', what: 'Challenge window ends', who: '' }] };
+    expect(packetSections(flip, fp, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Oct 28, 2026: Challenge window ends \(worked out/);
   });
 
   it('round 11 flow: a late SID payoff; Still to add; hints; time order after the deed; registration passed', async () => {
