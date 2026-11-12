@@ -302,10 +302,11 @@ export const fillSealedDay = (d: { state?: Deal['state']; kind?: Deal['kind']; c
   // (A blank row gets the usual day before, and the packet notes the sale date it came from (sealedFor). While the row
   // still holds that filled-in date, it follows the sale date, even across a half-typed blank one; a date the reader
   // typed from the notice is kept. The stage hint says when it isn't the usual day before the sale.)
-  void before;
   const sale = saleDayIn(p);
   const due = sealedDay({ ...p, dates: p.dates.filter((x) => !sameDate(x.what, SEALED_ROW)) });
-  const filledDue = p.sealedFor ? sealedDay({ ...p, dates: [{ when: p.sealedFor, what: 'Sale day', who: '' }] }) : '';
+  // (A packet saved before sealedFor existed: the sale date it had just before this change stands in for it.)
+  const filledFrom = p.sealedFor ?? (before && saleDayIn(before) && saleDayIn(before) !== sale ? saleDayIn(before) : '');
+  const filledDue = filledFrom ? sealedDay({ ...p, dates: [{ when: filledFrom, what: 'Sale day', who: '' }] }) : '';
   const redo = (x: PacketData['dates'][number]) => sameDate(x.what, SEALED_ROW) && !x.resolved && !!due && x.when !== due && (!x.when || (!!filledDue && x.when === filledDue));
   if (!p.dates.some(redo)) return p;
   return { ...p, sealedFor: sale, dates: p.dates.map((x) => (redo(x) ? { ...x, when: due } : x)) };
@@ -939,7 +940,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const bidPrep = (stage === 'offer' || stage === 'researching') && wayOf(d) !== 'offer' && nd && nd.days > 0 && sameEvent(nd.what, 'Sale day') && stageTasks(d, stage, p, now).some((t) => !t.done && t.key !== 'dates' && t.key !== 'stage');
     // (A sealed bid already sent: it can't be changed, so the countdown is only to the sale and how winners are told.)
     if (bidPrep && nd && sealedBid(d) && ticked(p, SEALED_ROW)) return task({ key: 'date', days: nd.days, label: `Your sealed bid for ${d.name || 'this property'} is in. The sale is ${nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`} (${prettyDay(nd.when)}): the Treasurer contacts each winning bidder by phone or mail`, produces: 'the Treasurer’s answer; then mark it won or passed in its deal packet', href: packetHref(d, 'dates'), support: [], done: false });
-    if (bidPrep && nd && nd.days <= 7) { const t0 = stageTasks(d, stage, p, now).find((t) => !t.done && t.key !== 'dates' && t.key !== 'stage'); if (t0) return { ...t0, label: `The sale is ${nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}: ${t0.label.charAt(0).toLowerCase()}${t0.label.slice(1)}${sealedOff(d)}` }; }
+    if (bidPrep && nd && nd.days <= 7) { const t0 = stageTasks(d, stage, p, now).find((t) => !t.done && t.key !== 'dates' && t.key !== 'stage'); if (t0) return { ...t0, label: `The sale is ${nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`}: ${t0.label.charAt(0).toLowerCase()}${t0.label.slice(1)}${sealedOff(d) ? `${/[.?!]$/.test(t0.label) ? '' : '.'}${sealedOff(d)}` : ''}` }; }
     // (Under contract, the closing a week or less away: the title commitment, insurance and walkthrough still open lead,
     // one at a time, before "It closed".)
     // (A short sale's closing a week or less away with no approval notice yet: it can't close without the lender's yes.)

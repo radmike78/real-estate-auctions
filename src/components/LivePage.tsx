@@ -118,7 +118,7 @@ export default function LivePage() {
           <p>
             Meanwhile, check the{' '}
             <a href={myState === 'NV' ? nvSaleUrl : '#/find-deals'}>
-              {myState === 'NV' ? (nvCounty === 'Clark' ? 'Clark County Treasurer’s official sale list ↗' : `${nvTreasurer}’s tax sale page ↗`) : 'Your county’s official sale lists →'}
+              {myState === 'NV' ? (nvCounty === 'Clark' ? 'Clark County Treasurer’s official sale list ↗' : nvOffice?.taxSale?.contactOnly ? `${nvTreasurer} (contact the office for the next sale) ↗` : `${nvTreasurer}’s tax sale page ↗`) : 'Your county’s official sale lists →'}
             </a>{' '}
             and the{' '}
             <a href="https://www.irsauctions.gov/" target="_blank" rel="noreferrer noopener">

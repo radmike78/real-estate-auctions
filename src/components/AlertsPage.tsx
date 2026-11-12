@@ -76,7 +76,7 @@ function AlertsSoon() {
         auction. No account needed.
       </p>
       <p>
-        Until then, check <a href="#/live">Live tax sales</a> for verified parcels, or <a href="#/deals">save properties to My deals</a> to keep
+        Until then, check <a href="#/live">Live tax sales</a> for upcoming sales we’ve checked, or <a href="#/deals">save properties to My deals</a> to keep
         track of them in this browser.
       </p>
     </EmptyState>
