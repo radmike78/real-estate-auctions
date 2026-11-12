@@ -270,7 +270,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
       <section className="deal-setup packet-section" aria-labelledby="packet-cash">
         <Head k="cash" />
         <label className="field">
-          <span>{deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short' ? 'Earnest money deposit' : (deal.kind === 'lien' ? 'Certificate payment, due by the Treasurer’s deadline' : sealedBid(deal) ? 'Full payment, enclosed with your sealed bid (due 4 p.m. the day before the sale)' : 'Bidder deposit, if the sale requires one')}</span>
+          <span>{deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short' ? 'Earnest money deposit' : (deal.kind === 'lien' ? 'Certificate payment, due by the Treasurer’s deadline' : sealedBid(deal) ? 'Full payment, enclosed with your sealed bid (due by the notice’s deadline, usually 4 p.m. the day before the sale)' : 'Bidder deposit, if the sale requires one')}</span>
           <NumInput blank value={p.earnest} onValue={(n) => update({ earnest: n ?? 0 })} />
         </label>
         {(deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short') && <details><summary>{deal.state === 'TX' ? 'Separate fees and confirmed deposit credits' : 'Confirmed deposit credits'}</summary>

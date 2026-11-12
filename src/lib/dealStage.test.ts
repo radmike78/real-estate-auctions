@@ -1734,11 +1734,15 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(fillSealedDay({ state: 'NV', kind: 'taxSale', county: 'Eureka' }, blank).dates[0].when).toBe('2026-12-01');
     expect(fillSealedDay({ state: 'NV', kind: 'taxSale', county: 'Clark' }, blank).dates[0].when).toBe('');
   });
-  it('round 41: the sealed-bid deadline follows a corrected sale date, and a sent bid counts down only to the sale', async () => {
+  it('round 43: a dated sealed-bid deadline is kept when the sale date changes (the hint flags it), and a sent bid counts down only to the sale', async () => {
     const { fillSealedDay } = await import('./dealStage');
     const eu = { state: 'NV' as const, kind: 'taxSale' as const, county: 'Eureka' };
     const moved = { ...EMPTY_PACKET, dates: [{ when: '2026-11-19', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-11-13', what: 'Sale day', who: 'T' }] };
-    expect(fillSealedDay(eu, moved, { ...moved, dates: [moved.dates[0], { ...moved.dates[1], when: '2026-11-20' }] }).dates[0].when).toBe('2026-11-12');
+    expect(fillSealedDay(eu, moved, { ...moved, dates: [moved.dates[0], { ...moved.dates[1], when: '2026-11-20' }] }).dates[0].when).toBe('2026-11-19');
+    const df: Deal = { ...deal, id: 'deu45', state: 'NV', county: 'Eureka', kind: 'taxSale', plan: 'flip', stage: 'offer' };
+    saveDeals([df]);
+    savePacket('analyzed:deu45', moved);
+    expect(stageHint('offer', df)).toMatch(/isn’t the usual day before the sale .*on or after the sale day/);
     // (A date typed first, then the sale day added for the first time, is kept.)
     const firstSale = { ...EMPTY_PACKET, dates: [{ when: '2026-12-03', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-12-07', what: 'Sale day', who: 'T' }] };
     expect(fillSealedDay(eu, firstSale, { ...firstSale, dates: [firstSale.dates[0], { ...firstSale.dates[1], when: '' }] }).dates[0].when).toBe('2026-12-03');
