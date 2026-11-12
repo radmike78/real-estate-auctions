@@ -1739,12 +1739,15 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const eu = { state: 'NV' as const, kind: 'taxSale' as const, county: 'Eureka' };
     const moved = { ...EMPTY_PACKET, dates: [{ when: '2026-11-19', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-11-13', what: 'Sale day', who: 'T' }] };
     // (Nov 19 was the usual day before the Nov 20 sale, so it was filled in: it follows the sale to Nov 13.)
-    expect(fillSealedDay(eu, moved, { ...moved, dates: [moved.dates[0], { ...moved.dates[1], when: '2026-11-20' }] }).dates[0].when).toBe('2026-11-12');
+    expect(fillSealedDay(eu, { ...moved, sealedFor: '2026-11-20' }).dates[0].when).toBe('2026-11-12');
+    // (Typing the sale date passes through a blank one: the filled-in deadline still follows.)
+    expect(fillSealedDay(eu, { ...moved, dates: [moved.dates[0], { ...moved.dates[1], when: '' }], sealedFor: '2026-11-20' }).dates[0].when).toBe('2026-11-19');
+    expect(fillSealedDay(eu, { ...moved, sealedFor: '2026-11-20' }).sealedFor).toBe('2026-11-13');
     // (A date from the notice that wasn't the usual day before is kept.)
     expect(fillSealedDay(eu, moved, { ...moved, dates: [moved.dates[0], { ...moved.dates[1], when: '2026-11-25' }] }).dates[0].when).toBe('2026-11-19');
     // (A deadline still on the usual day before the old sale date, the one filled in, follows the sale.)
     const filled = { ...EMPTY_PACKET, dates: [{ when: '2026-11-11', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-11-22', what: 'Sale day', who: 'T' }] };
-    expect(fillSealedDay(eu, filled, { ...filled, dates: [filled.dates[0], { ...filled.dates[1], when: '2026-11-12' }] }).dates[0].when).toBe('2026-11-21');
+    expect(fillSealedDay(eu, { ...filled, sealedFor: '2026-11-12' }).dates[0].when).toBe('2026-11-21');
     const df: Deal = { ...deal, id: 'deu45', state: 'NV', county: 'Eureka', kind: 'taxSale', plan: 'flip', stage: 'offer' };
     saveDeals([df]);
     savePacket('analyzed:deu45', moved);
@@ -1770,7 +1773,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const t2 = new Date(now); t2.setDate(t2.getDate() + 3);
     const t1 = new Date(now); t1.setDate(t1.getDate() + 2);
     const open = { ...EMPTY_PACKET, dates: [{ when: t1.toLocaleDateString('en-CA'), what: 'Sealed bid and full payment due', who: 'You' }, { when: t2.toLocaleDateString('en-CA'), what: 'Sale day', who: 'T' }] };
-    expect(nextAction(d, open, now).text).toMatch(/must reach the Eureka County Treasurer’s office by 4 p\.m\./);
+    expect(nextAction(d, open, now).text).toMatch(/must reach the Eureka County Treasurer’s office by the notice’s deadline that day \(usually 4 p\.m\./);
     // (The hint reads today's date.)
     const r1 = new Date(); r1.setDate(r1.getDate() + 2); const r2 = new Date(); r2.setDate(r2.getDate() + 3);
     savePacket('analyzed:deu44', { ...EMPTY_PACKET, dates: [{ when: r1.toLocaleDateString('en-CA'), what: 'Sealed bid and full payment due', who: 'You', resolved: true }, { when: r2.toLocaleDateString('en-CA'), what: 'Sale day', who: 'T' }] });

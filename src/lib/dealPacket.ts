@@ -59,6 +59,8 @@ export interface PacketData {
   conditions: string;
   /** The sale was postponed: its date (and the registration and payment dates) were cleared for the new ones. */
   postponedSale?: boolean;
+  /** A sealed-bid sale: the sale date the bid deadline was filled in from (the deadline follows it while unchanged). */
+  sealedFor?: string;
 }
 
 export const EMPTY_PACKET: PacketData = { fit: '', fitWhy: '', dates: [], qa: [], earnest: 0, decisionWhy: '', conditions: '' };
@@ -183,7 +185,7 @@ export function cleanPacket(v: unknown): PacketData {
   });
   const earnest = typeof o.earnest === 'number' && Number.isFinite(o.earnest) && o.earnest > 0 ? Math.min(o.earnest, 1e9) : 0;
   const amount = (n: unknown) => typeof n === 'number' && Number.isFinite(n) && n > 0 ? Math.min(n, 1e9) : 0;
-  return { fit, fitWhy: str(o.fitWhy, 600), dates, qa, earnest, ...(amount(o.optionFee) ? { optionFee: amount(o.optionFee) } : {}), ...(amount(o.depositCredit) ? { depositCredit: amount(o.depositCredit) } : {}), ...(str(o.calendarReviewedFor, 30) ? { calendarReviewedFor: str(o.calendarReviewedFor, 30) } : {}), ...(o.postponedSale === true ? { postponedSale: true } : {}), decisionWhy: str(o.decisionWhy, 1000), conditions: str(o.conditions, 1000) };
+  return { fit, fitWhy: str(o.fitWhy, 600), dates, qa, earnest, ...(amount(o.optionFee) ? { optionFee: amount(o.optionFee) } : {}), ...(amount(o.depositCredit) ? { depositCredit: amount(o.depositCredit) } : {}), ...(str(o.calendarReviewedFor, 30) ? { calendarReviewedFor: str(o.calendarReviewedFor, 30) } : {}), ...(o.postponedSale === true ? { postponedSale: true } : {}), ...(typeof o.sealedFor === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(o.sealedFor) ? { sealedFor: o.sealedFor } : {}), decisionWhy: str(o.decisionWhy, 1000), conditions: str(o.conditions, 1000) };
 }
 
 function loadAll(): Record<string, unknown> {
