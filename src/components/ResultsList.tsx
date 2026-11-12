@@ -95,6 +95,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
                   {/* Plain ink, not "profit" green: this is before repairs, costs and uncertain liens. */}
                   <dd className={m.estimatedEquity !== null && m.estimatedEquity < 0 ? 'neg' : ''}>
                     {fmtMoney(m.estimatedEquity)}
+                    {m.uncertain > 0 && m.estimatedEquity !== null && <span className="muted small" style={{ display: 'block' }}>Leaves out {fmtMoney(m.uncertain)} of liens that may survive</span>}
                     <span className="card-days">not profit</span>
                   </dd>
                 </div>

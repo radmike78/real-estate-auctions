@@ -195,7 +195,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     items: [
       { text: "Cashier's checks for your full bid", detail: 'Confirm the amount and payee with the HOA’s foreclosure agent.' },
       { text: 'Government-issued photo ID' },
-      { text: 'Proof the first deed of trust is wiped out, or budget for it', detail: 'If the lender paid the HOA’s priority amount at least 5 days before the sale, the first deed of trust (the main home loan) survives (NRS 116.31166). It also survives in two other cases: if Fannie Mae or Freddie Mac owned the loan (unless the FHFA consented), or if the lender offered to pay and the HOA refused, when a court would find the offer valid (Bank of America v. SFR, 2018).* Check the Recorder for a recorded payment or satisfaction, but no recorded payment doesn’t prove the loan is gone: get a title professional’s opinion.' },
+      { text: 'Proof the first deed of trust is wiped out, or budget for it', detail: 'If the lender paid the HOA’s super-priority amount at least 5 days before the sale, the first deed of trust (the main home loan) survives (NRS 116.31166). It also survives in two other cases: if Fannie Mae or Freddie Mac owned the loan (unless the FHFA consented), or if the lender offered to pay and the HOA refused, when a court would find the offer valid (Bank of America v. SFR, 2018).* Check the Recorder for a recorded payment or satisfaction, but no recorded payment doesn’t prove the loan is gone: get a title professional’s opinion.' },
       { text: 'A 60-day wait before the sale is final', detail: 'The former owner, or a lender whose loan ranked below the HOA lien, can redeem within 60 days. They pay your price plus 1% a month, plus the taxes, assessments, payments on liens from before the sale and needed upkeep you paid. That includes reasonable spending needed to maintain and repair the unit to the HOA’s standards, but not upgrades, so save renovations until the redemption period ends.' },
       { text: 'Cash, or hard-money financing arranged in advance' },
       { text: 'Budget for surviving liens, repairs and possession' },
@@ -337,6 +337,7 @@ const COMMERCIAL_WORDING: Record<string, Partial<ChecklistItem> | null> = {
   },
   'A plan if the home is occupied': { text: 'A plan for any tenants or occupants' },
   'For HUD homes: a HUD-registered broker': null, // HUD sells homes only
+  'Proof the first deed of trust is wiped out, or budget for it': { detail: 'Whether the first deed of trust survives depends on the association’s documents, any lender payment and federal rules: check the Recorder and get a title professional’s opinion.*' },
   'Mortgage pre-approval or proof of funds': { text: 'A commercial lender’s term sheet or proof of funds' },
   'A buyer’s agent': { text: 'A commercial broker', detail: 'Bank-owned commercial property is sold through listing brokers.' },
   'A home inspection within your contingency period': { text: 'A property inspection within your due-diligence period' },
