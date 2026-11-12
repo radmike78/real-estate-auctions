@@ -56,7 +56,7 @@ export const forcedSales: Lesson = {
           table: {
             head: ['State', 'Timeline and notice', 'Paying'],
             rows: [
-              ['Nevada', 'At least 3 months after the notice of default is recorded. The notice of sale is posted 20 days and published once a week for 3 weeks. For 30 days after the trustee’s deed is recorded (90 days after the sale for anyone who wasn’t properly notified), a lawsuit can still void the sale (NRS 107.080(5), (6)), so ask your title company or attorney before you spend on repairs.', 'Set by the trustee; see our guide.'],
+              ['Nevada', 'The notice of sale can come no sooner than 3 months after the notice of default is recorded. The notice of sale is posted 20 days and published once a week for 3 weeks. For 30 days after the trustee’s deed is recorded (90 days after the sale for anyone who wasn’t properly notified), a lawsuit can still void the sale (NRS 107.080(5), (6)), so ask your title company or attorney before you spend on repairs.', 'Set by the trustee; see our guide.'],
               ['California', 'At least 3 months after the notice of default. The notice of sale is posted at least 20 days before.', 'The trustee can require bidders to show they can pay the full bid in cash or cashier’s checks. The trustee can also require the full amount from the winner.'],
               ['Arizona', 'The sale can’t happen before the 91st day after the notice of sale is recorded. Notice is posted 20 days before and published four weeks in a row.', 'The winner pays by 5 p.m. the next business day.'],
               ['Utah', 'At least 3 months after the notice of default. The notice of sale is published three times and posted at least 20 days before.', 'As the trustee directs. A bid can’t be withdrawn, and the trustee’s deed comes with no right of redemption.'],
@@ -88,7 +88,7 @@ export const forcedSales: Lesson = {
         { list: [
           'IRS sales: the IRS sells seized property by public or sealed-bid auction. For 180 days afterward, the owner or anyone with an interest can buy it back (redeem it) by paying what you paid plus interest at 20% a year, compounded daily (about $10,400 on $100,000 over 180 days), so you can’t count on keeping it until then.',
           'HUD homes: foreclosed FHA homes sold through HUD Home Store. Bids go through a HUD-registered broker.',
-          'Tenants: after a foreclosure, a new owner must give genuine tenants at least 90 days’ notice before eviction, and generally has to honor their lease. The exception is a buyer who will live there, who can end the lease with 90 days’ notice.',
+          'Tenants: after a foreclosure, a new owner must give bona fide (genuine) tenants at least 90 days’ notice before eviction, and generally has to honor their lease. The exception is a buyer who will live there, who can end the lease with 90 days’ notice.',
         ] },
       ],
     },
@@ -107,7 +107,7 @@ export const forcedSales: Lesson = {
         'Find deals lists each county’s tax sale page and records offices. Don’t contact owners or occupants; buy from the official seller.',
         'Our step-by-step guides walk you through each kind of sale in your state, from the notice to the deed (or, for lien certificates, to being repaid).',
         { links: [
-          { label: 'Nevada sale guides (with Clark County details)', url: '#/playbooks?state=NV', what: 'Tax sales, lien certificates, foreclosure auctions, HOA foreclosures, sheriff sales, IRS sales, bank-owned homes, commercial property and short sales.' },
+          { label: 'Nevada sale guides (with Clark County details)', url: '#/playbooks?state=NV', what: 'Tax sales, lien certificates, trustee sales (foreclosure auctions), HOA foreclosures, sheriff sales, IRS sales, bank-owned homes, commercial property and short sales.' },
           { label: 'California guides', url: '#/playbooks?state=CA', what: 'Tax sales, trustee sales, sheriff sales, HOA foreclosures, IRS sales, bank-owned homes, short sales and commercial property.' },
           { label: 'Arizona guides', url: '#/playbooks?state=AZ', what: 'Tax lien sales, trustee sales, sheriff sales, HOA foreclosures, IRS sales, bank-owned homes, short sales and commercial property.' },
           { label: 'Utah guides', url: '#/playbooks?state=UT', what: 'Tax sales, trustee sales, sheriff sales, HOA foreclosures, IRS sales, bank-owned homes, short sales and commercial property.' },

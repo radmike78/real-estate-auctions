@@ -848,7 +848,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         year: "2025",
         title: "Inflated purchase price ends in prison sentences",
         happened: "Investors bought the Williamsburg of Cincinnati apartment complex for $70 million in 2019. But they showed the lender and Fannie Mae a fake contract for over $95 million, which got them a loan of more than $74 million, more than the real price. In 2025 two of the managing members were sentenced to prison for wire fraud conspiracy.",
-        lesson: "Always check the true sale price and get an independent appraisal. Numbers in a sponsor’s pitch can be false.",
+        lesson: "Check the true sale price and consider an independent appraisal: numbers in a sponsor’s pitch can be false.",
         source: {
           label: "U.S. Department of Justice: Four Real Estate Investors Sentenced in Multimillion-Dollar Loan Scheme (2025)",
           url: "https://www.justice.gov/opa/pr/four-real-estate-investors-sentenced-multimillion-dollar-loan-scheme"
