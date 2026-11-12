@@ -154,7 +154,7 @@ export default function FindDealsPage() {
         <p>Find one property that fits your limits, record its source and price, then save it in Analyze.</p>
         <details><summary>See the five-step search routine</summary><ol>
           <li>Pick one area, property type and way of buying (listed home or auction) from your buy box.</li>
-          <li>Search the sources below or ask your agent for matching MLS listings. Ask the seller or listing agent whether it’s still for sale and whether investors can buy it.</li>
+          <li>Search the sources below or ask your agent for matching MLS listings. Ask the listing agent (or, for an auction, the official seller named on the notice) whether it’s still for sale and whether investors can buy it. Don’t contact the owner.</li>
           <li>Record the address or parcel, source link, date checked, asking price or minimum bid, sale type and payment deadline.</li>
           <li>Screen it against your limits. In <a href="#/analyze">Analyze</a>, enter and save a property that fits; put the source and missing facts in its evidence log.</li>
           <li>Before you offer or bid, check the rent, value, repairs, title, who lives there, allowed use, insurance and loan. A quick calculation is only a first screen.</li>

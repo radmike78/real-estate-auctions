@@ -900,7 +900,7 @@ export function LienCalculator({ storageKey }: { storageKey?: string } = {}) {
         ) : (
           <>
             <p className="calc-note small">
-              It’s a certificate, not the property. The owner keeps the home and can pay it off. You can ask for a deed only if they don’t redeem in time: 2 years if the parcel had a home or other significant permanent improvement, otherwise 120 days, as the city or county decides. After that, you must give the owner the notice the law requires (usually through your attorney), the owner still has 60 days to pay, and any delinquent taxes must be paid before the deed (NRS 271.595)*. <a href="#/playbooks/sid">How lien certificates work&nbsp;→</a>
+              It’s a certificate, not the property. The owner keeps the home and can pay it off. You can ask for a deed only if they don’t redeem in time: 2 years if the parcel had a home or other significant permanent improvement (as the city or county decides), otherwise 120 days. After that, you must give the owner the notice the law requires (usually through your attorney), the owner still has 60 days to pay, and any delinquent taxes must be paid before the deed (NRS 271.595)*. <a href="#/playbooks/sid">How lien certificates work&nbsp;→</a>
             </p>
             <p className="muted small">An estimate, not advice. Later taxes you pay can be added to the certificate with interest if you give the Treasurer written notice.</p>
           </>
