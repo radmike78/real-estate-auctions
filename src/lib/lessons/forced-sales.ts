@@ -49,7 +49,7 @@ export const forcedSales: Lesson = {
       ],
     },
     {
-      heading: 'Trustee (foreclosure) sales',
+      heading: 'Trustee sales (foreclosure auctions)',
       blocks: [
         'Most home loans in all five states are deeds of trust. When a borrower defaults, a trustee can sell the home at a public auction without going to court.',
         {
