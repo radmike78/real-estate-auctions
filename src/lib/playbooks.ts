@@ -235,11 +235,11 @@ const NEVADA: Playbook[] = [
       { title: 'Get the deed', detail: 'If no one redeems within 60 days, whoever conducted the sale gives you a deed without warranty (NRS 116.31166(7)). Record it and get title insurance. If anyone lives there, plan possession with an attorney.' },
     ],
     survives: {
-      wipedOut: ['The HOA lien being foreclosed', 'The first mortgage, only if three things are true. The lender did not pay the super-priority amount. The loan wasn’t owned by Fannie Mae or Freddie Mac. And the sale was proper'],
+      wipedOut: ['The HOA lien being foreclosed', 'The first mortgage, only if all of these are true: the lender didn’t pay the super-priority amount (or make an offer a court would find valid*), the loan wasn’t owned by Fannie Mae or Freddie Mac, and the sale was proper*'],
       mayStay: ['The first mortgage, if the lender paid the super-priority amount at least 5 days before the sale, or offered it and was refused, if a court would find the offer valid (Bank of America v. SFR, 2018)*. Also if Fannie Mae or Freddie Mac owned the loan (while they are under federal conservatorship)', 'Property taxes', 'Federal tax liens. Even when wiped out, the U.S. can buy the home back within 120 days, longer than the 60 days for the owner or a junior lender (26 U.S.C. 7425)', 'The 60-day redemption right'],
     },
     mistakes: [
-      { mistake: 'Assuming every HOA sale wipes out the mortgage', prevent: 'Check the Recorder for the lender’s payment before bidding. No recorded payment doesn’t prove the mortgage is gone. An offer to pay that the HOA refused, or Fannie Mae or Freddie Mac owning the loan, can keep it. Have an attorney check.' },
+      { mistake: 'Assuming every HOA sale wipes out the mortgage', prevent: 'Check the Recorder for the lender’s payment before bidding. No recorded payment doesn’t prove the mortgage is gone. An offer to pay that the HOA refused, or Fannie Mae or Freddie Mac owning the loan, can keep it.* Have an attorney check.' },
       { mistake: 'Renovating right away', prevent: 'Spending needed to maintain and repair the unit to the HOA’s standards is repaid if someone redeems. Upgrades before the 60-day redemption period ends put that money at risk.' },
     ],
     example: {

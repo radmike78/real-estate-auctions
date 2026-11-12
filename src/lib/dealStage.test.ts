@@ -1751,7 +1751,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const df: Deal = { ...deal, id: 'deu45', state: 'NV', county: 'Eureka', kind: 'taxSale', plan: 'flip', stage: 'offer' };
     saveDeals([df]);
     savePacket('analyzed:deu45', moved);
-    expect(stageHint('offer', df)).toMatch(/isn’t the usual day before the sale .*on or after the sale day/);
+    expect(stageHint('offer', df)).toMatch(/is on or after the sale .*Check the notice and fix the date/);
     // (A date typed first, then the sale day added for the first time, is kept.)
     const firstSale = { ...EMPTY_PACKET, dates: [{ when: '2026-12-03', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-12-07', what: 'Sale day', who: 'T' }] };
     expect(fillSealedDay(eu, firstSale, { ...firstSale, dates: [firstSale.dates[0], { ...firstSale.dates[1], when: '' }] }).dates[0].when).toBe('2026-12-03');
