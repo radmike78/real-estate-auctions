@@ -527,7 +527,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.carsoncity.gov/government/departments-g-z/sheriff-s-office/divisions/civil-records", checked: "2026-10-10" },
   },
   "NV/Churchill": {
-    taxSale: { url: "https://www.churchillcountynv.gov/640/Tax-Sale", checked: "2026-11-12", note: "The county says recent sales were conducted online; start from the county’s page for the current sale and the site it names." },
+    taxSale: { url: "https://www.churchillcountynv.gov/640/Tax-Sale", checked: "2026-11-12", note: "The county says recent sales were conducted online; start from the county’s page and the current sale notice for where and how to bid." },
     treasurer: { url: "https://www.churchillcountynv.gov/114/ClerkTreasurer", checked: "2026-09-29" },
     assessor: { url: "https://www.churchillcountynv.gov/88/Assessor", checked: "2026-09-29" },
     recorder: { url: "https://www.churchillcountynv.gov/168/Recorder", checked: "2026-09-29" },
@@ -563,7 +563,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.accessesmeralda.com/county_offices/sheriff.php", checked: "2026-10-08", contactOnly: true },
   },
   "NV/Eureka": {
-    taxSale: { url: "https://www.eurekacountynv.gov/departments/treasurerpublic-guardian/delinquent-tax-auction/", checked: "2026-11-11", note: "Sealed-bid only: one bid per parcel on the county’s bid form, with full payment enclosed (money order, cashier’s check or card, with a 2.5% card fee), must reach the Treasurer’s office by the deadline in the notice (usually 4 p.m. the day before the sale date): send it by USPS, FedEx or UPS early enough to arrive in time, or hand-deliver it. A card is charged when the bid wins, and a declined card gives the parcel to the next-highest bidder. There’s no verbal bidding at the sale. Confirm the dates in the current notice." },
+    taxSale: { url: "https://www.eurekacountynv.gov/departments/treasurerpublic-guardian/delinquent-tax-auction/", checked: "2026-11-11", note: "Sealed-bid only: one bid per parcel on the county’s bid form, with full payment enclosed (money order, cashier’s check or card, with a 2.5% card fee), must reach the Treasurer’s office by the deadline in the notice (usually 4 p.m. the day before the sale date): send it by USPS, FedEx or UPS early enough to arrive in time, or hand-deliver it. A card is charged when the bid wins, and a declined card gives the parcel to the next-highest bidder. Put each bid in its own envelope, marked with the parcel number: if one envelope holds more than one bid, the county rejects all of them. There’s no verbal bidding at the sale. Confirm the dates in the current notice." },
     treasurer: { url: "https://www.eurekacountynv.gov/departments/treasurerpublic-guardian/", checked: "2026-09-29" },
     assessor: { url: "https://www.eurekacountynv.gov/departments/assessor/", checked: "2026-09-29" },
     recorder: { url: "https://www.eurekacountynv.gov/departments/clerk-recorder/", checked: "2026-09-29" },

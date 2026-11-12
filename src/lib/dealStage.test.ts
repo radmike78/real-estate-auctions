@@ -1738,7 +1738,13 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const { fillSealedDay } = await import('./dealStage');
     const eu = { state: 'NV' as const, kind: 'taxSale' as const, county: 'Eureka' };
     const moved = { ...EMPTY_PACKET, dates: [{ when: '2026-11-19', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-11-13', what: 'Sale day', who: 'T' }] };
-    expect(fillSealedDay(eu, moved, { ...moved, dates: [moved.dates[0], { ...moved.dates[1], when: '2026-11-20' }] }).dates[0].when).toBe('2026-11-19');
+    // (Nov 19 was the usual day before the Nov 20 sale, so it was filled in: it follows the sale to Nov 13.)
+    expect(fillSealedDay(eu, moved, { ...moved, dates: [moved.dates[0], { ...moved.dates[1], when: '2026-11-20' }] }).dates[0].when).toBe('2026-11-12');
+    // (A date from the notice that wasn't the usual day before is kept.)
+    expect(fillSealedDay(eu, moved, { ...moved, dates: [moved.dates[0], { ...moved.dates[1], when: '2026-11-25' }] }).dates[0].when).toBe('2026-11-19');
+    // (A deadline still on the usual day before the old sale date, the one filled in, follows the sale.)
+    const filled = { ...EMPTY_PACKET, dates: [{ when: '2026-11-11', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-11-22', what: 'Sale day', who: 'T' }] };
+    expect(fillSealedDay(eu, filled, { ...filled, dates: [filled.dates[0], { ...filled.dates[1], when: '2026-11-12' }] }).dates[0].when).toBe('2026-11-21');
     const df: Deal = { ...deal, id: 'deu45', state: 'NV', county: 'Eureka', kind: 'taxSale', plan: 'flip', stage: 'offer' };
     saveDeals([df]);
     savePacket('analyzed:deu45', moved);

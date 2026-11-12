@@ -299,11 +299,13 @@ export const sealedDay = (p: PacketData) => { const s = p.dates.find((x) => same
 const saleDayIn = (p: PacketData) => p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when ?? '';
 export const fillSealedDay = (d: { state?: Deal['state']; kind?: Deal['kind']; county?: string }, p: PacketData, before?: PacketData): PacketData => {
   if (!sealedBid(d) || !saleDayIn(p)) return p;
-  // (Only a blank row: a dated one is the reader's, typed from the notice or kept from an earlier sale date. The
-  // reminders and the stage hint say when it isn't the usual day before the sale.)
-  void before;
-  const due = sealedDay({ ...p, dates: p.dates.filter((x) => !sameDate(x.what, SEALED_ROW)) });
-  const redo = (x: PacketData['dates'][number]) => sameDate(x.what, SEALED_ROW) && !x.resolved && !x.when && !!due;
+  // (A blank row gets the usual day before. When the sale date changes, a row still on the usual day before the old
+  // sale date, the one filled in here, follows it; a different date is the reader's, from the notice, and is kept.
+  // The stage hint says when it isn't the usual day before the sale.)
+  const dayBefore = (q: PacketData) => sealedDay({ ...q, dates: q.dates.filter((x) => !sameDate(x.what, SEALED_ROW)) });
+  const due = dayBefore(p);
+  const wasDue = before && saleDayIn(before) && saleDayIn(before) !== saleDayIn(p) ? dayBefore(before) : '';
+  const redo = (x: PacketData['dates'][number]) => sameDate(x.what, SEALED_ROW) && !x.resolved && !!due && x.when !== due && (!x.when || (!!wasDue && x.when === wasDue));
   if (!p.dates.some(redo)) return p;
   return { ...p, dates: p.dates.map((x) => (redo(x) ? { ...x, when: due } : x)) };
 };
