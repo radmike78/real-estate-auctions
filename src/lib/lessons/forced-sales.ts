@@ -130,7 +130,7 @@ export const forcedSales: Lesson = {
     { label: 'Fannie Mae HomePath: residential purchase and sale contract', url: 'https://homepath.fanniemae.com/images/documents/Residential_Real_Estate_Contract.pdf' },
     { label: 'HUD: prospective buyer FAQs (foreclosure sales)', url: 'https://www.hud.gov/sites/dfiles/Housing/images/BuyerFAQs.pdf' },
     { label: 'CFPB: what is a short sale?', url: 'https://www.consumerfinance.gov/ask-cfpb/what-is-a-short-sale-en-290/' },
-    { label: 'NRS 361: property tax and tax sales (361.570, 361.585, 361.595)', url: 'https://www.leg.state.nv.us/NRS/NRS-361.html' },
+    { label: 'NRS 361: property tax and tax sales (361.570, 361.585, 361.595, 361.600)', url: 'https://www.leg.state.nv.us/NRS/NRS-361.html' },
     { label: 'California Revenue and Taxation Code 3691: when tax-defaulted property can be sold', url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=3691' },
     { label: 'California Revenue and Taxation Code 3698.5: minimum bid', url: 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=RTC&sectionNum=3698.5' },
     { label: 'Arizona Revised Statutes 42-18112: tax lien sale in February', url: 'https://www.azleg.gov/ars/42/18112.htm' },

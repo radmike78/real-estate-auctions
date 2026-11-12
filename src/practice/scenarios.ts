@@ -602,7 +602,7 @@ const FORECLOSURE: Flow = {
         { label: `First deed of trust, ${money(roundTo(p.value * 0.7, 1000))}`, value: 'This is the loan being foreclosed. Its own sale wipes it out.' },
         { label: `Second deed of trust, ${money(roundTo(p.value * 0.08, 1000))}`, value: 'Recorded after the first: wiped out in most cases.' },
         { label: `Unpaid property taxes, ${money(roundTo(p.value * 0.01, 100))}`, value: 'Stay with the property.' },
-        ...(p.hoaMonthly ? [{ label: 'HOA lien for unpaid dues', value: `Up to 9 months of dues (${money(p.hoaMonthly * 9)} here, plus certain charges) can stay: the HOA super-priority.` }] : []),
+        ...(p.hoaMonthly ? [{ label: 'HOA lien for unpaid dues', value: `Up to 9 months of dues (${money(p.hoaMonthly * 9)} here, plus some upkeep charges and capped collection costs) can stay: the HOA super-priority.` }] : []),
         ...(businessTenants(p) ? [{ label: 'Recorded lease (Suite A)', value: 'Signed after the first deed of trust. A business lease like this can be wiped out unless there’s a non-disturbance agreement; have an attorney confirm.' }] : []),
         ...(residentialTenants(p) ? [{ label: 'Tenants (not recorded)', value: `Residential leases and security deposits usually aren’t recorded. The practice numbers budget ${money(tenantDeposits(p))} for deposits you’d take on.` }] : []),
       ],

@@ -299,7 +299,7 @@ export const sealedDay = (p: PacketData) => { const s = p.dates.find((x) => same
 const saleDayIn = (p: PacketData) => p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when ?? '';
 export const fillSealedDay = (d: { state?: Deal['state']; kind?: Deal['kind']; county?: string }, p: PacketData, before?: PacketData): PacketData => {
   if (!sealedBid(d) || !saleDayIn(p)) return p;
-  const moved = !!before && saleDayIn(before) !== saleDayIn(p);
+  const moved = !!before && !!saleDayIn(before) && saleDayIn(before) !== saleDayIn(p);
   const due = sealedDay({ ...p, dates: p.dates.filter((x) => !sameDate(x.what, SEALED_ROW)) });
   const redo = (x: PacketData['dates'][number]) => sameDate(x.what, SEALED_ROW) && !x.resolved && (!x.when || moved) && x.when !== due;
   if (!p.dates.some(redo)) return p;

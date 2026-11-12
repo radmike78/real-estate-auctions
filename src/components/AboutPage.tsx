@@ -12,7 +12,7 @@ import { forStateText, useMyState } from '../lib/myState';
 const SALE_TYPES: [string, string, string][] = [
   ['Tax sale (Treasurer’s deed)', 'The property, by the Treasurer’s deed (a quitclaim deed); anyone claiming the land can sue to recover it for 2 years after the deed (NRS 361.600)', 'A county treasurer’s auction (in person or online, depending on the county); the notice gives the payment terms'],
   ['Special improvement district (SID) lien certificate', 'The right to be repaid the certificate price plus 1% a month, not ownership. A deed only if not redeemed in 2 years (120 days if the county or city decides there was no home or other significant improvement), and only after formal notice to the owner and 60 more days; the certificate expires 3 years after redemption ends', 'A county or city treasurer’s SID sale (Clark and Washoe counties and some cities); buyers are picked by drawing or a show of hands'],
-  ['Mortgage foreclosure (trustee sale)', 'The property, by trustee’s deed; a lawsuit can still void the sale for 30 days after the deed is recorded (90 days after the sale for anyone not properly notified, NRS 107.080)', 'Trustee’s auction'],
+  ['Mortgage foreclosure (trustee’s sale)', 'The property, by trustee’s deed; a lawsuit can still void the sale for 30 days after the deed is recorded (90 days after the sale for anyone not properly notified, NRS 107.080)', 'Trustee’s auction'],
   ['Judicial foreclosure or sale to pay a court judgment', 'A certificate of sale first; the owner or a later lienholder can redeem for 1 year, then the sheriff’s deed (NRS 40.430, 21.190–21.210)', 'Sheriff’s sale'],
   ['HOA foreclosure', 'A certificate of sale first; the former owner or a junior lender can redeem for 60 days, then the deed (NRS 116.31166). The first mortgage may survive*', 'HOA agent / trustee auction'],
   ['Federal tax seizure', "The taxpayer's interest, which the owner or anyone with an interest can buy back for 180 days (26 U.S.C. 6337(b))", 'IRS public auction or sealed bid'],
@@ -37,7 +37,7 @@ function SaleTypesInfo() {
   const [state] = useMyState();
   if (state !== 'NV') return <p>Read the <a href="#/playbooks">sale guides for your selected state</a> to check what you receive, payment requirements and redemption rights.</p>;
   return (<div className="table-wrap">
-        <p className="muted">These rows follow Nevada law (with Clark County’s sale procedures). For the rules where you invest, see the <a href="#/playbooks">sale guides</a> for your state.</p>
+        <p className="muted">These rows follow Nevada law; how each county holds its sale (in person, online or, in Eureka County, by sealed bid) is on its sale guide. For the rules where you invest, see the <a href="#/playbooks">sale guides</a> for your state.</p>
         <table>
           <thead><tr><th>Opportunity</th><th>What you receive</th><th>How it is sold</th></tr></thead>
           <tbody>{SALE_TYPES.map(([a, b, c]) => <tr key={a}><td>{a}</td><td>{b}</td><td>{c}</td></tr>)}</tbody>

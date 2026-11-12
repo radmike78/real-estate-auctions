@@ -1739,6 +1739,9 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const eu = { state: 'NV' as const, kind: 'taxSale' as const, county: 'Eureka' };
     const moved = { ...EMPTY_PACKET, dates: [{ when: '2026-11-19', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-11-13', what: 'Sale day', who: 'T' }] };
     expect(fillSealedDay(eu, moved, { ...moved, dates: [moved.dates[0], { ...moved.dates[1], when: '2026-11-20' }] }).dates[0].when).toBe('2026-11-12');
+    // (A date typed first, then the sale day added for the first time, is kept.)
+    const firstSale = { ...EMPTY_PACKET, dates: [{ when: '2026-12-03', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-12-07', what: 'Sale day', who: 'T' }] };
+    expect(fillSealedDay(eu, firstSale, { ...firstSale, dates: [firstSale.dates[0], { ...firstSale.dates[1], when: '' }] }).dates[0].when).toBe('2026-12-03');
     // (A date typed from the notice, with the sale unchanged, is kept.)
     expect(fillSealedDay(eu, moved, moved).dates[0].when).toBe('2026-11-19');
     const sent = { ...moved, dates: [{ ...moved.dates[0], resolved: true }, moved.dates[1]] };
