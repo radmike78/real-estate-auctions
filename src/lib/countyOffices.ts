@@ -527,7 +527,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.carsoncity.gov/government/departments-g-z/sheriff-s-office/divisions/civil-records", checked: "2026-10-10" },
   },
   "NV/Churchill": {
-    taxSale: { url: "https://www.churchillcountynv.gov/640/Tax-Sale", checked: "2026-09-29", note: "Recent sales ran online through Bid4Assets; start from the county’s page for the current sale." },
+    taxSale: { url: "https://www.churchillcountynv.gov/640/Tax-Sale", checked: "2026-11-12", note: "The county says recent sales were conducted online; start from the county’s page for the current sale and the site it names." },
     treasurer: { url: "https://www.churchillcountynv.gov/114/ClerkTreasurer", checked: "2026-09-29" },
     assessor: { url: "https://www.churchillcountynv.gov/88/Assessor", checked: "2026-09-29" },
     recorder: { url: "https://www.churchillcountynv.gov/168/Recorder", checked: "2026-09-29" },
