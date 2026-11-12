@@ -30,8 +30,8 @@ const OFFICIAL_ANY_STATE = [
 
 // Every kind of sale, and where to follow it while listings are being connected.
 const TYPES = [
-  { href: '#/live', icon: <IconFile />, title: 'Tax sales', summary: 'Upcoming county tax sales, and Clark County, Nevada parcels when an auction is scheduled' },
-  { href: '#/playbooks/sid', icon: <IconShield />, title: 'Lien certificates (SID)', summary: 'Special improvement district (SID) liens sold by the Clark County Treasurer (Nevada)', nvOnly: true },
+  { href: '#/live', icon: <IconFile />, title: 'Tax sales', summary: 'Upcoming county tax sales, and where each county posts its list' },
+  { href: '#/playbooks/sid', icon: <IconShield />, title: 'Lien certificates (SID)', summary: 'Special improvement district (SID) liens sold by Clark and Washoe counties and some Nevada cities', nvOnly: true },
   { href: '#/playbooks/foreclosure', icon: <IconCalendar />, title: 'Trustee sales (foreclosure auctions)', summary: 'Trustee and court-ordered sales after a mortgage default' },
   { href: '#/playbooks/hoa', icon: <IconLayers />, title: 'HOA foreclosures', summary: 'Sales to collect unpaid HOA dues' },
   { href: '#/playbooks/sheriff', icon: <IconFlag />, title: 'Sheriff sales', summary: 'Sales to pay a court judgment, run by the sheriff' },

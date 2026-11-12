@@ -12,6 +12,7 @@ export default function ScriptBox({ to, script, note, heading }: { to: string; s
     <div className="script-box">
       <h3>{heading ?? `What to say: ${to.replace(/^The /, 'the ')}`}</h3>
       <blockquote className="roadmap-script">{withBlanks(script)}</blockquote>
+      {/\[[^\]]+\]/.test(script) && <p className="muted small">Fill in the blanks: the <span className="script-blank">underlined words</span> are yours to change.</p>}
       {note && <p className="muted">{note}</p>}
     </div>
   );

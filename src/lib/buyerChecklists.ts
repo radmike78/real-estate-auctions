@@ -87,7 +87,7 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
       { text: 'Budget beyond the bid', detail: 'Recording fees, surviving liens, repairs, possibly quiet title (often quoted around $1,500–$5,000+ if uncontested*; get an attorney’s quote), and legal help if someone lives there. The county does not help with occupants.' },
       CONFIRM,
     ],
-    link: { href: '#/live', label: 'See verified live tax-sale listings' },
+    link: { href: '#/live', label: 'Check upcoming county tax sales and where each county posts its list' },
   },
   foreclosure: {
     key: 'foreclosure',

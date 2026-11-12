@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { stateByCode } from '../lib/regions';
+import { countyName, stateByCode } from '../lib/regions';
+import { useMyArea } from '../lib/myArea';
+import { COUNTY_OFFICES } from '../lib/countyOffices';
 import { isCertificateSourceUrl, isOfficialUrl } from '../feed/verify';
 import SidCertificates from './SidCertificates';
 import IrsSales from './IrsSales';
@@ -48,6 +50,12 @@ export default function LivePage() {
   const [cls, setCls] = useState<ClassFilter>('all');
   // County sales: the visitor's state only, until they ask for every state.
   const [myState] = useMyState();
+  // (A Nevada reader's own county: its treasurer's sale page, not Clark's, when another county is chosen.)
+  const [area] = useMyArea();
+  const nvCounty = area?.state === 'NV' && area.county ? area.county : 'Clark';
+  const nvOffice = COUNTY_OFFICES[`NV/${nvCounty}`];
+  const nvSaleUrl = nvCounty === 'Clark' ? 'https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList' : nvOffice?.taxSale?.url ?? nvOffice?.treasurer?.url ?? '#/find-deals';
+  const nvTreasurer = `${countyName(nvCounty)} Treasurer`;
 
   // Keep "x min ago" and the expiry check current in an open tab.
   useEffect(() => {
@@ -109,8 +117,8 @@ export default function LivePage() {
           </p>
           <p>
             Meanwhile, check the{' '}
-            <a href={myState === 'NV' ? 'https://treasurer.clarkcountynv.gov/auction/Auction/AuctionList' : '#/find-deals'}>
-              {myState === 'NV' ? 'Clark County Treasurer’s official sale list ↗' : 'Your county’s official sale lists →'}
+            <a href={myState === 'NV' ? nvSaleUrl : '#/find-deals'}>
+              {myState === 'NV' ? (nvCounty === 'Clark' ? 'Clark County Treasurer’s official sale list ↗' : `${nvTreasurer}’s tax sale page ↗`) : 'Your county’s official sale lists →'}
             </a>{' '}
             and the{' '}
             <a href="https://www.irsauctions.gov/" target="_blank" rel="noreferrer noopener">
@@ -161,7 +169,7 @@ export default function LivePage() {
       ) : (
         <section aria-labelledby="treasurer-head">
           <h2 id="treasurer-head">Before you register: ask the Treasurer</h2>
-          <ScriptBox to={SALE_SCRIPTS.deed[0].to} script={SALE_SCRIPTS.deed[0].script} note="Call or email the Clark County Treasurer’s tax sale office using the contact on the official notice. Then read the full checklist in the tax sale guide." />
+          <ScriptBox to={SALE_SCRIPTS.deed[0].to} script={SALE_SCRIPTS.deed[0].script} note={`Call or email the ${myState === 'NV' ? nvTreasurer : 'county treasurer'}’s tax sale office using the contact on the official notice. Then read the full checklist in the tax sale guide.`} />
           <p><a className="btn" href="#/playbooks/tax/documents">Documents for a tax sale&nbsp;→</a></p>
         </section>
       )}
