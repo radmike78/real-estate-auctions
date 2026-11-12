@@ -1709,7 +1709,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket('analyzed:deu41', sp);
     const t = dealNextTask(eu, sp, now, 'offer');
     expect(t.label).not.toMatch(/Overdue/);
-    expect(t.advance?.label).toMatch(/I won the bid/);
+    expect(t.advance?.label).toMatch(/won: mark it won/);
     expect(t.advance?.tickWhen).toBe(y.toLocaleDateString('en-CA'));
     savePacket('analyzed:deu41', { ...EMPTY_PACKET, dates: [{ when: '', what: 'Sealed bid and full payment due', who: '' }, { when: '2026-10-01', what: 'Sale day', who: 'Treasurer' }] });
     setDealStage('deu41', 'contract');

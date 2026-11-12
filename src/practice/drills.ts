@@ -265,7 +265,7 @@ export const DRILLS: Drill[] = [
         question: 'County records show the lender paid the HOA’s super-priority amount (the part of the HOA lien that comes first) 10 days before the sale. What happens to the $195,000 first mortgage?',
         multi: false,
         options: [
-          { label: 'It survives: I’d own the condo subject to the $195,000 loan', good: true, why: 'Right. When the lender pays the super-priority amount at least 5 days before the sale, the first deed of trust stays. The same is true if Fannie Mae or Freddie Mac owns the loan.' },
+          { label: 'It survives: I’d own the condo subject to the $195,000 loan', good: true, why: 'Right. When the lender pays the super-priority amount at least 5 days before the sale, the first deed of trust stays. The same is generally true if Fannie Mae or Freddie Mac owns the loan while they are under federal conservatorship, unless the FHFA consented (12 U.S.C. 4617(j)(3))*.' },
           { label: 'It’s wiped out: HOA sales always wipe out the mortgage', good: false, why: 'Not when the lender paid, or validly offered*, the super-priority amount at least 5 days before the sale.' },
         ],
         lesson: 'A $9,000 condo with a $195,000 loan attached costs $204,000 or more. That’s why most HOA sales with a paid-up lender are a pass.',

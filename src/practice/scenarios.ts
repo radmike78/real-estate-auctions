@@ -211,7 +211,7 @@ function commercialTeam(p: PracticeProperty, sale: SaleKey): Task[] {
               label: certificate ? 'Ask what you can do during redemption' : 'Ask what taking over looks like',
               send: `Hi Drew, if I buy ${p.address}, can you manage it? There are tenants.`,
               reply: certificate
-                ? `Yes, but during the redemption period you'd hold a certificate of sale, not the deed. ${sale === 'sheriff' ? 'After a sheriff’s sale, a buyer can collect rents meanwhile, but they’re subtracted from what a redeemer pays (NRS 21.250).' : 'After an IRS sale, what you can do about rent and possession depends on state law.'} Let’s plan it with your attorney, and take over fully once you have the deed. (Simulated reply.)`
+                ? `Yes, but during the redemption period you'd hold a certificate of sale, not the deed. ${sale === 'sheriff' ? 'After a sheriff’s sale, a buyer can collect rents meanwhile, but rent collected, or that the buyer was entitled to collect, is subtracted from what a redeemer pays (NRS 21.250).' : 'After an IRS sale, what you can do about rent and possession depends on state law.'} Let’s plan it with your attorney, and take over fully once you have the deed. (Simulated reply.)`
                 : residentialTenants(p)
                   ? 'Yes. Once you own it we send every tenant the notices your attorney says this kind of sale needs, telling them who the new owner is and where to pay rent, and we confirm each tenant’s lease and security deposit in writing. (Simulated reply.)'
                   : 'Yes. Once you own it we send every tenant a letter saying who the new owner is and where to pay rent, and ask each tenant to sign an estoppel certificate confirming their rent, deposit, lease term and any claims. Most commercial leases require them to sign one. Have an attorney review which leases survive this kind of sale. (Simulated reply.)',
@@ -712,7 +712,7 @@ const HOA: Flow = {
       purpose: 'Whether the first mortgage survives the HOA sale.',
       lines: [
         { label: 'HOA lien being foreclosed', value: 'Wiped out by its own sale.' },
-        { label: `First deed of trust to Example Bank, ${money(n!.inputs.survivingLiens)}`, value: 'Survives if the lender paid the HOA’s super-priority amount at least 5 days before the sale, validly offered it and was refused*, or if Fannie Mae or Freddie Mac owned the loan.' },
+        { label: `First deed of trust to Example Bank, ${money(n!.inputs.survivingLiens)}`, value: 'Survives if the lender paid the HOA’s super-priority amount at least 5 days before the sale, validly offered it and was refused*, or if Fannie Mae or Freddie Mac owned the loan while they are under federal conservatorship, unless the FHFA consented (12 U.S.C. 4617(j)(3))*.' },
         { label: 'Recorder: payment of the super-priority amount', value: 'FOUND: the lender’s payment of the super-priority amount was recorded 10 days before the sale.' },
       ],
       note: 'Practice document. In real life, get a title professional’s or attorney’s opinion before bidding.',
@@ -811,7 +811,7 @@ const SHERIFF: Flow = {
   ],
   team: (p) => [
     contact('attorney', PEOPLE.attorney, 'The redemption period and what you can do meanwhile.', [
-      { label: 'Ask about redemption', send: 'If I buy at the sheriff’s sale, what happens during the redemption period?', reply: 'For 1 year after the sale, the debtor, or a creditor with a later judgment or mortgage lien, can redeem by paying your price plus 1% a month, plus any taxes, assessments and payments on earlier liens you made, with interest (NRS 21.200–21.210). If someone redeems, you’re repaid and out; later creditors can then redeem from each other within 60 days of each redemption (NRS 21.220). If no one redeems, you get the sheriff’s deed after the year. Rent you collect, or were entitled to collect, meanwhile is subtracted from what they pay. Repairs aren’t repaid, so improving it before the redemption period is over puts that money at risk. (Simulated reply.)' },
+      { label: 'Ask about redemption', send: 'If I buy at the sheriff’s sale, what happens during the redemption period?', reply: 'For 1 year after the sale, the debtor, or a creditor with a later judgment or mortgage lien, can redeem by paying your price plus 1% a month, plus any taxes, assessments and payments on earlier liens you made, with interest (NRS 21.200–21.210). If someone redeems, you’re repaid and out. If a creditor redeemed, other creditors can redeem from that creditor within 60 days; if the debtor redeems, the sale ends (NRS 21.220). If no one redeems, you get the sheriff’s deed after the year. Rent you collected, or were entitled to collect, meanwhile is subtracted from what they pay. Repairs aren’t repaid, so improving it before the redemption period is over puts that money at risk. (Simulated reply.)' },
     ]),
     contact('title', PEOPLE.title, 'What stays with the property.', [
       { label: 'Order a title search', send: `Please run a title search on ${p.apn} before the sheriff’s sale.`, reply: 'Will do. You get only the debtor’s interest, so I’ll list everything recorded before the judgment, and check for a declaration of homestead. (See the practice title search in the research step.) (Simulated reply.)' },

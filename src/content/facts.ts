@@ -207,10 +207,10 @@ export const FACTS: Fact[] = [
     id: 'sheriff-redemption',
     claim: 'After an execution sale the debtor can redeem for 1 year at the price plus 1% a month; rents collected are subtracted.',
     sources: ['nrs-021'],
-    checked: '2026-09-27',
+    checked: '2026-11-12',
     where: [
       { file: PB, text: 'subtracted from the payoff (NRS 21.250)' },
-      { file: PB, text: 'within 60 days of each redemption' },
+      { file: PB, text: 'other creditors can redeem from that creditor within 60 days' },
     ],
   },
   {
