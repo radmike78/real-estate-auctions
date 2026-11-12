@@ -808,7 +808,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   inspector: {
     overview: [
       "A home inspector walks the property and writes a report on its systems and structure. That covers the roof, foundation, plumbing, electrical, heating and cooling. The report warns you about expensive problems before you’re locked in. You can use it to ask the seller for repairs or a credit, or to cancel under an inspection contingency.",
-      "Rules differ by state. Look the inspector up on your state’s official license lookup, confirm the license level and the insurance they carry, and ask in writing what the inspection leaves out. In Nevada, the state certifies “inspectors of structures”: a residential inspector needs at least 40 hours of pre-licensing education, a state exam, and proof of $100,000 errors-and-omissions and $100,000 general liability insurance. In Texas, TREC licenses three levels (apprentice inspector, real estate inspector and professional inspector), each with its own education, experience and exam requirements, and every inspector must show financial responsibility, such as liability insurance of at least $100,000 per occurrence (Occupations Code 1102.101-.103, 1102.1141).",
+      "Rules differ by state. Look the inspector up on your state’s official license lookup, confirm the license level and the insurance they carry, and ask in writing what the inspection leaves out. In Nevada, the state certifies “inspectors of structures”: a residential inspector needs at least 40 hours of pre-licensing education, observed inspections the Real Estate Division requires*, a state exam, and proof of $100,000 errors-and-omissions and $100,000 general liability insurance. In Texas, TREC licenses three levels (apprentice inspector, real estate inspector and professional inspector), each with its own education, experience and exam requirements, and every inspector must show financial responsibility, such as liability insurance of at least $100,000 per occurrence (Occupations Code 1102.101-.103, 1102.1141).",
       "Forced-sale caution: at many tax-deed and trustee’s sales you can’t get inside before bidding. So no inspection is possible, and you buy “as is”. Bank-owned homes usually allow an inspection period. In 2021’s hot market, many buyers waived inspections to win bids. Some paid for it after moving in."
     ],
     bestFor: [
@@ -839,7 +839,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
     ],
     facts: [
       {
-        text: "Nevada residential inspectors need at least 40 hours of pre-licensing education (50 general, 60 master).",
+        text: "Nevada residential inspectors need at least 40 hours of pre-licensing education (50 general, 60 master), plus the observed inspections the Real Estate Division requires.*",
         source: {
           label: "Nevada Real Estate Division: Inspectors of Structures, Initial Certification Requirements",
           url: "https://red.nv.gov/Content/IOS/Initial_Certification_Requirements/"
