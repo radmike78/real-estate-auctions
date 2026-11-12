@@ -1749,6 +1749,10 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const filled = { ...EMPTY_PACKET, dates: [{ when: '2026-11-11', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-11-22', what: 'Sale day', who: 'T' }] };
     // (Nov 22, 2026 is a Sunday: the last day the Treasurer's office is open before it is Thursday, Nov 19.)
     expect(fillSealedDay(eu, { ...filled, sealedFor: '2026-11-12' }).dates[0].when).toBe('2026-11-19');
+    // (A deadline filled in before round 45 on a closed day (Sun Nov 15 for a Monday sale) moves to Thursday.)
+    const oldSun = { ...EMPTY_PACKET, dates: [{ when: '2026-11-15', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-11-16', what: 'Sale day', who: 'T' }] };
+    expect(fillSealedDay(eu, { ...oldSun, sealedFor: '2026-11-16' }).dates[0].when).toBe('2026-11-12');
+    expect(fillSealedDay(eu, oldSun).dates[0].when).toBe('2026-11-12');
     // (An older packet still on the usual deadline gets sealedFor, so later edits move it.)
     expect(fillSealedDay(eu, { ...EMPTY_PACKET, dates: [{ when: '2026-11-11', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-11-12', what: 'Sale day', who: 'T' }] }).sealedFor).toBe('2026-11-12');
     const df: Deal = { ...deal, id: 'deu45', state: 'NV', county: 'Eureka', kind: 'taxSale', plan: 'flip', stage: 'offer' };
