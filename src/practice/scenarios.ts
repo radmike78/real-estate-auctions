@@ -775,7 +775,7 @@ const HOA: Flow = {
       title: 'If you had won: the 60-day wait',
       body: [
         'You’d get a certificate of sale first, and a deed after the redemption period.',
-        'For 60 days, the former owner, or a lender whose loan ranked below the HOA lien, can redeem by paying your price plus 1% a month, plus the taxes and assessments you paid and reasonable spending needed to maintain and repair the unit to the HOA’s standards (NRS 116.31166). Upgrades aren’t repaid.',
+        'For 60 days, the former owner, or a lender whose loan ranked below the HOA lien, can redeem by paying your price plus 1% a month, plus the taxes, assessments and payments on liens from before the sale that you paid, and reasonable spending needed to maintain and repair the unit to the HOA’s standards (NRS 116.31166). Upgrades aren’t repaid.',
       ],
     },
     mistakeQuiz('mistake', pb.mistakes[1]),
