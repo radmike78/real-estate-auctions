@@ -1813,6 +1813,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(t.label).not.toMatch(/Overdue/);
     expect(t.tick?.label).toMatch(/I sent it by the deadline/);
     expect(t.advance2?.label).toMatch(/I didn’t send a bid/);
+    expect(t.redate?.label).toMatch(/change it to/);
   });
   it('round 39 verifier: other sales keep their payment step when moved by the stage list', async () => {
     const { loadPacket } = await import('./dealPacket');
