@@ -1786,6 +1786,15 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket('analyzed:deu44', { ...EMPTY_PACKET, dates: [{ when: r1.toLocaleDateString('en-CA'), what: 'Sealed bid and full payment due', who: 'You', resolved: true }, { when: r2.toLocaleDateString('en-CA'), what: 'Sale day', who: 'T' }] });
     expect(stageHint('offer', d)).toMatch(/Your sealed bid and payment are with the Eureka County Treasurer/);
   });
+  it('round 46: Nevada legal holidays move the filled-in bid deadline', async () => {
+    const { nvHoliday, sealedDay } = await import('./dealStage');
+    expect(nvHoliday(new Date(2027, 0, 18))).toBe(true); // Martin Luther King Jr. Day
+    expect(nvHoliday(new Date(2026, 10, 26))).toBe(true); // Thanksgiving
+    expect(nvHoliday(new Date(2026, 9, 30))).toBe(true); // Nevada Day (last Friday of October)
+    expect(nvHoliday(new Date(2026, 10, 12))).toBe(false);
+    // (A Tuesday Jan 19, 2027 sale: Monday is a holiday, so Thursday Jan 14.)
+    expect(sealedDay({ ...EMPTY_PACKET, dates: [{ when: '2027-01-19', what: 'Sale day', who: 'T' }] })).toBe('2027-01-14');
+  });
   it('round 39 verifier: other sales keep their payment step when moved by the stage list', async () => {
     const { loadPacket } = await import('./dealPacket');
     const cl: Deal = { ...deal, id: 'dcl40', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'offer' };
