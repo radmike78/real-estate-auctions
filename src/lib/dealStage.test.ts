@@ -1747,7 +1747,10 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(fillSealedDay(eu, moved, { ...moved, dates: [moved.dates[0], { ...moved.dates[1], when: '2026-11-25' }] }).dates[0].when).toBe('2026-11-19');
     // (A deadline still on the usual day before the old sale date, the one filled in, follows the sale.)
     const filled = { ...EMPTY_PACKET, dates: [{ when: '2026-11-11', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-11-22', what: 'Sale day', who: 'T' }] };
-    expect(fillSealedDay(eu, { ...filled, sealedFor: '2026-11-12' }).dates[0].when).toBe('2026-11-21');
+    // (Nov 22, 2026 is a Sunday: the last day the Treasurer's office is open before it is Thursday, Nov 19.)
+    expect(fillSealedDay(eu, { ...filled, sealedFor: '2026-11-12' }).dates[0].when).toBe('2026-11-19');
+    // (An older packet still on the usual deadline gets sealedFor, so later edits move it.)
+    expect(fillSealedDay(eu, { ...EMPTY_PACKET, dates: [{ when: '2026-11-11', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-11-12', what: 'Sale day', who: 'T' }] }).sealedFor).toBe('2026-11-12');
     const df: Deal = { ...deal, id: 'deu45', state: 'NV', county: 'Eureka', kind: 'taxSale', plan: 'flip', stage: 'offer' };
     saveDeals([df]);
     savePacket('analyzed:deu45', moved);

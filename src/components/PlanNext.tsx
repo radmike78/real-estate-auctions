@@ -3,7 +3,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
 import { loadDeals, openDeal, type Deal, type DealStage } from '../lib/analyze';
-import { nextOpenDeal, stageTasks, deadlinePassed, needsAnswerNow, pressingWeight, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
+import { sealedBid, nextOpenDeal, stageTasks, deadlinePassed, needsAnswerNow, pressingWeight, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
@@ -120,7 +120,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   const pressing = loadDeals().filter((x) => x.id !== deal?.id && !x.practice && stageOf(x) !== 'passed' && !finishedDeal(x) && needsAnswerNow(dealNextTask(x)));
   const weight = (x: Deal) => pressingWeight(dealNextTask(x));
   const other = [...pressing].sort((a, b) => weight(a) - weight(b))[0];
-  const otherWhat = (x: Deal) => { const l = dealNextTask(x).label; const at = l.indexOf(x.name); const i = l.indexOf('. ', at >= 0 ? at + x.name.length : 0); return (i >= 0 ? l.slice(0, i + 1) : l).replace(/([^.?!])$/, '$1.'); };
+  const otherWhat = (x: Deal) => { const l = dealNextTask(x).label; /* (A sealed-bid deadline's own warnings stay whole.) */ if (sealedBid(x)) return l.replace(/([^.?!])$/, '$1.'); const at = l.indexOf(x.name); const i = l.indexOf('. ', at >= 0 ? at + x.name.length : 0); return (i >= 0 ? l.slice(0, i + 1) : l).replace(/([^.?!])$/, '$1.'); };
   const otherNote = other ? <p className="caution" role="note"><strong>Another property needs {dealNextTask(other).answer && dealNextTask(other).key !== 'sid-refund' ? 'an answer' : 'your attention'}.</strong> {otherWhat(other).includes(other.name) ? '' : `${other.name}. `}{otherWhat(other)}<br /><button type="button" className="linkish" onClick={() => { chooseDeal(`analyzed:${other.id}`); setTimeout(() => focusTaskIn(document.querySelector('.plan-now-actions')?.parentElement), 0); }}>Work on it now&nbsp;→</button>{pressing.length > 1 ? <> · {pressing.length - 1} more {pressing.length === 2 ? 'property needs' : 'properties need'} your attention: <a href="#/deals">see My deals&nbsp;→</a></> : null}</p> : null;
 
   const side = (
