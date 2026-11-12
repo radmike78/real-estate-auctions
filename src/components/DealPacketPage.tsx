@@ -63,7 +63,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
     setP((cur) => {
       const merged = { ...cur, ...patch, ...(patch.dates && reviewDates ? { calendarReviewedFor: undefined } : {}) };
       // (A sealed-bid sale's new or first sale date: its bid deadline follows, the day before.)
-      const next = patch.dates && deal ? fillSealedDay(deal, merged) : merged;
+      const next = patch.dates && deal ? fillSealedDay(deal, merged, cur) : merged;
       savePacket(key, next);
       // (Saving can settle a row a roadmap step answered: show what was saved.)
       return patch.dates ? loadPacket(key) : next;

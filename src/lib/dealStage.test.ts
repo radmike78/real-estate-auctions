@@ -1738,7 +1738,9 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const { fillSealedDay } = await import('./dealStage');
     const eu = { state: 'NV' as const, kind: 'taxSale' as const, county: 'Eureka' };
     const moved = { ...EMPTY_PACKET, dates: [{ when: '2026-11-19', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-11-13', what: 'Sale day', who: 'T' }] };
-    expect(fillSealedDay(eu, moved).dates[0].when).toBe('2026-11-12');
+    expect(fillSealedDay(eu, moved, { ...moved, dates: [moved.dates[0], { ...moved.dates[1], when: '2026-11-20' }] }).dates[0].when).toBe('2026-11-12');
+    // (A date typed from the notice, with the sale unchanged, is kept.)
+    expect(fillSealedDay(eu, moved, moved).dates[0].when).toBe('2026-11-19');
     const sent = { ...moved, dates: [{ ...moved.dates[0], resolved: true }, moved.dates[1]] };
     expect(fillSealedDay(eu, sent).dates[0].when).toBe('2026-11-19');
     const d: Deal = { ...deal, id: 'deu43', state: 'NV', county: 'Eureka', kind: 'taxSale', plan: 'flip', stage: 'offer' };
@@ -1748,6 +1750,18 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: t1.toLocaleDateString('en-CA'), what: 'Sealed bid and full payment due', who: 'You', resolved: true }, { when: t2.toLocaleDateString('en-CA'), what: 'Sale day', who: 'T' }] };
     const t = dealNextTask(d, p, now, 'offer');
     expect(t.label).not.toMatch(/walk-away/);
+  });
+  it('round 42: the arrival rule reaches My deals and the download; a sent bid gets a waiting hint', () => {
+    const d: Deal = { ...deal, id: 'deu44', state: 'NV', county: 'Eureka', kind: 'taxSale', plan: 'flip', stage: 'offer' };
+    saveDeals([d]);
+    const t2 = new Date(now); t2.setDate(t2.getDate() + 3);
+    const t1 = new Date(now); t1.setDate(t1.getDate() + 2);
+    const open = { ...EMPTY_PACKET, dates: [{ when: t1.toLocaleDateString('en-CA'), what: 'Sealed bid and full payment due', who: 'You' }, { when: t2.toLocaleDateString('en-CA'), what: 'Sale day', who: 'T' }] };
+    expect(nextAction(d, open, now).text).toMatch(/must reach the Eureka County Treasurer’s office by 4 p\.m\./);
+    // (The hint reads today's date.)
+    const r1 = new Date(); r1.setDate(r1.getDate() + 2); const r2 = new Date(); r2.setDate(r2.getDate() + 3);
+    savePacket('analyzed:deu44', { ...EMPTY_PACKET, dates: [{ when: r1.toLocaleDateString('en-CA'), what: 'Sealed bid and full payment due', who: 'You', resolved: true }, { when: r2.toLocaleDateString('en-CA'), what: 'Sale day', who: 'T' }] });
+    expect(stageHint('offer', d)).toMatch(/Your sealed bid and payment are with the Eureka County Treasurer/);
   });
   it('round 39 verifier: other sales keep their payment step when moved by the stage list', async () => {
     const { loadPacket } = await import('./dealPacket');
