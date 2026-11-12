@@ -179,10 +179,10 @@ export const FACTS: Fact[] = [
   // ---------------- HOA foreclosure (NRS 116) ----------------
   {
     id: 'hoa-super-priority',
-    claim: 'Up to 9 months of HOA dues (plus certain charges) rank ahead of the first mortgage.',
+    claim: 'Up to 9 months of regular HOA dues, plus exterior upkeep or nuisance-abatement charges the HOA incurred on the unit and capped collection costs, rank ahead of the first mortgage (NRS 116.3116(3), (5)).',
     sources: ['nrs-116'],
-    checked: '2026-09-27',
-    where: [{ file: PB, text: 'Up to 9 months of dues (plus certain charges)' }],
+    checked: '2026-11-12',
+    where: [{ file: PB, text: 'Up to 9 months of regular dues, plus any exterior upkeep or nuisance-abatement charges' }],
   },
   {
     id: 'hoa-redemption',

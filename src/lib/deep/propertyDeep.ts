@@ -249,7 +249,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         }
       },
       {
-        text: "Nevada: an HOA’s lien for up to 9 months of regular assessments can come ahead of the first mortgage (the ‘super-priority’ lien).",
+        text: "Nevada: an HOA’s lien for up to 9 months of regular assessments, plus any exterior upkeep or nuisance-abatement charges it incurred on the unit and capped collection costs, can come ahead of the first mortgage (the ‘super-priority’ lien, NRS 116.3116(3)).",
         source: {
           label: "Nevada Revised Statutes, NRS 116.3116 (Liens against units for assessments)",
           url: "https://www.leg.state.nv.us/nrs/nrs-116.html"

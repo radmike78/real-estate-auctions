@@ -75,7 +75,7 @@ function assess(lien: Lien, saleType: SaleType, foreclosing: Lien | undefined): 
       if (lien.type === 'HOA_SUPERPRIORITY' && saleType !== 'HOA_FORECLOSURE') {
         return {
           outcome: 'LIKELY_SURVIVES',
-          reason: 'Under NRS 116.3116 the super-priority portion (about 9 months of assessments) ranks ahead of a first deed of trust.',
+          reason: 'Under NRS 116.3116 the super-priority portion (up to 9 months of assessments, plus certain upkeep charges and capped collection costs) ranks ahead of a first deed of trust.',
         };
       }
       if (lien.type === 'FIRST_DEED_OF_TRUST' && saleType === 'HOA_FORECLOSURE') {

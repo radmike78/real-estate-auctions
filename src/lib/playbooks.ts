@@ -175,7 +175,7 @@ const NEVADA: Playbook[] = [
     steps: [
       { title: 'Follow the notices', detail: 'Track the notice of default and notice of sale. The pre-foreclosure tracker shows where each one is. The notice of sale gives the date, place and trustee.' },
       { title: 'Identify which loan is foreclosing', detail: 'If it’s a second mortgage or another junior lien, the first mortgage stays with the house, and it becomes your problem. Get a title search.' },
-      { title: 'Check for senior debts', detail: 'Property taxes, HOA dues (including up to 9 months of super-priority), IRS liens and city liens may survive.' },
+      { title: 'Check for senior debts', detail: 'Property taxes, HOA dues (the super-priority part: up to 9 months of dues, plus some upkeep charges and capped costs), IRS liens and city liens may survive.' },
       { title: 'Look at the property', detail: 'From the outside only. Assume it may be occupied and need major repairs. There is no seller disclosure form at a trustee sale. But the trustee and the lender must tell you in writing about defects they know of, at the latest when the property is transferred to you or when you ask. So ask (NRS 113.130).' },
       { title: 'Set your maximum bid', detail: 'Include surviving debts, repairs, eviction and holding costs. Use Analyze a deal (Fix and flip) to find your walk-away price.' },
       { title: 'Confirm the sale is on', detail: 'Call the trustee the day before. Sales are often postponed or cancelled when owners reinstate, sell or file bankruptcy.' },
@@ -184,7 +184,7 @@ const NEVADA: Playbook[] = [
     ],
     survives: {
       wipedOut: ['The loan being foreclosed', 'In most cases, liens recorded after it (junior liens)'],
-      mayStay: ['Any loan recorded before the one being foreclosed', 'Property taxes', 'Up to 9 months of HOA dues (super-priority)', 'IRS liens recorded before the loan being foreclosed. Also junior IRS liens, if the IRS didn’t get 25 days’ notice (unless the lien was filed 30 days or less before the sale). Even when wiped out, the U.S. can buy the property back within 120 days', 'Some city liens'],
+      mayStay: ['Any loan recorded before the one being foreclosed', 'Property taxes', 'The HOA’s super-priority lien (up to 9 months of dues, plus some upkeep charges and capped costs)', 'IRS liens recorded before the loan being foreclosed. Also junior IRS liens, if the IRS didn’t get 25 days’ notice (unless the lien was filed 30 days or less before the sale). Even when wiped out, the U.S. can buy the property back within 120 days', 'Some city liens'],
     },
     mistakes: [
       { mistake: 'Buying at a second mortgage’s sale', prevent: 'Confirm which lien is foreclosing. The first deed of trust survives a junior lien’s sale.' },
@@ -217,9 +217,9 @@ const NEVADA: Playbook[] = [
     forSale: true,
     glance: [
       { label: 'Law', value: 'NRS 116 (common-interest communities)' },
-      { label: 'Super-priority', value: 'Up to 9 months of dues (plus certain charges) rank ahead of the first mortgage' },
+      { label: 'Super-priority', value: 'Up to 9 months of regular dues, plus any exterior upkeep or nuisance-abatement charges the HOA incurred on the unit and capped collection costs, rank ahead of the first mortgage (NRS 116.3116(3), (5))' },
       { label: 'Who can’t bid', value: 'Board members, the community manager, the HOA’s collection agency, any party’s attorney in the foreclosure, anyone else involved in it, their relatives (up to the third degree, such as a niece, uncle or great-grandparent), and whoever conducts the sale or a company they have an interest in (NRS 116.31164(7)). If you have any tie to the HOA, ask an attorney before you bid' },
-      { label: 'Lender payoff', value: 'The first deed of trust (the main home loan) survives if the lender paid the super-priority amount (up to 9 months of dues that rank ahead of the first mortgage) at least 5 days before the sale (NRS 116.31166(1)). If the lender paid, the sale may go ahead only once a record of the payment is recorded at least 2 days before the sale (NRS 116.31164(2)), and you’d buy the home with that loan still on it. It also survives if the lender offered to pay it and the HOA refused (Bank of America v. SFR, 2018)' },
+      { label: 'Lender payoff', value: 'The first deed of trust (the main home loan) survives if the lender paid the super-priority amount (the part of the HOA’s lien that ranks ahead of the first mortgage: up to 9 months of dues, plus some upkeep charges and capped costs) at least 5 days before the sale (NRS 116.31166(1)). If the lender paid, the sale may go ahead only once a record of the payment is recorded at least 2 days before the sale (NRS 116.31164(2)), and you’d buy the home with that loan still on it. It also survives if the lender offered to pay it and the HOA refused (Bank of America v. SFR, 2018)' },
       { label: 'Fannie Mae / Freddie Mac loans', value: 'If one of them owned the loan, the mortgage survives an HOA sale unless the Federal Housing Finance Agency (FHFA, which oversees Fannie Mae and Freddie Mac) consented. This federal rule is called the Foreclosure Bar' },
       { label: 'Redemption', value: '60 days after the sale. The redeemer pays your price plus 1% a month, plus taxes, assessments and upkeep you paid' },
       { label: 'What you get first', value: 'A certificate of sale; a deed without warranty after the redemption period (NRS 116.31166). If the sale wiped out a junior federal tax lien, the U.S. can buy it back for 120 days, longer than the 60 days for the owner or a junior lender (26 U.S.C. 7425); a lien the sale didn’t wipe out stays on the home. Ask a title company before bidding whether it will insure without a quiet title lawsuit' },
