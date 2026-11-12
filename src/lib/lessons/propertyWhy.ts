@@ -297,7 +297,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Mall and big-box investors",
-        text: "Department stores and large chains have closed many locations as shopping habits change. Don’t buy a mall or big-box store on a low price alone.",
+        text: "Department stores and large chains have closed many locations as shopping habits change. A low price alone may not make a mall or big-box store a good buy: check the tenants and the local demand first.",
         example: "In October 2018, Sears Holdings filed for Chapter 11. It said it would close 142 more Sears and Kmart stores.",
         source: {
           label: "Associated Press via PBS NewsHour (Oct. 15, 2018)",
@@ -585,7 +585,7 @@ export const PROPERTY_WHY = {
       },
       {
         who: "Anyone who may need cash quickly",
-        text: "Fewer lenders make land loans, and fewer buyers shop for land, so it can take a long time to sell. Only buy land with money you won’t need for years."
+        text: "Fewer lenders make land loans, and fewer buyers shop for land, so it can take a long time to sell. Money put into land can be tied up for years: whether that fits depends on your situation, finances and risk tolerance."
       },
       {
         who: "Buyers who skip due diligence",
