@@ -700,7 +700,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                 : region.state === 'NV' && saleKind === 'hoa' && ruleNow !== 'usFederal' && ruleNow !== 'usCourt'
                 ? 'This leaves out what Nevada law also has the person who redeems pay you: the taxes, assessments and payments on earlier liens you paid, with interest, and needed upkeep to the HOA’s standards (NRS 116.31166(3)). Upgrades aren’t repaid.'
                 : region.state === 'NV' && saleKind === 'court' && ruleNow !== 'usFederal' && ruleNow !== 'usCourt'
-                ? 'This leaves out what Nevada law also has the person who redeems pay you: the taxes, assessments and payments on earlier liens you paid, with interest (NRS 21.210). Repairs aren’t repaid, and rent you collect comes off the payoff (NRS 21.250).'
+                ? 'This leaves out what Nevada law also has the person who redeems pay you: the taxes, assessments and payments on earlier liens you paid, with interest (NRS 21.210). Repairs aren’t repaid, and rent you collected, or were entitled to collect, comes off the payoff (NRS 21.250).'
                 : 'This leaves out other amounts some rules also repay, such as taxes, assessments or costs the law lists; optional remodeling usually isn’t repaid.* Ask an attorney what your sale’s rule repays.'}
             </p>
           </div>

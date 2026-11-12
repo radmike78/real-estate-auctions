@@ -1808,7 +1808,8 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const t3 = new Date(now); t3.setDate(t3.getDate() + 3);
     const p = { ...EMPTY_PACKET, dates: [{ when: y.toLocaleDateString('en-CA'), what: 'Sealed bid and full payment due', who: 'You' }, { when: t3.toLocaleDateString('en-CA'), what: 'Sale day', who: 'T' }] };
     const t = dealNextTask(d, p, now, 'researching');
-    expect(t.label).toMatch(/sealed-bid deadline .* passed/);
+    // (The usual deadline, the day before the sale, is still ahead: the reader is sent to the notice.)
+    expect(t.label).toMatch(/deadline you entered .* has passed, but Eureka’s usual deadline is/);
     expect(t.label).not.toMatch(/Overdue/);
     expect(t.tick?.label).toMatch(/I sent it by the deadline/);
     expect(t.advance2?.label).toMatch(/I didn’t send a bid/);

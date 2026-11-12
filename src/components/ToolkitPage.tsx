@@ -867,7 +867,7 @@ function BuyBoxBuilder() {
         {lien ? (
           <>
             {money('priceMax', 'Most for one certificate ($)', b.state === 'AZ' ? 'The lien amount (Arizona bids the interest rate, not a premium).' : b.state === 'NV' ? 'The certificate’s price, the amount owed (no bidding up: Clark County picks buyers by a random drawing; Washoe County’s pages describe a show of hands with numbers drawn, or a random number program; confirm it in the sale notice).*' : 'The lien amount plus any premium you’d bid.')}
-            {money('cashMax', 'Cash you’ll tie up, all in ($)', 'Every certificate, plus later taxes or assessments you may pay to protect them. Money you won’t need for years.')}
+            {money('cashMax', 'Cash you’ll tie up, all in ($)', 'Every certificate, plus later taxes or assessments you may pay to protect them. It can be tied up for years: whether that fits depends on your situation, finances and risk tolerance.')}
           </>
         ) : (
           <>

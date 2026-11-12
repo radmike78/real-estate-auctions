@@ -137,7 +137,7 @@ const NEVADA: Playbook[] = [
       { mistake: 'Expecting to get the property', prevent: 'Treat it as an investment in a debt. Most certificates are redeemed.*' },
       { mistake: 'Treating the land as yours', prevent: 'A certificate is only a lien. You have no right to enter, mow, cut trees or use the property.' },
       { mistake: 'Ignoring what’s on the land', prevent: 'If there’s a home or other significant improvement, the wait can be 2 years instead of 120 days: budget for the longer one.' },
-      { mistake: 'Forgetting later taxes', prevent: 'Pay later delinquent taxes and notify the Treasurer in writing so they’re added to your certificate.' },
+      { mistake: 'Forgetting the notice for later taxes', prevent: 'If you choose to pay later taxes or assessments on the parcel, give the Treasurer written notice of what you paid: without it, the owner can redeem without repaying them (NRS 271.595(1)).' },
     ],
     example: {
       title: 'Reading the interest correctly',
