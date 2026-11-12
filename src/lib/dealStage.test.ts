@@ -1801,6 +1801,18 @@ describe('round 39: Eureka sealed-bid sale', () => {
     // (A Tuesday Jan 19, 2027 sale: Monday is a holiday, so Thursday Jan 14.)
     expect(sealedDay({ ...EMPTY_PACKET, dates: [{ when: '2027-01-19', what: 'Sale day', who: 'T' }] })).toBe('2027-01-14');
   });
+  it('round 47: a missed sealed-bid deadline asks whether the bid went in, with a pass answer', () => {
+    const d: Deal = { ...deal, id: 'deu47', state: 'NV', county: 'Eureka', kind: 'taxSale', plan: 'flip', stage: 'researching' };
+    saveDeals([d]);
+    const y = new Date(now); y.setDate(y.getDate() - 1);
+    const t3 = new Date(now); t3.setDate(t3.getDate() + 3);
+    const p = { ...EMPTY_PACKET, dates: [{ when: y.toLocaleDateString('en-CA'), what: 'Sealed bid and full payment due', who: 'You' }, { when: t3.toLocaleDateString('en-CA'), what: 'Sale day', who: 'T' }] };
+    const t = dealNextTask(d, p, now, 'researching');
+    expect(t.label).toMatch(/sealed-bid deadline .* passed/);
+    expect(t.label).not.toMatch(/Overdue/);
+    expect(t.tick?.label).toMatch(/I sent it by the deadline/);
+    expect(t.advance2?.label).toMatch(/I didn’t send a bid/);
+  });
   it('round 39 verifier: other sales keep their payment step when moved by the stage list', async () => {
     const { loadPacket } = await import('./dealPacket');
     const cl: Deal = { ...deal, id: 'dcl40', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'offer' };

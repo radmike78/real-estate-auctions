@@ -697,6 +697,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                 ? 'This isn’t the full Texas payoff: the law also repays the costs you reasonably spent on the property, plus interest on them at the legal judgment rate: property insurance, repairs required by a building code, an ordinance or a lease in effect at the sale, city health-and-safety liens, HOA dues and certain fees (Tax Code 32.06(k)(2), 34.21(g)). Optional remodeling isn’t on that list. Keep every receipt and ask an attorney which of your costs qualify.'
                 : region.state === 'TX' && saleKind === 'taxSale'
                 ? 'This isn’t the full Texas payoff: it leaves out the deed recording fee, the taxes, penalties and interest you paid, and eligible costs, which the law also repays: property insurance, repairs required by a building code, an ordinance or a lease in effect at the sale, city health-and-safety liens, HOA dues and certain fees (Tax Code 34.21(a), (g)). Optional remodeling isn’t on that list. Keep every receipt and ask an attorney which of your costs qualify.'
+                : region.state === 'NV' && saleKind === 'hoa'
+                ? 'This leaves out what Nevada also repays: the taxes, assessments and payments on earlier liens you paid, with interest, and needed upkeep to the HOA’s standards (NRS 116.31166(3)). Upgrades aren’t repaid.'
+                : region.state === 'NV' && saleKind === 'court'
+                ? 'This leaves out what Nevada also repays: the taxes, assessments and payments on earlier liens you paid, with interest (NRS 21.210). Repairs aren’t repaid, and rent you collect comes off the payoff (NRS 21.250).'
                 : 'This leaves out other amounts some rules also repay, such as taxes, assessments or costs the law lists; optional remodeling usually isn’t repaid.* Ask an attorney what your sale’s rule repays.'}
             </p>
           </div>
