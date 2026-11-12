@@ -1792,6 +1792,12 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(nvHoliday(new Date(2026, 10, 26))).toBe(true); // Thanksgiving
     expect(nvHoliday(new Date(2026, 9, 30))).toBe(true); // Nevada Day (last Friday of October)
     expect(nvHoliday(new Date(2026, 10, 12))).toBe(false);
+    expect(nvHoliday(new Date(2027, 11, 31))).toBe(true); // New Year's Day 2028 (a Saturday), observed Friday
+    expect(nvHoliday(new Date(2028, 11, 31))).toBe(false);
+    // (A deadline round 45 filled on Thanksgiving for a Monday Nov 30, 2026 sale moves to Wednesday, Nov 25.)
+    const { fillSealedDay } = await import('./dealStage');
+    const tg = { ...EMPTY_PACKET, sealedFor: '2026-11-30', dates: [{ when: '2026-11-26', what: 'Sealed bid and full payment due', who: 'You' }, { when: '2026-11-30', what: 'Sale day', who: 'T' }] };
+    expect(fillSealedDay({ state: 'NV', kind: 'taxSale', county: 'Eureka' }, tg).dates[0].when).toBe('2026-11-25');
     // (A Tuesday Jan 19, 2027 sale: Monday is a holiday, so Thursday Jan 14.)
     expect(sealedDay({ ...EMPTY_PACKET, dates: [{ when: '2027-01-19', what: 'Sale day', who: 'T' }] })).toBe('2027-01-14');
   });
