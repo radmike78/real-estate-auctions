@@ -1,4 +1,4 @@
-import { noRedemptionWords, shortestRedemptionMonths, shortestRedemptionWords, shorterThanLaw, waitWords } from '../lib/dealPacket';
+import { CASH_SHORT_AFTER, noRedemptionWords, shortestRedemptionMonths, shortestRedemptionWords, shorterThanLaw, waitWords } from '../lib/dealPacket';
 import type { Deal } from '../lib/analyze';
 import { savedStageOf } from '../lib/dealStage';
 import { getMyArea } from '../lib/myArea';
@@ -185,6 +185,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   // Words for an auction bid, or an offer on a listed home.
   // (Once the price is fixed, agreed, won or paid, the figures are about prices, not a bid or offer to make.)
   const fixedPrice = agreed || wonBid || boughtOffer;
+  const phase: 'agreed' | 'owed' | 'paid' | null = agreed ? 'agreed' : boughtOffer ? 'paid' : wonBid ? (savedStageOf(saveAs!.slice('analyzed-'.length)) === 'contract' ? 'owed' : 'paid') : null;
   const w = fixedPrice
     ? { bid: 'price', Bid: 'Price', opening: offer ? 'asking price' : 'opening bid', Opening: offer ? 'Asking price' : 'Opening bid', max: wonBid || boughtOffer ? 'The most this plan could have paid' : 'The most this plan could pay', day: offer ? 'at closing' : 'on auction day' }
     : offer
@@ -730,9 +731,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {atBid && profit !== null && !needsValue && (
           <div className={`calc-verdict ${over || bidShort ? 'bad' : 'good'}`}>
             {over ? (
-              <><strong>Above your walk-away price.</strong> At {fmtMoney(bid)} this deal no longer meets {r.limitedBy === 'cash' && bid <= r.profitBid ? 'your cash limit' : tw}. Profit would be {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}. Past your walk-away price, this deal no longer meets your own numbers.</>
+              <><strong>{phase === 'owed' || phase === 'paid' ? 'Above what this plan could have paid.' : 'Above your walk-away price.'}</strong> At {fmtMoney(bid)} this deal no longer meets {r.limitedBy === 'cash' && bid <= r.profitBid ? 'your cash limit' : tw}. Profit would be {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}.{phase === 'agreed' ? ' If the numbers no longer work, ask your agent or attorney what your contract’s contingencies allow, before their deadlines.*' : phase ? '' : ' Past your walk-away price, this deal no longer meets your own numbers.'}</>
             ) : bidShort ? (
-              <><strong>Within your walk-away price, but it needs more cash than {i.cashAvailable > 0 ? 'you entered' : 'My plan shows'}.</strong> Estimated profit {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}. At {fmtMoney(bid)} you’d put in about {fmtMoney(Math.round(bidCash))} of your cash; {i.cashAvailable > 0 ? `you entered ${fmtMoney(i.cashAvailable)}` : `My plan shows ${fmtMoney(Math.round(planCash))} of investable cash`}.{i.cashAvailable > 0 ? null : offer ? ' Offer only what fits your cash (with any loan your lender approves), or compare a loan with a lender.' : <> <button type="button" className="linkish" onClick={() => { const f = document.getElementById(`${uid}-cashAvailable`); f?.scrollIntoView({ block: 'center' }); f?.focus({ preventScroll: true }); }}>Enter your cash</button></>}</>
+              <><strong>Within your walk-away price, but it needs more cash than {i.cashAvailable > 0 ? 'you entered' : 'My plan shows'}.</strong> Estimated profit {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}. At {fmtMoney(bid)} you’d put in about {fmtMoney(Math.round(bidCash))} of your cash; {i.cashAvailable > 0 ? `you entered ${fmtMoney(i.cashAvailable)}` : `My plan shows ${fmtMoney(Math.round(planCash))} of investable cash`}.{phase ? ` ${phase === 'paid' && i.cashAvailable > 0 ? 'Update the cash you entered with what you actually put in.' : CASH_SHORT_AFTER[phase]}` : i.cashAvailable > 0 ? null : offer ? ' Offer only what fits your cash (with any loan your lender approves), or compare a loan with a lender.' : <> <button type="button" className="linkish" onClick={() => { const f = document.getElementById(`${uid}-cashAvailable`); f?.scrollIntoView({ block: 'center' }); f?.focus({ preventScroll: true }); }}>Enter your cash</button></>}</>
             ) : (
               <><strong>Within your walk-away price.</strong> Estimated profit {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}.</>
             )}
@@ -753,7 +754,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         )}
 
         <H>If things go differently</H>
-        <p className="small muted calc-grid-note">Highest {w.bid} that still meets {tw} if the resale value (rows) or repairs (columns) come in differently{i.cashAvailable > 0 ? ', before your cash limit' : ''}.</p>
+        <p className="small muted calc-grid-note">Highest {w.bid} that {phase === 'owed' || phase === 'paid' ? 'could have met' : 'still meets'} {tw} if the resale value (rows) or repairs (columns) come in differently{i.cashAvailable > 0 ? ', before your cash limit' : ''}.</p>
         <p className="table-swipe-hint" aria-hidden>Swipe the table to see every column&nbsp;→</p>
         <div className="table-wrap">
           <table className="calc-stress calc-grid-table">

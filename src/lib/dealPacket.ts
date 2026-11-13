@@ -524,6 +524,20 @@ export const fixedPriceName = (d: Deal): string | null => {
   return ['contract', 'closed', 'owned'].includes(st) ? 'your winning bid' : null;
 };
 
+/** Where a fixed price stands: agreed (under contract), owed (an auction won, payment maybe still due) or paid. */
+export const pricePhase = (d: Deal): 'agreed' | 'owed' | 'paid' | null => {
+  const st = stageOf(d);
+  if (['closed', 'owned'].includes(st)) return 'paid';
+  return st === 'contract' ? (['listing', 'reo', 'short'].includes(d.kind) ? 'agreed' : 'owed') : null;
+};
+
+/** What to do when a fixed price needs more cash than you have (no advice on what to offer or bid: that's settled). */
+export const CASH_SHORT_AFTER: Record<'agreed' | 'owed' | 'paid', string> = {
+  agreed: 'Talk to your lender before you close, and if the cash isn’t there, ask your agent or attorney what your contract’s contingencies allow, before their deadlines.*',
+  owed: 'If you haven’t paid it all yet, the full winning bid is due by the sale’s payment deadline, and any loan comes afterward. If you can’t cover it, contact the official seller and an attorney now.',
+  paid: 'Update My plan with what you actually put in.',
+};
+
 const priceName = (source: 'yours' | 'listed', offer: boolean, cap = false, d?: Deal) => {
   const n = source === 'yours' ? (d && fixedPriceName(d)) || (offer ? 'your offer' : 'your bid') : offer ? 'the asking price' : 'the opening bid';
   return cap ? n[0].toUpperCase() + n.slice(1) : n;
@@ -1133,7 +1147,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const typedNoLimit = !(entered > 0) && (rent?.cashTyped || bid?.cashTyped || commercial?.cashTyped || false);
   const limit = entered > 0 ? entered : typedNoLimit ? 0 : profile.investable;
   const limitWord = entered > 0 ? `the cash you entered in ${strategy}` : 'your investable cash';
-  if (limit > 0 && need > 0) cash.push(need > limit ? `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? `Check that you have it, or ${entered > 0 ? `update the cash in ${strategy}` : 'update My plan'}.` : `Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.`}` : `${needAt}, that leaves ${money(limit - Math.round(need))} unallocated from ${limitWord}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
+  if (limit > 0 && need > 0) cash.push(need > limit ? pricePhase(d) ? `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}. ${pricePhase(d) === 'paid' && entered > 0 ? `Update the cash in ${strategy} with what you actually put in.` : CASH_SHORT_AFTER[pricePhase(d)!]}` : `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? `Check that you have it, or ${entered > 0 ? `update the cash in ${strategy}` : 'update My plan'}.` : `Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.`}` : `${needAt}, that leaves ${money(limit - Math.round(need))} unallocated from ${limitWord}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
   out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: cash, fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
@@ -1159,7 +1173,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     // Your own wait, under every period the law sets for this sale: said once, with the shortest.
     const shorter = bid?.redeem?.shortest ? ` That’s shorter than any redemption period the law sets for this sale (the shortest is ${shortestRedemptionWords(d, true)}):* the owner can still redeem until it ends.` : '';
     if (bid?.redeem && bid.redeem.who && !(bid.redeem.price > 0) && !redemptionOver(d)) nums.push(bid.redeem.shortest ? `Built on ${waitWords(bid.redeem.months)}.${shorter}` : `Built on a ${bid.redeem.months}-month redemption wait: ${bid.redeem.who} can redeem until it ends.`);
-    else if (bid.redeem && bid.redeem.who && !redemptionOver(d)) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait.${shorter} If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* on a ${money(x.price)} ${offer ? 'offer' : 'bid'}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
+    else if (bid.redeem && bid.redeem.who && !redemptionOver(d)) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait.${shorter} If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* ${x.source !== 'walk' && !offer && fixedPriceName(d) ? `on your ${money(x.price)} winning bid` : `on a ${money(x.price)} ${offer ? 'offer' : 'bid'}`}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
     const floor = a?.source === 'listed' ? a.price : 0;
     for (const s of bid.stress.slice(1)) {
