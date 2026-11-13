@@ -783,7 +783,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
 
       {/* On phones the results sit below every input, so keep the answer in view while typing. */}
       <button type="button" hidden={resultsVisible || !calcInView} className={`calc-sticky${(r.noBidWorks && !needsValue) || stickyBad ? ' bad' : ''}`} onClick={() => (stickyBad ? document.querySelector<HTMLElement>(`.calc input[aria-invalid="true"]`) : document.getElementById(`${uid}-results`))?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>
-        <span>{stickyBad ? 'Results paused' : (phase === 'owed' || phase === 'paid') ? 'Most this plan could have paid' : 'Walk-away price'}</span>
+        <span>{stickyBad ? 'Results paused' : (phase === 'owed' || phase === 'paid') ? 'Could have paid' : 'Walk-away price'}</span>
         <strong>{stickyBad ? 'Fix the red box' : needsValue ? 'Add resale value' : cashShort ? 'Not enough cash' : r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
         <span className="calc-sticky-go">{stickyBad ? 'Go to it' : 'See details'}&nbsp;↓</span>
       </button>

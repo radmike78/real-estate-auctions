@@ -676,7 +676,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         {at.price > 0 && !(living && !(v.monthlyRent > 0)) ? <LenderView v={v} at={at} onPrice={offer} /> : null}
         {!(living && !(v.monthlyRent > 0)) && <StrComparison v={v} />}
       </div>
-      {!living && <StickyResult label={offer ? 'Price that meets the target' : 'Walk-away price'} value={noReal ? 'No realistic price' : r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks || noReal} />}
+      {!living && <StickyResult label={bought || wonBid ? 'Could have paid' : offer ? 'Price that meets the target' : 'Walk-away price'} value={noReal ? 'No realistic price' : r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks || noReal} />}
     </div>
   );
 }
@@ -761,7 +761,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
         <HoldResults commercial ctx={{ ...cctx, quiet: true }} cashPhase={cDeal && cPhase ? pricePhase(cDeal) : null} priceWord={cPhase === 'agreed' ? 'the agreed price' : cPhase === 'won' ? 'your winning bid' : cPhase === 'bought' ? 'the price you paid' : 'your price'} headLabel="Walk-away price" agreed={cPhase === 'agreed'} after={cPhase === 'won' || cPhase === 'bought'} dscrTyped={typedKeys.has('minDscr')} capTarget={v.targetCapPct} r={r} title="Walk-away price for the income" target={`Yields ${typedKeys.has('targetCapPct') ? 'your' : 'our example'} ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} noRealistic={noReal} hasLoan={v.loanPct > 0 && (offer || v.value > 0)} supported={uncapped.noBidWorks ? NaN : uncapped.maxBid} />
         {walkShort && !cPhase && <PlanCashNote need={walkNeed} planCash={planCash} offer={offer} auctionDay={r.cashAtAuction} noLoan={offer && !(v.loanPct > 0)} />}
       </div>
-      <StickyResult label="Walk-away price" value={noReal ? 'No realistic price' : r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks || noReal} />
+      <StickyResult label={cPhase === 'won' || cPhase === 'bought' ? 'Could have paid' : 'Walk-away price'} value={noReal ? 'No realistic price' : r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks || noReal} />
     </div>
   );
 }
