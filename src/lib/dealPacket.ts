@@ -527,13 +527,15 @@ export const fixedPriceName = (d: Deal): string | null => {
 /** Where a fixed price stands: agreed (under contract), owed (an auction won, payment maybe still due) or paid. */
 export const pricePhase = (d: Deal): 'agreed' | 'owed' | 'paid' | null => {
   const st = stageOf(d);
+  // A lien certificate is picked, not bid on, and its price is the amount owed: none of these words fit it.
+  if (d.kind === 'lien') return null;
   if (['closed', 'owned'].includes(st)) return 'paid';
   return st === 'contract' ? (['listing', 'reo', 'short'].includes(d.kind) ? 'agreed' : 'owed') : null;
 };
 
 /** What to do when a fixed price needs more cash than you have (no advice on what to offer or bid: that's settled). */
 export const CASH_SHORT_AFTER: Record<'agreed' | 'owed' | 'paid', string> = {
-  agreed: 'Talk to your lender before you close, and if the cash isn’t there, ask your agent or attorney what your contract’s contingencies allow, before their deadlines.*',
+  agreed: 'If you’re borrowing, talk to your lender before you close. If the cash isn’t there, ask your agent or attorney what your contract’s contingencies allow, before their deadlines.*',
   owed: 'If you haven’t paid it all yet, the full winning bid is due by the sale’s payment deadline, and any loan comes afterward. If you can’t cover it, contact the official seller and an attorney now.',
   paid: 'Update My plan with what you actually put in.',
 };
