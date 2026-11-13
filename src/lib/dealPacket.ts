@@ -627,11 +627,13 @@ function passedCash(cash: string[], d: Deal): string[] {
   const lines = cash.map((t) => t
     .replace(/ ?(?:Skip this one|Skip it), or [^.]*\./g, '')
     .replace(/^On sale day, at /, 'Planned for sale day, at ')
+    .replace(/^By 5:00 p\.m\. the day after the sale, at /, 'Planned by 5:00 p.m. the day after the sale, at ')
     .replace(/^With your sealed bid, by the notice’s deadline \(usually 4 p\.m\. the day before the sale\*\), at /, 'Planned with your sealed bid, at ')
     .replace(/ on sale day;/g, ' planned for sale day;')
     .replace(/with your sealed bid, before the sale/g, 'planned with your sealed bid')
-    .trim()).filter(Boolean);
-  return [`Kept as a record from before you passed on ${d.name}.`, ...lines, ...(sealedBid(d) ? ['If you sent a sealed bid that didn’t win, the county returns the enclosed payment by certified mail; if it doesn’t arrive, ask the Eureka County Treasurer.'] : [])];
+    .trim()).filter((t) => t && !/^Run .* in Analyze/.test(t));
+  // (A losing sealed bid's refund is in the stage hint above, so it isn't repeated here.)
+  return [`Kept as a record from before you passed on ${d.name}.`, ...lines];
 }
 
 const priceName = (source: 'yours' | 'listed', offer: boolean, cap = false, d?: Deal) => {
