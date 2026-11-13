@@ -572,19 +572,21 @@ export const overdueIntro = (d: Deal): string => {
   const when = (d.kind === 'lien' ? stageOf(d) === 'contract' && !paidAtWin(d) : pricePhase(d) === 'owed') ? paymentPassed(d) : '';
   if (!when) return '';
   return d.kind === 'lien'
-    ? `You were picked, and the payment deadline (${prettyDay(when)}) has passed. If you paid, mark it handled in Key dates. If you didn’t, the parcel is sold to the next buyer or goes to the city or county (NRS 271.560), so the certificate isn’t yours; ask ${sellerName(d.kind)} if you’re unsure.`
-    : `You won the bid, and the payment deadline (${prettyDay(when)}) has passed: mark it handled in Key dates if you paid, or contact ${sellerName(d.kind)} and an attorney now.`;
+    ? (d.state === 'NV'
+      ? `You were picked, and the payment deadline (${prettyDay(when)}) has passed. If you paid, mark it handled in Key dates. If you didn’t, the parcel is offered again or goes to the city or county (NRS 271.560), so the certificate isn’t yours: mark the deal passed, and ask ${sellerName(d.kind, d.state)} if you’re unsure.`
+      : `You were picked, and the payment deadline (${prettyDay(when)}) has passed: mark it handled in Key dates if you paid, or ask ${sellerName(d.kind, d.state)} now whether the certificate is still yours.`)
+    : `You won the bid, and the payment deadline (${prettyDay(when)}) has passed: mark it handled in Key dates if you paid, or contact ${sellerName(d.kind, d.state)} and an attorney now.`;
 };
 
 /** When the won bid is due: still ahead, passed (with its date), or already said as passed on the line above. */
 const dueWords = (c?: SettledContext): string => (c?.overdueSaid ? 'Its payment deadline has passed (above).'
-  : c?.payOverdue ? `If you haven’t paid it, the sale’s payment deadline (${prettyDay(c.payOverdue)}) has passed: contact ${sellerName(c.kind)} and an attorney now.`
-  : `If you haven’t paid it yet, it’s due in full by the sale’s payment deadline: contact ${sellerName(c?.kind)} and an attorney now.`);
+  : c?.payOverdue ? `If you haven’t paid it, the sale’s payment deadline (${prettyDay(c.payOverdue)}) has passed: contact ${sellerName(c.kind, c.state)} and an attorney now.`
+  : `If you haven’t paid it yet, it’s due in full by the sale’s payment deadline: contact ${sellerName(c?.kind, c?.state)} and an attorney now.`);
 
 /** CASH_SHORT_AFTER.owed, with the deadline said as passed once it has. */
 const owedCash = (c?: SettledContext): string => (c?.overdueSaid || c?.payOverdue
   ? `This counts the repairs and holding costs, not only the bid. ${dueWords(c)} For the repair and holding money, compare a loan with a lender or change the plan: each person’s situation decides which fits.`
-  : CASH_SHORT_AFTER.owed.replace('contact the official seller', `contact ${sellerName(c?.kind)}`));
+  : CASH_SHORT_AFTER.owed.replace('contact the official seller', `contact ${sellerName(c?.kind, c?.state)}`));
 
 export const owedWords = (bidDue: number, limit: number, limitWord: string, c?: SettledContext): string => withDefault(bidDue > 0 && limit > 0 && bidDue > limit
   ? `Your winning bid of ${money(bidDue)} alone is ${money(bidDue - limit)} more than ${limitWord}. ${dueWords(c)}`

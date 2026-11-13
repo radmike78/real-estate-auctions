@@ -735,7 +735,7 @@ describe('Nevada round 4 flow', () => {
     // A dated redemption row with no "who": the answer fills it.
     const court = { ...nvFlip, kind: 'court' as const };
     const cr = { ...EMPTY_PACKET, dates: [{ when: '2025-10-01', what: 'Sale day', who: 'S', resolved: true }, { when: '2026-10-01', what: 'Redemption period ends', who: '' }] };
-    expect(dealNextTask(court, cr, now, 'closed').tick?.who).toBe('The sheriff’s civil office');
+    expect(dealNextTask(court, cr, now, 'closed').tick?.who).toBe('The sheriff’s civil office (or the constable named on the notice)');
     // A lienholder deadline the approval came after stays open; one it met reads "met".
     const short = { ...nvFlip, kind: 'short' as const };
     saveDeals([{ ...short, stage: 'contract' }]);
