@@ -185,7 +185,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   // (Once the price is fixed, agreed, won or paid, the figures are about prices, not a bid or offer to make.)
   const fixedPrice = agreed || wonBid || boughtOffer;
   const w = fixedPrice
-    ? { bid: 'price', Bid: 'Price', opening: offer ? 'asking price' : 'opening bid', Opening: offer ? 'Asking price' : 'Opening bid', max: 'The most this plan could pay', day: offer ? 'at closing' : 'on auction day' }
+    ? { bid: 'price', Bid: 'Price', opening: offer ? 'asking price' : 'opening bid', Opening: offer ? 'Asking price' : 'Opening bid', max: wonBid || boughtOffer ? 'The most this plan could have paid' : 'The most this plan could pay', day: offer ? 'at closing' : 'on auction day' }
     : offer
     ? { bid: 'offer', Bid: 'Offer', opening: 'asking price', Opening: 'Asking price', max: 'Your maximum offer', day: 'at closing' }
     : { bid: 'bid', Bid: 'Bid', opening: 'opening bid', Opening: 'Opening bid', max: 'Your maximum bid', day: 'on auction day' };

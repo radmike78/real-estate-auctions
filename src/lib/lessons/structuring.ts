@@ -33,7 +33,7 @@ export const structuring: Lesson = {
           table: {
             head: ['State', 'Yearly state cost of an LLC'],
             rows: [
-              ['Nevada', '$350 a year in Nevada: a $150 annual list plus a $200 state business license. Filing the articles costs $75 (NRS 86.561, 86.263 and 76.130).'],
+              ['Nevada', 'About $425 to form one in Nevada the first year ($75 for the articles, the $150 initial list and the $200 state business license), then about $350 a year (a $150 annual list plus the $200 license renewal) (NRS 86.561, 86.263, 76.100 and 76.130).'],
               ['California', 'At least $800 a year in California tax, even if the LLC earns nothing or loses money, until you cancel it. The first payment is due by the 15th day of the 4th month after you form it. A fee is added once total income reaches $250,000 (Franchise Tax Board). Filing the Articles of Organization costs $70, and a $20 Statement of Information is due within 90 days and every 2 years after (Secretary of State).'],
               ['Arizona', 'Arizona LLCs file no annual report. Filing the articles costs $50 (Arizona Corporation Commission). If your statutory agent is outside Maricopa and Pima counties, you must also pay to publish notice of the filing in a newspaper.'],
               ['Utah', 'An $18 renewal each year in Utah. Filing the certificate of organization costs $59 (Utah Division of Corporations, 2026 fee schedule).'],
