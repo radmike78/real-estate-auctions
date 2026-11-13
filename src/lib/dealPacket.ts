@@ -18,7 +18,7 @@ import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
 import { dealProgress } from './roadmapState';
-import { dealNextTask, paidAtWin, paymentPassed, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
+import { dealNextTask, paidAtWin, paymentPassed, sellerName, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -566,12 +566,10 @@ const withDefault = (t: string, c?: SettledContext) => { const w = defaultWords(
 
 /** A won bid short of cash: when the bid alone is more than the cash, say so first (it's the urgent part), then what not
  * paying costs at this kind of sale. */
-/** Who sells at this kind of sale (who to contact about a missed payment). */
-export const sellerName = (kind?: string): string => ({ trustee: 'the trustee', court: 'the sheriff’s office', hoa: 'the HOA’s foreclosure agent', irs: 'the IRS sale officer', taxSale: 'the Treasurer', lien: 'the Treasurer' } as Record<string, string>)[kind ?? ''] ?? 'the official seller';
-
 /** A won bid or picked certificate whose payment deadline passed unpaid: what to do, said once (the packet's intro and its download). */
 export const overdueIntro = (d: Deal): string => {
-  const when = d.kind === 'lien' || pricePhase(d) === 'owed' ? paymentPassed(d) : '';
+  // Only while picked or won and not yet paid (never at Researching, Passed or after).
+  const when = (d.kind === 'lien' ? stageOf(d) === 'contract' && !paidAtWin(d) : pricePhase(d) === 'owed') ? paymentPassed(d) : '';
   if (!when) return '';
   return `${d.kind === 'lien' ? 'You were picked' : 'You won the bid'}, and the payment deadline (${prettyDay(when)}) has passed: mark it handled in Key dates if you paid, or contact ${sellerName(d.kind)}${d.kind === 'lien' ? '' : ' and an attorney'} now.`;
 };
@@ -584,7 +582,7 @@ const dueWords = (c?: SettledContext): string => (c?.overdueSaid ? 'Its payment 
 /** CASH_SHORT_AFTER.owed, with the deadline said as passed once it has. */
 const owedCash = (c?: SettledContext): string => (c?.overdueSaid || c?.payOverdue
   ? `This counts the repairs and holding costs, not only the bid. ${dueWords(c)} For the repair and holding money, compare a loan with a lender or change the plan: each person’s situation decides which fits.`
-  : CASH_SHORT_AFTER.owed);
+  : CASH_SHORT_AFTER.owed.replace('contact the official seller', `contact ${sellerName(c?.kind)}`));
 
 export const owedWords = (bidDue: number, limit: number, limitWord: string, c?: SettledContext): string => withDefault(bidDue > 0 && limit > 0 && bidDue > limit
   ? `Your winning bid of ${money(bidDue)} alone is ${money(bidDue - limit)} more than ${limitWord}. ${dueWords(c)}`
@@ -642,7 +640,8 @@ function passedCash(cash: string[], d: Deal): string[] {
     .replace(/ on sale day;/g, ' planned for sale day;')
     .replace(/ by 5:00 p\.m\. the day after the sale;/g, ' planned by 5:00 p.m. the day after the sale;')
     .replace(/with your sealed bid, before the sale/g, 'planned with your sealed bid')
-    .trim()).filter((t) => t && !/^Run .* in Analyze/.test(t));
+    .replace(/,? or skip this one\./g, '.')
+    .trim()).filter((t) => t && !/^Run .* in Analyze/.test(t) && !/^That walk-away price needs/.test(t));
   // (A losing sealed bid's refund is in the stage hint above, so it isn't repeated here.)
   return [`Kept as a record from before you passed on ${d.name}.`, ...lines.map((t) => (sealedBid(d) && paidAtWin(d) ? t.replace(/^Planned with your sealed bid/, 'Sent with your sealed bid') : t))];
 }

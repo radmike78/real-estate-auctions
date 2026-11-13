@@ -29,7 +29,7 @@ describe('settledWords: pre-sale advice reworded once the price is agreed, won o
     expect(defaultWords({ state: 'NV', kind: 'court' })).toMatch(/NRS 21\.160/);
     expect(defaultWords({ state: 'NV', kind: 'irs' })).toMatch(/6335\(e\)\(3\)/);
     expect(defaultWords({ state: 'CA', kind: 'trustee' })).toBe('');
-    expect(cashShortAfter('owed', { state: 'NV', kind: 'trustee' })).toBe(`${CASH_SHORT_AFTER.owed} ${defaultWords({ state: 'NV', kind: 'trustee' })}`);
+    expect(cashShortAfter('owed', { state: 'NV', kind: 'trustee' })).toBe(`${CASH_SHORT_AFTER.owed.replace('the official seller', 'the trustee')} ${defaultWords({ state: 'NV', kind: 'trustee' })}`);
     expect(cashShortAfter('paid', { state: 'NV', kind: 'trustee' })).toBe(CASH_SHORT_AFTER.paid);
   });
   it('leads with the bid when the bid alone is more than the cash', () => {
