@@ -275,7 +275,7 @@ export default function DealsPage() {
           <h2 id="analyzed-head">Deals you’ve analyzed</h2>
           <ul className="deal-list">
             {/* Deadlines within a week first, then deals in progress, then finished or passed ones. */}
-            {[...analyzed].map((d, i) => ({ d, i, r: stageOf(d) === 'passed' || finishedDeal(d) ? 3 : needsAnswerNow(dealNextTask(d)) ? -1 + pressingWeight(dealNextTask(d)) / 10 : dealNextTask(d).urgent ? 0 : ['contract', 'closed', 'owned'].includes(stageOf(d)) ? 1 : 2 })).sort((a, b) => a.r - b.r || a.i - b.i).map(({ d }) => {
+            {[...analyzed].map((d, i) => ({ d, i, r: stageOf(d) === 'passed' || finishedDeal(d) ? 3 : needsAnswerNow(dealNextTask(d)) ? -1 + pressingWeight(dealNextTask(d)) / 10 : dealNextTask(d).urgent ? 0 : ['contract', 'closed', 'owned'].includes(stageOf(d)) ? 1 : 2 })).sort((a, b) => a.r - b.r || (a.r < 0 ? (dealNextTask(a.d).days ?? 99) - (dealNextTask(b.d).days ?? 99) : 0) || a.i - b.i).map(({ d }) => {
               const k = SALE_KINDS.find((x) => x.key === d.kind)!;
               const all = checklistFor(d, { liveIn: liveIn(d) }).flatMap((g) => g.items);
               const done = all.filter((i) => d.done.includes(i.id)).length;

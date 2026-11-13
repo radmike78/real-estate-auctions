@@ -201,7 +201,7 @@ export function nextOpenDeal(fromId: string): Deal | undefined {
     // (Then the one My plan would focus on among them: a property under way before one you're only researching.)
     const focus = focusDealId(others);
     // (The most serious first, the same order My plan's "Another property needs your attention" uses.)
-    const pressing = others.filter((x) => needsAnswerNow(dealNextTask(x))).sort((a, b) => pressingWeight(dealNextTask(a)) - pressingWeight(dealNextTask(b)));
+    const pressing = others.filter((x) => needsAnswerNow(dealNextTask(x))).sort((a, b) => pressingWeight(dealNextTask(a)) - pressingWeight(dealNextTask(b)) || (dealNextTask(a).days ?? 99) - (dealNextTask(b).days ?? 99));
     return pressing[0] ?? others.find((x) => dealNextTask(x).urgent) ?? others.find((x) => `analyzed:${x.id}` === focus) ?? others[0];
   } finally { if (outer) findingNext = false; }
 }

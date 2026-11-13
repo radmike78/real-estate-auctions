@@ -556,6 +556,7 @@ export const defaultWords = (c: SettledContext = {}): string => {
   if (c.kind === 'irs') return 'If the IRS let you pay part of the price later and you don’t pay it, it can sue for it with 6% interest, or cancel the sale and keep what you paid (26 U.S.C. 6335(e)(3)).';
   // Eureka's sealed-bid sale takes the full payment with the bid: no deposit to lose.
   if (c.kind === 'taxSale' && c.county === 'Eureka') return 'If your sealed bid’s payment wasn’t accepted, ask the Treasurer what happens next.*';
+  if (c.kind === 'taxSale' && c.county === 'Clark') return 'At a Clark County tax sale, a winner who doesn’t pay loses the registration deposit and is banned from future auctions (Clark County Treasurer).';
   if (c.kind === 'taxSale') return 'The Treasurer’s sale terms say what happens if you don’t pay; you may lose your deposit and be barred from later sales.*';
   if (c.kind === 'hoa') return 'The foreclosure agent’s terms say what happens if you don’t pay.*';
   return '';
@@ -1120,8 +1121,12 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const sealed = !offer && sealedBid(d);
   // After a win the sale day has passed: the bid is due by the sale's payment deadline, or already paid.
   const wonPhase = !offer ? pricePhase(d) : null;
+  // An open Payment deadline row whose date has passed: said as overdue, not as still ahead.
+  const payPassed = wonPhase === 'owed' ? p.dates.find((x) => sameDate(x.what, 'Payment deadline') && !x.resolved && !!x.when && x.when < localDayOf(now)) : undefined;
   const saleDay = (at: string, amount: number, end = '') => wonPhase === 'paid' && !sealed
-    ? `Paid at ${at}: ${money(amount)} (record what you actually paid)${end}`
+    ? `Paid: ${at} (${money(amount)} with any buyer’s premium; record what you actually paid)${end}`
+    : payPassed
+    ? `The sale’s payment deadline (${prettyDay(payPassed.when!)}) has passed, and ${at} isn’t marked paid (${money(amount)} with any buyer’s premium). If you paid it, mark the Payment deadline handled in Key dates; if not, contact the official seller and an attorney now${end}`
     : wonPhase === 'owed'
     ? `By the sale’s payment deadline (see Key dates), at ${at}: ${money(amount)} (the full amount, plus any buyer’s premium, in the form the sale requires)${end}`
     : sealed
@@ -1183,7 +1188,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       cash.push(`No ${offer ? 'offer at or above the asking price' : 'bid at or above the opening bid'} of ${money(a.price)} ${a.profit >= bid.target && bid.limitedBy === 'cash' ? 'fits your cash' : `meets ${goalW}`} as entered: the most that would is ${money(bid.maxBid)}, below it.`);
     } else if (!bid.none) {
       const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could ${fixedPriceName(d) && fixedPriceName(d) !== 'the agreed price' ? 'have paid' : 'pay'}, not your price)`;
-      cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} ${sealed ? 'with your sealed bid, before the sale' : washoeTax ? 'by 5:00 p.m. the day after the sale' : 'on sale day'}; estimated cash you’d put in ${money(bid.cashPeak)}`);
+      cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} ${sealed ? 'with your sealed bid, before the sale' : wonPhase ? 'at the sale' : washoeTax ? 'by 5:00 p.m. the day after the sale' : 'on sale day'}; estimated cash you’d put in ${money(bid.cashPeak)}`);
       // As Fix and sell says in red: with no cash entered there, the walk-away price can need more than My plan's cash.
       if (!pricePhase(d) && bid.at && bid.at.cashPeak <= profile.investable && !(bid.cashLimit > 0) && !bid.cashTyped && profile.investable > 0 && bid.cashPeak > profile.investable) cash.push(`That walk-away price needs ${money(bid.cashPeak - profile.investable)} more than the ${money(profile.investable)} of investable cash in My plan: ${offer ? 'offer only what fits your cash' : `enter the cash you can bring in ${strategy} to cap the bid at what you have`}.`);
     }
