@@ -189,7 +189,7 @@ const NEVADA: Playbook[] = [
     mistakes: [
       { mistake: 'Not knowing which loan is being foreclosed', prevent: 'Confirm which lien is foreclosing. At a second mortgage’s sale, the first deed of trust survives, so you’d take the home with that loan on it: budget for it.' },
       { mistake: 'Driving to a sale that was postponed', prevent: 'Call the trustee the day before. Postponements are announced by the trustee, not on DeedOwl.' },
-      { mistake: 'Forgetting occupants', prevent: 'Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act). A lease can run to its end unless the buyer will live there. For homes with up to 4 units, Nevada also requires a written notice of the change of ownership. Tenants keep their lease rights for a notice period: at least 60 days for a month-to-month tenant (NRS 40.255(2)). The federal 90 days is longer, so plan on it.* You take on the landlord’s duties, including their existing security deposits (NRS 118A.244). Former owners get a 3-day notice (NRS 40.255).' },
+      { mistake: 'Forgetting occupants', prevent: 'Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act). A lease can run to its end unless the buyer will live there. For homes with up to 4 units, Nevada also requires a notice of the change of ownership. Tenants keep their lease rights for a notice period: at least 60 days for a month-to-month tenant (NRS 40.255(2)). The federal 90 days is longer, so plan on it.* You take on the landlord’s duties, including their existing security deposits (NRS 118A.244). Former owners get a 3-day notice (NRS 40.255).' },
     ],
     example: {
       title: 'The $40,000 opening bid',

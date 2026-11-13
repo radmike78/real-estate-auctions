@@ -632,13 +632,20 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           )
         )}
         {/* No cash limit entered here, but My plan has your investable cash and this needs more: say so by the price. */}
-        {!needsValue && !r.noBidWorks && !planShort && !(i.cashAvailable > 0) && !cashTyped && planCash > 0 && r.cashPeak > planCash && (
-          <p className="calc-verdict bad" role="note"><strong>This needs about {fmtMoney(Math.round(r.cashPeak))} of your cash at the walk-away price; My plan shows {fmtMoney(Math.round(planCash))} of investable cash.</strong> {offer ? 'Offer only what fits your cash (with any loan your lender approves), or compare a loan with a lender.' : <>Enter the cash you can bring (an auction wants the full amount by its payment deadline) to cap the {w.bid} at what you have, or compare a loan with a lender. <button type="button" className="linkish" onClick={() => { const f = document.getElementById(`${uid}-cashAvailable`); f?.scrollIntoView({ block: 'center' }); f?.focus({ preventScroll: true }); }}>Enter your cash</button></>}</p>
+        {!needsValue && !r.noBidWorks && !planShort && !(i.cashAvailable > 0) && !cashTyped && planCash > 0 && r.cashPeak > planCash && !wonBid && !boughtOffer && (
+          <p className="calc-verdict bad" role="note"><strong>This needs about {fmtMoney(Math.round(r.cashPeak))} of your cash at the walk-away price; My plan shows {fmtMoney(Math.round(planCash))} of investable cash.</strong> {agreed ? 'Check the cash the agreed price needs below, and talk to your lender before you close.' : offer ? 'Offer only what fits your cash (with any loan your lender approves), or compare a loan with a lender.' : <>Enter the cash you can bring (an auction wants the full amount by its payment deadline) to cap the {w.bid} at what you have, or compare a loan with a lender. <button type="button" className="linkish" onClick={() => { const f = document.getElementById(`${uid}-cashAvailable`); f?.scrollIntoView({ block: 'center' }); f?.focus({ preventScroll: true }); }}>Enter your cash</button></>}</p>
         )}
         {!needsValue && i.minimumBid > 0 && <PriceHead level={3} kind="listed" tag={offer ? 'From the listing' : 'From the sale notice'} label={w.Opening} price={i.minimumBid} result={atOpening} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(openingCash))}.`} />}
         {!needsValue && i.minimumBid > 0 && (
           <div className={`calc-verdict ${dealFails || cashShort || planShort ? 'bad' : 'good'}`}>
-            {dealFails ? (
+            {/* Under contract, won or bought: the price is fixed, so no advice on what to offer or bid; the result at that price follows below. */}
+            {fixedPrice ? (
+              dealFails ? (
+                <><strong>{noTarget0 ? 'Doesn’t break even' : `Misses ${targetIsExample ? 'our example target' : 'your target'}`} at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, {noTarget0 ? 'below break-even.' : <>below {targetIsExample ? 'our example' : 'your'} {fmtMoney(Math.round(target))} target.</>} {agreed ? 'Check your result at the agreed price below. If the numbers no longer work, ask your agent or attorney what your contract’s contingencies allow, before their deadlines.*' : `Your result at ${wonBid ? 'your winning bid' : 'the price you paid'} is below.`}</>
+              ) : (
+                <><strong>{planShort || cashShort ? `At the ${w.opening}, this needs more cash than ${planShort ? 'My plan shows' : 'you entered'}.` : `Meets ${tw} at the ${w.opening}, with the numbers entered.`}</strong> At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}{planShort || cashShort ? <>, with about {fmtMoney(Math.round(openingCash))} of cash needed through repairs and holding</> : null}. Your result at {agreed ? 'the agreed price' : wonBid ? 'your winning bid' : 'the price you paid'} is below.{agreed && (planShort || cashShort) ? ' Talk to your lender before you close.' : ''}{unenteredNote}</>
+              )
+            ) : dealFails ? (
               offer ? (
                 <><strong>{noTarget0 ? 'Doesn’t break even' : `Misses ${targetIsExample ? 'our example target' : 'your target'}`} at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, {noTarget0 ? 'below break-even.' : <>below {targetIsExample ? 'our example' : 'your'} {fmtMoney(Math.round(target))} target.</>} {r.maxBid > 0 ? <>Offer no more than {fmtMoney(r.maxBid)}, or pass.</> : 'Pass, or change your plan.'}</>
               ) : (

@@ -22,7 +22,7 @@ import { projectedMonthly, useOwned } from './OwnedTracker';
 import { countyName } from '../lib/regions';
 import StatusBadge from './StatusBadge';
 import { dealNumbers } from '../lib/propertyPacket';
-import { flipNeedsRepairs, nextAction, savedNumbers } from '../lib/dealPacket';
+import { fixedPriceName, flipNeedsRepairs, nextAction, savedNumbers } from '../lib/dealPacket';
 import { investorProfile } from '../lib/myPlan';
 import { capMisses, capText, dscrText, refiValueWords, rentVerdict } from '../lib/holdCalc';
 import { beforeDeed, needsAnswerNow, pressingWeight, redeemingNow, sidState, redemptionOver, dealNextTask, finishedDeal, prettyDay, liveIn, soldOf, stageLabel, stageOf, setDealStage } from '../lib/dealStage';
@@ -216,7 +216,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       const limit = bid.cashLimit > 0 ? bid.cashLimit : bid.cashTyped ? 0 : planCash;
       const mine = limit > 0 && a.cashPeak > limit;
       const listed = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
-      const at = a.source === 'yours' ? `At your ${listed ? 'offer' : 'bid'}` : `At the ${listed ? 'asking price' : 'opening bid'}`;
+      const at = a.source === 'yours' ? `At ${fixedPriceName(d) ?? `your ${listed ? 'offer' : 'bid'}`}` : `At the ${listed ? 'asking price' : 'opening bid'}`;
       return (
         <p className={mine || short || a.profit < bid.target || a.price > bid.maxBid ? 'deal-urgent' : undefined}>
           {at}, {fmtMoney(a.price)}: profit about {fmtMoney(Math.round(a.profit))} · needs about {fmtMoney(Math.round(a.cashPeak))} of your cash{mine ? ` (${bid.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''} · walk-away price {fmtMoney(bid.maxBid)}{short && !mine ? ` (needs about ${fmtMoney(Math.round(bid.cashPeak))} of your cash; My plan: ${fmtMoney(Math.round(planCash))}; ${listed ? 'offer only what fits your cash' : 'enter your cash in Fix and flip to cap it'})` : ''}{mine && bid.cashLimit <= 0 ? ` · even this ${listed ? 'price' : 'bid'} needs more than My plan’s cash: skip this one, or update My plan if you have more` : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}

@@ -517,8 +517,15 @@ function read(key: string): unknown {
 const money = (n: number) => `${n < 0 ? '−' : ''}$${Math.round(Math.abs(n)).toLocaleString('en-US')}`;
 
 /** Which price a Fix and sell result is figured at: the one you entered, or the listing's own. */
-const priceName = (source: 'yours' | 'listed', offer: boolean, cap = false) => {
-  const n = source === 'yours' ? (offer ? 'your offer' : 'your bid') : offer ? 'the asking price' : 'the opening bid';
+/** The name of a price that's no longer a plan: agreed (offer under contract), won (an auction's winning bid) or paid. */
+export const fixedPriceName = (d: Deal): string | null => {
+  const st = stageOf(d);
+  if (['listing', 'reo', 'short'].includes(d.kind)) return st === 'contract' ? 'the agreed price' : ['closed', 'owned'].includes(st) ? 'the price you paid' : null;
+  return ['contract', 'closed', 'owned'].includes(st) ? 'your winning bid' : null;
+};
+
+const priceName = (source: 'yours' | 'listed', offer: boolean, cap = false, d?: Deal) => {
+  const n = source === 'yours' ? (d && fixedPriceName(d)) || (offer ? 'your offer' : 'your bid') : offer ? 'the asking price' : 'the opening bid';
   return cap ? n[0].toUpperCase() + n.slice(1) : n;
 };
 
@@ -1064,7 +1071,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     const a = bid.at;
     if (a) {
       need = a.cashPeak;
-      const at = `${priceName(a.source, offer)} of ${money(a.price)}`;
+      const at = a.source === 'yours' && fixedPriceName(d) === 'the price you paid' ? `the ${money(a.price)} you paid` : `${priceName(a.source, offer, false, d)} of ${money(a.price)}`;
       needAt = `At ${at}`;
       if (!offer) cash.push(saleDay(at, a.cashOnDay));
       cash.push(`Estimated cash you’ll put in, at ${at}, under these assumptions (through repairs and holding until it sells): ${money(a.cashPeak)}`);
@@ -1135,19 +1142,19 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   // You plan to live there: a monthly loss is what living there costs you (as Keep and rent and My deals say).
   const living = !!rent && offer && liveIn(d);
   if (rent && living) {
-    nums.push(`Your offer (your actual price): ${money(rent.price)} → ${Math.round(Math.abs(rent.monthly)) === 0 ? 'the rent you collect about breaks even with every cost' : rent.monthly < 0 ? `living there costs you about ${money(-rent.monthly)} a month${rent.noRent ? '' : ' after any rent you collect'}${rent.noRent ? `, plus your own upkeep (about ${money(rent.price * 0.01 / 12)} a month at 1% of the price a year*)` : ''}` : `the rent you collect covers every cost, with about ${money(rent.monthly)} a month to spare`}${rent.mi > 0 ? `, before mortgage insurance (about ${money(rent.mi)} a month on an FHA loan; not counted)` : ''}. Compare that with what you pay to live where you are now; the return target is an investor’s yardstick.`);
+    nums.push(`${priceName('yours', true, true, d)} (your actual price): ${money(rent.price)} → ${Math.round(Math.abs(rent.monthly)) === 0 ? 'the rent you collect about breaks even with every cost' : rent.monthly < 0 ? `living there costs you about ${money(-rent.monthly)} a month${rent.noRent ? '' : ' after any rent you collect'}${rent.noRent ? `, plus your own upkeep (about ${money(rent.price * 0.01 / 12)} a month at 1% of the price a year*)` : ''}` : `the rent you collect covers every cost, with about ${money(rent.monthly)} a month to spare`}${rent.mi > 0 ? `, before mortgage insurance (about ${money(rent.mi)} a month on an FHA loan; not counted)` : ''}. Compare that with what you pay to live where you are now; the return target is an investor’s yardstick.`);
     for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase().replace(/^takes /, 'it takes ')}: ${s.monthly < 0 ? `living there costs about ${money(-s.monthly)} a month` : `${money(s.monthly)} a month to spare`}`);
   } else if (rent) {
-    nums.push(`${offer ? 'Your offer' : 'Your bid'} (your actual price): ${money(rent.price)} → monthly cash flow ${money(rent.monthly)}${rent.exampleValue ? ` (${refiValueWords(rent.refiValue)})` : rent.refi ? ' after the refinance' : ''}; ${rent.exampleValue && rent.refiValue > 0 ? 'return not shown until you enter the value after repairs' : rent.cashOnCash === null ? 'all your cash back' : `${capText(rent.cashOnCash, rent.target)}% a year on your cash`} (${rent.targetTyped ? 'your' : 'our example'} target ${rent.target}%)${rent.coverageShort ? `; income coverage under ${rent.dscrTyped ? 'your' : 'our example'} ${rent.minDscr}× minimum` : ''}`);
+    nums.push(`${priceName('yours', offer, true, d)} (your actual price): ${money(rent.price)} → monthly cash flow ${money(rent.monthly)}${rent.exampleValue ? ` (${refiValueWords(rent.refiValue)})` : rent.refi ? ' after the refinance' : ''}; ${rent.exampleValue && rent.refiValue > 0 ? 'return not shown until you enter the value after repairs' : rent.cashOnCash === null ? 'all your cash back' : `${capText(rent.cashOnCash, rent.target)}% a year on your cash`} (${rent.targetTyped ? 'your' : 'our example'} target ${rent.target}%)${rent.coverageShort ? `; income coverage under ${rent.dscrTyped ? 'your' : 'our example'} ${rent.minDscr}× minimum` : ''}`);
     for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase().replace(/^takes /, 'it takes ')}: ${money(s.monthly)} a month`);
     if (rent.loanHigh) nums.push('Loans for a property you won’t live in usually need 15% to 25% down,* so this loan may be more than a lender would make: ask your lender for their figure. Mortgage insurance isn’t included in these payments either.');
     else if (rent.miLeftOut) nums.push('Mortgage insurance, which most loans add with under 20% down, isn’t included in these payments: ask your lender for it.');
   }
   if (bid) {
     const a = bid.at;
-    if (a) nums.push(`${priceName(a.source, offer, true)} (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'}): ${money(a.price)} → estimated profit ${money(a.profit)} (${bid.noTarget ? 'no profit target set yet' : `${bid.targetTyped ? 'your target' : 'our example target'} ${money(bid.target)}`}${a.profit < bid.target ? (bid.noTarget ? ', below break-even' : ', so it falls short') : ''}), based on a ${money(bid.exitValue)} resale value`);
+    if (a) nums.push(`${priceName(a.source, offer, true, d)} (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'}): ${money(a.price)} → estimated profit ${money(a.profit)} (${bid.noTarget ? 'no profit target set yet' : `${bid.targetTyped ? 'your target' : 'our example target'} ${money(bid.target)}`}${a.profit < bid.target ? (bid.noTarget ? ', below break-even' : ', so it falls short') : ''}), based on a ${money(bid.exitValue)} resale value`);
     const belowOpening = !bid.none && a?.source === 'listed' && bid.maxBid < a.price;
-    nums.push(bid.none && bid.cashBlocked ? `No bid fits the cash you entered: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that` : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and ${targetW}` : `What-if: walk-away price ${money(bid.maxBid)}, ${bid.limitedBy === 'cash' ? `the most your cash covers with every cost until you sell (${goalW} alone allows ${money(bid.profitBid)})` : `the most you could pay and still meet ${goalW}`} (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : `this deal doesn’t meet ${goalW}`} as entered` : ''}`);
+    nums.push(bid.none && bid.cashBlocked ? `No bid fits the cash you entered: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that` : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and ${targetW}` : `What-if: walk-away price ${money(bid.maxBid)}, ${bid.limitedBy === 'cash' ? `the most your cash covers with every cost until you sell (${goalW} alone allows ${money(bid.profitBid)})` : `the most you could ${fixedPriceName(d) && fixedPriceName(d) !== 'the agreed price' ? 'have paid' : 'pay'} and still meet ${goalW}`} (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : `this deal doesn’t meet ${goalW}`} as entered` : ''}`);
     if (bid.redeem && !bid.redeem.who) nums.push(`Built on a ${bid.redeem.months}-month wait you typed as a what-if. ${noRedemptionWords(d)} Check the sale terms with the official seller or an attorney.`);
     // Your own wait, under every period the law sets for this sale: said once, with the shortest.
     const shorter = bid?.redeem?.shortest ? ` That’s shorter than any redemption period the law sets for this sale (the shortest is ${shortestRedemptionWords(d, true)}):* the owner can still redeem until it ends.` : '';
