@@ -566,10 +566,20 @@ const withDefault = (t: string, c?: SettledContext) => { const w = defaultWords(
 
 /** A won bid short of cash: when the bid alone is more than the cash, say so first (it's the urgent part), then what not
  * paying costs at this kind of sale. */
+/** Who sells at this kind of sale (who to contact about a missed payment). */
+export const sellerName = (kind?: string): string => ({ trustee: 'the trustee', court: 'the sheriff’s office', hoa: 'the HOA’s foreclosure agent', irs: 'the IRS sale officer', taxSale: 'the Treasurer', lien: 'the Treasurer' } as Record<string, string>)[kind ?? ''] ?? 'the official seller';
+
+/** A won bid or picked certificate whose payment deadline passed unpaid: what to do, said once (the packet's intro and its download). */
+export const overdueIntro = (d: Deal): string => {
+  const when = d.kind === 'lien' || pricePhase(d) === 'owed' ? paymentPassed(d) : '';
+  if (!when) return '';
+  return `${d.kind === 'lien' ? 'You were picked' : 'You won the bid'}, and the payment deadline (${prettyDay(when)}) has passed: mark it handled in Key dates if you paid, or contact ${sellerName(d.kind)}${d.kind === 'lien' ? '' : ' and an attorney'} now.`;
+};
+
 /** When the won bid is due: still ahead, passed (with its date), or already said as passed on the line above. */
 const dueWords = (c?: SettledContext): string => (c?.overdueSaid ? 'Its payment deadline has passed (above).'
-  : c?.payOverdue ? `If you haven’t paid it, the sale’s payment deadline (${prettyDay(c.payOverdue)}) has passed: contact the official seller and an attorney now.`
-  : 'If you haven’t paid it yet, it’s due in full by the sale’s payment deadline: contact the official seller and an attorney now.');
+  : c?.payOverdue ? `If you haven’t paid it, the sale’s payment deadline (${prettyDay(c.payOverdue)}) has passed: contact ${sellerName(c.kind)} and an attorney now.`
+  : `If you haven’t paid it yet, it’s due in full by the sale’s payment deadline: contact ${sellerName(c?.kind)} and an attorney now.`);
 
 /** CASH_SHORT_AFTER.owed, with the deadline said as passed once it has. */
 const owedCash = (c?: SettledContext): string => (c?.overdueSaid || c?.payOverdue
@@ -630,10 +640,11 @@ function passedCash(cash: string[], d: Deal): string[] {
     .replace(/^By 5:00 p\.m\. the day after the sale, at /, 'Planned by 5:00 p.m. the day after the sale, at ')
     .replace(/^With your sealed bid, by the notice’s deadline \(usually 4 p\.m\. the day before the sale\*\), at /, 'Planned with your sealed bid, at ')
     .replace(/ on sale day;/g, ' planned for sale day;')
+    .replace(/ by 5:00 p\.m\. the day after the sale;/g, ' planned by 5:00 p.m. the day after the sale;')
     .replace(/with your sealed bid, before the sale/g, 'planned with your sealed bid')
     .trim()).filter((t) => t && !/^Run .* in Analyze/.test(t));
   // (A losing sealed bid's refund is in the stage hint above, so it isn't repeated here.)
-  return [`Kept as a record from before you passed on ${d.name}.`, ...lines.map((t) => (sealedBid(d) && paidAtWin(d) ? t.replace(/^Planned with your sealed bid/, 'Sent with your sealed bid').replace(/planned with your sealed bid/g, 'sent with your sealed bid') : t))];
+  return [`Kept as a record from before you passed on ${d.name}.`, ...lines.map((t) => (sealedBid(d) && paidAtWin(d) ? t.replace(/^Planned with your sealed bid/, 'Sent with your sealed bid') : t))];
 }
 
 const priceName = (source: 'yours' | 'listed', offer: boolean, cap = false, d?: Deal) => {
@@ -1152,7 +1163,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     : wonPhase === 'paid'
     ? `Paid: ${at}, plus any buyer’s premium (check the amount against your receipt)${end}`
     : payPassed
-    ? `The sale’s payment deadline (${prettyDay(payPassed.when!)}) has passed, and ${at} isn’t marked paid (what to do is at the top of this packet)${end || '.'}`
+    ? `The sale’s payment deadline (${prettyDay(payPassed.when!)}) has passed, and ${at} isn’t marked paid (what to do is at the top)${end || '.'}`
     : wonPhase === 'owed'
     ? `By the sale’s payment deadline (see Key dates), at ${at}: ${money(amount)} (the full amount, plus any buyer’s premium, in the form the sale requires)${end}`
     : sealed
@@ -1380,7 +1391,7 @@ export function dealPacketText(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   // Bought, finished, or a won auction: the parts from before you bought are records (as the page says).
   const pastSale = ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d) || (stageOf(d) === 'contract' && !isOffer(d)) || sidState(d) === 'void';
   const lines = [`DEAL PACKET: ${d.name}`, 'DeedOwl educational worksheet. Every number is your estimate until a source backs it; a checkmark records your review, not a clear title.', ''];
-  lines.push(`STAGE: ${stageLabel(stageOf(d), d)}`, `NEXT ACTION: ${nextAction(d, p, now).text}`, ...(flipSaleLine(d) ? [`SALE: ${flipSaleLine(d)}`] : []), '');
+  lines.push(`STAGE: ${stageLabel(stageOf(d), d)}`, ...(overdueIntro(d) ? [`NOW: ${overdueIntro(d)}`] : []), `NEXT ACTION: ${nextAction(d, p, now).text}`, ...(flipSaleLine(d) ? [`SALE: ${flipSaleLine(d)}`] : []), '');
   for (const s of packetSections(d, p, now)) {
     const beforeWord = `from before ${beforeWhat(d)}`;
     lines.push(`${s.title.toUpperCase()} [${s.key === 'dates' && isOffer(d) && (['closed', 'owned'].includes(stageOf(d)) || !!loadOwned()[d.id]?.sold) && !p.dates.length ? 'left blank: from before you bought' : s.key === 'dates' && (stageOf(d) === 'passed' || !!loadOwned()[d.id]?.sold || finishedDeal(d)) ? (p.dates.length ? 'kept as a record' : stageOf(d) === 'passed' && !finishedDeal(d) ? 'not needed (you passed)' : 'not needed now') : s.key === 'dates' && isOffer(d) && ['closed', 'owned'].includes(stageOf(d)) && !p.dates.length ? 'left blank: from before you bought' : s.status === 'done' ? (s.doneLabel ?? 'complete').toLowerCase() : stageOf(d) === 'passed' && sidState(d) !== 'void' && !finishedDeal(d) && (s.key !== 'dates' || !p.dates.length) && s.key !== 'decision' ? 'not needed (you passed)' : pastSale && recordParts(d).includes(s.key) ? (s.status === 'missing' ? `left blank: ${beforeWord}` : `partly filled in: ${beforeWord}`) : s.status === 'started' ? 'in progress' : 'missing'}]`, ...s.lines);
