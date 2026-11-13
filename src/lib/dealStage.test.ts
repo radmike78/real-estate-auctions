@@ -1811,7 +1811,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     // (The usual deadline, the day before the sale, is still ahead: the reader is sent to the notice.)
     expect(t.label).toMatch(/deadline you entered .* has passed, but Eureka’s usual deadline is/);
     expect(t.label).not.toMatch(/Overdue/);
-    expect(t.tick?.label).toMatch(/I sent it by the deadline/);
+    expect(t.tick?.label).toMatch(/I sent my sealed bid and payment in time/);
     // (The usual deadline is still ahead: the pass answer is about the notice's deadline.)
     expect(t.advance2?.label).toMatch(/The notice’s deadline passed without my bid/);
     expect(t.redate?.label).toMatch(/change it to/);
