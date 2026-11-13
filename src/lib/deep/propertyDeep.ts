@@ -263,14 +263,14 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         }
       },
       {
-        text: "Las Vegas condo buyers get a resale package after making an offer. It shows the assessment, common expenses and budget.",
+        text: "Las Vegas condo buyers get a resale package after making an offer. It shows the assessment, common expenses and budget.*",
         source: {
           label: "Las Vegas Review-Journal: condos as an affordable option in Las Vegas (Ann Friedman, c. 2016)",
           url: "https://www.reviewjournal.com/?p=1043468"
         }
       },
       {
-        text: "Some Las Vegas HOAs ban nightly rentals even when buyers assume they can rent that way.",
+        text: "Some Las Vegas HOAs ban nightly rentals even when buyers assume they can rent that way.*",
         source: {
           label: "Las Vegas Review-Journal: condos as an affordable option in Las Vegas (Ann Friedman, c. 2016)",
           url: "https://www.reviewjournal.com/?p=1043468"
@@ -1323,14 +1323,14 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     ],
     facts: [
       {
-        text: "Southern Nevada industrial vacancy was just 1.3% in the third quarter of 2022 (Colliers). More than 8.3 million square feet was under construction.",
+        text: "Southern Nevada industrial vacancy was just 1.3% in the third quarter of 2022 (Colliers). More than 8.3 million square feet was under construction.*",
         source: {
           label: "Las Vegas Review-Journal: Southern Nevada industrial market keeps flooring it (Nov. 2022)",
           url: "https://www.reviewjournal.com/business/business-columns/real-estate-insider/forget-the-brakes-southern-nevada-warehouse-market-keeps-flooring-it-2438760/"
         }
       },
       {
-        text: "North Las Vegas warehouse vacancy was just 0.4% in early 2022.",
+        text: "North Las Vegas warehouse vacancy was just 0.4% in early 2022.*",
         source: {
           label: "Las Vegas Review-Journal: New warehouse project in North Las Vegas sells for $271.5 million (May 27, 2022)",
           url: "https://www.reviewjournal.com/business/new-warehouse-complex-near-speedway-sells-for-271-5m-2460895/"
@@ -1667,14 +1667,14 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
     ],
     facts: [
       {
-        text: "During Nevada’s 78-day casino shutdown in 2020, the state’s 219 major casinos lost an estimated $6.2 billion.",
+        text: "During Nevada’s 78-day casino shutdown in 2020, the state’s 219 major casinos lost an estimated $6.2 billion.*",
         source: {
           label: "Las Vegas Review-Journal (via Hawaii Tribune-Herald): Four years ago, Las Vegas’ casinos shut down for 78 days. The fallout was brutal (March 16, 2024)",
           url: "https://www.hawaiitribune-herald.com/?p=318350"
         }
       },
       {
-        text: "Nevada gaming revenue later hit records, $15.5 billion in 2023.",
+        text: "Nevada gaming revenue later hit records, $15.5 billion in 2023.*",
         source: {
           label: "Las Vegas Review-Journal (via Hawaii Tribune-Herald): Four years ago, Las Vegas’ casinos shut down for 78 days. The fallout was brutal (March 16, 2024)",
           url: "https://www.hawaiitribune-herald.com/?p=318350"
@@ -1899,7 +1899,7 @@ export const PROPERTY_DEEP: Partial<Record<PropertyKey, TopicDeep>> = {
         }
       },
       {
-        text: "Las Vegas was among the cities with the biggest rate losses for non-climate-controlled units. Salt Lake City was one of only four large metros with a small increase.",
+        text: "Las Vegas was among the cities with the biggest rate losses for non-climate-controlled units. Salt Lake City was one of only four large metros with a small increase.*",
         source: {
           label: "Scotsman Guide: Self-storage woes continue as sector works through oversupply (Sept. 25, 2026)",
           url: "https://www.scotsmanguide.com/news/self-storage-woes-continue-as-sector-works-through-oversupply/"
