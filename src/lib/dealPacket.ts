@@ -530,8 +530,8 @@ export const pricePhase = (d: Deal): 'agreed' | 'owed' | 'paid' | null => {
   // A lien certificate is picked, not bid on, and its price is the amount owed: none of these words fit it.
   if (d.kind === 'lien') return null;
   if (['closed', 'owned'].includes(st)) return 'paid';
-  // A won bid already marked paid (Eureka's goes in with the sealed bid) is paid, not owed.
-  return st === 'contract' ? (['listing', 'reo', 'short'].includes(d.kind) ? 'agreed' : paidAtWin(d) ? 'paid' : 'owed') : null;
+  // A won bid already marked paid is paid, not owed; so is any Eureka win (the full payment went in with the sealed bid).
+  return st === 'contract' ? (['listing', 'reo', 'short'].includes(d.kind) ? 'agreed' : paidAtWin(d) || sealedBid(d) ? 'paid' : 'owed') : null;
 };
 
 /** What to do when a fixed price needs more cash than you have (no advice on what to offer or bid: that's settled). */
@@ -553,7 +553,7 @@ export const defaultWords = (c: SettledContext = {}): string => {
   if (c.state !== 'NV') return '';
   if (c.kind === 'trustee') return 'A winner who doesn’t pay can be held liable for any loss when the property is sold again (NRS 107.083).';
   if (c.kind === 'court') return 'A winner who doesn’t pay can be held liable for any loss when the property is sold again (NRS 21.160).';
-  if (c.kind === 'irs') return 'If a deferred payment isn’t made, the IRS can sue for it with 6% interest, or cancel the sale and keep what you paid (26 U.S.C. 6335(e)(3)).';
+  if (c.kind === 'irs') return 'If the IRS let you pay part of the price later and you don’t pay it, it can sue for it with 6% interest, or cancel the sale and keep what you paid (26 U.S.C. 6335(e)(3)).';
   // Eureka's sealed-bid sale takes the full payment with the bid: no deposit to lose.
   if (c.kind === 'taxSale' && c.county === 'Eureka') return 'If your sealed bid’s payment wasn’t accepted, ask the Treasurer what happens next.*';
   if (c.kind === 'taxSale') return 'The Treasurer’s sale terms say what happens if you don’t pay; you may lose your deposit and be barred from later sales.*';
@@ -572,7 +572,7 @@ export const owedWords = (bidDue: number, limit: number, limitWord: string, c?: 
 /** The cash advice at a fixed price, with what not paying costs when a won bid may still be owed. */
 export const cashShortAfter = (phase: 'agreed' | 'owed' | 'paid', c?: SettledContext): string => (phase === 'owed' ? (c?.quiet ? 'The cash at your winning bid, and when it’s due, is shown with your result.' : withDefault(CASH_SHORT_AFTER.owed, c)) : CASH_SHORT_AFTER[phase]);
 
-const OPTIONS = 'talk to your advisors about your options (such as keeping, renting or selling it): each person’s situation decides which fits.';
+export const OPTIONS = 'talk to your advisors about your options (such as keeping, renting or selling it): each person’s situation decides which fits.';
 
 /** What to do when no price works at a price already agreed, won or paid (no walking away from a won bid). */
 export const NO_PRICE_AFTER: Record<'agreed' | 'owed' | 'paid', string> = {
@@ -582,9 +582,14 @@ export const NO_PRICE_AFTER: Record<'agreed' | 'owed' | 'paid', string> = {
 };
 
 /** NO_PRICE_AFTER for this sale: what not paying costs, and no renting or selling before the deed. */
+/** One wording for checking the numbers after a win or purchase, and for what to wait for before the deed. */
+export const checkAdvice = (what: string, noDeed = false): string => (noDeed
+  ? `Check ${what} against evidence. Until the redemption period ends and the deed is yours, ask your attorney before renting, selling or remodeling; once it’s yours, ${OPTIONS}`
+  : `Check ${what} against evidence, then ${OPTIONS}`);
+
 export const noPriceAfter = (phase: 'agreed' | 'owed' | 'paid', c?: SettledContext): string => {
   if (phase === 'agreed') return NO_PRICE_AFTER.agreed;
-  const check = c?.noDeed ? `Check the numbers against evidence. Until the redemption period ends and the deed is yours, ask your attorney before renting, selling or remodeling; once it’s yours, ${OPTIONS}` : `Check the numbers against evidence, then ${OPTIONS}`;
+  const check = checkAdvice('the numbers', c?.noDeed);
   return phase === 'owed' && !c?.quiet ? `${withDefault('If you haven’t paid the bid yet, it’s still due by the sale’s payment deadline.', c)} ${check}` : check;
 };
 
@@ -601,7 +606,8 @@ export function settledWords(t: string, phase: 'agreed' | 'owed' | 'paid' | null
     .replace(/What-if, at your walk-away price of (\$[\d,]+) \(the most you could have paid, not your price\)/g, 'What-if, at the most this plan could have paid ($1, not your price)')
     .replace(/Walk-away price, set by/g, 'The most this plan could have paid, set by')
     .replace(/\bwalk-away price (\$[\d,]+)/g, 'the most this plan could have paid, $1')
-    .replace(/(the most this plan could have paid, \$[\d,]+), the most you could have paid and still meet/g, '$1, which would still have met');
+    .replace(/(the most this plan could have paid, \$[\d,]+), the most you could have paid and still meet/g, '$1, which would still have met')
+    .replace(/(the most this plan could have paid, \$[\d,]+), the most your cash covers/g, '$1, set by what your cash covers');
   return s;
 }
 
@@ -1173,7 +1179,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could ${fixedPriceName(d) && fixedPriceName(d) !== 'the agreed price' ? 'have paid' : 'pay'}, not your price)`;
       cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} ${sealed ? 'with your sealed bid, before the sale' : washoeTax ? 'by 5:00 p.m. the day after the sale' : 'on sale day'}; estimated cash you’d put in ${money(bid.cashPeak)}`);
       // As Fix and sell says in red: with no cash entered there, the walk-away price can need more than My plan's cash.
-      if (bid.at && bid.at.cashPeak <= profile.investable && !(bid.cashLimit > 0) && !bid.cashTyped && profile.investable > 0 && bid.cashPeak > profile.investable) cash.push(`That walk-away price needs ${money(bid.cashPeak - profile.investable)} more than the ${money(profile.investable)} of investable cash in My plan: ${offer ? 'offer only what fits your cash' : `enter the cash you can bring in ${strategy} to cap the bid at what you have`}.`);
+      if (!pricePhase(d) && bid.at && bid.at.cashPeak <= profile.investable && !(bid.cashLimit > 0) && !bid.cashTyped && profile.investable > 0 && bid.cashPeak > profile.investable) cash.push(`That walk-away price needs ${money(bid.cashPeak - profile.investable)} more than the ${money(profile.investable)} of investable cash in My plan: ${offer ? 'offer only what fits your cash' : `enter the cash you can bring in ${strategy} to cap the bid at what you have`}.`);
     }
     if (bid.unentered.length) cash.push(`Doesn’t include costs still at $0 because not entered: ${bid.unentered.join('; ')}.`);
     if (bid.financed) cash.push(DRAW_NOTE);

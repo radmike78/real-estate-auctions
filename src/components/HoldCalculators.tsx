@@ -10,7 +10,7 @@ import { fmtMoney } from '../lib/status';
 import { trackAction } from '../lib/track';
 import CalcFields, { type CalcGroup } from './CalcFields';
 import { useCalcRegion } from './calcRegion';
-import { cashShortAfter, owedWords, pricePhase, RENT_WAIT_ADVICE, rentWaitNote, settledWords, type SettledContext } from '../lib/dealPacket';
+import { cashShortAfter, checkAdvice, owedWords, pricePhase, RENT_WAIT_ADVICE, rentWaitNote, settledWords, type SettledContext } from '../lib/dealPacket';
 import { ExampleInputs, ExampleResults, PriceHead, exampleLabels } from './CalcLabels';
 
 /** The fields on screen, in order. */
@@ -346,7 +346,7 @@ function AtThisPrice({ ctx, phase = null, noDeed = false, v, start, onPrice, set
           {exampleRefi ? null : a.cashFlow <= 0
             ? livingThere
               ? 'Compare that monthly cost with what you pay to live where you are now.'
-              : `It loses about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month after every cost. ${phase === 'owed' || noDeed ? 'Check the rent and costs against evidence. Once the deed is yours, talk to your advisors about your options (such as the rent you set, cutting costs, refinancing or selling): each person’s situation decides which fits.' : word === 'The price you paid' || word === 'Your winning bid' ? 'Check the rent and costs against evidence, and talk to your advisors about your options (such as raising the rent at renewal, cutting costs, refinancing or selling): each person’s situation decides which fits.' : word === 'The agreed price' ? 'Check the rent and costs against evidence, and if the numbers no longer work, ask your agent or attorney what your contract’s contingencies allow, before their deadlines.*' : !onPrice && a.loan > 0 ? 'Investigate whether the refinance, the costs or your plan should change (a lower bid doesn’t change the refinance payment), or walk away.' : 'Investigate whether the price, the costs or your plan should change, or walk away.'}`
+              : `It loses about ${fmtMoney(Math.round(-a.cashFlow / 12))} a month after every cost. ${phase === 'owed' || phase === 'paid' || noDeed || word === 'The price you paid' || word === 'Your winning bid' ? checkAdvice('the rent and costs', noDeed) : word === 'The agreed price' ? 'Check the rent and costs against evidence, and if the numbers no longer work, ask your agent or attorney what your contract’s contingencies allow, before their deadlines.*' : !onPrice && a.loan > 0 ? 'Investigate whether the refinance, the costs or your plan should change (a lower bid doesn’t change the refinance payment), or walk away.' : 'Investigate whether the price, the costs or your plan should change, or walk away.'}`
             : livingThere
               ? 'Check each number against evidence before you rely on it.'
             : coc !== null && capMisses(coc, v.targetCocPct)

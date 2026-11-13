@@ -587,7 +587,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {waitCleared !== null && <p className="note" role="status">Your typed redemption wait{waitCleared > 0 ? ` (${waitCleared} month${waitCleared === 1 ? '' : 's'})` : ''} was for another kind of sale or state, so it was cleared and this sale’s rule is used. Type it again under Holding and financing (Detailed) if it applies here. <button type="button" className="linkish" onClick={() => setWaitCleared(null)}>Dismiss</button></p>}
         {unconfirmed && (
           <div className="caution calc-unconfirmed">
-            <strong>Redemption rule not confirmed.</strong> {ruleNow === choices?.start ? choices?.confirm : (choices?.confirm ?? '').replace(/ ?This calculator starts with [^.]*\. ?/, ' ').trim()} Your walk-away price now uses{' '}
+            <strong>Redemption rule not confirmed.</strong> {ruleNow === choices?.start ? choices?.confirm : (choices?.confirm ?? '').replace(/ ?This calculator starts with [^.]*\. ?/, ' ').trim()} {phase === 'owed' || phase === 'paid' ? 'These numbers now use' : 'Your walk-away price now uses'}{' '}
             {ruleNow === 'custom'
               ? choices?.start === 'none' && saleKind
                 ? <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month what-if wait (the note below says what it means).</>
@@ -684,7 +684,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <dl className="calc-kv">
             {!offer && <div><dt>{wonBid ? 'Cash needed at the most this plan could have paid' : 'Cash needed on auction day, at the walk-away price'}</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
             <div><dt>Estimated cash you’d put in, at {(phase === 'owed' || phase === 'paid') ? 'the most this plan could have paid' : 'the walk-away price'}, under these assumptions</dt><dd>{fmtMoney(r.cashPeak)}</dd></div>
-            {i.financedPct > 0 && r.cashToStabilize < r.cashPeak && <div><dt>Cash left in after the loan funds, at the walk-away price</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>}
+            {i.financedPct > 0 && r.cashToStabilize < r.cashPeak && <div><dt>Cash left in after the loan funds, at {phase === 'owed' || phase === 'paid' ? 'the most this plan could have paid' : 'the walk-away price'}</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>}
             <div><dt>Profit at {phase === 'owed' || phase === 'paid' ? 'the most this plan could have paid' : 'the walk-away price'}{Math.round(r.profit) !== Math.round(target) ? (noTarget0 ? ' (no profit target set yet)' : ` (${targetIsExample ? 'our example target' : 'your target'}: ${fmtMoney(Math.round(target))})`) : ''}</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
             <div><dt>Return on your cash, per year, if it sells on schedule</dt><dd>{yr(r.yearlyReturn)}</dd></div>
             <div><dt>Break-even {w.bid} (zero profit)</dt><dd>{fmtMoney(r.breakEvenBid)}</dd></div>

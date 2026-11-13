@@ -1,4 +1,4 @@
-import { liveIn, stageLabel, stageOf, finishedDeal } from '../lib/dealStage';
+import { beforeDeed, liveIn, stageLabel, stageOf, finishedDeal } from '../lib/dealStage';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
 import { planNow, practiceLienDeal, roadmapNextStep } from '../lib/planNext';
 import { lienDealFor, planPath, progressChanged } from '../lib/roadmapState';
@@ -18,7 +18,7 @@ import { useMarkStep, stepEyebrow } from '../lib/path';
 import { dropStateLead, useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
 import { CURRENT_KEY, KEPT_NOTE_KEY, makeRealDeal, OPENED_KEY, clearLienDraftNumbers, keepUnsavedDraft, movedFrom, noteStateMove, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, nextStamp, restoreDraftNumbers, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
-import { pricePhase } from '../lib/dealPacket';
+import { checkAdvice, NO_PRICE_AFTER, pricePhase } from '../lib/dealPacket';
 import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
 import { worksheetDownPct, investorProfile, commercialLoanStart } from '../lib/myPlan';
@@ -406,6 +406,17 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const spotCats = useSpotCategories('analyze', analyzeAdCategories(deal.kind, deal.plan));
   const adCats = analyzeAllowsAds(deal.kind) ? spotCats : [];
   const adShows = useAdShows(adCats, pros, { state: deal.state, county: deal.county, city: null });
+  // A saved deal whose price is agreed, won or paid (or a lien certificate you were picked for or hold): What's next says
+  // the numbers are a check now, in the same words as the calculators above.
+  const settled = (() => {
+    const sd = deal.id ? saved.find((x) => x.id === deal.id) : undefined;
+    if (!sd) return null;
+    const ph = pricePhase(sd);
+    if (ph === 'agreed') return { text: `You’ve already agreed on a price, so these numbers are a check, not a decision. ${NO_PRICE_AFTER.agreed}` };
+    if (ph) return { text: `You’ve already ${['listing', 'reo', 'short'].includes(sd.kind) ? 'bought it' : 'won it'}, so these numbers are a check, not a decision. ${checkAdvice('them', !!beforeDeed(sd))}` };
+    if (sd.kind === 'lien' && ['contract', 'closed', 'owned'].includes(stageOf(sd))) return { text: `You ${stageOf(sd) === 'contract' ? 'were picked for this certificate' : 'already hold this certificate'}, so these numbers are a check, not a decision. If they don’t work, talk to your attorney and advisors about your options: each person’s situation decides which fits.` };
+    return null;
+  })();
 
   return (
     <main className="page analyze">
@@ -603,9 +614,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <div className={adShows ? 'next-with-ad' : undefined}>
       <section className="analyze-next" aria-labelledby="analyze-next-head">
         <h2 id="analyze-next-head">4. What’s next</h2>
-        {/* A price already agreed, won or paid: the numbers are a check now, not a reason to pass. */}
-        {(() => { const saved = deal.id ? loadDeals().find((x) => x.id === deal.id) : undefined; return saved ? pricePhase(saved) : null; })() ? (
-          <p>You’ve already {(() => { const saved = loadDeals().find((x) => x.id === deal.id)!; return pricePhase(saved) === 'agreed' ? 'agreed on a price' : ['listing', 'reo', 'short'].includes(saved.kind) ? 'bought it' : 'won it'; })()}, so these numbers are a check, not a decision. If they don’t work, talk to your attorney and advisors about your options: your own situation decides which fits.</p>
+        {/* A price already agreed, won or paid (or a lien certificate you hold): the numbers are a check now, not a reason to pass. */}
+        {settled ? (
+          <p>{settled.text}</p>
         ) : (<>
         <p>{!deal.id && practiceSave(deal) ? 'Practicing without buying? Save this as a practice analysis so you can compare it with the next ones, and mark the practice step done in My plan when you’ve finished it.' : ['paper', 'c-paper'].includes(roadmapNextStep()?.id ?? '') ? 'Practicing without buying? Save this analysis so you can compare it with the next ones, and mark the task done in My plan when you’ve analyzed enough.' : 'Numbers work, and every checklist item above has an answer? Save the deal so you can come back to it, then follow the “Buy it” steps for this kind of sale in My plan.'}</p>
         <p><strong>Reasons to pause, revise or pass:</strong> {calcTabFor(deal.plan) === 'flip' ? 'the price you’d have to pay leaves no profit after repairs, holding and selling costs, or the profit is smaller than your goal' : calcTabFor(deal.plan) === 'lien' ? 'the interest you’d earn, after the wait to be paid, misses your goal' : deal.plan === 'rent' && (deal.id ? liveIn(deal) : !!investorProfile().ownerOccupant && (deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short')) ? 'the monthly cost of living there is more than you can comfortably pay alongside your other bills, or it leaves too little cash for repairs and emergencies' : 'the monthly cash flow is negative after reserves, or the long-term return misses your goal'}. Compare the tradeoffs with your goals and risk tolerance, and record your reasoning. Get appropriate professional guidance before committing. <a href="#/learn/walk-away">When to walk away</a></p>
