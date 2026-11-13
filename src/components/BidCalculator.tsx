@@ -182,7 +182,11 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const agreed = offer && !!saveAs && saveAs.startsWith('analyzed-') && loadDeals().find((x) => `analyzed-${x.id}` === saveAs)?.stage === 'contract';
   const wonBid = !offer && !!saveAs && saveAs.startsWith('analyzed-') && ['contract', 'closed', 'owned'].includes(loadDeals().find((x) => `analyzed-${x.id}` === saveAs)?.stage ?? '');
   // Words for an auction bid, or an offer on a listed home.
-  const w = offer
+  // (Once the price is fixed, agreed, won or paid, the figures are about prices, not a bid or offer to make.)
+  const fixedPrice = agreed || wonBid || boughtOffer;
+  const w = fixedPrice
+    ? { bid: 'price', Bid: 'Price', opening: offer ? 'asking price' : 'opening bid', Opening: offer ? 'Asking price' : 'Opening bid', max: 'The most this plan could pay', day: offer ? 'at closing' : 'on auction day' }
+    : offer
     ? { bid: 'offer', Bid: 'Offer', opening: 'asking price', Opening: 'Asking price', max: 'Your maximum offer', day: 'at closing' }
     : { bid: 'bid', Bid: 'Bid', opening: 'opening bid', Opening: 'Opening bid', max: 'Your maximum bid', day: 'on auction day' };
   const region = useCalcRegion();
@@ -472,7 +476,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const visibleKeys = new Set(GROUPS.flatMap((g) => g.fields.filter(shown)).map((f) => f.k as string));
   const stickyBad = Object.entries(draft).some(([k, t]) => t !== undefined && visibleKeys.has(k) && !!shownInputError(t, (fieldUnit(k) ?? '$') as never, `${uid}-${k}`));
   const still = exampleLabels(GROUPS.flatMap((g) => g.fields.filter(shown).map((f) => (offer && OFFER_FIELDS[f.k] ? { ...f, ...OFFER_FIELDS[f.k] } : f))), i, offer ? offerInputs(defaults) : defaults, typedKeys, NOT_EXAMPLES);
-  const yours = offer ? 'Your offer' : 'Your bid';
+  const yours = boughtOffer ? 'The price you paid' : wonBid ? 'Your winning bid' : agreed ? 'The agreed price' : offer ? 'Your offer' : 'Your bid';
   const planCash = investorProfile().investable;
   // A cash figure typed here (a typed 0 is no limit). An offer hides the field, so a figure typed while this was an
   // auction doesn't count there.
@@ -711,7 +715,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         <>
         <div className="calc-field calc-bid">
           <label className="calc-label" htmlFor={`${uid}-bid`}>{wonBid ? 'Your winning bid' : boughtOffer ? 'The price you paid' : agreed ? 'The agreed price' : <>Check {offer ? 'an offer' : 'a bid'}</>}</label>
-          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="text" inputMode="decimal" autoComplete="off" value={bidText} placeholder={agreed ? 'e.g. the agreed price' : offer ? 'e.g. the offer you plan to make' : wonBid ? 'the bid you won with' : 'e.g. a bid you expect to beat'} aria-invalid={bidBad || undefined} aria-describedby={bidBad ? `${uid}-bid-err` : undefined} onBlur={rerender} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); if (e.target.value.trim() !== '' && calculatorInputError(e.target.value, '$')) return; update({ proposedPrice: clampInput('proposedPrice', toNum(e.target.value)) }); }} /></span>
+          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="text" inputMode="decimal" autoComplete="off" value={bidText} placeholder={boughtOffer ? 'the price you paid' : agreed ? 'e.g. the agreed price' : offer ? 'e.g. the offer you plan to make' : wonBid ? 'the bid you won with' : 'e.g. a bid you expect to beat'} aria-invalid={bidBad || undefined} aria-describedby={bidBad ? `${uid}-bid-err` : undefined} onBlur={rerender} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); if (e.target.value.trim() !== '' && calculatorInputError(e.target.value, '$')) return; update({ proposedPrice: clampInput('proposedPrice', toNum(e.target.value)) }); }} /></span>
           {bidBad && <small className="deal-urgent" role="status" id={`${uid}-bid-err`}>{calculatorInputError(bidText, '$')}</small>}
         </div>
         {atBid && profit !== null && <PriceHead level={3} kind="yours" label={yours} price={bid} result={profit} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(cashNeededAtBid(i, bid)))}.${saveAs && !propertyId ? ' Saved with this deal as your price; its deal packet uses it.' : propertyId ? ' Saved for this property in this browser.' : ''}`} />}

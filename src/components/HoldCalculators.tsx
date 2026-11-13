@@ -623,7 +623,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
     <div className="calc">
       <div className="calc-inputs">
         <ExampleInputs labels={still} all={allExample} />
-        <CalcFields groups={[{ title: 'Start with these numbers', fields: [{ k: 'atPrice', label: bought ? 'The price you paid' : wonBid ? 'Your winning bid' : offer ? 'Your offer' : 'Your bid', unit: '$', hint: bought ? 'What you paid at closing.' : wonBid ? 'What you bid at the sale.' : living ? 'Enter the asking price or your offer to see what living there costs; an investor’s price is under Investor yardstick.' : '0 leaves your price unset; the target-price estimate is still shown.' }, ...basicFields] }]} values={v} onChange={set} />
+        <CalcFields groups={[{ title: 'Start with these numbers', fields: [{ k: 'atPrice', label: bought ? 'The price you paid' : wonBid ? 'Your winning bid' : offer && ownDeal?.stage === 'contract' ? 'The agreed price' : offer ? 'Your offer' : 'Your bid', unit: '$', hint: bought ? 'What you paid at closing.' : wonBid ? 'What you bid at the sale.' : offer && ownDeal?.stage === 'contract' ? 'The price in your accepted offer.' : living ? 'Enter the asking price or your offer to see what living there costs; an investor’s price is under Investor yardstick.' : '0 leaves your price unset; the target-price estimate is still shown.' }, ...basicFields] }]} values={v} onChange={set} />
         <details className="calc-assumptions"><summary>Review all other costs, loan terms and targets</summary><p className="muted small">These inputs are already included in the estimate, even while this section is closed. Review vacancy, upkeep, replacement reserves, acquisition costs and loan terms before using the result.</p><CalcFields groups={moreGroups} values={v} onChange={set} /></details>
       </div>
       <div className="calc-results">
@@ -669,7 +669,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         )}
         {/* No price to figure them at yet (no offer, no walk-away price, no value): ask for one instead of showing $0. */}
         {at.price > 0 ? <CashCushion v={v} price={at.price} at={at.label} onPrice={offer} /> : null}
-        {at.price > 0 ? <RentDealLab v={v} at={at} onPrice={offer} living={living} auction={!offer && !!saleKind && saleKind !== 'listing'} after={bought || wonBid} /> : <p className="calc-note small">Enter {bought ? 'the price you paid' : offer ? 'your offer (the asking price)' : 'your bid'} to see the cash cushion, the stress test and how a lender sees this rent at that price.</p>}
+        {at.price > 0 ? <RentDealLab v={v} at={at} onPrice={offer} living={living} auction={!offer && !!saleKind && saleKind !== 'listing'} after={bought || wonBid} /> : <p className="calc-note small">Enter {bought ? 'the price you paid' : wonBid ? 'your winning bid' : offer && ownDeal?.stage === 'contract' ? 'the agreed price' : offer ? 'your offer (the asking price)' : 'your bid'} to see the cash cushion, the stress test and how a lender sees this rent at that price.</p>}
         <HoldAndSell v={living && !(v.atPrice > 0) ? { ...v, value: 0 } : v} onPrice={offer} target={living || noReal ? 0 : r.maxBid} exampleValue={v.value === RENT_DEFAULTS.value && !typedKeys.has('value')} />
         {/* (A home you live in with no rent: the lender's rent test and nightly renting don't apply.) */}
         {at.price > 0 && !(living && !(v.monthlyRent > 0)) ? <LenderView v={v} at={at} onPrice={offer} /> : null}
@@ -737,13 +737,16 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
   const walk = !r.noBidWorks && Number.isFinite(r.maxBid) && r.maxBid > 0 ? commercialAtPrice(v, Math.round(r.maxBid), offer) : null;
   const walkNeed = walk ? (!offer && walk.loan > 0 ? walk.allIn : walk.cashIn) : 0;
   const walkShort = !!walk && !(v.cashAvailable > 0) && !cashTyped && planCash > 0 && walkNeed > planCash;
+  // A saved deal under contract, won or bought: the price is fixed, not a bid or offer still to make.
+  const cStage = dealId ? loadDeals().find((x) => x.id === dealId)?.stage ?? '' : '';
+  const cPhase: 'agreed' | 'won' | 'bought' | undefined = offer ? (cStage === 'contract' ? 'agreed' : ['closed', 'owned'].includes(cStage) ? 'bought' : undefined) : ['contract', 'closed', 'owned'].includes(cStage) ? 'won' : undefined;
   return (
     <div className="calc">
       <div className="calc-inputs"><ExampleInputs labels={still} all={allExample} /><CalcFields groups={groups} values={v} onChange={set} /></div>
       <div className="calc-results">
         {!offer && rentWaitNote(commRegion.state, saleKind, dealId) && <p className="caution" role="note"><strong>Plan for little or no rent until the redemption period ends.</strong> {rentWaitNote(commRegion.state, saleKind, dealId)} {RENT_WAIT_ADVICE}.</p>}
       <p className="small muted">Returns and cash flow are before income tax. Depreciation and your personal taxes are not included.</p>
-        <CommercialAtPrice v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={noReal ? NaN : r.maxBid} cashTyped={cashTyped} capTyped={typedKeys.has('targetCapPct')} rentTyped={!exactKey || typedKeys.has('monthlyRent')} dscrTyped={typedKeys.has('minDscr')} />
+        <CommercialAtPrice phase={cPhase} v={v} offer={offer} setPrice={(price) => set('atPrice', price)} target={noReal ? NaN : r.maxBid} cashTyped={cashTyped} capTyped={typedKeys.has('targetCapPct')} rentTyped={!exactKey || typedKeys.has('monthlyRent')} dscrTyped={typedKeys.has('minDscr')} />
         {n.byLine && (() => {
           const blank = ([['opTaxYear', 'property tax'], ['opInsuranceYear', 'insurance'], ['opRepairsYear', 'repairs'], ['opUtilitiesYear', 'utilities'], ['opManagementPct', 'management']] as const).filter(([k]) => !(Number(v[k]) > 0)).map(([, label]) => label);
           if (!blank.length) return null;
@@ -752,7 +755,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
         })()}
         {/* An auction purchase's later loan is sized on the value: with no value entered, no loan is counted. */}
         {!offer && v.loanPct > 0 && !(v.value > 0) && <p className="calc-note small" role="note"><strong>No loan is counted yet: the value is blank.</strong> A loan after an auction is sized on the value an appraisal would support. Enter it (under the loan terms) to include the loan in the cash and the walk-away price.</p>}
-        <HoldResults commercial dscrTyped={typedKeys.has('minDscr')} capTarget={v.targetCapPct} r={r} title="Walk-away price for the income" target={`Yields ${typedKeys.has('targetCapPct') ? 'your' : 'our example'} ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} headLabel="Walk-away price" noRealistic={noReal} hasLoan={v.loanPct > 0 && (offer || v.value > 0)} supported={uncapped.noBidWorks ? NaN : uncapped.maxBid} />
+        <HoldResults commercial agreed={cPhase === 'agreed'} after={cPhase === 'won' || cPhase === 'bought'} dscrTyped={typedKeys.has('minDscr')} capTarget={v.targetCapPct} r={r} title="Walk-away price for the income" target={`Yields ${typedKeys.has('targetCapPct') ? 'your' : 'our example'} ${v.targetCapPct}% cap rate on everything you pay before loan fees, including ${fmtMoney(r.leaseUpCost)} of costs while you lease it up${offer ? ' and the loan payments in those months' : ''}.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))} (${n.byLine ? 'from your line items; any line left at 0 counts as $0, not as the % estimate' : `${v.expensePct}% of rent collected`}).`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} headLabel="Walk-away price" noRealistic={noReal} hasLoan={v.loanPct > 0 && (offer || v.value > 0)} supported={uncapped.noBidWorks ? NaN : uncapped.maxBid} />
         {walkShort && <PlanCashNote need={walkNeed} planCash={planCash} offer={offer} auctionDay={r.cashAtAuction} noLoan={offer && !(v.loanPct > 0)} />}
       </div>
       <StickyResult label="Walk-away price" value={noReal ? 'No realistic price' : r.noBidWorks ? 'No price works' : Number.isFinite(r.maxBid) ? fmtMoney(r.maxBid) : 'No limit yet'} bad={r.noBidWorks || noReal} />
@@ -781,9 +784,9 @@ function commercialVerdict(v: CommercialInputs, a: ReturnType<typeof commercialA
   return `${missText}${missText && noFlow ? ', and ' : ''}${missText ? noFlow : noFlow.replace(/^h/, 'H')}.${cashShort ? ' It also needs more cash than you have (below).' : ''}`;
 }
 
-function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capTyped = false, rentTyped = true, dscrTyped = false }: { /** The minimum coverage was typed (else our example). */ dscrTyped?: boolean; /** The rent was typed (else our example: not saved to My deals). */ rentTyped?: boolean; v: CommercialInputs; offer: boolean; setPrice: (n: number) => void; target: number; /** A cash figure was typed here (a typed 0 is no limit). */ cashTyped?: boolean; /** The cap-rate target was typed (else it's our example). */ capTyped?: boolean }) {
+function CommercialAtPrice({ phase, v, offer, setPrice, target, cashTyped = false, capTyped = false, rentTyped = true, dscrTyped = false }: { /** A saved deal under contract, won or bought. */ phase?: 'agreed' | 'won' | 'bought'; /** The minimum coverage was typed (else our example). */ dscrTyped?: boolean; /** The rent was typed (else our example: not saved to My deals). */ rentTyped?: boolean; v: CommercialInputs; offer: boolean; setPrice: (n: number) => void; target: number; /** A cash figure was typed here (a typed 0 is no limit). */ cashTyped?: boolean; /** The cap-rate target was typed (else it's our example). */ capTyped?: boolean }) {
   const a = v.atPrice > 0 ? commercialAtPrice(v, v.atPrice, offer) : null;
-  const word = offer ? 'Your offer' : 'Your bid';
+  const word = phase === 'bought' ? 'The price you paid' : phase === 'won' ? 'Your winning bid' : phase === 'agreed' ? 'The agreed price' : offer ? 'Your offer' : 'Your bid';
   const meets = a && v.targetCapPct > 0 && a.capOnCost !== null && !capMisses(a.capOnCost, v.targetCapPct) && a.loanOk && a.cashFlow > 0;
   // Your own cash at this price (all of it until an auction's refinance), against the cash entered here, else My plan's.
   const planCash = investorProfile().investable;
@@ -793,8 +796,8 @@ function CommercialAtPrice({ v, offer, setPrice, target, cashTyped = false, capT
     <section className="calc-at-price" aria-label="Commercial results at your price">
       <PriceHead level={3} kind="yours" label={word} price={a?.price ?? null} result={a ? a.cashFlow / 12 : null} note="Your actual price, using the income, costs, lease-up period and loan entered above." />
       <label className="field"><span>{word} ($)</span><NumInput blank max={1e9} value={v.atPrice} onValue={(n) => setPrice(n ?? 0)} /></label>
-      {Number.isFinite(target) && target > 0 && <button type="button" className="linkish" onClick={() => setPrice(target)}>Use the walk-away price ({fmtMoney(target)})</button>}
-      {!a ? <p>{offer ? 'Enter the asking price or your proposed price to compare this property with your targets.' : 'Enter the bid you plan to make to compare this property with your targets.'}</p> : <>
+      {!phase && Number.isFinite(target) && target > 0 && <button type="button" className="linkish" onClick={() => setPrice(target)}>Use the walk-away price ({fmtMoney(target)})</button>}
+      {!a ? <p>{phase ? `Enter ${word.toLowerCase()} to compare this property with your targets.` : offer ? 'Enter the asking price or your proposed price to compare this property with your targets.' : 'Enter the bid you plan to make to compare this property with your targets.'}</p> : <>
         {!rentTyped && <p className="calc-note small" role="note"><strong>This uses our example rent.</strong> Type the building’s rent to save these results to My deals and the deal packet.</p>}
         <p data-result className={meets && !planShort && !(v.cashAvailable > 0 && need > v.cashAvailable) ? 'notice' : 'caution'}>{commercialVerdict(v, a, capTyped, planShort || (v.cashAvailable > 0 && need > v.cashAvailable), dscrTyped)} Verify the income, costs and loan terms before relying on this result.</p>
         {v.cashAvailable > 0 && need > v.cashAvailable && <p className="caution">Your entered cash does not cover this price and the modeled costs.</p>}
