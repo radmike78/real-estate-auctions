@@ -1,4 +1,4 @@
-import { beforeDeed, nvLienDueLikelyPassed, paidAtWin, liveIn, stageLabel, stageOf, finishedDeal } from '../lib/dealStage';
+import { beforeDeed, nvLienDueLikelyPassed, nvLienDueToday, paidAtWin, liveIn, stageLabel, stageOf, finishedDeal } from '../lib/dealStage';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
 import { planNow, practiceLienDeal, roadmapNextStep } from '../lib/planNext';
 import { lienDealFor, planPath, progressChanged } from '../lib/roadmapState';
@@ -416,8 +416,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     if (overdueIntro(sd)) return { text: inPacket(overdueIntro(sd)), packet: true };
     // Still to pay: say so before the deadline, not only after it.
     if (pricePhase(sd) === 'owed') return { text: 'You won it. If you haven’t paid yet, pay your full winning bid by the sale’s payment deadline (its date is in the deal packet’s Key dates), then mark it handled there. These numbers are a check, not a decision.', packet: true };
-    if (nvLienDueLikelyPassed(sd)) return { text: 'You were picked, and the payment deadline has likely passed*. If you paid, mark it handled in the deal packet’s Key dates; if not, ask the treasurer that held the sale whether the certificate is still yours.', packet: true };
-    if (sd.kind === 'lien' && stageOf(sd) === 'contract' && !paidAtWin(sd)) return { text: `You were picked. If you haven’t paid yet, pay ${sd.state === 'NV' ? (sd.county === 'Clark' ? 'by 10:00 a.m. Nevada time the business day after the sale (Clark County Treasurer; after a Thursday sale that may be the next Monday*)' : 'before 10 a.m. Nevada time on the payment deadline (by default the day after the sale, NRS 271.560)') : 'by the payment deadline'}; check its date in the deal packet’s Key dates, and mark it handled there. These numbers are a check, not a decision.`, packet: true };
+    if (nvLienDueLikelyPassed(sd)) return { text: 'You were picked, and the payment deadline has likely passed*. Answer it in the deal packet’s Your next action: mark it handled if you paid; if not, ask the treasurer that held the sale whether the certificate is still yours.', packet: true };
+    if (nvLienDueToday(sd)) return { text: 'You were picked: the payment is likely due before 10 a.m. Nevada time today*. Pay it, then mark it handled in the deal packet’s Your next action.', packet: true };
+    if (sd.kind === 'lien' && stageOf(sd) === 'contract' && !paidAtWin(sd)) return { text: `You were picked. If you haven’t paid yet, pay ${sd.state === 'NV' ? (sd.county === 'Clark' ? 'by 10:00 a.m. Nevada time the business day after the sale (Clark County Treasurer; after a Thursday sale that may be the next Monday*)' : 'before 10 a.m. Nevada time on the payment deadline (by default the day after the sale, NRS 271.560)') : 'by the payment deadline'}; check the date in the deal packet, and mark it handled in its Your next action once you’ve paid. These numbers are a check, not a decision.`, packet: true };
     const ph = pricePhase(sd);
     if (ph === 'agreed') return { text: `You’ve already agreed on a price, so these numbers are a check, not a decision. ${NO_PRICE_AFTER.agreed}` };
     if (ph) return { text: `You’ve already ${['listing', 'reo', 'short'].includes(sd.kind) ? 'bought it' : 'won it'}, so these numbers are a check, not a decision. ${checkAdvice('them', !!beforeDeed(sd))}` };
