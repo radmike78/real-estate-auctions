@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CASH_SHORT_AFTER, NO_PRICE_AFTER, cashShortAfter, defaultWords, noPriceAfter, owedWords, settledWords } from './dealPacket';
 import { noRealisticAdvice } from './holdCalc';
-import { nvPastCutoff } from './dealStage';
+import { nvLienDue, nvPastCutoff } from './dealStage';
 
 describe('settledWords: pre-sale advice reworded once the price is agreed, won or paid', () => {
   it('leaves text alone before a price is fixed', () => {
@@ -51,5 +51,11 @@ describe('settledWords: pre-sale advice reworded once the price is agreed, won o
   it('times the Nevada SID 10 a.m. cutoff in Nevada time, wherever the reader is', () => {
     expect(nvPastCutoff(new Date('2026-11-13T17:30:00Z'))).toBe(false); // 9:30 a.m. in Nevada (11:30 a.m. in New York)
     expect(nvPastCutoff(new Date('2026-11-13T18:30:00Z'))).toBe(true); // 10:30 a.m. in Nevada
+  });
+  it('works out a Nevada SID payment date from the sale day when none was typed', () => {
+    const p = { dates: [{ what: 'Sale day', when: '2026-11-19', who: '' }] } as unknown as Parameters<typeof nvLienDue>[1];
+    expect(nvLienDue({ kind: 'lien', state: 'NV', county: 'Washoe' }, p)).toBe('2026-11-20'); // the day after (NRS 271.560)
+    expect(nvLienDue({ kind: 'lien', state: 'NV', county: 'Clark' }, p)).toBe('2026-11-23'); // Thursday sale: Clark's office reopens Monday
+    expect(nvLienDue({ kind: 'lien', state: 'AZ', county: 'Maricopa' }, p)).toBe('');
   });
 });

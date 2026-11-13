@@ -1263,7 +1263,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   } else if (lien) {
     need = lien.price + lien.fees;
     needAt = 'For the certificate';
-    cash.push(`Certificate price ${money(lien.price)} plus fees ${money(lien.fees)}: ${money(need)}, ${d.state === 'NV' && (d.county === 'Clark' || d.county === 'Washoe') ? `due by 10:00 a.m. Nevada time the ${d.county === 'Clark' ? 'business day' : 'day'} after the sale (${d.county} County Treasurer; confirm it in the notice of sale)` : d.state === 'AZ' ? 'due by the date the county treasurer sets, no later than 15 days after the sale closes (A.R.S. 42-18116); confirm it in the county’s sale terms' : 'due by the sale’s payment deadline (confirm the deadline and method in the county’s sale terms)'}.`);
+    cash.push(paidAtWin(d) || ['closed', 'owned'].includes(stageOf(d)) ? `Certificate price ${money(lien.price)} plus fees ${money(lien.fees)}: ${money(need)}, paid (keep the receipt).` : `Certificate price ${money(lien.price)} plus fees ${money(lien.fees)}: ${money(need)}, ${d.state === 'NV' && (d.county === 'Clark' || d.county === 'Washoe') ? `due by 10:00 a.m. Nevada time the ${d.county === 'Clark' ? 'business day' : 'day'} after the sale (${d.county} County Treasurer; confirm it in the notice of sale)` : d.state === 'AZ' ? 'due by the date the county treasurer sets, no later than 15 days after the sale closes (A.R.S. 42-18116); confirm it in the county’s sale terms' : 'due by the sale’s payment deadline (confirm the deadline and method in the county’s sale terms)'}.`);
   } else if (d.plan === 'lien') {
     cash.push('The certificate price and fees, from the Lien certificate calculator in Analyze.');
   } else if (flipNeedsRepairs(d)) {
