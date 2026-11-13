@@ -411,12 +411,12 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
   const settled = (() => {
     const sd = deal.id ? saved.find((x) => x.id === deal.id) : undefined;
     if (!sd) return null;
+    // A missed payment: the deal packet's note, pointed at the packet (Analyze has no Key dates or stage menu).
+    const inPacket = (t: string) => t.replace('mark it handled in Key dates', 'mark it handled in its deal packet’s Key dates').replace('mark the deal passed', 'mark the deal passed in its deal packet');
+    if (overdueIntro(sd)) return { text: inPacket(overdueIntro(sd)), packet: true };
     const ph = pricePhase(sd);
     if (ph === 'agreed') return { text: `You’ve already agreed on a price, so these numbers are a check, not a decision. ${NO_PRICE_AFTER.agreed}` };
     if (ph) return { text: `You’ve already ${['listing', 'reo', 'short'].includes(sd.kind) ? 'bought it' : 'won it'}, so these numbers are a check, not a decision. ${checkAdvice('them', !!beforeDeed(sd))}` };
-    // A missed payment: the deal packet's note, pointed at the packet (Analyze has no Key dates or stage menu).
-    const inPacket = (t: string) => t.replace('mark it handled in Key dates', 'mark it handled in its deal packet’s Key dates').replace('mark the deal passed', 'mark the deal passed in its deal packet');
-    if (overdueIntro(sd)) return { text: inPacket(overdueIntro(sd)) };
     if (sd.kind === 'lien' && ['contract', 'closed', 'owned'].includes(stageOf(sd))) return { text: `You ${stageOf(sd) === 'contract' ? 'were picked for this certificate' : 'already hold this certificate'}, so these numbers are a check, not a decision. If they don’t work, talk to your attorney and advisors about your options: each person’s situation decides which fits.` };
     return null;
   })();
@@ -619,7 +619,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         <h2 id="analyze-next-head">4. What’s next</h2>
         {/* A price already agreed, won or paid (or a lien certificate you hold): the numbers are a check now, not a reason to pass. */}
         {settled ? (
-          <p>{settled.text}</p>
+          <p>{settled.text}{'packet' in settled && settled.packet ? <> <a href={`#/deals/packet/${deal.id}`}>Open its deal packet&nbsp;→</a></> : null}</p>
         ) : (<>
         <p>{!deal.id && practiceSave(deal) ? 'Practicing without buying? Save this as a practice analysis so you can compare it with the next ones, and mark the practice step done in My plan when you’ve finished it.' : ['paper', 'c-paper'].includes(roadmapNextStep()?.id ?? '') ? 'Practicing without buying? Save this analysis so you can compare it with the next ones, and mark the task done in My plan when you’ve analyzed enough.' : 'Numbers work, and every checklist item above has an answer? Save the deal so you can come back to it, then follow the “Buy it” steps for this kind of sale in My plan.'}</p>
         <p><strong>Reasons to pause, revise or pass:</strong> {calcTabFor(deal.plan) === 'flip' ? 'the price you’d have to pay leaves no profit after repairs, holding and selling costs, or the profit is smaller than your goal' : calcTabFor(deal.plan) === 'lien' ? 'the interest you’d earn, after the wait to be paid, misses your goal' : deal.plan === 'rent' && (deal.id ? liveIn(deal) : !!investorProfile().ownerOccupant && (deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short')) ? 'the monthly cost of living there is more than you can comfortably pay alongside your other bills, or it leaves too little cash for repairs and emergencies' : 'the monthly cash flow is negative after reserves, or the long-term return misses your goal'}. Compare the tradeoffs with your goals and risk tolerance, and record your reasoning. Get appropriate professional guidance before committing. <a href="#/learn/walk-away">When to walk away</a></p>
