@@ -18,7 +18,7 @@ import { useMarkStep, stepEyebrow } from '../lib/path';
 import { dropStateLead, useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
 import { CURRENT_KEY, KEPT_NOTE_KEY, makeRealDeal, OPENED_KEY, clearLienDraftNumbers, keepUnsavedDraft, movedFrom, noteStateMove, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, nextStamp, restoreDraftNumbers, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
-import { checkAdvice, NO_PRICE_AFTER, pricePhase } from '../lib/dealPacket';
+import { checkAdvice, NO_PRICE_AFTER, overdueIntro, pricePhase } from '../lib/dealPacket';
 import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
 import { worksheetDownPct, investorProfile, commercialLoanStart } from '../lib/myPlan';
@@ -414,6 +414,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     const ph = pricePhase(sd);
     if (ph === 'agreed') return { text: `You’ve already agreed on a price, so these numbers are a check, not a decision. ${NO_PRICE_AFTER.agreed}` };
     if (ph) return { text: `You’ve already ${['listing', 'reo', 'short'].includes(sd.kind) ? 'bought it' : 'won it'}, so these numbers are a check, not a decision. ${checkAdvice('them', !!beforeDeed(sd))}` };
+    if (sd.kind === 'lien' && sd.state === 'NV' && stageOf(sd) === 'contract' && overdueIntro(sd)) return { text: overdueIntro(sd) };
     if (sd.kind === 'lien' && ['contract', 'closed', 'owned'].includes(stageOf(sd))) return { text: `You ${stageOf(sd) === 'contract' ? 'were picked for this certificate' : 'already hold this certificate'}, so these numbers are a check, not a decision. If they don’t work, talk to your attorney and advisors about your options: each person’s situation decides which fits.` };
     return null;
   })();
