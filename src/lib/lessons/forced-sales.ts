@@ -88,7 +88,7 @@ export const forcedSales: Lesson = {
         { list: [
           'IRS sales: the IRS sells seized property by public or sealed-bid auction. For 180 days afterward, the owner or anyone with an interest can buy it back (redeem it) by paying what you paid plus interest at 20% a year, compounded daily (about $10,400 on $100,000 over 180 days), so you can’t count on keeping it until then.',
           'HUD homes: foreclosed FHA homes sold through HUD Home Store. Bids go through a HUD-registered broker.',
-          'Tenants: after a foreclosure, a new owner must give bona fide (genuine) tenants at least 90 days’ notice before eviction, and generally has to honor their lease. The exception is a buyer who will live there, who can end the lease with 90 days’ notice.',
+          'Tenants: under the federal Protecting Tenants at Foreclosure Act, after a foreclosure of a home a new owner must give bona fide (genuine) tenants at least 90 days’ notice before eviction, and generally has to honor their lease. The exception is a buyer who will live there, who can end the lease with 90 days’ notice.*',
         ] },
       ],
     },

@@ -946,7 +946,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Recovery fund limits: Arizona’s fund pays at most $30,000 per claim and $200,000 per contractor license (ARS 32-1132.01, 32-1139). It has prorated (shared out) awards when many people claim against one license."
     ],
     money: [
-      "Pay in stages tied to finished work, not up front. Nevada's contractor board (NSCB) tells homeowners to put payment schedules in a detailed contract and never pay in cash.",
+      "Pay in stages tied to finished work, not up front. Nevada's contractor board (NSCB) advises homeowners to put payment schedules in a detailed contract and not to pay in cash.",
       "In California the legal cap on a home-improvement down payment is 10% or $1,000, whichever is less.",
       "In Texas, also hold back 10% of the contract price until 30 days after the work is done (Property Code 53.101), and pay that part only then; if you don’t, unpaid subs and suppliers who gave the required notices can claim a lien for that amount (53.105).",
       "Keep receipts, contracts and photos. Arizona’s ROC asks for these documents when a homeowner files a recovery fund claim."
@@ -956,7 +956,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "In Texas, there’s no statewide general contractor license, but electricians and air-conditioning contractors need a state license from TDLR, plumbers need one from the Texas State Board of Plumbing Examiners, and your city may require registration and permits.",
       "Get at least three written bids and call references.",
       "Sign a detailed written contract listing materials, scope, timeline and payment schedule.",
-      "Don’t pay cash, and keep any deposit small.",
+      "The contractor board advises against paying cash; a small deposit limits what you could lose.",
       "Ask about workers’ compensation and liability insurance and permits before work starts.",
       "Keep proof of every payment. In Utah, proof of a written contract and full payment is what lets you clear a supplier’s lien on a home you or your tenant lives in. In Texas, you can ask for a sworn statement that the contractor has paid its subcontractors and suppliers before you pay (Property Code 53.085).",
       "In Nevada, check whether your property qualifies for the state recovery fund before relying on it (the fund covers owner-occupied homes).",
@@ -1610,7 +1610,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
         }
       },
       {
-        text: "Nevada: Clark County says evictions may take anywhere from 10 to 180 days, and its fast summary eviction can’t be used against a former owner or the former owner’s tenant.",
+        text: "Nevada: Clark County says evictions may take anywhere from 10 to 180 days, and its fast summary eviction generally can’t be used against a former owner or the former owner’s tenant (a tenant who later stops paying the new owner is different, NRS 40.255).*",
         source: {
           label: "Clark County (NV): Las Vegas Township eviction process",
           url: "https://www.clarkcountynv.gov/government/departments/constable/constable_las_vegas_township/services/eviction-process"
