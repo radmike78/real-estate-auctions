@@ -97,7 +97,7 @@ export const SCAMS: ByStateLines = {
 };
 
 export const TENANTS: ByStateLines = {
-  NV: [{ topic: 'Notice of new owner', text: 'In Nevada, for homes with up to 4 units, the new owner must also give you a notice of the change of ownership (NRS 40.255).' }],
+  NV: [{ topic: 'Notice of new owner', text: 'In Nevada, after a trustee or court foreclosure of a home with up to 4 units, the new owner can have you removed only after giving you a notice of the change of ownership and waiting out a notice period (at least 60 days for a month-to-month tenant) (NRS 40.255(2), (8)). The federal 90 days above can be longer.' }],
   CA: [{ topic: 'Notice to residents', text: 'In California, the lender or trustee generally must post a notice on the home and mail it to residents explaining their rights (Civil Code 2924.8). After the sale, a month-to-month tenant gets at least 90 days’ written notice, and a tenant with a fixed-term lease can generally stay until it ends (Code of Civil Procedure 1161b). Some California cities give tenants even more protection.' }],
   AZ: [{ topic: 'Landlord’s notice', text: 'In Arizona, your landlord must tell you in writing about a foreclosure: within 5 business days of getting a notice of trustee’s sale, or in the lease if it was signed after the foreclosure started. This doesn’t cover buildings of 4 or more connected units (A.R.S. 33-1331).' }],
   UT: [{ topic: 'Notice to tenants', text: 'In Utah, when a home bought with a rental-property loan goes to a trustee’s sale, the trustee must post a “Notice to Tenant” on the property or mail it to each unit, explaining that federal law may let you stay until your lease ends or 90 days after a notice to vacate, whichever is later (Utah Code 57-1-25).' }],
