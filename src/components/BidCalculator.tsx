@@ -710,7 +710,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {!needsValue && (
         <>
         <div className="calc-field calc-bid">
-          <label className="calc-label" htmlFor={`${uid}-bid`}>{wonBid ? 'Your winning bid' : boughtOffer ? 'The price you paid' : <>Check {offer ? 'an offer' : 'a bid'}</>}</label>
+          <label className="calc-label" htmlFor={`${uid}-bid`}>{wonBid ? 'Your winning bid' : boughtOffer ? 'The price you paid' : agreed ? 'The agreed price' : <>Check {offer ? 'an offer' : 'a bid'}</>}</label>
           <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="text" inputMode="decimal" autoComplete="off" value={bidText} placeholder={agreed ? 'e.g. the agreed price' : offer ? 'e.g. the offer you plan to make' : wonBid ? 'the bid you won with' : 'e.g. a bid you expect to beat'} aria-invalid={bidBad || undefined} aria-describedby={bidBad ? `${uid}-bid-err` : undefined} onBlur={rerender} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); if (e.target.value.trim() !== '' && calculatorInputError(e.target.value, '$')) return; update({ proposedPrice: clampInput('proposedPrice', toNum(e.target.value)) }); }} /></span>
           {bidBad && <small className="deal-urgent" role="status" id={`${uid}-bid-err`}>{calculatorInputError(bidText, '$')}</small>}
         </div>

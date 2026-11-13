@@ -32,7 +32,7 @@ function MySaleDocs() {
 
 const STEPS: [string, string][] = [
   ['Get pre-approved or show proof of funds', 'The lender reviewing a short sale wants to know you can close. Send a pre-approval letter or bank statement in with your offer.'],
-  ['Hire a buyer’s agent who has closed short sales', 'Short sales are listed on the MLS (the database agents use), marked “Short Sale” or “Subject to lender approval.” An experienced agent can find them, including new listings, and knows how each lender works.'],
+  ['Many buyers hire a buyer’s agent who has closed short sales', 'Short sales are listed on the MLS (the database agents use), marked “Short Sale” or “Subject to lender approval.” An experienced agent can find them, including new listings, and knows how each lender works.'],
   ['Make an offer “subject to lender approval”', 'The seller accepts first. Then the listing agent sends your offer, the seller’s hardship documents and a net sheet to the lender or lenders. Your earnest money is usually held in escrow.'],
   ['Wait for the lender’s decision', 'Approval often takes weeks to a few months, and longer when there is a second mortgage, mortgage insurance or an HOA balance. The lender may approve, reject or counter at a higher price.'],
   ['Get the approval letter, then finish due diligence', 'Read the approval terms: price, closing deadline, and who pays which costs. Complete your inspection and appraisal within your contract periods.'],

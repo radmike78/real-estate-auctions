@@ -217,7 +217,7 @@ function HoldResults({ agreed = false, after = false, coverageQuiet = false, dsc
       {r.dscr !== null && !r.loanOk && minDscr > 0 && !r.noBidWorks && !coverageQuiet && (
         <p className="calc-note small">{Number(dscrText(r.dscr)) >= minDscr ? `The unrounded income coverage is below ${dscrTyped ? 'your' : 'our example'} ${minDscr}× minimum, even if the displayed ratio rounds to it.` : `Income coverage is under ${dscrTyped ? 'your' : 'our example'} ${minDscr}× minimum at the walk-away price.`} {offer ? 'A lower price, a smaller loan or a larger down payment would raise it.' : 'A smaller refinance (a lower Loan %) would raise it; a lower bid doesn’t, since the refinance is sized on the value.'} Ask your lender how it tests coverage.</p>
       )}
-      <p className="muted small">{noiNote} {after ? 'An estimate from the numbers on this page (examples until you type your own)' : <>An estimate to help you set a limit {agreed ? 'before you close' : offer ? 'before you make an offer' : 'before the sale'}</>}, not advice.</p>
+      <p className="muted small">{noiNote} {after ? 'An estimate from the numbers on this page (examples until you type your own)' : agreed ? 'An estimate to help you check the agreed price before you close' : <>An estimate to help you set a limit {offer ? 'before you make an offer' : 'before the sale'}</>}, not advice.</p>
     </section>
   );
 }
@@ -356,7 +356,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
       )}
       {price > 0 && cashShort && <p className="small"><button type="button" className="linkish" onClick={(e) => focusCalcField(e.currentTarget, 'cashAvailable')}>{cashTyped ? 'Change your cash' : 'Enter your cash'}</button></p>}
       {price === 0 && <p className="muted small">{word === 'The price you paid' ? 'Enter the price you paid to see your numbers at that price.' : word === 'Your winning bid' ? 'Enter your winning bid to see your numbers at that price: an estimate, not advice.' 
-        : <>Enter the price you’d pay ({onPrice ? 'the asking price, or your offer' : 'your planned bid'}) to see your numbers at that price.</>}</p>}
+        : word === 'The agreed price' ? 'Enter the agreed price to see the numbers at that price.' : <>Enter the price you’d pay ({onPrice ? 'the asking price, or your offer' : 'your planned bid'}) to see your numbers at that price.</>}</p>}
       {walkAway > 0 && price !== walkAway && !livingThere && word !== 'Your winning bid' && word !== 'The price you paid' && <button type="button" className="linkish" onClick={() => setPrice(walkAway)}>Use the walk-away price ({fmtMoney(walkAway)})</button>}
       {price > 0 && (<>
       <table className="deal-stress waterfall">
@@ -607,7 +607,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const basicFields = groups.flatMap((g) => g.fields).filter((f) => basics.has(f.k));
   const moreGroups = groups.map((g) => ({ ...g, fields: g.fields.filter((f) => !basics.has(f.k)) }));
   const allExample = !typed && Object.keys(start).length === 0;
-  const word = bought ? 'The price you paid' : wonBid ? 'Your winning bid' : offer ? 'Your offer' : 'Your bid';
+  const word = bought ? 'The price you paid' : wonBid ? 'Your winning bid' : offer && ownDeal?.stage === 'contract' ? 'The agreed price' : offer ? 'Your offer' : 'Your bid';
   // Which price the panels below are figured at: yours once you enter it, else the target price.
   // You plan to live there (Decide: a home loan and live in it): the investor's walk-away price is a yardstick only, so
   // the panels below wait for your offer instead of using it.
