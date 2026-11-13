@@ -1,4 +1,4 @@
-import { beforeDeed, clarkPayDay, clarkWinnerPast, nvLienDueLikelyPassed, nvLienDueToday, paidAtWin, liveIn, stageLabel, stageOf, finishedDeal } from '../lib/dealStage';
+import { beforeDeed, beforeWhat, clarkPayDay, clarkWinnerPast, nvLienDueLikelyPassed, nvLienDueToday, paidAtWin, liveIn, stageLabel, stageOf, finishedDeal } from '../lib/dealStage';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
 import { planNow, practiceLienDeal, roadmapNextStep } from '../lib/planNext';
 import { lienDealFor, planPath, progressChanged } from '../lib/roadmapState';
@@ -428,7 +428,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     return null;
   })();
 
-  const checkRecord = (() => { const sd = loadDeals().find((x) => x.id === deal.id); if (!sd) return ''; const st = stageOf(sd); if (['listing', 'reo', 'short'].includes(sd.kind)) return ['closed', 'owned'].includes(st) ? 'bought' : ''; return ['contract', 'closed', 'owned'].includes(st) ? 'won' : ''; })();
+  const checkRecord = (() => { const sd = loadDeals().find((x) => x.id === deal.id); if (!sd) return ''; const st = stageOf(sd); if (['listing', 'reo', 'short'].includes(sd.kind)) return ['closed', 'owned'].includes(st) ? beforeWhat(sd) : ''; if (st === 'contract' && !paidAtWin(sd)) return ''; return ['contract', 'closed', 'owned'].includes(st) ? beforeWhat(sd) : ''; })();
   return (
     <main className="page analyze">
       <PageHero
@@ -586,7 +586,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         <h2 id="check-head">2. Your checklist <span className="muted">({doneCount} of {all.length} done)</span></h2>
         <p className="muted">{(() => { const k = kindLabel(kinds.find((x) => x.key === deal.kind) ?? kinds[0], deal.state).replace(/^[A-Z][a-z]/, (m) => m.toLowerCase()); return `For ${/^(IRS|HOA|SID|REO)\b|^[aeiou]/i.test(k) ? 'an' : 'a'} ${k}`; })()} in {countyName(deal.county)}, {st.name}.</p>
         {groups.map((g) => (
-          <CheckFold key={g.title} title={checkRecord ? `${g.title}: from before you ${checkRecord} (a record)` : g.title} done={g.items.filter((c) => deal.done.includes(c.id)).length} total={g.items.length}>
+          <CheckFold key={g.title} title={checkRecord ? `${g.title}: from before ${checkRecord} (a record)` : g.title} done={g.items.filter((c) => deal.done.includes(c.id)).length} total={g.items.length}>
             <ul className="decide-checklist">
               {g.items.map((c) => (
                 <li key={c.id}>
