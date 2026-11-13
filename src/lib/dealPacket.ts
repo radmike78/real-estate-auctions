@@ -622,6 +622,18 @@ export function settledWords(t: string, phase: 'agreed' | 'owed' | 'paid' | null
   return s;
 }
 
+/** A passed deal's cash part as a record: what was planned, with no advice for a sale you passed on. */
+function passedCash(cash: string[], d: Deal): string[] {
+  const lines = cash.map((t) => t
+    .replace(/ ?(?:Skip this one|Skip it), or [^.]*\./g, '')
+    .replace(/^On sale day, at /, 'Planned for sale day, at ')
+    .replace(/^With your sealed bid, by the notice’s deadline \(usually 4 p\.m\. the day before the sale\*\), at /, 'Planned with your sealed bid, at ')
+    .replace(/ on sale day;/g, ' planned for sale day;')
+    .replace(/with your sealed bid, before the sale/g, 'planned with your sealed bid')
+    .trim()).filter(Boolean);
+  return [`Kept as a record from before you passed on ${d.name}.`, ...lines, ...(sealedBid(d) ? ['If you sent a sealed bid that didn’t win, the county returns the enclosed payment by certified mail; if it doesn’t arrive, ask the Eureka County Treasurer.'] : [])];
+}
+
 const priceName = (source: 'yours' | 'listed', offer: boolean, cap = false, d?: Deal) => {
   const n = source === 'yours' ? (d && fixedPriceName(d)) || (offer ? 'your offer' : 'your bid') : offer ? 'the asking price' : 'the opening bid';
   return cap ? n[0].toUpperCase() + n.slice(1) : n;
@@ -1249,7 +1261,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const limitWord = entered > 0 ? `the cash you entered in ${strategy}` : 'your investable cash';
   if (limit > 0 && need > 0) cash.push(need > limit ? pricePhase(d) && !(bid?.at && bid.at.source !== 'yours') ? `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}. ${pricePhase(d) === 'paid' && entered > 0 ? `Update the cash in ${strategy} with what you actually put in.` : pricePhase(d) === 'owed' ? owedWords(bid?.at?.source === 'yours' ? bid.at.price : commercial?.at?.price ?? rent?.price ?? 0, limit, limitWord, { ...settledCtx(d), overdueSaid: !!payPassed }) : cashShortAfter(pricePhase(d)!, { ...settledCtx(d), overdueSaid: !!payPassed })}` : `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? `Check that you have it, or ${entered > 0 ? `update the cash in ${strategy}` : 'update My plan'}.` : `Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.`}` : `${needAt}, that leaves ${money(limit - Math.round(need))} unallocated from ${limitWord}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
-  out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: cash.map((t) => settledWords(t, pricePhase(d), settledCtx(d))), fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
+  out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: stageOf(d) === 'passed' ? passedCash(cash, d) : cash.map((t) => settledWords(t, pricePhase(d), settledCtx(d))), fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
   // 5. Numbers: base and downside, for the deal's strategy only
   const nums: string[] = ['Returns, profit and cash flow are before income tax; personal taxes and depreciation are not included.', `Strategy: ${strategyLine}. These are the numbers you saved in its calculator; other strategies’ calculators aren’t counted.`];
