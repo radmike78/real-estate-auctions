@@ -193,6 +193,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           <p className="plan-now-produces"><strong>You’ll have:</strong> {task.produces}.</p>
           <div className="plan-now-actions">
             {!(task.answer && deal) && <ContinueButton task={task} dealId={deal?.id} onPlan={onPlan} label={planStarted(now) ? undefined : 'Start'} />}
+            {deal && task.answer && /change the Sale day/.test(task.label) && <a className="btn btn-secondary" href={`#/deals/packet/${deal.id}/dates`}>Change the Sale day in its deal packet →</a>}
             {deal && <TaskActions task={task} dealId={deal.id} big edit={(f) => { const k = `analyzed:${deal.id}`; savePacket(k, f(loadPacket(k))); progressChanged(); }} after={(el, done) => { if (done) { /* It leaves the plan: the next property comes up (one with a deadline first). */ handOff(deal); } else { setFinishedNote(''); /* (stays on the deal just answered) */ write(DEAL_KEY, `analyzed:${deal.id}`); write(ROADMAP_PATH_KEY, pathForDeal(deal)); progressChanged(); focusTaskIn(el.closest('.plan-now-actions')?.parentElement); } }} />}
           </div>
           {task.support.length > 0 && (

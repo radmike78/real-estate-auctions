@@ -32,7 +32,7 @@ export default function PathNext({ step }: { step: StepKey }) {
     const openHere = (() => { try { return (JSON.parse(localStorage.getItem(CURRENT_KEY) ?? 'null') as { id?: string } | null)?.id === plan.deal?.id; } catch { return false; } })();
     if (here && plan.source === 'deal' && page(plan.task.href) === here && (step !== 'analyze' || openHere)) {
       if (step !== 'analyze') return null; // you're on it, and only Analyze ticks a property's task by itself
-      return <nav className="path-next" aria-label="Next step"><span className="muted">You’re on your next step: {plan.task.label}. It’s marked done once you’ve entered it here.</span></nav>;
+      return <nav className="path-next" aria-label="Next step"><span className="muted">You’re on your next step: {plan.task.label.replace(/[.?!]$/, '')}. It’s marked done once you’ve entered it here.</span></nav>;
     }
     // Practice is rehearsal: a real task that links to it ("Register and bid") still happens at the real sale.
     // (A practice task itself, "Finish a practice auction", is done here.)
@@ -40,7 +40,7 @@ export default function PathNext({ step }: { step: StepKey }) {
       return (
         <nav className="path-next" aria-label="Next step">
           {/* A property's task is recorded in its deal packet (evidence log); a roadmap task is ticked in My plan. */}
-          <span className="muted">You’re on your next step: {plan.task.label}. When you have {plan.task.produces}, {plan.source === 'deal' ? 'record it in its deal packet' : 'mark it done in My plan'}.</span>
+          <span className="muted">You’re on your next step: {plan.task.label.replace(/[.?!]$/, '')}. When you have {plan.task.produces}, {plan.source === 'deal' ? 'record it in its deal packet' : 'mark it done in My plan'}.</span>
           <a className="btn btn-secondary" href={plan.source !== 'deal' && plan.task.key.startsWith('roadmap-') ? `#/toolkit/roadmap?step=${encodeURIComponent(plan.task.key.slice('roadmap-'.length))}` : plan.task.href}>{plan.source === 'deal' ? 'Record it in the deal packet' : 'Mark it done in My plan'}&nbsp;→</a>
         </nav>
       );
