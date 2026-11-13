@@ -633,7 +633,7 @@ function passedCash(cash: string[], d: Deal): string[] {
     .replace(/with your sealed bid, before the sale/g, 'planned with your sealed bid')
     .trim()).filter((t) => t && !/^Run .* in Analyze/.test(t));
   // (A losing sealed bid's refund is in the stage hint above, so it isn't repeated here.)
-  return [`Kept as a record from before you passed on ${d.name}.`, ...lines];
+  return [`Kept as a record from before you passed on ${d.name}.`, ...lines.map((t) => (sealedBid(d) && paidAtWin(d) ? t.replace(/^Planned with your sealed bid/, 'Sent with your sealed bid').replace(/planned with your sealed bid/g, 'sent with your sealed bid') : t))];
 }
 
 const priceName = (source: 'yours' | 'listed', offer: boolean, cap = false, d?: Deal) => {
@@ -1152,7 +1152,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     : wonPhase === 'paid'
     ? `Paid: ${at}, plus any buyer’s premium (check the amount against your receipt)${end}`
     : payPassed
-    ? `The sale’s payment deadline (${prettyDay(payPassed.when!)}) has passed, and ${at} isn’t marked paid. If you paid it, mark the Payment deadline handled in Key dates; if not, contact the official seller and an attorney now${end || '.'}`
+    ? `The sale’s payment deadline (${prettyDay(payPassed.when!)}) has passed, and ${at} isn’t marked paid (what to do is at the top of this packet)${end || '.'}`
     : wonPhase === 'owed'
     ? `By the sale’s payment deadline (see Key dates), at ${at}: ${money(amount)} (the full amount, plus any buyer’s premium, in the form the sale requires)${end}`
     : sealed
