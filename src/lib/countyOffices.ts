@@ -627,7 +627,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
   },
   "NV/Washoe": {
     taxSale: { url: "https://www.washoecounty.gov/treas/TaxSale.php", checked: "2026-09-29" },
-    specialAssessment: { url: "https://www.washoecounty.gov/treas/SpecialAssessments.php", checked: "2026-11-03", note: "Buyers are chosen by a show of hands; if several want a parcel, the County draws buyer numbers. Payment is due by 10:00 a.m. the next day. Confirm both in the sale notice." },
+    specialAssessment: { url: "https://www.washoecounty.gov/treas/SpecialAssessments.php", checked: "2026-11-03", note: "Buyers are chosen by a show of hands; if several want a parcel, the County draws buyer numbers. Payment is due by 10:00 a.m. the next day. The County’s page says the 1% a month interest isn’t prorated. Confirm these in the sale notice." },
     treasurer: { url: "https://nv-washoe.publicaccessnow.com/Treasurer/TaxSearch.aspx", checked: "2026-10-10" },
     assessor: { url: "https://www.washoecounty.gov/assessor/cama/index.php", checked: "2026-10-10" },
     recorder: { url: "https://icris.washoecounty.us/ssrecorder/", checked: "2026-10-10" },
