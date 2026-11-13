@@ -18,7 +18,7 @@ import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
 import { dealProgress } from './roadmapState';
-import { dealNextTask, paidAtWin, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
+import { dealNextTask, paidAtWin, paymentPassed, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -543,10 +543,10 @@ export const CASH_SHORT_AFTER: Record<'agreed' | 'owed' | 'paid', string> = {
 
 /** Where a fixed price's advice is shown: the kind of sale and state (what a winner who doesn't pay faces), and whether
  * the deed is still ahead (a redemption period: no renting or selling yet). */
-export type SettledContext = { kind?: string; state?: string; county?: string; noDeed?: boolean; /** The payment and penalty are said elsewhere on the screen (the result at your price): don't repeat them. */ quiet?: boolean };
+export type SettledContext = { kind?: string; state?: string; county?: string; noDeed?: boolean; /** A won bid's payment deadline that passed unpaid (its date). */ payOverdue?: string; /** The packet already said the deadline passed, on the line above. */ overdueSaid?: boolean; /** The payment and penalty are said elsewhere on the screen (the result at your price): don't repeat them. */ quiet?: boolean };
 
 /** The context for a deal. */
-export const settledCtx = (d: Deal): SettledContext => ({ kind: d.kind, state: d.state, county: d.county, noDeed: !!beforeDeed(d) });
+export const settledCtx = (d: Deal): SettledContext => ({ kind: d.kind, state: d.state, county: d.county, noDeed: !!beforeDeed(d), payOverdue: pricePhase(d) === 'owed' ? paymentPassed(d) || undefined : undefined });
 
 /** What a Nevada winner who doesn't pay the bid faces, by kind of sale. */
 export const defaultWords = (c: SettledContext = {}): string => {
@@ -566,12 +566,22 @@ const withDefault = (t: string, c?: SettledContext) => { const w = defaultWords(
 
 /** A won bid short of cash: when the bid alone is more than the cash, say so first (it's the urgent part), then what not
  * paying costs at this kind of sale. */
+/** When the won bid is due: still ahead, passed (with its date), or already said as passed on the line above. */
+const dueWords = (c?: SettledContext): string => (c?.overdueSaid ? 'Its payment deadline has passed (above).'
+  : c?.payOverdue ? `If you haven’t paid it, the sale’s payment deadline (${prettyDay(c.payOverdue)}) has passed: contact the official seller and an attorney now.`
+  : 'If you haven’t paid it yet, it’s due in full by the sale’s payment deadline: contact the official seller and an attorney now.');
+
+/** CASH_SHORT_AFTER.owed, with the deadline said as passed once it has. */
+const owedCash = (c?: SettledContext): string => (c?.overdueSaid || c?.payOverdue
+  ? `This counts the repairs and holding costs, not only the bid. ${dueWords(c)} For the repair and holding money, compare a loan with a lender or change the plan: each person’s situation decides which fits.`
+  : CASH_SHORT_AFTER.owed);
+
 export const owedWords = (bidDue: number, limit: number, limitWord: string, c?: SettledContext): string => withDefault(bidDue > 0 && limit > 0 && bidDue > limit
-  ? `Your winning bid of ${money(bidDue)} alone is ${money(bidDue - limit)} more than ${limitWord}. If you haven’t paid it yet, it’s due in full by the sale’s payment deadline: contact the official seller and an attorney now.`
-  : CASH_SHORT_AFTER.owed, c);
+  ? `Your winning bid of ${money(bidDue)} alone is ${money(bidDue - limit)} more than ${limitWord}. ${dueWords(c)}`
+  : owedCash(c), c);
 
 /** The cash advice at a fixed price, with what not paying costs when a won bid may still be owed. */
-export const cashShortAfter = (phase: 'agreed' | 'owed' | 'paid', c?: SettledContext): string => (phase === 'owed' ? (c?.quiet ? 'The cash at your winning bid, and when it’s due, is shown with your result.' : withDefault(CASH_SHORT_AFTER.owed, c)) : CASH_SHORT_AFTER[phase]);
+export const cashShortAfter = (phase: 'agreed' | 'owed' | 'paid', c?: SettledContext): string => (phase === 'owed' ? (c?.quiet ? 'The cash at your winning bid, and when it’s due, is shown with your result.' : withDefault(owedCash(c), c)) : CASH_SHORT_AFTER[phase]);
 
 export const OPTIONS = 'talk to your advisors about your options (such as keeping, renting or selling it): each person’s situation decides which fits.';
 
@@ -591,7 +601,7 @@ export const checkAdvice = (what: string, noDeed = false): string => (noDeed
 export const noPriceAfter = (phase: 'agreed' | 'owed' | 'paid', c?: SettledContext): string => {
   if (phase === 'agreed') return NO_PRICE_AFTER.agreed;
   const check = checkAdvice('the numbers', c?.noDeed);
-  return phase === 'owed' && !c?.quiet ? `${withDefault('If you haven’t paid the bid yet, it’s still due by the sale’s payment deadline.', c)} ${check}` : check;
+  return phase === 'owed' && !c?.quiet ? `${withDefault(c?.payOverdue || c?.overdueSaid ? dueWords(c) : 'If you haven’t paid the bid yet, it’s still due by the sale’s payment deadline.', c)} ${check}` : check;
 };
 
 /** Pre-sale words (walk away, skip it, no bid fits, the walk-away price) reworded once the price is agreed, won or paid. */
@@ -1123,10 +1133,12 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const wonPhase = !offer ? pricePhase(d) : null;
   // An open Payment deadline row whose date has passed: said as overdue, not as still ahead.
   const payPassed = wonPhase === 'owed' ? p.dates.find((x) => sameDate(x.what, 'Payment deadline') && !x.resolved && !!x.when && x.when < localDayOf(now)) : undefined;
-  const saleDay = (at: string, amount: number, end = '') => wonPhase === 'paid' && !sealed
-    ? `Paid: ${at} (${money(amount)} with any buyer’s premium; record what you actually paid)${end}`
+  const saleDay = (at: string, amount: number, end = '') => wonPhase === 'paid' && sealed
+    ? `Paid with your sealed bid: ${at} (the full bid; check the receipt or card charge)${end}`
+    : wonPhase === 'paid'
+    ? `Paid: ${at}, plus any buyer’s premium (check the amount against your receipt)${end}`
     : payPassed
-    ? `The sale’s payment deadline (${prettyDay(payPassed.when!)}) has passed, and ${at} isn’t marked paid (${money(amount)} with any buyer’s premium). If you paid it, mark the Payment deadline handled in Key dates; if not, contact the official seller and an attorney now${end}`
+    ? `The sale’s payment deadline (${prettyDay(payPassed.when!)}) has passed, and ${at} isn’t marked paid. If you paid it, mark the Payment deadline handled in Key dates; if not, contact the official seller and an attorney now${end}`
     : wonPhase === 'owed'
     ? `By the sale’s payment deadline (see Key dates), at ${at}: ${money(amount)} (the full amount, plus any buyer’s premium, in the form the sale requires)${end}`
     : sealed
@@ -1235,7 +1247,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const typedNoLimit = !(entered > 0) && (rent?.cashTyped || bid?.cashTyped || commercial?.cashTyped || false);
   const limit = entered > 0 ? entered : typedNoLimit ? 0 : profile.investable;
   const limitWord = entered > 0 ? `the cash you entered in ${strategy}` : 'your investable cash';
-  if (limit > 0 && need > 0) cash.push(need > limit ? pricePhase(d) && !(bid?.at && bid.at.source !== 'yours') ? `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}. ${pricePhase(d) === 'paid' && entered > 0 ? `Update the cash in ${strategy} with what you actually put in.` : pricePhase(d) === 'owed' ? owedWords(bid?.at?.source === 'yours' ? bid.at.price : commercial?.at?.price ?? rent?.price ?? 0, limit, limitWord, settledCtx(d)) : cashShortAfter(pricePhase(d)!, settledCtx(d))}` : `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? `Check that you have it, or ${entered > 0 ? `update the cash in ${strategy}` : 'update My plan'}.` : `Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.`}` : `${needAt}, that leaves ${money(limit - Math.round(need))} unallocated from ${limitWord}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
+  if (limit > 0 && need > 0) cash.push(need > limit ? pricePhase(d) && !(bid?.at && bid.at.source !== 'yours') ? `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}. ${pricePhase(d) === 'paid' && entered > 0 ? `Update the cash in ${strategy} with what you actually put in.` : pricePhase(d) === 'owed' ? owedWords(bid?.at?.source === 'yours' ? bid.at.price : commercial?.at?.price ?? rent?.price ?? 0, limit, limitWord, { ...settledCtx(d), overdueSaid: !!payPassed }) : cashShortAfter(pricePhase(d)!, { ...settledCtx(d), overdueSaid: !!payPassed })}` : `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? `Check that you have it, or ${entered > 0 ? `update the cash in ${strategy}` : 'update My plan'}.` : `Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.`}` : `${needAt}, that leaves ${money(limit - Math.round(need))} unallocated from ${limitWord}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
   out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: cash.map((t) => settledWords(t, pricePhase(d), settledCtx(d))), fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
