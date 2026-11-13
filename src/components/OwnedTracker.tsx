@@ -5,7 +5,7 @@ import type { Deal } from '../lib/analyze';
 import { flipBudget, flipBudgetLine, flipSaleLine, loadPacket, sameDate, sameEvent, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
-import { firstFullMonth, setDealHome, sidState, trackerAsksHome, certificateFirst, finishedDeal, liveIn, prettyDay, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
+import { sealedBid, firstFullMonth, setDealHome, sidState, trackerAsksHome, certificateFirst, finishedDeal, liveIn, prettyDay, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
 
 /** The monthly cash flow the deal was bought on, from its Keep and rent numbers (null without them). */
 export function projectedMonthly(d: Deal): number | null {
@@ -124,7 +124,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
   if (sidState(deal) === 'void') return <p className="muted">Not needed: the sale is void.</p>;
   if (!o && (stageOf(deal) === 'passed' || finishedDeal(deal))) return <p className="muted">{finishedDeal(deal) ? 'It was repaid: nothing more to track here.' : 'You passed on it: nothing to track here.'}</p>;
   if (!o && ['researching', 'offer'].includes(stageOf(deal)) && wayOf(deal) !== 'offer') return <p className="muted">Won it? Answer “did you win?” in Your next action above once the sale is over, and the steps after the sale appear here.</p>;
-  if (!o && stageOf(deal) === 'contract' && wayOf(deal) !== 'offer') return <p className="muted">Once you’ve paid and the {certificateFirst(deal) ? 'certificate of sale' : 'deed'} is {certificateFirst(deal) && deal.kind === 'irs' ? 'in hand' : 'recorded'}, mark it in Your next action above; then start tracking its costs here.</p>;
+  if (!o && stageOf(deal) === 'contract' && wayOf(deal) !== 'offer') return <p className="muted">{sealedBid(deal) ? 'Your payment went in with your sealed bid. Once' : 'Once you’ve paid and'} the {certificateFirst(deal) ? 'certificate of sale' : 'deed'} is {certificateFirst(deal) && deal.kind === 'irs' ? 'in hand' : 'recorded'}, mark it in Your next action above; then start tracking its costs here.</p>;
   // An offer before it's under contract: nothing is bought yet.
   if (!o && ['researching', 'offer'].includes(stageOf(deal)) && wayOf(deal) === 'offer') return <p className="muted">Once your offer is accepted and it closes, start tracking it here.</p>;
   // Under contract by offer: it's bought once it closes, from the closing task above.

@@ -339,7 +339,7 @@ export const DRILLS: Drill[] = [
         { label: 'Investigate', feedback: 'Good: have an attorney confirm who owned the loan and what it would cost to pay it off, then decide.' },
         { label: 'Pass', feedback: 'Reasonable. Many investors skip HOA sales where Fannie Mae or Freddie Mac owns the loan.' },
       ],
-      expert: 'Pass, or investigate with an attorney first. A loan Fannie Mae owns usually survives an HOA sale, so the $12,000 bid is really a $240,000-plus purchase with a thin margin.',
+      expert: 'Pass, or investigate with an attorney first. A loan Fannie Mae owns generally survives an HOA sale while it is under federal conservatorship, unless the FHFA consented,* so the $12,000 bid is really a $240,000-plus purchase with a thin margin.',
     },
   },
   {
