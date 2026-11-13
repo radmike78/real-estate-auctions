@@ -724,7 +724,7 @@ const HOA: Flow = {
       question: 'The lender’s payment was recorded 10 days before the sale. What happens to the first mortgage?',
       choices: [
         { label: `It survives: I’d take the home subject to the ${money(n!.inputs.survivingLiens)} loan`, correct: true, feedback: 'Right. The lender paid at least 5 days before the sale, so the first deed of trust stays. Add it to your costs.' },
-        { label: 'It’s wiped out: HOA sales always wipe out the mortgage', correct: false, feedback: 'Not when the lender paid the super-priority amount at least 5 days before the sale (or validly offered it and was refused*), or when Fannie Mae or Freddie Mac owned the loan. Here, the payment was recorded.' },
+        { label: 'It’s wiped out: HOA sales always wipe out the mortgage', correct: false, feedback: 'Not when the lender paid the super-priority amount at least 5 days before the sale (or validly offered it and was refused*), or when Fannie Mae or Freddie Mac owned the loan, while under federal conservatorship, unless the FHFA consented (12 U.S.C. 4617(j)(3))*. Here, the payment was recorded.' },
       ],
     },
     { kind: 'read', id: 'hoa-dues', title: 'The HOA itself', body: [`Dues here are ${money(p.hoaMonthly ?? 0)} a month. Ask the HOA’s foreclosure agent for the sale terms, and budget for dues from the day you own it.`] },

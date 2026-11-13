@@ -1812,7 +1812,8 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(t.label).toMatch(/deadline you entered .* has passed, but Eureka’s usual deadline is/);
     expect(t.label).not.toMatch(/Overdue/);
     expect(t.tick?.label).toMatch(/I sent it by the deadline/);
-    expect(t.advance2?.label).toMatch(/I didn’t send a bid/);
+    // (The usual deadline is still ahead, so no pass answer yet.)
+    expect(t.advance2).toBeUndefined();
     expect(t.redate?.label).toMatch(/change it to/);
   });
   it('round 39 verifier: other sales keep their payment step when moved by the stage list', async () => {

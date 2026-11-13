@@ -313,7 +313,7 @@ export const DRILLS: Drill[] = [
         multi: false,
         options: [
           { label: 'It most likely survives: while Fannie Mae and Freddie Mac are under federal conservatorship, an HOA sale can’t wipe out a loan they own unless the FHFA consented', good: true, why: 'Right. This federal rule is often called the Foreclosure Bar. Have an attorney confirm who owned the loan on the sale date.' },
-          { label: 'It’s wiped out, because the lender didn’t pay the HOA', good: false, why: 'Not when Fannie Mae or Freddie Mac owns the loan. The federal rule protects it.' },
+          { label: 'It’s wiped out, because the lender didn’t pay the HOA', good: false, why: 'Generally not when Fannie Mae or Freddie Mac owns the loan: while they are under federal conservatorship, the federal Foreclosure Bar protects it unless the FHFA consented (12 U.S.C. 4617(j)(3)).*' },
         ],
         lesson: 'In Nevada, check two things before any HOA sale: whether the lender paid the super-priority amount, and whether Fannie Mae or Freddie Mac owns the loan.',
       },

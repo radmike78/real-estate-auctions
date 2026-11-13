@@ -217,7 +217,7 @@ function HoldResults({ after = false, coverageQuiet = false, dscrTyped = true, r
       {r.dscr !== null && !r.loanOk && minDscr > 0 && !r.noBidWorks && !coverageQuiet && (
         <p className="calc-note small">{Number(dscrText(r.dscr)) >= minDscr ? `The unrounded income coverage is below ${dscrTyped ? 'your' : 'our example'} ${minDscr}× minimum, even if the displayed ratio rounds to it.` : `Income coverage is under ${dscrTyped ? 'your' : 'our example'} ${minDscr}× minimum at the walk-away price.`} {offer ? 'A lower price, a smaller loan or a larger down payment would raise it.' : 'A smaller refinance (a lower Loan %) would raise it; a lower bid doesn’t, since the refinance is sized on the value.'} Ask your lender how it tests coverage.</p>
       )}
-      <p className="muted small">{noiNote} {after ? 'An estimate of this property’s numbers at the price you paid' : <>An estimate to help you set a limit {offer ? 'before you make an offer' : 'before the sale'}</>}, not advice.</p>
+      <p className="muted small">{noiNote} {after ? 'An estimate of this property’s numbers at the price entered' : <>An estimate to help you set a limit {offer ? 'before you make an offer' : 'before the sale'}</>}, not advice.</p>
     </section>
   );
 }

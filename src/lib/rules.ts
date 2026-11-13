@@ -81,7 +81,7 @@ function assess(lien: Lien, saleType: SaleType, foreclosing: Lien | undefined): 
       if (lien.type === 'HOA_SUBPRIORITY' && saleType === 'HOA_FORECLOSURE') {
         return {
           outcome: 'LIKELY_EXTINGUISHED',
-          reason: 'Part of the HOA lien being foreclosed (NRS 116.3116(1)): the sale pays it from the sale money (NRS 116.31164(3)(c)), so it doesn’t stay on the property.',
+          reason: 'Part of the HOA lien being foreclosed (NRS 116.3116(1)): the sale pays it from the sale money (NRS 116.31164(8)(b)(3)), so it doesn’t stay on the property.',
         };
       }
       if (lien.type === 'FIRST_DEED_OF_TRUST' && saleType === 'HOA_FORECLOSURE') {
