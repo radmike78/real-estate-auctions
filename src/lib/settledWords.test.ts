@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CASH_SHORT_AFTER, NO_PRICE_AFTER, cashShortAfter, defaultWords, noPriceAfter, owedWords, settledWords } from './dealPacket';
 import { noRealisticAdvice } from './holdCalc';
+import { nvPastCutoff } from './dealStage';
 
 describe('settledWords: pre-sale advice reworded once the price is agreed, won or paid', () => {
   it('leaves text alone before a price is fixed', () => {
@@ -46,5 +47,9 @@ describe('settledWords: pre-sale advice reworded once the price is agreed, won o
     expect(noPriceAfter('owed', { state: 'NV', kind: 'court' })).toMatch(/still due by the sale’s payment deadline\. A winner who doesn’t pay can be held liable for any loss when the property is sold again \(NRS 21\.160\)\. Check/);
     expect(settledWords('What-if: walk-away price $5, the most you could have paid and still meet our example target', 'paid')).toBe('What-if: the most this plan could have paid, $5, which would still have met our example target');
     expect(defaultWords({ state: 'NV', kind: 'taxSale', county: 'Eureka' })).not.toMatch(/deposit/);
+  });
+  it('times the Nevada SID 10 a.m. cutoff in Nevada time, wherever the reader is', () => {
+    expect(nvPastCutoff(new Date('2026-11-13T17:30:00Z'))).toBe(false); // 9:30 a.m. in Nevada (11:30 a.m. in New York)
+    expect(nvPastCutoff(new Date('2026-11-13T18:30:00Z'))).toBe(true); // 10:30 a.m. in Nevada
   });
 });
