@@ -25,7 +25,7 @@ import { COUNTY_TAX_RATES } from '../lib/countyTaxRates';
 
 /** The purchase-cost fields worded for the deal's state and county, starting at its transfer tax. */
 /** `countyTax`: the starting property tax follows the county (a deal's calculator), so the hint names the county. */
-function useRegionTax<T extends BuyInputs>(groups: CalcGroup<T>[], countyTax = false, sealed = false): { groups: CalcGroup<T>[]; per500: number } {
+function useRegionTax<T extends BuyInputs>(groups: CalcGroup<T>[], countyTax = false, sealed: boolean | 'after' = false): { groups: CalcGroup<T>[]; per500: number } {
   const r = useCalcRegion();
   // Your area's city, when it's in this deal's county (a city rate, such as the City of Riverside's).
   const myArea = getMyArea();
@@ -33,7 +33,7 @@ function useRegionTax<T extends BuyInputs>(groups: CalcGroup<T>[], countyTax = f
   const pt = propertyTaxHint(r.state, countyTax ? r.county : undefined);
   return {
     per500: tax.per500,
-    groups: groups.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'transferTaxPer500' ? { ...f, hint: tax.hint, more: tax.more } : sealed && f.k === 'loanPct' && f.more ? { ...f, more: f.more.replace('Most auctions want full payment the same day or the next business day (the official notice gives the exact deadline), so any loan comes afterward.', 'Eureka County’s sale is sealed-bid: the full payment goes in with your bid, before the sale, so any loan comes afterward.') } : f.k === 'propertyTaxYear' ? { ...f, hint: pt.hint, more: pt.more } : f)) })),
+    groups: groups.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'transferTaxPer500' ? { ...f, hint: tax.hint, more: tax.more } : sealed === 'after' && f.k === 'loanPct' ? { ...f, more: 'Any loan is a refinance once you own it. Lenders set their own waiting periods and limits for loans on recently bought property; ask yours.' } : sealed && f.k === 'loanPct' && f.more ? { ...f, more: f.more.replace('Most auctions want full payment the same day or the next business day (the official notice gives the exact deadline), so any loan comes afterward.', 'Eureka County’s sale is sealed-bid: the full payment goes in with your bid, before the sale, so any loan comes afterward.') } : f.k === 'propertyTaxYear' ? { ...f, hint: pt.hint, more: pt.more } : f)) })),
   };
 }
 
@@ -551,7 +551,7 @@ function openHoaDues() {
 }
 
 export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = false, start = {}, regional = false, offer = false, saleKind, dealId }: { /** The kind of sale (a redemption wait before the deed is said). */ saleKind?: string; /** The saved deal (an IRS sale's picked rule). */ dealId?: string; storageKey?: string; /** The key already names the deal and kind of purchase. */ exactKey?: boolean; start?: Partial<RentInputs>; regional?: boolean; offer?: boolean }) {
-  const rt = useRegionTax(RENT_GROUPS, regional, !!dealId && (() => { const od = loadDeals().find((x) => x.id === dealId); return !!od && sealedBid(od); })());
+  const rt = useRegionTax(RENT_GROUPS, regional, !!dealId && (() => { const od = loadDeals().find((x) => x.id === dealId); return !od ? false : !offer && ['contract', 'closed', 'owned'].includes(stageOf(od)) ? 'after' as const : sealedBid(od); })());
   const region = useCalcRegion();
   // You live there: this saved property's answer ("Will you live in this property?"), else Decide's.
   const [, bumpHome] = useState(0);
@@ -720,7 +720,7 @@ const COMMERCIAL_GROUPS: CalcGroup<CommercialInputs>[] = [
 
 export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', exactKey = false, start = {}, regional = false, offer = false, saleKind, dealId }: { /** The kind of sale (a redemption wait before the deed is said). */ saleKind?: string; /** The saved deal (an IRS sale's picked rule). */ dealId?: string; storageKey?: string; exactKey?: boolean; start?: Partial<CommercialInputs>; regional?: boolean; offer?: boolean }) {
   const commRegion = useCalcRegion();
-  const ct = useRegionTax(COMMERCIAL_GROUPS, false, !!dealId && (() => { const od = loadDeals().find((x) => x.id === dealId); return !!od && sealedBid(od); })());
+  const ct = useRegionTax(COMMERCIAL_GROUPS, false, !!dealId && (() => { const od = loadDeals().find((x) => x.id === dealId); return !od ? false : !offer && ['contract', 'closed', 'owned'].includes(stageOf(od)) ? 'after' as const : sealedBid(od); })());
   const [saved, set, typed, typedKeys] = useSaved<CommercialInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...COMMERCIAL_DEFAULTS, ...start }, regional ? { transferTaxPer500: ct.per500 } : {});
   const v = offer ? { ...saved, buyerPremiumPct: 0 } : saved;
   const r = commercialMaxBid(v, offer);
