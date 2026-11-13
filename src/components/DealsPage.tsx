@@ -216,11 +216,12 @@ function OtherNumbers({ d }: { d: Deal }) {
       const limit = bid.cashLimit > 0 ? bid.cashLimit : bid.cashTyped ? 0 : planCash;
       const mine = limit > 0 && a.cashPeak > limit;
       const listed = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
+      const phase = pricePhase(d);
       const at = a.source === 'yours' ? `At ${fixedPriceName(d) ?? `your ${listed ? 'offer' : 'bid'}`}` : `At the ${listed ? 'asking price' : 'opening bid'}`;
       return (
-        <p className={mine || short || a.profit < bid.target || a.price > bid.maxBid ? 'deal-urgent' : undefined}>
-          {at}, {fmtMoney(a.price)}: profit about {fmtMoney(Math.round(a.profit))} · needs about {fmtMoney(Math.round(a.cashPeak))} of your cash{mine ? ` (${bid.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''} · walk-away price {fmtMoney(bid.maxBid)}{short && !mine ? ` (needs about ${fmtMoney(Math.round(bid.cashPeak))} of your cash; My plan: ${fmtMoney(Math.round(planCash))}; ${pricePhase(d) ? CASH_SHORT_AFTER[pricePhase(d)!].replace(/\.$/, '') : listed ? 'offer only what fits your cash' : 'enter your cash in Fix and flip to cap it'})` : ''}{mine && bid.cashLimit <= 0 ? (pricePhase(d) ? ` · more than My plan’s cash: ${CASH_SHORT_AFTER[pricePhase(d)!]}` : ` · even this ${listed ? 'price' : 'bid'} needs more than My plan’s cash: skip this one, or update My plan if you have more`) : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
-          {redeemClause}
+        <p className={mine || (short && !phase) || a.profit < bid.target || a.price > bid.maxBid ? 'deal-urgent' : undefined}>
+          {at}, {fmtMoney(a.price)}: profit about {fmtMoney(Math.round(a.profit))} · needs about {fmtMoney(Math.round(a.cashPeak))} of your cash{mine ? ` (${bid.cashLimit > 0 ? 'your limit' : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''} · {phase === 'owed' || phase === 'paid' ? 'the most this plan could have paid' : 'walk-away price'} {fmtMoney(bid.maxBid)}{short && !mine && !phase ? ` (needs about ${fmtMoney(Math.round(bid.cashPeak))} of your cash; My plan: ${fmtMoney(Math.round(planCash))}; ${listed ? 'offer only what fits your cash' : 'enter your cash in Fix and flip to cap it'})` : ''}{mine && bid.cashLimit <= 0 && !phase ? (` · even this ${listed ? 'price' : 'bid'} needs more than My plan’s cash: skip this one, or update My plan if you have more`) : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
+          {redeemClause}{mine && bid.cashLimit <= 0 && phase ? `. The cash at your price is more than My plan’s cash. ${CASH_SHORT_AFTER[phase]}` : ''}
         </p>
       );
     }
@@ -262,7 +263,7 @@ export default function DealsPage() {
     <main className="page">
       <PageHero
         title={<>My <span className="grad">deals</span></>}
-        sub="Your saved properties: what changed, what’s due, and whether your bid still fits."
+        sub="Your saved properties: what changed, what’s due, and whether your numbers still fit."
       />
       <OwnedPortfolio deals={analyzed} />
       {analyzed.length > 0 && (

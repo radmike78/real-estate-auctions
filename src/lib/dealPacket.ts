@@ -536,8 +536,8 @@ export const pricePhase = (d: Deal): 'agreed' | 'owed' | 'paid' | null => {
 /** What to do when a fixed price needs more cash than you have (no advice on what to offer or bid: that's settled). */
 export const CASH_SHORT_AFTER: Record<'agreed' | 'owed' | 'paid', string> = {
   agreed: 'If you’re borrowing, talk to your lender before you close. If the cash isn’t there, ask your agent or attorney what your contract’s contingencies allow, before their deadlines.*',
-  owed: 'If you haven’t paid it all yet, the full winning bid is due by the sale’s payment deadline, and any loan comes afterward. If you can’t cover it, contact the official seller and an attorney now.',
-  paid: 'Update My plan with what you actually put in.',
+  owed: 'This counts the repairs and holding costs, not only the bid. If you haven’t paid the bid yet, it’s due in full by the sale’s payment deadline, and a loan usually comes only after you own it.* If you can’t cover the bid, contact the official seller and an attorney now. For the repair and holding money, compare a loan with a lender or change the plan: your own situation decides which fits.',
+  paid: 'You’ve already paid the price, so this is a check, not a limit. If you used a loan, enter it in the calculator so the cash is right, make sure the repair and holding money still ahead is in hand, and update your savings in My plan so your next deal starts from what’s left.',
 };
 
 const priceName = (source: 'yours' | 'listed', offer: boolean, cap = false, d?: Deal) => {
@@ -1055,12 +1055,12 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     if (rent.refi) {
       // A refinance comes later, if at all: until then every dollar of the price and costs is your cash.
       need = rent.allIn;
-      needAt = `At a ${money(rent.price)} price`;
+      needAt = (fixedPriceName(d) === 'the price you paid' ? `At the ${money(rent.price)} you paid` : fixedPriceName(d) ? `At ${fixedPriceName(d)} of ${money(rent.price)}` : `At a ${money(rent.price)} price`);
       cash.push(`From sale day until the refinance closes, all in: ${money(rent.allIn)} at a ${money(rent.price)} price (from ${strategy}: bid, buying costs and repairs)`);
       cash.push(rent.exampleValue ? `After a refinance: not this property’s yet (${refiValueWords(rent.refiValue)}). Enter the value after repairs in Buy and hold to see what a refinance would return.` : `After a refinance, if approved: ${rent.cashIn > 0 ? `${money(rent.cashIn)} of your cash left in` : 'the loan returns all your cash'}`);
     } else {
       need = rent.cashIn;
-      needAt = `At a ${money(rent.price)} price`;
+      needAt = (fixedPriceName(d) === 'the price you paid' ? `At the ${money(rent.price)} you paid` : fixedPriceName(d) ? `At ${fixedPriceName(d)} of ${money(rent.price)}` : `At a ${money(rent.price)} price`);
       if (offer) {
         // Bought (or finished): the closing statement has the real figures.
         const boughtIt = ['closed', 'owned'].includes(stageOf(d)) || finishedDeal(d);
@@ -1111,8 +1111,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   } else if (commercial?.at) {
     const a = commercial.at;
     need = commercial.atNeed ?? (!offer && a.loan > 0 ? a.allIn : a.cashIn);
-    needAt = `At your actual price of ${money(a.price)}`;
-    if (!offer) cash.push(saleDay(`your bid of ${money(a.price)}`, commercial.atSaleDay ?? a.price, '.'));
+    needAt = fixedPriceName(d) === 'the price you paid' ? `At the ${money(a.price)} you paid` : `At ${fixedPriceName(d) ?? 'your actual price'} of ${money(a.price)}`;
+    if (!offer) cash.push(saleDay(`${fixedPriceName(d) ?? 'your bid'} of ${money(a.price)}`, commercial.atSaleDay ?? a.price, '.'));
     cash.push(`${needAt}: ${money(need)} needed ${!offer && a.loan > 0 ? 'before a refinance closes (loan fees are paid at refinancing)' : a.loan > 0 ? 'from your own cash, including the loan’s points and fees' : 'from your own cash'}.`);
   } else if (commercial?.noTarget) {
     cash.push(commercialNoTarget(strategy, commercial.overCap));
@@ -1158,10 +1158,10 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   // You plan to live there: a monthly loss is what living there costs you (as Keep and rent and My deals say).
   const living = !!rent && offer && liveIn(d);
   if (rent && living) {
-    nums.push(`${priceName('yours', true, true, d)} (your actual price): ${money(rent.price)} → ${Math.round(Math.abs(rent.monthly)) === 0 ? 'the rent you collect about breaks even with every cost' : rent.monthly < 0 ? `living there costs you about ${money(-rent.monthly)} a month${rent.noRent ? '' : ' after any rent you collect'}${rent.noRent ? `, plus your own upkeep (about ${money(rent.price * 0.01 / 12)} a month at 1% of the price a year*)` : ''}` : `the rent you collect covers every cost, with about ${money(rent.monthly)} a month to spare`}${rent.mi > 0 ? `, before mortgage insurance (about ${money(rent.mi)} a month on an FHA loan; not counted)` : ''}. Compare that with what you pay to live where you are now; the return target is an investor’s yardstick.`);
+    nums.push(`${priceName('yours', true, true, d)}${fixedPriceName(d) ? '' : ' (your actual price)'}: ${money(rent.price)} → ${Math.round(Math.abs(rent.monthly)) === 0 ? 'the rent you collect about breaks even with every cost' : rent.monthly < 0 ? `living there costs you about ${money(-rent.monthly)} a month${rent.noRent ? '' : ' after any rent you collect'}${rent.noRent ? `, plus your own upkeep (about ${money(rent.price * 0.01 / 12)} a month at 1% of the price a year*)` : ''}` : `the rent you collect covers every cost, with about ${money(rent.monthly)} a month to spare`}${rent.mi > 0 ? `, before mortgage insurance (about ${money(rent.mi)} a month on an FHA loan; not counted)` : ''}. Compare that with what you pay to live where you are now; the return target is an investor’s yardstick.`);
     for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase().replace(/^takes /, 'it takes ')}: ${s.monthly < 0 ? `living there costs about ${money(-s.monthly)} a month` : `${money(s.monthly)} a month to spare`}`);
   } else if (rent) {
-    nums.push(`${priceName('yours', offer, true, d)} (your actual price): ${money(rent.price)} → monthly cash flow ${money(rent.monthly)}${rent.exampleValue ? ` (${refiValueWords(rent.refiValue)})` : rent.refi ? ' after the refinance' : ''}; ${rent.exampleValue && rent.refiValue > 0 ? 'return not shown until you enter the value after repairs' : rent.cashOnCash === null ? 'all your cash back' : `${capText(rent.cashOnCash, rent.target)}% a year on your cash`} (${rent.targetTyped ? 'your' : 'our example'} target ${rent.target}%)${rent.coverageShort ? `; income coverage under ${rent.dscrTyped ? 'your' : 'our example'} ${rent.minDscr}× minimum` : ''}`);
+    nums.push(`${priceName('yours', offer, true, d)}${fixedPriceName(d) ? '' : ' (your actual price)'}: ${money(rent.price)} → monthly cash flow ${money(rent.monthly)}${rent.exampleValue ? ` (${refiValueWords(rent.refiValue)})` : rent.refi ? ' after the refinance' : ''}; ${rent.exampleValue && rent.refiValue > 0 ? 'return not shown until you enter the value after repairs' : rent.cashOnCash === null ? 'all your cash back' : `${capText(rent.cashOnCash, rent.target)}% a year on your cash`} (${rent.targetTyped ? 'your' : 'our example'} target ${rent.target}%)${rent.coverageShort ? `; income coverage under ${rent.dscrTyped ? 'your' : 'our example'} ${rent.minDscr}× minimum` : ''}`);
     for (const s of rent.stress.slice(1)) nums.push(`  If ${s.label.toLowerCase().replace(/^takes /, 'it takes ')}: ${money(s.monthly)} a month`);
     if (rent.loanHigh) nums.push('Loans for a property you won’t live in usually need 15% to 25% down,* so this loan may be more than a lender would make: ask your lender for their figure. Mortgage insurance isn’t included in these payments either.');
     else if (rent.miLeftOut) nums.push('Mortgage insurance, which most loans add with under 20% down, isn’t included in these payments: ask your lender for it.');
@@ -1185,7 +1185,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   if (commercial?.at) {
     const a = commercial.at;
-    nums.push(`Your ${offer ? 'offer' : 'bid'} (your actual price): ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; ${a.cashIn < 0 ? `cash left in: none (the refinance returns all your cash and ${money(-a.cashIn)} more, if approved)` : `cash left in ${money(a.cashIn)}`}; return on total cost ${pct1(a.capOnCost, commercial.capPct)}; ${a.dscr === null ? 'no loan' : `income coverage ${dscrText(a.dscr)}× (${a.loanOk ? 'meets' : 'below'} ${commercial.dscrTyped ? 'your' : 'our example'} ${commercial.minDscr ?? 1.25}× minimum)`}`);
+    nums.push(`${priceName('yours', offer, true, d)}${fixedPriceName(d) ? '' : ' (your actual price)'}: ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; ${a.cashIn < 0 ? `cash left in: none (the refinance returns all your cash and ${money(-a.cashIn)} more, if approved)` : `cash left in ${money(a.cashIn)}`}; return on total cost ${pct1(a.capOnCost, commercial.capPct)}; ${a.dscr === null ? 'no loan' : `income coverage ${dscrText(a.dscr)}× (${a.loanOk ? 'meets' : 'below'} ${commercial.dscrTyped ? 'your' : 'our example'} ${commercial.minDscr ?? 1.25}× minimum)`}`);
   }
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
   else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? `Without that cash limit the deal meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost` : 'Without that cash limit the numbers work'}`);

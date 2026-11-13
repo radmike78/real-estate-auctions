@@ -26,11 +26,11 @@ const LIEN_AREAS: Record<string, Pick<EvidenceArea, 'title' | 'what'>> = {
   sale: { title: 'Sale and certificate', what: 'The parcel, the county’s sale terms and the lien being sold, from the treasurer’s official list.' },
   title: { title: 'Title and other liens', what: 'Recorded liens and taxes ahead of yours, from a title report on the parcel.' },
   occupancy: { title: 'The parcel itself', what: 'What’s on the land and its access, and whether you’d accept owning it if the lien is never paid.' },
-  condition: { title: 'Redemption and payoff', what: 'How the owner pays it off, the rate you won, and how long you may wait.' },
+  condition: { title: 'Redemption and payoff', what: 'How the owner pays it off, the interest rate it earns, and how long you may wait.' },
   use: { title: 'Later taxes', what: 'Later years’ taxes you may pay to protect the lien, and how they’re added to it.' },
   insurance: { title: 'Enforcing an unpaid lien', what: 'When and how you could foreclose or ask for a deed, and an attorney’s estimate of the cost.' },
   income: { title: 'Interest and records', what: 'How the interest you earn is taxed, and the records to keep.' },
-  terms: { title: 'Payment and deadlines', what: 'Cash ready, the payment deadline and method, and the county’s bidder rules.' },
+  terms: { title: 'Payment and deadlines', what: 'Cash ready, the payment deadline and method, and the official sale rules.' },
   exit: { title: 'Exit and reserves', what: 'What you’d do if it’s never paid, and cash you won’t need while you wait.' },
 };
 
