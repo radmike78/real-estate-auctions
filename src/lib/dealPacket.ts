@@ -18,7 +18,7 @@ import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
 import { dealProgress } from './roadmapState';
-import { dealNextTask, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
+import { dealNextTask, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -540,24 +540,57 @@ export const CASH_SHORT_AFTER: Record<'agreed' | 'owed' | 'paid', string> = {
   paid: 'You’ve already paid the price, so this is a check, not a limit. If you used a loan, enter it in the calculator so the cash is right, make sure the repair and holding money still ahead is in hand, and update your savings in My plan so your next deal starts from what’s left.',
 };
 
-/** A won bid short of cash: when the bid alone is more than the cash, say so first (it's the urgent part). */
-export const owedWords = (bidDue: number, limit: number, limitWord: string): string => (bidDue > 0 && limit > 0 && bidDue > limit
+/** Where a fixed price's advice is shown: the kind of sale and state (what a winner who doesn't pay faces), and whether
+ * the deed is still ahead (a redemption period: no renting or selling yet). */
+export type SettledContext = { kind?: string; state?: string; noDeed?: boolean };
+
+/** The context for a deal. */
+export const settledCtx = (d: Deal): SettledContext => ({ kind: d.kind, state: d.state, noDeed: !!beforeDeed(d) });
+
+/** What a Nevada winner who doesn't pay the bid faces, by kind of sale. */
+export const defaultWords = (c: SettledContext = {}): string => {
+  if (c.state !== 'NV') return '';
+  if (c.kind === 'trustee') return 'A winner who doesn’t pay can be held liable for any loss when the property is sold again (NRS 107.083).';
+  if (c.kind === 'court') return 'A winner who doesn’t pay can be held liable for any loss when the property is sold again (NRS 21.160).';
+  if (c.kind === 'irs') return 'If a deferred payment isn’t made, the IRS can sue for it with 6% interest, or cancel the sale and keep what you paid (26 U.S.C. 6335(e)(3)).';
+  if (c.kind === 'taxSale') return 'The Treasurer’s sale terms say what happens if you don’t pay; you may lose your deposit and be barred from later sales.*';
+  if (c.kind === 'hoa') return 'The foreclosure agent’s terms say what happens if you don’t pay.*';
+  return '';
+};
+
+const withDefault = (t: string, c?: SettledContext) => { const w = defaultWords(c); return w ? `${t} ${w}` : t; };
+
+/** A won bid short of cash: when the bid alone is more than the cash, say so first (it's the urgent part), then what not
+ * paying costs at this kind of sale. */
+export const owedWords = (bidDue: number, limit: number, limitWord: string, c?: SettledContext): string => withDefault(bidDue > 0 && limit > 0 && bidDue > limit
   ? `Your winning bid of ${money(bidDue)} alone is ${money(bidDue - limit)} more than ${limitWord}. If you haven’t paid it yet, it’s due in full by the sale’s payment deadline: contact the official seller and an attorney now.`
-  : CASH_SHORT_AFTER.owed);
+  : CASH_SHORT_AFTER.owed, c);
+
+/** The cash advice at a fixed price, with what not paying costs when a won bid may still be owed. */
+export const cashShortAfter = (phase: 'agreed' | 'owed' | 'paid', c?: SettledContext): string => (phase === 'owed' ? withDefault(CASH_SHORT_AFTER.owed, c) : CASH_SHORT_AFTER[phase]);
+
+const OPTIONS = 'talk to your advisors about your options (keeping, renting or selling it): your own situation decides which fits.';
 
 /** What to do when no price works at a price already agreed, won or paid (no walking away from a won bid). */
 export const NO_PRICE_AFTER: Record<'agreed' | 'owed' | 'paid', string> = {
   agreed: 'If the numbers no longer work, ask your agent or attorney what your contract’s contingencies allow, before their deadlines.*',
-  owed: 'Check the numbers against evidence, then talk to your advisors about your options (keeping, renting or selling it): your own situation decides which fits.',
-  paid: 'Check the numbers against evidence, then talk to your advisors about your options (keeping, renting or selling it): your own situation decides which fits.',
+  owed: `If you haven’t paid the bid yet, it’s still due by the sale’s payment deadline. Check the numbers against evidence, then ${OPTIONS}`,
+  paid: `Check the numbers against evidence, then ${OPTIONS}`,
+};
+
+/** NO_PRICE_AFTER for this sale: what not paying costs, and no renting or selling before the deed. */
+export const noPriceAfter = (phase: 'agreed' | 'owed' | 'paid', c?: SettledContext): string => {
+  if (phase === 'agreed') return NO_PRICE_AFTER.agreed;
+  const check = c?.noDeed ? `Check the numbers against evidence. Until the redemption period ends and the deed is yours, the property can still be redeemed; once it’s yours, ${OPTIONS}` : `Check the numbers against evidence, then ${OPTIONS}`;
+  return phase === 'owed' ? withDefault(`If you haven’t paid the bid yet, it’s still due by the sale’s payment deadline. ${check}`, c) : check;
 };
 
 /** Pre-sale words (walk away, skip it, no bid fits, the walk-away price) reworded once the price is agreed, won or paid. */
-export function settledWords(t: string, phase: 'agreed' | 'owed' | 'paid' | null | undefined): string {
+export function settledWords(t: string, phase: 'agreed' | 'owed' | 'paid' | null | undefined, c?: SettledContext): string {
   if (!phase) return t;
   let s = t
-    .replace(/Bring more cash(?:, plan a loan with a lender|, line up financing with a lender before the sale \(an auction wants the full amount by its payment deadline\))?, or skip this one\./g, CASH_SHORT_AFTER[phase])
-    .replace(/Walk away or change your plan\.|Skip this one or change your plan\./g, NO_PRICE_AFTER[phase])
+    .replace(/Bring more cash(?:, plan a loan with a lender|, line up financing with a lender before the sale \(an auction wants the full amount by its payment deadline\))?, or skip this one\./g, cashShortAfter(phase, c))
+    .replace(/Walk away or change your plan\.|Skip this one or change your plan\./g, noPriceAfter(phase, c))
     .replace(/,? or skip this one\./g, '.')
     .replace(/No realistic (?:bid|offer) fits/g, 'No realistic price fits')
     .replace(/No (?:bid|offer) (fits|works)/g, 'No price $1');
@@ -1073,7 +1106,11 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const washoeTax = !offer && d.kind === 'taxSale' && d.state === 'NV' && d.county === 'Washoe';
   if (washoeTax) cash.push('Washoe County’s tax sale terms (Treasurer’s FAQ): a $500 pre-bid deposit in certified funds when you register; if you win, a $500 non-refundable deposit (the FAQ doesn’t say whether it’s the pre-bid deposit)* and the balance by 5:00 p.m. the day after the sale, in cash, cashier’s check, certified check or money order. Confirm them in the sale notice.');
   // Washoe's balance is due the day after the sale, not all on sale day.
-  const saleDay = (at: string, amount: number, end = '') => washoeTax
+  // Eureka's sealed bids: the full payment goes in with the bid, by the notice's deadline (before the sale).
+  const sealed = !offer && sealedBid(d);
+  const saleDay = (at: string, amount: number, end = '') => sealed
+    ? `With your sealed bid, by the notice’s deadline (usually 4 p.m. the day before the sale*), at ${at}: ${money(amount)} (the full bid, in the form the notice allows)${end}`
+    : washoeTax
     ? `By 5:00 p.m. the day after the sale, at ${at}: ${money(amount)} (the full amount by then, in the form the sale requires; see the deposit terms above)${end}`
     : `On sale day, at ${at}: ${money(amount)} (bid plus any buyer’s premium, in the form the sale requires)${end}`;
   let need = 0;
@@ -1130,7 +1167,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       cash.push(`No ${offer ? 'offer at or above the asking price' : 'bid at or above the opening bid'} of ${money(a.price)} ${a.profit >= bid.target && bid.limitedBy === 'cash' ? 'fits your cash' : `meets ${goalW}`} as entered: the most that would is ${money(bid.maxBid)}, below it.`);
     } else if (!bid.none) {
       const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could ${fixedPriceName(d) && fixedPriceName(d) !== 'the agreed price' ? 'have paid' : 'pay'}, not your price)`;
-      cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} ${washoeTax ? 'by 5:00 p.m. the day after the sale' : 'on sale day'}; estimated cash you’d put in ${money(bid.cashPeak)}`);
+      cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} ${sealed ? 'with your sealed bid, before the sale' : washoeTax ? 'by 5:00 p.m. the day after the sale' : 'on sale day'}; estimated cash you’d put in ${money(bid.cashPeak)}`);
       // As Fix and sell says in red: with no cash entered there, the walk-away price can need more than My plan's cash.
       if (bid.at && bid.at.cashPeak <= profile.investable && !(bid.cashLimit > 0) && !bid.cashTyped && profile.investable > 0 && bid.cashPeak > profile.investable) cash.push(`That walk-away price needs ${money(bid.cashPeak - profile.investable)} more than the ${money(profile.investable)} of investable cash in My plan: ${offer ? 'offer only what fits your cash' : `enter the cash you can bring in ${strategy} to cap the bid at what you have`}.`);
     }
@@ -1177,9 +1214,9 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const typedNoLimit = !(entered > 0) && (rent?.cashTyped || bid?.cashTyped || commercial?.cashTyped || false);
   const limit = entered > 0 ? entered : typedNoLimit ? 0 : profile.investable;
   const limitWord = entered > 0 ? `the cash you entered in ${strategy}` : 'your investable cash';
-  if (limit > 0 && need > 0) cash.push(need > limit ? pricePhase(d) && !(bid?.at && bid.at.source !== 'yours') ? `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}. ${pricePhase(d) === 'paid' && entered > 0 ? `Update the cash in ${strategy} with what you actually put in.` : pricePhase(d) === 'owed' ? owedWords(bid?.at?.source === 'yours' ? bid.at.price : commercial?.at?.price ?? rent?.price ?? 0, limit, limitWord) : CASH_SHORT_AFTER[pricePhase(d)!]}` : `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? `Check that you have it, or ${entered > 0 ? `update the cash in ${strategy}` : 'update My plan'}.` : `Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.`}` : `${needAt}, that leaves ${money(limit - Math.round(need))} unallocated from ${limitWord}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
+  if (limit > 0 && need > 0) cash.push(need > limit ? pricePhase(d) && !(bid?.at && bid.at.source !== 'yours') ? `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}. ${pricePhase(d) === 'paid' && entered > 0 ? `Update the cash in ${strategy} with what you actually put in.` : pricePhase(d) === 'owed' ? owedWords(bid?.at?.source === 'yours' ? bid.at.price : commercial?.at?.price ?? rent?.price ?? 0, limit, limitWord, settledCtx(d)) : cashShortAfter(pricePhase(d)!, settledCtx(d))}` : `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? `Check that you have it, or ${entered > 0 ? `update the cash in ${strategy}` : 'update My plan'}.` : `Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.`}` : `${needAt}, that leaves ${money(limit - Math.round(need))} unallocated from ${limitWord}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
-  out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: cash.map((t) => settledWords(t, pricePhase(d))), fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
+  out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: cash.map((t) => settledWords(t, pricePhase(d), settledCtx(d))), fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
   // 5. Numbers: base and downside, for the deal's strategy only
   const nums: string[] = ['Returns, profit and cash flow are before income tax; personal taxes and depreciation are not included.', `Strategy: ${strategyLine}. These are the numbers you saved in its calculator; other strategies’ calculators aren’t counted.`];
@@ -1245,7 +1282,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   else if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
   // Done only once there's a downside to look at, not just the base case.
   const downside = !!lien || (rent && rent.stress.length > 1) || (bid && bid.stress.length > 1) || (commercial && (commercial.none || commercial.stress.length > 0));
-  out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: downside && !bid?.unentered.length ? 'done' : hasNums || flipNeedsRepairs(d) ? 'started' : 'missing', lines: nums.map((t) => settledWords(t, pricePhase(d))), fix: { label: 'Open in Analyze', href: '#/analyze' } });
+  out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: downside && !bid?.unentered.length ? 'done' : hasNums || flipNeedsRepairs(d) ? 'started' : 'missing', lines: nums.map((t) => settledWords(t, pricePhase(d), settledCtx(d))), fix: { label: 'Open in Analyze', href: '#/analyze' } });
 
   // 6. Evidence
   const areas = areasFor(d.kind, liveIn(d));
