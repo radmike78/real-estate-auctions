@@ -571,7 +571,9 @@ export const overdueIntro = (d: Deal): string => {
   // Only while picked or won and not yet paid (never at Researching, Passed or after).
   const when = (d.kind === 'lien' ? stageOf(d) === 'contract' && !paidAtWin(d) : pricePhase(d) === 'owed') ? paymentPassed(d) : '';
   if (!when) return '';
-  return `${d.kind === 'lien' ? 'You were picked' : 'You won the bid'}, and the payment deadline (${prettyDay(when)}) has passed: mark it handled in Key dates if you paid, or contact ${sellerName(d.kind)}${d.kind === 'lien' ? '' : ' and an attorney'} now.`;
+  return d.kind === 'lien'
+    ? `You were picked, and the payment deadline (${prettyDay(when)}) has passed. If you paid, mark it handled in Key dates. If you didn’t, the parcel is sold to the next buyer or goes to the city or county (NRS 271.560), so the certificate isn’t yours; ask ${sellerName(d.kind)} if you’re unsure.`
+    : `You won the bid, and the payment deadline (${prettyDay(when)}) has passed: mark it handled in Key dates if you paid, or contact ${sellerName(d.kind)} and an attorney now.`;
 };
 
 /** When the won bid is due: still ahead, passed (with its date), or already said as passed on the line above. */
