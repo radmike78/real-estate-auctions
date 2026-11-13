@@ -366,7 +366,9 @@ export const needsAnswerNow = (t: PlanTask) => deadlinePassed(t) || (t.key === '
 /** A deadline that has passed (a window ended, the SID payoff's 20 days): it needs an answer before routine work. */
 export const deadlinePassed = (t: Pick<PlanTask, 'days'>) => t.days !== undefined && t.days < 0;
 /** Who to ask whether anyone redeemed (and who answers on its row). */
-const redeemAsk = (d: Pick<Deal, 'kind'> & { state?: Deal['state'] }) => { const n = sellerName(d.kind, d.state); return n[0].toUpperCase() + n.slice(1); };
+/** The short name for who ran the sale, for questions and a row's who (the same in every state). */
+export const sellerShort = (kind?: string): string => ({ trustee: 'the trustee', court: 'the sheriff’s civil office', hoa: 'the HOA’s foreclosure agent', irs: 'the IRS', taxSale: 'the Treasurer', lien: 'the treasurer that held the sale' } as Record<string, string>)[kind ?? ''] ?? 'whoever ran the sale';
+const redeemAsk = (d: Pick<Deal, 'kind'>) => { const n = sellerShort(d.kind); return n[0].toUpperCase() + n.slice(1); };
 /** An offer's Closing row marked handled. */
 const closingTicked = (d: { id?: string }) => !!d.id && loadPacket(`analyzed:${d.id}`).dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved && (!x.when || x.when <= localDay(new Date())));
 /** A short sale's dated approval notice. */
@@ -375,7 +377,7 @@ const approvalPassed = (d: { id?: string }) => !!d.id && loadPacket(`analyzed:${
 /** A won bid's open Payment deadline row whose date has passed (its date), else ''. */
 export const paymentPassed = (d: { id?: string }): string => (d.id ? loadPacket(`analyzed:${d.id}`).dates.find((x) => sameDate(x.what, 'Payment deadline') && !x.resolved && !!x.when && x.when < localDay(new Date()))?.when ?? '' : '');
 /** Who sells at this kind of sale (who to contact about a missed payment). */
-export const sellerName = (kind?: string, state?: string): string => ({ trustee: 'the trustee', court: state === 'NV' ? 'the sheriff’s civil office (or the constable named on the notice)' : 'the sheriff’s civil office', hoa: state === 'NV' ? 'the person conducting the sale (the HOA’s foreclosure agent)' : 'the HOA’s foreclosure agent', irs: 'the IRS (the contact named on the notice of sale)', taxSale: 'the Treasurer', lien: state === 'NV' ? 'the city or county treasurer that held the sale' : 'the treasurer that held the sale' } as Record<string, string>)[kind ?? ''] ?? 'the official seller';
+export const sellerName = (kind?: string, state?: string): string => ({ trustee: 'the trustee', court: state === 'NV' ? 'the sheriff’s civil office (or the constable named on the notice)' : 'the sheriff’s civil office', hoa: state === 'NV' ? 'the person conducting the sale (the HOA’s foreclosure agent)' : 'the HOA’s foreclosure agent', irs: 'the IRS office named on the notice of sale', taxSale: 'the Treasurer', lien: state === 'NV' ? 'the city or county treasurer that held the sale' : 'the treasurer that held the sale' } as Record<string, string>)[kind ?? ''] ?? 'the official seller';
 /** An open Closing row whose date has passed. */
 const closingPassed = (d: { id?: string }) => !!d.id && loadPacket(`analyzed:${d.id}`).dates.some((x) => sameEvent(x.what, 'Closing') && !!x.when && !x.resolved && x.when < localDay(new Date()));
 const approvedOn = (d: { id?: string }) => (d.id ? loadPacket(`analyzed:${d.id}`).dates.find((x) => sameDate(x.what, 'Approval notice received') && x.when)?.when ?? '' : '');

@@ -18,7 +18,7 @@ import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
 import { dealProgress } from './roadmapState';
-import { dealNextTask, paidAtWin, paymentPassed, sellerName, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
+import { dealNextTask, paidAtWin, paymentPassed, sellerName, sellerShort, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -146,7 +146,7 @@ const WINDOWS: { name: string; what: string; then: (kind?: string) => string; ti
   { name: 'HOA resale package: cancel by', what: 'your right to cancel over the HOA resale package', tick: 'I didn’t cancel: mark it handled', ask: 'your answer on whether you cancelled, noted in its deal packet', cancel: true, then: () => 'if you cancelled in writing in time, mark the deal passed; if not, mark it handled' },
   { name: 'Defect cancellation deadline', what: 'your right to cancel over a disclosed defect', tick: 'I didn’t cancel: mark it handled', ask: 'your answer on whether you cancelled, noted in its deal packet', cancel: true, then: () => 'if you cancelled in writing in time, mark the deal passed; if not, mark it handled' },
   { name: 'Redemption period ends', what: 'the redemption period', tick: 'No one redeemed: mark it handled',
-    then: (k) => `ask ${k === 'court' ? 'the sheriff’s civil office' : k === 'hoa' ? 'the HOA’s foreclosure agent' : k === 'irs' ? 'the IRS sale officer' : 'whoever ran the sale'} in writing whether anyone redeemed. If no one did, mark it handled and ask for the deed` },
+    then: (k) => `ask ${sellerShort(k)} in writing whether anyone redeemed. If no one did, mark it handled and ask for the deed` },
   { name: 'Challenge window ends', what: 'the challenge window', tick: 'No suit was filed, and the 90-day limit doesn’t apply*: mark it handled', then: () => 'ask your title company or attorney whether any suit was filed, and whether the 90-day limit for anyone not properly notified (NRS 107.080(6)) still runs. If it does, move the end date; if not, mark it handled' },
   { name: 'Recovery-suit window ends', what: 'the recovery-suit window', tick: 'No suit was filed: mark it handled', then: () => 'ask your title company or attorney whether any suit was filed. If not, mark it handled' },
   { name: 'Earliest you may act (unpaid lien)', what: 'the wait before you may act on an unpaid lien', tick: 'Still unpaid, and I’ve asked my attorney: mark it handled', then: () => 'if it’s still unpaid, ask your attorney about your next step, or mark it handled' },
@@ -465,7 +465,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   const certFirst = d.kind === 'irs' ? savedRule({ ...d, plan: 'flip' }) !== 'none' : d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court');
   const out = [(d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court')) || d.kind === 'irs' ? 'Bidder registration (if required)' : 'Bidder registration deadline', 'Sale day', 'Payment deadline', d.kind === 'irs' && certFirst ? 'Certificate of sale received' : certFirst ? 'Certificate of sale recorded' : 'Deed or certificate recorded'];
   const nvCert = d.kind === 'irs' && certFirst
-    ? { what: 'Certificate of sale received', when: 'When you pay the full price.', who: 'The IRS', todo: 'Keep it safe: you hand it in for the deed.', missed: 'Ask the IRS sale officer.', why: '26 U.S.C. 6338(a)' }
+    ? { what: 'Certificate of sale received', when: 'When you pay the full price.', who: 'The IRS', todo: 'Keep it safe: you hand it in for the deed.', missed: 'Ask the IRS office named on the notice of sale.', why: '26 U.S.C. 6338(a)' }
     : d.state === 'NV' && (d.kind === 'hoa' || d.kind === 'court')
     ? { what: 'Certificate of sale recorded', when: 'After the sale.', who: d.kind === 'hoa' ? 'The person who conducted the sale (the HOA’s agent)' : 'The sheriff', todo: 'Get a recorded copy, and insure the property right away.', missed: d.kind === 'hoa' ? 'Ask the HOA’s agent who ran the sale when it will be recorded.' : 'Ask the sheriff’s civil office when it will be recorded.', why: d.kind === 'hoa' ? 'NRS 116.31166(2)' : 'NRS 21.190' }
     : null;
