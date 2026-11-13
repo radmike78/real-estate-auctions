@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CASH_SHORT_AFTER, NO_PRICE_AFTER, cashShortAfter, defaultWords, noPriceAfter, owedWords, settledWords } from './dealPacket';
 import { noRealisticAdvice } from './holdCalc';
-import { nvLienDue, nvPastCutoff } from './dealStage';
+import { nvLienDue, nvPastCutoff, taskHeadParts } from './dealStage';
 
 describe('settledWords: pre-sale advice reworded once the price is agreed, won or paid', () => {
   it('leaves text alone before a price is fixed', () => {
@@ -57,5 +57,17 @@ describe('settledWords: pre-sale advice reworded once the price is agreed, won o
     expect(nvLienDue({ kind: 'lien', state: 'NV', county: 'Washoe' }, p)).toBe('2026-11-20'); // the day after (NRS 271.560)
     expect(nvLienDue({ kind: 'lien', state: 'NV', county: 'Clark' }, p)).toBe('2026-11-23'); // Thursday sale: Clark's office reopens Monday
     expect(nvLienDue({ kind: 'lien', state: 'AZ', county: 'Maricopa' }, p)).toBe('');
+  });
+});
+
+describe('taskHeadParts', () => {
+  it('keeps short tasks whole', () => {
+    expect(taskHeadParts('Pay for Pine St lot as the sale requires', 'Pine St lot')).toEqual(['Pay for Pine St lot as the sale requires', '']);
+  });
+  it('splits a long question after its first sentence, not at a.m.', () => {
+    const l = 'Did you pay for Pine St. lot? Its payment deadline was likely today at 10 a.m. Nevada time* (the day after the sale). If the sale ran into a later day, your deadline is later: change the Sale day first. If you paid, mark it handled.';
+    expect(taskHeadParts(l, 'Pine St. lot')).toEqual(['Did you pay for Pine St. lot?', l.slice('Did you pay for Pine St. lot? '.length)]);
+    const t = 'Pay for Lot 7 before 10 a.m. Nevada time today* (the next business day the office is open; later if the sale ran into a later day) if you were the winner. If you were an alternate, don’t pay yet: wait for the call.';
+    expect(taskHeadParts(t, 'Lot 7')[0]).toMatch(/if you were the winner\.$/);
   });
 });

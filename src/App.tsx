@@ -190,7 +190,7 @@ function parseHash(): Route {
   if (h === 'decide') return { page: 'decide' };
   if (h === 'find-deals') return { page: 'finddeals' };
   if (h === 'deals') return { page: 'deals' };
-  const packet = h.match(/^deals\/packet\/(d[a-z0-9]{1,20})(?:\/(plan|dates|cash|evidence|pros|decision|owned))?$/);
+  const packet = h.match(/^deals\/packet\/(d[a-z0-9]{1,20})(?:\/(plan|dates|cash|evidence|pros|decision|owned|sale-day))?$/);
   if (packet) return { page: 'dealPacket', id: packet[1], section: packet[2] };
   if (h === 'homeowner-help') return { page: 'homeowner' };
   if (h === 'guides') return { page: 'guides', q };

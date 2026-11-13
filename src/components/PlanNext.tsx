@@ -3,7 +3,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
 import { loadDeals, openDeal, type Deal, type DealStage } from '../lib/analyze';
-import { sealedBid, nextOpenDeal, stageTasks, deadlinePassed, needsAnswerNow, pressingWeight, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
+import { taskHeadParts, sealedBid, nextOpenDeal, stageTasks, deadlinePassed, needsAnswerNow, pressingWeight, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf } from '../lib/dealStage';
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
@@ -189,11 +189,11 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
         {finishedNote && <p id="plan-finished-note" className="notice" role="status" tabIndex={-1}>{finishedNote}{/in Find deals\.$/.test(finishedNote) && <> <a href="#/find-deals">Open Find deals&nbsp;→</a></>}</p>}
         <div className={`plan-now-task${task.urgent ? ' urgent' : ''}`}>
           <p className="plan-now-k">{nextLabel}</p>
-          <h3>{task.label}</h3>
+          {(() => { const [head, rest] = taskHeadParts(task.label, deal?.name); return <><h3>{head}</h3>{rest && <p className="plan-now-detail">{rest}</p>}</>; })()}
           <p className="plan-now-produces"><strong>You’ll have:</strong> {task.produces}.</p>
           <div className="plan-now-actions">
             {!(task.answer && deal) && <ContinueButton task={task} dealId={deal?.id} onPlan={onPlan} label={planStarted(now) ? undefined : 'Start'} />}
-            {deal && task.answer && /change the Sale day/.test(task.label) && <a className="btn btn-secondary" href={`#/deals/packet/${deal.id}/dates`}>Change the Sale day in its deal packet →</a>}
+            {deal && task.answer && /change the Sale day/.test(task.label) && <a className="btn btn-secondary" href={`#/deals/packet/${deal.id}/sale-day`}>Change {deal.name ? `${deal.name}’s` : 'its'} Sale day&nbsp;→</a>}
             {deal && <TaskActions task={task} dealId={deal.id} big edit={(f) => { const k = `analyzed:${deal.id}`; savePacket(k, f(loadPacket(k))); progressChanged(); }} after={(el, done) => { if (done) { /* It leaves the plan: the next property comes up (one with a deadline first). */ handOff(deal); } else { setFinishedNote(''); /* (stays on the deal just answered) */ write(DEAL_KEY, `analyzed:${deal.id}`); write(ROADMAP_PATH_KEY, pathForDeal(deal)); progressChanged(); focusTaskIn(el.closest('.plan-now-actions')?.parentElement); } }} />}
           </div>
           {task.support.length > 0 && (

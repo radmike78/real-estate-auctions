@@ -55,8 +55,11 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
     events.forEach((e) => window.addEventListener(e, on));
     return () => events.forEach((e) => window.removeEventListener(e, on));
   }, []);
+  // The Sale day's date field (the SID payment question asks to change it first); else the Key dates heading.
+  const focusSaleDay = () => { const i = loadPacket(key).dates.findIndex((x) => sameDate(x.what, 'Sale day')); const el = (i >= 0 ? document.querySelectorAll('.packet-dates > li')[i]?.querySelector<HTMLElement>('input[type="date"]') : null) ?? document.getElementById('packet-dates'); el?.setAttribute('tabindex', el.tagName === 'INPUT' ? '0' : '-1'); el?.scrollIntoView({ block: 'center' }); el?.focus(); };
   // A link from My plan's next step opens the part of the packet the task is in.
   useEffect(() => {
+    if (section === 'sale-day') { const t = setTimeout(() => focusSaleDay(), 50); return () => clearTimeout(t); }
     if (section) document.getElementById(`packet-${section}`)?.scrollIntoView({ block: 'start' });
   }, [section]);
   const update = (patch: Partial<PacketData>, reviewDates = true) =>
@@ -152,7 +155,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
             : next.setStage ? <button type="button" className="linkish" onClick={() => { setDealStage(deal.id, next.setStage!); setP(loadPacket(key)); focusNext(); }}>Do it now&nbsp;→</button>
             : next.key === 'qa-wait' ? <button type="button" className="linkish" onClick={() => { const i = p.qa.findIndex((x) => x.q && !x.a); const el = document.querySelectorAll<HTMLElement>('textarea[aria-label="Their answer"]')[i]; el?.scrollIntoView({ block: 'center' }); el?.focus(); }}>Record their answer&nbsp;↓</button>
             : /^Enter the new sale date/.test(next.label) ? <button type="button" className="linkish" onClick={() => { const i = p.dates.findIndex((x) => sameDate(x.what, 'Sale day')); const el = document.querySelectorAll('.packet-dates > li')[i]?.querySelector<HTMLElement>('input[type="date"]'); el?.scrollIntoView({ block: 'center' }); el?.focus(); }}>Enter the date&nbsp;↓</button>
-            : /change the Sale day/.test(next.label) ? <button type="button" className="linkish" onClick={() => { const i = p.dates.findIndex((x) => sameDate(x.what, 'Sale day')); const el = (i >= 0 ? document.querySelectorAll('.packet-dates > li')[i]?.querySelector<HTMLElement>('input[type="date"]') : null) ?? document.getElementById('packet-dates'); el?.setAttribute('tabindex', el.tagName === 'INPUT' ? '0' : '-1'); el?.scrollIntoView({ block: 'center' }); el?.focus(); }}>Change the Sale day&nbsp;↓</button>
+            : /change the Sale day/.test(next.label) ? <button type="button" className="linkish" onClick={() => focusSaleDay()}>Change the Sale day&nbsp;↓</button>
             : !next.answer && next.advance ? null
             : !next.answer && !next.href.startsWith(`#/deals/packet/${deal.id}`) ? <a href={next.href}>Go there&nbsp;→</a>
             : !next.answer && /\/(plan|dates|cash|evidence|pros|decision|owned)$/.test(next.href) ? (() => { const sec = /\/(\w+)$/.exec(next.href)![1]; return <button type="button" className="linkish" onClick={() => { const h = document.getElementById(`packet-${sec}`); h?.setAttribute('tabindex', '-1'); /* (the evidence log opens) */ h?.closest('section')?.querySelectorAll('details').forEach((x, i) => { if (i === 0) x.open = true; }); h?.scrollIntoView({ block: 'start' }); h?.focus(); }}>Go to {sec === 'dates' ? 'Key dates' : sec === 'evidence' ? 'the evidence log' : sec === 'owned' ? 'After you buy' : sec === 'decision' ? 'Your decision' : sec === 'pros' ? 'the questions' : sec === 'cash' ? 'the cash' : 'your plan'}&nbsp;↓</button>; })() : null}
