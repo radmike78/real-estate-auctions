@@ -611,7 +611,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </div>
           ) : (
           <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`}>
-            <span>{offer ? 'Walk-away price: your highest offer' : wonBid ? 'Walk-away price: the most this plan could have paid' : 'Walk-away price: stop bidding here'}</span>
+            <span>{boughtOffer ? 'Walk-away price: the most this plan could have paid' : offer ? 'Walk-away price: your highest offer' : wonBid ? 'Walk-away price: the most this plan could have paid' : 'Walk-away price: stop bidding here'}</span>
             <strong>{r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
             <small>
               {r.noBidWorks
@@ -760,7 +760,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {!needsValue && <p className="small">If it takes 3 months longer: <strong>{slower > 0 ? fmtMoney(slower) : `no ${w.bid} works`}</strong>.</p>}
         </>
         )}
-        <p className="muted small">{wonBid ? 'An estimate from the numbers on this page (examples until you type your own)' : <>An estimate to help you set a limit before you {offer ? 'make an offer' : 'bid'}</>}, not advice. Replace every starting number with your own comps, bids and quotes.</p>
+        <p className="muted small">{wonBid || boughtOffer ? 'An estimate from the numbers on this page (examples until you type your own)' : <>An estimate to help you set a limit before you {offer ? 'make an offer' : 'bid'}</>}, not advice. Replace every starting number with your own comps, bids and quotes.</p>
       </div>
 
       {/* On phones the results sit below every input, so keep the answer in view while typing. */}
