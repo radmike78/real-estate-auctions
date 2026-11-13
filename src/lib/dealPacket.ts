@@ -18,7 +18,7 @@ import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
 import { dealProgress } from './roadmapState';
-import { dealNextTask, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
+import { dealNextTask, paidAtWin, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -530,22 +530,23 @@ export const pricePhase = (d: Deal): 'agreed' | 'owed' | 'paid' | null => {
   // A lien certificate is picked, not bid on, and its price is the amount owed: none of these words fit it.
   if (d.kind === 'lien') return null;
   if (['closed', 'owned'].includes(st)) return 'paid';
-  return st === 'contract' ? (['listing', 'reo', 'short'].includes(d.kind) ? 'agreed' : 'owed') : null;
+  // A won bid already marked paid (Eureka's goes in with the sealed bid) is paid, not owed.
+  return st === 'contract' ? (['listing', 'reo', 'short'].includes(d.kind) ? 'agreed' : paidAtWin(d) ? 'paid' : 'owed') : null;
 };
 
 /** What to do when a fixed price needs more cash than you have (no advice on what to offer or bid: that's settled). */
 export const CASH_SHORT_AFTER: Record<'agreed' | 'owed' | 'paid', string> = {
   agreed: 'If you’re borrowing, talk to your lender before you close. If the cash isn’t there, ask your agent or attorney what your contract’s contingencies allow, before their deadlines.*',
-  owed: 'This counts the repairs and holding costs, not only the bid. If you haven’t paid the bid yet, it’s due in full by the sale’s payment deadline, and a loan usually comes only after you own it.* If you can’t cover the bid, contact the official seller and an attorney now. For the repair and holding money, compare a loan with a lender or change the plan: your own situation decides which fits.',
+  owed: 'This counts the repairs and holding costs, not only the bid. If you haven’t paid the bid yet, it’s due in full by the sale’s payment deadline, and a loan usually comes only after you own it.* If you can’t cover the bid, contact the official seller and an attorney now. For the repair and holding money, compare a loan with a lender or change the plan: each person’s situation decides which fits.',
   paid: 'You’ve already paid the price, so this is a check, not a limit. If you used a loan, enter it in the calculator so the cash is right, make sure the repair and holding money still ahead is in hand, and update your savings in My plan so your next deal starts from what’s left.',
 };
 
 /** Where a fixed price's advice is shown: the kind of sale and state (what a winner who doesn't pay faces), and whether
  * the deed is still ahead (a redemption period: no renting or selling yet). */
-export type SettledContext = { kind?: string; state?: string; noDeed?: boolean };
+export type SettledContext = { kind?: string; state?: string; county?: string; noDeed?: boolean; /** The payment and penalty are said elsewhere on the screen (the result at your price): don't repeat them. */ quiet?: boolean };
 
 /** The context for a deal. */
-export const settledCtx = (d: Deal): SettledContext => ({ kind: d.kind, state: d.state, noDeed: !!beforeDeed(d) });
+export const settledCtx = (d: Deal): SettledContext => ({ kind: d.kind, state: d.state, county: d.county, noDeed: !!beforeDeed(d) });
 
 /** What a Nevada winner who doesn't pay the bid faces, by kind of sale. */
 export const defaultWords = (c: SettledContext = {}): string => {
@@ -553,6 +554,8 @@ export const defaultWords = (c: SettledContext = {}): string => {
   if (c.kind === 'trustee') return 'A winner who doesn’t pay can be held liable for any loss when the property is sold again (NRS 107.083).';
   if (c.kind === 'court') return 'A winner who doesn’t pay can be held liable for any loss when the property is sold again (NRS 21.160).';
   if (c.kind === 'irs') return 'If a deferred payment isn’t made, the IRS can sue for it with 6% interest, or cancel the sale and keep what you paid (26 U.S.C. 6335(e)(3)).';
+  // Eureka's sealed-bid sale takes the full payment with the bid: no deposit to lose.
+  if (c.kind === 'taxSale' && c.county === 'Eureka') return 'If your sealed bid’s payment wasn’t accepted, ask the Treasurer what happens next.*';
   if (c.kind === 'taxSale') return 'The Treasurer’s sale terms say what happens if you don’t pay; you may lose your deposit and be barred from later sales.*';
   if (c.kind === 'hoa') return 'The foreclosure agent’s terms say what happens if you don’t pay.*';
   return '';
@@ -567,9 +570,9 @@ export const owedWords = (bidDue: number, limit: number, limitWord: string, c?: 
   : CASH_SHORT_AFTER.owed, c);
 
 /** The cash advice at a fixed price, with what not paying costs when a won bid may still be owed. */
-export const cashShortAfter = (phase: 'agreed' | 'owed' | 'paid', c?: SettledContext): string => (phase === 'owed' ? withDefault(CASH_SHORT_AFTER.owed, c) : CASH_SHORT_AFTER[phase]);
+export const cashShortAfter = (phase: 'agreed' | 'owed' | 'paid', c?: SettledContext): string => (phase === 'owed' ? (c?.quiet ? 'The cash at your winning bid, and when it’s due, is shown with your result.' : withDefault(CASH_SHORT_AFTER.owed, c)) : CASH_SHORT_AFTER[phase]);
 
-const OPTIONS = 'talk to your advisors about your options (keeping, renting or selling it): your own situation decides which fits.';
+const OPTIONS = 'talk to your advisors about your options (such as keeping, renting or selling it): each person’s situation decides which fits.';
 
 /** What to do when no price works at a price already agreed, won or paid (no walking away from a won bid). */
 export const NO_PRICE_AFTER: Record<'agreed' | 'owed' | 'paid', string> = {
@@ -581,8 +584,8 @@ export const NO_PRICE_AFTER: Record<'agreed' | 'owed' | 'paid', string> = {
 /** NO_PRICE_AFTER for this sale: what not paying costs, and no renting or selling before the deed. */
 export const noPriceAfter = (phase: 'agreed' | 'owed' | 'paid', c?: SettledContext): string => {
   if (phase === 'agreed') return NO_PRICE_AFTER.agreed;
-  const check = c?.noDeed ? `Check the numbers against evidence. Until the redemption period ends and the deed is yours, the property can still be redeemed; once it’s yours, ${OPTIONS}` : `Check the numbers against evidence, then ${OPTIONS}`;
-  return phase === 'owed' ? withDefault(`If you haven’t paid the bid yet, it’s still due by the sale’s payment deadline. ${check}`, c) : check;
+  const check = c?.noDeed ? `Check the numbers against evidence. Until the redemption period ends and the deed is yours, ask your attorney before renting, selling or remodeling; once it’s yours, ${OPTIONS}` : `Check the numbers against evidence, then ${OPTIONS}`;
+  return phase === 'owed' && !c?.quiet ? `${withDefault('If you haven’t paid the bid yet, it’s still due by the sale’s payment deadline.', c)} ${check}` : check;
 };
 
 /** Pre-sale words (walk away, skip it, no bid fits, the walk-away price) reworded once the price is agreed, won or paid. */
@@ -597,7 +600,8 @@ export function settledWords(t: string, phase: 'agreed' | 'owed' | 'paid' | null
   if (phase !== 'agreed') s = s
     .replace(/What-if, at your walk-away price of (\$[\d,]+) \(the most you could have paid, not your price\)/g, 'What-if, at the most this plan could have paid ($1, not your price)')
     .replace(/Walk-away price, set by/g, 'The most this plan could have paid, set by')
-    .replace(/\bwalk-away price (\$[\d,]+)/g, 'the most this plan could have paid, $1');
+    .replace(/\bwalk-away price (\$[\d,]+)/g, 'the most this plan could have paid, $1')
+    .replace(/(the most this plan could have paid, \$[\d,]+), the most you could have paid and still meet/g, '$1, which would still have met');
   return s;
 }
 

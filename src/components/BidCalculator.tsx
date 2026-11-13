@@ -1,4 +1,4 @@
-import { cashShortAfter, noPriceAfter, owedWords, type SettledContext, noRedemptionWords, shortestRedemptionMonths, shortestRedemptionWords, shorterThanLaw, waitWords } from '../lib/dealPacket';
+import { cashShortAfter, noPriceAfter, owedWords, pricePhase, type SettledContext, noRedemptionWords, shortestRedemptionMonths, shortestRedemptionWords, shorterThanLaw, waitWords } from '../lib/dealPacket';
 import { loadDeals, type Deal } from '../lib/analyze';
 import { beforeDeed, savedStageOf } from '../lib/dealStage';
 import { getMyArea } from '../lib/myArea';
@@ -186,7 +186,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   // (Once the price is fixed, agreed, won or paid, the figures are about prices, not a bid or offer to make.)
   const fixedPrice = agreed || wonBid || boughtOffer;
   const ownDeal = saveAs?.startsWith('analyzed-') ? loadDeals().find((x) => `analyzed-${x.id}` === saveAs) : undefined;
-  const phase: 'agreed' | 'owed' | 'paid' | null = agreed ? 'agreed' : boughtOffer ? 'paid' : wonBid ? (savedStageOf(saveAs!.slice('analyzed-'.length)) === 'contract' ? 'owed' : 'paid') : null;
+  // Where the fixed price stands: agreed, a won bid still owed, or paid (a win marked paid counts as paid).
+  const phase: 'agreed' | 'owed' | 'paid' | null = fixedPrice && ownDeal ? pricePhase(ownDeal) : null;
   const w = fixedPrice
     ? { bid: 'price', Bid: 'Price', opening: offer ? 'asking price' : 'opening bid', Opening: offer ? 'Asking price' : 'Opening bid', max: wonBid || boughtOffer ? 'The most this plan could have paid' : 'The most this plan could pay', day: offer ? 'at closing' : 'on auction day' }
     : offer
@@ -194,7 +195,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     : { bid: 'bid', Bid: 'Bid', opening: 'opening bid', Opening: 'Opening bid', max: 'Your maximum bid', day: 'on auction day' };
   const region = useCalcRegion();
   // What a winner who doesn't pay faces, and whether the deed is still ahead, for the after-price advice.
-  const sctx: SettledContext = { kind: saleKind, state: region.state ?? undefined, noDeed: !!ownDeal && wonBid && !!beforeDeed(ownDeal) };
+  const sctx: SettledContext = { kind: saleKind, state: region.state ?? undefined, county: ownDeal?.county, noDeed: !!ownDeal && wonBid && !!beforeDeed(ownDeal) };
   // Your area's city, when it's in this deal's county (a city rate, such as the City of Riverside's).
   const myArea = getMyArea();
   const tax = transferTaxFor(region.state, region.county, myArea && myArea.state === region.state && myArea.county === region.county ? myArea.city : null);
@@ -605,7 +606,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <p className="small muted" id={`${uid}-rule-confirmed`} tabIndex={-1}>{ruleNow === 'custom' && choices?.start === 'none' ? <>Confirmed by you: no redemption rule applies to this sale (your {Math.round(i.redemptionMonths * 10) / 10}-month wait is a what-if).</> : <>Redemption rule confirmed by you: {ruleNow === 'custom' ? `your own numbers, ${waitWords(Math.round(i.redemptionMonths * 10) / 10)}` : offered[ruleNow]?.label}.</>} <button type="button" className="linkish" onClick={() => { update({ redemptionChecked: 0 }); setTimeout(() => document.querySelector<HTMLInputElement>('.calc-unconfirmed input[type="checkbox"]')?.focus(), 0); }}>Undo</button></p>
         )}
         <ExampleResults count={needsValue ? 0 : still.length} />
-        {!needsValue && !r.noBidWorks && !cashShort && <PriceHead level={3} kind="target" label="Walk-away price" price={r.noBidWorks || cashShort ? null : r.maxBid} result={r.noBidWorks || cashShort ? null : r.profit} unit="profit" note={r.noBidWorks || cashShort ? undefined : `Not the result at ${yours.toLowerCase()}: this is the most you could ${wonBid || boughtOffer ? 'have paid' : 'pay'} and still meet ${gw}.`} />}
+        {!needsValue && !r.noBidWorks && !cashShort && <PriceHead level={3} kind="target" label={(phase === 'owed' || phase === 'paid') ? 'The most this plan could have paid' : 'Walk-away price'} price={r.noBidWorks || cashShort ? null : r.maxBid} result={r.noBidWorks || cashShort ? null : r.profit} unit="profit" note={r.noBidWorks || cashShort ? undefined : `Not the result at ${yours.toLowerCase()}: this is the most you could ${wonBid || boughtOffer ? 'have paid' : 'pay'} and still meet ${gw}.`} />}
         {needsValue ? (
           <div className="calc-max">
             <span>Walk-away price</span>
@@ -616,18 +617,18 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           cashShort ? (
           <div className="calc-max bad">
             <span>{phase === 'owed' || phase === 'paid' ? 'The most this plan could have paid' : 'Walk-away price'}</span>
-            <strong>{phase ? `At the ${w.opening}, this needs more cash than you have` : <>No {w.bid} at the {w.opening} fits your cash</>}</strong>
-            <small>At the {w.opening} you’d need about {fmtMoney(Math.round(openingCash))}: the {w.bid} plus repairs and every cost until you sell. The deal itself allows {w.bid}s up to {fmtMoney(r.profitBid)}.</small>
+            <strong>{phase ? 'Your cash doesn’t cover these costs' : <>No {w.bid} at the {w.opening} fits your cash</>}</strong>
+            <small>{phase ? `The deal itself allows prices up to ${fmtMoney(r.profitBid)}. The cash at ${yours.toLowerCase()} is shown with your result below.` : <>At the {w.opening} you’d need about {fmtMoney(Math.round(openingCash))}: the {w.bid} plus repairs and every cost until you sell. The deal itself allows {w.bid}s up to {fmtMoney(r.profitBid)}.</>}</small>
           </div>
           ) : (
           <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`}>
-            <span>{boughtOffer ? 'Walk-away price: the most this plan could have paid' : agreed ? 'Walk-away price: the most this plan could pay' : offer ? 'Walk-away price: your highest offer' : wonBid ? 'Walk-away price: the most this plan could have paid' : 'Walk-away price: stop bidding here'}</span>
+            <span>{boughtOffer || wonBid ? 'The most this plan could have paid' : agreed ? 'Walk-away price: the most this plan could pay' : offer ? 'Walk-away price: your highest offer' : wonBid ? 'Walk-away price: the most this plan could have paid' : 'Walk-away price: stop bidding here'}</span>
             <strong>{r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
             <small>
               {r.noBidWorks
                 ? r.limitedBy === 'cash' && r.profitBid > 0
                   ? `Your cash doesn’t cover the repairs and costs until you sell, even before a ${w.bid}. ${twCap} alone would allow ${fmtMoney(r.profitBid)}.`
-                  : `Even at $0, costs leave less than ${tw}. ${phase ? `At ${yours.toLowerCase()} this plan loses money. ${noPriceAfter(phase, sctx)}` : 'Walk away or change your plan.'}`
+                  : `Even at $0, costs leave less than ${tw}. ${phase ? `At ${yours.toLowerCase()} this plan loses money. ${noPriceAfter(phase, { ...sctx, quiet: true })}` : 'Walk away or change your plan.'}`
                 : r.limitedBy === 'cash'
                   ? `Set by the cash you can bring: the ${w.bid} plus every cost until you sell (repairs, holding, fees). ${twCap} alone would allow ${fmtMoney(r.profitBid)}.`
                   : noDollarTarget ? 'No profit target set yet: enter the dollar profit you want under “Profit you want”.' : targetIsExample ? `Leaves our example profit target, ${i.targetProfitPct}% of the resale value (${fmtMoney(Math.round(target))})${minBelowExample ? `, which is more than your ${fmtMoney(nz(i.targetProfitMin))} minimum` : ''}, after every cost. Set your own percent under “Profit you want”. Not a guarantee.` : `Leaves your ${fmtMoney(Math.round(target))} profit target after every cost, based on your numbers. Not a guarantee.`}
@@ -648,7 +649,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
               dealFails ? (
                 <><strong>{noTarget0 ? 'Doesn’t break even' : `Misses ${targetIsExample ? 'our example target' : 'your target'}`} at the {w.opening}.</strong> At {fmtMoney(i.minimumBid)} your profit would be {fmtMoney(Math.round(atOpening))}, {noTarget0 ? 'below break-even.' : <>below {targetIsExample ? 'our example' : 'your'} {fmtMoney(Math.round(target))} target.</>} {agreed ? 'Check your result at the agreed price below.' : `Your result at ${wonBid ? 'your winning bid' : 'the price you paid'} is below.`}</>
               ) : (
-                <><strong>{planShort || cashShort ? `At the ${w.opening}, this needs more cash than ${planShort ? 'My plan shows' : 'you entered'}.` : `Meets ${tw} at the ${w.opening}, with the numbers entered.`}</strong> At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}{planShort || cashShort ? <>, with about {fmtMoney(Math.round(openingCash))} of cash needed through repairs and holding</> : null}. Your result at {agreed ? 'the agreed price' : wonBid ? 'your winning bid' : 'the price you paid'} is below.{agreed && (planShort || cashShort) ? ' Talk to your lender before you close.' : ''}{unenteredNote}</>
+                <><strong>{planShort || cashShort ? 'For your records:' : `Meets ${tw} at the ${w.opening}, with the numbers entered.`}</strong> At the {w.opening} your profit would be about {fmtMoney(Math.round(atOpening))}{planShort || cashShort ? <>, with about {fmtMoney(Math.round(openingCash))} of cash needed through repairs and holding</> : null}. Your result at {agreed ? 'the agreed price' : wonBid ? 'your winning bid' : 'the price you paid'} is below.{agreed && (planShort || cashShort) ? ' Talk to your lender before you close.' : ''}{unenteredNote}</>
               )
             ) : dealFails ? (
               offer ? (
@@ -676,13 +677,13 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
               {steps.map((st, n) => <div key={st.label} className={n === 0 ? 'first' : ''}><dt>{st.label}</dt><dd>{n === 0 ? fmtMoney(st.amount) : `− ${fmtMoney(-st.amount)}`}</dd></div>)}
               <div className="total"><dt>{r.limitedBy === 'cash' ? 'Most the deal allows' : w.max}</dt><dd>{fmtMoney(r.profitBid)}</dd></div>
             </dl>
-            {r.limitedBy === 'cash' && <p className="small muted">The cash you can bring sets your walk-away price lower than this.</p>}
+            {r.limitedBy === 'cash' && <p className="small muted">{(phase === 'owed' || phase === 'paid') ? 'The cash you entered set this lower than the profit target alone would.' : 'The cash you can bring sets your walk-away price lower than this.'}</p>}
           </div>
         )}
         {!r.noBidWorks && !needsValue && (
           <dl className="calc-kv">
             {!offer && <div><dt>{wonBid ? 'Cash needed at the most this plan could have paid' : 'Cash needed on auction day, at the walk-away price'}</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
-            <div><dt>Estimated cash you’d put in, at the walk-away price, under these assumptions</dt><dd>{fmtMoney(r.cashPeak)}</dd></div>
+            <div><dt>Estimated cash you’d put in, at {(phase === 'owed' || phase === 'paid') ? 'the most this plan could have paid' : 'the walk-away price'}, under these assumptions</dt><dd>{fmtMoney(r.cashPeak)}</dd></div>
             {i.financedPct > 0 && r.cashToStabilize < r.cashPeak && <div><dt>Cash left in after the loan funds, at the walk-away price</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>}
             <div><dt>Profit at {phase === 'owed' || phase === 'paid' ? 'the most this plan could have paid' : 'the walk-away price'}{Math.round(r.profit) !== Math.round(target) ? (noTarget0 ? ' (no profit target set yet)' : ` (${targetIsExample ? 'our example target' : 'your target'}: ${fmtMoney(Math.round(target))})`) : ''}</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
             <div><dt>Return on your cash, per year, if it sells on schedule</dt><dd>{yr(r.yearlyReturn)}</dd></div>

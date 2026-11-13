@@ -41,4 +41,10 @@ describe('settledWords: pre-sale advice reworded once the price is agreed, won o
     expect(noPriceAfter('owed', {})).toMatch(/^If you haven’t paid the bid yet, it’s still due/);
     expect(noPriceAfter('agreed', { noDeed: true })).toBe(NO_PRICE_AFTER.agreed);
   });
+  it('says the payment and penalty once: quiet where the result at your price already does', () => {
+    expect(noPriceAfter('owed', { state: 'NV', kind: 'court', quiet: true })).not.toMatch(/still due|NRS 21\.160/);
+    expect(noPriceAfter('owed', { state: 'NV', kind: 'court' })).toMatch(/still due by the sale’s payment deadline\. A winner who doesn’t pay can be held liable for any loss when the property is sold again \(NRS 21\.160\)\. Check/);
+    expect(settledWords('What-if: walk-away price $5, the most you could have paid and still meet our example target', 'paid')).toBe('What-if: the most this plan could have paid, $5, which would still have met our example target');
+    expect(defaultWords({ state: 'NV', kind: 'taxSale', county: 'Eureka' })).not.toMatch(/deposit/);
+  });
 });
