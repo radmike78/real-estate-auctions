@@ -111,12 +111,12 @@ export function purchaseSteps(p: Property): string[] {
     case 'COURT_CONFIRMATION_REQUIRED':
       return [
         `Confirm the sale is still on with ${s?.conductedBy ?? 'the conducting agency'} the day before. Sales are often postponed at the last minute.`,
-        'Bring government ID and complete any required bidder affidavit.',
-        `Bring certified funds: ${s?.deposit ?? 'check the posted requirements'}.${s?.saleType === 'TRUSTEE_SALE' ? " Trustee sales in Nevada usually require cashier's checks." : ''}`,
-        p.status === 'SEALED_BID'
-          ? `Deliver your sealed bid to ${s?.location} before the deadline.`
-          : `Attend the auction at ${s?.location} on ${s?.startsAt ? fmtDateTime(s.startsAt) : 'the posted date'}.`,
-        'Bid under the auctioneer or trustee procedures announced at the sale.',
+        ...(s?.saleType === 'TAX_DEED'
+          ? [`Register and pay the deposit by the deadline in the auction notice: ${s?.deposit ?? 'check the notice'} (there’s no registration on auction day).`, 'Bring your bidder card and government ID on auction day.']
+          : ['Bring government ID and complete any required bidder affidavit.', `${p.status === 'SEALED_BID' ? 'Enclose' : 'Bring'} certified funds: ${s?.deposit ?? 'check the posted requirements'}.${s?.saleType === 'TRUSTEE_SALE' ? " Trustee sales in Nevada usually require cashier's checks." : ''}`]),
+        ...(p.status === 'SEALED_BID'
+          ? [`Send your sealed bid so it arrives before the deadline in the notice of sale. Where: ${(s?.location ?? 'see the notice').replace(/^Sealed bids delivered to /, '')}.`, 'The bids are opened on the sale date, and the notice says how the winner is told.']
+          : [`Attend the auction at ${s?.location} on ${s?.startsAt ? fmtDateTime(s.startsAt) : 'the posted date'}.`, `Bid under the procedures announced at the sale by ${s?.conductedBy ?? 'whoever conducts it'}.`]),
         `Pay any remaining balance by ${s?.finalPaymentDeadline ? fmtDate(s.finalPaymentDeadline) : 'the posted deadline'}.`,
         p.status === 'COURT_CONFIRMATION_REQUIRED'
           ? 'You receive a certificate of sale. Wait for the redemption period to end before the deed is issued.'
