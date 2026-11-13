@@ -385,8 +385,8 @@ export const nvNow = (now = new Date()) => nvParts(now);
 export const nvPastCutoff = (now: Date, county?: string) => nvParts(now).hour >= nvCutHour(county);
 /** A Nevada SID lien's payment row counted in Nevada days, and overdue from 10 a.m. Nevada time on its date (for summaries). */
 export const nvPayDays = <T extends { what: string; when: string; days: number }>(d: { kind?: Deal['kind']; state?: Deal['state']; county?: string }, nd: T | null, now: Date, p?: PacketData): T | null => {
-  if (nd && nd.when && sealedBid(d) && sameDate(nd.what, SEALED_ROW)) { const days = Math.round((Date.parse(`${nd.when}T12:00:00Z`) - Date.parse(`${nvParts(now).day}T12:00:00Z`)) / 86400000); return { ...nd, days, sealedPast: days === 0 && nvParts(now).hour >= 16 }; }
-  if (nd && nd.when && p && d.state === 'NV' && d.kind === 'taxSale' && sameDate(nd.what, 'SID certificate payoff') && sidDeadline(p) && nd.when < sidDeadline(p) && sidDeadline(p) >= localDay(now)) return { ...nd, when: sidDeadline(p), days: Math.round((Date.parse(`${sidDeadline(p)}T12:00:00Z`) - Date.parse(`${localDay(now)}T12:00:00Z`)) / 86400000) };
+  if (nd && nd.when && sealedBid(d) && sameDate(nd.what, SEALED_ROW)) { const days = Math.round((Date.parse(`${nd.when}T12:00:00Z`) - Date.parse(`${nvParts(now).day}T12:00:00Z`)) / 86400000); return { ...nd, days, sealedPast: days < 0 || (days === 0 && nvParts(now).hour >= 16) }; }
+  if (nd && nd.when && p && d.state === 'NV' && d.kind === 'taxSale' && sameDate(nd.what, 'SID certificate payoff') && sidDeadline(p) && nd.when < sidDeadline(p)) return { ...nd, when: sidDeadline(p), days: Math.round((Date.parse(`${sidDeadline(p)}T12:00:00Z`) - Date.parse(`${localDay(now)}T12:00:00Z`)) / 86400000) };
   if (!nd || d.kind !== 'lien' || d.state !== 'NV' || !nd.when || !sameDate(nd.what, 'Payment deadline')) return nd;
   const days = Math.round((Date.parse(`${nd.when}T12:00:00Z`) - Date.parse(`${nvParts(now).day}T12:00:00Z`)) / 86400000);
   return { ...nd, days, pastCutoff: days === 0 && nvPastCutoff(now, d.county), winnerPast: days === 0 && d.county === 'Clark' && nvPastCutoff(now) && !nvPastCutoff(now, d.county) };
@@ -1056,11 +1056,33 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     // A Nevada SID lien's payment deadline counts Nevada days (its 10 a.m. cutoff is Nevada time), wherever the reader is.
     if (nd && d.kind === 'lien' && d.state === 'NV' && sameDate(nd.what, 'Payment deadline') && nd.when) nd = { ...nd, days: Math.round((Date.parse(`${nd.when}T12:00:00Z`) - Date.parse(`${nvParts(now).day}T12:00:00Z`)) / 86400000) };
     // (An SID payoff row dated before the 20-day deadline counts to that deadline, not to your own earlier date.)
-    if (nd && d.state === 'NV' && d.kind === 'taxSale' && sameDate(nd.what, 'SID certificate payoff') && nd.days < 0 && sidDeadline(p) && sidDeadline(p) >= localDay(now)) nd = { ...nd, when: sidDeadline(p), days: Math.round((Date.parse(`${sidDeadline(p)}T12:00:00Z`) - Date.parse(`${localDay(now)}T12:00:00Z`)) / 86400000) };
+    if (nd && d.state === 'NV' && d.kind === 'taxSale' && sameDate(nd.what, 'SID certificate payoff') && nd.when && sidDeadline(p) && nd.when < sidDeadline(p)) nd = { ...nd, when: sidDeadline(p), days: Math.round((Date.parse(`${sidDeadline(p)}T12:00:00Z`) - Date.parse(`${localDay(now)}T12:00:00Z`)) / 86400000) };
     // A Nevada tax sale whose SID payoff came after the 20 days: whether the sale stands (or the refund) comes first.
     const sidOpen = ['contract', 'closed', 'owned'].includes(stage) && d.state === 'NV' && d.kind === 'taxSale' ? sidTasks(d, p, now, d.name || 'this property').find((t) => !t.done) : undefined;
     if (sidOpen) return sidOpen;
     // (Preparing to bid, with the sale days away: that stage's own tasks lead; Key dates keeps the countdown.)
+    // A Eureka sealed bid not yet sent, before the sale (Researching or Preparing to bid): one set of steps in Nevada days,
+    // with or without a bid row, research done or not. The bid deadline is the row's date, else the Treasurer's last open day.
+    if ((stage === 'researching' || stage === 'offer') && sealedBid(d) && !ticked(p, SEALED_ROW)) {
+      const nvD = (w: string) => Math.round((Date.parse(`${w}T12:00:00Z`) - Date.parse(`${nvParts(now).day}T12:00:00Z`)) / 86400000);
+      const saleOn = p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when ?? '';
+      const rowOn = p.dates.find((x) => sameDate(x.what, SEALED_ROW) && x.when)?.when ?? '';
+      const due = rowOn || (saleOn ? sealedDay(p) : '');
+      if (due && saleOn && nvD(saleOn) >= 1 && nvD(due) <= 7 && !(rowOn && nvD(rowOn) < 0) && !(rowOn && rowOn >= saleOn)) {
+        const n = d.name || 'this property';
+        const left = nvD(due);
+        const nvHour = nvParts(now).hour;
+        if (left < 0 || (left === 0 && nvHour >= 16)) return task({ key: 'date', days: left < 0 ? left : -1, answer: true, label: `Did you send the sealed bid for ${n}? It was due ${left === 0 ? `today (${prettyDay(due)})` : prettyDay(due)}, by the notice’s deadline (usually 4 p.m. Nevada time)${rowOn ? '' : ', the Treasurer’s last open day before the sale*'}. If you sent your bid and payment in time, mark it sent; if not, you can’t bid at this sale: mark the deal passed.`, produces: 'your answer: the bid marked sent, or the deal marked passed', href: packetHref(d, 'dates'), tick: { label: 'I sent my sealed bid and payment in time: mark it sent', row: SEALED_ROW, when: due, who: 'You' }, advance2: { stage: 'passed' as DealStage, label: 'I didn’t send a bid: mark it passed' }, support: [], done: false });
+        const t0 = stageTasks(d, stage, p, now).find((t) => !t.done && t.key !== 'dates' && t.key !== 'stage' && !/sealed bid/i.test(t.label));
+        const when = left === 0 ? 'today' : left === 1 ? 'tomorrow' : `in ${left} days`;
+        const rule = `They must reach the Eureka County Treasurer’s office by the notice’s deadline that day (usually 4 p.m. Nevada time${rowOn ? '' : '*'}), by USPS, FedEx, UPS or by hand; a late bid isn’t accepted.`;
+        const label = left <= 1
+          ? `Send the sealed bid and full payment for ${n} now: they’re due ${when} (${prettyDay(due)}). ${rule}${t0 ? ` Before you send them: ${t0.label.charAt(0).toLowerCase()}${t0.label.slice(1).replace(/[.?!]$/, '')}.` : ''}`
+          : t0 ? `The sealed bid and full payment for ${n} are due ${when} (${prettyDay(due)}). ${rule} First: ${t0.label.charAt(0).toLowerCase()}${t0.label.slice(1).replace(/[.?!]$/, '')}.` : `Send the sealed bid and full payment for ${n} by ${prettyDay(due)} (${when}). ${rule}`;
+        const base = t0 && left > 1 ? t0 : task({ key: 'date', label, produces: 'your sealed bid and full payment sent in time, marked sent in its deal packet', href: packetHref(d, 'dates'), support: [], done: false });
+        return { ...base, label, text: label, days: left, urgent: left <= 1, tick: { label: 'I sent my sealed bid and payment: mark it sent', row: SEALED_ROW, when: due, who: 'You' } };
+      }
+    }
     // (Still researching a sealed-bid sale: the research leads, counting to the bid deadline; once it checked out, the bid row does.)
     const sealedRowNd = !!nd && stage === 'researching' && sealedBid(d) && sameDate(nd.what, SEALED_ROW) && !ticked(p, SEALED_ROW);
     const bidPrep = (stage === 'offer' || stage === 'researching') && wayOf(d) !== 'offer' && nd && (sealedBid(d) && nd.when ? Math.round((Date.parse(`${nd.when}T12:00:00Z`) - Date.parse(`${nvParts(now).day}T12:00:00Z`)) / 86400000) : nd.days) >= (sealedRowNd ? 0 : 1) && (sameEvent(nd.what, 'Sale day') || sealedRowNd) && stageTasks(d, stage, p, now).some((t) => !t.done && t.key !== 'dates' && t.key !== 'stage');
@@ -1118,7 +1140,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
         ended.then = c.then; ended.tick = c.tick;
       } else if (ended && !late90Ahead) ended.then = ended.then.replace('If it does, move the end date; if not, mark it handled', 'If none was filed, mark it handled');
       const sidRow = sameDate(nd.what, 'SID certificate payoff') ? p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && x.when)?.when ?? '' : '';
-      const sidNote = sidRow && sidRow > nd.when ? ` The deadline is ${prettyDay(nd.when)}, 20 days after the sale; your date, ${prettyDay(sidRow)}, is later. If it isn’t paid by then, the sale is void (NRS 361.595(6)).` : '';
+      const sidNote = sidRow && sidRow > nd.when ? ` The deadline is ${prettyDay(nd.when)}, 20 days after the sale; your date, ${prettyDay(sidRow)}, is later. If it isn’t paid by then, the sale is void (NRS 361.595(6)).` : sidRow && sidRow < nd.when ? ` The deadline is ${prettyDay(nd.when)}, 20 days after the sale (your planned date, ${prettyDay(sidRow)}, has passed). If it isn’t paid by then, the sale is void (NRS 361.595(6)).` : '';
       const inspectionEnded = nd.days < 0 && stage === 'contract' && sameEvent(nd.what, 'Inspection period ends');
       // (An appraisal or loan deadline that has passed: resolved, or cancelled in writing in time, as the contract allows.)
       const contingencyEnded = nd.days < 0 && stage === 'contract' && wayOf(d) === 'offer' && (sameEvent(nd.what, 'Appraisal deadline') || sameEvent(nd.what, 'Appraisal addendum deadline') || sameEvent(nd.what, 'Loan approval deadline'));

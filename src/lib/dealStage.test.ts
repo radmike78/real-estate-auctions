@@ -1722,7 +1722,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const t2 = new Date(now); t2.setDate(t2.getDate() + 2);
     const sp = { ...EMPTY_PACKET, dates: [{ when: t1.toLocaleDateString('en-CA'), what: 'Sealed bid and full payment due', who: 'You' }, { when: t2.toLocaleDateString('en-CA'), what: 'Sale day', who: 'Treasurer' }] };
     const t = dealNextTask(eu, sp, now, 'offer');
-    expect(t.label).toMatch(/Sealed bid and full payment due/);
+    expect(t.label).toMatch(/Send the sealed bid and full payment/);
     expect(t.tick?.label).toMatch(/I sent my sealed bid/);
   });
   it('round 40 verifier: a ticked sealed-bid row carried to a Clark sale is not its payment', async () => {
