@@ -113,7 +113,7 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
         {!owns && <li><strong>Wire instructions confirmed by phone</strong> with your title or escrow company, using a number you looked up yourself. <a href="#/learn/negotiate">Why</a></li>}
         <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor, agent and financial advisor {owns ? 'before you spend more on it or borrow against it' : 'before you bid, buy or borrow'}.</li>
       </ul>
-      <p className="muted small">Can’t check one yet? Get the answer {owns ? 'before you rely on these numbers' : 'before you sign or bid'}.</p>
+      <p className="muted small">Can’t check one yet? Get the answer {owns ? 'before you rely on these numbers' : !!dealId && ['listing', 'reo', 'short'].includes(saleKind ?? '') && loadDeals().find((x) => x.id === dealId)?.stage === 'contract' ? 'before you close' : 'before you sign or bid'}.</p>
     </section>
   );
 }

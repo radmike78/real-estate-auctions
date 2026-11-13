@@ -179,6 +179,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const storeId = propertyId ?? saveAs;
   // (A saved auction deal you've already won: its price is the winning bid, not a planned one.)
   const boughtOffer = offer && !!saveAs && saveAs.startsWith('analyzed-') && ['closed', 'owned'].includes(loadDeals().find((x) => `analyzed-${x.id}` === saveAs)?.stage ?? '');
+  const agreed = offer && !!saveAs && saveAs.startsWith('analyzed-') && loadDeals().find((x) => `analyzed-${x.id}` === saveAs)?.stage === 'contract';
   const wonBid = !offer && !!saveAs && saveAs.startsWith('analyzed-') && ['contract', 'closed', 'owned'].includes(loadDeals().find((x) => `analyzed-${x.id}` === saveAs)?.stage ?? '');
   // Words for an auction bid, or an offer on a listed home.
   const w = offer
@@ -611,7 +612,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           </div>
           ) : (
           <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`}>
-            <span>{boughtOffer ? 'Walk-away price: the most this plan could have paid' : offer ? 'Walk-away price: your highest offer' : wonBid ? 'Walk-away price: the most this plan could have paid' : 'Walk-away price: stop bidding here'}</span>
+            <span>{boughtOffer ? 'Walk-away price: the most this plan could have paid' : agreed ? 'Walk-away price: the most this plan could pay' : offer ? 'Walk-away price: your highest offer' : wonBid ? 'Walk-away price: the most this plan could have paid' : 'Walk-away price: stop bidding here'}</span>
             <strong>{r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
             <small>
               {r.noBidWorks
@@ -710,7 +711,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         <>
         <div className="calc-field calc-bid">
           <label className="calc-label" htmlFor={`${uid}-bid`}>{wonBid ? 'Your winning bid' : boughtOffer ? 'The price you paid' : <>Check {offer ? 'an offer' : 'a bid'}</>}</label>
-          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="text" inputMode="decimal" autoComplete="off" value={bidText} placeholder={offer ? 'e.g. the offer you plan to make' : wonBid ? 'the bid you won with' : 'e.g. a bid you expect to beat'} aria-invalid={bidBad || undefined} aria-describedby={bidBad ? `${uid}-bid-err` : undefined} onBlur={rerender} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); if (e.target.value.trim() !== '' && calculatorInputError(e.target.value, '$')) return; update({ proposedPrice: clampInput('proposedPrice', toNum(e.target.value)) }); }} /></span>
+          <span className="calc-input"><i aria-hidden>$</i><input id={`${uid}-bid`} type="text" inputMode="decimal" autoComplete="off" value={bidText} placeholder={agreed ? 'e.g. the agreed price' : offer ? 'e.g. the offer you plan to make' : wonBid ? 'the bid you won with' : 'e.g. a bid you expect to beat'} aria-invalid={bidBad || undefined} aria-describedby={bidBad ? `${uid}-bid-err` : undefined} onBlur={rerender} onChange={(e) => { trackAction('calculator_used', true); setBidText(e.target.value); if (e.target.value.trim() !== '' && calculatorInputError(e.target.value, '$')) return; update({ proposedPrice: clampInput('proposedPrice', toNum(e.target.value)) }); }} /></span>
           {bidBad && <small className="deal-urgent" role="status" id={`${uid}-bid-err`}>{calculatorInputError(bidText, '$')}</small>}
         </div>
         {atBid && profit !== null && <PriceHead level={3} kind="yours" label={yours} price={bid} result={profit} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(cashNeededAtBid(i, bid)))}.${saveAs && !propertyId ? ' Saved with this deal as your price; its deal packet uses it.' : propertyId ? ' Saved for this property in this browser.' : ''}`} />}
@@ -760,7 +761,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {!needsValue && <p className="small">If it takes 3 months longer: <strong>{slower > 0 ? fmtMoney(slower) : `no ${w.bid} works`}</strong>.</p>}
         </>
         )}
-        <p className="muted small">{wonBid || boughtOffer ? 'An estimate from the numbers on this page (examples until you type your own)' : <>An estimate to help you set a limit before you {offer ? 'make an offer' : 'bid'}</>}, not advice. Replace every starting number with your own comps, bids and quotes.</p>
+        <p className="muted small">{wonBid || boughtOffer ? 'An estimate from the numbers on this page (examples until you type your own)' : <>An estimate to help you {agreed ? 'check the agreed price before you close' : `set a limit before you ${offer ? 'make an offer' : 'bid'}`}</>}, not advice. Replace every starting number with your own comps, bids and quotes.</p>
       </div>
 
       {/* On phones the results sit below every input, so keep the answer in view while typing. */}
