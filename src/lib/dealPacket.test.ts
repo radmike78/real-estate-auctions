@@ -640,7 +640,7 @@ it('reads a lien certificate’s numbers from the lien calculator once the price
   expect(text.indexOf('Downside')).toBeLessThan(text.indexOf('If it takes longer'));
   expect(text).not.toContain('No numbers yet');
   // Clark's payment deadline (Treasurer's FAQ), and Arizona's 15-day limit (A.R.S. 42-18116).
-  expect(text).toContain('due by 10:00 a.m. the business day after the sale (Clark County Treasurer');
+  expect(text).toContain('due by 10:00 a.m. Nevada time the business day after the sale (Clark County Treasurer');
   const az: Deal = { ...lien, id: 'l2', state: 'AZ', county: 'Maricopa' };
   localStorage.setItem('fsf.calc.lien.l2-az.v1', JSON.stringify({ price: 1500, fees: 10, ratePctMonth: 0.5, monthsToRedeem: 8, payoutDelayMonths: 1.5 }));
   localStorage.setItem('fsf.calc.lien.l2-az.v1.typed.v1', JSON.stringify(['price']));
