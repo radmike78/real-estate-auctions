@@ -29,7 +29,7 @@ export const negotiate: Lesson = {
         'Besides the price, an offer sets:',
         { list: [
           'Earnest money: a good-faith deposit, usually held by the title or escrow company. A valid cancellation may entitle you to a refund, but release procedures, disputes and nonrefundable fees can affect what you receive and when. If you back out without a contract right, you can lose it.',
-          'Contingencies: conditions that let you cancel. It’s a good idea to make an offer contingent on getting financing and on a satisfactory inspection. Offers can also depend on the appraisal and a clear title.',
+          'Contingencies: conditions that let you cancel. Many buyers make an offer contingent on getting financing (if they’re borrowing) and on a satisfactory inspection; whether that fits depends on your situation and risk tolerance. Offers can also depend on the appraisal and a clear title.',
           'Deadlines: how many days you have for inspections, loan approval and closing. Missing one can waive your right to cancel.',
           'Who pays which costs, and what stays with the property.',
         ] },

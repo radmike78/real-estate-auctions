@@ -130,7 +130,7 @@ export const SECTIONS: DrillSection[] = [
     title: "Don’t contact homeowners",
     icon: <IconStop />,
     tone: 'stop',
-    summary: 'Why you should find short sales through an agent, never by approaching owners',
+    summary: 'Finding short sales through listings and agents, not by approaching owners',
     content: () => (
       <>
         <p>
@@ -167,7 +167,7 @@ export default function ShortSalesPage({ section }: { section?: string }) {
       {!open && (
         <div className="notice" role="note">
           <strong>How to find short sales:</strong> no government list exists. They’re listed on the MLS, the database agents use, marked
-          “Short Sale.” Work with a licensed buyer’s agent. <a href="#/pros/agent">How to find a short-sale agent&nbsp;→</a>
+          “Short Sale.” Many buyers work with a licensed buyer’s agent who knows short sales. <a href="#/pros/agent">How to find a short-sale agent&nbsp;→</a>
         </div>
       )}
 

@@ -213,8 +213,8 @@ export default function FindDealsPage() {
       </Band>
 
       </details>
-      <details className="plan-section"><summary>Other sites (not the official seller)</summary>
       <h2 className="section-title">Other sites</h2>
+      <details className="plan-section"><summary>Other sites (not the official seller)</summary>
       <p className="other-sites-note">
         These listing sites and private auction companies can help you find properties, but listings may be
         out of date or already sold, and auction companies add their own fees. Confirm every property with the seller, and read each site’s terms.
