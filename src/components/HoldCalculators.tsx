@@ -209,7 +209,7 @@ function HoldResults({ ctx, cashPhase = null, priceWord = 'your price', agreed =
       )}
       {priced && (
         <dl className="calc-kv">
-          {!offer && <div><dt>{after ? 'Cash needed at the most this plan could have paid' : 'Cash needed on auction day'}</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
+          {!offer && <div><dt>{after ? 'Paid at the sale (bid, premium and fees), at the most this plan could have paid' : 'Cash needed on auction day'}</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
           <div><dt>Everything you pay, ready to rent, before loan fees</dt><dd>{fmtMoney(Math.round(r.allIn))}</dd></div>
           {r.loanFees > 0 && (!offer ? <div><dt>Loan fees at the refinance (usually paid from the new loan)</dt><dd>{fmtMoney(Math.round(r.loanFees))}</dd></div> : <div><dt>Including the loan’s points and fees</dt><dd>{fmtMoney(Math.round(r.allIn + r.loanFees))}</dd></div>)}
           <div><dt>Net operating income (NOI), per year: after operating costs{r.reserves > 0 ? ', before reserves' : ''} and before the loan</dt><dd>{fmtMoney(Math.round(r.noi))}</dd></div>

@@ -220,7 +220,8 @@ const EVENTS = ['Sale day', 'Contract signed', 'Offer accepted (Day 0)', 'Accept
 /** Registration rows: past the bidding (won, closed), they're behind you. */
 const BEFORE_SALE = ['Registration', 'Bidder registration', 'Sealed bid and full payment due'];
 /** Sale day is marked handled, or its date has passed: time to say whether you won. */
-export const saleOver = (p: PacketData, now: Date) => p.dates.some((x) => sameDate(x.what, 'Sale day') && (x.when ? x.when < localDay(now) || (!!x.resolved && x.when <= localDay(now)) : !!x.resolved));
+// (Counted in Nevada's day, Pacific time, so a reader abroad isn't asked 'did you win?' before the sale is held.)
+export const saleOver = (p: PacketData, now: Date) => { const today = nvParts(now).day; return p.dates.some((x) => sameDate(x.what, 'Sale day') && (x.when ? x.when < today || (!!x.resolved && x.when <= today) : !!x.resolved)); };
 /** A row marked handled, with or without its date (the deed: you have it). */
 const ticked = (p: PacketData, what: string) => p.dates.some((x) => sameDate(x.what, what) && !!x.resolved);
 /** A Nevada tax sale's answer from the Treasurer that no SID affidavit was filed (NRS 361.595(6)). */
@@ -1089,7 +1090,8 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const bidPrep = (stage === 'offer' || stage === 'researching') && wayOf(d) !== 'offer' && nd && (sealedBid(d) && nd.when ? Math.round((Date.parse(`${nd.when}T12:00:00Z`) - Date.parse(`${nvParts(now).day}T12:00:00Z`)) / 86400000) : nd.days) >= (sealedRowNd ? 0 : 1) && (sameEvent(nd.what, 'Sale day') || sealedRowNd) && stageTasks(d, stage, p, now).some((t) => !t.done && t.key !== 'dates' && t.key !== 'stage');
     // (A sealed bid already sent: it can't be changed, so the countdown is only to the sale and how winners are told.)
     const nvSaleDays = (w: string) => Math.round((Date.parse(`${w}T12:00:00Z`) - Date.parse(`${nvParts(now).day}T12:00:00Z`)) / 86400000);
-    if ((stage === 'offer' || stage === 'researching') && nd && nd.when && sealedBid(d) && ticked(p, SEALED_ROW) && sameEvent(nd.what, 'Sale day') && nvSaleDays(nd.when) === 0) return task({ key: 'date', days: 0, label: `Today in Nevada is the sale day for ${d.name || 'this property'}. Your sealed bid is in: the Treasurer contacts each winning bidder by phone or mail`, produces: 'the Treasurer’s answer; then mark it won or passed in its deal packet', href: packetHref(d, 'dates'), support: [], done: false });
+    const saleDayOn = p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when ?? '';
+    if ((stage === 'offer' || stage === 'researching') && saleDayOn && sealedBid(d) && ticked(p, SEALED_ROW) && nvSaleDays(saleDayOn) === 0) return task({ key: 'date', days: 0, label: `Today in Nevada is the sale day for ${d.name || 'this property'}. Your sealed bid is in: the Treasurer contacts each winning bidder by phone or mail`, produces: 'the Treasurer’s answer; then mark it won or passed in its deal packet', href: packetHref(d, 'dates'), support: [], done: false });
     if (bidPrep && nd && sealedBid(d) && ticked(p, SEALED_ROW) && nvSaleDays(nd.when) >= 1) return task({ key: 'date', days: nvSaleDays(nd.when), label: `Your sealed bid for ${d.name || 'this property'} is in. The sale is ${nvSaleDays(nd.when) === 1 ? 'tomorrow in Nevada' : `in ${nvSaleDays(nd.when)} days`} (${prettyDay(nd.when)}): the Treasurer contacts each winning bidder by phone or mail`, produces: 'the Treasurer’s answer; then mark it won or passed in its deal packet', href: packetHref(d, 'dates'), support: [], done: false });
     // (A sealed bid not yet sent: the count is to the bid deadline, the Treasurer's last open day before the sale.)
     // (Also with the research done, so the bid deadline's own day still turns into the 'did you send it?' question at 4 p.m.)
