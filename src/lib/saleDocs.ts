@@ -114,7 +114,7 @@ export const SALE_SCRIPTS: Record<SaleKindKey, SaleScript[]> = {
     { to: 'Title company', script: '“I’m considering bidding on parcel [number] at the county tax sale on [date]. Which liens would likely survive, and would you insure the title afterward, or would you need a quiet title case first?”' },
   ],
   taxlien: [{ to: 'County treasurer', script: '“I’d like to bid at your tax lien sale. Where are the bidder rules and the list? How do I register, what fees apply, and when and how is payment due?”' }],
-  sid: [{ to: 'The sale’s office or agent named on the notice', script: '“I’m planning to take part in your [date] SID certificate sale. Where are the list and the rules, what ID do I bring to register, and what forms of payment do you take the next morning?”' }],
+  sid: [{ to: 'The sale’s office or agent named on the notice', script: '“I’m planning to take part in your [date] SID certificate sale. Where are the list and the rules, what ID do I bring to register, and what forms of payment do you take, and when is payment due?”' }],
   trustee: [
     { to: 'The trustee (from the notice of sale)', script: '“I’m interested in the trustee’s sale for [notice number or parcel] on [date]. Is it still scheduled? What’s the opening bid, where is it held, what form of funds do you need, and when does the property become the buyer’s risk?”' },
     { to: 'Title company', script: '“Which loan is being foreclosed on parcel [number], and which liens would survive this sale? Would you insure the title afterward?”' },

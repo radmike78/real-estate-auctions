@@ -529,7 +529,7 @@ const SID: Flow = {
       lines: [
         { label: 'Government photo ID', value: 'Showing your current mailing address.' },
         { label: 'Arrive early', value: 'Registration is about an hour before the sale. Late arrivals can’t take part. One registration per person; you must be 18 or older.' },
-        { label: 'Money for the next morning', value: `Practice certificate price: ${money(sidPrice(p))}. Cash, cashier’s check or money order, by 10:00 a.m. the next business day.` },
+        { label: 'Money for the next business day', value: `Practice certificate price: ${money(sidPrice(p))}. Cash, cashier’s check or money order, by 10:00 a.m. the next business day.` },
         { label: 'W-9', value: 'For the interest you’ll earn.' },
       ],
       note: 'Confirm the details in each sale’s notice.',
