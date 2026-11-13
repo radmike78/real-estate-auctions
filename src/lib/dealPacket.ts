@@ -540,6 +540,34 @@ export const CASH_SHORT_AFTER: Record<'agreed' | 'owed' | 'paid', string> = {
   paid: 'You’ve already paid the price, so this is a check, not a limit. If you used a loan, enter it in the calculator so the cash is right, make sure the repair and holding money still ahead is in hand, and update your savings in My plan so your next deal starts from what’s left.',
 };
 
+/** A won bid short of cash: when the bid alone is more than the cash, say so first (it's the urgent part). */
+export const owedWords = (bidDue: number, limit: number, limitWord: string): string => (bidDue > 0 && limit > 0 && bidDue > limit
+  ? `Your winning bid of ${money(bidDue)} alone is ${money(bidDue - limit)} more than ${limitWord}. If you haven’t paid it yet, it’s due in full by the sale’s payment deadline: contact the official seller and an attorney now.`
+  : CASH_SHORT_AFTER.owed);
+
+/** What to do when no price works at a price already agreed, won or paid (no walking away from a won bid). */
+export const NO_PRICE_AFTER: Record<'agreed' | 'owed' | 'paid', string> = {
+  agreed: 'If the numbers no longer work, ask your agent or attorney what your contract’s contingencies allow, before their deadlines.*',
+  owed: 'Check the numbers against evidence, then talk to your advisors about your options (keeping, renting or selling it): your own situation decides which fits.',
+  paid: 'Check the numbers against evidence, then talk to your advisors about your options (keeping, renting or selling it): your own situation decides which fits.',
+};
+
+/** Pre-sale words (walk away, skip it, no bid fits, the walk-away price) reworded once the price is agreed, won or paid. */
+export function settledWords(t: string, phase: 'agreed' | 'owed' | 'paid' | null | undefined): string {
+  if (!phase) return t;
+  let s = t
+    .replace(/Bring more cash(?:, plan a loan with a lender|, line up financing with a lender before the sale \(an auction wants the full amount by its payment deadline\))?, or skip this one\./g, CASH_SHORT_AFTER[phase])
+    .replace(/Walk away or change your plan\.|Skip this one or change your plan\./g, NO_PRICE_AFTER[phase])
+    .replace(/,? or skip this one\./g, '.')
+    .replace(/No realistic (?:bid|offer) fits/g, 'No realistic price fits')
+    .replace(/No (?:bid|offer) (fits|works)/g, 'No price $1');
+  if (phase !== 'agreed') s = s
+    .replace(/What-if, at your walk-away price of (\$[\d,]+) \(the most you could have paid, not your price\)/g, 'What-if, at the most this plan could have paid ($1, not your price)')
+    .replace(/Walk-away price, set by/g, 'The most this plan could have paid, set by')
+    .replace(/\bwalk-away price (\$[\d,]+)/g, 'the most this plan could have paid, $1');
+  return s;
+}
+
 const priceName = (source: 'yours' | 'listed', offer: boolean, cap = false, d?: Deal) => {
   const n = source === 'yours' ? (d && fixedPriceName(d)) || (offer ? 'your offer' : 'your bid') : offer ? 'the asking price' : 'the opening bid';
   return cap ? n[0].toUpperCase() + n.slice(1) : n;
@@ -1149,9 +1177,9 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const typedNoLimit = !(entered > 0) && (rent?.cashTyped || bid?.cashTyped || commercial?.cashTyped || false);
   const limit = entered > 0 ? entered : typedNoLimit ? 0 : profile.investable;
   const limitWord = entered > 0 ? `the cash you entered in ${strategy}` : 'your investable cash';
-  if (limit > 0 && need > 0) cash.push(need > limit ? pricePhase(d) && !(bid?.at && bid.at.source !== 'yours') ? `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}. ${pricePhase(d) === 'paid' && entered > 0 ? `Update the cash in ${strategy} with what you actually put in.` : CASH_SHORT_AFTER[pricePhase(d)!]}` : `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? `Check that you have it, or ${entered > 0 ? `update the cash in ${strategy}` : 'update My plan'}.` : `Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.`}` : `${needAt}, that leaves ${money(limit - Math.round(need))} unallocated from ${limitWord}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
+  if (limit > 0 && need > 0) cash.push(need > limit ? pricePhase(d) && !(bid?.at && bid.at.source !== 'yours') ? `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}. ${pricePhase(d) === 'paid' && entered > 0 ? `Update the cash in ${strategy} with what you actually put in.` : pricePhase(d) === 'owed' ? owedWords(bid?.at?.source === 'yours' ? bid.at.price : commercial?.at?.price ?? rent?.price ?? 0, limit, limitWord) : CASH_SHORT_AFTER[pricePhase(d)!]}` : `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? `Check that you have it, or ${entered > 0 ? `update the cash in ${strategy}` : 'update My plan'}.` : `Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.`}` : `${needAt}, that leaves ${money(limit - Math.round(need))} unallocated from ${limitWord}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
-  out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: cash, fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
+  out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: cash.map((t) => settledWords(t, pricePhase(d))), fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
   // 5. Numbers: base and downside, for the deal's strategy only
   const nums: string[] = ['Returns, profit and cash flow are before income tax; personal taxes and depreciation are not included.', `Strategy: ${strategyLine}. These are the numbers you saved in its calculator; other strategies’ calculators aren’t counted.`];
@@ -1217,7 +1245,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   else if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
   // Done only once there's a downside to look at, not just the base case.
   const downside = !!lien || (rent && rent.stress.length > 1) || (bid && bid.stress.length > 1) || (commercial && (commercial.none || commercial.stress.length > 0));
-  out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: downside && !bid?.unentered.length ? 'done' : hasNums || flipNeedsRepairs(d) ? 'started' : 'missing', lines: nums, fix: { label: 'Open in Analyze', href: '#/analyze' } });
+  out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: downside && !bid?.unentered.length ? 'done' : hasNums || flipNeedsRepairs(d) ? 'started' : 'missing', lines: nums.map((t) => settledWords(t, pricePhase(d))), fix: { label: 'Open in Analyze', href: '#/analyze' } });
 
   // 6. Evidence
   const areas = areasFor(d.kind, liveIn(d));

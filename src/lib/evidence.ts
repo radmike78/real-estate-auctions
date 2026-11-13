@@ -23,7 +23,7 @@ export const EVIDENCE_AREAS: EvidenceArea[] = [
 
 /** A lien certificate isn't the property: the same nine areas (same saved keys), asked about the lien instead. */
 const LIEN_AREAS: Record<string, Pick<EvidenceArea, 'title' | 'what'>> = {
-  sale: { title: 'Sale and certificate', what: 'The parcel, the county’s sale terms and the lien being sold, from the treasurer’s official list.' },
+  sale: { title: 'Sale and certificate', what: 'The parcel, the official sale terms and the lien being sold, from the treasurer’s official list.' },
   title: { title: 'Title and other liens', what: 'Recorded liens and taxes ahead of yours, from a title report on the parcel.' },
   occupancy: { title: 'The parcel itself', what: 'What’s on the land and its access, and whether you’d accept owning it if the lien is never paid.' },
   condition: { title: 'Redemption and payoff', what: 'How the owner pays it off, the interest rate it earns, and how long you may wait.' },

@@ -1,4 +1,4 @@
-import { CASH_SHORT_AFTER, noRedemptionWords, shortestRedemptionMonths, shortestRedemptionWords, shorterThanLaw, waitWords } from '../lib/dealPacket';
+import { CASH_SHORT_AFTER, NO_PRICE_AFTER, owedWords, noRedemptionWords, shortestRedemptionMonths, shortestRedemptionWords, shorterThanLaw, waitWords } from '../lib/dealPacket';
 import type { Deal } from '../lib/analyze';
 import { savedStageOf } from '../lib/dealStage';
 import { getMyArea } from '../lib/myArea';
@@ -612,8 +612,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         ) : (
           cashShort ? (
           <div className="calc-max bad">
-            <span>Walk-away price</span>
-            <strong>No {w.bid} at the {w.opening} fits your cash</strong>
+            <span>{phase === 'owed' || phase === 'paid' ? 'The most this plan could have paid' : 'Walk-away price'}</span>
+            <strong>{phase ? `At the ${w.opening}, this needs more cash than you have` : <>No {w.bid} at the {w.opening} fits your cash</>}</strong>
             <small>At the {w.opening} you’d need about {fmtMoney(Math.round(openingCash))}: the {w.bid} plus repairs and every cost until you sell. The deal itself allows {w.bid}s up to {fmtMoney(r.profitBid)}.</small>
           </div>
           ) : (
@@ -624,7 +624,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
               {r.noBidWorks
                 ? r.limitedBy === 'cash' && r.profitBid > 0
                   ? `Your cash doesn’t cover the repairs and costs until you sell, even before a ${w.bid}. ${twCap} alone would allow ${fmtMoney(r.profitBid)}.`
-                  : `Even at $0, costs leave less than ${tw}. Walk away or change your plan.`
+                  : `Even at $0, costs leave less than ${tw}. ${phase ? `At ${yours.toLowerCase()} this plan loses money. ${NO_PRICE_AFTER[phase]}` : 'Walk away or change your plan.'}`
                 : r.limitedBy === 'cash'
                   ? `Set by the cash you can bring: the ${w.bid} plus every cost until you sell (repairs, holding, fees). ${twCap} alone would allow ${fmtMoney(r.profitBid)}.`
                   : noDollarTarget ? 'No profit target set yet: enter the dollar profit you want under “Profit you want”.' : targetIsExample ? `Leaves our example profit target, ${i.targetProfitPct}% of the resale value (${fmtMoney(Math.round(target))})${minBelowExample ? `, which is more than your ${fmtMoney(nz(i.targetProfitMin))} minimum` : ''}, after every cost. Set your own percent under “Profit you want”. Not a guarantee.` : `Leaves your ${fmtMoney(Math.round(target))} profit target after every cost, based on your numbers. Not a guarantee.`}
@@ -668,7 +668,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         )}
         {!r.noBidWorks && !needsValue && (
           <div className="calc-steps">
-            <strong>How we got your walk-away price</strong>
+            <strong>{phase === 'owed' || phase === 'paid' ? 'How we got the most this plan could have paid' : 'How we got your walk-away price'}</strong>
             <dl className="calc-kv">
               {steps.map((st, n) => <div key={st.label} className={n === 0 ? 'first' : ''}><dt>{st.label}</dt><dd>{n === 0 ? fmtMoney(st.amount) : `− ${fmtMoney(-st.amount)}`}</dd></div>)}
               <div className="total"><dt>{r.limitedBy === 'cash' ? 'Most the deal allows' : w.max}</dt><dd>{fmtMoney(r.profitBid)}</dd></div>
@@ -678,10 +678,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         )}
         {!r.noBidWorks && !needsValue && (
           <dl className="calc-kv">
-            {!offer && <div><dt>{wonBid ? 'Cash needed at the walk-away price' : 'Cash needed on auction day, at the walk-away price'}</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
+            {!offer && <div><dt>{wonBid ? 'Cash needed at the most this plan could have paid' : 'Cash needed on auction day, at the walk-away price'}</dt><dd>{fmtMoney(r.cashAtAuction)}</dd></div>}
             <div><dt>Estimated cash you’d put in, at the walk-away price, under these assumptions</dt><dd>{fmtMoney(r.cashPeak)}</dd></div>
             {i.financedPct > 0 && r.cashToStabilize < r.cashPeak && <div><dt>Cash left in after the loan funds, at the walk-away price</dt><dd>{fmtMoney(r.cashToStabilize)}</dd></div>}
-            <div><dt>Profit at the walk-away price{Math.round(r.profit) !== Math.round(target) ? (noTarget0 ? ' (no profit target set yet)' : ` (${targetIsExample ? 'our example target' : 'your target'}: ${fmtMoney(Math.round(target))})`) : ''}</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
+            <div><dt>Profit at {phase === 'owed' || phase === 'paid' ? 'the most this plan could have paid' : 'the walk-away price'}{Math.round(r.profit) !== Math.round(target) ? (noTarget0 ? ' (no profit target set yet)' : ` (${targetIsExample ? 'our example target' : 'your target'}: ${fmtMoney(Math.round(target))})`) : ''}</dt><dd>{fmtMoney(Math.round(r.profit))}</dd></div>
             <div><dt>Return on your cash, per year, if it sells on schedule</dt><dd>{yr(r.yearlyReturn)}</dd></div>
             <div><dt>Break-even {w.bid} (zero profit)</dt><dd>{fmtMoney(r.breakEvenBid)}</dd></div>
           </dl>
@@ -731,9 +731,9 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {atBid && profit !== null && !needsValue && (
           <div className={`calc-verdict ${over || bidShort ? 'bad' : 'good'}`}>
             {over ? (
-              <><strong>{phase === 'owed' || phase === 'paid' ? 'Above what this plan could have paid.' : 'Above your walk-away price.'}</strong> At {fmtMoney(bid)} this deal no longer meets {r.limitedBy === 'cash' && bid <= r.profitBid ? 'your cash limit' : tw}. Profit would be {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}.{phase && bidShort ? ` It needs about ${fmtMoney(Math.round(bidCash))} of your cash, more than ${i.cashAvailable > 0 ? 'the cash you entered' : 'My plan shows'}. ${phase === 'paid' && i.cashAvailable > 0 ? 'Update the cash you entered with what you actually put in.' : CASH_SHORT_AFTER[phase]}` : phase === 'agreed' ? ' If the numbers no longer work, ask your agent or attorney what your contract’s contingencies allow, before their deadlines.*' : phase ? '' : ' Past your walk-away price, this deal no longer meets your own numbers.'}</>
+              <><strong>{phase === 'owed' || phase === 'paid' ? 'Above what this plan could have paid.' : 'Above your walk-away price.'}</strong> At {fmtMoney(bid)} this deal no longer meets {r.limitedBy === 'cash' && bid <= r.profitBid ? 'your cash limit' : tw}. Profit would be {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}.{phase && bidShort ? ` It needs about ${fmtMoney(Math.round(bidCash))} of your cash, more than ${i.cashAvailable > 0 ? 'the cash you entered' : 'My plan shows'}. ${phase === 'paid' && i.cashAvailable > 0 ? 'Update the cash you entered with what you actually put in.' : phase === 'owed' ? owedWords(bid, bidCashLimit, i.cashAvailable > 0 ? 'the cash you entered' : 'My plan’s cash') : CASH_SHORT_AFTER[phase]}` : phase === 'agreed' ? ' If the numbers no longer work, ask your agent or attorney what your contract’s contingencies allow, before their deadlines.*' : phase ? '' : ' Past your walk-away price, this deal no longer meets your own numbers.'}</>
             ) : bidShort ? (
-              <><strong>Within {phase === 'owed' || phase === 'paid' ? 'what this plan could have paid' : 'your walk-away price'}, but it needs more cash than {i.cashAvailable > 0 ? 'you entered' : 'My plan shows'}.</strong> Estimated profit {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}. At {fmtMoney(bid)} you’d put in about {fmtMoney(Math.round(bidCash))} of your cash; {i.cashAvailable > 0 ? `you entered ${fmtMoney(i.cashAvailable)}` : `My plan shows ${fmtMoney(Math.round(planCash))} of investable cash`}.{phase ? ` ${phase === 'paid' && i.cashAvailable > 0 ? 'Update the cash you entered with what you actually put in.' : CASH_SHORT_AFTER[phase]}` : i.cashAvailable > 0 ? null : offer ? ' Offer only what fits your cash (with any loan your lender approves), or compare a loan with a lender.' : <> <button type="button" className="linkish" onClick={() => { const f = document.getElementById(`${uid}-cashAvailable`); f?.scrollIntoView({ block: 'center' }); f?.focus({ preventScroll: true }); }}>Enter your cash</button></>}</>
+              <><strong>Within {phase === 'owed' || phase === 'paid' ? 'what this plan could have paid' : 'your walk-away price'}, but it needs more cash than {i.cashAvailable > 0 ? 'you entered' : 'My plan shows'}.</strong> Estimated profit {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}. At {fmtMoney(bid)} you’d put in about {fmtMoney(Math.round(bidCash))} of your cash; {i.cashAvailable > 0 ? `you entered ${fmtMoney(i.cashAvailable)}` : `My plan shows ${fmtMoney(Math.round(planCash))} of investable cash`}.{phase ? ` ${phase === 'paid' && i.cashAvailable > 0 ? 'Update the cash you entered with what you actually put in.' : phase === 'owed' ? owedWords(bid, bidCashLimit, i.cashAvailable > 0 ? 'the cash you entered' : 'My plan’s cash') : CASH_SHORT_AFTER[phase]}` : i.cashAvailable > 0 ? null : offer ? ' Offer only what fits your cash (with any loan your lender approves), or compare a loan with a lender.' : <> <button type="button" className="linkish" onClick={() => { const f = document.getElementById(`${uid}-cashAvailable`); f?.scrollIntoView({ block: 'center' }); f?.focus({ preventScroll: true }); }}>Enter your cash</button></>}</>
             ) : (
               <><strong>Within {phase === 'owed' || phase === 'paid' ? 'what this plan could have paid' : 'your walk-away price'}.</strong> Estimated profit {fmtMoney(Math.round(profit))}{pct(profit, i.exitValue)}.</>
             )}
