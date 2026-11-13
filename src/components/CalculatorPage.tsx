@@ -1,9 +1,8 @@
-import { redeemedDeal, liveIn, prettyDay, redemptionEndedOn, redemptionOver, redemptionPast } from '../lib/dealStage';
+import { redeemedDeal, savedStageOf, liveIn, prettyDay, redemptionEndedOn, redemptionOver, redemptionPast } from '../lib/dealStage';
 import type { Deal } from '../lib/analyze';
 import { useEffect, useState } from 'react';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
 import { irsWithoutRedemption } from '../lib/dealPacket';
-import { loadDeals } from '../lib/analyze';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { stateByCode, type StateCode } from '../lib/regions';
 import { investorProfile, profileStart, commercialProfileStart } from '../lib/myPlan';
@@ -18,7 +17,7 @@ export function Calculators({ initial, onTab, state, offer = false, dealId, onAn
   const k = (kind: string) => (dealId ? `fsf.calc.${kind}.${dealId}${offer ? '-offer' : ''}.v1` : undefined);
   const bid = offer ? 'offer' : 'bid';
   // (An offer under contract: the price is agreed, not yet closed.)
-  const agreedDeal = offer && !!dealId && loadDeals().find((x) => x.id === dealId)?.stage === 'contract';
+  const agreedDeal = offer && !!dealId && savedStageOf(dealId) === 'contract';
   // ("Will you live in this property?" changes the Buy and hold description.)
   const [, setHomeTick] = useState(0);
   useEffect(() => { const on = () => setHomeTick((n) => n + 1); window.addEventListener(PROGRESS_EVENT, on); return () => window.removeEventListener(PROGRESS_EVENT, on); }, []);
@@ -29,9 +28,9 @@ export function Calculators({ initial, onTab, state, offer = false, dealId, onAn
         onChange={onTab}
         hideTabs={onAnalyze}
         strategies={[
-          { key: 'flip', label: 'Fix and flip (fix and sell)', about: dealId && (offer ? ['closed', 'owned'] : ['contract', 'closed', 'owned']).includes(loadDeals().find((x) => x.id === dealId)?.stage ?? '') ? `Its numbers at ${offer ? 'the price you paid' : 'your winning bid'} (enter it under the walk-away price), against the most this plan could have paid, when you fix it up and sell it.` : agreedDeal ? 'Its numbers at the agreed price, against the most this plan could pay, when you fix it up and sell it.' : `The most you can ${bid} and still make your profit when you fix it up and sell it.`, render: () => <BidCalculator headingLevel={2} offer={offer} saleKind={saleKind} saveAs={dealId ? `analyzed-${dealId}` : onAnalyze ? 'analyze-draft' : undefined} /> },
-          { key: 'rent', label: 'Buy and hold (keep and rent)', about: offer && (dealId && saleKind ? liveIn({ id: dealId, kind: saleKind as Deal['kind'], plan: 'rent' }) : !!investorProfile().ownerOccupant) ? (dealId && ['closed', 'owned'].includes(loadDeals().find((x) => x.id === dealId)?.stage ?? '') ? 'What living there costs each month at the price you paid (type it in).' : (agreedDeal ? 'What living there costs each month at the agreed price, and the cash it needs.' : 'What living there costs each month at your offer, and the cash it needs.')) : dealId && (offer ? ['closed', 'owned'] : ['contract', 'closed', 'owned']).includes(loadDeals().find((x) => x.id === dealId)?.stage ?? '') ? `Its numbers as a rental (type in ${offer ? 'the price you paid' : 'your winning bid'}), against the most this plan could have paid.` : agreedDeal ? 'Its numbers as a rental at the agreed price, against the most this plan could pay.' : `The most you can ${bid} and still get your return on the cash you leave in, with or without a loan afterward.`, render: () => <RentCalculator saleKind={saleKind} dealId={dealId} regional={!!state} offer={offer} storageKey={k('rent')} exactKey={!!dealId} start={onAnalyze ? profileStart(investorProfile(), offer) : undefined} /> },
-          { key: 'commercial', label: 'Commercial income', about: dealId && (offer ? ['closed', 'owned'] : ['contract', 'closed', 'owned']).includes(loadDeals().find((x) => x.id === dealId)?.stage ?? '') ? `Its income numbers at ${offer ? 'the price you paid' : 'your winning bid'} (enter it in the results), counting the months it takes to lease it up.` : agreedDeal ? 'Its income numbers at the agreed price, counting the months it takes to lease it up.' : `The most you can ${bid} for a building’s income, counting the months it takes to lease it up.`, render: () => <CommercialCalculator saleKind={saleKind} dealId={dealId} regional={!!state} offer={offer} storageKey={k('commercial')} exactKey={!!dealId} start={onAnalyze ? commercialProfileStart(investorProfile(), offer) : undefined} /> },
+          { key: 'flip', label: 'Fix and flip (fix and sell)', about: dealId && (offer ? ['closed', 'owned'] : ['contract', 'closed', 'owned']).includes(savedStageOf(dealId) ?? '') ? `Its numbers at ${offer ? 'the price you paid' : 'your winning bid'} (enter it under the walk-away price), against the most this plan could have paid, when you fix it up and sell it.` : agreedDeal ? 'Its numbers at the agreed price, against the most this plan could pay, when you fix it up and sell it.' : `The most you can ${bid} and still make your profit when you fix it up and sell it.`, render: () => <BidCalculator headingLevel={2} offer={offer} saleKind={saleKind} saveAs={dealId ? `analyzed-${dealId}` : onAnalyze ? 'analyze-draft' : undefined} /> },
+          { key: 'rent', label: 'Buy and hold (keep and rent)', about: offer && (dealId && saleKind ? liveIn({ id: dealId, kind: saleKind as Deal['kind'], plan: 'rent' }) : !!investorProfile().ownerOccupant) ? (dealId && ['closed', 'owned'].includes(savedStageOf(dealId) ?? '') ? 'What living there costs each month at the price you paid (enter it under Start with these numbers).' : (agreedDeal ? 'What living there costs each month at the agreed price, and the cash it needs.' : 'What living there costs each month at your offer, and the cash it needs.')) : dealId && (offer ? ['closed', 'owned'] : ['contract', 'closed', 'owned']).includes(savedStageOf(dealId) ?? '') ? `Its numbers as a rental at ${offer ? 'the price you paid' : 'your winning bid'} (enter it under Start with these numbers), against the most this plan could have paid.` : agreedDeal ? 'Its numbers as a rental at the agreed price, against the most this plan could pay.' : `The most you can ${bid} and still get your return on the cash you leave in, with or without a loan afterward.`, render: () => <RentCalculator saleKind={saleKind} dealId={dealId} regional={!!state} offer={offer} storageKey={k('rent')} exactKey={!!dealId} start={onAnalyze ? profileStart(investorProfile(), offer) : undefined} /> },
+          { key: 'commercial', label: 'Commercial income', about: dealId && (offer ? ['closed', 'owned'] : ['contract', 'closed', 'owned']).includes(savedStageOf(dealId) ?? '') ? `Its income numbers at ${offer ? 'the price you paid' : 'your winning bid'} (enter it in the results), counting the months it takes to lease it up.` : agreedDeal ? 'Its income numbers at the agreed price, counting the months it takes to lease it up.' : `The most you can ${bid} for a building’s income, counting the months it takes to lease it up.`, render: () => <CommercialCalculator saleKind={saleKind} dealId={dealId} regional={!!state} offer={offer} storageKey={k('commercial')} exactKey={!!dealId} start={onAnalyze ? commercialProfileStart(investorProfile(), offer) : undefined} /> },
           { key: 'seller', label: 'Seller financing', about: 'When the seller is the lender: the payment, the balloon you’ll have to pay off, and the cash it saves against a bank loan.', render: () => <SellerFinanceCalculator /> },
           { key: 'lien', label: 'Lien certificate', about: 'What a special improvement district (SID) lien certificate earns per year, counting the wait to be paid.', render: () => <LienCalculator storageKey={dealId ? `fsf.calc.lien.${dealId}${state === 'AZ' ? '-az' : ''}.v1` : undefined} /> },
         ].filter((s) => (s.key !== 'lien' || (lien && (!state || state === 'NV' || state === 'AZ'))) && (s.key !== 'seller' || offer || !state)).map((s) => (s.key === 'lien' && state === 'AZ' ? { ...s, label: 'Tax lien', about: 'What an Arizona tax lien certificate earns per year at the rate you win, counting the wait to be paid.' } : s))}
@@ -52,14 +51,14 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
   // A home you'll live in with no rent counted: no vacancies or renting rules.
   const living = !!dealId && !!saleKind && plan === 'rent' && liveIn({ id: dealId, kind: saleKind as Deal['kind'], plan: 'rent' });
   // Past the sale (won, closed or owned): not "before you bid".
-  const won = !!dealId && ['contract', 'closed', 'owned'].includes(loadDeals().find((x) => x.id === dealId)?.stage ?? '');
+  const won = !!dealId && ['contract', 'closed', 'owned'].includes(savedStageOf(dealId) ?? '');
   // (A win whose redemption period is already behind it: no buy-back line to plan around.)
   const certKind = (state === 'NV' && (saleKind === 'court' || saleKind === 'hoa')) || (saleKind === 'irs' && !irsNone);
   const wasRedeemed = won && certKind && !!dealId && redeemedDeal({ id: dealId });
   const pastRedeem = won && certKind && !!dealId && !!state && redemptionPast({ kind: saleKind as Deal['kind'], state, id: dealId });
   const endedE = pastRedeem && dealId && state && !redemptionOver({ kind: saleKind as Deal['kind'], state, id: dealId }) ? redemptionEndedOn({ kind: saleKind as Deal['kind'], state, id: dealId }) : '';
   // An offer is yours from the closing (Under contract, it's still ahead).
-  const owns = !!dealId && ['closed', 'owned'].includes(loadDeals().find((x) => x.id === dealId)?.stage ?? '');
+  const owns = !!dealId && ['closed', 'owned'].includes(savedStageOf(dealId) ?? '');
   const name = state ? stateByCode(state)?.name : undefined;
   // Renting rules matter only when you'd keep it and rent it out.
   const renting = plan !== 'flip' && plan !== 'lien';
@@ -113,9 +112,9 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
         {renting && plan === 'commercial' && <li><strong>The rules for leasing it:</strong> zoning and permitted uses, the existing leases and their terms, and for apartments any local rent rules.</li>}
         {renting && !living && plan !== 'commercial' && <li><strong>The rules for renting it:</strong> HOA limits, short-term rental rules and local rent rules.</li>}
         {!owns && <li><strong>Wire instructions confirmed by phone</strong> with your title or escrow company, using a number you looked up yourself. <a href="#/learn/negotiate">Why</a></li>}
-        <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor, agent and financial advisor {owns ? 'before you spend more on it or borrow against it' : !!dealId && ['listing', 'reo', 'short'].includes(saleKind ?? '') && loadDeals().find((x) => x.id === dealId)?.stage === 'contract' ? 'before you close or borrow' : 'before you bid, buy or borrow'}.</li>
+        <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney, tax advisor, agent and financial advisor {owns ? 'before you spend more on it or borrow against it' : !!dealId && ['listing', 'reo', 'short'].includes(saleKind ?? '') && savedStageOf(dealId) === 'contract' ? 'before you close or borrow' : 'before you bid, buy or borrow'}.</li>
       </ul>
-      <p className="muted small">Can’t check one yet? Get the answer {owns ? 'before you rely on these numbers' : !!dealId && ['listing', 'reo', 'short'].includes(saleKind ?? '') && loadDeals().find((x) => x.id === dealId)?.stage === 'contract' ? 'before you close' : 'before you sign or bid'}.</p>
+      <p className="muted small">Can’t check one yet? Get the answer {owns ? 'before you rely on these numbers' : !!dealId && ['listing', 'reo', 'short'].includes(saleKind ?? '') && savedStageOf(dealId) === 'contract' ? 'before you close' : 'before you sign or bid'}.</p>
     </section>
   );
 }

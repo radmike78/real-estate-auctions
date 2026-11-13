@@ -19,7 +19,7 @@ const visibleFields = <T,>(groups: CalcGroup<T>[], v: T) => groups.flatMap((g) =
 const NOT_EXAMPLES = new Set(['transferTaxPer500', 'buyerPremiumPct', 'atPrice']);
 import { investorProfile } from '../lib/myPlan';
 import { loadDeals } from '../lib/analyze';
-import { asksHome, liveIn, setDealHome, decideAnswered } from '../lib/dealStage';
+import { asksHome, liveIn, setDealHome, decideAnswered, savedStageOf, stageOf } from '../lib/dealStage';
 import { countyTaxRate, ownerOccupiedTaxNote, propertyTaxHint, rentalStartFor, taxAt, transferTaxFor } from '../lib/stateCosts';
 import { COUNTY_TAX_RATES } from '../lib/countyTaxRates';
 
@@ -326,7 +326,7 @@ function AtThisPrice({ v, start, onPrice, setPrice, word, exampleValue = false, 
   const neg = (n: number) => (n > 0 ? `−\u2060${mo(n)}` : mo(0)); // word joiner: the minus never wraps away from the amount
   return (
     <section className="at-price price-block price-block-yours" aria-labelledby="at-price-head">
-      <PriceHead level={3} id="at-price-head" kind="yours" label={word} price={price > 0 ? price : null} result={price > 0 ? a.cashFlow / 12 : null} cost={livingThere && !(v.monthlyRent > 0)} note={price > 0 ? (word === 'The price you paid' || word === 'Your winning bid' ? 'The price you paid: the result for the property as you bought it.' : word === 'The agreed price' ? 'The agreed price: the result for the property at the price in your accepted offer.' : 'Your actual price: the result for the property as you’d buy it.') : word === 'The price you paid' ? 'Enter the price you paid to see this property’s own result.' : word === 'Your winning bid' ? 'Enter your winning bid to see this property’s own result.' : word === 'The agreed price' ? 'Enter the agreed price to see this property’s own result.' : 'Enter the price you’d pay to see this property’s own result.'} />
+      <PriceHead level={3} id="at-price-head" kind="yours" label={word} price={price > 0 ? price : null} result={price > 0 ? a.cashFlow / 12 : null} cost={livingThere && !(v.monthlyRent > 0)} note={price > 0 ? (word === 'The price you paid' ? 'The price you paid: the result for the property as you bought it.' : word === 'Your winning bid' ? 'Your winning bid: the result for the property at the price you won it for.' : word === 'The agreed price' ? 'The agreed price: the result for the property at the price in your accepted offer.' : 'Your actual price: the result for the property as you’d buy it.') : word === 'The price you paid' ? 'Enter the price you paid to see this property’s own result.' : word === 'Your winning bid' ? 'Enter your winning bid to see this property’s own result.' : word === 'The agreed price' ? 'Enter the agreed price to see this property’s own result.' : 'Enter the price you’d pay to see this property’s own result.'} />
       <label className="field">
         <span>{word} ($)</span>
         <NumInput blank max={1e9} value={price} onValue={(n) => setPrice(n ?? 0)} />
@@ -556,11 +556,12 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   // You live there: this saved property's answer ("Will you live in this property?"), else Decide's.
   const [, bumpHome] = useState(0);
   const ownDeal = dealId ? loadDeals().find((x) => x.id === dealId) : undefined;
+  const ownStage = ownDeal ? stageOf(ownDeal) : '';
   const livesHere = offer && (ownDeal ? liveIn({ ...ownDeal, plan: 'rent' }) : !!investorProfile().ownerOccupant);
   // Already bought (closed or owned): the price is the one you paid.
-  const bought = offer && !!ownDeal && ['closed', 'owned'].includes(ownDeal.stage ?? '');
+  const bought = offer && !!ownDeal && ['closed', 'owned'].includes(ownStage);
   // (Won at an auction: the price is the winning bid, not a planned one.)
-  const wonBid = !offer && !!ownDeal && ['contract', 'closed', 'owned'].includes(ownDeal.stage ?? '');
+  const wonBid = !offer && !!ownDeal && ['contract', 'closed', 'owned'].includes(ownStage);
   // In a deal with a state, the example tax and insurance follow that state (a Texas rental's tax is about three
   // times a Nevada one's); they're starting numbers only and give way to anything typed or prefilled.
   const stateStart = regional ? rentalStartFor(region.state, start.value ?? RENT_DEFAULTS.value, region.county) : {};
@@ -592,7 +593,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const valueBase = v.value > 0 ? v.value : (start.value ?? RENT_DEFAULTS.value);
   const taxBase = taxOnPrice ? v.atPrice : valueBase;
   const taxHere = rate ? taxAt(taxBase, rate.pct) : 0;
-  const taxAtWords = taxOnPrice ? (bought ? `At the ${fmtMoney(v.atPrice)} you paid` : wonBid ? `At your ${fmtMoney(v.atPrice)} winning bid` : offer && ownDeal?.stage === 'contract' ? `At the ${fmtMoney(v.atPrice)} agreed price` : `At your ${fmtMoney(v.atPrice)} ${offer ? 'offer' : 'bid'}`) : v.atPrice > 0 ? `${region.state === 'NV' ? 'Tax is on the county’s taxable value, not your bid.' : 'Tax is on the property’s value, not your bid.'} At ${(v.value > 0 ? !typedKeys.has('value') && !('value' in start) : !('value' in start)) ? `our ${fmtMoney(taxBase)} example value` : `a ${fmtMoney(taxBase)} value`}` : `At a ${fmtMoney(taxBase)} ${priceState ? 'price' : 'value'}`;
+  const taxAtWords = taxOnPrice ? (bought ? `At the ${fmtMoney(v.atPrice)} you paid` : wonBid ? `At your ${fmtMoney(v.atPrice)} winning bid` : offer && ownStage === 'contract' ? `At the ${fmtMoney(v.atPrice)} agreed price` : `At your ${fmtMoney(v.atPrice)} ${offer ? 'offer' : 'bid'}`) : v.atPrice > 0 ? `${region.state === 'NV' ? 'Tax is on the county’s taxable value, not your bid.' : 'Tax is on the property’s value, not your bid.'} At ${(v.value > 0 ? !typedKeys.has('value') && !('value' in start) : !('value' in start)) ? `our ${fmtMoney(taxBase)} example value` : `a ${fmtMoney(taxBase)} value`}` : `At a ${fmtMoney(taxBase)} ${priceState ? 'price' : 'value'}`;
   const withTaxHint = (gs: CalcGroup<RentInputs>[]) => (rate && taxHere !== v.propertyTaxYear
     ? gs.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} ${taxAtWords}: about ${fmtMoney(taxHere)}.`.trim() } : f)) }))
     : gs);
@@ -607,7 +608,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const basicFields = groups.flatMap((g) => g.fields).filter((f) => basics.has(f.k));
   const moreGroups = groups.map((g) => ({ ...g, fields: g.fields.filter((f) => !basics.has(f.k)) }));
   const allExample = !typed && Object.keys(start).length === 0;
-  const word = bought ? 'The price you paid' : wonBid ? 'Your winning bid' : offer && ownDeal?.stage === 'contract' ? 'The agreed price' : offer ? 'Your offer' : 'Your bid';
+  const word = bought ? 'The price you paid' : wonBid ? 'Your winning bid' : offer && ownStage === 'contract' ? 'The agreed price' : offer ? 'Your offer' : 'Your bid';
   // Which price the panels below are figured at: yours once you enter it, else the target price.
   // You plan to live there (Decide: a home loan and live in it): the investor's walk-away price is a yardstick only, so
   // the panels below wait for your offer instead of using it.
@@ -623,7 +624,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
     <div className="calc">
       <div className="calc-inputs">
         <ExampleInputs labels={still} all={allExample} />
-        <CalcFields groups={[{ title: 'Start with these numbers', fields: [{ k: 'atPrice', label: bought ? 'The price you paid' : wonBid ? 'Your winning bid' : offer && ownDeal?.stage === 'contract' ? 'The agreed price' : offer ? 'Your offer' : 'Your bid', unit: '$', hint: bought ? 'What you paid at closing.' : wonBid ? 'What you bid at the sale.' : offer && ownDeal?.stage === 'contract' ? 'The price in your accepted offer.' : living ? 'Enter the asking price or your offer to see what living there costs; an investor’s price is under Investor yardstick.' : '0 leaves your price unset; the target-price estimate is still shown.' }, ...basicFields] }]} values={v} onChange={set} />
+        <CalcFields groups={[{ title: 'Start with these numbers', fields: [{ k: 'atPrice', label: bought ? 'The price you paid' : wonBid ? 'Your winning bid' : offer && ownStage === 'contract' ? 'The agreed price' : offer ? 'Your offer' : 'Your bid', unit: '$', hint: bought ? 'What you paid at closing.' : wonBid ? 'What you bid at the sale.' : offer && ownStage === 'contract' ? 'The price in your accepted offer.' : living ? 'Enter the asking price or your offer to see what living there costs; an investor’s price is under Investor yardstick.' : '0 leaves your price unset; the target-price estimate is still shown.' }, ...basicFields] }]} values={v} onChange={set} />
         <details className="calc-assumptions"><summary>Review all other costs, loan terms and targets</summary><p className="muted small">These inputs are already included in the estimate, even while this section is closed. Review vacancy, upkeep, replacement reserves, acquisition costs and loan terms before using the result.</p><CalcFields groups={moreGroups} values={v} onChange={set} /></details>
       </div>
       <div className="calc-results">
@@ -646,9 +647,9 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
           <details className="calc-assumptions">
             <summary>{r.limitedBy === 'dscr' ? `Investor yardstick: the most an investor’s loan allows at ${v.minDscr}× income coverage` : `Investor yardstick: the price that meets an investor’s ${v.targetCocPct}% return`}</summary>
             <p className="muted small">You plan to live there, so this isn’t your limit: it’s what an investor renting out the whole property would pay for that return. Your own limit is the monthly cost you’re comfortable with and the loan your lender approves.</p>
-            <HoldResults agreed={!!offer && ownDeal?.stage === 'contract'} after={bought || wonBid} r={r} coverageQuiet={exampleValue} dscrTyped={typedKeys.has('minDscr')} cocTarget={v.targetCocPct} title="Price that meets an investor’s target" target={`Gives a ${v.targetCocPct}% cash-on-cash return, based on the numbers above (examples until you type your own). Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} noRealistic={noReal} hasLoan={v.loanPct > 0 && (offer || v.value > 0)} supported={uncapped.noBidWorks ? NaN : uncapped.maxBid} />
+            <HoldResults agreed={!!offer && ownStage === 'contract'} after={bought || wonBid} r={r} coverageQuiet={exampleValue} dscrTyped={typedKeys.has('minDscr')} cocTarget={v.targetCocPct} title="Price that meets an investor’s target" target={`Gives a ${v.targetCocPct}% cash-on-cash return, based on the numbers above (examples until you type your own). Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} noRealistic={noReal} hasLoan={v.loanPct > 0 && (offer || v.value > 0)} supported={uncapped.noBidWorks ? NaN : uncapped.maxBid} />
           </details>
-        ) : <HoldResults agreed={!!offer && ownDeal?.stage === 'contract'} after={bought || wonBid} r={r} coverageQuiet={exampleValue} dscrTyped={typedKeys.has('minDscr')} cocTarget={v.targetCocPct} title={v.atPrice > 0 ? 'Price that meets the target' : 'Walk-away price to keep and rent it'} target={`Gives ${typedKeys.has('targetCocPct') ? 'your' : 'our example'} ${v.targetCocPct}% cash-on-cash return${typedKeys.has('targetCocPct') ? '' : ' (set your own under “Review all other costs, loan terms and targets”)'}, based on the numbers above (examples until you type your own). Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} noRealistic={noReal} hasLoan={v.loanPct > 0 && (offer || v.value > 0)} supported={uncapped.noBidWorks ? NaN : uncapped.maxBid} />}
+        ) : <HoldResults agreed={!!offer && ownStage === 'contract'} after={bought || wonBid} r={r} coverageQuiet={exampleValue} dscrTyped={typedKeys.has('minDscr')} cocTarget={v.targetCocPct} title={v.atPrice > 0 ? 'Price that meets the target' : 'Walk-away price to keep and rent it'} target={`Gives ${typedKeys.has('targetCocPct') ? 'your' : 'our example'} ${v.targetCocPct}% cash-on-cash return${typedKeys.has('targetCocPct') ? '' : ' (set your own under “Review all other costs, loan terms and targets”)'}, based on the numbers above (examples until you type your own). Not a guarantee.`} noiNote={`Rent collected ${fmtMoney(Math.round(n.collected))} a year, operating costs ${fmtMoney(Math.round(n.expenses))}, reserves ${fmtMoney(Math.round(n.reserves))}.`} minDscr={v.minDscr} offer={offer} examples={still.length} allExample={allExample} noRealistic={noReal} hasLoan={v.loanPct > 0 && (offer || v.value > 0)} supported={uncapped.noBidWorks ? NaN : uncapped.maxBid} />}
         {walkShort && <PlanCashNote need={walkNeed} planCash={planCash} offer={false} auctionDay={r.cashAtAuction} />}
         {/* Under 20% down on a purchase loan: mortgage insurance isn't in the payment here. FHA (live-in buyers only) annual
             premiums for 30-year loans from HUD Mortgagee Letter 2023-05: 0.50% / 0.55% (95% or less / over 95% of value)
@@ -669,7 +670,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
         )}
         {/* No price to figure them at yet (no offer, no walk-away price, no value): ask for one instead of showing $0. */}
         {at.price > 0 ? <CashCushion v={v} price={at.price} at={at.label} onPrice={offer} /> : null}
-        {at.price > 0 ? <RentDealLab v={v} at={at} onPrice={offer} living={living} auction={!offer && !!saleKind && saleKind !== 'listing'} after={bought || wonBid} /> : <p className="calc-note small">Enter {bought ? 'the price you paid' : wonBid ? 'your winning bid' : offer && ownDeal?.stage === 'contract' ? 'the agreed price' : offer ? 'your offer (the asking price)' : 'your bid'} to see the cash cushion, the stress test and how a lender sees this rent at that price.</p>}
+        {at.price > 0 ? <RentDealLab v={v} at={at} onPrice={offer} living={living} auction={!offer && !!saleKind && saleKind !== 'listing'} after={bought || wonBid} /> : <p className="calc-note small">Enter {bought ? 'the price you paid' : wonBid ? 'your winning bid' : offer && ownStage === 'contract' ? 'the agreed price' : offer ? 'your offer (the asking price)' : 'your bid'} to see the cash cushion, the stress test and how a lender sees this rent at that price.</p>}
         <HoldAndSell v={living && !(v.atPrice > 0) ? { ...v, value: 0 } : v} onPrice={offer} target={living || noReal ? 0 : r.maxBid} exampleValue={v.value === RENT_DEFAULTS.value && !typedKeys.has('value')} />
         {/* (A home you live in with no rent: the lender's rent test and nightly renting don't apply.) */}
         {at.price > 0 && !(living && !(v.monthlyRent > 0)) ? <LenderView v={v} at={at} onPrice={offer} /> : null}
@@ -738,7 +739,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
   const walkNeed = walk ? (!offer && walk.loan > 0 ? walk.allIn : walk.cashIn) : 0;
   const walkShort = !!walk && !(v.cashAvailable > 0) && !cashTyped && planCash > 0 && walkNeed > planCash;
   // A saved deal under contract, won or bought: the price is fixed, not a bid or offer still to make.
-  const cStage = dealId ? loadDeals().find((x) => x.id === dealId)?.stage ?? '' : '';
+  const cStage = savedStageOf(dealId);
   const cPhase: 'agreed' | 'won' | 'bought' | undefined = offer ? (cStage === 'contract' ? 'agreed' : ['closed', 'owned'].includes(cStage) ? 'bought' : undefined) : ['contract', 'closed', 'owned'].includes(cStage) ? 'won' : undefined;
   return (
     <div className="calc">

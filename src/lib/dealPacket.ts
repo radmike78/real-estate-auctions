@@ -1085,7 +1085,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     if (!bid.none && a?.source === 'listed' && bid.maxBid < a.price) {
       cash.push(`No ${offer ? 'offer at or above the asking price' : 'bid at or above the opening bid'} of ${money(a.price)} ${a.profit >= bid.target && bid.limitedBy === 'cash' ? 'fits your cash' : `meets ${goalW}`} as entered: the most that would is ${money(bid.maxBid)}, below it.`);
     } else if (!bid.none) {
-      const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could pay, not your price)`;
+      const what = `What-if, at your walk-away price of ${money(bid.maxBid)} (the most you could ${fixedPriceName(d) && fixedPriceName(d) !== 'the agreed price' ? 'have paid' : 'pay'}, not your price)`;
       cash.push(offer ? `${what}: estimated cash you’d put in ${money(bid.cashPeak)}` : `${what}: ${money(bid.cashOnDay)} ${washoeTax ? 'by 5:00 p.m. the day after the sale' : 'on sale day'}; estimated cash you’d put in ${money(bid.cashPeak)}`);
       // As Fix and sell says in red: with no cash entered there, the walk-away price can need more than My plan's cash.
       if (bid.at && bid.at.cashPeak <= profile.investable && !(bid.cashLimit > 0) && !bid.cashTyped && profile.investable > 0 && bid.cashPeak > profile.investable) cash.push(`That walk-away price needs ${money(bid.cashPeak - profile.investable)} more than the ${money(profile.investable)} of investable cash in My plan: ${offer ? 'offer only what fits your cash' : `enter the cash you can bring in ${strategy} to cap the bid at what you have`}.`);

@@ -31,7 +31,7 @@ export const structuring: Lesson = {
         ] },
         {
           table: {
-            head: ['State', 'Yearly state cost of an LLC'],
+            head: ['State', 'State cost of an LLC'],
             rows: [
               ['Nevada', '$425 to form one the first year ($75 for the articles, $150 for the initial list and $200 for the state business license), then $350 a year (a $150 annual list plus the $200 license renewal) (NRS 86.561, 86.263, 76.100 and 76.130).'],
               ['California', 'At least $800 a year in California tax, even if the LLC earns nothing or loses money, until you cancel it. The first payment is due by the 15th day of the 4th month after you form it. A fee is added once total income reaches $250,000 (Franchise Tax Board). Filing the Articles of Organization costs $70, and a $20 Statement of Information is due within 90 days and every 2 years after (Secretary of State).'],

@@ -1,5 +1,6 @@
 import { noRedemptionWords, shortestRedemptionMonths, shortestRedemptionWords, shorterThanLaw, waitWords } from '../lib/dealPacket';
-import { loadDeals, type Deal } from '../lib/analyze';
+import type { Deal } from '../lib/analyze';
+import { savedStageOf } from '../lib/dealStage';
 import { getMyArea } from '../lib/myArea';
 import { calculatorInputError, parseCalcInput, shownInputError } from './CalcFields';
 import { workStorage as localStorage } from '../lib/workStorage';
@@ -178,9 +179,9 @@ const unitText = (u: Field['unit']) => (u === '$/500' ? 'per $500' : u === 'mo' 
 export default function BidCalculator({ propertyId, saveAs, defaults = START_INPUTS, openingBid, headingLevel = 3, commercial = false, offer = false, saleKind }: { propertyId?: string; /** Keep the numbers under this id (a deal saved in Analyze) when there's no listing. */ saveAs?: string; defaults?: BidInputs; openingBid?: number | null; headingLevel?: 2 | 3; commercial?: boolean; offer?: boolean; /** The kind of sale chosen in Analyze: picks the redemption rules that fit it. */ saleKind?: string }) {
   const storeId = propertyId ?? saveAs;
   // (A saved auction deal you've already won: its price is the winning bid, not a planned one.)
-  const boughtOffer = offer && !!saveAs && saveAs.startsWith('analyzed-') && ['closed', 'owned'].includes(loadDeals().find((x) => `analyzed-${x.id}` === saveAs)?.stage ?? '');
-  const agreed = offer && !!saveAs && saveAs.startsWith('analyzed-') && loadDeals().find((x) => `analyzed-${x.id}` === saveAs)?.stage === 'contract';
-  const wonBid = !offer && !!saveAs && saveAs.startsWith('analyzed-') && ['contract', 'closed', 'owned'].includes(loadDeals().find((x) => `analyzed-${x.id}` === saveAs)?.stage ?? '');
+  const boughtOffer = offer && !!saveAs && saveAs.startsWith('analyzed-') && ['closed', 'owned'].includes(savedStageOf(saveAs.slice('analyzed-'.length)) ?? '');
+  const agreed = offer && !!saveAs && saveAs.startsWith('analyzed-') && savedStageOf(saveAs.slice('analyzed-'.length)) === 'contract';
+  const wonBid = !offer && !!saveAs && saveAs.startsWith('analyzed-') && ['contract', 'closed', 'owned'].includes(savedStageOf(saveAs.slice('analyzed-'.length)) ?? '');
   // Words for an auction bid, or an offer on a listed home.
   // (Once the price is fixed, agreed, won or paid, the figures are about prices, not a bid or offer to make.)
   const fixedPrice = agreed || wonBid || boughtOffer;
@@ -600,7 +601,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           <p className="small muted" id={`${uid}-rule-confirmed`} tabIndex={-1}>{ruleNow === 'custom' && choices?.start === 'none' ? <>Confirmed by you: no redemption rule applies to this sale (your {Math.round(i.redemptionMonths * 10) / 10}-month wait is a what-if).</> : <>Redemption rule confirmed by you: {ruleNow === 'custom' ? `your own numbers, ${waitWords(Math.round(i.redemptionMonths * 10) / 10)}` : offered[ruleNow]?.label}.</>} <button type="button" className="linkish" onClick={() => { update({ redemptionChecked: 0 }); setTimeout(() => document.querySelector<HTMLInputElement>('.calc-unconfirmed input[type="checkbox"]')?.focus(), 0); }}>Undo</button></p>
         )}
         <ExampleResults count={needsValue ? 0 : still.length} />
-        {!needsValue && !r.noBidWorks && !cashShort && <PriceHead level={3} kind="target" label="Walk-away price" price={r.noBidWorks || cashShort ? null : r.maxBid} result={r.noBidWorks || cashShort ? null : r.profit} unit="profit" note={r.noBidWorks || cashShort ? undefined : `Not the result at ${yours.toLowerCase()}: this is the most you could pay and still meet ${gw}.`} />}
+        {!needsValue && !r.noBidWorks && !cashShort && <PriceHead level={3} kind="target" label="Walk-away price" price={r.noBidWorks || cashShort ? null : r.maxBid} result={r.noBidWorks || cashShort ? null : r.profit} unit="profit" note={r.noBidWorks || cashShort ? undefined : `Not the result at ${yours.toLowerCase()}: this is the most you could ${wonBid || boughtOffer ? 'have paid' : 'pay'} and still meet ${gw}.`} />}
         {needsValue ? (
           <div className="calc-max">
             <span>Walk-away price</span>
@@ -632,8 +633,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           )
         )}
         {/* No cash limit entered here, but My plan has your investable cash and this needs more: say so by the price. */}
-        {!needsValue && !r.noBidWorks && !planShort && !(i.cashAvailable > 0) && !cashTyped && planCash > 0 && r.cashPeak > planCash && !wonBid && !boughtOffer && (
-          <p className="calc-verdict bad" role="note"><strong>This needs about {fmtMoney(Math.round(r.cashPeak))} of your cash at the walk-away price; My plan shows {fmtMoney(Math.round(planCash))} of investable cash.</strong> {agreed ? 'Check the cash the agreed price needs below, and talk to your lender before you close.' : offer ? 'Offer only what fits your cash (with any loan your lender approves), or compare a loan with a lender.' : <>Enter the cash you can bring (an auction wants the full amount by its payment deadline) to cap the {w.bid} at what you have, or compare a loan with a lender. <button type="button" className="linkish" onClick={() => { const f = document.getElementById(`${uid}-cashAvailable`); f?.scrollIntoView({ block: 'center' }); f?.focus({ preventScroll: true }); }}>Enter your cash</button></>}</p>
+        {!needsValue && !r.noBidWorks && !planShort && !(i.cashAvailable > 0) && !cashTyped && planCash > 0 && r.cashPeak > planCash && !fixedPrice && (
+          <p className="calc-verdict bad" role="note"><strong>This needs about {fmtMoney(Math.round(r.cashPeak))} of your cash at the walk-away price; My plan shows {fmtMoney(Math.round(planCash))} of investable cash.</strong> {offer ? 'Offer only what fits your cash (with any loan your lender approves), or compare a loan with a lender.' : <>Enter the cash you can bring (an auction wants the full amount by its payment deadline) to cap the {w.bid} at what you have, or compare a loan with a lender. <button type="button" className="linkish" onClick={() => { const f = document.getElementById(`${uid}-cashAvailable`); f?.scrollIntoView({ block: 'center' }); f?.focus({ preventScroll: true }); }}>Enter your cash</button></>}</p>
         )}
         {!needsValue && i.minimumBid > 0 && <PriceHead level={3} kind="listed" tag={offer ? 'From the listing' : 'From the sale notice'} label={w.Opening} price={i.minimumBid} result={atOpening} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(openingCash))}.`} />}
         {!needsValue && i.minimumBid > 0 && (

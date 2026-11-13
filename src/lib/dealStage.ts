@@ -486,6 +486,9 @@ export function inferStage(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}
 /** The deal's stage: the one the buyer chose, or the most likely one for a deal saved before stages existed. */
 export const stageOf = (d: Deal): DealStage => d.stage ?? inferStage(d);
 
+/** A saved deal's stage by id (inferred for older deals, as everywhere else), or '' when there's no such deal. */
+export const savedStageOf = (id?: string): DealStage | '' => { const d = id ? loadDeals().find((x) => x.id === id) : undefined; return d ? stageOf(d) : ''; };
+
 /** Change a saved deal's stage. Kept with the deal, so Analyze, the deal packet and My plan all agree. */
 export function setDealStage(id: string, stage: DealStage) {
   if (!isDealStage(stage)) return;
