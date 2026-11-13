@@ -6,6 +6,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { getMode } from '../lib/journey';
 import { PATH, type StepKey } from '../lib/path';
 import { planNow } from '../lib/planNext';
+import { taskHeadParts } from '../lib/dealStage';
 
 /** "Next step" link at the bottom of each step's page: My plan's next task when guided, else the next of the six steps. */
 export default function PathNext({ step }: { step: StepKey }) {
@@ -49,7 +50,7 @@ export default function PathNext({ step }: { step: StepKey }) {
       <nav className="path-next" aria-label="Next step">
         <span className="muted">Next: {plan.context}</span>
         {/* A property's task opens that property in Analyze, not whichever analysis was open last. */}
-        <a className="btn" href={plan.task.href} onClick={(e) => { if (plan.task.openDeal && plan.deal) { e.preventDefault(); openDeal(plan.deal); } }}>{plan.task.label}&nbsp;→</a>
+        <a className="btn" href={plan.task.href} onClick={(e) => { if (plan.task.openDeal && plan.deal) { e.preventDefault(); openDeal(plan.deal); } }}>{taskHeadParts(plan.task.label, plan.deal?.name)[0]}&nbsp;→</a>
       </nav>
     );
   }
