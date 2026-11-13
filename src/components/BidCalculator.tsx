@@ -605,13 +605,13 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {!offer && choices?.confirm && !!i.redemptionChecked && (
           <p className="small muted" id={`${uid}-rule-confirmed`} tabIndex={-1}>{ruleNow === 'custom' && choices?.start === 'none' ? <>Confirmed by you: no redemption rule applies to this sale (your {Math.round(i.redemptionMonths * 10) / 10}-month wait is a what-if).</> : <>Redemption rule confirmed by you: {ruleNow === 'custom' ? `your own numbers, ${waitWords(Math.round(i.redemptionMonths * 10) / 10)}` : offered[ruleNow]?.label}.</>} <button type="button" className="linkish" onClick={() => { update({ redemptionChecked: 0 }); setTimeout(() => document.querySelector<HTMLInputElement>('.calc-unconfirmed input[type="checkbox"]')?.focus(), 0); }}>Undo</button></p>
         )}
-        <ExampleResults count={needsValue ? 0 : still.length} />
+        <ExampleResults count={needsValue ? 0 : still.length} what={(phase === 'owed' || phase === 'paid') ? 'numbers' : undefined} />
         {!needsValue && !r.noBidWorks && !cashShort && <PriceHead level={3} kind="target" label={(phase === 'owed' || phase === 'paid') ? 'The most this plan could have paid' : 'Walk-away price'} price={r.noBidWorks || cashShort ? null : r.maxBid} result={r.noBidWorks || cashShort ? null : r.profit} unit="profit" note={r.noBidWorks || cashShort ? undefined : `Not the result at ${yours.toLowerCase()}: this is the most you could ${wonBid || boughtOffer ? 'have paid' : 'pay'} and still meet ${gw}.`} />}
         {needsValue ? (
           <div className="calc-max">
-            <span>Walk-away price</span>
+            <span>{(phase === 'owed' || phase === 'paid') ? 'The most this plan could have paid' : 'Walk-away price'}</span>
             <strong>Enter a resale value</strong>
-            <small>{propertyId ? 'We don’t estimate values for listings from the official list. ' : `Start with the ${w.opening} from the listing, then the costs. `}The resale value comes from recent sold prices of similar nearby properties, as they’d be after repairs.</small>
+            <small>{propertyId ? 'We don’t estimate values for listings from the official list. ' : (phase === 'owed' || phase === 'paid') ? `Enter the resale value and the costs; ${yours.toLowerCase()} goes in the results. ` : `Start with the ${w.opening} from the listing, then the costs. `}The resale value comes from recent sold prices of similar nearby properties, as they’d be after repairs.</small>
           </div>
         ) : (
           cashShort ? (
@@ -783,7 +783,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
 
       {/* On phones the results sit below every input, so keep the answer in view while typing. */}
       <button type="button" hidden={resultsVisible || !calcInView} className={`calc-sticky${(r.noBidWorks && !needsValue) || stickyBad ? ' bad' : ''}`} onClick={() => (stickyBad ? document.querySelector<HTMLElement>(`.calc input[aria-invalid="true"]`) : document.getElementById(`${uid}-results`))?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>
-        <span>{stickyBad ? 'Results paused' : 'Walk-away price'}</span>
+        <span>{stickyBad ? 'Results paused' : (phase === 'owed' || phase === 'paid') ? 'Most it could have paid' : 'Walk-away price'}</span>
         <strong>{stickyBad ? 'Fix the red box' : needsValue ? 'Add resale value' : cashShort ? 'Not enough cash' : r.noBidWorks ? `No ${w.bid} works` : fmtMoney(r.maxBid)}</strong>
         <span className="calc-sticky-go">{stickyBad ? 'Go to it' : 'See details'}&nbsp;↓</span>
       </button>

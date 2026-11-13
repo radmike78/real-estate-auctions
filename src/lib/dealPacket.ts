@@ -1118,7 +1118,13 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   // Washoe's balance is due the day after the sale, not all on sale day.
   // Eureka's sealed bids: the full payment goes in with the bid, by the notice's deadline (before the sale).
   const sealed = !offer && sealedBid(d);
-  const saleDay = (at: string, amount: number, end = '') => sealed
+  // After a win the sale day has passed: the bid is due by the sale's payment deadline, or already paid.
+  const wonPhase = !offer ? pricePhase(d) : null;
+  const saleDay = (at: string, amount: number, end = '') => wonPhase === 'paid' && !sealed
+    ? `Paid at ${at}: ${money(amount)} (record what you actually paid)${end}`
+    : wonPhase === 'owed'
+    ? `By the sale’s payment deadline (see Key dates), at ${at}: ${money(amount)} (the full amount, plus any buyer’s premium, in the form the sale requires)${end}`
+    : sealed
     ? `With your sealed bid, by the notice’s deadline (usually 4 p.m. the day before the sale*), at ${at}: ${money(amount)} (the full bid, in the form the notice allows)${end}`
     : washoeTax
     ? `By 5:00 p.m. the day after the sale, at ${at}: ${money(amount)} (the full amount by then, in the form the sale requires; see the deposit terms above)${end}`

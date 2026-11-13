@@ -359,7 +359,8 @@ const workedWindow = (d: { id?: string; state?: Deal['state']; kind: Deal['kind'
 const POSTPONE = { label: 'It was postponed: clear its dates to enter the new ones' };
 /** What to answer first (lower first): a sale that may be void, then a task due today or tomorrow (a closing; not a
  *  plain date reminder), then the SID payoff, a passed sale day, other dates. */
-export const pressingWeight = (t: Pick<PlanTask, 'key' | 'label'> & { days?: number; urgent?: boolean }) => (t.key === 'sid-void' || t.key === 'sid-refund' ? 0 : t.urgent && t.days !== undefined && t.days >= 0 && t.key !== 'date' ? 0.5 : /SID/.test(t.label) ? 1 : t.key === 'bid' ? 1.5 : t.key === 'date' ? 2 : 3);
+// A won bid's missed payment deadline comes first: a winner who doesn't pay can lose the sale and owe the loss.
+export const pressingWeight = (t: Pick<PlanTask, 'key' | 'label'> & { days?: number; urgent?: boolean }) => (t.key === 'sid-void' || t.key === 'sid-refund' || (t.days !== undefined && t.days < 0 && /Payment deadline/.test(t.label)) ? 0 : t.urgent && t.days !== undefined && t.days >= 0 && t.key !== 'date' ? 0.5 : /SID/.test(t.label) ? 1 : t.key === 'bid' ? 1.5 : t.key === 'date' ? 2 : 3);
 /** Another property needs an answer now: a deadline passed, or its sale day passed ("did you win?"). */
 export const needsAnswerNow = (t: PlanTask) => deadlinePassed(t) || (t.key === 'bid' && !!t.answer) || (t.days !== undefined && t.days <= 1 && !!t.urgent);
 /** A deadline that has passed (a window ended, the SID payoff's 20 days): it needs an answer before routine work. */
@@ -411,7 +412,7 @@ export function stageLabel(stage: DealStage, d: Pick<Deal, 'kind'> & { plan?: De
   switch (stage) {
     case 'researching': return 'Researching';
     case 'offer': return w === 'offer' ? 'Preparing an offer' : w === 'lien' && d.state === 'NV' ? 'Preparing for the sale' : 'Preparing to bid';
-    case 'contract': return w === 'offer' ? 'Under contract' : w === 'lien' && d.state === 'NV' ? (paidAtWin(d) ? 'Picked: paid, certificate next' : 'Picked: paying') : sealedBid(d) && paidAtWin(d) ? 'Won: recording' : 'Won: paying and recording';
+    case 'contract': return w === 'offer' ? 'Under contract' : w === 'lien' && d.state === 'NV' ? (paidAtWin(d) ? 'Picked: paid, certificate next' : 'Picked: paying') : sealedBid(d) && paidAtWin(d) ? 'Won: recording' : paidAtWin(d) ? (certificateFirst(d) ? 'Won: paid, certificate next' : 'Won: paid, recording next') : 'Won: paying and recording';
     case 'closed': return redeemingNow(d) && w !== 'lien' ? 'Redeemed: collecting the payoff' : w === 'offer' ? 'Closed' : w === 'lien' ? (redeemingNow(d) && (d as { stage?: string }).stage !== 'owned' ? 'Certificate in hand (paid off: collecting)' : 'Certificate in hand') : certificateFirst(d) && !deedInHand(d) ? (d.kind === 'irs' ? 'Certificate of sale received' : 'Certificate of sale recorded') : 'Deed recorded';
     case 'owned': return w === 'lien' ? (redeemingNow(d) && (d as { stage?: string }).stage === 'owned' ? 'Paid off: collecting from the Treasurer' : 'Holding the certificate') : d.plan === 'flip' ? (soldOf(d) ? 'Sold' : 'Fixing and selling') : liveIn(d) ? 'Living there' : 'Owned and operating';
     case 'passed': return redeemedOf(d) ? (wayOf(d) === 'lien' ? 'Paid off (repaid)' : 'Redeemed (repaid)') : 'Passed';
