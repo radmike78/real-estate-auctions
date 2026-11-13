@@ -720,7 +720,7 @@ const COMMERCIAL_GROUPS: CalcGroup<CommercialInputs>[] = [
 
 export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', exactKey = false, start = {}, regional = false, offer = false, saleKind, dealId }: { /** The kind of sale (a redemption wait before the deed is said). */ saleKind?: string; /** The saved deal (an IRS sale's picked rule). */ dealId?: string; storageKey?: string; exactKey?: boolean; start?: Partial<CommercialInputs>; regional?: boolean; offer?: boolean }) {
   const commRegion = useCalcRegion();
-  const ct = useRegionTax(COMMERCIAL_GROUPS);
+  const ct = useRegionTax(COMMERCIAL_GROUPS, false, !!dealId && (() => { const od = loadDeals().find((x) => x.id === dealId); return !!od && sealedBid(od); })());
   const [saved, set, typed, typedKeys] = useSaved<CommercialInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...COMMERCIAL_DEFAULTS, ...start }, regional ? { transferTaxPer500: ct.per500 } : {});
   const v = offer ? { ...saved, buyerPremiumPct: 0 } : saved;
   const r = commercialMaxBid(v, offer);
