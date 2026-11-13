@@ -220,8 +220,9 @@ const EVENTS = ['Sale day', 'Contract signed', 'Offer accepted (Day 0)', 'Accept
 /** Registration rows: past the bidding (won, closed), they're behind you. */
 const BEFORE_SALE = ['Registration', 'Bidder registration', 'Sealed bid and full payment due'];
 /** Sale day is marked handled, or its date has passed: time to say whether you won. */
-// (Counted in Nevada's day, Pacific time, so a reader abroad isn't asked 'did you win?' before the sale is held.)
-export const saleOver = (p: PacketData, now: Date) => { const today = nvParts(now).day; return p.dates.some((x) => sameDate(x.what, 'Sale day') && (x.when ? x.when < today || (!!x.resolved && x.when <= today) : !!x.resolved)); };
+export const saleOver = (p: PacketData, now: Date) => p.dates.some((x) => sameDate(x.what, 'Sale day') && (x.when ? x.when < localDay(now) || (!!x.resolved && x.when <= localDay(now)) : !!x.resolved));
+/** The same for a Eureka sealed-bid sale, counted in Nevada's day (its steps run in Nevada days, wherever the reader is). */
+const saleOverFor = (d: { state?: Deal['state']; kind?: Deal['kind']; county?: string }, p: PacketData, now: Date) => { if (!sealedBid(d)) return saleOver(p, now); const today = nvParts(now).day; return p.dates.some((x) => sameDate(x.what, 'Sale day') && (x.when ? x.when < today || (!!x.resolved && x.when <= today) : !!x.resolved)); };
 /** A row marked handled, with or without its date (the deed: you have it). */
 const ticked = (p: PacketData, what: string) => p.dates.some((x) => sameDate(x.what, what) && !!x.resolved);
 /** A Nevada tax sale's answer from the Treasurer that no SID affidavit was filed (NRS 361.595(6)). */
@@ -817,18 +818,18 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       if (stage === 'offer') out.push(task({ key: 'qa', label: `Ask your title company or attorney your questions about ${n}`, produces: `their answers, with dates, in its deal packet (${w === 'lien' ? 'what the certificate gives you and how it’s paid off' : `what survives the sale, possession${d.state === 'NV' && d.kind === 'trustee' ? ', and the challenge window' : ''}`})`, href: packetHref(d, 'pros'), support: [L.pro('title'), L.pro('attorney')], done: p.qa.some((x) => x.q.trim() && x.a.trim()) }));
       const bidTask = task({
         key: 'bid',
-        label: saleOver(p, now) ? (w === 'lien' && d.state === 'NV' ? `Sale day has passed for ${n}: were you picked?` : `Sale day has passed for ${n}: did you win?`) : w === 'lien' ? (d.state === 'NV' ? `Sign up for ${n} at the county’s sale` : `Bid on ${n} at the county’s sale`) : sealedBid(d) ? `Get your sealed bid for ${n}, with full payment, to the Eureka County Treasurer’s office by the notice’s deadline (usually 4 p.m. the day before the sale; the office is open Monday to Thursday except holidays, so if it’s closed that day the deadline may be earlier*)` : `Register and bid on ${n}, up to your maximum`,
-        produces: saleOver(p, now) ? `your answer. If you ${w === 'lien' && d.state === 'NV' ? 'were picked, mark it and the payment step appears here' : (sealedBid(d) ? 'won (the Treasurer contacts each winning bidder by phone or mail; a tie gets further bidding instructions), mark it: the payment went in with your bid, and the recording steps appear here' : 'won, mark it and the payment and recording steps appear here')}; if the sale was postponed, clear its date and enter the new one; if not, mark it passed` : w === 'lien' && d.state === 'NV' ? 'your name in for it at the sale (buyers are picked by a drawing or a show of hands), or a clean walk-away. If you’re picked, mark it and the payment deadline appears here' : sealedBid(d) ? 'a sealed bid at or below your limit, with full payment enclosed (a card is charged at the award; if it’s declined, the parcel goes to the next highest bidder), or a clean walk-away. If you win, mark it won and the recording steps appear here' : 'a bid at or below your limit, or a clean walk-away. If you win, mark it won and the payment deadlines appear here',
+        label: saleOverFor(d, p, now) ? (w === 'lien' && d.state === 'NV' ? `Sale day has passed for ${n}: were you picked?` : `Sale day has passed for ${n}: did you win?`) : w === 'lien' ? (d.state === 'NV' ? `Sign up for ${n} at the county’s sale` : `Bid on ${n} at the county’s sale`) : sealedBid(d) ? `Get your sealed bid for ${n}, with full payment, to the Eureka County Treasurer’s office by the notice’s deadline (usually 4 p.m. the day before the sale; the office is open Monday to Thursday except holidays, so if it’s closed that day the deadline may be earlier*)` : `Register and bid on ${n}, up to your maximum`,
+        produces: saleOverFor(d, p, now) ? `your answer. If you ${w === 'lien' && d.state === 'NV' ? 'were picked, mark it and the payment step appears here' : (sealedBid(d) ? 'won (the Treasurer contacts each winning bidder by phone or mail; a tie gets further bidding instructions), mark it: the payment went in with your bid, and the recording steps appear here' : 'won, mark it and the payment and recording steps appear here')}; if the sale was postponed, clear its date and enter the new one; if not, mark it passed` : w === 'lien' && d.state === 'NV' ? 'your name in for it at the sale (buyers are picked by a drawing or a show of hands), or a clean walk-away. If you’re picked, mark it and the payment deadline appears here' : sealedBid(d) ? 'a sealed bid at or below your limit, with full payment enclosed (a card is charged at the award; if it’s declined, the parcel goes to the next highest bidder), or a clean walk-away. If you win, mark it won and the recording steps appear here' : 'a bid at or below your limit, or a clean walk-away. If you win, mark it won and the payment deadlines appear here',
         href: ROADMAP_HREF,
         advance: { stage: 'contract', label: w === 'lien' && d.state === 'NV' ? 'I was picked: mark it' : sealedBid(d) && !ticked(p, SEALED_ROW) ? 'My sealed bid went in on time and won: mark it won' : 'I won the bid: mark it won', ...(sealedBid(d) ? { ticks: [SEALED_ROW], tickWho: 'You', tickWhen: sealedDay(p) } : {}) },
-        ...(saleOver(p, now) ? { advance2: { stage: 'passed' as DealStage, label: w === 'lien' && d.state === 'NV' ? 'I wasn’t picked: mark it passed' : sealedBid(d) ? (ticked(p, SEALED_ROW) ? 'My bid didn’t win: mark it passed (the county returns the enclosed payment by certified mail)' : 'My bid didn’t win, or I didn’t send one: mark it passed (the county returns any enclosed payment by certified mail)') : 'I didn’t win (or didn’t bid): mark it passed' }, postpone: POSTPONE } : {}),
+        ...(saleOverFor(d, p, now) ? { advance2: { stage: 'passed' as DealStage, label: w === 'lien' && d.state === 'NV' ? 'I wasn’t picked: mark it passed' : sealedBid(d) ? (ticked(p, SEALED_ROW) ? 'My bid didn’t win: mark it passed (the county returns the enclosed payment by certified mail)' : 'My bid didn’t win, or I didn’t send one: mark it passed (the county returns any enclosed payment by certified mail)') : 'I didn’t win (or didn’t bid): mark it passed' }, postpone: POSTPONE } : {}),
         support: [L.guides, w === 'lien' && d.state === 'NV' ? L.practiceLien : L.practiceAuction],
-        answer: saleOver(p, now),
-        urgent: saleOver(p, now),
+        answer: saleOverFor(d, p, now),
+        urgent: saleOverFor(d, p, now),
         done: false,
       });
-      if (saleOver(p, now)) out.unshift(bidTask, task({ key: 'lost', label: w === 'lien' && d.state === 'NV' ? `Not picked for ${n}? Mark it passed` : `Didn’t win ${n}? Mark it passed`, produces: 'the deal moved to Passed, with its record kept', href: packetHref(d, 'decision'), setStage: 'passed', done: false }));
-      if (!saleOver(p, now)) out.push(bidTask);
+      if (saleOverFor(d, p, now)) out.unshift(bidTask, task({ key: 'lost', label: w === 'lien' && d.state === 'NV' ? `Not picked for ${n}? Mark it passed` : `Didn’t win ${n}? Mark it passed`, produces: 'the deal moved to Passed, with its record kept', href: packetHref(d, 'decision'), setStage: 'passed', done: false }));
+      if (!saleOverFor(d, p, now)) out.push(bidTask);
     }
     return out;
   }
@@ -1030,7 +1031,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
   }
   if (stage !== 'passed') {
     // Sale day has passed with the deal still before the sale: whether you won comes first.
-    if (stage === 'offer' && wayOf(d) !== 'offer' && saleOver(p, now)) {
+    if (stage === 'offer' && wayOf(d) !== 'offer' && saleOverFor(d, p, now)) {
       const t = stageTasks(d, stage, p, now).find((x) => x.key === 'bid');
       if (t) return t;
     }
@@ -1041,7 +1042,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
       return task({ key: 'date', label: `Enter the new sale date for ${n} (${d.state === 'NV' && d.kind === 'trustee' ? 'the trustee announces it at the sale, same time and place, or after three postponements in a new notice; NRS 107.082' : 'whoever runs the sale announces it'})`, produces: 'the new date in Key dates, then the registration and payment deadlines for that date', href: packetHref(d, 'dates'), urgent: true, support: [], done: false });
     }
     // Still researching when the sale went by: did you bid and win? (Never "overdue: sale day".)
-    if (stage === 'researching' && wayOf(d) !== 'offer' && saleOver(p, now)) {
+    if (stage === 'researching' && wayOf(d) !== 'offer' && saleOverFor(d, p, now)) {
       const n = d.name || 'this property';
       const picked = wayOf(d) === 'lien' && d.state === 'NV';
       return task({ key: 'bid', label: picked ? `Sale day has passed for ${n}: were you picked?` : `Sale day has passed for ${n}: did you win?`, produces: picked ? 'your answer. If you were picked, mark it and the payment step appears here; if the sale was postponed, clear its date and enter the new one; if not, mark it passed' : `your answer. If you won, mark it and the ${sealedBid(d) ? 'recording steps (the payment went in with your bid; the Treasurer contacts each winning bidder by phone or mail)' : 'payment and recording steps'} appear here; if the sale was postponed, clear its date and enter the new one; if not, mark it passed`, href: packetHref(d, 'decision'), advance: { stage: 'contract', label: picked ? 'I was picked: mark it' : sealedBid(d) && !ticked(p, SEALED_ROW) ? 'My sealed bid went in on time and won: mark it won' : 'I won the bid: mark it won', ...(sealedBid(d) ? { ticks: [SEALED_ROW], tickWho: 'You', tickWhen: sealedDay(p) } : {}) }, advance2: { stage: 'passed', label: picked ? 'I wasn’t picked: mark it passed' : sealedBid(d) ? (ticked(p, SEALED_ROW) ? 'My bid didn’t win: mark it passed (the county returns the enclosed payment by certified mail)' : 'My bid didn’t win, or I didn’t send one: mark it passed (the county returns any enclosed payment by certified mail)') : 'I didn’t win (or didn’t bid): mark it passed' }, postpone: POSTPONE, answer: true, urgent: true, support: [], done: false });
