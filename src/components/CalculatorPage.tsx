@@ -97,9 +97,9 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
         <li><strong>Later years’ taxes</strong> you may pay to protect the lien, in your holding budget.</li>
         <li><strong>The parcel itself:</strong> would you accept owning it if the lien is never paid?</li>
         <li><strong>When you’d call an attorney</strong> to enforce an unpaid lien, and what that would cost.</li>
-        <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney and tax advisor before {state === 'NV' ? 'the sale' : 'you bid'}.</li>
+        <li><strong>Your deal, your decision.</strong> Verify with the official source, and get advice from your own attorney and tax advisor before {won ? 'you rely on these numbers' : state === 'NV' ? 'the sale' : 'you bid'}.</li>
       </ul>
-      <p className="muted small">Can’t check one yet? Get the answer before {state === 'NV' ? 'the sale' : 'you bid'}.</p>
+      <p className="muted small">Can’t check one yet? Get the answer before {won ? 'you rely on these numbers' : state === 'NV' ? 'the sale' : 'you bid'}.</p>
     </section>
   );
   return (

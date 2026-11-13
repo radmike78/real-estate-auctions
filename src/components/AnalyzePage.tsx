@@ -414,7 +414,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     const ph = pricePhase(sd);
     if (ph === 'agreed') return { text: `You’ve already agreed on a price, so these numbers are a check, not a decision. ${NO_PRICE_AFTER.agreed}` };
     if (ph) return { text: `You’ve already ${['listing', 'reo', 'short'].includes(sd.kind) ? 'bought it' : 'won it'}, so these numbers are a check, not a decision. ${checkAdvice('them', !!beforeDeed(sd))}` };
-    if (sd.kind === 'lien' && sd.state === 'NV' && stageOf(sd) === 'contract' && overdueIntro(sd)) return { text: overdueIntro(sd) };
+    // A missed payment: the deal packet's note, pointed at the packet (Analyze has no Key dates or stage menu).
+    const inPacket = (t: string) => t.replace('mark it handled in Key dates', 'mark it handled in its deal packet’s Key dates').replace('mark the deal passed', 'mark the deal passed in its deal packet');
+    if (overdueIntro(sd)) return { text: inPacket(overdueIntro(sd)) };
     if (sd.kind === 'lien' && ['contract', 'closed', 'owned'].includes(stageOf(sd))) return { text: `You ${stageOf(sd) === 'contract' ? 'were picked for this certificate' : 'already hold this certificate'}, so these numbers are a check, not a decision. If they don’t work, talk to your attorney and advisors about your options: each person’s situation decides which fits.` };
     return null;
   })();
