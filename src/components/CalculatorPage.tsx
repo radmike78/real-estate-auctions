@@ -1,4 +1,4 @@
-import { redeemedDeal, savedStageOf, liveIn, prettyDay, redemptionEndedOn, redemptionOver, redemptionPast } from '../lib/dealStage';
+import { paidAtWin, redeemedDeal, savedStageOf, liveIn, prettyDay, redemptionEndedOn, redemptionOver, redemptionPast } from '../lib/dealStage';
 import type { Deal } from '../lib/analyze';
 import { useEffect, useState } from 'react';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
@@ -93,7 +93,7 @@ function BeforeYouCommit({ plan, state, saleKind, dealId }: { plan?: string; sta
     <section className="before-commit" aria-labelledby="before-commit-head">
       <h3 id="before-commit-head">{won ? 'Check these before you rely on these numbers' : 'Before you commit, check these'}</h3>
       <ul>
-        {won ? <li><strong>The sale’s payment deadline and terms,</strong> from the treasurer that held the sale, and the receipt for what you paid.</li> : <li><strong>The county’s {state === 'NV' ? 'sale rules' : 'bidder rules'} and payment deadline,</strong> from the treasurer’s own sale page.</li>}
+        {won ? <li><strong>The sale’s payment deadline and terms,</strong> from the treasurer that held the sale{dealId && paidAtWin({ id: dealId, state: state ?? undefined, kind: saleKind as Deal['kind'] }) ? ', and the receipt for what you paid' : ''}.</li> : <li><strong>The county’s {state === 'NV' ? 'sale rules' : 'bidder rules'} and payment deadline,</strong> from the treasurer’s own sale page.</li>}
         <li><strong>Later years’ taxes</strong> you may pay to protect the lien, in your holding budget.</li>
         <li><strong>The parcel itself:</strong> would you accept owning it if the lien is never paid?</li>
         <li><strong>When you’d call an attorney</strong> to enforce an unpaid lien, and what that would cost.</li>

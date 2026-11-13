@@ -1,4 +1,4 @@
-import { beforeDeed, liveIn, stageLabel, stageOf, finishedDeal } from '../lib/dealStage';
+import { beforeDeed, paidAtWin, liveIn, stageLabel, stageOf, finishedDeal } from '../lib/dealStage';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
 import { planNow, practiceLienDeal, roadmapNextStep } from '../lib/planNext';
 import { lienDealFor, planPath, progressChanged } from '../lib/roadmapState';
@@ -414,6 +414,9 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     // A missed payment: the deal packet's note, pointed at the packet (Analyze has no Key dates or stage menu).
     const inPacket = (t: string) => t.replace('mark it handled in Key dates', 'mark it handled in its deal packet’s Key dates').replace('mark the deal passed', 'mark the deal passed in its deal packet');
     if (overdueIntro(sd)) return { text: inPacket(overdueIntro(sd)), packet: true };
+    // Still to pay: say so before the deadline, not only after it.
+    if (pricePhase(sd) === 'owed') return { text: 'You won it: pay the full bid by the sale’s payment deadline (its date is in the deal packet’s Key dates). These numbers are a check, not a decision.', packet: true };
+    if (sd.kind === 'lien' && stageOf(sd) === 'contract' && !paidAtWin(sd)) return { text: 'You were picked: pay by the payment deadline (its date is in the deal packet’s Key dates). These numbers are a check, not a decision.', packet: true };
     const ph = pricePhase(sd);
     if (ph === 'agreed') return { text: `You’ve already agreed on a price, so these numbers are a check, not a decision. ${NO_PRICE_AFTER.agreed}` };
     if (ph) return { text: `You’ve already ${['listing', 'reo', 'short'].includes(sd.kind) ? 'bought it' : 'won it'}, so these numbers are a check, not a decision. ${checkAdvice('them', !!beforeDeed(sd))}` };
