@@ -146,7 +146,8 @@ function buyGroup<T extends BuyInputs>(repairsLabel = 'Repairs'): CalcGroup<T> {
  * For a listed or bank-owned home: no buyer's premium, closing words instead of auction words, and a purchase loan
  * (a % of the price or the appraisal, whichever is lower) instead of a refinance later.
  */
-function forOffer<T>(groups: CalcGroup<T>[]): CalcGroup<T>[] {
+/** `bought`: the home is already bought, so the cash and loan notes are about what's in it now, not the offer. */
+function forOffer<T>(groups: CalcGroup<T>[], bought = false): CalcGroup<T>[] {
   const relabel: Record<string, { label?: string; hint?: string; more?: string }> = {
     cashAvailable: { label: 'Your investable cash for this deal (all in)', hint: 'Down payment, closing costs and repairs. 0 for no limit.', more: 'Follows your investable cash in My plan until you type your own figure here: subtract the reserves your lender wants you to keep. Your walk-away price never needs more cash than this.' },
     survivingLiens: { label: 'Liens you’d have to pay', hint: 'Usually paid off at closing. Check the title report.' },
@@ -155,6 +156,10 @@ function forOffer<T>(groups: CalcGroup<T>[]): CalcGroup<T>[] {
     value: { label: 'Appraised value', hint: 'The value the lender’s appraisal supports. The loan uses the lower of this and the price.', more: 'Homes are appraised mainly from recent sales nearby; commercial appraisals also weigh the income and the cost to rebuild. A seller’s or agent’s estimate isn’t an appraisal. Replace this, and the loan percentage, with your lender’s numbers when you have them.' },
     loanPct: { label: 'Loan, % of the price or value (lower)', hint: '75% (25% down) is common for a rental you won’t live in; living in it, use your lender’s figure. 0 for all cash.', more: 'Lenders lend a % of the price or the appraised value, whichever is lower. A lower price means a smaller loan and a lower payment. Ask your lender for their limits.' },
   };
+  if (bought) {
+    relabel.cashAvailable = { label: 'Cash you’re putting in (all in)', hint: 'All the cash you’re putting into this property: the price you paid, then every cost until it’s ready to rent. 0 for no limit.', more: '' };
+    relabel.loanPct = { ...relabel.loanPct, hint: 'The loan you closed with, or a refinance now that you own it; ask your lender about its terms. 0 for all cash.' };
+  }
   return groups.map((g) => ({
     ...g,
     title: g.title === 'Loan after you buy' ? 'Your loan' : g.title,
@@ -597,7 +602,7 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   const withTaxHint = (gs: CalcGroup<RentInputs>[]) => (rate && taxHere !== v.propertyTaxYear
     ? gs.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} ${taxAtWords}: about ${fmtMoney(taxHere)}.`.trim() } : f)) }))
     : gs);
-  const groups0 = withTaxHint(offer ? forOffer(rt.groups) : rt.groups);
+  const groups0 = withTaxHint(offer ? forOffer(rt.groups, bought) : rt.groups);
   // Living there: that's a rental's rate; a home you live in may get an owner-occupant (homestead) exemption.
   const groups = livesHere
     ? groups0.map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'propertyTaxYear' ? { ...f, hint: `${f.hint ?? ''} ${ownerOccupiedTaxNote(region.state)}`.trim() } : f.k === 'insuranceYear' ? { ...f, hint: 'A homeowner’s policy for the home you’ll live in. If you’ll rent out a room or unit, tell the insurer.*' } : f.k === 'repairs' ? { ...f, hint: bought ? 'Repairs you’ve made or still plan.' : 'To make it ready to move in.' } : f.k === 'monthlyRent' ? { ...f, hint: '0, or only the rent from space you’ll rent out.' } : f.k === 'cashAvailable' ? { ...f, hint: 'All the cash you can put in: the price and every cost until you move in. Leave 0 for no limit.' } : f)) }))
@@ -729,7 +734,7 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
   const noReal = noRealisticPrice(r, uncapped, v.value);
   const n = commercialNoi(v);
   // Commercial cash doesn't follow My plan (the results compare with it instead), so its help says so.
-  const groups = (offer ? forOffer(ct.groups) : ct.groups).map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'loanPct' && offer ? { ...f, hint: 'Commercial lenders often lend 65–75% of the price or value; use your lender’s figure. 0 for all cash.*' } : f.k === 'leaseUpMonths' && offer ? { ...f, hint: 'Empty or partly leased buildings can take months to fill: ask the broker for the rent roll and how long each space sat empty.' } : f.k === 'cashAvailable' && cMode === true ? { ...f, more: `Eureka County’s sale is sealed-bid: the full payment goes in with your bid, before the sale. Enter the cash you can put in, and the price is capped at what it covers. Until you type a figure, the results compare the cash it needs with your investable cash in My plan; a 0 you type means no limit and no comparison. Subtract the reserves your lender wants you to keep.` } : f.k === 'cashAvailable' && !cMode ? { ...f, more: 'Enter the cash you can put in, and the price is capped at what it covers. Until you type a figure, the results compare the cash it needs with your investable cash in My plan; a 0 you type means no limit and no comparison. Subtract the reserves your lender wants you to keep.' } : f)) }));
+  const groups = (offer ? forOffer(ct.groups, cMode === 'bought') : ct.groups).map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'loanPct' && offer ? { ...f, hint: 'Commercial lenders often lend 65–75% of the price or value; use your lender’s figure. 0 for all cash.*' } : f.k === 'leaseUpMonths' && offer ? { ...f, hint: 'Empty or partly leased buildings can take months to fill: ask the broker for the rent roll and how long each space sat empty.' } : f.k === 'cashAvailable' && cMode === true ? { ...f, more: `Eureka County’s sale is sealed-bid: the full payment goes in with your bid, before the sale. Enter the cash you can put in, and the price is capped at what it covers. Until you type a figure, the results compare the cash it needs with your investable cash in My plan; a 0 you type means no limit and no comparison. Subtract the reserves your lender wants you to keep.` } : f.k === 'cashAvailable' && !cMode ? { ...f, more: 'Enter the cash you can put in, and the price is capped at what it covers. Until you type a figure, the results compare the cash it needs with your investable cash in My plan; a 0 you type means no limit and no comparison. Subtract the reserves your lender wants you to keep.' } : f)) }));
   const still = exampleLabels(visibleFields(groups, v), v, COMMERCIAL_DEFAULTS, typedKeys, new Set([...NOT_EXAMPLES, ...Object.keys(start)]));
   const allExample = !typed && Object.keys(start).length === 0;
   // Commercial cash isn't taken from My plan: with no cash entered here (a typed 0 is no limit), compare the cash the

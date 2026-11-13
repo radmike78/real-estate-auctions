@@ -1068,7 +1068,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
       const saleOn = p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when ?? '';
       const rowOn = p.dates.find((x) => sameDate(x.what, SEALED_ROW) && x.when)?.when ?? '';
       const due = rowOn || (saleOn ? sealedDay(p) : '');
-      if (due && saleOn && nvD(saleOn) >= 1 && nvD(due) <= 7 && !(rowOn && nvD(rowOn) < 0) && !(rowOn && rowOn >= saleOn)) {
+      if (due && saleOn && nvD(saleOn) >= 0 && nvD(due) <= 7 && !(rowOn && nvD(rowOn) < 0) && !(rowOn && rowOn >= saleOn)) {
         const n = d.name || 'this property';
         const left = nvD(due);
         const nvHour = nvParts(now).hour;
@@ -1140,7 +1140,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
         ended.then = c.then; ended.tick = c.tick;
       } else if (ended && !late90Ahead) ended.then = ended.then.replace('If it does, move the end date; if not, mark it handled', 'If none was filed, mark it handled');
       const sidRow = sameDate(nd.what, 'SID certificate payoff') ? p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && x.when)?.when ?? '' : '';
-      const sidNote = sidRow && sidRow > nd.when ? ` The deadline is ${prettyDay(nd.when)}, 20 days after the sale; your date, ${prettyDay(sidRow)}, is later. If it isn’t paid by then, the sale is void (NRS 361.595(6)).` : sidRow && sidRow < nd.when ? ` The deadline is ${prettyDay(nd.when)}, 20 days after the sale (your planned date, ${prettyDay(sidRow)}, has passed). If it isn’t paid by then, the sale is void (NRS 361.595(6)).` : '';
+      const sidNote = sidRow && sidRow > nd.when ? ` The deadline is ${prettyDay(nd.when)}, 20 days after the sale; your date, ${prettyDay(sidRow)}, is later. If it isn’t paid by then, the sale is void (NRS 361.595(6)).` : sidRow && sidRow < nd.when ? ` The deadline is ${prettyDay(nd.when)}, 20 days after the sale (your planned date, ${prettyDay(sidRow)}, ${sidRow < localDay(now) ? 'has passed' : 'is earlier'}). If it isn’t paid by then, the sale is void (NRS 361.595(6)).` : '';
       const inspectionEnded = nd.days < 0 && stage === 'contract' && sameEvent(nd.what, 'Inspection period ends');
       // (An appraisal or loan deadline that has passed: resolved, or cancelled in writing in time, as the contract allows.)
       const contingencyEnded = nd.days < 0 && stage === 'contract' && wayOf(d) === 'offer' && (sameEvent(nd.what, 'Appraisal deadline') || sameEvent(nd.what, 'Appraisal addendum deadline') || sameEvent(nd.what, 'Loan approval deadline'));
