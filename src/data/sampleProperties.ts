@@ -295,7 +295,7 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
         minimumBid: null,
         deposit: 'Certified funds; confirm with the civil section',
         deedType: "Sheriff's certificate of sale, then a sheriff's deed",
-        redemptionPeriod: 'Debtor may redeem within 1 year (NRS 21.210)',
+        redemptionPeriod: '1 year after the sale: the debtor, or a creditor with a later judgment or mortgage lien, can redeem; if a creditor redeems, other creditors have 60 days to redeem from them (NRS 21.200–21.220)',
         eligibility: 'Open to the public',
       });
       status = 'IN_PERSON_AUCTION';
@@ -316,7 +316,7 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
         minimumBid: round(dot.amount * 0.8, 1000),
         deposit: 'Certified funds; see the court order',
         deedType: "Sheriff's certificate, then a deed after the redemption period",
-        redemptionPeriod: 'Up to 1 year after sale',
+        redemptionPeriod: '1 year after the sale: the debtor, or a creditor with a later judgment or mortgage lien, can redeem; if a creditor redeems, other creditors have 60 days to redeem from them (NRS 21.200–21.220)',
         eligibility: 'Open to the public',
       });
       status = 'COURT_CONFIRMATION_REQUIRED';
