@@ -578,6 +578,10 @@ describe('Nevada round 4 flow', () => {
     const today = { ...EMPTY_PACKET, dates: [{ when: '2026-11-14', what: 'Sale day', who: 'Treasurer', resolved: true }] };
     savePacket(`analyzed:${tax.id}`, today);
     expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T17:00:00Z')).find((x) => x.key === 'ev-terms')!.label).toMatch(/by 1:00 p.m. today/);
+    // After 1:00 p.m. Nevada time the same day it asks whether you paid, and passing records the deadline.
+    const after = stageTasks(tax, 'contract', today, new Date('2026-11-14T23:00:00Z')).find((x) => x.key === 'ev-terms')!;
+    expect(after.label).toMatch(/^Did you pay for/);
+    expect(after.advance2?.addRow).toMatchObject({ when: '2026-11-14', what: 'Payment deadline' });
   });
 
   it('a Nevada trustee win left unpaid after the sale day is urgent', () => {
