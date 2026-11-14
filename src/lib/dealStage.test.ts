@@ -563,6 +563,21 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(nvFlip, cw, now, 'closed').redate?.when).toBe('2026-11-30');
   });
 
+  it('a Nevada tax sale with its Treasurer’s deed recorded offers no SID void choice (NRS 361.595(6))', () => {
+    const tax = { ...nvFlip, kind: 'taxSale' as const };
+    const later = new Date('2026-11-14T18:00:00Z');
+    const sale = { when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true };
+    const before = { ...EMPTY_PACKET, dates: [sale] };
+    savePacket(`analyzed:${tax.id}`, before);
+    const ask = stageTasks(tax, 'owned', before, later).find((x) => x.key === 'sid-affidavit');
+    expect(ask?.undo?.label).toMatch(/the sale is void/);
+    const deeded = { ...EMPTY_PACKET, dates: [sale, { when: '2026-10-20', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }] };
+    savePacket(`analyzed:${tax.id}`, deeded);
+    const tasks = stageTasks(tax, 'owned', deeded, later);
+    expect(tasks.some((x) => x.key === 'sid-affidavit' || x.key === 'sid-paid-affidavit')).toBe(false);
+    expect(tasks.some((x) => /the sale is void/.test(x.undo?.label ?? ''))).toBe(false);
+  });
+
   it('round 8 verifier: the SID question comes right after paying, and its no is its own row; lien areas; redemption end from the row', () => {
     const tax = { ...nvFlip, kind: 'taxSale' as const };
     const keys = stageTasks(tax, 'contract', EMPTY_PACKET, now).map((x) => x.key);

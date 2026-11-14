@@ -214,7 +214,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash, with the loan (if any) and costs entered in Fix and flip (${bid.cashLimit > 0 ? (pricePhase(d) ? 'the cash you’re putting in' : 'the cash you entered') : 'My plan'}: ${fmtMoney(lim)}).` : '';
     })()}{whatIfSentence}{askOwn}</p>;
     // The redemption wait the price was built on, and a redemption's result at its end (as the packet says).
-    const redeemClause = redemptionOver(d) ? '' : bid.redeem && !bid.redeem.who ? whatIf : bid.redeem && !(bid.redeem.price > 0) ? waitOnly : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait${bid.redeem.shortest ? `, shorter than any period the law sets (at least ${shortestRedemptionWords(d, true)})*` : ''} (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? fixedPriceName(d) ?? 'your bid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
+    const redeemClause = redemptionOver(d) ? '' : bid.redeem && !bid.redeem.who ? whatIf : bid.redeem && !(bid.redeem.price > 0) ? waitOnly : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait${bid.redeem.shortest ? `, shorter than any period the law sets (at least ${shortestRedemptionWords(d, true)})*` : ''} (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? fixedPriceName(d) ?? 'your bid' : pricePhase(d) && pricePhase(d) !== 'agreed' ? 'the most this plan could have paid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
     const planCash = investorProfile().investable;
     // The same rule as Fix and sell: no warning once a cash limit is entered there (the price is already capped by it).
     const short = !(bid.cashLimit > 0) && !bid.cashTyped && planCash > 0 && bid.cashPeak > planCash;
@@ -226,7 +226,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       const mine = limit > 0 && a.cashPeak > limit;
       const listed = d.kind === 'listing' || d.kind === 'reo' || d.kind === 'short';
       const phase = pricePhase(d);
-      const at = a.source === 'yours' ? `At ${fixedPriceName(d) ?? `your ${listed ? 'offer' : 'bid'}`}` : `At the ${listed ? 'asking price' : 'opening bid'}`;
+      const at = a.source === 'yours' ? `At ${fixedPriceName(d) ?? `your ${listed ? 'offer' : 'bid'}`}` : `At the ${listed ? 'asking price' : 'opening bid'}${askOwn ? ' (not your price)' : ''}`;
       // After a win, a cash-capped 'most you could have paid' far under your price reads as broken math: name the cash instead.
       const cashCapped = !!phase && a.source === 'yours' && bid.limitedBy === 'cash' && bid.maxBid < a.price && bid.profitBid >= a.price;
       return (

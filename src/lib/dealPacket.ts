@@ -1239,13 +1239,16 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     // Your own price first; the walk-away price is a separate what-if (the most you'd pay), never your price.
     const a = bid.at;
     if (a) {
-      need = a.cashPeak;
+      // Won or bought with only the opening bid or asking price entered: that price is a what-if, not yours, so no
+      // cash or shortfall is stated at it as fact (the section asks for your price instead).
+      const listedAfter = a.source === 'listed' && !!pricePhase(d) && (offer ? pricePhase(d) === 'paid' : pricePhase(d) !== 'agreed');
+      need = listedAfter ? 0 : a.cashPeak;
       const at = a.source === 'yours' && fixedPriceName(d) === 'the price you paid' ? `the ${money(a.price)} you paid` : `${priceName(a.source, offer, false, d)} of ${money(a.price)}`;
       needAt = `At ${at}`;
       // Won or paid with only the opening bid entered: it isn't what you owe or paid, so ask for your winning bid instead.
       if (offer && a.source === 'listed' && pricePhase(d) === 'paid') cash.push(`Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.`);
       if (!offer) cash.push(a.source === 'listed' && pricePhase(d) && pricePhase(d) !== 'agreed' ? `Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.` : saleDay(at, a.cashOnDay));
-      cash.push(`Estimated cash you’ll put in, at ${at}, under these assumptions (through repairs and holding until it sells): ${money(a.cashPeak)}`);
+      cash.push(listedAfter ? `What-if, at ${at} (not your price): about ${money(a.cashPeak)} of cash through repairs and holding until it sells, under these assumptions` : `Estimated cash you’ll put in, at ${at}, under these assumptions (through repairs and holding until it sells): ${money(a.cashPeak)}`);
       if (a.cashLeft < a.cashPeak) cash.push(`Left in once the loan funds, at ${at}: ${money(a.cashLeft)}`);
     } else {
       if (pricePhase(d) && pricePhase(d) !== 'agreed') {
@@ -1348,7 +1351,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     // Your own wait, under every period the law sets for this sale: said once, with the shortest.
     const shorter = bid?.redeem?.shortest ? ` That’s shorter than any redemption period the law sets for this sale (the shortest is ${shortestRedemptionWords(d, true)}):* the owner can still redeem until it ends.` : '';
     if (bid?.redeem && bid.redeem.who && !(bid.redeem.price > 0) && !redemptionOver(d)) nums.push(bid.redeem.shortest ? `Built on ${waitWords(bid.redeem.months)}.${shorter}` : `Built on a ${bid.redeem.months}-month redemption wait: ${bid.redeem.who} can redeem until it ends.`);
-    else if (bid.redeem && bid.redeem.who && !redemptionOver(d)) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait.${shorter} If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* ${x.source !== 'walk' && !offer && fixedPriceName(d) ? `on your ${money(x.price)} winning bid` : `on a ${money(x.price)} ${offer ? 'offer' : 'bid'}`}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
+    else if (bid.redeem && bid.redeem.who && !redemptionOver(d)) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait.${shorter} If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* ${x.source !== 'walk' && !offer && fixedPriceName(d) ? `on your ${money(x.price)} winning bid` : `on a ${money(x.price)} ${offer ? 'offer' : 'bid'}`}${x.source === 'walk' ? (pricePhase(d) && pricePhase(d) !== 'agreed' ? ' (the most this plan could have paid, not your price)' : ' (your walk-away price)') : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
     const floor = a?.source === 'listed' ? a.price : 0;
     for (const s of bid.stress.slice(1)) {

@@ -171,7 +171,8 @@ describe('the deal packet', () => {
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify(inputs));
     localStorage.setItem('fsf.bid.analyzed-d1.v1.typed.v1', JSON.stringify(['minimumBid', 'exitValue', 'repairs', 'cashAvailable']));
     const open = packetSections(won, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
-    expect(open).toMatch(/this needs is \$[\d,]+ more than the cash you’re putting in\./);
+    expect(open).toMatch(/What-if, at the opening bid of \$200,000 \(not your price\): about \$[\d,]+ of cash/);
+    expect(open).not.toMatch(/this needs is|Estimated cash you’ll put in, at the opening bid/);
     expect(open).toMatch(/Enter your winning bid in Fix and flip to check the cash at it\./);
     expect(open).not.toMatch(/Paid: the opening bid|the lowest you could pay/);
     expect(open).toMatch(/The opening bid \(used until you enter your winning bid\)/);
