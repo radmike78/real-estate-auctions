@@ -109,20 +109,29 @@ export function purchaseSteps(p: Property): string[] {
     case 'IN_PERSON_AUCTION':
     case 'SEALED_BID':
     case 'COURT_CONFIRMATION_REQUIRED':
-      return [
-        `Confirm the sale is still on with ${s?.conductedBy ?? 'the conducting agency'} the day before. Sales are often postponed at the last minute.`,
-        ...(s?.saleType === 'TAX_DEED'
-          ? [`Register and pay the deposit by the deadline in the auction notice (there’s no registration on auction day): ${s?.deposit ?? 'check the notice'}.`, 'On auction day, check in early with photo ID and a copy of your registration form or confirmation email to get your bidder card; phones may not be allowed in the auction room (Clark County’s 2025 auction notice; check the current one)*.']
-          : [p.status === 'SEALED_BID' ? 'Fill in the bid form the notice of sale requires, with anything it asks you to include.' : 'Bring government ID and complete any required bidder affidavit.', `${p.status === 'SEALED_BID' ? 'Enclose' : 'Bring'} certified funds: ${s?.deposit ?? 'check the posted requirements'}.${s?.saleType === 'TRUSTEE_SALE' ? " Trustee sales in Nevada usually require cashier's checks*." : ''}`]),
-        ...(p.status === 'SEALED_BID'
-          ? [`Send your sealed bid so it arrives before the deadline in the notice of sale. Where: ${(s?.location ?? 'see the notice').replace(/^Sealed bids delivered to /, '')}.`, 'The bids are opened on the sale date, and the notice says how the winner is told.']
-          : [`Attend the auction at ${s?.location} on ${s?.startsAt ? fmtDateTime(s.startsAt) : 'the posted date'}.`, `Bid under the procedures announced at the sale by ${s?.conductedBy ?? 'whoever conducts it'}.`]),
+      return (() => {
+        // (Who runs the sale, as a name inside a sentence: "the Clark County Treasurer", without the sample tag.)
+        const who = (s?.conductedBy ?? 'the agency conducting the sale').replace(/\s*\(sample\)\s*$/i, '').replace(/\s*\([^)]*\)\s*$/, '');
+        const role = ({ TRUSTEE_SALE: 'the trustee', HOA_FORECLOSURE: 'the HOA’s foreclosure agent', SHERIFF_EXECUTION: 'the sheriff’s civil section', JUDICIAL_FORECLOSURE: 'the court-appointed commissioner or sheriff', FEDERAL_TAX_SEIZURE: 'the IRS' } as Record<string, string>)[s?.saleType ?? ''];
+        const named = /^(the|a|an)\s/i.test(who) ? who : `the ${who}`;
+        const theWho = role ? (s?.saleType === 'JUDICIAL_FORECLOSURE' || s?.saleType === 'FEDERAL_TAX_SEIZURE' ? role : s?.saleType === 'HOA_FORECLOSURE' ? `the foreclosure agent for ${who}` : `${role} (${who})`) : named;
+        const runner = role ?? named;
+        const pay = s?.deposit ?? 'check the posted requirements';
+        const confirm = `Confirm the sale is still on with ${theWho} the day before. Sales are often postponed at the last minute.`;
+        return [
+          ...(s?.saleType === 'TAX_DEED'
+            ? [`Register and pay the deposit by the deadline in the auction notice (there’s no registration on auction day): ${pay}.`, confirm, 'On auction day, check in early with photo ID and a copy of your registration form or confirmation email to get your bidder card; phones may not be allowed in the auction room (Clark County’s auction notice; check the current one)*.']
+            : p.status === 'SEALED_BID'
+              ? ['Fill in the bid form the notice of sale requires, with anything it asks you to include.', `Payment: ${pay}.`, `Send your sealed bid so it arrives before the deadline in the notice of sale. Where: ${(s?.location ?? 'see the notice').replace(/^Sealed bids delivered to /, '')}.`, confirm, 'The bids are opened on the sale date, and the notice says how the winner is told.']
+              : [confirm, 'Bring government ID and complete any required bidder affidavit.', `Payment: ${pay}.${s?.saleType === 'TRUSTEE_SALE' && !/cashier/i.test(pay) ? " Trustee sales in Nevada usually require cashier's checks*." : ''}`]),
+          ...(p.status === 'SEALED_BID' ? [] : [`Attend the auction at ${s?.location} on ${s?.startsAt ? fmtDateTime(s.startsAt) : 'the posted date'}.`, `Bid under the procedures ${runner} announces at the sale.`]),
         `Pay any remaining balance by ${s?.finalPaymentDeadline ? fmtDateTime(s.finalPaymentDeadline) : 'the posted deadline'}.${s?.saleType === 'TAX_DEED' ? ' A parcel not paid for by then is auctioned again, and the winning bidder can lose the deposit (check the auction notice)*.' : ''}`,
         p.status === 'COURT_CONFIRMATION_REQUIRED'
           ? 'You receive a certificate of sale. Wait for the redemption period to end before the deed is issued.'
           : deedStep(s?.saleType),
         'Order title work and resolve any surviving liens, then handle possession and any quiet-title work.',
-      ];
+        ];
+      })();
     case 'BROKER_OFFER':
       return [
         "Contact the listing broker and get the lender's offer requirements.",
