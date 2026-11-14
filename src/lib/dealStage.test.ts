@@ -563,6 +563,19 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(nvFlip, cw, now, 'closed').redate?.when).toBe('2026-11-30');
   });
 
+  it('an unpaid Clark tax sale and Nevada IRS win after the sale day say when payment was due', () => {
+    const now2 = new Date('2026-11-14T18:00:00Z');
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'Treasurer', resolved: true }] };
+    const tax = { ...nvFlip, kind: 'taxSale' as const, stage: 'contract' as const };
+    savePacket(`analyzed:${tax.id}`, p);
+    const tt = stageTasks(tax, 'contract', p, now2).find((x) => x.key === 'ev-terms')!;
+    expect(tt.label).toMatch(/Clark County’s payment was due by 1:00 p.m. on the sale day/);
+    expect(tt.advance2?.stage).toBe('passed');
+    const irs = { ...nvFlip, kind: 'irs' as const, stage: 'contract' as const };
+    const it2 = stageTasks(irs, 'contract', p, now2).find((x) => x.key === 'ev-terms')!;
+    expect(it2.label).toMatch(/no more than 1 month after the sale/);
+  });
+
   it('a Nevada trustee win left unpaid after the sale day is urgent', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Trustee', resolved: true }] };
     savePacket(`analyzed:${nvFlip.id}`, p);

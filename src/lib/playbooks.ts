@@ -310,6 +310,7 @@ const NEVADA: Playbook[] = [
       { label: 'Where listed', value: 'irsauctions.gov' },
       { label: 'Redemption', value: '180 days. The owner, or anyone with an interest or lien, can redeem. They pay your price plus 20% a year, compounded daily (26 U.S.C. 6337(b), 6622)' },
       { label: 'Deposit', value: 'Set in each sale notice. Sealed bids usually need a deposit with the bid' },
+      { label: 'Payment', value: 'In full when your bid is accepted, or, if the notice allows deferred payment, a first payment then and the rest by the date the notice sets, no more than 1 month after the sale (26 U.S.C. 6335(e)(2)(D); 26 CFR 301.6335-1(c))' },
       { label: 'What you get first', value: 'A certificate of sale; a deed after 180 days' },
       { label: 'Court-ordered sales', value: 'No 180-day redemption. The court must confirm the sale, and your deed comes under its order. Read the order of sale' },
     ],

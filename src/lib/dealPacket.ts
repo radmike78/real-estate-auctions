@@ -554,7 +554,7 @@ export const defaultWords = (c: SettledContext = {}): string => {
   if (c.state !== 'NV') return '';
   if (c.kind === 'trustee') return 'A winner who doesn’t pay can be held liable for any loss when the property is sold again (NRS 107.083).';
   if (c.kind === 'court') return 'A winner who doesn’t pay can be held liable for any loss when the property is sold again (NRS 21.160).';
-  if (c.kind === 'irs') return 'If the IRS let you pay part of the price later and you don’t pay it, it can sue for it with 6% interest, or cancel the sale and keep what you paid (26 U.S.C. 6335(e)(3)).';
+  if (c.kind === 'irs') return 'If full payment was required and you didn’t pay it then, the IRS sells the property again right away. If the IRS let you pay part of the price later and you don’t pay it, it can sue for it with 6% interest, or cancel the sale and keep what you paid (26 U.S.C. 6335(e)(3)).';
   // Eureka's sealed-bid sale takes the full payment with the bid: no deposit to lose.
   if (c.kind === 'taxSale' && c.county === 'Eureka') return 'If your sealed bid’s payment wasn’t accepted, ask the Treasurer what happens next.*';
   if (c.kind === 'taxSale' && c.county === 'Clark') return 'At a Clark County tax sale, a winner who doesn’t pay loses the registration deposit and is banned from future auctions (Clark County Treasurer).';
