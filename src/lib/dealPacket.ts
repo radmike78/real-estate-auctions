@@ -629,6 +629,8 @@ export function settledWords(t: string, phase: 'agreed' | 'owed' | 'paid' | null
   if (phase !== 'agreed') s = s
     .replace(/What-if, at your walk-away price of (\$[\d,]+) \(the most you could have paid, not your price\)/g, 'What-if, at the most this plan could have paid ($1, not your price)')
     .replace(/Walk-away price, set by/g, 'The most this plan could have paid, set by')
+    .replace(/Highest price for (an?|our example) ([\d.]+)% return on cost: /g, 'The most this plan could have paid, for $1 $2% return on cost: ')
+    .replace(/\bhighest price (\$[\d,]+)/g, 'the most this plan could have paid, $1')
     .replace(/\bwalk-away price (\$[\d,]+)/g, 'the most this plan could have paid, $1')
     .replace(/(the most this plan could have paid, \$[\d,]+), the most you could have paid and still meet/g, '$1, which would still have met')
     .replace(/(the most this plan could have paid, \$[\d,]+), the most your cash covers/g, '$1, set by what your cash covers')
@@ -1239,17 +1241,23 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       need = a.cashPeak;
       const at = a.source === 'yours' && fixedPriceName(d) === 'the price you paid' ? `the ${money(a.price)} you paid` : `${priceName(a.source, offer, false, d)} of ${money(a.price)}`;
       needAt = `At ${at}`;
-      if (!offer) cash.push(saleDay(at, a.cashOnDay));
+      // Won or paid with only the opening bid entered: it isn't what you owe or paid, so ask for your winning bid instead.
+      if (!offer) cash.push(a.source === 'listed' && pricePhase(d) && pricePhase(d) !== 'agreed' ? `Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.` : saleDay(at, a.cashOnDay));
       cash.push(`Estimated cash you’ll put in, at ${at}, under these assumptions (through repairs and holding until it sells): ${money(a.cashPeak)}`);
       if (a.cashLeft < a.cashPeak) cash.push(`Left in once the loan funds, at ${at}: ${money(a.cashLeft)}`);
     } else {
-      need = bid.cashPeak;
-      needAt = `At your walk-away price of ${money(bid.maxBid)}`;
-      cash.push(`No ${offer ? 'offer or asking price' : 'bid or opening bid'} entered yet: add it in ${strategy} to see the cash at your own price.`);
+      if (pricePhase(d) && pricePhase(d) !== 'agreed') {
+        // Won or bought with no price entered: no cash comparison at the plan's most (it isn't what you owe or paid).
+        cash.push(`Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.`);
+      } else {
+        need = bid.cashPeak;
+        needAt = `At your walk-away price of ${money(bid.maxBid)}`;
+        cash.push(`No ${offer ? 'offer or asking price' : 'bid or opening bid'} entered yet: add it in ${strategy} to see the cash at your own price.`);
+      }
     }
     // A walk-away price below the opening bid (or asking price) is no price you could pay: say so instead of a what-if.
     if (!bid.none && a?.source === 'listed' && bid.maxBid < a.price && pricePhase(d) && pricePhase(d) !== 'agreed') {
-      cash.push(`At the ${offer ? 'asking price' : 'opening bid'} of ${money(a.price)} this plan misses ${goalW}: the most it could have paid is ${money(bid.maxBid)}. Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to see the numbers at it.`);
+      cash.push(`At the ${offer ? 'asking price' : 'opening bid'} of ${money(a.price)} this plan misses ${goalW}: the most it could have paid is ${money(bid.maxBid)}. Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.`);
     } else if (!bid.none && a?.source === 'listed' && bid.maxBid < a.price) {
       cash.push(`No ${offer ? 'offer at or above the asking price' : 'bid at or above the opening bid'} of ${money(a.price)} ${a.profit >= bid.target && bid.limitedBy === 'cash' ? 'fits your cash' : `meets ${goalW}`} as entered: the most that would is ${money(bid.maxBid)}, below it.`);
     } else if (!bid.none && pricePhase(d) && a?.source === 'yours' && bid.limitedBy === 'cash' && bid.maxBid < a.price && bid.profitBid >= a.price) {
@@ -1282,12 +1290,18 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   } else if (commercial?.none) {
     cash.push(`No price meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost with the income and costs you entered in ${strategy}.`);
   } else if (commercial) {
+    if (pricePhase(d) && pricePhase(d) !== 'agreed') {
+      // Won or bought with no price entered: the plan's most isn't what you owe or paid, so ask for your price.
+      cash.push(`Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.`);
+      cash.push(`What-if, at the most this plan could have paid (${money(commercial.maxBid)}, not your price): all in ${money(commercial.allIn)} (from ${strategy})`);
+    } else {
     need = commercial.refi ? commercial.allIn : commercial.cashLeft;
     needAt = `At your highest price of ${money(commercial.maxBid)}`;
     if (!offer && (commercial.saleDay ?? 0) > 0) cash.push(saleDay(`your highest price of ${money(commercial.maxBid)}`, commercial.saleDay!, '.'));
     cash.push(commercial.refi
       ? `All in at your highest price, until a refinance closes: ${money(commercial.allIn)}; after a refinance, if approved: ${commercial.cashLeft < 0 ? `none left in (it returns all your cash and ${money(-commercial.cashLeft)} more)` : `${money(commercial.cashLeft)} left in`} (from ${strategy})`
       : `All in at your highest price: ${money(commercial.allIn)}, with ${money(commercial.cashLeft)} of your own cash left in (from ${strategy})`);
+    }
   } else if (lien) {
     need = lien.price + lien.fees;
     needAt = 'For the certificate';
@@ -1306,7 +1320,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const limitWord = entered > 0 ? (pricePhase(d) ? 'the cash you’re putting in' : `the cash you entered in ${strategy}`) : 'your investable cash';
   if (limit > 0 && need > 0) cash.push(need > limit ? pricePhase(d) && !(bid?.at && bid.at.source !== 'yours') ? `${needAt}, the ${money(need)} this needs is ${money(need - limit)} more than ${limitWord}. ${pricePhase(d) === 'paid' && entered > 0 ? `Update your cash in ${strategy} with what you actually put in.` : pricePhase(d) === 'owed' ? owedWords(bid?.at?.source === 'yours' ? bid.at.price : commercial?.at?.price ?? rent?.price ?? 0, limit, limitWord, { ...settledCtx(d), overdueSaid: !!payPassed }) : cashShortAfter(pricePhase(d)!, { ...settledCtx(d), overdueSaid: !!payPassed })}` : pricePhase(d) ? `${needAt}, the ${money(need)} this needs is ${money(need - limit)} more than ${limitWord}. Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.` : `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? `Check that you have it, or ${entered > 0 ? `update the cash in ${strategy}` : 'update My plan'}.` : `Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.`}` : `${needAt}, that leaves ${pricePhase(d) && entered > 0 ? `${money(limit - Math.round(need))} of your ${money(limit)} unused` : `${money(limit - Math.round(need))} unallocated from ${limitWord}`}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
   // Asked once: a second 'Enter your winning bid … to check/see …' in the same section is dropped.
-  { const ask = / Enter [^.]+ in [^.]+ to (?:check|see) [^.]+\./; let asked = false; for (let k = 0; k < cash.length; k++) if (ask.test(cash[k])) { if (asked) cash[k] = cash[k].replace(ask, ''); asked = true; } }
+  { const ask = /(?:^| )Enter [^.]+ in [^.]+ to (?:check|see) [^.]+\./; let asked = false; for (let k = 0; k < cash.length; k++) if (ask.test(cash[k])) { if (asked) cash[k] = cash[k].replace(ask, '').trim(); asked = true; } for (let k = cash.length - 1; k >= 0; k--) if (!cash[k]) cash.splice(k, 1); }
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
   out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: stageOf(d) === 'passed' ? passedCash(cash, d) : cash.map((t) => settledWords(t, pricePhase(d), settledCtx(d))), fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
@@ -1325,7 +1339,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   if (bid) {
     const a = bid.at;
-    if (a) nums.push(`${priceName(a.source, offer, true, d)}${a.source === 'yours' && fixedPriceName(d) ? '' : ` (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : 'the lowest you could pay, used until you enter your own bid'})`}: ${money(a.price)} → estimated profit ${money(a.profit)} (${bid.noTarget ? 'no profit target set yet' : `${bid.targetTyped ? 'your target' : 'our example target'} ${money(bid.target)}`}${a.profit < bid.target ? (bid.noTarget ? ', below break-even' : ', so it falls short') : ''}), based on a ${money(bid.exitValue)} resale value`);
+    if (a) nums.push(`${priceName(a.source, offer, true, d)}${a.source === 'yours' && fixedPriceName(d) ? '' : ` (${a.source === 'yours' ? 'your actual price' : offer ? 'used until you enter your own offer' : pricePhase(d) && pricePhase(d) !== 'agreed' ? `used until you enter ${fixedPriceName(d) ?? 'your price'}` : 'the lowest you could pay, used until you enter your own bid'})`}: ${money(a.price)} → estimated profit ${money(a.profit)} (${bid.noTarget ? 'no profit target set yet' : `${bid.targetTyped ? 'your target' : 'our example target'} ${money(bid.target)}`}${a.profit < bid.target ? (bid.noTarget ? ', below break-even' : ', so it falls short') : ''}), based on a ${money(bid.exitValue)} resale value`);
     const belowOpening = !bid.none && a?.source === 'listed' && bid.maxBid < a.price;
     nums.push(bid.none && bid.cashBlocked ? (pricePhase(d) ? `Your cash doesn’t cover the repairs and costs: the deal itself could have met ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more than the cash you’re putting in` : `No bid fits the cash you entered: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that`) : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and ${targetW}` : pricePhase(d) && a?.source === 'yours' && bid.limitedBy === 'cash' && bid.maxBid < a.price && bid.profitBid >= a.price ? `Leaving your cash aside, the deal itself could have met ${goalW} at prices up to ${money(bid.profitBid)}: at your price, your cash is what’s short` : `What-if: walk-away price ${money(bid.maxBid)}, ${bid.limitedBy === 'cash' ? `the most your cash covers with every cost until you sell (${goalW} alone allows ${money(bid.profitBid)})` : `the most you could ${fixedPriceName(d) && fixedPriceName(d) !== 'the agreed price' ? 'have paid' : 'pay'} and still meet ${goalW}`} (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : `this deal doesn’t meet ${goalW}`} as entered` : ''}`);
     if (bid.redeem && !bid.redeem.who) nums.push(`Built on a ${bid.redeem.months}-month wait you typed as a what-if. ${noRedemptionWords(d)} Check the sale terms with the official seller or an attorney.`);
@@ -1345,7 +1359,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     nums.push(`${priceName('yours', offer, true, d)}${fixedPriceName(d) ? '' : ' (your actual price)'}: ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; ${a.cashIn < 0 ? `cash left in: none (the refinance returns all your cash and ${money(-a.cashIn)} more, if approved)` : `cash left in ${money(a.cashIn)}`}; return on total cost ${pct1(a.capOnCost, commercial.capPct)}; ${a.dscr === null ? 'no loan' : `income coverage ${dscrText(a.dscr)}× (${a.loanOk ? 'meets' : 'below'} ${commercial.dscrTyped ? 'your' : 'our example'} ${commercial.minDscr ?? 1.25}× minimum)`}`);
   }
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
-  else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? (pricePhase(d) ? `Leaving your cash aside, the deal could have met ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost${commercial.uncapped ? ` at prices up to ${money(commercial.uncapped)}` : ''}: your cash is what’s short` : `Without that cash limit the deal meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost${commercial.uncapped ? ` up to ${money(commercial.uncapped)}` : ''}`) : pricePhase(d) ? 'Leaving your cash aside, the numbers work' : 'Without that cash limit the numbers work'}`);
+  else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? (pricePhase(d) ? `Leaving your cash aside, the deal could have met ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost${commercial.uncapped ? ` at prices up to ${money(commercial.uncapped)}` : ''}` : `Without that cash limit the deal meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost${commercial.uncapped ? ` up to ${money(commercial.uncapped)}` : ''}`) : pricePhase(d) ? 'Leaving your cash aside, the numbers work' : 'Without that cash limit the numbers work'}`);
   else if (commercial?.none && commercial.weakSupported) nums.push(`The income supports a price of only about ${money(commercial.weakSupported)}, far below the value, and ${pricePhase(d) ? 'the cash you’re putting in' : 'the cash you entered'} doesn’t cover the costs either`);
   else if (commercial?.none && commercial.loanTooBig) nums.push(`The refinance you entered costs more a year than the property earns, so no price works with that loan. Try a smaller loan, or run it all cash (in ${strategy})`);
   else if (commercial?.none && !(commercial.capPct > 0)) nums.push(`No price works with the income, costs and loan you entered in ${strategy}`);

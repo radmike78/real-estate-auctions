@@ -199,9 +199,11 @@ function OtherNumbers({ d }: { d: Deal }) {
     // (After a line that ends in a full stop, as its own sentence.)
     const whatIfSentence = whatIf || waitOnly ? ` Built on${(whatIf || waitOnly).slice(' · built on'.length)}.` : '';
     const fixedOwn = pricePhase(d) && bid.at?.source === 'yours' ? bid.at : null;
+    // Won or bought with no price of your own entered yet: ask for it (as Analyze and the packet do).
+    const askOwn = pricePhase(d) && pricePhase(d) !== 'agreed' && bid.at?.source !== 'yours' ? ` Enter ${fixedPriceName(d) ?? 'your price'} in Analyze, under Fix and flip, to check the cash at it.` : '';
     if (bid.none && fixedOwn && bid.cashBlocked) return <p className="deal-urgent">At {fixedPriceName(d)}, {fmtMoney(fixedOwn.price)}: profit about {fmtMoney(Math.round(fixedOwn.profit))} · the cash you’re putting in doesn’t cover every cost until you sell. {noPriceAfter(pricePhase(d)!, settledCtx(d))}{whatIfSentence}</p>;
     if (bid.none && fixedOwn) return <p className="deal-urgent">At {fixedPriceName(d)}, {fmtMoney(fixedOwn.price)}: profit about {fmtMoney(Math.round(fixedOwn.profit))} · no price would have met {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your profit target' : 'our example profit target'} with these numbers. {noPriceAfter(pricePhase(d)!, settledCtx(d))}{whatIfSentence}</p>;
-    if (bid.none && bid.cashBlocked && pricePhase(d)) return <p className="deal-urgent">Your cash doesn’t cover the repairs and costs: the deal itself could have met {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your goal' : 'our example profit target'} at prices up to {fmtMoney(bid.profitBid)}, but every cost until you sell takes more than the cash you’re putting in.{whatIfSentence}</p>;
+    if (bid.none && bid.cashBlocked && pricePhase(d)) return <p className="deal-urgent">Your cash doesn’t cover the repairs and costs: the deal itself could have met {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your goal' : 'our example profit target'} at prices up to {fmtMoney(bid.profitBid)}, but every cost until you sell takes more than the cash you’re putting in.{whatIfSentence}{askOwn}</p>;
     if (bid.none && bid.cashBlocked) return <p className="deal-urgent">No bid fits the cash you entered: the deal itself meets {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your goal' : 'our example profit target'} at bids up to {fmtMoney(bid.profitBid)}, but every cost until you sell needs more than the cash you entered.{whatIfSentence}</p>;
     if (bid.none) return <p className="deal-urgent">No price works at a {fmtMoney(bid.exitValue)} resale value with these costs and {bid.noTarget ? 'break-even' : bid.targetTyped ? 'your profit target' : 'our example profit target'}.{whatIfSentence}</p>;
     // Below the opening bid (or asking price): no bid you'd make works, whatever the walk-away price says.
@@ -210,7 +212,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       const pc = investorProfile().investable;
       const lim = bid.cashLimit > 0 ? bid.cashLimit : bid.cashTyped ? 0 : pc;
       return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash, with the loan (if any) and costs entered in Fix and flip (${bid.cashLimit > 0 ? 'the cash you entered' : 'My plan'}: ${fmtMoney(lim)}).` : '';
-    })()}{whatIfSentence}</p>;
+    })()}{whatIfSentence}{askOwn}</p>;
     // The redemption wait the price was built on, and a redemption's result at its end (as the packet says).
     const redeemClause = redemptionOver(d) ? '' : bid.redeem && !bid.redeem.who ? whatIf : bid.redeem && !(bid.redeem.price > 0) ? waitOnly : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait${bid.redeem.shortest ? `, shorter than any period the law sets (at least ${shortestRedemptionWords(d, true)})*` : ''} (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? fixedPriceName(d) ?? 'your bid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
     const planCash = investorProfile().investable;
@@ -230,14 +232,14 @@ function OtherNumbers({ d }: { d: Deal }) {
       return (
         <p className={mine || (short && !phase) || a.profit < bid.target || a.price > bid.maxBid ? 'deal-urgent' : undefined}>
           {at}, {fmtMoney(a.price)}: profit about {fmtMoney(Math.round(a.profit))} · needs about {fmtMoney(Math.round(a.cashPeak))} of your cash{mine ? ` (${bid.cashLimit > 0 ? (pricePhase(d) ? 'you’re putting in' : 'your limit') : 'My plan'}: ${fmtMoney(Math.round(limit))})` : ''} · {cashCapped ? `the deal itself allows up to ${fmtMoney(bid.profitBid)}; your cash is what’s short` : <>{phase === 'owed' || phase === 'paid' ? 'the most this plan could have paid' : 'walk-away price'} {fmtMoney(bid.maxBid)}</>}{short && !mine && !phase ? ` (needs about ${fmtMoney(Math.round(bid.cashPeak))} of your cash; My plan: ${fmtMoney(Math.round(planCash))}; ${listed ? 'offer only what fits your cash' : 'enter your cash in Fix and flip to cap it'})` : ''}{mine && bid.cashLimit <= 0 && !phase ? (` · even this ${listed ? 'price' : 'bid'} needs more than My plan’s cash: skip this one, or update My plan if you have more`) : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
-          {redeemClause}{mine && phase && a.source === 'yours' ? `. The cash at ${fixedPriceName(d) ?? 'your price'} is more than ${bid.cashLimit > 0 ? 'the cash you’re putting in' : 'My plan’s cash'}. ${phase === 'paid' && bid.cashLimit > 0 ? 'Update your cash in Fix and flip with what you actually put in.' : phase === 'owed' ? owedWords(a.price, limit, bid.cashLimit > 0 ? 'the cash you’re putting in' : 'My plan’s cash', settledCtx(d)) : cashShortAfter(phase, settledCtx(d))}` : ''}
+          {redeemClause}{askOwn ? `.${askOwn}` : ''}{mine && phase && a.source === 'yours' ? `. The cash at ${fixedPriceName(d) ?? 'your price'} is more than ${bid.cashLimit > 0 ? 'the cash you’re putting in' : 'My plan’s cash'}. ${phase === 'paid' && bid.cashLimit > 0 ? 'Update your cash in Fix and flip with what you actually put in.' : phase === 'owed' ? owedWords(a.price, limit, bid.cashLimit > 0 ? 'the cash you’re putting in' : 'My plan’s cash', settledCtx(d)) : cashShortAfter(phase, settledCtx(d))}` : ''}
         </p>
       );
     }
     return (
       <p className={short ? 'deal-urgent' : undefined}>
-        Walk-away price {fmtMoney(bid.maxBid)} · needs about {fmtMoney(Math.round(bid.cashPeak))} of your cash at that price{short ? ` (My plan: ${fmtMoney(Math.round(planCash))})` : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
-        {redeemClause}
+        {pricePhase(d) && pricePhase(d) !== 'agreed' ? 'The most this plan could have paid' : 'Walk-away price'} {fmtMoney(bid.maxBid)} · needs about {fmtMoney(Math.round(bid.cashPeak))} of your cash at that price{short ? ` (My plan: ${fmtMoney(Math.round(planCash))})` : ''}{bid.unentered.length ? ' · some costs still $0 (not entered)' : ''}
+        {redeemClause}{askOwn ? `.${askOwn}` : ''}
       </p>
     );
   }

@@ -171,7 +171,10 @@ describe('the deal packet', () => {
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify(inputs));
     localStorage.setItem('fsf.bid.analyzed-d1.v1.typed.v1', JSON.stringify(['minimumBid', 'exitValue', 'repairs', 'cashAvailable']));
     const open = packetSections(won, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
-    expect(open).toMatch(/this needs is \$[\d,]+ more than the cash you’re putting in\. Enter your winning bid in Fix and flip to check the cash at it\./);
+    expect(open).toMatch(/this needs is \$[\d,]+ more than the cash you’re putting in\./);
+    expect(open).toMatch(/Enter your winning bid in Fix and flip to check the cash at it\./);
+    expect(open).not.toMatch(/Paid: the opening bid|the lowest you could pay/);
+    expect(open).toMatch(/The opening bid \(used until you enter your winning bid\)/);
     expect(open).not.toMatch(/doesn’t fit as entered|you’d put in is|fits your cash/);
     expect(open.match(/Enter your winning bid in Fix and flip/g)?.length).toBe(1);
     // Cash below even the costs, no price at all: the downside cases still show the deal's own most, and it asks for the bid.
