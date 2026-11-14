@@ -420,7 +420,7 @@ describe('Nevada round 4 flow', () => {
 
   it('drops past registration and signing rows once they’re behind you, and keeps “It was redeemed” in the last week', () => {
     const won = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Bidder registration (if required)', who: 'me' }, { when: '2026-10-02', what: 'Sale day', who: '' }, { when: '2026-10-05', what: 'Payment deadline', who: 'Trustee' }] };
-    expect(dealNextTask(nvFlip, won, now, 'contract').label).toMatch(/^Overdue by 1 day: Payment deadline/);
+    expect(dealNextTask(nvFlip, won, now, 'contract').label).toMatch(/^The payment deadline for .* passed .*contact the trustee today.*NRS 107.083/);
     const signed = { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'Contract signed', who: 'Agent' }] };
     expect(dealNextTask({ ...nvFlip, kind: 'short', plan: 'rent' }, signed, now, 'contract').label).toMatch(/^Send the earnest money/);
     const hoa = { ...nvFlip, kind: 'hoa' as const };
