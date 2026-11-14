@@ -594,6 +594,14 @@ describe('Nevada round 4 flow', () => {
     expect(t.advance2?.addRow).toMatchObject({ when: '2026-11-14', what: 'Payment deadline' });
     // Before 1:00 p.m. there's no such answer yet.
     expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T17:00:00Z')).find((x) => x.key === 'ev-terms')!.advance2).toBeUndefined();
+    // Before the 2:00 p.m. re-auction it doesn't ask about it as if held.
+    expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T21:30:00Z')).find((x) => x.key === 'ev-terms')!.label).toMatch(/^Won .* earlier today\? .*held only if needed/);
+    // A deadline typed in as the county's own date keeps these steps: after 4:30 p.m. it asks whether you paid.
+    const typed = { ...EMPTY_PACKET, dates: [...today.dates, { when: '2026-11-14', what: 'Payment deadline', who: 'Clark County Treasurer' }] };
+    savePacket(`analyzed:${tax.id}`, typed);
+    const late = dealNextTask(tax, typed, new Date('2026-11-15T01:00:00Z'), 'contract');
+    expect(late.label).toMatch(/^Did you pay for/);
+    expect(late.advance2?.stage).toBe('passed');
   });
 
   it('passing after a missed payment fills the usual blank Payment deadline row', () => {
