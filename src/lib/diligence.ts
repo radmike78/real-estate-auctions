@@ -107,7 +107,7 @@ export function diligenceReport(p: Property): Check[] {
     {
       area: 'Comparable sales',
       result: 'manual',
-      detail: p.estimatedMarketValue === null ? 'No value estimate for this listing. Pull recent sold prices of similar nearby properties before bidding.' : `The estimated value of ${fmtMoney(p.estimatedMarketValue)} is a model estimate. Pull comps before bidding.`,
+      detail: p.estimatedMarketValue === null ? `No value estimate for this listing. Pull recent sold prices of similar nearby properties before ${p.sale?.saleType === 'REO' ? 'you make an offer' : 'bidding'}.` : `The estimated value of ${fmtMoney(p.estimatedMarketValue)} is a model estimate. Pull comps before ${p.sale?.saleType === 'REO' ? 'you make an offer' : 'bidding'}.`,
     },
     {
       area: 'Estimated spread',
@@ -115,9 +115,9 @@ export function diligenceReport(p: Property): Check[] {
       detail:
         money.estimatedEquity === null
           ? money.minimumBid === null
-            ? 'No minimum bid is published.'
+            ? (p.sale?.saleType === 'REO' ? 'No asking price is published.' : 'No minimum bid is published.')
             : 'Needs your value from comps and a lien search, so it isn’t worked out here.'
-          : `${fmtMoney(money.estimatedEquity)} = value − minimum bid − likely surviving liens (excludes uncertain liens, repairs and costs).`,
+          : `${fmtMoney(money.estimatedEquity)} = value − ${p.sale?.saleType === 'REO' ? 'asking price' : 'minimum bid'} − likely surviving liens (excludes uncertain liens, repairs and costs).`,
     },
     {
       area: 'Redemption rights',

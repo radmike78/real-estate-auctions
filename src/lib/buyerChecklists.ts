@@ -322,6 +322,7 @@ export function checklistForProperty(saleType: SaleType | null, status: Acquisit
 export function checklistForFilters(saleTypes: SaleType[], statuses: AcquisitionStatus[]): BuyerChecklist {
   if (statuses.length === 1 && statuses[0] === 'NOT_FOR_SALE_LIEN_ONLY') return CHECKLISTS.liens;
   if (statuses.length === 1 && statuses[0] === 'PRE_FORECLOSURE_NOT_YET_PURCHASABLE') return CHECKLISTS.pre;
+  if (statuses.length === 1 && statuses[0] === 'BROKER_OFFER') return CHECKLISTS.reo;
   const keys = new Set(saleTypes.map((t) => checklistForProperty(t, 'IN_PERSON_AUCTION').key));
   return keys.size === 1 ? CHECKLISTS[[...keys][0]] : CHECKLISTS.all;
 }

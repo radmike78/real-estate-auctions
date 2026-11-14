@@ -34,6 +34,8 @@ export const DD_STEPS: DdStep[] = [
 const REO_STEP: Record<string, Partial<DdStep>> = {
   status: { title: 'Confirm it’s still for sale', why: 'A bank-owned home can go under contract with another buyer at any time.', how: 'Ask the listing broker, or check the lender’s site, before you write an offer.' },
   occupancy: { why: 'You can usually inspect during the contract’s inspection period, and someone may still live there.', how: 'Schedule an inspection within the contract’s deadline, and ask the listing broker whether the home will be delivered vacant.' },
+  parcel: { why: 'Make sure the listing is the home you think it is: the parcel, its lot and what the lender is selling.' },
+  value: { why: 'Our value is an estimate. Your profit depends on real sold comps, not the asking price.' },
   'max-bid': { title: 'Set your maximum offer', why: 'Overpaying is the most common way a good property becomes a bad deal.' },
   liens: { why: 'Most liens are paid off at closing, but some can stay with the property.', how: 'Read the title commitment: it lists every lien and which ones escrow will pay off.' },
   courts: { why: 'A pending lawsuit can cloud title.', how: 'Ask the title company whether any court case affects the property.' },

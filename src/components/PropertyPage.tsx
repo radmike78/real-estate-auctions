@@ -277,7 +277,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <div className="total"><dt>{p.sale?.saleType === 'REO' ? 'Rough spread at the asking price' : 'Rough spread at minimum bid'}</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{fmtMoney(money.estimatedEquity)}</dd></div>
           </dl>
           <p className="muted small">
-            Spread = estimated value minus the minimum bid and likely surviving liens. It leaves out uncertain liens, repairs and costs, so it isn’t profit or equity.
+            Spread = estimated value minus the {p.sale?.saleType === 'REO' ? 'asking price' : 'minimum bid'} and likely surviving liens. It leaves out uncertain liens, repairs and costs, so it isn’t profit or equity.
             Survival is estimated from Nevada rules and recording order. Lien priority is a legal question, so confirm with a title company or
             real-estate attorney.
           </p>
