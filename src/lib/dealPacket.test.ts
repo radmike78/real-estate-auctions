@@ -842,7 +842,7 @@ it('gives Washoe County’s published tax sale deposit and payment terms', () =>
   const washoe: Deal = { ...deal, id: 'w1', kind: 'taxSale', plan: 'flip', state: 'NV', county: 'Washoe' };
   const text = dealPacketText(washoe, EMPTY_PACKET, new Date('2026-10-06T00:00:00Z'));
   expect(text).toContain('a $500 pre-bid deposit in certified funds when you register');
-  expect(text).toContain('the balance by 5:00 p.m. the day after the sale');
+  expect(text).toContain('the balance by 5:00 p.m. Nevada time the day after the sale');
   const clark: Deal = { ...washoe, id: 'w2', county: 'Clark' };
   expect(dealPacketText(clark, EMPTY_PACKET, new Date('2026-10-06T00:00:00Z'))).not.toContain('pre-bid deposit');
 });
