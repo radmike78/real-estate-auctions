@@ -96,23 +96,23 @@ export const CHECKLISTS: Record<string, BuyerChecklist> = {
     title: 'Buying at a foreclosure auction',
     intro: 'Trustee sales and court-ordered sales after a mortgage default.',
     items: [
-      { text: "Cashier's checks for your full bid", detail: 'Trustees usually require certified funds at the sale. Bring several checks to match different bid amounts.',
+      { text: "Cashier's checks for your full bid", detail: 'Trustees (or, at a court-ordered sale, the sheriff or commissioner) usually require certified funds at the sale. Bring several checks to match different bid amounts.',
         detailFor: {
           AZ: 'Arizona trustees require a $10,000 deposit, in a form the trustee accepts, before you can bid. Pay the rest by 5 p.m. the next business day (A.R.S. 33-810, 33-811). Have the full amount ready by then.',
           UT: 'The notice of sale says whether the winning bidder must make a deposit and how much, and you pay the price the way the trustee directs (Utah Code 57-1-27, 57-1-28). Call the trustee’s office to ask what funds it accepts and by when.',
         } },
       { text: 'Government-issued photo ID' },
-      { text: 'Cash or a hard-money or bridge loan arranged in advance', detail: "Regular mortgages can't fund a trustee sale." },
+      { text: 'Cash or a hard-money or bridge loan arranged in advance', detail: "Regular mortgages can't fund a foreclosure auction." },
       { text: 'A title search', detail: 'Unpaid property taxes usually survive the sale. Check for IRS and other senior liens, and ask your title company which liens survive where you buy.',
         detailFor: { NV: 'In Nevada, property taxes and the HOA super-priority lien survive (NRS 116.3116). Check for IRS and other senior liens.' } },
-      { text: 'Confirmation the sale is still on', detail: 'Call the trustee the day before. Postponements and cancellations are common.' },
+      { text: 'Confirmation the sale is still on', detail: 'Call the trustee (or, for a court-ordered sale, the sheriff or commissioner) the day before. Postponements and cancellations are common.' },
       { text: 'An as-is repair budget and an occupancy plan', detail: 'You won’t get to see inside. Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act), and a lease can run to its end unless the buyer will live there. Your state adds its own notice and deposit rules: see your sale guide and ask your attorney. Budget for an eviction attorney.',
         detailFor: {
           NV: 'You won’t get to see inside. Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act), and a lease can run to its end unless the buyer will live there. For homes with up to 4 units, Nevada also requires a notice of the change of ownership. Tenants keep their lease rights for a notice period: at least 60 days for a month-to-month tenant (NRS 40.255(2)). The federal 90 days is longer, so plan on it.* You take over the landlord’s duties, including responsibility for the security deposits tenants already paid, so find out the amounts and budget for them (NRS 118A.244). Former owners get a 3-day notice (NRS 40.255). Budget for an eviction attorney.',
           TX: 'You won’t get to see inside. Bona fide tenants get at least 90 days’ written notice under federal law (Protecting Tenants at Foreclosure Act), and a lease can run to its end unless the buyer will live there. In Texas, if a tenant who pays on time was there before the sale and you won’t continue the lease, you must give at least 30 days’ written notice to vacate (Property Code 24.005(b)); the federal 90 days can still apply. Budget for an eviction attorney.',
         } },
       { text: 'For court-ordered sales: time for redemption', detail: 'After some court-ordered sales the owner can buy the property back (redeem) for a set time, so your money may be tied up. See your state’s sale guide for the period.',
-        detailFor: { NV: 'In Nevada, the owner can buy the property back (redeem) for up to 1 year after a court-ordered sale, so your money may be tied up (NRS 21.210).' } },
+        detailFor: { NV: 'In Nevada, the former owner, or a creditor with a later judgment or mortgage lien, can buy the property back (redeem) for 1 year after a court-ordered sale, so your money may be tied up (NRS 21.200, 21.210).' } },
     ],
   },
   reo: {
