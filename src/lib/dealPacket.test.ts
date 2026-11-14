@@ -174,6 +174,14 @@ describe('the deal packet', () => {
     expect(open).toMatch(/this needs is \$[\d,]+ more than the cash you’re putting in\. Enter your winning bid in Fix and flip to check the cash at it\./);
     expect(open).not.toMatch(/doesn’t fit as entered|you’d put in is|fits your cash/);
     expect(open.match(/Enter your winning bid in Fix and flip/g)?.length).toBe(1);
+    // Cash below even the costs, no price at all: the downside cases still show the deal's own most, and it asks for the bid.
+    const tiny = { exitValue: 400000, repairs: 40000, cashAvailable: 5000 };
+    localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify(tiny));
+    localStorage.setItem('fsf.bid.analyzed-d1.v1.typed.v1', JSON.stringify(Object.keys(tiny)));
+    const blocked = packetSections(won, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
+    expect(blocked).toMatch(/Your cash doesn’t cover the repairs and costs in Fix and flip: .* Enter your winning bid in Fix and flip to check the cash at it\./);
+    expect(blocked).toMatch(/If it takes 3 months longer: the most this plan could have paid, \$[\d,]+/);
+    expect(blocked).not.toMatch(/leaving your cash aside, the deal itself allows/);
   });
 
   it('names the redemption wait a flip’s price is built on, with what a redemption returns, and its end date', async () => {

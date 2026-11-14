@@ -792,6 +792,8 @@ export function savedNumbers(d: Deal) {
     hasLoan?: boolean;
     /** Cash short and the deal itself supports under a tenth of the value: that price (0: not this case). */
     weakSupported?: number;
+    /** The deal's own most, leaving the cash aside (when only the cash is short). */
+    uncapped?: number;
     /** The refinance entered costs more a year than the building earns (no bid works with that loan). */
     loanTooBig?: boolean;
     /** The minimum coverage was typed (else our example). */
@@ -824,7 +826,9 @@ export function savedNumbers(d: Deal) {
         const r = uncapAfter ? maxSafeBid({ ...i, cashAvailable: 0 }) : rCap;
         const pp = proposedPriceOf(i);
         const at = pp ? { ...resultAtPrice(i, pp.price), source: pp.source } : null;
-        const stress = stressCases(i).map((c) => { const m = maxSafeBid(uncapAfter ? { ...c.inputs, cashAvailable: 0 } : c.inputs); return { label: c.label, maxBid: m.maxBid, profitBid: m.profitBid, profit: pp ? resultAtPrice(c.inputs, pp.price).profit : null }; });
+        // (The downside cases leave the cash aside after a win too, also when the cash doesn't cover the costs at all.)
+        const stressUncap = uncapAfter || (!!pricePhase(d) && pricePhase(d) !== 'agreed' && rCap.limitedBy === 'cash' && rCap.profitBid > 0);
+        const stress = stressCases(i).map((c) => { const m = maxSafeBid(stressUncap ? { ...c.inputs, cashAvailable: 0 } : c.inputs); return { label: c.label, maxBid: m.maxBid, profitBid: m.profitBid, profit: pp ? resultAtPrice(c.inputs, pp.price).profit : null }; });
         bid = { noTarget: !!i.profitInDollars && !(i.targetProfitMin > 0), targetTyped: (() => { const t = readConfirmed(`fsf.bid.analyzed-${d.id}.v1`); return t.has('targetProfitPct') || t.has('profitInDollars') || !!i.profitInDollars || (t.has('targetProfitMin') && (i.exitValue * i.targetProfitPct) / 100 < i.targetProfitMin); })(), cashBlocked: r.noBidWorks && r.profitBid > 0, profitBid: r.profitBid, maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: !offer && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: !offer && i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer), redeem: (() => { // Your own price, else the walk-away price (as Fix and sell shows it; not the opening bid).
         // None when the walk-away price is below the opening bid (no bid there can be placed; My deals says so instead).
         const below = at?.source === 'listed' && r.maxBid < at.price;
@@ -865,6 +869,7 @@ export function savedNumbers(d: Deal) {
           // Only the cash entered is short (Commercial income says "No realistic price fits your cash").
           commercial.noRealistic = noRealisticPrice(rCap, unc, v.value);
           commercial.weakSupported = cashAndPropertyWeak(rCap, unc, v.value) ? unc.maxBid : 0;
+          commercial.uncapped = !unc.noBidWorks && Number.isFinite(unc.maxBid) ? unc.maxBid : 0;
           commercial.loanTooBig = !!r.loanTooBig;
           commercial.hasLoan = v.loanPct > 0 && (offer || v.value > 0);
           commercial.saleDay = r.noBidWorks || !Number.isFinite(r.cashAtAuction) ? 0 : r.cashAtAuction;
@@ -1226,7 +1231,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     cash.push(rent.retained > 0 ? `Retained property reserves: ${money(rent.retained)}, kept separately from the ${money(need)} modeled cash requirement.` : liveIn(d) ? 'Savings for repairs and surprises: not entered. Set aside a separate amount for unexpected costs.' : 'Retained property reserves: not entered. Set aside a separate amount for vacancies and unexpected costs.');
     if (rent.retained > 0) need += rent.retained;
   } else if (bid?.none && !bid.at) {
-    cash.push(bid.cashBlocked ? (pricePhase(d) ? `Your cash doesn’t cover the repairs and costs in ${strategy}: the deal itself could have met ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more than the cash you’re putting in.` : `No bid fits the cash you entered in ${strategy}: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than you entered.`) : `No price works with the numbers you entered in ${strategy}: the costs and ${targetW} take up the whole ${money(bid.exitValue)} resale value.`);
+    cash.push(bid.cashBlocked ? (pricePhase(d) ? `Your cash doesn’t cover the repairs and costs in ${strategy}: the deal itself could have met ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more than the cash you’re putting in.${pricePhase(d) !== 'agreed' ? ` Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.` : ''}` : `No bid fits the cash you entered in ${strategy}: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than you entered.`) : `No price works with the numbers you entered in ${strategy}: the costs and ${targetW} take up the whole ${money(bid.exitValue)} resale value.`);
   } else if (bid) {
     // Your own price first; the walk-away price is a separate what-if (the most you'd pay), never your price.
     const a = bid.at;
@@ -1330,10 +1335,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     else if (bid.redeem && bid.redeem.who && !redemptionOver(d)) { const x = bid.redeem; nums.push(`Built on a ${x.months}-month redemption wait.${shorter} If ${x.who} redeems at its end, you’d get back about ${money(x.repaid)}* ${x.source !== 'walk' && !offer && fixedPriceName(d) ? `on your ${money(x.price)} winning bid` : `on a ${money(x.price)} ${offer ? 'offer' : 'bid'}`}${x.source === 'walk' ? ' (your walk-away price)' : ''}, having spent about ${money(x.spent)}: about ${money(Math.abs(x.net))} ${x.net < 0 ? 'short' : 'ahead'} (Fix and sell shows how).`); }
     if (bid.unentered.length) nums.push(`Still $0 because not entered: ${bid.unentered.join('; ')}. Until you enter them (or type 0 where there truly is none), these numbers and the downside cases below don’t count them.`);
     const floor = a?.source === 'listed' ? a.price : 0;
-    // After a win where only the cash is short, a cash-capped figure beside the won price reads as broken math: show what the deal itself allows.
-    const cashOnly = !!pricePhase(d) && a?.source === 'yours' && bid.limitedBy === 'cash' && bid.maxBid < a.price && bid.profitBid >= a.price;
     for (const s of bid.stress.slice(1)) {
-      const walk = cashOnly ? (s.profitBid && s.profitBid > 0 ? `leaving your cash aside, the deal itself allows up to ${money(s.profitBid)}` : `no price meets ${goalW}`) : s.maxBid > 0 && floor > 0 && s.maxBid < floor ? `below the ${offer ? 'asking price' : 'opening bid'} (walk-away price ${money(s.maxBid)})` : s.maxBid > 0 ? `walk-away price ${money(s.maxBid)}` : 'no price works';
+      const walk = s.maxBid > 0 && floor > 0 && s.maxBid < floor ? `below the ${offer ? 'asking price' : 'opening bid'} (walk-away price ${money(s.maxBid)})` : s.maxBid > 0 ? `walk-away price ${money(s.maxBid)}` : 'no price works';
       nums.push(`  If ${s.label.toLowerCase().replace(/^takes /, 'it takes ')}: ${a && s.profit !== null ? `profit ${money(s.profit)} at ${money(a.price)}; ${walk}` : walk}`);
     }
   }
@@ -1342,7 +1345,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     nums.push(`${priceName('yours', offer, true, d)}${fixedPriceName(d) ? '' : ' (your actual price)'}: ${money(a.price)} → monthly cash flow before income tax ${money(a.cashFlow / 12)}; ${a.cashIn < 0 ? `cash left in: none (the refinance returns all your cash and ${money(-a.cashIn)} more, if approved)` : `cash left in ${money(a.cashIn)}`}; return on total cost ${pct1(a.capOnCost, commercial.capPct)}; ${a.dscr === null ? 'no loan' : `income coverage ${dscrText(a.dscr)}× (${a.loanOk ? 'meets' : 'below'} ${commercial.dscrTyped ? 'your' : 'our example'} ${commercial.minDscr ?? 1.25}× minimum)`}`);
   }
   if (commercial?.noTarget) nums.push(commercialNoTarget(strategy, commercial.overCap));
-  else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? `${pricePhase(d) ? 'Leaving your cash aside,' : 'Without that cash limit'} the deal meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost` : pricePhase(d) ? 'Leaving your cash aside, the numbers work' : 'Without that cash limit the numbers work'}`);
+  else if (commercial?.none && commercial.noRealistic) nums.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered: it doesn’t cover the repairs and costs, before any price. ${commercial.capPct > 0 ? (pricePhase(d) ? `Leaving your cash aside, the deal could have met ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost${commercial.uncapped ? ` at prices up to ${money(commercial.uncapped)}` : ''}: your cash is what’s short` : `Without that cash limit the deal meets ${commercial.capTyped ? 'your' : 'our example'} ${commercial.capPct}% return on cost${commercial.uncapped ? ` up to ${money(commercial.uncapped)}` : ''}`) : pricePhase(d) ? 'Leaving your cash aside, the numbers work' : 'Without that cash limit the numbers work'}`);
   else if (commercial?.none && commercial.weakSupported) nums.push(`The income supports a price of only about ${money(commercial.weakSupported)}, far below the value, and ${pricePhase(d) ? 'the cash you’re putting in' : 'the cash you entered'} doesn’t cover the costs either`);
   else if (commercial?.none && commercial.loanTooBig) nums.push(`The refinance you entered costs more a year than the property earns, so no price works with that loan. Try a smaller loan, or run it all cash (in ${strategy})`);
   else if (commercial?.none && !(commercial.capPct > 0)) nums.push(`No price works with the income, costs and loan you entered in ${strategy}`);

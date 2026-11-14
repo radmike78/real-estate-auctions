@@ -632,7 +632,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
             <small>
               {r.noBidWorks
                 ? r.limitedBy === 'cash' && r.profitBid > 0
-                  ? `Your cash doesn’t cover the repairs and costs until you sell, even before a ${w.bid}. ${twCap} alone would allow ${fmtMoney(r.profitBid)}.`
+                  ? `Your cash doesn’t cover the repairs and costs until you sell, even before ${wonBid || boughtOffer ? yours.toLowerCase() : `a ${w.bid}`}. ${twCap} alone would ${wonBid || boughtOffer ? 'have allowed' : 'allow'} ${fmtMoney(r.profitBid)}.${(wonBid || boughtOffer) && !(bid > 0) ? ` Enter ${yours.toLowerCase()} below to check the cash at it.` : ''}`
                   : `Even at $0, costs leave less than ${tw}. ${phase ? `At ${yours.toLowerCase()} this plan loses money. ${noPriceAfter(phase, { ...sctx, quiet: true })}` : 'Walk away or change your plan.'}`
                 : r.limitedBy === 'cash'
                   ? `Set by the cash ${wonBid || boughtOffer ? 'you’re putting in' : 'you can bring'}: the ${w.bid} plus every cost until you sell (repairs, holding, fees). ${twCap} alone would allow ${fmtMoney(r.profitBid)}.`
