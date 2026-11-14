@@ -580,6 +580,13 @@ describe('Nevada round 4 flow', () => {
     const ahead = { ...EMPTY_PACKET, dates: [sale, { when: '2026-12-10', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }] };
     savePacket(`analyzed:${tax.id}`, ahead);
     expect(stageTasks(tax, 'owned', ahead, later).some((x) => x.key === 'sid-affidavit')).toBe(true);
+    // At Won, a future-dated tick doesn't put 'the deed is recorded' first.
+    expect(stageTasks(tax, 'contract', ahead, later).find((x) => !x.done)?.key).not.toBe('record');
+    // An undated tick while the 20 days still run doesn't settle the SID question either.
+    const fresh = { when: '2026-11-05', what: 'Sale day', who: 'T', resolved: true };
+    const undated = { ...EMPTY_PACKET, dates: [fresh, { when: '', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }] };
+    savePacket(`analyzed:${tax.id}`, undated);
+    expect(stageTasks(tax, 'contract', undated, later).some((x) => x.key === 'sid-affidavit')).toBe(true);
   });
 
   it('round 8 verifier: the SID question comes right after paying, and its no is its own row; lien areas; redemption end from the row', () => {
