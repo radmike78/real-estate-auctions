@@ -273,7 +273,7 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
         minimumBid: round(superP.amount + 2500, 100),
         deposit: "Cashier's checks; confirm the amount with the HOA agent",
         finalPaymentDeadline: isoAt(saleDay, 17),
-        deedType: 'Foreclosure deed (NRS 116, no warranty)',
+        deedType: 'Certificate of sale first; the foreclosure deed (no warranty) comes after the 60-day redemption period (NRS 116.31166)',
         redemptionPeriod: '60 days (NRS 116.31166)',
         eligibility: 'Open to the public',
       });

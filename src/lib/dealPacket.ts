@@ -1181,6 +1181,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   else if (p.earnest) cash.push(`Before the sale: ${money(p.earnest)} bidder deposit`);
   // Washoe County publishes its tax sale's deposit and payment terms (Treasurer's FAQ, checked 2026-11-03).
   const washoeTax = !offer && d.kind === 'taxSale' && d.state === 'NV' && d.county === 'Washoe';
+  if (!offer && d.kind === 'taxSale' && d.state === 'NV' && d.county === 'Clark') cash.push('Clark County’s tax sale terms (Treasurer’s notice): a $5,000 registration deposit in certified funds, due with your registration form before the sale (the notice gives the date); if you win, the full price by 1:00 p.m. Nevada time on the sale day (4:30 p.m. for a parcel re-auctioned at 2:00 p.m.), in cash, cashier’s check, wire or money order. Confirm them in the sale notice.');
   if (washoeTax) cash.push('Washoe County’s tax sale terms (Treasurer’s FAQ): a $500 pre-bid deposit in certified funds when you register; if you win, a $500 non-refundable deposit (the FAQ doesn’t say whether it’s the pre-bid deposit)* and the balance by 5:00 p.m. the day after the sale, in cash, cashier’s check, certified check or money order. Confirm them in the sale notice.');
   // Washoe's balance is due the day after the sale, not all on sale day.
   // Eureka's sealed bids: the full payment goes in with the bid, by the notice's deadline (before the sale).
