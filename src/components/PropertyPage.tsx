@@ -475,7 +475,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       <div className="verify" role="note">
         {verified && !irs && <>On the Clark County Treasurer’s official list, re-checked {ago(p.lastUpdated)}. The list shows the minimum bid and auction details only: value, liens and condition are for you to research. </>}
         {irs && <>Listed by the IRS on irsauctions.gov, re-checked {ago(p.lastUpdated)}; the parcel is confirmed in the County Assessor’s records. Read the full notice of sale for the terms: value, liens and condition are for you to research. </>}
-        <strong>Verify before bidding.</strong> Sales are often paid off, postponed, cancelled or challenged at the last minute. Confirm with{' '}
+        <strong>{s?.saleType === 'REO' ? 'Verify before you make an offer.' : 'Verify before bidding.'}</strong> {s?.saleType === 'REO' ? 'Bank-owned homes can be sold to another buyer or taken off the market at any time.' : 'Sales are often paid off, postponed, cancelled or challenged at the last minute.'} Confirm with{' '}
         {s?.conductedBy ?? 'the conducting agency'} and read the official notice. This report is a screening tool, not a title search, and does
         not mean title is clear.
       </div>
