@@ -1,5 +1,5 @@
 import { clearsOnPostpone, sameDate, type PacketData } from '../lib/dealPacket';
-import { setDealStage, type PlanTask } from '../lib/dealStage';
+import { setDealStage, type PlanTask, withRow } from '../lib/dealStage';
 import { markDealStepDone } from '../lib/roadmapState';
 
 /**
@@ -42,7 +42,7 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
       {task.advance2 && (
         <button type="button" className="btn btn-secondary" onClick={(e) => {
           const el = e.currentTarget;
-          if (add) edit((p) => ({ ...p, dates: p.dates.some((x) => sameDate(x.what, add.what)) ? p.dates : [...p.dates, { ...add }] }));
+          if (add) edit((p) => ({ ...p, dates: withRow(p.dates, add) }));
           setDealStage(dealId, task.advance2!.stage);
           after(el, task.advance2!.stage === 'passed');
         }}>{task.advance2.label}</button>

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanDeal, loadDeals, saveDeals, type Deal } from './analyze';
 import { EMPTY_PACKET, nextAction, savePacket } from './dealPacket';
-import { dealNextTask, inferStage, setDealStage, STAGE_STEPS, stageHint, stageLabel, stageOf, stageTasks } from './dealStage';
+import { dealNextTask, inferStage, paymentPassed, saleOverFor, withRow, setDealStage, STAGE_STEPS, stageHint, stageLabel, stageOf, stageTasks } from './dealStage';
 import { cleanLog, saveLog } from './evidence';
 import { saveOwned } from './owned';
 import { planNow } from './planNext';
@@ -583,6 +583,47 @@ describe('Nevada round 4 flow', () => {
     const after = stageTasks(tax, 'contract', today, new Date('2026-11-15T01:00:00Z')).find((x) => x.key === 'ev-terms')!;
     expect(after.label).toMatch(/^Did you pay for/);
     expect(after.advance2?.addRow).toMatchObject({ when: '2026-11-14', what: 'Payment deadline' });
+  });
+
+  it('Clark, between 1:00 and 4:30 p.m. on the sale day, lets a morning winner who missed 1:00 answer too', () => {
+    const tax = { ...nvFlip, kind: 'taxSale' as const, stage: 'contract' as const };
+    const today = { ...EMPTY_PACKET, dates: [{ when: '2026-11-14', what: 'Sale day', who: 'Treasurer', resolved: true }] };
+    savePacket(`analyzed:${tax.id}`, today);
+    const t = stageTasks(tax, 'contract', today, new Date('2026-11-14T23:00:00Z')).find((x) => x.key === 'ev-terms')!;
+    expect(t.advance2?.label).toMatch(/didn’t pay by 1:00 p.m./);
+    expect(t.advance2?.addRow).toMatchObject({ when: '2026-11-14', what: 'Payment deadline' });
+    // Before 1:00 p.m. there's no such answer yet.
+    expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T17:00:00Z')).find((x) => x.key === 'ev-terms')!.advance2).toBeUndefined();
+  });
+
+  it('passing after a missed payment fills the usual blank Payment deadline row', () => {
+    const rows = [{ when: '2026-11-12', what: 'Sale day', who: 'Trustee' }, { when: '', what: 'Payment deadline', who: '' }];
+    expect(withRow(rows, { when: '2026-11-12', what: 'Payment deadline', who: 'the trustee' })).toEqual([rows[0], { when: '2026-11-12', what: 'Payment deadline', who: 'the trustee' }]);
+    // A dated row is kept as it is; no row adds one.
+    const dated = [{ when: '2026-11-20', what: 'Payment deadline', who: 'HOA agent' }];
+    expect(withRow(dated, { when: '2026-11-12', what: 'Payment deadline', who: 'x' })).toEqual(dated);
+    expect(withRow([rows[0]], { when: '2026-11-12', what: 'Payment deadline', who: 'x' })).toHaveLength(2);
+  });
+
+  it('counts a Nevada payment deadline and sale day in Nevada’s day, and offers “I didn’t pay in time” once it passes', () => {
+    const hoa = { ...nvFlip, kind: 'hoa' as const, stage: 'contract' as const };
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'Agent', resolved: true }, { when: '2026-11-20', what: 'Payment deadline', who: 'HOA agent' }] };
+    savePacket(`analyzed:${hoa.id}`, p);
+    saveDeals([hoa]);
+    // 7 p.m. Nov 20 in Nevada (already Nov 21 in UTC): still today.
+    const evening = new Date('2026-11-21T03:00:00Z');
+    expect(paymentPassed(hoa, evening)).toBe('');
+    expect(dealNextTask(hoa, p, evening, 'contract').days).toBe(0);
+    // 1 a.m. Nov 21 in Nevada: passed, with both answers.
+    const late = new Date('2026-11-21T09:00:00Z');
+    expect(paymentPassed(hoa, late)).toBe('2026-11-20');
+    const t = dealNextTask(hoa, p, late, 'contract');
+    expect(t.advance2?.stage).toBe('passed');
+    expect(t.tick?.label).toMatch(/I paid/);
+    // Sale day: not over until Nevada's day ends.
+    const sale = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer' }] };
+    expect(saleOverFor({ state: 'NV', kind: 'taxSale', county: 'Washoe' }, sale, new Date('2026-11-13T03:00:00Z'))).toBe(false);
+    expect(saleOverFor({ state: 'NV', kind: 'taxSale', county: 'Washoe' }, sale, new Date('2026-11-13T09:00:00Z'))).toBe(true);
   });
 
   it('a Nevada trustee win left unpaid after the sale day is urgent', () => {
