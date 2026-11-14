@@ -574,6 +574,10 @@ describe('Nevada round 4 flow', () => {
     const irs = { ...nvFlip, kind: 'irs' as const, stage: 'contract' as const };
     const it2 = stageTasks(irs, 'contract', p, now2).find((x) => x.key === 'ev-terms')!;
     expect(it2.label).toMatch(/no more than 1 month after the sale/);
+    // On the payment day itself it names the deadline.
+    const today = { ...EMPTY_PACKET, dates: [{ when: '2026-11-14', what: 'Sale day', who: 'Treasurer', resolved: true }] };
+    savePacket(`analyzed:${tax.id}`, today);
+    expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T17:00:00Z')).find((x) => x.key === 'ev-terms')!.label).toMatch(/by 1:00 p.m. today/);
   });
 
   it('a Nevada trustee win left unpaid after the sale day is urgent', () => {
