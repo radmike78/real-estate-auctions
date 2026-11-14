@@ -1,4 +1,4 @@
-import { beforeDeed, beforeWhat, clarkPayDay, clarkWinnerPast, nvLienDueLikelyPassed, nvLienDueToday, paidAtWin, liveIn, stageLabel, stageOf, finishedDeal } from '../lib/dealStage';
+import { prettyDay, beforeDeed, beforeWhat, clarkPayDay, clarkWinnerPast, nvLienDueLikelyPassed, nvLienDueToday, paidAtWin, liveIn, stageLabel, stageOf, finishedDeal } from '../lib/dealStage';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
 import { planNow, practiceLienDeal, roadmapNextStep } from '../lib/planNext';
 import { lienDealFor, planPath, progressChanged } from '../lib/roadmapState';
@@ -18,7 +18,7 @@ import { useMarkStep, stepEyebrow } from '../lib/path';
 import { dropStateLead, useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
 import { CURRENT_KEY, KEPT_NOTE_KEY, makeRealDeal, OPENED_KEY, clearLienDraftNumbers, keepUnsavedDraft, movedFrom, noteStateMove, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, nextStamp, restoreDraftNumbers, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
-import { checkAdvice, NO_PRICE_AFTER, overdueIntro, pricePhase } from '../lib/dealPacket';
+import { checkAdvice, loadPacket, NO_PRICE_AFTER, overdueIntro, pricePhase, sameDate, sidDeadline } from '../lib/dealPacket';
 import CheckFold from './CheckFold';
 import { linkLabel } from '../lib/linkLabel';
 import { worksheetDownPct, investorProfile, commercialLoanStart } from '../lib/myPlan';
@@ -414,6 +414,11 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     // A missed payment: the deal packet's note, pointed at the packet (Analyze has no Key dates or stage menu).
     const inPacket = (t: string) => t.replace('mark it handled in Key dates', 'mark it handled in its deal packet’s Key dates').replace('mark the deal passed', 'mark the deal passed in its deal packet');
     if (overdueIntro(sd)) return { text: inPacket(overdueIntro(sd)), packet: true };
+    // A Nevada tax sale's open SID payoff can void the sale (NRS 361.595(6)): say so before the numbers.
+    if (sd.state === 'NV' && sd.kind === 'taxSale' && ['contract', 'closed', 'owned'].includes(stageOf(sd))) {
+      const pk = loadPacket(`analyzed:${sd.id}`); const dl = sidDeadline(pk); const n = new Date(); const today = `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;
+      if (dl && pk.dates.some((x) => sameDate(x.what, 'SID certificate payoff') && !!x.when && !x.resolved)) return { text: dl < today ? `The SID certificate payoff is still open after its 20 days (${prettyDay(dl)}): answer it in its deal packet before you rely on these numbers. If it wasn’t paid by then, the sale is void (NRS 361.595(6)).` : `Pay off what’s owed on the SID certificate by ${prettyDay(dl)}, or the sale is void (NRS 361.595(6)); mark it handled in its deal packet once paid.`, packet: true };
+    }
     // Still to pay: say so before the deadline, not only after it.
     if (pricePhase(sd) === 'owed') return { text: 'You won it. If you haven’t paid yet, pay your full winning bid by the sale’s payment deadline (its date is in the deal packet’s Key dates), then mark it handled there. These numbers are a check, not a decision.', packet: true };
     // (The payment step itself is the task line below, so it isn't repeated here.)

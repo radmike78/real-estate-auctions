@@ -563,6 +563,14 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(nvFlip, cw, now, 'closed').redate?.when).toBe('2026-11-30');
   });
 
+  it('a Nevada trustee win left unpaid after the sale day is urgent', () => {
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Trustee', resolved: true }] };
+    savePacket(`analyzed:${nvFlip.id}`, p);
+    const t = stageTasks({ ...nvFlip, stage: 'contract' }, 'contract', p, new Date('2026-11-14T18:00:00Z')).find((x) => x.key === 'ev-terms')!;
+    expect(t.label).toMatch(/contact the trustee today/);
+    expect(t.days).toBe(0);
+  });
+
   it('a Nevada tax sale with its Treasurer’s deed recorded offers no SID void choice (NRS 361.595(6))', () => {
     const tax = { ...nvFlip, kind: 'taxSale' as const };
     const later = new Date('2026-11-14T18:00:00Z');
@@ -1232,9 +1240,9 @@ describe('Nevada round 4 flow', () => {
     const base = [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-11', what: 'Payment deadline', who: 'Me', resolved: true }];
     const open = { ...EMPTY_PACKET, dates: [...base, { when: '2026-10-03', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City' }] };
     const t = dealNextTask(tax, open, now, 'contract');
-    // A typed date after the deadline is kept (it leads to "does the sale stand?").
-    expect(t.tick?.label).toBe('I paid it: mark it handled');
-    expect(t.tick?.setWhen).toBeUndefined();
+    // After the 20 days the answer is 'paid by the deadline', and it dates the row no later than it.
+    expect(t.tick?.label).toBe('I paid it by Sep 30, 2026: mark it handled');
+    expect(t.tick?.setWhen).toBe('2026-09-30');
     // Handled with the late date kept: the warning stays, and the next step asks whether the sale stands.
     const late = { ...EMPTY_PACKET, dates: [...base, { when: '2026-10-03', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City', resolved: true }] };
     const lt = dealNextTask(tax, late, now, 'contract');
