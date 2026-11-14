@@ -609,6 +609,9 @@ describe('Nevada round 4 flow', () => {
     for (const st of ['contract', 'closed'] as const) {
       const inside = dealNextTask({ ...tax, stage: st }, onRecord, new Date('2026-11-15T18:00:00Z'), st);
       expect(inside.label).not.toMatch(/Did you pay it/);
+      // Also after the payoff row's own date (Nov 20) but before day 20 (Nov 25).
+      const late = dealNextTask({ ...tax, stage: st }, onRecord, new Date('2026-11-22T18:00:00Z'), st);
+      expect(late.label).not.toMatch(/usually means it was paid|Did you pay it/);
     }
   });
 

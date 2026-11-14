@@ -262,7 +262,7 @@ const NEVADA: Playbook[] = [
     short: 'Sheriff sales',
     oneLine: 'Property sold to pay a court judgment, including judicial foreclosures.',
     youGet: 'The debtor’s interest, subject to a 1-year redemption right, and to anything senior to the judgment or mortgage being enforced.',
-    plain: 'A certificate of sale first, and the house as the owner held it by deed only if no one buys it back: the owner, or a creditor whose lien came after the lien the sale is held on, can redeem for 1 year (NRS 21.200, 21.210). Liens recorded ahead of that lien stay with it.',
+    plain: 'A certificate of sale first, and the house as the owner held it by deed only if no one buys it back: the owner, or a creditor whose judgment or mortgage lien came after the lien the sale is held on, can redeem for 1 year (NRS 21.200, 21.210). Liens recorded ahead of that lien stay with it.',
     forSale: true,
     glance: [
       { label: 'Law', value: 'NRS 21 (execution sales)' },
@@ -275,7 +275,7 @@ const NEVADA: Playbook[] = [
       { title: 'Find the sale', detail: 'Check the Sheriff Civil Section’s sales listings and the notice for the case.' },
       { title: 'Research the title', detail: 'You get only what the debtor owned. Mortgages and liens ranked ahead of the judgment or mortgage being enforced stay.' },
       { title: 'Check for a homestead', detail: 'Does the debtor live there and have a recorded declaration of homestead? Then up to $605,000 of equity is protected from a judgment creditor’s execution (NRS 21.090, NRS 115). It doesn’t protect against a mortgage or deed of trust the owner signed, taxes, mechanic’s liens or an HOA’s lien (NRS 115.010). If the home is sold because equity is over the limit, no bid under $605,000 can be accepted (NRS 115.050). Check the Recorder, and have an attorney review the sale.' },
-      { title: 'Plan for a year of waiting', detail: 'The debtor, or a creditor with a later lien, can redeem for a year. If no one redeems, you get the sheriff’s deed after the year; if someone does, you’re repaid and the property goes to them. Your money is tied up for that year. If someone redeems, taxes and payments on earlier liens are repaid with interest. Repairs aren’t, so improving the property before then puts that money at risk if someone redeems.' },
+      { title: 'Plan for a year of waiting', detail: 'The debtor, or a creditor with a later judgment or mortgage lien, can redeem for a year. If no one redeems, you get the sheriff’s deed after the year; if someone does, you’re repaid and the property goes to them. Your money is tied up for that year. If someone redeems, taxes and payments on earlier liens are repaid with interest. Repairs aren’t, so improving the property before then puts that money at risk if someone redeems.' },
       { title: 'Set your maximum bid', detail: 'Include a year or more of holding costs. Use Analyze a deal (Fix and flip) to find your walk-away price.' },
       { title: 'Bid and pay', detail: 'Pay in certified funds as the notice says. You get a certificate of sale; the sheriff records a copy (NRS 21.190).' },
       { title: 'After the year', detail: 'If no one redeems, the sheriff gives you a deed (NRS 21.220(4)). Until then whoever lives there may generally keep using the property as before (NRS 21.240)*: plan possession after the deed, with an attorney.' },
