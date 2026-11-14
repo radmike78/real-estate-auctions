@@ -79,6 +79,8 @@ export interface Deal {
   home?: 'live' | 'rent';
   /** The answer was filled in from Decide (not chosen for this property yet). */
   homeFrom?: 'plan';
+  /** Passed after it was won (or picked): a missed payment, not a lost bid. */
+  passedFrom?: 'won';
 }
 
 export interface CheckItem {
@@ -362,6 +364,7 @@ export function cleanDeal(v: unknown): Deal | null {
     ...(d.practice === true ? { practice: true } : {}),
     ...(d.countyChosen === true ? { countyChosen: true } : {}),
     ...(d.home === 'live' || d.home === 'rent' ? { home: d.home, ...(d.homeFrom === 'plan' ? { homeFrom: 'plan' as const } : {}) } : {}),
+    ...(d.passedFrom === 'won' && d.stage === 'passed' ? { passedFrom: 'won' as const } : {}),
   };
 }
 

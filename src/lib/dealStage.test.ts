@@ -645,9 +645,17 @@ describe('Nevada round 4 flow', () => {
   it('the Passed hint after a missed payment names the deadline, and Clark’s deposit and ban', () => {
     vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-16T20:00:00Z'));
     try {
-      const tax = { ...nvFlip, kind: 'taxSale' as const, county: 'Clark', stage: 'passed' as const };
-      savePacket(`analyzed:${tax.id}`, { ...EMPTY_PACKET, dates: [{ when: '2026-11-14', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-11-14', what: 'Payment deadline', who: 'Clark County Treasurer' }] });
-      saveDeals([tax]);
+      const won = { ...nvFlip, kind: 'taxSale' as const, county: 'Clark', stage: 'contract' as const };
+      savePacket(`analyzed:${won.id}`, { ...EMPTY_PACKET, dates: [{ when: '2026-11-14', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-11-14', what: 'Payment deadline', who: 'Clark County Treasurer' }] });
+      // Passed straight from Researching ("I didn't win"): no missed-payment wording.
+      saveDeals([{ ...won, stage: 'researching' }]);
+      setDealStage(won.id, 'passed');
+      expect(stageHint('passed', loadDeals()[0])).not.toMatch(/didn’t pay/);
+      // Passed from Won: it is a missed payment.
+      saveDeals([won]);
+      setDealStage(won.id, 'passed');
+      const tax = loadDeals()[0];
+      expect(tax.passedFrom).toBe('won');
       const h = stageHint('passed', tax);
       expect(h).toMatch(/^If you won but didn’t pay by the deadline \(Nov 14, 2026\)/);
       expect(h).toMatch(/loses the \$5,000 deposit and is banned/);
