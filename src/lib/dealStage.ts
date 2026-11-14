@@ -358,7 +358,7 @@ export const sidPending = (d: { id?: string; state?: Deal['state']; kind: Deal['
 // SID question is settled and no 'the sale is void' choice is offered after it.
 // (Only once its date has come: a deed ticked ahead of its date isn't on record yet, so the 20-day SID warning stays.)
 // (An undated tick counts only once the 20 days are over: while they run, the recording date settles it.)
-const deedOnRecord = (p: PacketData, now: Date = new Date()) => p.dates.some((x) => !!x.resolved && (x.when ? x.when <= localDay(now) : !(sidDeadline(p) && sidDeadline(p) >= localDay(now))) && ['Treasurer’s deed recorded', 'Deed recorded', 'Deed or certificate recorded'].some((r) => sameDate(x.what, r)));
+export const deedOnRecord = (p: PacketData, now: Date = new Date()) => p.dates.some((x) => !!x.resolved && (x.when ? x.when <= localDay(now) : !(sidDeadline(p) && sidDeadline(p) >= localDay(now))) && ['Treasurer’s deed recorded', 'Deed recorded', 'Deed or certificate recorded'].some((r) => sameDate(x.what, r)));
 /** A recording row ticked, dated today or earlier (or undated): a date that hasn't come yet isn't recorded. */
 const recordedOn = (p: PacketData, now: Date = new Date()) => p.dates.some((x) => !!x.resolved && (!x.when || x.when <= localDay(now)) && RECORDED_ROWS.some((r) => sameDate(x.what, r)));
 const sidPayDue = (p: PacketData, now: Date) => { const dl = sidDeadline(p); const r = p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && !!x.when && !x.resolved); return dl && r && dl >= localDay(now) ? { dl, row: r.what } : null; };
