@@ -569,7 +569,7 @@ describe('Nevada round 4 flow', () => {
     const tax = { ...nvFlip, kind: 'taxSale' as const, stage: 'contract' as const };
     savePacket(`analyzed:${tax.id}`, p);
     const tt = stageTasks(tax, 'contract', p, now2).find((x) => x.key === 'ev-terms')!;
-    expect(tt.label).toMatch(/Clark County’s payment was due by 1:00 p.m. on the sale day/);
+    expect(tt.label).toMatch(/Clark County’s payment was due by 1:00 p.m. Nevada time on the sale day/);
     expect(tt.advance2?.stage).toBe('passed');
     const irs = { ...nvFlip, kind: 'irs' as const, stage: 'contract' as const };
     const it2 = stageTasks(irs, 'contract', p, now2).find((x) => x.key === 'ev-terms')!;
@@ -577,7 +577,7 @@ describe('Nevada round 4 flow', () => {
     // On the payment day itself it names the deadline.
     const today = { ...EMPTY_PACKET, dates: [{ when: '2026-11-14', what: 'Sale day', who: 'Treasurer', resolved: true }] };
     savePacket(`analyzed:${tax.id}`, today);
-    expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T17:00:00Z')).find((x) => x.key === 'ev-terms')!.label).toMatch(/by 1:00 p.m. today/);
+    expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T17:00:00Z')).find((x) => x.key === 'ev-terms')!.label).toMatch(/by 1:00 p.m. Nevada time today/);
     // After 1:00 p.m. Nevada time the same day it asks whether you paid, and passing records the deadline.
     const after = stageTasks(tax, 'contract', today, new Date('2026-11-14T23:00:00Z')).find((x) => x.key === 'ev-terms')!;
     expect(after.label).toMatch(/^Did you pay for/);
@@ -589,7 +589,9 @@ describe('Nevada round 4 flow', () => {
     savePacket(`analyzed:${nvFlip.id}`, p);
     const t = stageTasks({ ...nvFlip, stage: 'contract' }, 'contract', p, new Date('2026-11-14T18:00:00Z')).find((x) => x.key === 'ev-terms')!;
     expect(t.label).toMatch(/contact the trustee today/);
-    expect(t.days).toBe(0);
+    // An answer is needed: paid, or not (which passes the deal and records the missed payment).
+    expect(t.days).toBe(-1);
+    expect(t.advance2?.addRow).toMatchObject({ when: '2026-11-12', what: 'Payment deadline' });
   });
 
   it('a Nevada tax sale with its Treasurer’s deed recorded offers no SID void choice (NRS 361.595(6))', () => {
