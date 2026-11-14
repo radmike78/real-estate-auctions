@@ -1242,12 +1242,12 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     if (a) {
       // Won or bought with only the opening bid or asking price entered: that price is a what-if, not yours, so no
       // cash or shortfall is stated at it as fact (the section asks for your price instead).
-      const listedAfter = a.source === 'listed' && !!pricePhase(d) && (offer ? pricePhase(d) === 'paid' : pricePhase(d) !== 'agreed');
+      const listedAfter = a.source === 'listed' && !!pricePhase(d) && (offer || pricePhase(d) !== 'agreed');
       need = listedAfter ? 0 : a.cashPeak;
       const at = a.source === 'yours' && fixedPriceName(d) === 'the price you paid' ? `the ${money(a.price)} you paid` : `${priceName(a.source, offer, false, d)} of ${money(a.price)}`;
       needAt = `At ${at}`;
       // Won or paid with only the opening bid entered: it isn't what you owe or paid, so ask for your winning bid instead.
-      if (offer && a.source === 'listed' && pricePhase(d) === 'paid') cash.push(`Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.`);
+      if (offer && a.source === 'listed' && pricePhase(d)) cash.push(`Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.`);
       if (!offer) cash.push(a.source === 'listed' && pricePhase(d) && pricePhase(d) !== 'agreed' ? `Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.` : saleDay(at, a.cashOnDay));
       cash.push(listedAfter ? `What-if, at ${at} (not your price): about ${money(a.cashPeak)} of cash through repairs and holding until it sells, under these assumptions` : `Estimated cash you’ll put in, at ${at}, under these assumptions (through repairs and holding until it sells): ${money(a.cashPeak)}`);
       if (a.cashLeft < a.cashPeak) cash.push(`Left in once the loan funds, at ${at}: ${money(a.cashLeft)}`);
@@ -1262,8 +1262,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       }
     }
     // A walk-away price below the opening bid (or asking price) is no price you could pay: say so instead of a what-if.
-    if (!bid.none && a?.source === 'listed' && bid.maxBid < a.price && pricePhase(d) && pricePhase(d) !== 'agreed') {
-      cash.push(`At the ${offer ? 'asking price' : 'opening bid'} of ${money(a.price)} this plan misses ${goalW}: the most it could have paid is ${money(bid.maxBid)}. Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.`);
+    if (!bid.none && a?.source === 'listed' && bid.maxBid < a.price && pricePhase(d) && (offer || pricePhase(d) !== 'agreed')) {
+      cash.push(`At the ${offer ? 'asking price' : 'opening bid'} of ${money(a.price)} this plan misses ${goalW}: the most it could ${pricePhase(d) === 'agreed' ? 'pay' : 'have paid'} is ${money(bid.maxBid)}. Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.`);
     } else if (!bid.none && a?.source === 'listed' && bid.maxBid < a.price) {
       cash.push(`No ${offer ? 'offer at or above the asking price' : 'bid at or above the opening bid'} of ${money(a.price)} ${a.profit >= bid.target && bid.limitedBy === 'cash' ? 'fits your cash' : `meets ${goalW}`} as entered: the most that would is ${money(bid.maxBid)}, below it.`);
     } else if (!bid.none && pricePhase(d) && a?.source === 'yours' && bid.limitedBy === 'cash' && bid.maxBid < a.price && bid.profitBid >= a.price) {
@@ -1345,7 +1345,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   }
   if (bid) {
     const a = bid.at;
-    if (a) nums.push(`${priceName(a.source, offer, true, d)}${a.source === 'yours' && fixedPriceName(d) ? '' : ` (${a.source === 'yours' ? 'your actual price' : offer && pricePhase(d) !== 'paid' ? 'used until you enter your own offer' : pricePhase(d) && pricePhase(d) !== 'agreed' ? 'a what-if, not your price' : 'the lowest you could pay, used until you enter your own bid'})`}: ${money(a.price)} → estimated profit ${money(a.profit)} (${bid.noTarget ? 'no profit target set yet' : `${bid.targetTyped ? 'your target' : 'our example target'} ${money(bid.target)}`}${a.profit < bid.target ? (bid.noTarget ? ', below break-even' : ', so it falls short') : ''}), based on a ${money(bid.exitValue)} resale value`);
+    if (a) nums.push(`${priceName(a.source, offer, true, d)}${a.source === 'yours' && fixedPriceName(d) ? '' : ` (${a.source === 'yours' ? 'your actual price' : offer && !pricePhase(d) ? 'used until you enter your own offer' : pricePhase(d) && (offer || pricePhase(d) !== 'agreed') ? 'a what-if, not your price' : 'the lowest you could pay, used until you enter your own bid'})`}: ${money(a.price)} → estimated profit ${money(a.profit)} (${bid.noTarget ? 'no profit target set yet' : `${bid.targetTyped ? 'your target' : 'our example target'} ${money(bid.target)}`}${a.profit < bid.target ? (bid.noTarget ? ', below break-even' : ', so it falls short') : ''}), based on a ${money(bid.exitValue)} resale value`);
     const belowOpening = !bid.none && a?.source === 'listed' && bid.maxBid < a.price;
     nums.push(bid.none && bid.cashBlocked ? (pricePhase(d) ? `Your cash doesn’t cover the repairs and costs: the deal itself could have met ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more than the cash you’re putting in` : `No bid fits the cash you entered: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than that`) : bid.none ? `No price works at a ${money(bid.exitValue)} resale value with these costs and ${targetW}` : pricePhase(d) && a?.source === 'yours' && bid.limitedBy === 'cash' && bid.maxBid < a.price && bid.profitBid >= a.price ? `Leaving your cash aside, the deal itself could have met ${goalW} at prices up to ${money(bid.profitBid)}: at your price, your cash is what’s short` : `What-if: walk-away price ${money(bid.maxBid)}, ${bid.limitedBy === 'cash' ? `the most your cash covers with every cost until you sell (${goalW} alone allows ${money(bid.profitBid)})` : `the most you could ${fixedPriceName(d) && fixedPriceName(d) !== 'the agreed price' ? 'have paid' : 'pay'} and still meet ${goalW}`} (not your actual price)${a ? '' : `, based on a ${money(bid.exitValue)} resale value`}${belowOpening ? `. That’s below the ${offer ? 'asking price' : 'opening bid'} of ${money(a!.price)}, so ${pricePhase(d) && pricePhase(d) !== 'agreed' ? `at the ${offer ? 'asking price' : 'opening bid'} this plan would have missed ${goalW}` : a!.profit >= bid.target && bid.limitedBy === 'cash' ? 'your cash doesn’t cover this deal' : `this deal doesn’t meet ${goalW}`}${pricePhase(d) && pricePhase(d) !== 'agreed' ? '' : ' as entered'}` : ''}`);
     if (bid.redeem && !bid.redeem.who) nums.push(`Built on a ${bid.redeem.months}-month wait you typed as a what-if. ${noRedemptionWords(d)} Check the sale terms with the official seller or an attorney.`);

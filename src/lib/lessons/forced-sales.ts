@@ -44,7 +44,7 @@ export const forcedSales: Lesson = {
         },
         'In Nevada, counties don’t auction property-tax liens, but Clark and Washoe counties and some cities sell special improvement district (SID) lien certificates for unpaid local improvement assessments (NRS 271). You buy the right to be repaid the price plus 1% a month, not the property. The owner can redeem for 2 years if there’s a home or other significant improvement on the land, as the city or county decides (otherwise 120 days); after that, and formal notice to the owner, you can ask for a deed. The SID lien certificate guide has the steps.',
         'A tax sale doesn’t clear everything. Read the county’s rules before every sale.',
-        'In Nevada, ask the Treasurer the day you pay whether a city or county filed a special improvement district (SID) affidavit for the parcel: if one was, its payoff is due 20 days after the sale, or the sale is void, and the Treasurer issues the deed only once that’s settled (NRS 361.595(6)).',
+        'In Nevada, ask the Treasurer before you bid whether a city or county filed a special improvement district (SID) affidavit for the parcel (it’s due 3 business days before the sale): if one was, its payoff is due 20 days after the sale, or the sale is void, and the Treasurer issues the deed only once that’s settled (NRS 361.595(6)).',
         'In Nevada, anyone claiming the land can sue to recover it for 2 years after the Treasurer’s deed is delivered (NRS 361.600), so a title company may not insure until then.* Some government liens and other encumbrances may also remain (Washoe County’s tax sale FAQ).',
         'In California, San Diego County sells “as is” and takes no responsibility for other liens, encumbrances or easements.',
       ],

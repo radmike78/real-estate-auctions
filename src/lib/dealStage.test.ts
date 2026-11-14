@@ -587,6 +587,7 @@ describe('Nevada round 4 flow', () => {
     const undated = { ...EMPTY_PACKET, dates: [fresh, { when: '', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }] };
     savePacket(`analyzed:${tax.id}`, undated);
     expect(stageTasks(tax, 'contract', undated, later).some((x) => x.key === 'sid-affidavit')).toBe(true);
+    expect(stageTasks(tax, 'contract', undated, later).find((x) => !x.done)?.key).not.toBe('record');
   });
 
   it('round 8 verifier: the SID question comes right after paying, and its no is its own row; lien areas; redemption end from the row', () => {
