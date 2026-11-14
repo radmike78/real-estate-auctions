@@ -30,10 +30,18 @@ export const DD_STEPS: DdStep[] = [
   { key: 'review', title: 'Get a professional review', why: 'Lien priority and sale validity are legal questions.', how: 'Have a title company or real estate attorney review your findings before you bid.', who: 'Title company or attorney', areas: [] },
 ];
 
+/** A bank-owned home is bought by offer through escrow: the steps that assume an auction are worded for that. */
+const REO_STEP: Record<string, Partial<DdStep>> = {
+  status: { title: 'Confirm it’s still for sale', why: 'A bank-owned home can go under contract with another buyer at any time.', how: 'Ask the listing broker, or check the lender’s site, before you write an offer.' },
+  occupancy: { why: 'You can usually inspect during the contract’s inspection period, and someone may still live there.', how: 'Schedule an inspection within the contract’s deadline, and ask the listing broker whether the home will be delivered vacant.' },
+  'max-bid': { title: 'Set your maximum offer', why: 'Overpaying is the most common way a good property becomes a bad deal.' },
+};
 export function ddSteps(p: Property): (DdStep & { checks: Check[]; worst: Check['result'] | null })[] {
   const report = diligenceReport(p);
+  const reo = p.sale?.saleType === 'REO';
   const rank = { flag: 3, review: 2, manual: 1, ok: 0 } as const;
-  return DD_STEPS.map((s) => {
+  return DD_STEPS.map((s0) => {
+    const s = reo && REO_STEP[s0.key] ? { ...s0, ...REO_STEP[s0.key] } : s0;
     const checks = report.filter((c) => s.areas.includes(c.area));
     const worst = checks.reduce<Check['result'] | null>((w, c) => (w === null || rank[c.result] > rank[w] ? c.result : w), null);
     return { ...s, checks, worst };

@@ -78,7 +78,8 @@ export function applyFilters(all: Property[], f: Filters, now = new Date()): Pro
   const loc = parseLocation(f.location);
   const out = all.filter((p) => {
     if (!matchesLocation(p, loc)) return false;
-    if (f.statuses.length && !f.statuses.includes(p.status)) return false;
+    // (A bank-owned home taking offers online is still a bank-owned offer: it matches that filter too.)
+    if (f.statuses.length && !f.statuses.includes(p.status) && !(f.statuses.includes('BROKER_OFFER') && p.sale?.saleType === 'REO')) return false;
     if (f.saleTypes.length && (!p.sale || !f.saleTypes.includes(p.sale.saleType))) return false;
     if (f.bidding === 'online' && !isOnline(p)) return false;
     if (f.bidding === 'in_person' && !isInPerson(p)) return false;

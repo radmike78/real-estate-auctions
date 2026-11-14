@@ -353,7 +353,7 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
       sale = baseSale({
         saleType: 'REO',
         conductedBy: `${pick(LENDERS)} via listing broker (sample)`,
-        location: 'Broker listing / lender online auction',
+        location: 'Listed by the lender’s broker',
         minimumBid: round(value * between(0.85, 0.98), 1000),
         deposit: 'Earnest money per purchase contract',
         paymentMethods: ['Financing or cash through escrow'],

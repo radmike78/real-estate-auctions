@@ -122,7 +122,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   const s = p.sale;
   const analyzeLink = analyzeHref({ address: p.address, city: p.city, state: p.state, county: p.county, saleType: s?.saleType });
   // (A bank-owned home whose lender takes offers online is still an offer, not an auction: named so here.)
-  const status = p.sale?.saleType === 'REO' && p.status === 'ONLINE_BIDDING' ? { ...STATUS[p.status], label: 'Bank-owned: online offers' } : STATUS[p.status];
+  const status = p.sale?.saleType === 'REO' && p.status === 'ONLINE_BIDDING' ? { ...STATUS[p.status], label: 'Bank-owned: online offers', explanation: 'Listed for sale. The lender owns the home and takes offers on its own site for a set period.' } : STATUS[p.status];
   // A home that isn't for sale (in pre-foreclosure, or the sale ended) gets no bid, spread, calculator or save tools:
   // it isn't a deal, and the owner may still keep it. Only its timeline and the official notice are shown.
   const forSale = status.purchasable && !!s;
@@ -168,7 +168,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       summary: `${status.purchasable ? 'For sale' : 'Not for sale now'} · ${status.label}${s && s.postponements ? ` · postponed ${plural(s.postponements, 'time')}` : ''}`,
       content: () => (
         <>
-          <p className="lead"><strong>{status.purchasable ? 'Heading to sale.' : 'Not for sale right now.'}</strong> {forStateText(isStateCode(p.state) ? p.state : null, status.explanation)}</p>
+          <p className="lead"><strong>{status.purchasable ? (p.sale?.saleType === 'REO' ? 'For sale.' : 'Heading to sale.') : 'Not for sale right now.'}</strong> {forStateText(isStateCode(p.state) ? p.state : null, status.explanation)}</p>
           <div className="provenance">
             <span className="prov-chip">Record last checked {ago(p.lastUpdated)}</span>
             {s && <span className="prov-chip">Sale run by {s.conductedBy}</span>}
@@ -212,14 +212,14 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
                 <dl className="facts">
                   <div><dt>Conducted by</dt><dd>{s.conductedBy}</dd></div>
                   <div><dt>{p.sale?.saleType === 'REO' ? 'Offers open' : online ? 'Bidding opens' : 'Date & time'}</dt><dd>{s.startsAt ? fmtDateTime(s.startsAt) : 'Not set'}</dd></div>
-                  {s.endsAt && <div><dt>Bidding closes</dt><dd>{fmtDateTime(s.endsAt)}</dd></div>}
+                  {s.endsAt && <div><dt>{s.saleType === 'REO' ? 'Offers close' : 'Bidding closes'}</dt><dd>{fmtDateTime(s.endsAt)}</dd></div>}
                   <div><dt>Where</dt><dd>{s.location}</dd></div>
                   <div><dt>{s.saleType === 'REO' ? 'List price' : 'Minimum bid'}</dt><dd>{s.minimumBid ? fmtMoney(s.minimumBid) : 'Announced at sale'}</dd></div>
                   {s.registrationDeadline && <div><dt>Registration deadline</dt><dd>{fmtDateTime(s.registrationDeadline)}</dd></div>}
                   <div><dt>Deposit</dt><dd>{s.deposit ?? 'See official terms'}</dd></div>
                   <div><dt>Payment accepted</dt><dd>{s.paymentMethods.join(', ')}</dd></div>
                   {s.finalPaymentDeadline && <div><dt>Final payment due</dt><dd>{fmtDateTime(s.finalPaymentDeadline)}</dd></div>}
-                  <div><dt>Buyer premium</dt><dd>{s.buyerPremiumPct ? `${s.buyerPremiumPct}%` : 'None listed'}</dd></div>
+                  {!(s.saleType === 'REO') && <div><dt>Buyer premium</dt><dd>{s.buyerPremiumPct ? `${s.buyerPremiumPct}%` : 'None listed'}</dd></div>}
                   <div><dt>Deed type</dt><dd>{s.deedType}</dd></div>
                   <div><dt>Redemption</dt><dd>{s.redemptionPeriod ?? 'N/A'}</dd></div>
                   {s.eligibility && <div><dt>Eligibility</dt><dd>{s.eligibility}</dd></div>}
@@ -232,10 +232,10 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
                     </a>
                   ) : (
                     <button className="btn" disabled title="Sample data has no real official link">
-                      {online ? 'Official bidding site' : 'Official sale notice'} (sample: no real link)
+                      {s.saleType === 'REO' ? 'Lender’s listing' : online ? 'Official bidding site' : 'Official sale notice'} (sample: no real link)
                     </button>
                   )}
-                  <span className="muted small">We link to the official sale. Property bids and purchase funds go through the seller’s process.</span>
+                  <span className="muted small">{s.saleType === 'REO' ? 'Offers and purchase funds go through the lender, its broker and escrow.' : 'We link to the official sale. Property bids and purchase funds go through the seller’s process.'}</span>
                 </div>
               </>
             ),
@@ -306,7 +306,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
     },
     {
       key: 'max-bid',
-      title: 'Your maximum bid',
+      title: p.sale?.saleType === 'REO' ? 'Your maximum offer' : 'Your maximum bid',
       icon: <IconCalc />,
       tone: 'go',
       summary: commercial ? 'Value by rent income, every cost counted, and your walk-away number' : 'Every cost counted, your walk-away number, and what-if scenarios',
@@ -325,10 +325,10 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           )}
           <StrategyTabs
             strategies={[
-              { key: 'flip', label: 'Fix and flip (fix and sell)', about: 'The most you can bid and still make your profit when you fix it up and sell it.', render: () => <BidCalculator key={calcVersion} propertyId={p.id} defaults={bidDefaults} openingBid={s?.minimumBid ?? null} commercial={commercial} offer={p.sale?.saleType === 'REO'} /> },
+              { key: 'flip', label: 'Fix and flip (fix and sell)', about: (p.sale?.saleType === 'REO' ? 'The most you can offer' : 'The most you can bid') + ' and still make your profit when you fix it up and sell it.', render: () => <BidCalculator key={calcVersion} propertyId={p.id} defaults={bidDefaults} openingBid={s?.minimumBid ?? null} commercial={commercial} offer={p.sale?.saleType === 'REO'} /> },
               commercial
-                ? { key: 'commercial', label: 'Commercial income', about: 'The most you can bid for the building’s income, counting the months it takes to lease it up.', render: () => <CommercialCalculator storageKey={`fsf.calc.commercial.${p.id}.v1`} start={buyFromBid(bidDefaults)} offer={p.sale?.saleType === 'REO'} /> }
-                : { key: 'rent', label: 'Buy and hold (keep and rent)', about: 'The most you can bid and still get your return on the cash you leave in, with or without a loan afterward.', render: () => <RentCalculator storageKey={`fsf.calc.rent.${p.id}.v1`} start={buyFromBid(bidDefaults)} offer={p.sale?.saleType === 'REO'} /> },
+                ? { key: 'commercial', label: 'Commercial income', about: (p.sale?.saleType === 'REO' ? 'The most you can offer' : 'The most you can bid') + ' for the building’s income, counting the months it takes to lease it up.', render: () => <CommercialCalculator storageKey={`fsf.calc.commercial.${p.id}.v1`} start={buyFromBid(bidDefaults)} offer={p.sale?.saleType === 'REO'} /> }
+                : { key: 'rent', label: 'Buy and hold (keep and rent)', about: (p.sale?.saleType === 'REO' ? 'The most you can offer' : 'The most you can bid') + ' and still get your return on the cash you leave in, with or without a loan afterward.', render: () => <RentCalculator storageKey={`fsf.calc.rent.${p.id}.v1`} start={buyFromBid(bidDefaults)} offer={p.sale?.saleType === 'REO'} /> },
             ]}
           />
         </>
