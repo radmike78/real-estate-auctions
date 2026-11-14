@@ -175,7 +175,7 @@ describe('the deal packet', () => {
     expect(open).not.toMatch(/this needs is|Estimated cash you’ll put in, at the opening bid/);
     expect(open).toMatch(/Enter your winning bid in Fix and flip to check the cash at it\./);
     expect(open).not.toMatch(/Paid: the opening bid|the lowest you could pay/);
-    expect(open).toMatch(/The opening bid \(used until you enter your winning bid\)/);
+    expect(open).toMatch(/The opening bid \(a what-if, not your price\)/);
     expect(open).not.toMatch(/doesn’t fit as entered|you’d put in is|fits your cash/);
     expect(open.match(/Enter your winning bid in Fix and flip/g)?.length).toBe(1);
     // Cash below even the costs, no price at all: the downside cases still show the deal's own most, and it asks for the bid.
@@ -196,6 +196,7 @@ describe('the deal packet', () => {
     expect(keyDates([sale])).toMatch(/SID certificate payoff deadline, if/);
     const deeded = keyDates([sale, { when: '2026-10-20', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }]);
     expect(deeded).not.toMatch(/SID certificate payoff deadline, if|whether an SID affidavit was filed/);
+    expect(keyDates([sale, { when: '2026-12-10', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }])).toMatch(/SID certificate payoff deadline, if/);
   });
 
   it('names the redemption wait a flip’s price is built on, with what a redemption returns, and its end date', async () => {

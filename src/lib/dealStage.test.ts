@@ -576,6 +576,10 @@ describe('Nevada round 4 flow', () => {
     const tasks = stageTasks(tax, 'owned', deeded, later);
     expect(tasks.some((x) => x.key === 'sid-affidavit' || x.key === 'sid-paid-affidavit')).toBe(false);
     expect(tasks.some((x) => /the sale is void/.test(x.undo?.label ?? ''))).toBe(false);
+    // A deed ticked ahead of its date isn't on record yet: the SID question (and its 20-day warning) stays.
+    const ahead = { ...EMPTY_PACKET, dates: [sale, { when: '2026-12-10', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }] };
+    savePacket(`analyzed:${tax.id}`, ahead);
+    expect(stageTasks(tax, 'owned', ahead, later).some((x) => x.key === 'sid-affidavit')).toBe(true);
   });
 
   it('round 8 verifier: the SID question comes right after paying, and its no is its own row; lien areas; redemption end from the row', () => {
