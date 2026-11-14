@@ -635,8 +635,7 @@ export function settledWords(t: string, phase: 'agreed' | 'owed' | 'paid' | null
     // (One name for the cash once the price is fixed, and no 'fits' for a price already won or paid.)
     .replace(/No realistic price fits the cash you entered/g, 'Your cash is short')
     .replace(/No price fits the cash you entered/g, 'Your cash is short')
-    .replace(/the cash you entered in (Fix and flip|Buy and hold|Commercial income)/g, 'the cash you’re putting in ($1)')
-    .replace(/the cash you entered/g, 'the cash you’re putting in');
+
   return s;
 }
 

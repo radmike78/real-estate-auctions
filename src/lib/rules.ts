@@ -59,6 +59,7 @@ function assess(lien: Lien, saleType: SaleType, foreclosing: Lien | undefined): 
       };
 
     case 'REO':
+      if (lien.type === 'PROPERTY_TAX') return { outcome: 'LIKELY_SURVIVES', reason: 'Property taxes stay with the property until paid (NRS 361.450(1)); the lender’s foreclosure didn’t clear them. In a bank-owned sale they’re usually paid or prorated through escrow: check the title commitment and your settlement statement.' };
       return {
         outcome: 'UNCERTAIN',
         reason: "The property has already been sold. Check whether the lender's foreclosure cleared this lien and require title insurance.",

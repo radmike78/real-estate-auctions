@@ -102,7 +102,9 @@ describe('search', () => {
   });
 
   it('online filter returns only online-bidding sales', () => {
-    const r = applyFilters(SAMPLE_PROPERTIES, { ...DEFAULT_FILTERS, bidding: 'online' });
+    // (No sample is an online auction: a copy of one, marked online, checks the filter.)
+    const online = { ...SAMPLE_PROPERTIES[0], id: 'ponline', status: 'ONLINE_BIDDING' as const };
+    const r = applyFilters([...SAMPLE_PROPERTIES, online], { ...DEFAULT_FILTERS, bidding: 'online' });
     expect(r.length).toBeGreaterThan(0);
     expect(r.every((p) => p.status === 'ONLINE_BIDDING')).toBe(true);
   });

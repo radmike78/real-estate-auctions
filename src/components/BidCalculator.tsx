@@ -619,7 +619,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           cashShort ? (
           <div className="calc-max bad">
             <span>{phase === 'owed' || phase === 'paid' ? 'The most this plan could have paid' : 'Walk-away price'}</span>
-            <strong>{phase ? 'Your cash doesn’t cover the repairs and costs' : <>No {w.bid} at the {w.opening} fits your cash</>}</strong>
+            <strong>{phase ? 'Your cash is short for this price' : <>No {w.bid} at the {w.opening} fits your cash</>}</strong>
             <small>{phase ? `The deal itself allows prices up to ${fmtMoney(r.profitBid)}. The cash at ${yours.toLowerCase()} is shown with your result below.` : <>At the {w.opening} you’d need about {fmtMoney(Math.round(openingCash))}: the {w.bid} plus repairs and every cost until you sell. The deal itself allows {w.bid}s up to {fmtMoney(r.profitBid)}.</>}</small>
           </div>
           ) : (

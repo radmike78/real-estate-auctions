@@ -274,7 +274,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <div><dt>Likely surviving liens</dt><dd className={money.likelySurviving ? 'neg' : ''}>{fmtMoney(money.likelySurviving)}</dd></div>
             <div><dt>Uncertain liens</dt><dd>{fmtMoney(money.uncertain)}</dd></div>
             <div><dt>Est. market value</dt><dd>{notChecked(p.estimatedMarketValue, 'Not estimated')}</dd></div>
-            <div className="total"><dt>Rough spread at minimum bid</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{fmtMoney(money.estimatedEquity)}</dd></div>
+            <div className="total"><dt>{p.sale?.saleType === 'REO' ? 'Rough spread at the asking price' : 'Rough spread at minimum bid'}</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{fmtMoney(money.estimatedEquity)}</dd></div>
           </dl>
           <p className="muted small">
             Spread = estimated value minus the minimum bid and likely surviving liens. It leaves out uncertain liens, repairs and costs, so it isn’t profit or equity.
