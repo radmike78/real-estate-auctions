@@ -117,7 +117,7 @@ export function assessLiens(p: Property): LienAssessment[] {
     const a = assess(lien, p.sale!.saleType, foreclosing);
     // A junior judgment or mortgage creditor in a Nevada sheriff's sale can still redeem the property (NRS 21.200(1)(b)).
     return nvSheriff && a.outcome === 'LIKELY_EXTINGUISHED' && (lien.type === 'JUDGMENT' || lien.type === 'FIRST_DEED_OF_TRUST' || lien.type === 'SECOND_DEED_OF_TRUST')
-      ? { lien, ...a, reason: `${a.reason} This creditor can still redeem the property for 1 year after the sale (NRS 21.200).` }
+      ? { lien, ...a, reason: `${a.reason} This creditor can still redeem the property for 1 year after the sale (NRS 21.200, 21.210).` }
       : { lien, ...a };
   });
 }

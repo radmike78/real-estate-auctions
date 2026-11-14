@@ -598,7 +598,10 @@ describe('Nevada round 4 flow', () => {
     savePacket(`analyzed:${tax.id}`, { ...EMPTY_PACKET, dates: [fresh, paid, { when: '2026-11-20', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }, { when: '2026-11-10', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }] });
     vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-12-01T18:00:00Z'));
-    try { expect(stageHint('contract', won)).toMatch(/The 20 days for the SID certificate payoff ended/); } finally { vi.useRealTimers(); }
+    try {
+      expect(stageHint('contract', won)).toMatch(/The 20 days for the SID certificate payoff ended/);
+      for (const st of ['closed', 'owned'] as const) expect(stageHint(st, tax)).toMatch(/still open after its 20 days/);
+    } finally { vi.useRealTimers(); }
     // With the deed on record, the overdue payoff task offers no void and promises none.
     const onRecord = { ...EMPTY_PACKET, dates: [fresh, paid, { when: '2026-11-20', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }, { when: '2026-11-10', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }] };
     savePacket(`analyzed:${tax.id}`, onRecord);
