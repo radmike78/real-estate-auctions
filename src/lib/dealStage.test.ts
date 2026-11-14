@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanDeal, loadDeals, saveDeals, type Deal } from './analyze';
 import { EMPTY_PACKET, nextAction, savePacket } from './dealPacket';
 import { dealNextTask, inferStage, setDealStage, STAGE_STEPS, stageHint, stageLabel, stageOf, stageTasks } from './dealStage';
@@ -588,6 +588,17 @@ describe('Nevada round 4 flow', () => {
     savePacket(`analyzed:${tax.id}`, undated);
     expect(stageTasks(tax, 'contract', undated, later).some((x) => x.key === 'sid-affidavit')).toBe(true);
     expect(stageTasks(tax, 'contract', undated, later).find((x) => !x.done)?.key).not.toBe('record');
+    // The Won hint says so while the SID step is open, and puts an overdue SID payoff first.
+    const won = { ...tax, stage: 'contract' as const };
+    const paid = { when: '2026-11-05', what: 'Payment deadline', who: 'T', resolved: true };
+    savePacket(`analyzed:${tax.id}`, { ...undated, dates: [...undated.dates, paid] });
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-11-14T18:00:00Z'));
+    try { expect(stageHint('contract', won)).toMatch(/without a date/); } finally { vi.useRealTimers(); }
+    savePacket(`analyzed:${tax.id}`, { ...EMPTY_PACKET, dates: [fresh, paid, { when: '2026-11-20', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }, { when: '2026-11-10', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }] });
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-12-01T18:00:00Z'));
+    try { expect(stageHint('contract', won)).toMatch(/The 20 days for the SID certificate payoff ended/); } finally { vi.useRealTimers(); }
   });
 
   it('round 8 verifier: the SID question comes right after paying, and its no is its own row; lien areas; redemption end from the row', () => {
