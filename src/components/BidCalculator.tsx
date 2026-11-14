@@ -622,8 +622,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           cashShort ? (
           <div className="calc-max bad">
             <span>{phase === 'owed' || phase === 'paid' ? 'The most this plan could have paid' : 'Walk-away price'}</span>
-            <strong>{phase ? (bid > 0 ? (bid > r.profitBid ? 'Above what the deal allows, and your cash is short' : 'Your cash is short for this price') : <>Your cash is short at the {w.opening}</>) : <>No {w.bid} at the {w.opening} fits your cash</>}</strong>
-            <small>{phase ? `The deal itself allows prices up to ${fmtMoney(r.profitBid)}. ${bid > 0 ? `The cash at ${yours.toLowerCase()} is shown with your result below.` : `Enter ${yours.toLowerCase()} below to see the cash at it.`}` : <>At the {w.opening} you’d need about {fmtMoney(Math.round(openingCash))}: the {w.bid} plus repairs and every cost until you sell. The deal itself allows {w.bid}s up to {fmtMoney(r.profitBid)}.</>}</small>
+            <strong>{phase ? (bid > 0 ? (bid > r.profitBid ? 'Above what this plan could have paid, and your cash is short' : 'Your cash is short for this price') : <>Your cash is short at the {w.opening}</>) : <>No {w.bid} at the {w.opening} fits your cash</>}</strong>
+            <small>{phase ? `The deal itself allows prices up to ${fmtMoney(r.profitBid)}. ${bid > 0 ? `The cash at ${yours.toLowerCase()} is shown with your result below.` : `Enter ${yours.toLowerCase()} below to check the cash at it.`}` : <>At the {w.opening} you’d need about {fmtMoney(Math.round(openingCash))}: the {w.bid} plus repairs and every cost until you sell. The deal itself allows {w.bid}s up to {fmtMoney(r.profitBid)}.</>}</small>
           </div>
           ) : (
           <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`}>

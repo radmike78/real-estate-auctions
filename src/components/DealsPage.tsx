@@ -211,7 +211,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       // The cash it needs there, against your limit (as Analyze and the packet say), when that's short too.
       const pc = investorProfile().investable;
       const lim = bid.cashLimit > 0 ? bid.cashLimit : bid.cashTyped ? 0 : pc;
-      return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash, with the loan (if any) and costs entered in Fix and flip (${bid.cashLimit > 0 ? 'the cash you entered' : 'My plan'}: ${fmtMoney(lim)}).` : '';
+      return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash, with the loan (if any) and costs entered in Fix and flip (${bid.cashLimit > 0 ? (pricePhase(d) ? 'the cash you’re putting in' : 'the cash you entered') : 'My plan'}: ${fmtMoney(lim)}).` : '';
     })()}{whatIfSentence}{askOwn}</p>;
     // The redemption wait the price was built on, and a redemption's result at its end (as the packet says).
     const redeemClause = redemptionOver(d) ? '' : bid.redeem && !bid.redeem.who ? whatIf : bid.redeem && !(bid.redeem.price > 0) ? waitOnly : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait${bid.redeem.shortest ? `, shorter than any period the law sets (at least ${shortestRedemptionWords(d, true)})*` : ''} (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? fixedPriceName(d) ?? 'your bid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
