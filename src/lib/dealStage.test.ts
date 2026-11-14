@@ -610,8 +610,14 @@ describe('Nevada round 4 flow', () => {
     const onRecord = { ...EMPTY_PACKET, dates: [fresh, paid, { when: '2026-11-20', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }, { when: '2026-11-10', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }] };
     savePacket(`analyzed:${tax.id}`, onRecord);
     const nt = dealNextTask({ ...tax, stage: 'closed' }, onRecord, new Date('2026-11-30T18:00:00Z'), 'closed');
-    expect(`${nt.label} ${nt.produces ?? ''}`).toMatch(/Your deed for .* is recorded.*Did you pay it\?/);
-    expect(`${nt.label} ${nt.produces ?? ''}`).not.toMatch(/sale marked void/);
+    // After the 20 days it asks directly, and its 'didn't pay' answer is offered, matching the text.
+    expect(`${nt.label} ${nt.produces ?? ''}`).toMatch(/Your deed for .* is recorded.*Did you pay it by Nov 25, 2026\?/);
+    expect(JSON.stringify(nt)).toMatch(/didn’t pay it by Nov 25, 2026: the sale is void/);
+    // An unticked, past-dated deed row doesn't push the open SID payoff out of Your next action.
+    const expected = { ...EMPTY_PACKET, dates: [fresh, paid, { when: '2026-11-20', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }, { when: '2026-11-10', what: 'Treasurer’s deed recorded', who: 'Treasurer' }] };
+    savePacket(`analyzed:${tax.id}`, expected);
+    expect(dealNextTask({ ...tax, stage: 'contract' }, expected, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/SID certificate payoff/);
+    savePacket(`analyzed:${tax.id}`, onRecord);
     // Inside the 20 days it still says to pay by the deadline, at Won as at Deed recorded.
     for (const st of ['contract', 'closed'] as const) {
       const inside = dealNextTask({ ...tax, stage: st }, onRecord, new Date('2026-11-15T18:00:00Z'), st);
