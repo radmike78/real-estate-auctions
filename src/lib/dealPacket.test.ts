@@ -188,6 +188,16 @@ describe('the deal packet', () => {
     expect(blocked).not.toMatch(/leaving your cash aside, the deal itself allows/);
   });
 
+  it('a Nevada tax sale’s Key dates drop the worked-out SID payoff once the Treasurer’s deed is ticked as recorded', () => {
+    const tax: Deal = { ...deal, state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'owned' };
+    const later = new Date('2026-11-14T18:00:00Z');
+    const sale = { when: '2026-10-01', what: 'Sale day', who: 'Treasurer', resolved: true };
+    const keyDates = (dates: typeof sale[]) => packetSections(tax, { ...EMPTY_PACKET, dates }, later).map((x) => x.lines.join('\n')).join('\n');
+    expect(keyDates([sale])).toMatch(/SID certificate payoff deadline, if/);
+    const deeded = keyDates([sale, { when: '2026-10-20', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }]);
+    expect(deeded).not.toMatch(/SID certificate payoff deadline, if|whether an SID affidavit was filed/);
+  });
+
   it('names the redemption wait a flip’s price is built on, with what a redemption returns, and its end date', async () => {
     // A Texas court (execution) sale has no owner redemption: a typed wait is your what-if, with no date.
     const court: Deal = { ...deal, state: 'TX', kind: 'court', plan: 'flip' };
