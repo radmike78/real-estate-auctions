@@ -579,7 +579,7 @@ describe('Nevada round 4 flow', () => {
     savePacket(`analyzed:${tax.id}`, today);
     expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T17:00:00Z')).find((x) => x.key === 'ev-terms')!.label).toMatch(/by 1:00 p.m. Nevada time today/);
     // Between 1:00 and 4:30 p.m. only a re-auctioned parcel can still be paid; after 4:30 it asks whether you paid, and passing records the deadline.
-    expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T23:00:00Z')).find((x) => x.key === 'ev-terms')!.label).toMatch(/4:30 p.m. Nevada time today if you win it in the 2:00 p.m. re-auction, held only if needed/);
+    expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T23:00:00Z')).find((x) => x.key === 'ev-terms')!.label).toMatch(/^Did you win .* in the 2:00 p.m. re-auction\? Then pay by 4:30 p.m. Nevada time today/);
     const after = stageTasks(tax, 'contract', today, new Date('2026-11-15T01:00:00Z')).find((x) => x.key === 'ev-terms')!;
     expect(after.label).toMatch(/^Did you pay for/);
     expect(after.advance2?.addRow).toMatchObject({ when: '2026-11-14', what: 'Payment deadline' });
@@ -625,6 +625,25 @@ describe('Nevada round 4 flow', () => {
     const sale = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer' }] };
     expect(saleOverFor({ state: 'NV', kind: 'taxSale', county: 'Washoe' }, sale, new Date('2026-11-13T03:00:00Z'))).toBe(false);
     expect(saleOverFor({ state: 'NV', kind: 'taxSale', county: 'Washoe' }, sale, new Date('2026-11-13T09:00:00Z'))).toBe(true);
+  });
+
+  it('keeps a Nevada sale day’s step for the whole Nevada day, wherever the reader is', () => {
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-15', what: 'Sale day', who: 'Trustee' }] };
+    savePacket(`analyzed:${nvFlip.id}`, p);
+    // 6 p.m. Nov 15 in Nevada is already Nov 16 in UTC and east of it.
+    expect(dealNextTask({ ...nvFlip, stage: 'researching' }, p, new Date('2026-11-16T02:00:00Z'), 'researching').label).toMatch(/^Today in Nevada: Sale day/);
+  });
+
+  it('the Passed hint after a missed payment names the deadline, and Clark’s deposit and ban', () => {
+    vi.useFakeTimers(); vi.setSystemTime(new Date('2026-11-16T20:00:00Z'));
+    try {
+      const tax = { ...nvFlip, kind: 'taxSale' as const, county: 'Clark', stage: 'passed' as const };
+      savePacket(`analyzed:${tax.id}`, { ...EMPTY_PACKET, dates: [{ when: '2026-11-14', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-11-14', what: 'Payment deadline', who: 'Clark County Treasurer' }] });
+      saveDeals([tax]);
+      const h = stageHint('passed', tax);
+      expect(h).toMatch(/^If you won but didn’t pay by the deadline \(Nov 14, 2026\)/);
+      expect(h).toMatch(/loses the \$5,000 deposit and is banned/);
+    } finally { vi.useRealTimers(); }
   });
 
   it('a Nevada trustee win left unpaid after the sale day is urgent', () => {

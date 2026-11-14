@@ -1134,7 +1134,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const closingDone = stageOf(d) === 'contract' && isOffer(d) && p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved && (!x.when || x.when <= localDayOf(now)));
   // FLOW-4: before you win, a sale day that has passed asks "did you win?" (no countdown to the rows after the sale).
   const saleDone = early && !isOffer(d) && saleOverFor(d, p, now);
-  const nd = nvPayDays(d, stageOf(d) === 'passed' || finishedDeal(d) || closingDone || saleDone ? null : sidFirst(contingencyFirst(nextDate(remindable(capSid(pk, d), now, early, [...behindStage(d, stageOf(d)), ...notYet(d, stageOf(d), pk, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT]), now), pk, now, stageOf(d), d.kind), pk, d, now), now, pk);
+  const nd = nvPayDays(d, stageOf(d) === 'passed' || finishedDeal(d) || closingDone || saleDone ? null : sidFirst(contingencyFirst(nextDate(remindable(capSid(pk, d), now, early, [...behindStage(d, stageOf(d)), ...notYet(d, stageOf(d), pk, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT], d.state === 'NV' ? nvNow(now).day : undefined), now), pk, now, stageOf(d), d.kind), pk, d, now), now, pk);
   // Rows the stage has put behind you read "passed", not "open" (the sale day once won; the offer once accepted).
   const behind = behindStage(d, stageOf(d));
   // (At a win, a row dated after today isn't "passed"; after the closing it's "not needed now".)
