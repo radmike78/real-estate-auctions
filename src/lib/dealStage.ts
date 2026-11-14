@@ -97,6 +97,16 @@ export const afterSale = (what: string) => AFTER_SALE.some((n) => sameDate(what,
  *  passed; and once the deed is ticked, not the redemption period. */
 /** A contract window that ended (a cancel-by date, the seller's disclosure) doesn't lead over an inspection, appraisal
  * or loan deadline in the next 2 days: Your next action and Key dates both use this. */
+/** A Nevada tax sale's open SID payoff comes before the deed's recording: the Treasurer can't issue the deed until it's paid
+ *  (NRS 361.595(6)), and missing it voids the sale. Its date is capped at the 20-day deadline. */
+export function sidFirst<T extends { what: string; when: string; days: number }>(nd: T | null, p: PacketData, d: Pick<Deal, 'state' | 'kind'>, now: Date): T | (PacketData['dates'][number] & { days: number }) | null {
+  if (!nd || d.state !== 'NV' || d.kind !== 'taxSale' || !RECORDED_ROWS.some((r) => sameDate(nd.what, r))) return nd;
+  const sp = p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && !!x.when && !x.resolved);
+  if (!sp) return nd;
+  const dl = sidDeadline(p);
+  const when = dl && sp.when > dl ? dl : sp.when;
+  return { ...sp, when, days: Math.round((Date.parse(`${when}T12:00:00Z`) - Date.parse(`${localDay(now)}T12:00:00Z`)) / 86400000) };
+}
 export function contingencyFirst<T extends { what: string; when: string; days: number }>(nd: T | null, p: PacketData, now: Date, stage: string, kind?: string): T | (PacketData['dates'][number] & { days: number }) | null {
   if (!nd || nd.days >= 0 || stage !== 'contract' || !windowEnded(nd.what, -nd.days, kind)?.ask) return nd;
   const soon = p.dates.filter((x) => !x.resolved && x.when && x.when >= localDay(now) && ['Inspection period ends', 'Option period ends', 'Appraisal deadline', 'Loan approval deadline'].some((n) => sameEvent(x.what, n))).sort((x, y) => x.when.localeCompare(y.when))[0];
@@ -1065,7 +1075,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     nd = contingencyFirst(nd, p, now, stage, d.kind);
     // A Nevada tax sale's open SID payoff comes before the deed's recording: the Treasurer can't issue the deed until it's
     // paid (NRS 361.595(6)), and missing it voids the sale.
-    if (nd && d.state === 'NV' && d.kind === 'taxSale' && RECORDED_ROWS.some((r) => sameDate(nd!.what, r))) { const sp = p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && !!x.when && !x.resolved); if (sp) nd = { ...sp, days: Math.round((Date.parse(`${sp.when}T12:00:00Z`) - Date.parse(`${localDay(now)}T12:00:00Z`)) / 86400000) }; }
+    nd = sidFirst(nd, p, d, now);
     // A Nevada SID lien's payment deadline counts Nevada days (its 10 a.m. cutoff is Nevada time), wherever the reader is.
     if (nd && d.kind === 'lien' && d.state === 'NV' && sameDate(nd.what, 'Payment deadline') && nd.when) nd = { ...nd, days: Math.round((Date.parse(`${nd.when}T12:00:00Z`) - Date.parse(`${nvParts(now).day}T12:00:00Z`)) / 86400000) };
     // (An SID payoff row dated before the 20-day deadline counts to that deadline, not to your own earlier date.)

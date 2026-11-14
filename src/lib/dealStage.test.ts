@@ -617,6 +617,11 @@ describe('Nevada round 4 flow', () => {
     const expected = { ...EMPTY_PACKET, dates: [fresh, paid, { when: '2026-11-20', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }, { when: '2026-11-10', what: 'Treasurer’s deed recorded', who: 'Treasurer' }] };
     savePacket(`analyzed:${tax.id}`, expected);
     expect(dealNextTask({ ...tax, stage: 'contract' }, expected, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/SID certificate payoff/);
+    // A payoff row dated after day 20 is capped at the deadline there, and Key dates leads with it too.
+    const lateRow = { ...EMPTY_PACKET, dates: [fresh, paid, { when: '2026-12-05', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }, { when: '2026-11-10', what: 'Treasurer’s deed recorded', who: 'Treasurer' }] };
+    savePacket(`analyzed:${tax.id}`, lateRow);
+    const lt = dealNextTask({ ...tax, stage: 'contract' }, lateRow, new Date('2026-11-22T18:00:00Z'), 'contract');
+    expect(`${lt.label} ${lt.produces ?? ''}`).toMatch(/Nov 25, 2026|In 3 days/);
     savePacket(`analyzed:${tax.id}`, onRecord);
     // Inside the 20 days it still says to pay by the deadline, at Won as at Deed recorded.
     for (const st of ['contract', 'closed'] as const) {
