@@ -102,7 +102,7 @@ export function diligenceReport(p: Property): Check[] {
     {
       area: 'Repair exposure',
       result: 'manual',
-      detail: p.sqft ? `Interior access is rarely allowed before auction. Budget roughly ${fmtMoney(p.sqft * 25)}–${fmtMoney(p.sqft * 60)} (about $25–60 per sq ft).` : /land/i.test(p.propertyType) ? 'Vacant land: check utilities and access.' : 'Building size not on record here. Check the Assessor record for size, and budget repairs from what you can see from the street.',
+      detail: p.sqft ? `${p.sale?.saleType === 'REO' ? 'Get an inspection during the contract’s inspection period.' : 'Interior access is rarely allowed before auction.'} Budget roughly ${fmtMoney(p.sqft * 25)}–${fmtMoney(p.sqft * 60)} (about $25–60 per sq ft).` : /land/i.test(p.propertyType) ? 'Vacant land: check utilities and access.' : 'Building size not on record here. Check the Assessor record for size, and budget repairs from what you can see from the street.',
     },
     {
       area: 'Comparable sales',

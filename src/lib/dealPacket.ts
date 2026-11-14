@@ -631,7 +631,13 @@ export function settledWords(t: string, phase: 'agreed' | 'owed' | 'paid' | null
     .replace(/Walk-away price, set by/g, 'The most this plan could have paid, set by')
     .replace(/\bwalk-away price (\$[\d,]+)/g, 'the most this plan could have paid, $1')
     .replace(/(the most this plan could have paid, \$[\d,]+), the most you could have paid and still meet/g, '$1, which would still have met')
-    .replace(/(the most this plan could have paid, \$[\d,]+), the most your cash covers/g, '$1, set by what your cash covers');
+    .replace(/(the most this plan could have paid, \$[\d,]+), the most your cash covers/g, '$1, set by what your cash covers')
+    // (One name for the cash once the price is fixed, and no 'fits' for a price already won or paid.)
+    .replace(/No realistic price fits the cash you entered/g, 'Your cash doesn’t cover the repairs and costs')
+    .replace(/No price fits the cash you entered/g, 'Your cash doesn’t cover the repairs and costs')
+    .replace(/the cash you entered/g, 'the cash you’re putting in')
+    .replace(/; no price works$/g, '; no price would have worked')
+    .replace(/: no price works$/g, ': no price would have worked');
   return s;
 }
 

@@ -16,7 +16,7 @@ describe('settledWords: pre-sale advice reworded once the price is agreed, won o
   it('rewords walking away, skipping and bid names', () => {
     expect(settledWords('Even at $0 it loses. Walk away or change your plan.', 'paid')).toBe(`Even at $0 it loses. ${NO_PRICE_AFTER.paid}`);
     expect(settledWords('Check the rent and costs, or skip this one.', 'owed')).toBe('Check the rent and costs.');
-    expect(settledWords('No realistic bid fits the cash you entered', 'owed')).toBe('No realistic price fits the cash you entered');
+    expect(settledWords('No realistic bid fits the cash you entered', 'owed')).toBe('Your cash doesn’t cover the repairs and costs');
     expect(settledWords('No offer works', 'agreed')).toBe('No price works');
   });
   it('names the walk-away price as what the plan could have paid after a win or purchase, not under contract', () => {

@@ -80,7 +80,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
                   <dd className={fmtMoney(m.minimumBid).length > 9 ? 'long' : undefined}>{fmtMoney(m.minimumBid)}</dd>
                 </div>
                 <div className="key">
-                  <dt>Auction</dt>
+                  <dt>{p.sale?.saleType === 'REO' ? 'Offers' : 'Auction'}</dt>
                   <dd>
                     {p.sale?.startsAt ? fmtDate(p.sale.startsAt) : '—'}
                     {d !== null && d >= 0 && <span className="card-days">{whenLabel(d)}</span>}

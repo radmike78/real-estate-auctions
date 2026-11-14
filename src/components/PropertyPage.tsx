@@ -211,7 +211,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
               <>
                 <dl className="facts">
                   <div><dt>Conducted by</dt><dd>{s.conductedBy}</dd></div>
-                  <div><dt>{online ? 'Bidding opens' : 'Date & time'}</dt><dd>{s.startsAt ? fmtDateTime(s.startsAt) : 'Not set'}</dd></div>
+                  <div><dt>{p.sale?.saleType === 'REO' ? 'Offers open' : online ? 'Bidding opens' : 'Date & time'}</dt><dd>{s.startsAt ? fmtDateTime(s.startsAt) : 'Not set'}</dd></div>
                   {s.endsAt && <div><dt>Bidding closes</dt><dd>{fmtDateTime(s.endsAt)}</dd></div>}
                   <div><dt>Where</dt><dd>{s.location}</dd></div>
                   <div><dt>{s.saleType === 'REO' ? 'List price' : 'Minimum bid'}</dt><dd>{s.minimumBid ? fmtMoney(s.minimumBid) : 'Announced at sale'}</dd></div>
@@ -270,7 +270,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
         ) : (
         <>
           <dl className="mini money-box">
-            <div><dt>Minimum / opening bid</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
+            <div><dt>{p.sale?.saleType === 'REO' ? 'Asking price' : 'Minimum / opening bid'}</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
             <div><dt>Likely surviving liens</dt><dd className={money.likelySurviving ? 'neg' : ''}>{fmtMoney(money.likelySurviving)}</dd></div>
             <div><dt>Uncertain liens</dt><dd>{fmtMoney(money.uncertain)}</dd></div>
             <div><dt>Est. market value</dt><dd>{notChecked(p.estimatedMarketValue, 'Not estimated')}</dd></div>
@@ -325,10 +325,10 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           )}
           <StrategyTabs
             strategies={[
-              { key: 'flip', label: 'Fix and flip (fix and sell)', about: 'The most you can bid and still make your profit when you fix it up and sell it.', render: () => <BidCalculator key={calcVersion} propertyId={p.id} defaults={bidDefaults} openingBid={s?.minimumBid ?? null} commercial={commercial} /> },
+              { key: 'flip', label: 'Fix and flip (fix and sell)', about: 'The most you can bid and still make your profit when you fix it up and sell it.', render: () => <BidCalculator key={calcVersion} propertyId={p.id} defaults={bidDefaults} openingBid={s?.minimumBid ?? null} commercial={commercial} offer={p.sale?.saleType === 'REO'} /> },
               commercial
-                ? { key: 'commercial', label: 'Commercial income', about: 'The most you can bid for the building’s income, counting the months it takes to lease it up.', render: () => <CommercialCalculator storageKey={`fsf.calc.commercial.${p.id}.v1`} start={buyFromBid(bidDefaults)} /> }
-                : { key: 'rent', label: 'Buy and hold (keep and rent)', about: 'The most you can bid and still get your return on the cash you leave in, with or without a loan afterward.', render: () => <RentCalculator storageKey={`fsf.calc.rent.${p.id}.v1`} start={buyFromBid(bidDefaults)} /> },
+                ? { key: 'commercial', label: 'Commercial income', about: 'The most you can bid for the building’s income, counting the months it takes to lease it up.', render: () => <CommercialCalculator storageKey={`fsf.calc.commercial.${p.id}.v1`} start={buyFromBid(bidDefaults)} offer={p.sale?.saleType === 'REO'} /> }
+                : { key: 'rent', label: 'Buy and hold (keep and rent)', about: 'The most you can bid and still get your return on the cash you leave in, with or without a loan afterward.', render: () => <RentCalculator storageKey={`fsf.calc.rent.${p.id}.v1`} start={buyFromBid(bidDefaults)} offer={p.sale?.saleType === 'REO'} /> },
             ]}
           />
         </>
@@ -369,7 +369,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             summary: `${plural(playbook.team.length, 'professional')} you need for this ${commercial ? 'commercial property' : 'sale type'}`,
             content: () => (
               <>
-                <p className="muted">Who you need, and when, for a {playbook.short.toLowerCase().replace(/s$/, '')}. Line them up before you bid.</p>
+                <p className="muted">Who you need, and when, for a {playbook.short.toLowerCase().replace(/s$/, '')}. {p.sale?.saleType === 'REO' ? 'Line them up before you make an offer.' : 'Line them up before you bid.'}</p>
                 <TeamList team={playbook.team} />
               </>
             ),
