@@ -579,7 +579,7 @@ describe('Nevada round 4 flow', () => {
     savePacket(`analyzed:${tax.id}`, today);
     expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T17:00:00Z')).find((x) => x.key === 'ev-terms')!.label).toMatch(/by 1:00 p.m. Nevada time today/);
     // Between 1:00 and 4:30 p.m. only a re-auctioned parcel can still be paid; after 4:30 it asks whether you paid, and passing records the deadline.
-    expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T23:00:00Z')).find((x) => x.key === 'ev-terms')!.label).toMatch(/4:30 p.m. Nevada time today if you won it in the 2:00 p.m. re-auction/);
+    expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T23:00:00Z')).find((x) => x.key === 'ev-terms')!.label).toMatch(/4:30 p.m. Nevada time today if you win it in the 2:00 p.m. re-auction, held only if needed/);
     const after = stageTasks(tax, 'contract', today, new Date('2026-11-15T01:00:00Z')).find((x) => x.key === 'ev-terms')!;
     expect(after.label).toMatch(/^Did you pay for/);
     expect(after.advance2?.addRow).toMatchObject({ when: '2026-11-14', what: 'Payment deadline' });
@@ -614,6 +614,7 @@ describe('Nevada round 4 flow', () => {
     const evening = new Date('2026-11-21T03:00:00Z');
     expect(paymentPassed(hoa, evening)).toBe('');
     expect(dealNextTask(hoa, p, evening, 'contract').days).toBe(0);
+    expect(dealNextTask(hoa, p, evening, 'contract').label).toMatch(/^Today in Nevada: Payment deadline/);
     // 1 a.m. Nov 21 in Nevada: passed, with both answers.
     const late = new Date('2026-11-21T09:00:00Z');
     expect(paymentPassed(hoa, late)).toBe('2026-11-20');
