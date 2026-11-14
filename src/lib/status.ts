@@ -112,12 +112,12 @@ export function purchaseSteps(p: Property): string[] {
       return [
         `Confirm the sale is still on with ${s?.conductedBy ?? 'the conducting agency'} the day before. Sales are often postponed at the last minute.`,
         ...(s?.saleType === 'TAX_DEED'
-          ? [`Register and pay the deposit by the deadline in the auction notice: ${s?.deposit ?? 'check the notice'} (there’s no registration on auction day).`, 'Bring your bidder card and government ID on auction day.']
-          : ['Bring government ID and complete any required bidder affidavit.', `${p.status === 'SEALED_BID' ? 'Enclose' : 'Bring'} certified funds: ${s?.deposit ?? 'check the posted requirements'}.${s?.saleType === 'TRUSTEE_SALE' ? " Trustee sales in Nevada usually require cashier's checks." : ''}`]),
+          ? [`Register and pay the deposit by the deadline in the auction notice (there’s no registration on auction day): ${s?.deposit ?? 'check the notice'}.`, 'On auction day, check in early with photo ID and a copy of your registration form or confirmation email to get your bidder card; phones may not be allowed in the auction room (Clark County’s 2025 auction notice; check the current one)*.']
+          : [p.status === 'SEALED_BID' ? 'Fill in the bid form the notice of sale requires, with anything it asks you to include.' : 'Bring government ID and complete any required bidder affidavit.', `${p.status === 'SEALED_BID' ? 'Enclose' : 'Bring'} certified funds: ${s?.deposit ?? 'check the posted requirements'}.${s?.saleType === 'TRUSTEE_SALE' ? " Trustee sales in Nevada usually require cashier's checks*." : ''}`]),
         ...(p.status === 'SEALED_BID'
           ? [`Send your sealed bid so it arrives before the deadline in the notice of sale. Where: ${(s?.location ?? 'see the notice').replace(/^Sealed bids delivered to /, '')}.`, 'The bids are opened on the sale date, and the notice says how the winner is told.']
           : [`Attend the auction at ${s?.location} on ${s?.startsAt ? fmtDateTime(s.startsAt) : 'the posted date'}.`, `Bid under the procedures announced at the sale by ${s?.conductedBy ?? 'whoever conducts it'}.`]),
-        `Pay any remaining balance by ${s?.finalPaymentDeadline ? fmtDate(s.finalPaymentDeadline) : 'the posted deadline'}.`,
+        `Pay any remaining balance by ${s?.finalPaymentDeadline ? fmtDateTime(s.finalPaymentDeadline) : 'the posted deadline'}.${s?.saleType === 'TAX_DEED' ? ' A parcel not paid for by then is auctioned again, and the winning bidder can lose the deposit (check the auction notice)*.' : ''}`,
         p.status === 'COURT_CONFIRMATION_REQUIRED'
           ? 'You receive a certificate of sale. Wait for the redemption period to end before the deed is issued.'
           : deedStep(s?.saleType),
