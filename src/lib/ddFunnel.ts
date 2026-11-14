@@ -36,10 +36,11 @@ const REO_STEP: Record<string, Partial<DdStep>> = {
   occupancy: { why: 'You can usually inspect during the contract’s inspection period, and someone may still live there.', how: 'Schedule an inspection within the contract’s deadline, and ask the listing broker whether the home will be delivered vacant.' },
   parcel: { why: 'Make sure the listing is the home you think it is: the parcel, its lot and what the lender is selling.' },
   value: { why: 'Our value is an estimate. Your profit depends on real sold comps, not the asking price.' },
+  redemption: { title: 'Confirm title insurance', why: 'A bank-owned home has no redemption period after you buy, but you still want an owner’s title insurance policy.', how: 'Ask the title company to confirm it will issue an owner’s policy, and read its exceptions.' },
   'max-bid': { title: 'Set your maximum offer', why: 'Overpaying is the most common way a good property becomes a bad deal.' },
   liens: { why: 'Most liens are paid off at closing, but some can stay with the property.', how: 'Read the title commitment: it lists every lien and which ones escrow will pay off.' },
   courts: { why: 'A pending lawsuit can cloud title.', how: 'Ask the title company whether any court case affects the property.' },
-  review: { how: 'Have a title company or real estate attorney review the contract, the lender’s addendum and the title commitment before your deadlines pass.' },
+  review: { why: 'Title problems and the lender’s addendum can shift costs to you.', how: 'Have a title company or real estate attorney review the contract, the lender’s addendum and the title commitment before your deadlines pass.' },
 };
 export function ddSteps(p: Property): (DdStep & { checks: Check[]; worst: Check['result'] | null })[] {
   const report = diligenceReport(p);
