@@ -619,8 +619,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           cashShort ? (
           <div className="calc-max bad">
             <span>{phase === 'owed' || phase === 'paid' ? 'The most this plan could have paid' : 'Walk-away price'}</span>
-            <strong>{phase ? 'Your cash is short for this price' : <>No {w.bid} at the {w.opening} fits your cash</>}</strong>
-            <small>{phase ? `The deal itself allows prices up to ${fmtMoney(r.profitBid)}. The cash at ${yours.toLowerCase()} is shown with your result below.` : <>At the {w.opening} you’d need about {fmtMoney(Math.round(openingCash))}: the {w.bid} plus repairs and every cost until you sell. The deal itself allows {w.bid}s up to {fmtMoney(r.profitBid)}.</>}</small>
+            <strong>{phase ? (bid > 0 ? 'Your cash is short for this price' : <>Your cash is short at the {w.opening}</>) : <>No {w.bid} at the {w.opening} fits your cash</>}</strong>
+            <small>{phase ? `The deal itself allows prices up to ${fmtMoney(r.profitBid)}. ${bid > 0 ? `The cash at ${yours.toLowerCase()} is shown with your result below.` : `Enter ${yours.toLowerCase()} below to see the cash at it.`}` : <>At the {w.opening} you’d need about {fmtMoney(Math.round(openingCash))}: the {w.bid} plus repairs and every cost until you sell. The deal itself allows {w.bid}s up to {fmtMoney(r.profitBid)}.</>}</small>
           </div>
           ) : (
           <div className={`calc-max${r.noBidWorks ? ' bad' : ''}`}>
@@ -679,7 +679,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
               {steps.map((st, n) => <div key={st.label} className={n === 0 ? 'first' : ''}><dt>{st.label}</dt><dd>{n === 0 ? fmtMoney(st.amount) : `− ${fmtMoney(-st.amount)}`}</dd></div>)}
               <div className="total"><dt>{r.limitedBy === 'cash' ? 'Most the deal allows' : w.max}</dt><dd>{fmtMoney(r.profitBid)}</dd></div>
             </dl>
-            {r.limitedBy === 'cash' && <p className="small muted">{(phase === 'owed' || phase === 'paid') ? 'The cash you entered set this lower than the profit target alone would.' : 'The cash you can bring sets your walk-away price lower than this.'}</p>}
+            {r.limitedBy === 'cash' && <p className="small muted">{(phase === 'owed' || phase === 'paid') ? `${wonBid || boughtOffer ? 'The cash you’re putting in' : 'The cash you entered'} set this lower than the profit target alone would.` : 'The cash you can bring sets your walk-away price lower than this.'}</p>}
           </div>
         )}
         {!r.noBidWorks && !needsValue && (
