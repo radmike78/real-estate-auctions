@@ -457,7 +457,7 @@ const TAX: Flow = {
       id: 'after-tax',
       title: 'After you win',
       body: [
-        'The Treasurer records a quitclaim deed to the name on your registration form within 30 days and mails it to you.',
+        'Once any special improvement district (SID) payoff is settled, the Treasurer records a quitclaim deed to the name on your registration form (Clark County: within about 30 days) and mails it to you.',
         'There is no redemption, but anyone claiming the land (usually the former owner) can sue to recover it for 2 years after the deed is delivered (NRS 361.600), and title insurance may be unavailable meanwhile.',
         p.occupancy === 'Vacant' ? 'Secure the property and insure it.' : 'If anyone lives there, plan possession with an attorney. The county won’t help.',
       ],

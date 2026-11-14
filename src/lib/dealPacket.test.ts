@@ -173,17 +173,17 @@ describe('the deal packet', () => {
     const open = packetSections(won, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
     expect(open).toMatch(/What-if, at the opening bid of \$200,000 \(not your price\): about \$[\d,]+ of cash/);
     expect(open).not.toMatch(/this needs is|Estimated cash you’ll put in, at the opening bid/);
-    expect(open).toMatch(/Enter your winning bid in Fix and flip to check the cash at it\./);
+    expect(open).toMatch(/Enter your winning bid in Analyze, under Fix and flip, to check the cash at it\./);
     expect(open).not.toMatch(/Paid: the opening bid|the lowest you could pay/);
     expect(open).toMatch(/The opening bid \(a what-if, not your price\)/);
     expect(open).not.toMatch(/doesn’t fit as entered|you’d put in is|fits your cash/);
-    expect(open.match(/Enter your winning bid in Fix and flip/g)?.length).toBe(1);
+    expect(open.match(/Enter your winning bid in Analyze, under Fix and flip,/g)?.length).toBe(1);
     // Cash below even the costs, no price at all: the downside cases still show the deal's own most, and it asks for the bid.
     const tiny = { exitValue: 400000, repairs: 40000, cashAvailable: 5000 };
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify(tiny));
     localStorage.setItem('fsf.bid.analyzed-d1.v1.typed.v1', JSON.stringify(Object.keys(tiny)));
     const blocked = packetSections(won, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
-    expect(blocked).toMatch(/Your cash doesn’t cover the repairs and costs in Fix and flip: .* Enter your winning bid in Fix and flip to check the cash at it\./);
+    expect(blocked).toMatch(/Your cash doesn’t cover the repairs and costs in Fix and flip: .* Enter your winning bid in Analyze, under Fix and flip, to check the cash at it\./);
     expect(blocked).toMatch(/If it takes 3 months longer: the most this plan could have paid, \$[\d,]+/);
     expect(blocked).not.toMatch(/leaving your cash aside, the deal itself allows/);
   });

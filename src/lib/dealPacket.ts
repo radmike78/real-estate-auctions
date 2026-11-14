@@ -1235,7 +1235,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     cash.push(rent.retained > 0 ? `Retained property reserves: ${money(rent.retained)}, kept separately from the ${money(need)} modeled cash requirement.` : liveIn(d) ? 'Savings for repairs and surprises: not entered. Set aside a separate amount for unexpected costs.' : 'Retained property reserves: not entered. Set aside a separate amount for vacancies and unexpected costs.');
     if (rent.retained > 0) need += rent.retained;
   } else if (bid?.none && !bid.at) {
-    cash.push(bid.cashBlocked ? (pricePhase(d) ? `Your cash doesn’t cover the repairs and costs in ${strategy}: the deal itself could have met ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more than the cash you’re putting in.${pricePhase(d) !== 'agreed' ? ` Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.` : ''}` : `No bid fits the cash you entered in ${strategy}: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than you entered.`) : `No price works with the numbers you entered in ${strategy}: the costs and ${targetW} take up the whole ${money(bid.exitValue)} resale value.`);
+    cash.push(bid.cashBlocked ? (pricePhase(d) ? `Your cash doesn’t cover the repairs and costs in ${strategy}: the deal itself could have met ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more than the cash you’re putting in.${pricePhase(d) !== 'agreed' ? ` Enter ${fixedPriceName(d) ?? 'your price'} in Analyze, under ${strategy}, to check the cash at it.` : ''}` : `No bid fits the cash you entered in ${strategy}: the deal itself meets ${goalW} up to ${money(bid.profitBid)}, but every cost until you sell takes more cash than you entered.`) : `No price works with the numbers you entered in ${strategy}: the costs and ${targetW} take up the whole ${money(bid.exitValue)} resale value.`);
   } else if (bid) {
     // Your own price first; the walk-away price is a separate what-if (the most you'd pay), never your price.
     const a = bid.at;
@@ -1247,14 +1247,14 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       const at = a.source === 'yours' && fixedPriceName(d) === 'the price you paid' ? `the ${money(a.price)} you paid` : `${priceName(a.source, offer, false, d)} of ${money(a.price)}`;
       needAt = `At ${at}`;
       // Won or paid with only the opening bid entered: it isn't what you owe or paid, so ask for your winning bid instead.
-      if (offer && a.source === 'listed' && pricePhase(d)) cash.push(`Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.`);
-      if (!offer) cash.push(a.source === 'listed' && pricePhase(d) && pricePhase(d) !== 'agreed' ? `Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.` : saleDay(at, a.cashOnDay));
+      if (offer && a.source === 'listed' && pricePhase(d)) cash.push(`Enter ${fixedPriceName(d) ?? 'your price'} in Analyze, under ${strategy}, to check the cash at it.`);
+      if (!offer) cash.push(a.source === 'listed' && pricePhase(d) && pricePhase(d) !== 'agreed' ? `Enter ${fixedPriceName(d) ?? 'your price'} in Analyze, under ${strategy}, to check the cash at it.` : saleDay(at, a.cashOnDay));
       cash.push(listedAfter ? `What-if, at ${at} (not your price): about ${money(a.cashPeak)} of cash through repairs and holding until it sells, under these assumptions` : `Estimated cash you’ll put in, at ${at}, under these assumptions (through repairs and holding until it sells): ${money(a.cashPeak)}`);
       if (a.cashLeft < a.cashPeak) cash.push(`Left in once the loan funds, at ${at}: ${money(a.cashLeft)}`);
     } else {
       if (pricePhase(d) && pricePhase(d) !== 'agreed') {
         // Won or bought with no price entered: no cash comparison at the plan's most (it isn't what you owe or paid).
-        cash.push(`Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.`);
+        cash.push(`Enter ${fixedPriceName(d) ?? 'your price'} in Analyze, under ${strategy}, to check the cash at it.`);
       } else {
         need = bid.cashPeak;
         needAt = `At your walk-away price of ${money(bid.maxBid)}`;
@@ -1263,7 +1263,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
     }
     // A walk-away price below the opening bid (or asking price) is no price you could pay: say so instead of a what-if.
     if (!bid.none && a?.source === 'listed' && bid.maxBid < a.price && pricePhase(d) && (offer || pricePhase(d) !== 'agreed')) {
-      cash.push(`At the ${offer ? 'asking price' : 'opening bid'} of ${money(a.price)} this plan misses ${goalW}: the most it could ${pricePhase(d) === 'agreed' ? 'pay' : 'have paid'} is ${money(bid.maxBid)}. Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.`);
+      cash.push(`At the ${offer ? 'asking price' : 'opening bid'} of ${money(a.price)} this plan misses ${goalW}: the most it could ${pricePhase(d) === 'agreed' ? 'pay' : 'have paid'} is ${money(bid.maxBid)}. Enter ${fixedPriceName(d) ?? 'your price'} in Analyze, under ${strategy}, to check the cash at it.`);
     } else if (!bid.none && a?.source === 'listed' && bid.maxBid < a.price) {
       cash.push(`No ${offer ? 'offer at or above the asking price' : 'bid at or above the opening bid'} of ${money(a.price)} ${a.profit >= bid.target && bid.limitedBy === 'cash' ? 'fits your cash' : `meets ${goalW}`} as entered: the most that would is ${money(bid.maxBid)}, below it.`);
     } else if (!bid.none && pricePhase(d) && a?.source === 'yours' && bid.limitedBy === 'cash' && bid.maxBid < a.price && bid.profitBid >= a.price) {
@@ -1286,7 +1286,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   } else if (commercial?.noTarget) {
     cash.push(commercialNoTarget(strategy, commercial.overCap));
   } else if (commercial?.noRealistic) {
-    cash.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered in ${strategy}: ${commercial.none ? 'it doesn’t cover the repairs and costs, before any price' : commercial.hasLoan ? `with what’s left for the down payment, the most you could pay is about ${money(commercial.maxBid)}` : `it covers the costs but leaves only about ${money(commercial.maxBid)} for the price`}. ${noRealisticAdvice(offer, !!commercial.hasLoan)}${pricePhase(d) && pricePhase(d) !== 'agreed' && !commercial.at ? ` Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.` : ''}`);
+    cash.push(`No realistic ${offer ? 'offer' : 'bid'} fits the cash you entered in ${strategy}: ${commercial.none ? 'it doesn’t cover the repairs and costs, before any price' : commercial.hasLoan ? `with what’s left for the down payment, the most you could pay is about ${money(commercial.maxBid)}` : `it covers the costs but leaves only about ${money(commercial.maxBid)} for the price`}. ${noRealisticAdvice(offer, !!commercial.hasLoan)}${pricePhase(d) && pricePhase(d) !== 'agreed' && !commercial.at ? ` Enter ${fixedPriceName(d) ?? 'your price'} in Analyze, under ${strategy}, to check the cash at it.` : ''}`);
   } else if (commercial?.none && commercial.weakSupported) {
     cash.push(`The income supports a price of only about ${money(commercial.weakSupported)}, far below the value, and ${pricePhase(d) ? 'the cash you’re putting in' : `the cash you entered in ${strategy}`} doesn’t cover the costs either. Check the rent and costs, or skip this one.`);
   } else if (commercial?.none && commercial.loanTooBig) {
@@ -1298,7 +1298,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   } else if (commercial) {
     if (pricePhase(d) && pricePhase(d) !== 'agreed') {
       // Won or bought with no price entered: the plan's most isn't what you owe or paid, so ask for your price.
-      cash.push(`Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.`);
+      cash.push(`Enter ${fixedPriceName(d) ?? 'your price'} in Analyze, under ${strategy}, to check the cash at it.`);
       cash.push(`What-if, at the most this plan could have paid (${money(commercial.maxBid)}, not your price): all in ${money(commercial.allIn)} (from ${strategy})`);
     } else {
     need = commercial.refi ? commercial.allIn : commercial.cashLeft;
@@ -1324,7 +1324,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const typedNoLimit = !(entered > 0) && (rent?.cashTyped || bid?.cashTyped || commercial?.cashTyped || false);
   const limit = entered > 0 ? entered : typedNoLimit ? 0 : profile.investable;
   const limitWord = entered > 0 ? (pricePhase(d) ? 'the cash you’re putting in' : `the cash you entered in ${strategy}`) : 'your investable cash';
-  if (limit > 0 && need > 0) cash.push(need > limit ? pricePhase(d) && !(bid?.at && bid.at.source !== 'yours') ? `${needAt}, the ${money(need)} this needs is ${money(need - limit)} more than ${limitWord}. ${pricePhase(d) === 'paid' && entered > 0 ? `Update your cash in ${strategy} with what you actually put in.` : pricePhase(d) === 'owed' ? owedWords(bid?.at?.source === 'yours' ? bid.at.price : commercial?.at?.price ?? rent?.price ?? 0, limit, limitWord, { ...settledCtx(d), overdueSaid: !!payPassed }) : cashShortAfter(pricePhase(d)!, { ...settledCtx(d), overdueSaid: !!payPassed })}` : pricePhase(d) ? `${needAt}, the ${money(need)} this needs is ${money(need - limit)} more than ${limitWord}. Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.` : `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? `Check that you have it, or ${entered > 0 ? `update the cash in ${strategy}` : 'update My plan'}.` : `Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.`}` : `${needAt}, that leaves ${pricePhase(d) && entered > 0 ? `${money(limit - Math.round(need))} of your ${money(limit)} unused` : `${money(limit - Math.round(need))} unallocated from ${limitWord}`}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
+  if (limit > 0 && need > 0) cash.push(need > limit ? pricePhase(d) && !(bid?.at && bid.at.source !== 'yours') ? `${needAt}, the ${money(need)} this needs is ${money(need - limit)} more than ${limitWord}. ${pricePhase(d) === 'paid' && entered > 0 ? `Update your cash in ${strategy} with what you actually put in.` : pricePhase(d) === 'owed' ? owedWords(bid?.at?.source === 'yours' ? bid.at.price : commercial?.at?.price ?? rent?.price ?? 0, limit, limitWord, { ...settledCtx(d), overdueSaid: !!payPassed }) : cashShortAfter(pricePhase(d)!, { ...settledCtx(d), overdueSaid: !!payPassed })}` : pricePhase(d) ? `${needAt}, the ${money(need)} this needs is ${money(need - limit)} more than ${limitWord}. Enter ${fixedPriceName(d) ?? 'your price'} in Analyze, under ${strategy}, to check the cash at it.` : `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? `Check that you have it, or ${entered > 0 ? `update the cash in ${strategy}` : 'update My plan'}.` : `Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.`}` : `${needAt}, that leaves ${pricePhase(d) && entered > 0 ? `${money(limit - Math.round(need))} of your ${money(limit)} unused` : `${money(limit - Math.round(need))} unallocated from ${limitWord}`}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
   // Asked once: a second 'Enter your winning bid … to check/see …' in the same section is dropped.
   { const ask = /(?:^| )Enter [^.]+ in [^.]+ to (?:check|see) [^.]+\./; let asked = false; for (let k = 0; k < cash.length; k++) if (ask.test(cash[k])) { if (asked) cash[k] = cash[k].replace(ask, '').trim(); asked = true; } for (let k = cash.length - 1; k >= 0; k--) if (!cash[k]) cash.splice(k, 1); }
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
