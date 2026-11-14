@@ -817,10 +817,14 @@ export function savedNumbers(d: Deal) {
       const saved: BidInputs = sanitizeInputs(bidRaw, BLANK_INPUTS);
       const i = offer ? offerInputs(saved) : saved;
       if (i.exitValue > 0) {
-        const r = maxSafeBid(i);
+        const rCap = maxSafeBid(i);
+        // Won or bought, the price is fixed: the most this plan could have paid is the deal's own, leaving your cash aside
+        // (as Fix and flip shows it then); the cash at your price is checked at that price.
+        const uncapAfter = !!pricePhase(d) && pricePhase(d) !== 'agreed' && rCap.limitedBy === 'cash' && !rCap.noBidWorks;
+        const r = uncapAfter ? maxSafeBid({ ...i, cashAvailable: 0 }) : rCap;
         const pp = proposedPriceOf(i);
         const at = pp ? { ...resultAtPrice(i, pp.price), source: pp.source } : null;
-        const stress = stressCases(i).map((c) => { const m = maxSafeBid(c.inputs); return { label: c.label, maxBid: m.maxBid, profitBid: m.profitBid, profit: pp ? resultAtPrice(c.inputs, pp.price).profit : null }; });
+        const stress = stressCases(i).map((c) => { const m = maxSafeBid(uncapAfter ? { ...c.inputs, cashAvailable: 0 } : c.inputs); return { label: c.label, maxBid: m.maxBid, profitBid: m.profitBid, profit: pp ? resultAtPrice(c.inputs, pp.price).profit : null }; });
         bid = { noTarget: !!i.profitInDollars && !(i.targetProfitMin > 0), targetTyped: (() => { const t = readConfirmed(`fsf.bid.analyzed-${d.id}.v1`); return t.has('targetProfitPct') || t.has('profitInDollars') || !!i.profitInDollars || (t.has('targetProfitMin') && (i.exitValue * i.targetProfitPct) / 100 < i.targetProfitMin); })(), cashBlocked: r.noBidWorks && r.profitBid > 0, profitBid: r.profitBid, maxBid: r.maxBid, cashOnDay: r.cashAtAuction, cashTotal: r.cashToStabilize, cashPeak: r.cashPeak, exitValue: i.exitValue, none: r.noBidWorks, target: requiredProfit(i), at, stress, financed: i.financedPct > 0, limitedBy: r.limitedBy, cashTyped: !offer && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable'), cashLimit: !offer && i.cashAvailable > 0 && readConfirmed(`fsf.bid.analyzed-${d.id}.v1`).has('cashAvailable') ? i.cashAvailable : 0, unentered: unenteredCosts(i, readConfirmed(`fsf.bid.analyzed-${d.id}.v1`), offer), redeem: (() => { // Your own price, else the walk-away price (as Fix and sell shows it; not the opening bid).
         // None when the walk-away price is below the opening bid (no bid there can be placed; My deals says so instead).
         const below = at?.source === 'listed' && r.maxBid < at.price;
@@ -834,7 +838,12 @@ export function savedNumbers(d: Deal) {
     if (raw) {
       const v = sanitizeNumbers(raw, COMMERCIAL_DEFAULTS) as CommercialInputs;
       if (v.monthlyRent > 0) {
-        const r = commercialMaxBid(v, offer);
+        const rCap = commercialMaxBid(v, offer);
+        const unc = commercialMaxBid({ ...v, cashAvailable: 0 }, offer);
+        // Won or bought, the price is fixed: the most this plan could have paid is the deal's own, leaving your cash aside
+        // (as Commercial income shows it then), so no tiny cash-capped figure sits beside your price.
+        const uncapAfter = !!pricePhase(d) && pricePhase(d) !== 'agreed' && rCap.limitedBy === 'cash' && !rCap.noBidWorks && !unc.noBidWorks && Number.isFinite(unc.maxBid) && !noRealisticPrice(rCap, unc, v.value);
+        const r = uncapAfter ? unc : rCap;
         // No price meets the target return with these numbers: that's a result too, not a missing one.
         if (r.noBidWorks) commercial = { maxBid: 0, noi: r.noi, capPct: v.targetCapPct, cashLeft: 0, allIn: 0, refi: false, none: true, noTarget: false, overCap: false, limitedBy: r.limitedBy, capOnCost: null, stress: [] };
         // No target return (and no loan or cash limit): nothing caps the price yet, so there's no walk-away price.
@@ -843,7 +852,7 @@ export function savedNumbers(d: Deal) {
         else {
           // The downside: the same deal with rent 10% lower (null: no price meets the target then; left out when
           // nothing caps the price).
-          const low = commercialMaxBid({ ...v, monthlyRent: v.monthlyRent * 0.9 }, offer);
+          const low = commercialMaxBid({ ...v, monthlyRent: v.monthlyRent * 0.9, ...(uncapAfter ? { cashAvailable: 0 } : {}) }, offer);
           const stress = low.noBidWorks ? [{ label: 'Rent 10% lower', maxBid: null }] : Number.isFinite(low.maxBid) ? [{ label: 'Rent 10% lower', maxBid: low.maxBid, limitedBy: low.limitedBy, capOnCost: low.capOnCost }] : [];
           commercial = { maxBid: r.maxBid, noi: r.noi, capPct: v.targetCapPct, cashLeft: r.cashLeft, allIn: r.allIn, refi: !offer && r.debtService > 0, none: false, noTarget: false, overCap: false, limitedBy: r.limitedBy, capOnCost: r.capOnCost, stress };
         }
@@ -854,9 +863,8 @@ export function savedNumbers(d: Deal) {
           commercial.capTyped = readConfirmed(`fsf.calc.commercial.${d.id}${offer ? '-offer' : ''}.v1`).has('targetCapPct');
           commercial.value = v.value > 0 ? v.value : 0;
           // Only the cash entered is short (Commercial income says "No realistic price fits your cash").
-          const unc = commercialMaxBid({ ...v, cashAvailable: 0 }, offer);
-          commercial.noRealistic = noRealisticPrice(r, unc, v.value);
-          commercial.weakSupported = cashAndPropertyWeak(r, unc, v.value) ? unc.maxBid : 0;
+          commercial.noRealistic = noRealisticPrice(rCap, unc, v.value);
+          commercial.weakSupported = cashAndPropertyWeak(rCap, unc, v.value) ? unc.maxBid : 0;
           commercial.loanTooBig = !!r.loanTooBig;
           commercial.hasLoan = v.loanPct > 0 && (offer || v.value > 0);
           commercial.saleDay = r.noBidWorks || !Number.isFinite(r.cashAtAuction) ? 0 : r.cashAtAuction;
@@ -1235,7 +1243,9 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       cash.push(`No ${offer ? 'offer or asking price' : 'bid or opening bid'} entered yet: add it in ${strategy} to see the cash at your own price.`);
     }
     // A walk-away price below the opening bid (or asking price) is no price you could pay: say so instead of a what-if.
-    if (!bid.none && a?.source === 'listed' && bid.maxBid < a.price) {
+    if (!bid.none && a?.source === 'listed' && bid.maxBid < a.price && pricePhase(d) && pricePhase(d) !== 'agreed') {
+      cash.push(`At the ${offer ? 'asking price' : 'opening bid'} of ${money(a.price)} this plan misses ${goalW}: the most it could have paid is ${money(bid.maxBid)}. Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to see the numbers at it.`);
+    } else if (!bid.none && a?.source === 'listed' && bid.maxBid < a.price) {
       cash.push(`No ${offer ? 'offer at or above the asking price' : 'bid at or above the opening bid'} of ${money(a.price)} ${a.profit >= bid.target && bid.limitedBy === 'cash' ? 'fits your cash' : `meets ${goalW}`} as entered: the most that would is ${money(bid.maxBid)}, below it.`);
     } else if (!bid.none && pricePhase(d) && a?.source === 'yours' && bid.limitedBy === 'cash' && bid.maxBid < a.price && bid.profitBid >= a.price) {
       // After a win, a cash-capped what-if far under your price reads as broken math: name the cash instead.
@@ -1290,6 +1300,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const limit = entered > 0 ? entered : typedNoLimit ? 0 : profile.investable;
   const limitWord = entered > 0 ? (pricePhase(d) ? 'the cash you’re putting in' : `the cash you entered in ${strategy}`) : 'your investable cash';
   if (limit > 0 && need > 0) cash.push(need > limit ? pricePhase(d) && !(bid?.at && bid.at.source !== 'yours') ? `${needAt}, the ${money(need)} this needs is ${money(need - limit)} more than ${limitWord}. ${pricePhase(d) === 'paid' && entered > 0 ? `Update your cash in ${strategy} with what you actually put in.` : pricePhase(d) === 'owed' ? owedWords(bid?.at?.source === 'yours' ? bid.at.price : commercial?.at?.price ?? rent?.price ?? 0, limit, limitWord, { ...settledCtx(d), overdueSaid: !!payPassed }) : cashShortAfter(pricePhase(d)!, { ...settledCtx(d), overdueSaid: !!payPassed })}` : pricePhase(d) ? `${needAt}, the ${money(need)} this needs is ${money(need - limit)} more than ${limitWord}. Enter ${fixedPriceName(d) ?? 'your price'} in ${strategy} to check the cash at it.` : `${needAt}, the ${money(need)} you’d put in is ${money(need - limit)} more than ${limitWord}: the deal doesn’t fit as entered. ${d.stage && !['researching', 'offer', 'passed'].includes(d.stage) ? `Check that you have it, or ${entered > 0 ? `update the cash in ${strategy}` : 'update My plan'}.` : `Skip this one, or ${entered > 0 ? `raise the cash in ${strategy}` : 'update My plan'} if you have more.`}` : `${needAt}, that leaves ${pricePhase(d) && entered > 0 ? `${money(limit - Math.round(need))} of your ${money(limit)} unused` : `${money(limit - Math.round(need))} unallocated from ${limitWord}`}${rent?.retained ? ', after the reserves you keep (above)' : ''}.`);
+  // Asked once: a second 'Enter your winning bid … to check/see …' in the same section is dropped.
+  { const ask = / Enter [^.]+ in [^.]+ to (?:check|see) [^.]+\./; let asked = false; for (let k = 0; k < cash.length; k++) if (ask.test(cash[k])) { if (asked) cash[k] = cash[k].replace(ask, ''); asked = true; } }
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
   out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: stageOf(d) === 'passed' ? passedCash(cash, d) : cash.map((t) => settledWords(t, pricePhase(d), settledCtx(d))), fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 

@@ -581,12 +581,15 @@ export function RentCalculator({ storageKey = 'fsf.calc.rent.v1', exactKey = fal
   // A home you'll live in: no example rent is counted (only rent you type, from a room or unit you'll rent out).
   const savedL = livesHere && !typedKeys.has('monthlyRent') && !('monthlyRent' in start) ? { ...saved, monthlyRent: 0 } : saved;
   const v = offer ? { ...withPlanCash(withoutOldValueExample(savedL, true, typedKeys), true, typedKeys, investorProfile().investable), buyerPremiumPct: 0 } : savedL;
-  const r = rentMaxBid(v, offer);
+  const rCap = rentMaxBid(v, offer);
   // No realistic price fits your cash (only the cash is short): the panels and buttons don't use the capped price.
   const uncapped = rentMaxBid({ ...v, cashAvailable: 0 }, offer);
   // Our example value (untyped, not from the property) doesn't decide whether the cash or the property is to blame.
   const realValue = v.value === RENT_DEFAULTS.value && !typedKeys.has('value') && !('value' in start) ? 0 : v.value;
-  const noReal = noRealisticPrice(r, uncapped, realValue);
+  const noReal = noRealisticPrice(rCap, uncapped, realValue);
+  // Won or bought, the price is fixed: the most this plan could have paid is the deal's own, leaving your cash aside
+  // (the cash at your price is checked at that price, so a tiny cash-capped figure never sits beside it).
+  const r = (bought || wonBid) && rCap.limitedBy === 'cash' && !noReal && !rCap.noBidWorks && !uncapped.noBidWorks && Number.isFinite(uncapped.maxBid) ? uncapped : rCap;
   const exampleValue = refiOnExampleValue(v, offer, typedKeys);
   const n = rentNoi(v);
   // Once you've entered your price, the tax hint works out the county's rate on it, for you to enter: the box itself
@@ -732,9 +735,12 @@ export function CommercialCalculator({ storageKey = 'fsf.calc.commercial.v1', ex
   const ct = useRegionTax(COMMERCIAL_GROUPS, false, cMode);
   const [saved, set, typed, typedKeys] = useSaved<CommercialInputs>(offer && !exactKey ? offerKey(storageKey) : storageKey, { ...COMMERCIAL_DEFAULTS, ...start }, regional ? { transferTaxPer500: ct.per500 } : {});
   const v = offer ? { ...saved, buyerPremiumPct: 0 } : saved;
-  const r = commercialMaxBid(v, offer);
+  const rCap = commercialMaxBid(v, offer);
   const uncapped = commercialMaxBid({ ...v, cashAvailable: 0 }, offer);
-  const noReal = noRealisticPrice(r, uncapped, v.value);
+  const noReal = noRealisticPrice(rCap, uncapped, v.value);
+  // Won or bought, the price is fixed: the most this plan could have paid is the deal's own, leaving your cash aside.
+  const cAfter = !!dealId && (() => { const od = loadDeals().find((x) => x.id === dealId); if (!od) return false; const st = stageOf(od); return offer ? ['closed', 'owned'].includes(st) : ['contract', 'closed', 'owned'].includes(st); })();
+  const r = cAfter && rCap.limitedBy === 'cash' && !noReal && !rCap.noBidWorks && !uncapped.noBidWorks && Number.isFinite(uncapped.maxBid) ? uncapped : rCap;
   const n = commercialNoi(v);
   // Commercial cash doesn't follow My plan (the results compare with it instead), so its help says so.
   const groups = (offer ? forOffer(ct.groups, cMode === 'bought') : ct.groups).map((g) => ({ ...g, fields: g.fields.map((f) => (f.k === 'loanPct' && offer && cMode !== 'bought' ? { ...f, hint: 'Commercial lenders often lend 65–75% of the price or value; use your lender’s figure. 0 for all cash.*' } : f.k === 'leaseUpMonths' && offer && cMode !== 'bought' ? { ...f, hint: 'Empty or partly leased buildings can take months to fill: ask the broker for the rent roll and how long each space sat empty.' } : f.k === 'cashAvailable' && cMode === true ? { ...f, more: `Eureka County’s sale is sealed-bid: the full payment goes in with your bid, before the sale. Enter the cash you can put in, and the price is capped at what it covers. Until you type a figure, the results compare the cash it needs with your investable cash in My plan; a 0 you type means no limit and no comparison. Subtract the reserves your lender wants you to keep.` } : f.k === 'cashAvailable' && !cMode ? { ...f, more: 'Enter the cash you can put in, and the price is capped at what it covers. Until you type a figure, the results compare the cash it needs with your investable cash in My plan; a 0 you type means no limit and no comparison. Subtract the reserves your lender wants you to keep.' } : f)) }));

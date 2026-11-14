@@ -440,7 +440,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   // Your own wait under it: one note under the price says so (the caution above then points to it).
   const shortNote = ruleNow === 'custom' && !!choices && choices.start !== 'none' && shorterThanLaw(i.redemptionMonths, shortestOwner);
   const unconfirmed = !offer && !!choices?.confirm && !i.redemptionChecked;
-  const r = maxSafeBid(i);
+  const rCap = maxSafeBid(i);
+  // Won or bought, the price is fixed: the most this plan could have paid is the deal's own, leaving your cash aside.
+  // The cash at your price is checked at that price (and at the opening bid below), so no cash-capped figure sits beside it.
+  const r = (wonBid || boughtOffer) && rCap.limitedBy === 'cash' && !rCap.noBidWorks ? maxSafeBid({ ...i, cashAvailable: 0 }) : rCap;
   const grid = stressGrid(i);
   const slower = maxSafeBid({ ...i, holdingMonths: i.holdingMonths + 3 }).profitBid;
   // At your bid, else the walk-away price; none when that's below the opening bid (no bid there can be placed), as My
@@ -475,7 +478,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   const dealFails = i.minimumBid > 0 && r.profitBid < i.minimumBid;
   // Cash for the opening bid counts everything until you sell (repairs, holding, fees), the same way the cash limit does.
   const openingCash = i.minimumBid > 0 ? cashNeededAtBid(i, i.minimumBid) : 0;
-  const cashShort = !dealFails && i.minimumBid > 0 && i.cashAvailable > 0 && r.limitedBy === 'cash' && r.maxBid < i.minimumBid;
+  const cashShort = !dealFails && i.minimumBid > 0 && i.cashAvailable > 0 && rCap.limitedBy === 'cash' && rCap.maxBid < i.minimumBid;
   // Where the state has no transfer tax (and none was entered), the field is left out instead of sitting at $0.
   const noTransferTax = tax.per500 === 0 && !i.transferTaxPer500;
   const shown = (f: Field) => (mode === 'detailed' || f.quick) && (!f.when || f.when(i)) && !(f.k === 'redemptionRatePct' && choices?.start === 'none' && (pickOf() === 'custom' || pickOf() === 'none') && !(i.redemptionRatePct > 0) && draft.redemptionRatePct === undefined) && !(offer && OFFER_HIDDEN.has(f.k)) && !(noTransferTax && f.k === 'transferTaxPer500');
@@ -619,7 +622,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           cashShort ? (
           <div className="calc-max bad">
             <span>{phase === 'owed' || phase === 'paid' ? 'The most this plan could have paid' : 'Walk-away price'}</span>
-            <strong>{phase ? (bid > 0 ? 'Your cash is short for this price' : <>Your cash is short at the {w.opening}</>) : <>No {w.bid} at the {w.opening} fits your cash</>}</strong>
+            <strong>{phase ? (bid > 0 ? (bid > r.profitBid ? 'Above what the deal allows, and your cash is short' : 'Your cash is short for this price') : <>Your cash is short at the {w.opening}</>) : <>No {w.bid} at the {w.opening} fits your cash</>}</strong>
             <small>{phase ? `The deal itself allows prices up to ${fmtMoney(r.profitBid)}. ${bid > 0 ? `The cash at ${yours.toLowerCase()} is shown with your result below.` : `Enter ${yours.toLowerCase()} below to see the cash at it.`}` : <>At the {w.opening} you’d need about {fmtMoney(Math.round(openingCash))}: the {w.bid} plus repairs and every cost until you sell. The deal itself allows {w.bid}s up to {fmtMoney(r.profitBid)}.</>}</small>
           </div>
           ) : (

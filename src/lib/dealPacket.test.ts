@@ -152,22 +152,28 @@ describe('the deal packet', () => {
     expect(none.find((s) => s.key === 'cash')!.lines.join('\n')).toMatch(/No price meets our example 9% return on cost/);
   });
 
-  it('after a win where only the cash is short, names the cash instead of a tiny cash-capped figure', () => {
+  it('after a win where only the cash is short, shows the deal’s own most, never a tiny cash-capped figure', () => {
     const won: Deal = { ...deal, state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
     const inputs = { minimumBid: 200000, exitValue: 400000, repairs: 30000, cashAvailable: 100000 };
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify({ ...inputs, proposedPrice: 250000 }));
     localStorage.setItem('fsf.bid.analyzed-d1.v1.typed.v1', JSON.stringify(['minimumBid', 'exitValue', 'repairs', 'cashAvailable', 'proposedPrice']));
     const all = packetSections(won, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
-    expect(all).toMatch(/Leaving your cash aside, the deal itself could have met .* at prices up to \$[\d,]+: at your price, your cash is what’s short/);
-    expect(all).toMatch(/If resale value 10% lower: profit \$[\d,]+ at \$250,000; (leaving your cash aside, the deal itself allows up to \$[\d,]+|no price meets)/);
-    expect(all).not.toMatch(/the most this plan could have paid/);
-    expect(all).not.toMatch(/the cash you entered/);
+    // The same figure Fix and flip shows after a win: the deal's own most, leaving the cash aside (well above a cash cap of
+    // about $70,000), with the shortfall at your price said with the cash.
+    const most = maxSafeBid(sanitizeInputs({ ...inputs, cashAvailable: 0 }, BLANK_INPUTS)).maxBid;
+    const money = (n: number) => '$' + Math.round(n).toLocaleString('en-US');
+    expect(most).toBeGreaterThan(250000);
+    expect(all).toContain(`the most this plan could have paid (${money(most)}, not your price)`);
+    expect(all).toMatch(/this needs is \$[\d,]+ more than the cash you’re putting in/);
+    expect(all).toMatch(/If resale value 10% lower: profit \$[\d,]+ at \$250,000; (the most this plan could have paid, \$[\d,]+|no price works)/);
+    expect(all).not.toMatch(/the cash you entered|set by what your cash covers/);
     // No winning bid entered yet: ask for it, with no pre-sale "doesn't fit as entered".
     localStorage.setItem('fsf.bid.analyzed-d1.v1', JSON.stringify(inputs));
     localStorage.setItem('fsf.bid.analyzed-d1.v1.typed.v1', JSON.stringify(['minimumBid', 'exitValue', 'repairs', 'cashAvailable']));
     const open = packetSections(won, EMPTY_PACKET, now).map((x) => x.lines.join('\n')).join('\n');
     expect(open).toMatch(/this needs is \$[\d,]+ more than the cash you’re putting in\. Enter your winning bid in Fix and flip to check the cash at it\./);
-    expect(open).not.toMatch(/doesn’t fit as entered|you’d put in is/);
+    expect(open).not.toMatch(/doesn’t fit as entered|you’d put in is|fits your cash/);
+    expect(open.match(/Enter your winning bid in Fix and flip/g)?.length).toBe(1);
   });
 
   it('names the redemption wait a flip’s price is built on, with what a redemption returns, and its end date', async () => {
