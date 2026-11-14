@@ -121,7 +121,8 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
   const notChecked = (v: number | null, text: string) => (v === null ? <span className="muted">{text}</span> : fmtMoney(v));
   const s = p.sale;
   const analyzeLink = analyzeHref({ address: p.address, city: p.city, state: p.state, county: p.county, saleType: s?.saleType });
-  const status = STATUS[p.status];
+  // (A bank-owned home whose lender takes offers online is still an offer, not an auction: named so here.)
+  const status = p.sale?.saleType === 'REO' && p.status === 'ONLINE_BIDDING' ? { ...STATUS[p.status], label: 'Bank-owned: online offers' } : STATUS[p.status];
   // A home that isn't for sale (in pre-foreclosure, or the sale ended) gets no bid, spread, calculator or save tools:
   // it isn't a deal, and the owner may still keep it. Only its timeline and the official notice are shown.
   const forSale = status.purchasable && !!s;
@@ -203,7 +204,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
       ? [
           {
             key: 'sale',
-            title: online ? 'Online auction details' : 'Sale details',
+            title: online ? (s?.saleType === 'REO' ? 'Online offer details' : 'Online auction details') : 'Sale details',
             icon: <IconCalendar />,
             summary: `${s.startsAt ? fmtDate(s.startsAt) : 'Date not set'} · ${s.conductedBy}`,
             content: () => (
@@ -426,7 +427,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
         }
         eyebrow={
           <>
-            <StatusBadge status={p.status} />
+            <StatusBadge status={p.status} label={status.label} />
             {s && <span className="eyebrow">{SALE_TYPE_LABEL[s.saleType]}</span>}
             {verified && <span className="eyebrow"><span className="live-dot" aria-hidden /> {irs ? 'Listed by the IRS on irsauctions.gov' : 'On the Treasurer’s official list'}</span>}
           </>
@@ -448,7 +449,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <div className="countdown">
               <div className="countdown-label">
                 {days !== null && days >= 0 && <span className="live-dot" aria-hidden />}
-                {days !== null && days < 0 ? 'Scheduled sale was' : 'Sale starts'}
+                {s?.saleType === 'REO' ? (days !== null && days < 0 ? 'Offers opened' : 'Offers open') : days !== null && days < 0 ? 'Scheduled sale was' : 'Sale starts'}
               </div>
               <div className="big">{fmtDateTime(s.startsAt)}</div>
               {days !== null && days >= 0 && <div className="countdown-days">{whenLabel(days)}</div>}
@@ -468,7 +469,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
 
       {!verified && SHOW_SAMPLE_DATA && (
         <div className="caution sample-banner" role="note">
-          <strong>Sample property: fictional, for practice.</strong> The address, dates and numbers are made up to show how a listing reads. At a real auction the opening bid isn’t the price: bidding usually rises toward what buyers think the property is worth after its liens, repairs and risks, and many sales are postponed or cancelled.
+          <strong>Sample property: fictional, for practice.</strong> The address, dates and numbers are made up to show how a listing reads. {s?.saleType === 'REO' ? 'A bank-owned home’s asking price is a starting point: the lender may counter, and it can sell to another buyer at any time.' : 'At a real auction the opening bid isn’t the price: bidding usually rises toward what buyers think the property is worth after its liens, repairs and risks, and many sales are postponed or cancelled.'}
         </div>
       )}
 
@@ -476,7 +477,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
         {verified && !irs && <>On the Clark County Treasurer’s official list, re-checked {ago(p.lastUpdated)}. The list shows the minimum bid and auction details only: value, liens and condition are for you to research. </>}
         {irs && <>Listed by the IRS on irsauctions.gov, re-checked {ago(p.lastUpdated)}; the parcel is confirmed in the County Assessor’s records. Read the full notice of sale for the terms: value, liens and condition are for you to research. </>}
         <strong>{s?.saleType === 'REO' ? 'Verify before you make an offer.' : 'Verify before bidding.'}</strong> {s?.saleType === 'REO' ? 'Bank-owned homes can be sold to another buyer or taken off the market at any time.' : 'Sales are often paid off, postponed, cancelled or challenged at the last minute.'} Confirm with{' '}
-        {s?.conductedBy ?? 'the conducting agency'} and read the official notice. This report is a screening tool, not a title search, and does
+        {s?.conductedBy ?? 'the conducting agency'} and {s?.saleType === 'REO' ? 'read the listing and the lender’s terms' : 'read the official notice'}. This report is a screening tool, not a title search, and does
         not mean title is clear.
       </div>
 

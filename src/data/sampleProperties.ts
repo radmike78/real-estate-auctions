@@ -373,6 +373,7 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
           deposit: 'Earnest money within 24 h of acceptance (see the lender’s terms)',
           finalPaymentDeadline: isoAt(saleDay + 33, 17),
         });
+        // (Still an offer through escrow, not an auction: the lender takes the offers on its own site for a set period.)
         status = 'ONLINE_BIDDING';
       }
       break;

@@ -96,9 +96,10 @@ export function purchaseSteps(p: Property): string[] {
   const s = p.sale;
   // A bank-owned home is bought by offer through escrow, not at an auction (whatever the lender's offer site calls it).
   if (s?.saleType === 'REO') return [
-    `Register on the lender’s offer site${s.registrationDeadline ? ` before ${fmtDate(s.registrationDeadline)}` : ''} and read its terms, or ask the listing broker.`,
+    s.startsAt ? `Register on the lender’s own offer site${s.registrationDeadline ? ` by ${fmtDateTime(s.registrationDeadline)}` : ''} and read its terms.` : 'Work with a buyer’s agent, and ask the listing broker for the lender’s offer requirements.',
     `Make your offer${s.startsAt && s.endsAt ? ` between ${fmtDateTime(s.startsAt)} and ${fmtDateTime(s.endsAt)}` : ''}, with proof of funds or a loan pre-approval.`,
-    `If it’s accepted: ${s.deposit ?? 'send the earnest money the contract sets'}.`,
+    'Expect the lender’s own addendum to the purchase contract, which can change the standard terms: read it with your agent before you sign*.',
+    `If your offer is accepted, send the earnest money: ${(s.deposit ?? 'the amount and timing in the contract').replace(/^Earnest money\s*/i, '').replace(/^per /, 'as set in the ')}.`,
     'Do your inspections and title review within the contract’s deadlines.',
     `Close through escrow with title insurance${s.finalPaymentDeadline ? ` by ${fmtDate(s.finalPaymentDeadline)}` : ''}; the lender’s deed is recorded at closing.`,
     'If someone still lives there, ask the listing broker how the home will be delivered before you close.',
@@ -134,7 +135,7 @@ export function purchaseSteps(p: Property): string[] {
               ? ['Fill in the bid form the notice of sale requires, with anything it asks you to include.', `Payment: ${pay}.`, `Send your sealed bid so it arrives before the deadline in the notice of sale. Where: ${(s?.location ?? 'see the notice').replace(/^Sealed bids delivered to /, '')}.`, confirm, 'The bids are opened on the sale date, and the notice says how the winner is told.']
               : [confirm, 'Bring government ID and complete any required bidder affidavit.', `Payment: ${pay}.${s?.saleType === 'TRUSTEE_SALE' && !/cashier/i.test(pay) ? " Trustee sales in Nevada usually require cashier's checks*." : ''}`]),
           ...(p.status === 'SEALED_BID' ? [] : [`Attend the auction at ${s?.location} on ${s?.startsAt ? fmtDateTime(s.startsAt) : 'the posted date'}.`, `Bid under the procedures ${runner} announces at the sale.`]),
-        s?.saleType === 'TRUSTEE_SALE' || s?.saleType === 'HOA_FORECLOSURE' ? `If ${runner} accepts part of the bid at the sale, pay the rest by ${s?.finalPaymentDeadline ? fmtDateTime(s.finalPaymentDeadline) : 'the time it sets'}, as the notice or ${runner} says*.` : `Pay any remaining balance by ${s?.finalPaymentDeadline ? fmtDateTime(s.finalPaymentDeadline) : 'the posted deadline'}.${s?.saleType === 'TAX_DEED' ? ' A parcel not paid for by then is auctioned again, and the winning bidder can lose the deposit (check the auction notice)*.' : ''}`,
+        s?.saleType === 'TRUSTEE_SALE' || s?.saleType === 'HOA_FORECLOSURE' ? `Nevada law says the sale is to the highest cash bidder (NRS ${s?.saleType === 'TRUSTEE_SALE' ? '107.030(6)' : '116.31164(6)(b)'}), so expect to pay the full bid in cashier’s checks at the sale*. If the notice or ${runner} lets you pay a deposit and the rest later, pay it by ${s?.finalPaymentDeadline ? fmtDateTime(s.finalPaymentDeadline) : 'the time it sets'}.` : `Pay any remaining balance by ${s?.finalPaymentDeadline ? fmtDateTime(s.finalPaymentDeadline) : 'the posted deadline'}.${s?.saleType === 'TAX_DEED' ? ' A parcel not paid for by then is auctioned again, and the winning bidder can lose the deposit (check the auction notice)*.' : ''}`,
         p.status === 'COURT_CONFIRMATION_REQUIRED'
           ? 'You receive a certificate of sale. Wait for the redemption period to end before the deed is issued.'
           : deedStep(s?.saleType),

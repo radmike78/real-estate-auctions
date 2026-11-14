@@ -61,7 +61,7 @@ export default function ResultsList({ properties }: { properties: Property[] }) 
             <a className={`card${risk}`} href={`#/property/${p.id}`}>
               <div className="card-top">
                 <span className={`card-icon${p.sale ? '' : ' wait'}`} aria-hidden>{p.sale ? SALE_ICON[p.sale.saleType] : <IconClock />}</span>
-                <StatusBadge status={p.status} />
+                <StatusBadge status={p.status} label={p.sale?.saleType === 'REO' && p.status === 'ONLINE_BIDDING' ? 'Bank-owned: online offers' : undefined} />
                 {p.sale && <span className="muted small">{SALE_TYPE_LABEL[p.sale.saleType]}</span>}
               </div>
               <h3>{p.address}</h3>
