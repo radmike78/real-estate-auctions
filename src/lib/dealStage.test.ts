@@ -751,7 +751,7 @@ describe('Nevada round 4 flow', () => {
     expect(tl).toMatch(/Jul 5, 2026: Deed recorded \(Me\) — passed/);
     expect(tl).toMatch(/Next: the challenge window ended 63 days ago \(Aug 4, 2026\): see Your next action\./);
     const tax = { ...nvFlip, kind: 'taxSale' as const };
-    const sid = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-30', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
+    const sid = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-20', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-30', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
     saveDeals([{ ...tax, stage: 'contract' }]);
     const sl = packetSections({ ...tax, stage: 'contract' }, sid, now).find((x) => x.key === 'dates')!.lines.join(' | ');
     expect(sl).toMatch(/Nov 30, 2026: SID certificate payoff .* — open, after the 20-day deadline/);

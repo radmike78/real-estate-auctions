@@ -491,7 +491,9 @@ export const paymentPassed = (d: { id?: string; kind?: Deal['kind']; state?: Dea
   const nvLien = d.kind === 'lien' && d.state === 'NV';
   const nv = nvParts(now);
   const pk = loadPacket(`analyzed:${d.id}`);
-  return pk.dates.find((x) => sameDate(x.what, 'Payment deadline') && !x.resolved && !!x.when && (nvLien ? x.when < nv.day || (x.when === nv.day && nv.hour >= nvCutHour(d.county)) : x.when < localDay(now)))?.when ?? '';
+  // (A deal passed after a missed payment records that day's deadline: it counts as passed from then on.)
+  const passedNow = stageOf(d as Deal) === 'passed';
+  return pk.dates.find((x) => sameDate(x.what, 'Payment deadline') && !x.resolved && !!x.when && (nvLien ? x.when < nv.day || (x.when === nv.day && nv.hour >= nvCutHour(d.county)) : x.when < localDay(now) || (passedNow && x.when <= nv.day)))?.when ?? '';
 };
 /** Who sells at this kind of sale (who to contact about a missed payment). */
 export const sellerName = (kind?: string, state?: string): string => ({ trustee: 'the trustee', court: state === 'NV' ? 'the sheriff’s civil office (or the constable named on the notice)' : 'the sheriff’s civil office', hoa: state === 'NV' ? 'the person conducting the sale (the HOA’s foreclosure agent)' : 'the HOA’s foreclosure agent', irs: 'the IRS office named on the notice of sale', taxSale: 'the Treasurer', lien: state === 'NV' ? 'the city or county treasurer that held the sale' : 'the treasurer that held the sale' } as Record<string, string>)[kind ?? ''] ?? 'the official seller';
