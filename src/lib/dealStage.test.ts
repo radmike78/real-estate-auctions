@@ -676,6 +676,10 @@ describe('Nevada round 4 flow', () => {
     saveDeals([{ ...nvFlip, stage: 'researching' }]);
     setDealStage(nvFlip.id, 'passed');
     expect(stageHint('passed', loadDeals()[0])).toBe('You didn’t win this one, or chose not to bid. Either is a fine result when the evidence says no: find your next property.');
+    // Passed from Owned (a rescinded sale, say): it was won, so never "didn't win".
+    saveDeals([{ ...nvFlip, stage: 'owned' }]);
+    setDealStage(nvFlip.id, 'passed');
+    expect(loadDeals()[0].passedFrom).toBe('won');
   });
 
   it('a Nevada trustee win left unpaid after the sale day is urgent', () => {
