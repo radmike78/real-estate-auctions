@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanDeal, loadDeals, saveDeals, type Deal } from './analyze';
 import { EMPTY_PACKET, nextAction, savePacket } from './dealPacket';
-import { dealNextTask, inferStage, paymentPassed, saleOverFor, withRow, setDealStage, STAGE_STEPS, stageHint, stageLabel, stageOf, stageTasks } from './dealStage';
+import { dealNextTask, earlyMoveNote, inferStage, paymentPassed, saleOverFor, withRow, setDealStage, STAGE_STEPS, stageHint, stageLabel, stageOf, stageTasks } from './dealStage';
 import { cleanLog, saveLog } from './evidence';
 import { saveOwned } from './owned';
 import { planNow } from './planNext';
@@ -329,7 +329,7 @@ it('asks whether you won once sale day has passed, ahead of later dates, and cou
   const hoa: Deal = { ...deal, id: 'dh6', state: 'NV', county: 'Washoe', kind: 'hoa', plan: 'rent', stage: 'offer' };
   const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'HOA agent', resolved: true }, { when: '2026-10-08', what: 'Certificate of sale recorded', who: 'HOA agent' }] };
   const t = dealNextTask(hoa, p, now, 'offer');
-  expect(t.label).toMatch(/Sale day has passed for 123 Main St: did you win\?/);
+  expect(t.label).toMatch(/(Sale day has passed for 123 Main St|The sale day for 123 Main St is over in Nevada): did you win\?/);
   expect(t.advance?.stage).toBe('contract');
   // Before the sale, a post-sale row isn't a reminder.
   const before = { ...EMPTY_PACKET, dates: [{ when: '2026-10-08', what: 'Certificate of sale recorded', who: 'HOA agent' }] };
@@ -420,7 +420,7 @@ describe('Nevada round 4 flow', () => {
 
   it('drops past registration and signing rows once they’re behind you, and keeps “It was redeemed” in the last week', () => {
     const won = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Bidder registration (if required)', who: 'me' }, { when: '2026-10-02', what: 'Sale day', who: '' }, { when: '2026-10-05', what: 'Payment deadline', who: 'Trustee' }] };
-    expect(dealNextTask(nvFlip, won, now, 'contract').label).toMatch(/^The payment deadline for .* passed .*contact the trustee today.*NRS 107.083/);
+    expect(dealNextTask(nvFlip, won, now, 'contract').label).toMatch(/^The payment deadline for .* passed .*contact the trustee and an attorney today.*NRS 107.083/);
     const signed = { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'Contract signed', who: 'Agent' }] };
     expect(dealNextTask({ ...nvFlip, kind: 'short', plan: 'rent' }, signed, now, 'contract').label).toMatch(/^Send the earnest money/);
     const hoa = { ...nvFlip, kind: 'hoa' as const };
@@ -516,7 +516,7 @@ describe('Nevada round 4 flow', () => {
 
   it('round 6 verifier: no sale-day reminder once won; the deed reminder carries its answer', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-06', what: 'Sale day', who: 'Trustee' }, { when: '2026-10-06', what: 'Payment deadline', who: 'Me' }] };
-    expect(dealNextTask(nvFlip, p, now, 'contract').label).toMatch(/Payment deadline/);
+    expect(dealNextTask(nvFlip, p, now, 'contract').label).toMatch(/payment deadline/i);
     const hoa = { ...nvFlip, kind: 'hoa' as const };
     const d = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Redemption period ends', who: 'Owner', resolved: true }, { when: '2026-10-04', what: 'Deed delivered (if no one redeemed)', who: 'Agent' }] };
     const t = dealNextTask(hoa, d, now, 'closed');
@@ -595,7 +595,7 @@ describe('Nevada round 4 flow', () => {
     // Before 1:00 p.m. there's no such answer yet.
     expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T17:00:00Z')).find((x) => x.key === 'ev-terms')!.advance2).toBeUndefined();
     // Before the 2:00 p.m. re-auction it doesn't ask about it as if held.
-    expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T21:30:00Z')).find((x) => x.key === 'ev-terms')!.label).toMatch(/^Won .* earlier today\? .*held only if needed/);
+    expect(stageTasks(tax, 'contract', today, new Date('2026-11-14T21:30:00Z')).find((x) => x.key === 'ev-terms')!.label).toMatch(/^Won .* this morning\? .*held only if needed/);
     // A deadline typed in as the county's own date keeps these steps: after 4:30 p.m. it asks whether you paid.
     const typed = { ...EMPTY_PACKET, dates: [...today.dates, { when: '2026-11-14', what: 'Payment deadline', who: 'Clark County Treasurer' }] };
     savePacket(`analyzed:${tax.id}`, typed);
@@ -622,7 +622,7 @@ describe('Nevada round 4 flow', () => {
     const evening = new Date('2026-11-21T03:00:00Z');
     expect(paymentPassed(hoa, evening)).toBe('');
     expect(dealNextTask(hoa, p, evening, 'contract').days).toBe(0);
-    expect(dealNextTask(hoa, p, evening, 'contract').label).toMatch(/^Today in Nevada: Payment deadline/);
+    expect(dealNextTask(hoa, p, evening, 'contract').label).toMatch(/^Pay for .* by its payment deadline, today in Nevada/);
     // 1 a.m. Nov 21 in Nevada: passed, with both answers.
     const late = new Date('2026-11-21T09:00:00Z');
     expect(paymentPassed(hoa, late)).toBe('2026-11-20');
@@ -639,7 +639,7 @@ describe('Nevada round 4 flow', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-15', what: 'Sale day', who: 'Trustee' }] };
     savePacket(`analyzed:${nvFlip.id}`, p);
     // 6 p.m. Nov 15 in Nevada is already Nov 16 in UTC and east of it.
-    expect(dealNextTask({ ...nvFlip, stage: 'researching' }, p, new Date('2026-11-16T02:00:00Z'), 'researching').label).toMatch(/^Today in Nevada: Sale day/);
+    expect(dealNextTask({ ...nvFlip, stage: 'researching' }, p, new Date('2026-11-16T02:00:00Z'), 'researching').label).toMatch(/^Today in Nevada is the sale day for/);
   });
 
   it('the Passed hint after a missed payment names the deadline, and Clark’s deposit and ban', () => {
@@ -662,14 +662,32 @@ describe('Nevada round 4 flow', () => {
     } finally { vi.useRealTimers(); }
   });
 
+  it('a won, unpaid deal moved to Passed is warned first, and its hint never calls it a fine result', () => {
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Trustee', resolved: true }, { when: '', what: 'Payment deadline', who: '' }] };
+    const won = { ...nvFlip, stage: 'contract' as const };
+    savePacket(`analyzed:${won.id}`, p);
+    saveDeals([won]);
+    expect(earlyMoveNote(won, 'passed')).toMatch(/^You won this\. A winner who doesn’t pay/);
+    setDealStage(won.id, 'passed');
+    const h = stageHint('passed', loadDeals()[0]);
+    expect(h).toMatch(/^You passed after winning, without marking it paid\..*NRS 107\.083/);
+    expect(h).not.toMatch(/fine result|good result|walked away/);
+    // Passed before the win: one line for every auction.
+    saveDeals([{ ...nvFlip, stage: 'researching' }]);
+    setDealStage(nvFlip.id, 'passed');
+    expect(stageHint('passed', loadDeals()[0])).toBe('You didn’t win this one, or chose not to bid. Either is a fine result when the evidence says no: find your next property.');
+  });
+
   it('a Nevada trustee win left unpaid after the sale day is urgent', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Trustee', resolved: true }] };
     savePacket(`analyzed:${nvFlip.id}`, p);
     const t = stageTasks({ ...nvFlip, stage: 'contract' }, 'contract', p, new Date('2026-11-14T18:00:00Z')).find((x) => x.key === 'ev-terms')!;
     expect(t.label).toMatch(/contact the trustee today/);
-    // An answer is needed: paid, or not (which passes the deal and records the missed payment).
+    // An answer is needed: paid, or not (which passes the deal).
     expect(t.days).toBe(-1);
-    expect(t.advance2?.addRow).toMatchObject({ when: '2026-11-12', what: 'Payment deadline' });
+    expect(t.advance2?.stage).toBe('passed');
+    // (No date is recorded for it: the notice sets a trustee sale's deadline, so the site doesn't make one up.)
+    expect(t.advance2?.addRow).toBeUndefined();
   });
 
   it('a Nevada tax sale with its Treasurer’s deed recorded offers no SID void choice (NRS 361.595(6))', () => {
@@ -1518,10 +1536,10 @@ describe('Nevada round 4 flow', () => {
     // The pre-sale "funds ready" tick isn't payment: the reminder stays until the payment is marked.
     saveLog('analyzed:f1', cleanLog({ rows: { terms: { done: true } } }));
     const unpaid = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'A', resolved: true }, { when: '2026-09-01', what: 'Payment deadline', who: 'Me' }] };
-    expect(dealNextTask(hoa, unpaid, now, 'contract').label).toMatch(/Overdue by .* Payment deadline/);
+    expect(dealNextTask(hoa, unpaid, now, 'contract').label).toMatch(/^The payment deadline for .* passed/);
     const pp = { ...EMPTY_PACKET, dates: [unpaid.dates[0], { ...unpaid.dates[1], resolved: true }] };
     savePacket('analyzed:f1', pp);
-    expect(dealNextTask(hoa, pp, now, 'contract').label).not.toMatch(/Overdue by .* Payment deadline/);
+    expect(dealNextTask(hoa, pp, now, 'contract').label).not.toMatch(/Overdue by .* Payment deadline|payment deadline for .* passed/);
     expect(stageTasks(hoa, 'contract', pp, now).find((x) => x.key === 'dates')!.label).toBe('Put 2210 Mesa Verde Ln’s recording date on its calendar');
     saveLog('analyzed:f1', cleanLog({ rows: {} }));
     localStorage.setItem('fsf.calc.rent.f1.v1', JSON.stringify({ atPrice: 150000 }));
@@ -1689,7 +1707,7 @@ describe('Nevada round 4 flow', () => {
     const split = { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-05', what: 'Payment deadline (deposit at the sale)', who: 'Me', resolved: true }, { when: '2026-10-08', what: 'Payment deadline (balance, next business day)', who: 'Me' }] };
     savePacket('analyzed:f1', split);
     saveDeals([{ ...nvFlip, stage: 'contract' }]);
-    expect(dealNextTask(nvFlip, split, now, 'contract').label).toMatch(/Payment deadline \(balance/);
+    expect(dealNextTask(nvFlip, split, now, 'contract').label).toMatch(/payment deadline \(balance/i);
     expect(packetSections({ ...nvFlip, stage: 'contract' }, split, now).find((x) => x.key === 'dates')!.lines.join(' | ')).not.toMatch(/balance, next business day\) \(Me\) — passed/);
     const hoa = { ...nvFlip, kind: 'hoa' as const };
     const won = { ...EMPTY_PACKET, dates: [{ when: '2026-10-02', what: 'Sale day', who: 'HOA', resolved: true }, { when: '2026-10-03', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2027-01-01', what: 'Redemption period ends', who: 'HOA' }] };
