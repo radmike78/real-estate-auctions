@@ -657,7 +657,7 @@ describe('Nevada round 4 flow', () => {
       const tax = loadDeals()[0];
       expect(tax.passedFrom).toBe('won');
       const h = stageHint('passed', tax);
-      expect(h).toMatch(/^If you won but didn’t pay by the deadline \(Nov 14, 2026\)/);
+      expect(h).toMatch(/^You didn’t pay by the deadline \(Nov 14, 2026\)/);
       expect(h).toMatch(/loses the \$5,000 deposit and is banned/);
     } finally { vi.useRealTimers(); }
   });
