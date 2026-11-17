@@ -607,9 +607,10 @@ describe('Nevada round 4 flow', () => {
   it('passing after a missed payment fills the usual blank Payment deadline row', () => {
     const rows = [{ when: '2026-11-12', what: 'Sale day', who: 'Trustee' }, { when: '', what: 'Payment deadline', who: '' }];
     expect(withRow(rows, { when: '2026-11-12', what: 'Payment deadline', who: 'the trustee' })).toEqual([rows[0], { when: '2026-11-12', what: 'Payment deadline', who: 'the trustee' }]);
-    // A dated row is kept as it is; no row adds one.
+    // A row dated later than the missed deadline takes the deadline that counted; an earlier one is kept; no row adds one.
     const dated = [{ when: '2026-11-20', what: 'Payment deadline', who: 'HOA agent' }];
-    expect(withRow(dated, { when: '2026-11-12', what: 'Payment deadline', who: 'x' })).toEqual(dated);
+    expect(withRow(dated, { when: '2026-11-12', what: 'Payment deadline', who: 'x' })).toEqual([{ when: '2026-11-12', what: 'Payment deadline', who: 'HOA agent' }]);
+    expect(withRow(dated, { when: '2026-11-25', what: 'Payment deadline', who: 'x' })).toEqual(dated);
     expect(withRow([rows[0]], { when: '2026-11-12', what: 'Payment deadline', who: 'x' })).toHaveLength(2);
   });
 
@@ -708,6 +709,12 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(clark, typed, new Date('2026-11-14T18:00:00Z'), 'contract').days).toBe(-1);
     // Before the county's time it is still due, with no 'didn't pay' answer yet.
     expect(dealNextTask(clark, typed, new Date('2026-11-12T18:00:00Z'), 'contract').label).toMatch(/^Pay for .* by 1:00 p.m. Nevada time today.*You typed a later payment date/);
+    // The reader can say the Treasurer gave the later date: then that date's own steps follow.
+    const conf = dealNextTask(clark, typed, new Date('2026-11-14T18:00:00Z'), 'contract');
+    expect(conf.record?.label).toBe('The Treasurer gave me this date in writing');
+    const confirmed = { ...EMPTY_PACKET, dates: [...typed.dates, conf.record!.row] };
+    savePacket(`analyzed:${clark.id}`, confirmed);
+    expect(dealNextTask(clark, confirmed, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/^Pay for .* by its payment deadline, in 4 days \(Nov 18, 2026\)/);
   });
 
   it('a Nevada trustee win left unpaid after the sale day is urgent', () => {
