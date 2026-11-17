@@ -40,7 +40,7 @@ export const negotiate: Lesson = {
     {
       heading: 'Buying a home listed for sale, state by state',
       blocks: [
-        'Most first rentals are bought from a listing, through an agent, on your state’s standard contract. The steps are the same everywhere (offer, deposit, inspection, appraisal, title, closing); the form, the default deadlines and who runs the closing differ.',
+        'Most first rentals are bought from a listing, through an agent, on the standard local purchase contract (usually the Realtors’ form). The steps are the same everywhere (offer, deposit, inspection, appraisal, title, closing); the form, the default deadlines and who runs the closing differ.',
         {
           table: {
             head: ['State', 'Contract and deadlines', 'Who closes'],

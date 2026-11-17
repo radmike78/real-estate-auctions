@@ -38,7 +38,7 @@ export const DOC_GUIDES: DocGuide[] = [
   {
     key: 'contract',
     title: 'Purchase contract: price, deposit, contingencies and notices',
-    from: 'Your agent fills in your state’s standard purchase form with you, before your offer. It becomes a contract when the seller accepts in writing and the acceptance is delivered to you.',
+    from: 'Your agent fills in the standard local purchase form (usually the Realtors’ form) with you, before your offer. It becomes a contract when the seller accepts in writing and the acceptance is delivered to you.',
     parts: [
       { part: 'Price and earnest money', look: 'The price, the deposit amount, who holds it (usually escrow or the title company) and the deadline to deliver it.', who: 'You decide the numbers; your agent writes them in.', example: 'Example only: “Earnest money: $3,000, to Example Title Co., within 3 business days of acceptance.” Your signed contract sets the real deadline and how days are counted.' },
       { part: 'Acceptance or effective date', look: 'The date most deadlines count from. Find the line that says how it’s set, and write the actual date on your calendar.', who: 'Filled in when the last party signs and delivers.', example: '“Is Day 0 the day the seller signed, or the day the signed acceptance was delivered to me?”' },
