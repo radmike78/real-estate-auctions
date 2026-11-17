@@ -694,16 +694,20 @@ describe('Nevada round 4 flow', () => {
     expect(t.label).toMatch(/contact the Treasurer today/);
     expect(t.advance2?.stage).toBe('passed');
     const clark = { ...elko, county: 'Clark' };
-    expect(countyTermsNote(clark, { ...EMPTY_PACKET, dates: [...p.dates, { when: '2026-11-18', what: 'Payment deadline', who: '' }] })).toMatch(/1:00 p.m. Nevada time on the sale day \(Nov 12, 2026\), before the date you typed \(Nov 18, 2026\)/);
+    expect(countyTermsNote(clark, { ...EMPTY_PACKET, dates: [...p.dates, { when: '2026-11-18', what: 'Payment deadline', who: '' }] })).toMatch(/You typed a later payment date \(Nov 18, 2026\)/);
     expect(countyTermsNote(clark, { ...EMPTY_PACKET, dates: [...p.dates, { when: '2026-11-12', what: 'Payment deadline', who: '' }] })).toBe('');
+    // A later typed date keeps the county's own steps, even weeks later.
+    const far = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-12-01', what: 'Payment deadline', who: '' }] };
+    savePacket(`analyzed:${clark.id}`, far);
+    expect(dealNextTask(clark, far, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/^Did you pay for .*\(Dec 1, 2026\)/);
     // Your next action leads with the county's deadline, not the later typed one.
     const typed = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-11-18', what: 'Payment deadline', who: '' }] };
     savePacket(`analyzed:${clark.id}`, typed);
-    expect(dealNextTask(clark, typed, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/^Clark County’s terms say payment for .* was due by 1:00 p.m..*Did you pay\?/);
+    expect(dealNextTask(clark, typed, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/^Did you pay for .*You typed a later payment date \(Nov 18, 2026\)/);
     expect(dealNextTask(clark, typed, new Date('2026-11-14T18:00:00Z'), 'contract').advance2?.stage).toBe('passed');
     expect(dealNextTask(clark, typed, new Date('2026-11-14T18:00:00Z'), 'contract').days).toBe(-1);
     // Before the county's time it is still due, with no 'didn't pay' answer yet.
-    expect(dealNextTask(clark, typed, new Date('2026-11-12T18:00:00Z'), 'contract').label).toMatch(/is due by 1:00 p.m./);
+    expect(dealNextTask(clark, typed, new Date('2026-11-12T18:00:00Z'), 'contract').label).toMatch(/^Pay for .* by 1:00 p.m. Nevada time today.*You typed a later payment date/);
   });
 
   it('a Nevada trustee win left unpaid after the sale day is urgent', () => {
