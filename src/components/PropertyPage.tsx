@@ -39,7 +39,7 @@ import { defaultsFor } from '../lib/bidCalc';
 import { playbookByKey, playbookForSale } from '../lib/playbooks';
 import { ago } from '../lib/time';
 import OwlNote from './OwlNote';
-import { analyzeHref } from '../lib/analyze';
+import { analyzeHref, saleKindOf } from '../lib/analyze';
 import AdSpot from './AdSpot';
 
 /** The property's own state, so its status text drops other states' detail. */
@@ -325,7 +325,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
           )}
           <StrategyTabs
             strategies={[
-              { key: 'flip', label: 'Fix and flip (fix and sell)', about: (p.sale?.saleType === 'REO' ? 'The most you can offer' : 'The most you can bid') + ' and still make your profit when you fix it up and sell it.', render: () => <BidCalculator key={calcVersion} propertyId={p.id} defaults={bidDefaults} openingBid={s?.minimumBid ?? null} commercial={commercial} offer={p.sale?.saleType === 'REO'} /> },
+              { key: 'flip', label: 'Fix and flip (fix and sell)', about: (p.sale?.saleType === 'REO' ? 'The most you can offer' : 'The most you can bid') + ' and still make your profit when you fix it up and sell it.', render: () => <BidCalculator key={calcVersion} propertyId={p.id} defaults={bidDefaults} openingBid={s?.minimumBid ?? null} commercial={commercial} offer={p.sale?.saleType === 'REO'} helpKind={p.sale?.saleType ? saleKindOf(p.sale.saleType) : undefined} /> },
               commercial
                 ? { key: 'commercial', label: 'Commercial income', about: (p.sale?.saleType === 'REO' ? 'The most you can offer' : 'The most you can bid') + ' for the building’s income, counting the months it takes to lease it up.', render: () => <CommercialCalculator storageKey={`fsf.calc.commercial.${p.id}.v1`} start={buyFromBid(bidDefaults)} offer={p.sale?.saleType === 'REO'} /> }
                 : { key: 'rent', label: 'Buy and hold (keep and rent)', about: (p.sale?.saleType === 'REO' ? 'The most you can offer' : 'The most you can bid') + ' and still get your return on the cash you leave in, with or without a loan afterward.', render: () => <RentCalculator storageKey={`fsf.calc.rent.${p.id}.v1`} start={buyFromBid(bidDefaults)} offer={p.sale?.saleType === 'REO'} /> },
@@ -462,7 +462,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             <div className="key"><dt>{priceLabel}</dt><dd>{fmtMoney(money.minimumBid)}</dd></div>
             <div><dt>Est. market value</dt><dd>{notChecked(p.estimatedMarketValue, 'Your comps')}</dd></div>
             <div><dt>Liens likely {s ? 'surviving' : 'remaining'}</dt><dd className={money.likelySurviving ? 'caution' : ''}>{p.liensChecked === false ? <span className="muted">Not searched</span> : fmtMoney(money.likelySurviving)}</dd></div>
-            <div><dt>Spread before costs</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{notChecked(money.estimatedEquity, 'Needs your numbers')}{money.uncertain > 0 && money.estimatedEquity !== null && <span className="muted small" style={{ display: 'block' }}>Leaves out {fmtMoney(money.uncertain)} of liens that may survive</span>}</dd></div>
+            <div><dt>Spread before costs</dt><dd className={money.estimatedEquity !== null && money.estimatedEquity < 0 ? 'neg' : ''}>{notChecked(money.estimatedEquity, 'Needs your numbers')}{money.uncertain > 0 && money.estimatedEquity !== null && <span className="muted small" style={{ display: 'block' }}>Leaves out {fmtMoney(money.uncertain)} of liens that may survive. If they do, the spread is {money.estimatedEquity - money.uncertain < 0 ? `−${fmtMoney(money.uncertain - money.estimatedEquity)}` : fmtMoney(money.estimatedEquity - money.uncertain)}; the bid calculator counts them.</span>}</dd></div>
           </dl>
         )}
       </PageHero>

@@ -546,6 +546,9 @@ const SALE_KIND_OF: Record<SaleType, SaleKind> = {
   REO: 'reo',
 };
 
+/** The kind of sale a listing's sale type stands for. */
+export const saleKindOf = (t: string): SaleKind | undefined => SALE_KIND_OF[t as SaleType];
+
 /** "#/analyze?name=…&state=NV&county=Clark&kind=taxSale" for a listing, or null if its state or county isn't covered. */
 export function analyzeHref(p: { address: string; city?: string; state: string; county: string; saleType?: string }): string | null {
   const st = stateByCode(p.state);

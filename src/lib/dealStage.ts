@@ -1259,7 +1259,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     // with an answer that ticks the row without dating it the day before closing.
     const earnestAsk = (t0: PlanTask, days: number, when: string, due?: string): PlanTask => {
       const n = d.name || 'this property';
-      const label = `Closing for ${n} is ${days === 0 ? 'today' : days === 1 ? 'tomorrow' : `in ${days} days`} (${prettyDay(when)}), and the earnest money${due ? ` (due ${prettyDay(due)})` : ''} isn’t marked received: did escrow receive it? It was due when your contract says, usually within a few days of acceptance*. If it wasn’t sent, call your agent and escrow ${days <= 1 ? 'today' : 'now'}.`;
+      const label = `Closing for ${n} is ${days === 0 ? 'today' : days === 1 ? 'tomorrow' : `in ${days} days`} (${prettyDay(when)}), and the earnest money${due ? ` (due ${prettyDay(due)})` : ''} isn’t marked received: did escrow receive it?${due ? '' : ' It was due when your contract says, usually within a few days of acceptance*.'} If it wasn’t sent, call your agent and escrow ${days <= 1 ? 'today' : 'now'}.`;
       return { ...t0, days, urgent: days <= 1, label, text: label, ...(t0.tick ? { tick: { ...t0.tick, label: 'Escrow has it: mark it handled', noDate: true } } : {}) };
     };
     if (nd && stage === 'contract' && wayOf(d) === 'offer' && sameDate(nd.what, 'Earnest money due') && nd.days < 0) {
