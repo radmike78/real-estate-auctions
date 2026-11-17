@@ -6,7 +6,7 @@ import EvidenceLog, { DecisionGate } from './EvidenceLog';
 import { kindLabel, loadDeals, openDeal, SALE_KINDS } from '../lib/analyze';
 import { countyName } from '../lib/regions';
 import { PACKET_KEY, laterRow, MAX_DATES, sidDeadline, calendarRows, dateRowComplete, roleTitleFor, dateGuide, calendarReady, sameDate, dealPacketText, FIT_LABEL, loadPacket, packetSections, savePacket, suggestedDates, type Fit, type PacketData, type SectionStatus, teamRolesFor } from '../lib/dealPacket';
-import { RECORDED_ROWS, keyDatesAsked, overdueIntro, sameEvent } from '../lib/dealPacket';
+import { missingUsualDates, keyDatesAsked, overdueIntro, sameEvent } from '../lib/dealPacket';
 import { TEAM_ROLES } from '../lib/myPlan';
 import { downloadText, fileName } from '../lib/download';
 import { EVIDENCE_EVENT, loadLog } from '../lib/evidence';
@@ -14,7 +14,7 @@ import OwlNote from './OwlNote';
 import AdSpot from './AdSpot';
 import OwnedTracker from './OwnedTracker';
 import { useNoIndex } from '../lib/noindex';
-import { saleDayOdd, certificateFirst, lawRedemptionEnd, redeemedIn, fixRedemptionRows, redemptionMarkWait,  unpaidAfterSale, beforeDeed, beforeWhat, clarkWinnerPast, nvLienDueLikelyPassed, nvLienDueToday, paidAtWin, sealedBid, fillSealedDay, decideAnswered, recordParts, asksHome, voidByLaw, forCalendar, liveIn, setDealHome, sidState, trackerAsksHome, behindStage, NO_SID_ROW, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageOf } from '../lib/dealStage';
+import { saleDayOdd, certificateFirst, lawRedemptionEnd, redeemedIn, fixRedemptionRows, redemptionMarkWait,  unpaidAfterSale, beforeDeed, beforeWhat, clarkWinnerPast, nvLienDueLikelyPassed, nvLienDueToday, paidAtWin, sealedBid, fillSealedDay, decideAnswered, recordParts, asksHome, voidByLaw, forCalendar, liveIn, setDealHome, sidState, trackerAsksHome, prettyDay, redeemingNow, wayOf, DEED_AFTER_WAIT, dealNextTask, finishedDeal, REDEEMED_ROW, setDealStage, soldOf, stageHint, stageOf } from '../lib/dealStage';
 import { PROGRESS_EVENT } from '../lib/roadmapState';
 import { planNow } from '../lib/planNext';
 import TaskActions from './TaskActions';
@@ -111,9 +111,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
   const boughtNoDates = wayOf(deal) === 'offer' && ['closed', 'owned'].includes(stageOf(deal)) && p.dates.length === 0;
   // Usual dates removed (or added since the packet was started): add back only those, at the end.
   // (Past the sale, not the dates already behind it; once redeemed, not the deed.)
-  const behind = wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? [] : behindStage(deal, finishedDeal(deal) ? 'closed' : stageOf(deal));
-  const redeemed = p.dates.some((x) => sameDate(x.what, REDEEMED_ROW));
-  const missingUsual = p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x.what, w)) && !behind.some((b) => sameDate(w, b)) && !(redeemed && sameDate(w, DEED_AFTER_WAIT)) && !(sidState(deal) === 'void' && (RECORDED_ROWS.some((r) => sameDate(w, r)) || sameDate(w, 'Recovery-suit window ends') || sameDate(w, 'SID certificate payoff'))) && !(sameDate(w, 'SID certificate payoff') && p.dates.some((x) => sameDate(x.what, NO_SID_ROW)))) : [];
+  const missingUsual = missingUsualDates(deal, p);
   const pastSale = ['closed', 'owned'].includes(stageOf(deal)) || finishedDeal(deal) || wonAuction || sidState(deal) === 'void';
   // The parts from before you bought: records now, not homework.
   // (After the closing or the deed, the evidence log and the questions were for before you bought: records too.)
@@ -133,7 +131,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
     const s = sec(k);
     return (
       <>
-        <ul className="packet-lines">{s.lines.map((l, i) => <li key={i}>{k === 'dates' && l === 'All dated items are marked handled.' && missingUsual.length && !finalDeal ? `Every date entered is marked handled. Still to add: ${missingUsual.join('; ')} (use “Add the usual dates that are missing” above).` : l}</li>)}</ul>
+        <ul className="packet-lines">{s.lines.map((l, i) => <li key={i}>{k === 'dates' && l === 'All dated items are marked handled.' && missingUsual.length && !finalDeal ? `Every date entered is marked handled. Still to add: ${missingUsual.filter((w: string) => !/\(if /.test(w)).join('; ') || missingUsual.join('; ')} (use “Add the usual dates that are missing” above).` : l}</li>)}</ul>
         {s.fix && <p><a href={s.fix.href} onClick={s.fix.href === '#/analyze' ? (e) => { e.preventDefault(); openDeal(deal); } : undefined}>{s.fix.label}&nbsp;→</a></p>}
       </>
     );
