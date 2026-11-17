@@ -104,7 +104,7 @@ function calcNote(p: { key: string }) {
   if (kind === 'sid' || kind === 'taxlien') return <>Work out what a certificate earns, counting the wait to be paid, with the <a href="#/analyze?plan=lien">lien calculator</a>.</>;
   if (kind === 'commercial') return <>Set your limit from the building’s income: <a href="#/analyze?plan=commercial">analyze this building’s income</a> (rent, vacancy, operating costs and replacement reserves). For a building you’ll renovate and resell, use <a href="#/analyze?plan=flip">fix and sell</a>.</>;
   if (kind === 'reo' || kind === 'short') return <>Set your maximum offer before you make one: <a href={href('rent')}>to keep and rent it</a>, or <a href={href('flip')}>to fix and sell it</a>.</>;
-  return <>Set your limit before the sale: <a href={href('rent')}>to keep and rent it</a>, or <a href={href('flip')}>to fix and sell it</a>. When you’re ready, <a href="#/find-deals">find your county’s official sale list</a>.</>;
+  return <>Set your limit before the sale: <a href={href('rent')}>to keep and rent it</a>, or <a href={href('flip')}>to fix and sell it</a>. When you’re ready, {kind === 'irs' ? <a href="https://www.irsauctions.gov/">check irsauctions.gov for sales in your state</a> : <a href="#/find-deals">find your county’s official sale list</a>}.</>;
 }
 
 /** The county Analyze starts in for a guide's state, when the reader hasn't picked one there. */
@@ -177,7 +177,7 @@ export function sections(p: Playbook): DrillSection[] {
       key: 'sources',
       title: 'Official sources',
       icon: <IconFile />,
-      summary: `${p.sources.length} official pages · reviewed ${fmtDate(p.lastReviewed)}`,
+      summary: `${p.sources.length} official ${p.sources.length === 1 ? 'page' : 'pages'} · reviewed ${fmtDate(p.lastReviewed)}`,
       content: () => (
         <>
           <ul className="source-links">

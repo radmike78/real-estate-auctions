@@ -476,7 +476,7 @@ const TAX: Flow = {
   ],
 };
 
-const sidPrice = (p: PracticeProperty) => (p.hasBuilding ? (commercial(p) ? 18_500 : 2_400) : 1_300);
+export const sidPrice = (p: PracticeProperty) => (p.hasBuilding ? (commercial(p) ? 18_500 : 2_400) : 1_300);
 
 const SID: Flow = {
   key: 'sid',
@@ -1328,7 +1328,7 @@ export function buildScenario(sale: SaleKey, p: PracticeProperty): Scenario | nu
       tasks: [{ kind: 'checklist', id: 'buyer-checklist', title: checklist.title, intro: checklist.intro, items: checklist.items.map((it) => ({ text: it.text, detail: detailForState(it, 'NV') })) }, ...flow.documents(p, n, a)],
     },
     { key: 'sale', ...flow.saleDay(p, n, a) },
-    { key: 'after', title: 'After the sale', summary: 'Deed, waiting periods, possession and insurance.', tasks: flow.after(p, n, pb) },
+    { key: 'after', title: 'After the sale', summary: sale === 'sid' ? 'Waiting to be repaid, and what happens if the owner never pays.' : 'Deed, waiting periods, possession and insurance.', tasks: flow.after(p, n, pb) },
   ];
 
   return {

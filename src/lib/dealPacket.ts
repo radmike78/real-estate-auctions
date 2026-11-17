@@ -576,7 +576,7 @@ export const overdueIntro = (d: Deal): string => {
     ? (d.state === 'NV'
       ? `You were picked, and the payment deadline (${prettyDay(when)}) has passed. If you paid, mark it handled in Key dates. If you didn’t pay, the parcel is offered again or goes to the city or county (NRS 271.560), so the certificate isn’t yours: mark the deal passed${d.county === 'Clark' ? '. If you were an alternate and it went to someone else, mark the deal passed too' : ''}. Ask ${sellerName(d.kind, d.state)} if you’re unsure.`
       : `You were picked, and the payment deadline (${prettyDay(when)}) has passed: mark it handled in Key dates if you paid, or ask ${sellerName(d.kind, d.state)} now whether the certificate is still yours.`)
-    : `You won the bid, and the payment deadline (${prettyDay(when)}) has passed: mark it handled in Key dates if you paid, or contact ${sellerName(d.kind, d.state)} and an attorney now.${d.id ? sidBeforePay(d, loadPacket(`analyzed:${d.id}`)) : ''}`;
+    : `You won the bid, and the payment deadline (${prettyDay(when)}) has passed: mark it handled in Key dates if you paid, or contact ${sellerName(d.kind, d.state)} and an attorney now.`;
 };
 
 /** When the won bid is due: still ahead, passed (with its date), or already said as passed on the line above. */

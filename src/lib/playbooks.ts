@@ -332,7 +332,7 @@ const NEVADA: Playbook[] = [
       lesson: 'Build the redemption period into holding costs from the start.',
     },
     team: [T.title, T.attorney, T.lender, T.insuranceCert, T.evictionAfterDeed, T.contractor, T.agent],
-    sources: [{ label: 'IRS auctions', url: 'https://www.irsauctions.gov/' }],
+    sources: [{ label: 'IRS auctions', url: 'https://www.irsauctions.gov/' }, { label: '26 U.S.C. 6335 (sale of seized property)', url: 'https://www.law.cornell.edu/uscode/text/26/6335' }, { label: '26 U.S.C. 6337 (redemption of property)', url: 'https://www.law.cornell.edu/uscode/text/26/6337' }, { label: '26 CFR 301.6335-1 (sale of seized property)', url: 'https://www.law.cornell.edu/cfr/text/26/301.6335-1' }],
     lastReviewed: REVIEWED,
   },
   {

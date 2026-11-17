@@ -721,6 +721,12 @@ describe('Nevada round 4 flow', () => {
     savePacket(`analyzed:${clark.id}`, late20);
     expect(dealNextTask(clark, late20, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/Now, ask the Treasurer whether a special improvement district \(SID\) affidavit was filed\. If one was, enter the SID payoff in Key dates and pay it by Dec 2, 2026/);
     expect(dealNextTask(clark, late20, new Date('2026-11-14T18:00:00Z'), 'contract').record?.label).toBe('The Treasurer confirmed no SID affidavit');
+    expect(dealNextTask(clark, late20, new Date('2026-11-14T18:00:00Z'), 'contract').redate?.label).toBe('Yes, there’s an SID affidavit: I’ll pay it by Dec 2, 2026');
+    // Once answered yes (the payoff row dated), only a short reminder stays, with no answer buttons.
+    const yes = { ...late20, dates: [...late20.dates, { when: '2026-12-02', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }] };
+    savePacket(`analyzed:${clark.id}`, yes);
+    expect(dealNextTask(clark, yes, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/SID certificate payoff/);
+    savePacket(`analyzed:${clark.id}`, late20);
     // A payment date a day before the SID deadline warns too; one well before it doesn't.
     const close = { ...late20, dates: late20.dates.map((x) => (x.what === 'Payment deadline' ? { ...x, when: '2026-12-01' } : x.what.startsWith('Treasurer confirmed') ? { ...x, who: 'Treasurer, for Dec 1, 2026' } : x)) };
     savePacket(`analyzed:${clark.id}`, close);

@@ -14,7 +14,7 @@ import { useMyState } from '../lib/myState';
 import { STATES } from '../lib/regions';
 import { exitPlans, buyingCosts } from '../practice/exitPlans';
 import { fmtMoney } from '../lib/status';
-import { scenarioById } from '../practice/scenarios';
+import { scenarioById, sidPrice } from '../practice/scenarios';
 import { firstOpenStage, loadProgress, resetProgress, saveProgress, type ScenarioProgress } from '../practice/progress';
 import type { Scenario, Stage, Task } from '../practice/types';
 import { useNoIndex } from '../lib/noindex';
@@ -153,8 +153,9 @@ function Listing({ s, progress, total, onReset }: { s: Scenario; progress: Scena
         <dl className="practice-facts">
           <div><dt>Parcel number</dt><dd>{p.apn} <span className="small muted">(book 999 isn’t used by the Assessor)</span></dd></div>
           {p.facts.map((f) => <div key={f.label}><dt>{f.label}</dt><dd>{f.value}</dd></div>)}
-          <div><dt>Practice value once repaired</dt><dd>{fmtMoney(p.value)}</dd></div>
-          {p.repairs > 0 && <div><dt>Practice repair estimate</dt><dd>{fmtMoney(p.repairs)} <span className="small muted">(from the outside)</span></dd></div>}
+          {s.sale === 'sid' && <div><dt>Practice certificate price</dt><dd>{fmtMoney(sidPrice(p))} <span className="small muted">(what you’d pay for the lien certificate)</span></dd></div>}
+          <div><dt>{s.sale === 'sid' ? 'Practice value once repaired (only if you ever end up owning it)' : 'Practice value once repaired'}</dt><dd>{fmtMoney(p.value)}</dd></div>
+          {p.repairs > 0 && <div><dt>{s.sale === 'sid' ? 'Practice repair estimate (only if you ever end up owning it)' : 'Practice repair estimate'}</dt><dd>{fmtMoney(p.repairs)} <span className="small muted">(from the outside)</span></dd></div>}
           <div><dt>Occupancy</dt><dd>{p.occupancy === 'Tenants' ? 'Tenants' : p.occupancy === 'Vacant' ? 'Vacant' : 'Unknown'}</dd></div>
         </dl>
         <h3>The sale</h3>

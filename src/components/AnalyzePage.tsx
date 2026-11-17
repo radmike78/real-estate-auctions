@@ -414,7 +414,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     if (!sd) return null;
     // A missed payment: the deal packet's note, pointed at the packet (Analyze has no Key dates or stage menu).
     const inPacket = (t: string) => t.replace('mark it handled in Key dates', 'mark it handled in its deal packet’s Key dates').replace('mark the deal passed', 'mark the deal passed in its deal packet');
-    if (overdueIntro(sd)) return { text: inPacket(overdueIntro(sd)), packet: true };
+    if (overdueIntro(sd)) return { text: `${inPacket(overdueIntro(sd))}${sidBeforePay(sd, loadPacket(`analyzed:${sd.id}`))}`, packet: true };
     // A Nevada tax sale's open SID payoff can void the sale (NRS 361.595(6)): say so before the numbers.
     // A void Nevada tax sale, or one whose SID payoff came late: the numbers wait on the Treasurer (NRS 361.595(6)).
     if (sidState(sd) === 'void') return { text: 'This sale is void: ask the Treasurer in writing for the rest of what you paid* (NRS 361.595(6)). These numbers no longer apply.', packet: true };
