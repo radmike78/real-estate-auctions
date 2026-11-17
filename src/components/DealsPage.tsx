@@ -25,7 +25,7 @@ import { dealNumbers } from '../lib/propertyPacket';
 import { cashShortAfter, noPriceAfter, owedWords, settledCtx, fixedPriceName, pricePhase, flipNeedsRepairs, nextAction, savedNumbers } from '../lib/dealPacket';
 import { investorProfile } from '../lib/myPlan';
 import { capMisses, capText, dscrText, refiValueWords, rentVerdict } from '../lib/holdCalc';
-import { beforeDeed, needsAnswerNow, pressingWeight, redeemingNow, redeemedDeal, sidState, redemptionPast, dealNextTask, finishedDeal, prettyDay, liveIn, soldOf, stageLabel, stageOf, setDealStage } from '../lib/dealStage';
+import { beforeDeed, needsAnswerNow, pressingWeight, redeemingNow, redeemedWin, sidState, redemptionPast, dealNextTask, finishedDeal, prettyDay, liveIn, soldOf, stageLabel, stageOf, setDealStage } from '../lib/dealStage';
 import AdSpot from './AdSpot';
 
 function DealCard({ d, p, loading, known }: { d: SavedDeal; p: Property | undefined; loading: boolean; known: boolean }) {
@@ -214,7 +214,7 @@ function OtherNumbers({ d }: { d: Deal }) {
       return lim > 0 && bid.at.cashPeak > lim && !(bid.at.profit >= bid.target && bid.limitedBy === 'cash') ? ` It also needs about ${fmtMoney(bid.at.cashPeak)} of your cash, with the loan (if any) and costs entered in Fix and flip (${bid.cashLimit > 0 ? (pricePhase(d) ? 'the cash you’re putting in' : 'the cash you entered') : 'My plan'}: ${fmtMoney(lim)}).` : '';
     })()}{whatIfSentence}{askOwn}</p>;
     // The redemption wait the price was built on, and a redemption's result at its end (as the packet says).
-    const redeemClause = redemptionPast(d) || redeemedDeal(d) ? '' : bid.redeem && !bid.redeem.who ? whatIf : bid.redeem && !(bid.redeem.price > 0) ? waitOnly : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait${bid.redeem.shortest ? `, shorter than any period the law sets (at least ${shortestRedemptionWords(d, true)})*` : ''} (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? fixedPriceName(d) ?? 'your bid' : pricePhase(d) && pricePhase(d) !== 'agreed' ? 'the most this plan could have paid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
+    const redeemClause = redemptionPast(d) || redeemedWin(d) ? '' : bid.redeem && !bid.redeem.who ? whatIf : bid.redeem && !(bid.redeem.price > 0) ? waitOnly : bid.redeem ? ` · built on a ${bid.redeem.months}-month redemption wait${bid.redeem.shortest ? `, shorter than any period the law sets (at least ${shortestRedemptionWords(d, true)})*` : ''} (if ${bid.redeem.who} redeems, at ${bid.redeem.source === 'yours' ? fixedPriceName(d) ?? 'your bid' : pricePhase(d) && pricePhase(d) !== 'agreed' ? 'the most this plan could have paid' : 'the walk-away price'}: about ${fmtMoney(Math.round(Math.abs(bid.redeem.net)))} ${bid.redeem.net < 0 ? 'short' : 'ahead'}*)` : '';
     const planCash = investorProfile().investable;
     // The same rule as Fix and sell: no warning once a cash limit is entered there (the price is already capped by it).
     const short = !(bid.cashLimit > 0) && !bid.cashTyped && planCash > 0 && bid.cashPeak > planCash;
@@ -319,7 +319,7 @@ export default function DealsPage() {
                       {d.practice && !savingPractice() && stageOf(d) !== 'passed' && <button type="button" className="btn btn-secondary" onClick={() => { makeRealDeal(d.id); setAnalyzed(loadAnalyzed()); progressChanged(); setMadeReal(d.id); /* the button goes away: a short line says what changed, and focus moves there */ setTimeout(() => document.getElementById(`made-real-${d.id}`)?.focus(), 0); }}>Make it a real deal</button>}
                     </div>
                   </div>
-                  {redeemedDeal(d) ? <p className="muted small">Redeemed: its evidence log is kept as a record in its <a href={`#/deals/packet/${d.id}`}>deal packet</a>.</p> : finishedDeal(d) ? <p className="muted small">Finished: its evidence log and records stay in its <a href={`#/deals/packet/${d.id}`}>deal packet</a>.</p> : ['closed', 'owned'].includes(stageOf(d)) ? <p className="muted small">{d.kind === 'lien' ? 'Certificate held' : beforeDeed(d) ? 'Certificate of sale (no deed yet)' : 'Bought'}: its evidence log is kept as a record in its <a href={`#/deals/packet/${d.id}`}>deal packet</a>.</p> : <EvidenceLog dealId={`analyzed:${d.id}`} name={d.name} kind={d.kind} onPass={stageOf(d) === 'passed' ? undefined : () => { setDealStage(d.id, 'passed'); setAnalyzed(loadAnalyzed()); }} />}
+                  {redeemedWin(d) ? <p className="muted small">Redeemed: its evidence log is kept as a record in its <a href={`#/deals/packet/${d.id}`}>deal packet</a>.</p> : finishedDeal(d) ? <p className="muted small">Finished: its evidence log and records stay in its <a href={`#/deals/packet/${d.id}`}>deal packet</a>.</p> : ['closed', 'owned'].includes(stageOf(d)) ? <p className="muted small">{d.kind === 'lien' ? 'Certificate held' : beforeDeed(d) ? 'Certificate of sale (no deed yet)' : 'Bought'}: its evidence log is kept as a record in its <a href={`#/deals/packet/${d.id}`}>deal packet</a>.</p> : <EvidenceLog dealId={`analyzed:${d.id}`} name={d.name} kind={d.kind} onPass={stageOf(d) === 'passed' ? undefined : () => { setDealStage(d.id, 'passed'); setAnalyzed(loadAnalyzed()); }} />}
                 </li>
               );
             })}

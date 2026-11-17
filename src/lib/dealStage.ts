@@ -88,20 +88,17 @@ const HOMES_SETTLED_KEY = 'deedowl.homes-settled.v1';
 export const lawRedemptionEnd = (d: Deal, p: PacketData): string => {
   if (!certificateFirst(d)) return '';
   const rest = p.dates.filter((x) => !sameDate(x.what, 'Redemption period ends'));
-  const fromSale = redemptionEnd(d, { ...p, dates: rest });
-  if (fromSale) return fromSale;
-  // (No Sale day: a later row from the sale, such as the certificate or the payment, bounds it; counting from it gives an
-  // end no earlier than the law's.)
-  const anchor = rest.filter((x) => x.when && ['Certificate of sale recorded', 'Certificate of sale received', 'Payment deadline'].some((r) => sameDate(x.what, r))).map((x) => x.when).sort()[0];
-  return anchor ? redemptionEnd(d, { ...p, dates: [...rest, { when: anchor, what: 'Sale day', who: '' }] }) : '';
+  // (Counted only from the Sale day, as the law counts it: with none, the end can't be worked out.)
+  return redemptionEnd(d, { ...p, dates: rest });
 };
 
 export function redemptionMarkWait(d: Deal, p: PacketData, now: Date = new Date()): string {
   if (!certificateFirst(d) || redeemedIn(p)) return '';
   const typed = p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when ?? '';
   const law = lawRedemptionEnd(d, p);
-  const end = typed && law ? (typed > law ? typed : law) : typed || law;
-  if (!end) return 'no-sale';
+  // (Without a Sale day the law's end can't be worked out, so a typed end alone isn't enough: the Sale day comes first.)
+  if (!law) return 'no-sale';
+  const end = typed && typed > law ? typed : law;
   return end >= dayOf(d, now) ? end : '';
 }
 
@@ -658,6 +655,8 @@ export const earlyMoveNote = (d: Deal, pick: DealStage) => {
   return p.dates.some((x) => sameDate(x.what, 'Payment deadline') && !x.resolved) ? 'The payment isn’t marked yet. If you paid, mark it in Your next action or Key dates first, so its next steps stay right.' : '';
 };
 /** The deal is marked redeemed (someone bought it back). */
+/** A won sale someone redeemed (not a lien certificate the owner paid off). */
+export const redeemedWin = (d: { id?: string; kind?: Deal['kind'] }) => d.kind !== 'lien' && redeemedDeal(d);
 export const redeemedDeal = (d: { id?: string }) => !!d.id && redeemedIn(loadPacket(`analyzed:${d.id}`));
 /** A deal that's finished: a sold flip, or a redemption repaid. */
 export const finishedDeal = (d: { id?: string }) => !!soldOf(d) || redeemedOf(d);
@@ -997,7 +996,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       }));
     } else {
       area('terms', `Have the funds the sale requires for ${n}`, sealedBid(d) ? 'the full payment ready to enclose with your sealed bid, in a form the county takes (a card is charged only when your bid wins, so keep it available until then), noted in its evidence log' : 'the money ready in the form the sale requires before sale day, noted in its evidence log', [L.guides]);
-      out.push(task({ key: 'dates', label: `Put ${n}’s sale dates on its calendar`, produces: `${suggestedDates(d).slice(0, 3).join(', ').toLowerCase()} on one calendar, with the next one shown here`, href: packetHref(d, 'dates'), support: [L.guides], done: calendarComplete(forCalendar(d, p, stage), stage) }));
+      out.push(task({ key: 'dates', label: `Put ${n}’s sale dates on its calendar`, produces: `${suggestedDates(d).slice(0, 3).map((x, i) => (i === 0 ? x : x.replace(/^[A-Z](?=[a-z])/, (c) => c.toLowerCase()))).join(', ')} on one calendar, with the next one shown here`, href: packetHref(d, 'dates'), support: [L.guides], done: calendarComplete(forCalendar(d, p, stage), stage) }));
       if (stage === 'offer') out.push(task({ key: 'qa', label: `Ask your title company or attorney your questions about ${n}`, produces: `their answers, with dates, in its deal packet (${w === 'lien' ? 'what the certificate gives you and how it’s paid off' : `what survives the sale, possession${d.state === 'NV' && d.kind === 'trustee' ? ', and the challenge window' : ''}`})`, href: packetHref(d, 'pros'), support: [L.pro('title'), L.pro('attorney')], done: p.qa.some((x) => x.q.trim() && x.a.trim()) }));
       const bidTask = task({
         key: 'bid',

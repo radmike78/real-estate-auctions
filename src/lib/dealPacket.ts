@@ -18,7 +18,7 @@ import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
 import { dealProgress } from './roadmapState';
-import { redeemedDeal, redemptionOver, dayOf, readerDay, SEALED_ROW, sidBeforePay, treasurerGave, taxPayState, sidFirst, saleOverFor, sealedDay, nvNow, dealNextTask, nvPayDays, paidAtWin, paymentPassed, sellerName, sellerShort, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
+import { redeemedDeal, redeemedWin, redemptionOver, dayOf, readerDay, SEALED_ROW, sidBeforePay, treasurerGave, taxPayState, sidFirst, saleOverFor, sealedDay, nvNow, dealNextTask, nvPayDays, paidAtWin, paymentPassed, sellerName, sellerShort, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -1346,7 +1346,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   // Asked once: a second 'Enter your winning bid … to check/see …' in the same section is dropped.
   { const ask = /(?:^| )Enter [^.]+ in [^.]+ to (?:check|see) [^.]+\./; let asked = false; for (let k = 0; k < cash.length; k++) if (ask.test(cash[k])) { if (asked) cash[k] = cash[k].replace(ask, '').trim(); asked = true; } for (let k = cash.length - 1; k >= 0; k--) if (!cash[k]) cash.splice(k, 1); }
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
-  out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: [...(redeemedDeal(d) ? [REDEEMED_NOTE] : []), ...(stageOf(d) === 'passed' ? passedCash(cash, d) : cash.map((t) => settledWords(t, pricePhase(d), settledCtx(d))))], fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
+  out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: [...(redeemedWin(d) ? [REDEEMED_NOTE] : []), ...(stageOf(d) === 'passed' ? passedCash(cash, d) : cash.map((t) => settledWords(t, pricePhase(d), settledCtx(d))))], fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
   // 5. Numbers: base and downside, for the deal's strategy only
   const nums: string[] = ['Returns, profit and cash flow are before income tax; personal taxes and depreciation are not included.', `Strategy: ${strategyLine}. These are the numbers you saved in its calculator; other strategies’ calculators aren’t counted.`];
@@ -1412,7 +1412,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   else if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
   // Done only once there's a downside to look at, not just the base case.
   const downside = !!lien || (rent && rent.stress.length > 1) || (bid && bid.stress.length > 1) || (commercial && (commercial.none || commercial.stress.length > 0));
-  out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: downside && !bid?.unentered.length ? 'done' : hasNums || flipNeedsRepairs(d) ? 'started' : 'missing', lines: [...(redeemedDeal(d) ? [REDEEMED_NOTE] : []), ...nums.map((t) => settledWords(t, pricePhase(d), settledCtx(d)))], fix: { label: 'Open in Analyze', href: '#/analyze' } });
+  out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: downside && !bid?.unentered.length ? 'done' : hasNums || flipNeedsRepairs(d) ? 'started' : 'missing', lines: [...(redeemedWin(d) ? [REDEEMED_NOTE] : []), ...nums.map((t) => settledWords(t, pricePhase(d), settledCtx(d)))], fix: { label: 'Open in Analyze', href: '#/analyze' } });
 
   // 6. Evidence
   const areas = areasFor(d.kind, liveIn(d));

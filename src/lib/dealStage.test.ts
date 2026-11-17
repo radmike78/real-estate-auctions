@@ -424,7 +424,7 @@ describe('Nevada round 4 flow', () => {
     const signed = { ...EMPTY_PACKET, dates: [{ when: '2026-10-05', what: 'Contract signed', who: 'Agent' }] };
     expect(dealNextTask({ ...nvFlip, kind: 'short', plan: 'rent' }, signed, now, 'contract').label).toMatch(/^Send the earnest money/);
     const hoa = { ...nvFlip, kind: 'hoa' as const };
-    const wait = { ...EMPTY_PACKET, dates: [{ when: '2026-10-09', what: 'Redemption period ends', who: 'Former owner' }] };
+    const wait = { ...EMPTY_PACKET, dates: [{ when: '2026-08-10', what: 'Sale day', who: 'Agent', resolved: true }, { when: '2026-10-09', what: 'Redemption period ends', who: 'Former owner' }] };
     const t = dealNextTask(hoa, wait, now, 'closed');
     expect(t.advance2?.addRow?.what).toBe('Redemption money collected');
     // It was redeemed: the payoff comes first, and finishes as "Redeemed (repaid)".
@@ -473,9 +473,9 @@ describe('Nevada round 4 flow', () => {
     const hoa = { ...nvFlip, kind: 'hoa' as const };
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-08-01', what: 'Sale day', who: 'Agent', resolved: true }, { when: '', what: 'Redemption money collected', who: 'The person who redeemed' }] };
     expect(calendarReady(p, 'closed')).toBe(true);
-    const owned = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Redemption period ends', who: 'Owner' }, { when: '2026-09-20', what: 'Deed delivered (if no one redeemed)', who: 'Agent' }] };
+    const owned = { ...EMPTY_PACKET, dates: [{ when: '2026-07-03', what: 'Sale day', who: 'Agent', resolved: true }, { when: '2026-09-01', what: 'Redemption period ends', who: 'Owner' }, { when: '2026-09-20', what: 'Deed delivered (if no one redeemed)', who: 'Agent' }] };
     expect(dealNextTask({ ...hoa, plan: 'rent' }, owned, now, 'owned').urgent).toBeFalsy();
-    const t = dealNextTask(hoa, { ...EMPTY_PACKET, dates: [owned.dates[0]] }, now, 'closed');
+    const t = dealNextTask(hoa, { ...EMPTY_PACKET, dates: [owned.dates[0], owned.dates[1]] }, now, 'closed');
     expect(t.answer).toBe(true);
     expect(t.advance2?.addRow?.what).toBe('Redemption money collected');
   });
@@ -518,7 +518,7 @@ describe('Nevada round 4 flow', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-06', what: 'Sale day', who: 'Trustee' }, { when: '2026-10-06', what: 'Payment deadline', who: 'Me' }] };
     expect(dealNextTask(nvFlip, p, now, 'contract').label).toMatch(/payment deadline/i);
     const hoa = { ...nvFlip, kind: 'hoa' as const };
-    const d = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Redemption period ends', who: 'Owner', resolved: true }, { when: '2026-10-04', what: 'Deed delivered (if no one redeemed)', who: 'Agent' }] };
+    const d = { ...EMPTY_PACKET, dates: [{ when: '2026-07-03', what: 'Sale day', who: 'Agent', resolved: true }, { when: '2026-09-01', what: 'Redemption period ends', who: 'Owner', resolved: true }, { when: '2026-10-04', what: 'Deed delivered (if no one redeemed)', who: 'Agent' }] };
     const t = dealNextTask(hoa, d, now, 'closed');
     expect(t.tick?.label).toBe('I have the deed, and it’s recorded: mark it handled');
     expect(t.urgent).toBe(false);
@@ -2308,11 +2308,12 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(q.dates.find((x) => x.what === 'Deed delivered (if no one redeemed)')!.resolved).toBe(false);
   });
 
-  it('round 98: with no Sale day, the certificate date bounds a typed redemption end', async () => {
+  it('round 98: with no Sale day, a typed redemption end waits for the Sale day (the law counts from it)', async () => {
     const { redemptionMarkWait } = await import('./dealStage');
     const sh: Deal = { ...deal, id: 's98', name: '45 Elm Ave', state: 'NV', county: 'Clark', kind: 'court', plan: 'flip', stage: 'closed' };
     saveDeals([sh]);
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-08-03', what: 'Certificate of sale recorded', who: 'County', resolved: true }, { when: '2026-09-04', what: 'Redemption period ends', who: 'Sheriff' }] };
-    expect(redemptionMarkWait(sh, p, new Date('2026-11-17T20:00:00Z'))).toMatch(/^2027-08/);
+    expect(redemptionMarkWait(sh, p, new Date('2026-11-17T20:00:00Z'))).toBe('no-sale');
+    expect(dealNextTask(sh, p, new Date('2026-11-17T20:00:00Z'), 'closed').label).toMatch(/^Enter the Sale day/);
   });
 });
