@@ -12,7 +12,7 @@ import { lessonByKey } from '../lib/lessons';
 import type { Lesson, LessonBlock } from '../lib/lessons/types';
 import { useMarkStep } from '../lib/path';
 import { fmtDate } from '../lib/status';
-import { dropStateLead, forStateText, showFor, mentionsOtherState, statesOf, useMyState } from '../lib/myState';
+import { dropStateLead, forStateText, nameYourState, showFor, mentionsOtherState, statesOf, useMyState } from '../lib/myState';
 import { STATES, type StateCode } from '../lib/regions';
 import StatePicker from './StatePicker';
 import WhyBlock from './WhyBlock';
@@ -39,6 +39,7 @@ export function oneState(text: string, st: StateCode | null): string {
   return text
     .replace(/\s*Choose your state (?:above|below) to see only its [^.]*\./g, '')
     .replace(/\b(in|across) (?:all five states|Nevada, California, Arizona, Utah and Texas)\b/g, `$1 ${nameOf(st)}`)
+    .replace(/[^]*/, (t) => nameYourState(t, st))
     .trim();
 }
 
@@ -226,7 +227,7 @@ export default function LessonPage({ lessonKey, section, state }: { lessonKey: s
     .filter((s) => showFor(st, s.heading))
     .map((s) => ({
       id: lessonSectionId(s.heading),
-      heading: st ? dropStateLead(s.heading, st).replace(/, state by state$/, '') : s.heading,
+      heading: st ? nameYourState(dropStateLead(s.heading, st).replace(/, state by state$/, ''), st) : s.heading,
       blocks: s.blocks.map((b) => forState(b, st)).filter((b): b is LessonBlock => b !== null),
     }))
     .filter((s) => s.blocks.length > 0);

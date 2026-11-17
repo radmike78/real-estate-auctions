@@ -130,7 +130,7 @@ export const forStateText = (state: StateCode | null, text: string) => {
     })
     .map((x) => dropStateLead(x, state))
     .join(' ')
-    // (A general "your state" reads as the chosen state's name.)
-    .replace(/\b[Yy]our state’s\b/g, `${NAME_OF[state]}’s`)
-    .replace(/\b[Yy]our state\b/g, NAME_OF[state]);
+    .replace(/[^]*/, (t) => nameYourState(t, state));
 };
+/** A general "your state" read as the chosen state's name (never in "Choose your state above…", which pages drop). */
+export const nameYourState = (text: string, state: StateCode | null): string => (state ? text.replace(/(?<!Choose )\b[Yy]our state’s\b/g, `${NAME_OF[state]}’s`).replace(/(?<!Choose )\b[Yy]our state\b/g, NAME_OF[state]) : text);

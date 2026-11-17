@@ -764,6 +764,13 @@ describe('Nevada round 4 flow', () => {
     // The county's own payment question leads over the SID payoff until the bid is answered.
     expect(t.label).toMatch(/^Did you pay for .*1:00 p\.m\. Nevada time on the sale day/);
     expect(t.advance2?.stage).toBe('passed');
+    // After day 20 with the SID payoff dated and open, the county step carries its answers.
+    expect(dealNextTask(tax, p, new Date('2026-12-04T18:00:00Z'), 'contract').record?.label).toBe('I paid the SID payoff by Dec 2, 2026: mark it handled');
+    // A void sale has no county payment step.
+    const voided = { ...EMPTY_PACKET, dates: [...p.dates, { when: '2026-12-04', what: 'The sale is void (the SID payoff wasn’t made within 20 days, NRS 361.595(6))', who: 'You', resolved: true }] };
+    savePacket(`analyzed:${tax.id}`, voided);
+    expect(dealNextTask(tax, voided, new Date('2026-12-04T18:00:00Z'), 'contract').label).not.toMatch(/^Did you pay for/);
+    savePacket(`analyzed:${tax.id}`, p);
     // Washoe, sale today, with an SID payoff row added: the payment due tomorrow still leads.
     const wa = { ...tax, county: 'Washoe' };
     const wp = { ...EMPTY_PACKET, dates: [{ when: '2026-11-17', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '', what: 'Payment deadline', who: '' }, { when: '2026-12-07', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }] };
