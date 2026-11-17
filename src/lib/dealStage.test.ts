@@ -2353,16 +2353,18 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(c.advance).toBeUndefined();
   });
 
-  it('round 100: a won auction’s mistyped Sale day comes first, before any redemption step', async () => {
+  it('round 101: a won auction’s Sale day that can’t fit its other dates gets advice naming the other date, without blocking', async () => {
     const { saleDayOdd } = await import('./dealStage');
-    const hoa: Deal = { ...deal, id: 'y100', name: '2 Ash', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'closed' };
+    const hoa: Deal = { ...deal, id: 'y101', name: '2 Ash', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'closed' };
     saveDeals([hoa]);
-    const p = { ...EMPTY_PACKET, dates: [{ when: '2025-11-10', what: 'Sale day', who: 'A', resolved: true }, { when: '2026-11-12', what: 'Certificate of sale recorded', who: 'County', resolved: true }] };
-    savePacket(`analyzed:${hoa.id}`, p);
     const now = new Date('2026-11-17T20:00:00Z');
-    expect(saleDayOdd(hoa, p, now)).toMatch(/months before/);
-    const t = dealNextTask(hoa, p, now, 'closed');
-    expect(t.label).toMatch(/^Check the Sale day/);
-    expect(JSON.stringify(t)).not.toMatch(/No one redeemed/);
+    // Tracking a win months later: the certificate dated today doesn't make the Sale day look wrong.
+    const late = { ...EMPTY_PACKET, dates: [{ when: '2026-03-10', what: 'Sale day', who: 'A', resolved: true }, { when: '2026-11-17', what: 'Certificate of sale recorded', who: 'County', resolved: true }] };
+    expect(saleDayOdd(hoa, late, now)).toBe('');
+    // A postponed sale whose payment date wasn't moved: both dates are named.
+    const moved = { ...EMPTY_PACKET, dates: [{ when: '2026-10-20', what: 'Sale day', who: 'A', resolved: true }, { when: '2026-10-06', what: 'Payment deadline', who: 'A', resolved: true }] };
+    expect(saleDayOdd(hoa, moved, now)).toMatch(/after “Payment deadline” \(Oct 6, 2026\).*check both dates/);
+    savePacket(`analyzed:${hoa.id}`, moved);
+    expect(dealNextTask(hoa, moved, now, 'closed').label).not.toMatch(/^Check the Sale day/);
   });
 });

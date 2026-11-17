@@ -96,20 +96,17 @@ export const withEffectiveEnd = (d: Deal, p: PacketData): PacketData => {
 };
 
 /**
- * Why a won auction's Sale day looks mistyped ('' when it looks fine): after today, after a date that comes from the
- * sale, or months before the payment or certificate date.
+ * A won auction's Sale day that can't be right next to its other dates ('' when they fit): after today (in the deal
+ * state's day), or after a date that comes from the sale. Advice only, shown on the Key dates row: either date may be
+ * the wrong one.
  */
 export function saleDayOdd(d: Deal, p: PacketData, now: Date = new Date()): string {
-  if (wayOf(d) !== 'auction' || !['contract', 'closed', 'owned'].includes(stageOf(d))) return '';
+  if (wayOf(d) !== 'auction' || !['contract', 'closed', 'owned'].includes(stageOf(d)) || finishedDeal(d)) return '';
   const sd = p.dates.find((x) => sameEvent(x.what, 'Sale day') && x.when)?.when;
   if (!sd) return '';
-  const today = dayOf(d, now);
-  const gap = (a: string, b: string) => Math.round((Date.parse(`${a}T12:00:00Z`) - Date.parse(`${b}T12:00:00Z`)) / 864e5);
-  const later = p.dates.filter((y) => y.when && ['Payment deadline', 'Certificate of sale recorded', 'Certificate of sale received', 'Trustee’s deed recorded', 'Deed recorded', 'Treasurer’s deed recorded'].some((r) => sameDate(y.what, r))).map((y) => y.when);
-  if (sd > today) return 'is after today, but you’ve already won';
-  if (later.some((w) => w < sd)) return 'is after a date that comes from the sale';
-  if (later.some((w) => gap(w, sd) > 120)) return 'is months before the payment or certificate date';
-  return '';
+  if (sd > dayOf(d, now)) return `This Sale day is after today${d.state === 'NV' ? ' in Nevada' : ''}, but the sale is marked won: check the date.`;
+  const row = p.dates.find((y) => y.when && y.when < sd && ['Payment deadline', 'Certificate of sale recorded', 'Certificate of sale received', 'Trustee’s deed recorded', 'Deed recorded', 'Treasurer’s deed recorded'].some((r) => sameDate(y.what, r)));
+  return row ? `This Sale day is after “${row.what}” (${prettyDay(row.when)}), which comes from the sale: check both dates. If the sale was postponed, change the older date too.` : '';
 }
 
 /** The law's redemption end for a certificate-first win, worked out from the Sale day whatever date is typed ('' when unknown). */
@@ -1244,12 +1241,6 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
   return stage === 'contract' && certificateFirst(d) && paidIn(p, d) && !redeemedIn(p) && !handled(p, 'Redemption period ends', now, d) && !t.advance2 && !t.done ? { ...t, advance2: redeemButton(d, redeemLabel(d, p, now)) } : t;
 }
 function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanTask {
-    // A won auction's Sale day that looks mistyped: every deadline counts from it, so it comes first.
-    if (['contract', 'closed', 'owned'].includes(stage) && saleDayOdd(d, p, now)) {
-      const n = d.name || 'this property';
-      const text = `Check the Sale day for ${n} in Key dates: it ${saleDayOdd(d, p, now)}. The deadlines after the sale are counted from it, so fix it (often the year) before relying on them.`;
-      return { key: 'date', days: 0, urgent: true, label: text, produces: 'the right Sale day in Key dates', href: packetHref(d, 'dates'), support: [], done: false, text };
-    }
   // A certificate-first win left at Won, paid, after its redemption period ended: whether anyone redeemed comes first,
   // as at Certificate of sale recorded.
   if (stage === 'contract' && wayOf(d) !== 'offer' && certificateFirst(d) && paidIn(p, d) && !redeemedIn(p)) {
@@ -1258,7 +1249,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     // (No Sale day: the end can't be worked out, so the Sale day comes first.)
     if (!e && redemptionMarkWait(d, p, now) === 'no-sale') { const n = d.name || 'this property'; const text = `Enter the Sale day for ${n} in Key dates (use “Add a date” and name it Sale day if there’s no row): the law counts the redemption period from it. Someone can redeem until it ends.`; return { key: 'date', days: 0, label: text, produces: 'the Sale day in Key dates, so the redemption period’s end can be worked out', href: packetHref(d, 'dates'), support: [], done: false, urgent: false, text }; }
     // (Ended, or answered: the rest happens at the next stage, so the step is to move it there.)
-    if (handled(p, 'Redemption period ends', now, d) || (e && e < dayOf(d, now))) { const n = d.name || 'this property'; const next = stageLabel('closed', d); const certRow = d.kind === 'irs' ? 'Certificate of sale received' : 'Certificate of sale recorded'; const hasCert = ticked(p, certRow); const once = hasCert ? '' : 'once you have the certificate of sale, '; return task({ key: 'move-closed', label: handled(p, 'Redemption period ends', now, d) ? `No one redeemed ${n}: ${once}move it to “${next}” for the deed` : `The redemption period for ${n} ended ${prettyDay(e)} (counted from the Sale day you entered, ${prettyDay(p.dates.find((x) => sameEvent(x.what, 'Sale day') && x.when)?.when ?? '')}): ${once}move it to “${next}” to answer whether anyone redeemed`, produces: `the next steps there: ${handled(p, 'Redemption period ends', now, d) ? 'the deed' : 'whether anyone redeemed, then the deed'}${hasCert ? '' : ` (“${certRow}” is dated today: change it to the date on the certificate if different)`}`, href: packetHref(d, 'dates'), advance: { stage: 'closed', label: hasCert ? `Move it to “${next}”` : `I have the certificate: move it to “${next}”`, ticks: hasCert ? [] : [certRow] }, support: [], done: false }); }
+    if (handled(p, 'Redemption period ends', now, d) || (e && e < dayOf(d, now))) { const n = d.name || 'this property'; const next = stageLabel('closed', d); const certRow = d.kind === 'irs' ? 'Certificate of sale received' : 'Certificate of sale recorded'; const hasCert = ticked(p, certRow); const once = hasCert ? '' : 'once you have the certificate of sale, '; return task({ key: 'move-closed', label: handled(p, 'Redemption period ends', now, d) ? `No one redeemed ${n}: ${once}move it to “${next}” for the deed` : `The redemption period for ${n} ended ${prettyDay(e)} (${e === lawRedemptionEnd(d, p) ? `counted from the Sale day you entered, ${prettyDay(p.dates.find((x) => sameEvent(x.what, 'Sale day') && x.when)?.when ?? '')}` : 'the end date you entered'}): ${once}move it to “${next}” to answer whether anyone redeemed`, produces: `the next steps there: ${handled(p, 'Redemption period ends', now, d) ? 'the deed' : 'whether anyone redeemed, then the deed'}${hasCert ? '' : ` (“${certRow}” is dated today: change it to the date on the certificate if different)`}`, href: packetHref(d, 'dates'), advance: { stage: 'closed', label: hasCert ? `Move it to “${next}”` : `I have the certificate: move it to “${next}”`, ticks: hasCert ? [] : [certRow] }, support: [], done: false }); }
   }
   if (stage !== 'passed') {
     // Sale day has passed with the deal still before the sale: whether you won comes first.
