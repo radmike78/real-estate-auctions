@@ -48,7 +48,9 @@ export const TIMELINE_NOTES: ByStateLines = {
 /** Where to find recorded and posted notices. */
 export const WHERE: ByStateLines = {
   NV: [
-    { text: 'In Nevada, this tracker will follow notices of default and sale recorded with the Clark County Recorder once that feed is connected. Until then, check the recorder in the county where the property is.' },
+    { text: 'In Nevada, this tracker will follow notices of default and sale recorded with the Clark County Recorder once that feed is connected. Until then, check the recorder in the county where the property is: notices of default and notices of sale are recorded there (NRS 107.080). Search its index by document type.' },
+    { text: 'In Nevada, the notice of sale is also posted for 20 days in a public place in the county, published once a week for 3 weeks in a local newspaper (NRS 107.080) and, for a home, posted on the property (NRS 107.087). Each notice names the trustee and the sale date, time and place.' },
+    { text: 'In Nevada, the only person to ask about a sale is the trustee named on the notice. Never contact the owner or anyone living in the home.' },
   ],
   CA: [
     { text: 'In California, notices of default and notices of sale are recorded with the county recorder where the property is (Civil Code 2924, 2924f). Search that county’s recorder index by document type.', links: [['Civil Code 2924', 'https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=CIV&sectionNum=2924']] },
