@@ -18,7 +18,7 @@ import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
 import { dealProgress } from './roadmapState';
-import { withEffectiveEnd, redemptionEnd as redemptionEndFor, redeemedDeal, redemptionOver, dayOf, readerDay, SEALED_ROW, sidBeforePay, treasurerGave, taxPayState, sidFirst, saleOverFor, sealedDay, nvNow, dealNextTask, nvPayDays, paidAtWin, paymentPassed, sellerName, sellerShort, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
+import { lawRedemptionEnd, withEffectiveEnd, redemptionEnd as redemptionEndFor, redeemedDeal, redemptionOver, dayOf, readerDay, SEALED_ROW, sidBeforePay, treasurerGave, taxPayState, sidFirst, saleOverFor, sealedDay, nvNow, dealNextTask, nvPayDays, paidAtWin, paymentPassed, sellerName, sellerShort, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -1169,8 +1169,15 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const openAfter = early && p.dates.some((x) => x.when && !x.resolved && afterSale(x.what));
   const dated = pk.dates.filter((x) => x.when && !sameDate(x.what, 'Winning bid entered in Analyze'));
   // (A typed redemption end that isn't the effective one says what the law's end is, the date "Next" counts to.)
-  const effEnd = certificateFirst(d) ? redemptionEndFor(d, pk) : '';
-  const endNote = (x: { what: string; when: string }) => (certificateFirst(d) && sameDate(x.what, 'Redemption period ends') && x.when !== effEnd ? (effEnd ? ` (the date you entered; someone can redeem until ${prettyDay(effEnd)}, the law’s end after this sale)` : ' (the date you entered; enter the Sale day to check it against the law)') : '');
+  const effEnd = certificateFirst(d) && !redeemedIn(pk) ? redemptionEndFor(d, pk) : '';
+  const lawEnd = effEnd ? lawRedemptionEnd(d, pk) : '';
+  const endNote = (x: { what: string; when: string }) => {
+    if (!certificateFirst(d) || redeemedIn(pk) || !sameDate(x.what, 'Redemption period ends')) return '';
+    if (!effEnd) return ' (the date you entered; enter the Sale day to check it against the law)';
+    const can = effEnd < todayHere ? 'someone could redeem until' : 'someone can redeem until';
+    if (x.when < effEnd) return ` (the date you entered; ${can} ${prettyDay(effEnd)}, the law’s end after this sale)`;
+    return lawEnd && x.when > lawEnd ? ` (the date you entered, later than the law’s end of ${prettyDay(lawEnd)})` : '';
+  };
   const undatedDone = p.dates.filter((x) => !x.when && x.resolved && x.what.trim());
   out.push({
     key: 'dates',
