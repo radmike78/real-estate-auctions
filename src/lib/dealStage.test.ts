@@ -2336,4 +2336,20 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${hoa.id}`, q);
     expect(dealNextTask(won, q, new Date('2026-11-17T20:00:00Z'), 'contract').label).not.toMatch(/ended/);
   });
+
+  it('round 99: one effective redemption end in reminders, and a closing dated before the contract asks to fix it', () => {
+    const hoa: Deal = { ...deal, id: 'f99', name: '2 Ash', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'closed' };
+    saveDeals([hoa]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'A', resolved: true }, { when: '2026-12-01', what: 'Redemption period ends', who: 'A' }] };
+    savePacket(`analyzed:${hoa.id}`, p);
+    const t = dealNextTask(hoa, p, new Date('2026-12-05T20:00:00Z'), 'closed');
+    expect(t.label).not.toMatch(/ended 4 days ago/);
+    const reo: Deal = { ...deal, id: 'c99', name: '9 Oak', state: 'NV', county: 'Washoe', kind: 'reo', plan: 'rent', stage: 'contract' };
+    saveDeals([reo]);
+    const q = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Offer accepted (Day 0)', who: 'Seller' }, { when: '2026-11-01', what: 'Closing', who: 'Escrow' }] };
+    savePacket(`analyzed:${reo.id}`, q);
+    const c = dealNextTask(reo, q, new Date('2026-11-17T20:00:00Z'), 'contract');
+    expect(c.label).toMatch(/is before the contract date/);
+    expect(c.advance).toBeUndefined();
+  });
 });
