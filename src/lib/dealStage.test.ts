@@ -2456,4 +2456,25 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(sec.lines.some((t) => /add any that apply/.test(t) && /Challenge window/.test(t))).toBe(false);
     expect(sec.hold).toBe(true);
   });
+
+  it('round 104 verifier: a handled window needs no deed row; a plain apostrophe names the deed row; the deed date leads Your next action', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const { deedDateMissing } = await import('./dealStage');
+    const now = new Date('2026-12-20T20:00:00Z');
+    const tr: Deal = { ...deal, id: 'v104', name: '9 Fir', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'owned' };
+    saveDeals([tr]);
+    const done = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-12-17', what: 'Challenge window ends', who: 'Title co', resolved: true }] };
+    savePacket(`analyzed:${tr.id}`, done);
+    expect(deedDateMissing(tr, done)).toBe('');
+    expect(packetSections(tr, done, now).find((x) => x.key === 'dates')!.lines.some((t) => /^Still to add/.test(t))).toBe(false);
+    const plain = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-17', what: "Trustee's deed recorded", who: 'County', resolved: true }] };
+    expect(deedDateMissing(tr, plain)).toBe('');
+    const tx: Deal = { ...tr, id: 'v104t', kind: 'taxSale', stage: 'closed' };
+    saveDeals([tx]);
+    expect(deedDateMissing(tx, { ...EMPTY_PACKET, dates: [{ when: '2026-11-17', what: "Treasurer's deed recorded", who: 'T', resolved: true }] })).toBe('');
+    const blank = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-10', what: 'Payment deadline', who: 'T', resolved: true }, { when: '2026-11-12', what: 'Treasurer confirmed no SID affidavit', who: 'T', resolved: true }, { when: '', what: 'Treasurer’s deed recorded', who: '' }] };
+    savePacket(`analyzed:${tx.id}`, blank);
+    expect(packetSections(tx, blank, now).find((x) => x.key === 'dates')!.lines.some((t) => /^Still to add: the date on the “Treasurer’s deed recorded” row/.test(t))).toBe(true);
+    expect(dealNextTask(tx, blank, now, 'closed').label).toMatch(/^Enter the date 9 Fir’s deed was recorded in Key dates/);
+  });
 });

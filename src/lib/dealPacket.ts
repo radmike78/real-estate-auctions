@@ -18,7 +18,7 @@ import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
 import { dealProgress } from './roadmapState';
-import { withEffectiveWindows, lawWindowEnd, wayOf, NO_SID_ROW, soldOf, lawRedemptionEnd, withEffectiveEnd, redemptionEnd as redemptionEndFor, redeemedDeal, redemptionOver, dayOf, readerDay, SEALED_ROW, sidBeforePay, treasurerGave, taxPayState, sidFirst, saleOverFor, sealedDay, nvNow, dealNextTask, nvPayDays, paidAtWin, paymentPassed, sellerName, sellerShort, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
+import { withEffectiveWindows, lawWindowEnd, deedDateMissing, DEED_ROWS, wayOf, NO_SID_ROW, soldOf, lawRedemptionEnd, withEffectiveEnd, redemptionEnd as redemptionEndFor, redeemedDeal, redemptionOver, dayOf, readerDay, SEALED_ROW, sidBeforePay, treasurerGave, taxPayState, sidFirst, saleOverFor, sealedDay, nvNow, dealNextTask, nvPayDays, paidAtWin, paymentPassed, sellerName, sellerShort, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -72,7 +72,8 @@ const ifOnly = (what: string) => /\(if /.test(what);
 /** Other names a closing row goes by in Nevada (close of escrow, COE, settlement). */
 const CLOSING_ALIAS = /^(close of escrow|coe|settlement)(\s*($|[(:–—-]|\d)|\s+(on|at|date|day)\b)/i;
 const closingAlias = (rowWhat: string, name: string) => /^closing$/i.test(dateBase(name)) && CLOSING_ALIAS.test(rowWhat.trim());
-export const sameDate = (rowWhat: string, name: string) => closingAlias(rowWhat, name) || rowWhat.trim().toLowerCase().startsWith(dateBase(name).toLowerCase()) || (/^(bidder )?registration/i.test(name) && /^(bidder )?registration/i.test(rowWhat.trim()));
+const curly = (s: string) => s.replace(/'/g, '’');
+export const sameDate = (rowWhat: string, name: string) => closingAlias(rowWhat, name) || curly(rowWhat.trim().toLowerCase()).startsWith(curly(dateBase(name).toLowerCase())) || (/^(bidder )?registration/i.test(name) && /^(bidder )?registration/i.test(rowWhat.trim()));
 /** A date's name without its trailing note in parentheses ("Bidder registration (if required)" -> "Bidder registration"). */
 const dateBase = (name: string) => name.replace(/\s*\([^)]*\)$/, '');
 /** A row that is this event itself, not another date that starts with its words ("Closing Disclosure received" isn't
@@ -1171,8 +1172,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const sidDl = d.state === 'NV' && d.kind === 'taxSale' ? sidDeadline(p) : '';
   // UX-3: nothing is due, but the contract still has undated rows (a short sale's, once the lender approves): name them.
   // (A Nevada tax or trustee's deed: its recording date, once ticked, is what the 2-year or 30-day window counts from.)
-  const taxDeedOn = d.state === 'NV' && d.kind === 'taxSale' ? p.dates.find((x) => sameDate(x.what, 'Treasurer’s deed recorded') && x.when && x.resolved)?.when : undefined;
-  const trDeedOn = d.state === 'NV' && d.kind === 'trustee' ? p.dates.find((x) => ['Deed recorded', 'Trustee’s deed recorded'].some((r) => sameDate(x.what, r)) && x.when && x.resolved)?.when : undefined;
+  const taxDeedOn = d.state === 'NV' && d.kind === 'taxSale' ? p.dates.find((x) => DEED_ROWS.tax.some((r) => sameDate(x.what, r)) && x.when && x.resolved)?.when : undefined;
   const toAdd = stageOf(d) === 'contract' && isOffer(d) && !closingDone ? calendarRows(p, 'contract').filter((x) => !x.when && !x.resolved && x.what.trim() && !/\(if /i.test(x.what)) : stageOf(d) === 'contract' && !isOffer(d) ? p.dates.filter((x) => !x.when && !x.resolved && RECORDED_ROWS.some((r) => sameDate(x.what, r))) : stageOf(d) === 'closed' && !isOffer(d) ? p.dates.filter((x) => !x.when && !x.resolved && ((sameDate(x.what, DEED_AFTER_WAIT) && p.dates.some((y) => sameDate(y.what, 'Redemption period ends') && y.resolved)) || (sameDate(x.what, 'Recovery-suit window ends') && !!taxDeedOn))) : [];
   // (A Eureka sealed bid with no bid row yet: the bid deadline, the Treasurer's last open day before the sale, comes before the sale day.)
   const bidDl = sealedBid(d) && ['researching', 'offer'].includes(stageOf(d)) && !p.dates.some((x) => sameDate(x.what, SEALED_ROW)) && !saleOverFor(d, p, now) && !p.dates.some((x) => sameDate(x.what, 'Sale day') && !!x.when && x.when <= nvNow(now).day) ? sealedDay(p) : '';
@@ -1208,13 +1208,15 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       const recovery = deedOn ? req.find((w) => sameDate(w, 'Recovery-suit window ends')) : undefined;
       // (Before the Treasurer's deed is recorded, its row and the recovery window come later, not as optional dates;
       //  from the Deed recorded stage on, a deed with no recorded date is still to add, and holds the part.)
-      const afterDeedStage = ['closed', 'owned'].includes(stageOf(d)) && !finishedDeal(d) && !soldOf(d);
-      const taxNoDeed = d.state === 'NV' && d.kind === 'taxSale' && !deedOn && sidState(d) !== 'void';
-      const trNoDeed = d.state === 'NV' && d.kind === 'trustee' && !trDeedOn && afterDeedStage;
+      const miss = deedDateMissing(d, p);
+      const taxNoDeed = d.state === 'NV' && d.kind === 'taxSale' && !deedOn && sidState(d) !== 'void' && !['closed', 'owned'].includes(stageOf(d));
       const later = taxNoDeed ? req.filter((w) => sameDate(w, 'Treasurer’s deed recorded') || sameDate(w, 'Recovery-suit window ends')) : [];
-      const optional = req.filter((w) => w !== recovery && !later.includes(w) && !(trNoDeed && sameDate(w, 'Challenge window ends')));
-      if (taxNoDeed && afterDeedStage) ln.push('Still to add: the date the Treasurer’s deed was recorded (enter it on its row and mark it handled), then Recovery-suit window ends: 2 years after the deed is delivered (NRS 361.600)*.');
-      else if (trNoDeed) ln.push('Still to add: the date the trustee’s deed was recorded (enter it on its row and mark it handled). The challenge window is worked out from it (NRS 107.080(5)).');
+      const optional = req.filter((w) => w !== recovery && !later.includes(w) && !(miss && (sameDate(w, 'Challenge window ends') || sameDate(w, 'Recovery-suit window ends') || DEED_ROWS.tax.some((r) => sameDate(w, r)) || DEED_ROWS.trustee.some((r) => sameDate(w, r)))));
+      if (miss) {
+        const row = p.dates.find((x) => DEED_ROWS[miss].some((r) => sameDate(x.what, r)));
+        const why = miss === 'trustee' ? 'The challenge window is worked out from it (NRS 107.080(5)).' : 'Recovery-suit window ends 2 years after the deed is delivered (NRS 361.600)*.';
+        ln.push(row && row.when ? `Still to add: mark “${row.what}” handled once it’s recorded (the date entered is ${prettyDay(row.when)}). ${why}` : row ? `Still to add: the date on the “${row.what}” row, then mark it handled. ${why}` : `Still to add: the date the ${miss === 'trustee' ? 'trustee’s' : 'Treasurer’s'} deed was recorded (use “Add a date” and name it ${DEED_ROWS[miss][0]}, then mark it handled). ${why}`);
+      }
       else if (later.length) { const k = ln.findIndex((t) => /^Later: add the date for .*Treasurer’s deed recorded/.test(t)); const rec = 'Recovery-suit window ends: 2 years after the deed is delivered (NRS 361.600)*'; if (k >= 0) ln[k] = `${ln[k]} Then add ${rec}.`; else ln.push(later.some((w) => sameDate(w, 'Treasurer’s deed recorded')) ? `Later: once the Treasurer’s deed is recorded, add its date (use “Add the usual dates that are missing” above), then ${rec}.` : `Later: once the Treasurer’s deed is recorded, add ${rec}.`); }
       if (recovery && deedOn) { const about = lawWindowEnd(d, { ...p, dates: [{ when: deedOn, what: 'Treasurer’s deed recorded', who: '', resolved: true }] }, 'Recovery-suit window ends'); ln.push(about >= todayHere ? `Recovery-suit window ends: 2 years after the Treasurer’s deed is delivered, about ${prettyDay(about)}, counting from its recording date (NRS 361.600)*. Add it to Key dates.` : `Recovery-suit window ends: 2 years after the Treasurer’s deed is delivered, so it likely ended about ${prettyDay(about)}, counting from its recording date (NRS 361.600)*. Add it to Key dates, then ask your title company whether any suit or counterclaim to recover the property was filed.`); }
       if (optional.length && !offer) { const k = ln.indexOf('All dated items are marked handled.'); const text = `Usual dates for this sale not in this packet: ${optional.join('; ')}; add any that apply.`; if (k >= 0) ln[k] = `Every date entered is marked handled. ${text}`; else if (!offer) ln.push(text); }

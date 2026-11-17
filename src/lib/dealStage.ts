@@ -151,7 +151,7 @@ export function windowMarkWait(d: Deal, p: PacketData, what: string, now: Date =
   const tax = d.state === 'NV' && d.kind === 'taxSale' && sameDate(what, 'Recovery-suit window ends');
   if (!trustee && !tax) return '';
   const typed = p.dates.find((x) => sameDate(x.what, what) && x.when)?.when;
-  const deed = p.dates.find((x) => x.when && x.resolved && (trustee ? ['Deed recorded', 'Trustee’s deed recorded'] : ['Treasurer’s deed recorded']).some((r) => sameDate(x.what, r)))?.when;
+  const deed = p.dates.find((x) => x.when && x.resolved && DEED_ROWS[trustee ? 'trustee' : 'tax'].some((r) => sameDate(x.what, r)))?.when;
   let worked = '';
   if (deed) { const t = new Date(`${deed}T12:00:00`); if (trustee) t.setDate(t.getDate() + 30); else t.setFullYear(t.getFullYear() + 2); worked = localDay(t); }
   const end = typed && worked ? (typed > worked ? typed : worked) : typed || worked;
@@ -159,12 +159,23 @@ export function windowMarkWait(d: Deal, p: PacketData, what: string, now: Date =
   return end >= dayOf(d, now) ? end : '';
 }
 
+/** The names a Nevada trustee's or Treasurer's deed recording row goes by. */
+export const DEED_ROWS = { trustee: ['Deed recorded', 'Trustee’s deed recorded'], tax: ['Treasurer’s deed recorded', 'Deed recorded'] };
+/** A Nevada trustee or tax deal at Deed recorded or later whose deed has no ticked, dated recording row, while its window
+ *  isn't answered yet: the 30-day or 2-year window is counted from that date ('' when nothing is missing). */
+export function deedDateMissing(d: Deal, p: PacketData, stage: DealStage = stageOf(d)): '' | 'trustee' | 'tax' {
+  if (d.state !== 'NV' || (d.kind !== 'trustee' && d.kind !== 'taxSale') || !['closed', 'owned'].includes(stage) || finishedDeal(d) || sidState(d) === 'void') return '';
+  const tr = d.kind === 'trustee';
+  if (p.dates.some((x) => x.when && x.resolved && DEED_ROWS[tr ? 'trustee' : 'tax'].some((r) => sameDate(x.what, r)))) return '';
+  if (p.dates.some((x) => x.resolved && sameDate(x.what, tr ? 'Challenge window ends' : 'Recovery-suit window ends'))) return '';
+  return tr ? 'trustee' : 'tax';
+}
 /** The law's end of a Nevada challenge or recovery-suit window, worked out from the recorded deed ('' when unknown). */
 export function lawWindowEnd(d: { state?: Deal['state']; kind: Deal['kind'] }, p: PacketData, what: string): string {
   const trustee = d.state === 'NV' && d.kind === 'trustee' && sameDate(what, 'Challenge window ends');
   const tax = d.state === 'NV' && d.kind === 'taxSale' && sameDate(what, 'Recovery-suit window ends');
   if (!trustee && !tax) return '';
-  const deed = p.dates.find((x) => x.when && x.resolved && (trustee ? ['Deed recorded', 'Trustee’s deed recorded'] : ['Treasurer’s deed recorded']).some((r) => sameDate(x.what, r)))?.when;
+  const deed = p.dates.find((x) => x.when && x.resolved && DEED_ROWS[trustee ? 'trustee' : 'tax'].some((r) => sameDate(x.what, r)))?.when;
   if (!deed) return '';
   const t = new Date(`${deed}T12:00:00`);
   if (trustee) t.setDate(t.getDate() + 30); else t.setFullYear(t.getFullYear() + 2);
@@ -1166,6 +1177,9 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     // During the redemption wait, someone can redeem any day: that answer rides on whichever task leads.
     const waiting = certificateFirst(d) && !deedFirst && !redeemedIn(p);
     const withRedeem = (t: PlanTask): PlanTask => (waiting && !t.advance2 ? { ...t, advance2: redeemButton(d, redeemLabel(d, p, now)) } : t);
+    // (A Nevada trustee or tax deed with no recorded date: its window is counted from it, so that date comes first.)
+    const deedMiss = deedDateMissing(d as Deal, p, stage);
+    if (deedMiss) out.push(task({ key: 'deed-date', label: `Enter the date ${n}’s deed was recorded in Key dates`, produces: `the recording date in Key dates, marked handled: the ${deedMiss === 'trustee' ? '30-day challenge window (NRS 107.080(5))' : '2-year recovery-suit window (NRS 361.600)*'} is counted from it`, href: packetHref(d, 'dates'), support: [], done: false }));
     if (!deedFirst) out.push(withRedeem(firstWeek));
     const wonLater = w === 'auction' && (d.plan === 'flip' || d.plan === 'rent') ? wonPrice(d as Deal, p, n) : undefined;
     const won = wonLater && !wonLater.done && !bidTyped(d as Deal) ? wonLater : undefined;
