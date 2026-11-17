@@ -682,7 +682,7 @@ describe('Nevada round 4 flow', () => {
     saveDeals([{ ...nvFlip, stage: 'owned' }]);
     setDealStage(nvFlip.id, 'passed');
     expect(loadDeals()[0].passedFrom).toBe('owned');
-    expect(stageHint('passed', loadDeals()[0])).toMatch(/^Passed after you won and recorded it\. If the sale was rescinded/);
+    expect(stageHint('passed', loadDeals()[0])).toMatch(/^Passed after the purchase was completed\. If the sale was rescinded/);
   });
 
   it('a Nevada tax sale outside Clark and Washoe asks paid or not after the sale day; a typed Clark date is checked against the county’s', () => {
@@ -693,15 +693,19 @@ describe('Nevada round 4 flow', () => {
     expect(t.label).toMatch(/contact the Treasurer today/);
     expect(t.advance2?.stage).toBe('passed');
     const clark = { ...elko, county: 'Clark' };
-    expect(countyTermsNote(clark, { ...EMPTY_PACKET, dates: [...p.dates, { when: '2026-11-18', what: 'Payment deadline', who: '' }] })).toMatch(/1:00 p.m. Nevada time on the sale day \(Nov 12, 2026\)/);
+    expect(countyTermsNote(clark, { ...EMPTY_PACKET, dates: [...p.dates, { when: '2026-11-18', what: 'Payment deadline', who: '' }] })).toMatch(/1:00 p.m. Nevada time on the sale day \(Nov 12, 2026\), before the date you typed \(Nov 18, 2026\)/);
     expect(countyTermsNote(clark, { ...EMPTY_PACKET, dates: [...p.dates, { when: '2026-11-12', what: 'Payment deadline', who: '' }] })).toBe('');
+    // Your next action leads with the county's deadline, not the later typed one.
+    const typed = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-11-18', what: 'Payment deadline', who: '' }] };
+    savePacket(`analyzed:${clark.id}`, typed);
+    expect(dealNextTask(clark, typed, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/^Clark County’s terms say payment for .* is due by 1:00 p.m./);
   });
 
   it('a Nevada trustee win left unpaid after the sale day is urgent', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Trustee', resolved: true }] };
     savePacket(`analyzed:${nvFlip.id}`, p);
     const t = stageTasks({ ...nvFlip, stage: 'contract' }, 'contract', p, new Date('2026-11-14T18:00:00Z')).find((x) => x.key === 'ev-terms')!;
-    expect(t.label).toMatch(/contact the trustee today/);
+    expect(t.label).toMatch(/contact the trustee and an attorney today/);
     // An answer is needed: paid, or not (which passes the deal).
     expect(t.days).toBe(-1);
     expect(t.advance2?.stage).toBe('passed');
