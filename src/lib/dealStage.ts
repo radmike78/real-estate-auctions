@@ -1166,7 +1166,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     // (On or after sale day, the sale day leads: registration is behind it.)
     const saleToday = d.state === 'NV' ? nvParts(now).day : localDay(now);
     const saleNow = early && p.dates.some((x) => sameDate(x.what, 'Sale day') && x.when && x.when <= saleToday);
-    let nd = nextDate(remindable(capSid(p, d), now, early, [...(stage === 'contract' && taxPayState(d, p, now).state ? ['Payment deadline'] : []), ...behindStage(d, stage), ...notYet(d, stage, p, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT, ...(saleNow ? ['Bidder registration', 'Registration', SEALED_ROW] : [])], saleToday), now);
+    let nd = nextDate(remindable(capSid(p, d), now, early, [...(stage === 'contract' && taxPayState(d, p, now).state ? ['Payment deadline', 'SID certificate payoff'] : []), ...behindStage(d, stage), ...notYet(d, stage, p, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT, ...(saleNow ? ['Bidder registration', 'Registration', SEALED_ROW] : [])], saleToday), now);
     nd = contingencyFirst(nd, p, now, stage, d.kind);
     // A Nevada tax sale's open SID payoff comes before the deed's recording: the Treasurer can't issue the deed until it's
     // paid (NRS 361.595(6)), and missing it voids the sale.

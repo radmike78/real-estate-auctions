@@ -605,7 +605,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://mineralcountynv.us/government/sheriff/index.php", checked: "2026-10-08", contactOnly: true },
   },
   "NV/Nye": {
-    taxSale: { url: "https://www.nyecountynv.gov/1118/2026-Online-Only-Tax-Sale-Auctions", checked: "2026-11-11", note: "Recent sales ran online through Bid4Assets (the county says there’s no live auction in 2026). Nye adds a 10% fee (at least $100) to the final bid, and bidders send a $500 deposit in certified funds plus a $35 processing fee: enter the fee as the buyer’s premium in Analyze. Start from the county’s page for the current sale." },
+    taxSale: { url: "https://www.nyecountynv.gov/1118/2026-Online-Only-Tax-Sale-Auctions", checked: "2026-11-11", note: "Recent sales ran online through Bid4Assets (the county says there’s no live auction in 2026). Nye adds a 10% fee (at least $100) to the final bid, and bidders send a $500 deposit in certified funds plus a $35 processing fee. Analyze fills in the 10% as the buyer’s premium; on a bid under $1,000, the $100 minimum is more. Start from the county’s page for the current sale." },
     treasurer: { url: "https://www.nyecountynv.gov/253/Treasurer", checked: "2026-09-29" },
     assessor: { url: "https://www.nyecountynv.gov/267/Assessor", checked: "2026-09-29" },
     recorder: { url: "https://www.nyecountynv.gov/210/Recorder", checked: "2026-09-29" },

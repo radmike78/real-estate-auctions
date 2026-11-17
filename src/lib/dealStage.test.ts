@@ -761,8 +761,14 @@ describe('Nevada round 4 flow', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-12-05', what: 'Payment deadline', who: '' }, { when: '2026-12-02', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }] };
     savePacket(`analyzed:${tax.id}`, p);
     const t = dealNextTask(tax, p, new Date('2026-11-20T18:00:00Z'), 'contract');
-    expect(t.label).toMatch(/Your winning bid isn’t marked paid: it was due by 1:00 p.m. Nevada time on the sale day, Nov 12, 2026/);
-    expect(t.record?.label).toBe('I paid the winning bid: mark it handled');
+    // The county's own payment question leads over the SID payoff until the bid is answered.
+    expect(t.label).toMatch(/^Did you pay for .*1:00 p\.m\. Nevada time on the sale day/);
+    expect(t.advance2?.stage).toBe('passed');
+    // Washoe, sale today, with an SID payoff row added: the payment due tomorrow still leads.
+    const wa = { ...tax, county: 'Washoe' };
+    const wp = { ...EMPTY_PACKET, dates: [{ when: '2026-11-17', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '', what: 'Payment deadline', who: '' }, { when: '2026-12-07', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }] };
+    savePacket(`analyzed:${wa.id}`, wp);
+    expect(dealNextTask(wa, wp, new Date('2026-11-17T20:00:00Z'), 'contract').label).toMatch(/^Pay for .* by 5:00 p\.m\. Nevada time tomorrow, Nov 18, 2026/);
     // 10:30 p.m. Oct 31 in Nevada (Nov 1 in UTC): a closed HOA deal's dates still count Oct 31 as today.
     const hoa = { ...nvFlip, kind: 'hoa' as const, stage: 'closed' as const };
     const hp = { ...EMPTY_PACKET, dates: [{ when: '2026-10-31', what: 'Redemption period ends', who: 'Agent' }] };
