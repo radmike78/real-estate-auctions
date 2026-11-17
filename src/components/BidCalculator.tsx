@@ -285,9 +285,10 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
     let taxMoved = false;
     if (stamped !== regionSig) {
       if (stamped !== null && !typedKeys.has('transferTaxPer500')) { v0 = { ...v0, transferTaxPer500: tax.per500 }; taxMoved = true; }
-      if (premium10 && !typedKeys.has('buyerPremiumPct') && !v0.buyerPremiumPct) { v0 = { ...v0, buyerPremiumPct: 10 }; taxMoved = true; }
       stampRegion();
     }
+    // (Lyon and Nye's 10% premium follows the county and kind of sale, unless you typed your own.)
+    if (!typedKeys.has('buyerPremiumPct') && region.state === 'NV') { if (premium10 && !v0.buyerPremiumPct) v0 = { ...v0, buyerPremiumPct: 10 }; else if (!premium10 && v0.buyerPremiumPct === 10) v0 = { ...v0, buyerPremiumPct: 0 }; }
     // An offer has no auction cash limit, buyer's premium or redemption wait.
     let v = offer ? offerInputs(v0) : v0;
     // A redemption rule left over from another kind of sale (IRS interest on an HOA sale, say) is replaced with the

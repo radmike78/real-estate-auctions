@@ -904,7 +904,7 @@ describe('Nevada round 4 flow', () => {
     const sid = { ...EMPTY_PACKET, dates: [{ when: '2026-10-08', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
     const t = dealNextTask(tax, sid, now, 'closed');
     expect(t.label).toMatch(/SID certificate payoff for .* is still open/);
-    expect(t.tick?.label).toBe('I paid it: mark it handled');
+    expect(t.tick?.label).toBe('I paid the SID payoff: mark it handled');
     const { sameEvent } = await import('./dealPacket');
     expect(sameEvent('Closing date', 'Closing')).toBe(true);
     expect(sameEvent('Closing Disclosure received', 'Closing')).toBe(false);
@@ -961,7 +961,7 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(tax, late, now, 'contract').label).toMatch(/ended Sep 30, 2026\. If it wasn’t paid by then, the sale is void and the Treasurer may keep up to 10%/);
     const early = { ...ahead, dates: [...ahead.dates, { when: '2026-10-08', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
     const et = dealNextTask(tax, early, now, 'contract');
-    expect(et.tick?.label).toBe('I paid it: mark it handled');
+    expect(et.tick?.label).toBe('I paid the SID payoff: mark it handled');
     expect(et.undo?.label).toBe('No SID affidavit after all: remove the payoff row');
     // Researching after the sale: the summary asks too.
     const r = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'T' }, { when: '2026-09-02', what: 'Payment deadline', who: 'Me' }, { when: '', what: 'Bidder registration (if required)', who: '' }] };
@@ -1438,7 +1438,7 @@ describe('Nevada round 4 flow', () => {
     const open = { ...EMPTY_PACKET, dates: [...base, { when: '2026-10-03', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City' }] };
     const t = dealNextTask(tax, open, now, 'contract');
     // After the 20 days the answer is 'paid by the deadline', and it dates the row no later than it.
-    expect(t.tick?.label).toBe('I paid it by Sep 30, 2026: mark it handled');
+    expect(t.tick?.label).toBe('I paid the SID payoff by Sep 30, 2026: mark it handled');
     expect(t.tick?.setWhen).toBe('2026-09-30');
     // Handled with the late date kept: the warning stays, and the next step asks whether the sale stands.
     const late = { ...EMPTY_PACKET, dates: [...base, { when: '2026-10-03', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City', resolved: true }] };
@@ -1452,7 +1452,7 @@ describe('Nevada round 4 flow', () => {
     expect(vt.tick).toMatchObject({ label: 'I got the refund: mark it passed', then: 'passed' });
     // Before the deadline, "I paid it" on a later-dated row records today.
     const ahead = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-21', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-10-08', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City' }] };
-    expect(dealNextTask(tax, ahead, now, 'contract').tick).toMatchObject({ label: 'I paid it: mark it handled', setWhen: '2026-10-06' });
+    expect(dealNextTask(tax, ahead, now, 'contract').tick).toMatchObject({ label: 'I paid the SID payoff: mark it handled', setWhen: '2026-10-06' });
     saveDeals([{ ...tax, stage: 'contract' }]);
     expect(packetSections({ ...tax, stage: 'contract' }, late, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/— handled, after the 20-day deadline \(ask the Treasurer whether the sale stands\*\)/);
     const stands = { ...late, dates: [...late.dates, { when: '2026-10-05', what: 'Treasurer confirmed the sale stands', who: 'The county treasurer', resolved: true }] };
