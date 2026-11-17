@@ -2307,4 +2307,12 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(q.dates.find((x) => x.what === 'Redemption period ends')!.when > '2026-12-29').toBe(true);
     expect(q.dates.find((x) => x.what === 'Deed delivered (if no one redeemed)')!.resolved).toBe(false);
   });
+
+  it('round 98: with no Sale day, the certificate date bounds a typed redemption end', async () => {
+    const { redemptionMarkWait } = await import('./dealStage');
+    const sh: Deal = { ...deal, id: 's98', name: '45 Elm Ave', state: 'NV', county: 'Clark', kind: 'court', plan: 'flip', stage: 'closed' };
+    saveDeals([sh]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-08-03', what: 'Certificate of sale recorded', who: 'County', resolved: true }, { when: '2026-09-04', what: 'Redemption period ends', who: 'Sheriff' }] };
+    expect(redemptionMarkWait(sh, p, new Date('2026-11-17T20:00:00Z'))).toMatch(/^2027-08/);
+  });
 });

@@ -85,12 +85,21 @@ const HOMES_SETTLED_KEY = 'deedowl.homes-settled.v1';
  * than the law's period counts from the law's end.
  */
 /** The law's redemption end for a certificate-first win, worked out from the Sale day whatever date is typed ('' when unknown). */
-export const lawRedemptionEnd = (d: Deal, p: PacketData) => (certificateFirst(d) ? redemptionEnd(d, { ...p, dates: p.dates.filter((x) => !sameDate(x.what, 'Redemption period ends')) }) : '');
+export const lawRedemptionEnd = (d: Deal, p: PacketData): string => {
+  if (!certificateFirst(d)) return '';
+  const rest = p.dates.filter((x) => !sameDate(x.what, 'Redemption period ends'));
+  const fromSale = redemptionEnd(d, { ...p, dates: rest });
+  if (fromSale) return fromSale;
+  // (No Sale day: a later row from the sale, such as the certificate or the payment, bounds it; counting from it gives an
+  // end no earlier than the law's.)
+  const anchor = rest.filter((x) => x.when && ['Certificate of sale recorded', 'Certificate of sale received', 'Payment deadline'].some((r) => sameDate(x.what, r))).map((x) => x.when).sort()[0];
+  return anchor ? redemptionEnd(d, { ...p, dates: [...rest, { when: anchor, what: 'Sale day', who: '' }] }) : '';
+};
 
 export function redemptionMarkWait(d: Deal, p: PacketData, now: Date = new Date()): string {
   if (!certificateFirst(d) || redeemedIn(p)) return '';
   const typed = p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when ?? '';
-  const law = redemptionEnd(d, { ...p, dates: p.dates.filter((x) => !sameDate(x.what, 'Redemption period ends')) });
+  const law = lawRedemptionEnd(d, p);
   const end = typed && law ? (typed > law ? typed : law) : typed || law;
   if (!end) return 'no-sale';
   return end >= dayOf(d, now) ? end : '';
@@ -1338,6 +1347,12 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     }
     // A redemption end that disagrees with the law's (typed too early, or no Sale day to count from): no "No one redeemed"
     // answer until it's fixed in Key dates (fixRedemptionRows corrects it there).
+    // A won certificate-first sale with no Sale day: the redemption period can't be worked out, so ask for it first.
+    if ((stage === 'closed' || (stage === 'owned' && !!beforeDeed(d))) && certificateFirst(d) && !redeemedIn(p) && redemptionMarkWait(d, p, now) === 'no-sale') {
+      const n = d.name || 'this property';
+      const text = `Enter the Sale day for ${n} in Key dates: the redemption period is worked out from it, and someone can redeem until it ends.`;
+      return { key: 'date', days: 0, label: text, produces: 'the Sale day in Key dates, so the redemption period’s end can be worked out', href: packetHref(d, 'dates'), support: [], done: false, urgent: false, text };
+    }
     if (nd && sameDate(nd.what, 'Redemption period ends') && certificateFirst(d) && !redeemedIn(p)) {
       const w = redemptionMarkWait(d, p, now);
       if (w && (w === 'no-sale' || w !== nd.when)) {
