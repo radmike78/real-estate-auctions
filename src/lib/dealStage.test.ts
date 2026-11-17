@@ -719,8 +719,14 @@ describe('Nevada round 4 flow', () => {
     // A written date after the 20-day SID deadline: the SID question comes with the payment step.
     const late20 = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-12-10', what: 'Payment deadline', who: '' }, { when: '2026-11-13', what: 'Treasurer confirmed the later payment date in writing', who: 'Treasurer, for Dec 10, 2026', resolved: true }] };
     savePacket(`analyzed:${clark.id}`, late20);
-    expect(dealNextTask(clark, late20, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/Ask the Treasurer now whether an SID affidavit was filed, and if one was, pay the SID certificate by Dec 2, 2026/);
+    expect(dealNextTask(clark, late20, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/Now, ask the Treasurer whether a special improvement district \(SID\) affidavit was filed\. If one was, enter the SID payoff in Key dates and pay it by Dec 2, 2026/);
     expect(dealNextTask(clark, late20, new Date('2026-11-14T18:00:00Z'), 'contract').record?.label).toBe('The Treasurer confirmed no SID affidavit');
+    // A payment date a day before the SID deadline warns too; one well before it doesn't.
+    const close = { ...late20, dates: late20.dates.map((x) => (x.what === 'Payment deadline' ? { ...x, when: '2026-12-01' } : x.what.startsWith('Treasurer confirmed') ? { ...x, who: 'Treasurer, for Dec 1, 2026' } : x)) };
+    savePacket(`analyzed:${clark.id}`, close);
+    expect(dealNextTask(clark, close, new Date('2026-11-27T18:00:00Z'), 'contract').label).toMatch(/Any SID payoff is due Dec 2, 2026/);
+    expect(dealNextTask(clark, close, new Date('2026-11-27T18:00:00Z'), 'contract').record?.label).toBe('The Treasurer confirmed no SID affidavit');
+    savePacket(`analyzed:${clark.id}`, late20);
     // After the 20 days it still warns before the payment.
     expect(dealNextTask(clark, late20, new Date('2026-12-04T18:00:00Z'), 'contract').label).toMatch(/The 20 days for any special improvement district \(SID\) payoff ended Dec 2, 2026\. Before you pay/);
     // A date weeks out keeps its date; a changed typed date ends the answer, and the county's steps return.

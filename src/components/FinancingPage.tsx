@@ -58,7 +58,7 @@ export default function FinancingPage({ initialLocation = '' }: { initialLocatio
         <a href="#/learn/financing">Compare financing methods in the lesson&nbsp;→</a>
       </section>
 
-      <h2 className="section-title">Which loan fits?</h2>
+      <h2 id="fin-options-head" className="section-title">Which loan fits?</h2>
       <section id="fin-options" className="options-grid fin-options" aria-label="Financing options">
         {OPTIONS.map(([t, d, icon], i) => (
           <div key={t} className={`option-card fin-tone-${i}`}>

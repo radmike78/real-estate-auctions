@@ -136,16 +136,16 @@ export function financingConfig(): NarrowConfig {
     }],
     result: ({ goal }) => goal === 'auction'
       ? [
-        { label: 'Which loan fits? (Buying at auction)', scrollTo: 'fin-options', why: 'Most auctions want full payment the same day or the next business day, so a regular mortgage usually can’t close in time.' },
+        { label: 'Which loan fits? (Buying at auction)', scrollTo: 'fin-options-head', why: 'Most auctions want full payment the same day or the next business day, so a regular mortgage usually can’t close in time.' },
         { label: 'Compare financing methods', href: '#/learn/financing', why: 'Savings, home equity and private lenders, with what each one costs and risks.' },
       ]
       : goal === 'invest'
         ? [
-          { label: 'Which loan fits? (Fix and flip, Rental investors)', scrollTo: 'fin-options', why: 'Short-term renovation loans for a flip; DSCR and portfolio loans for a rental.' },
+          { label: 'Which loan fits? (Fix and flip, Rental investors)', scrollTo: 'fin-options-head', why: 'Short-term renovation loans for a flip; DSCR and portfolio loans for a rental.' },
           { label: 'Before you call a lender', scrollTo: 'fin-call', why: 'What to ask, and a script for the call.' },
         ]
         : [
-          { label: 'Which loan fits? (Buying a home to live in)', scrollTo: 'fin-options', why: 'Conventional, FHA, VA and USDA loans, and renovation loans for a home that needs work.' },
+          { label: 'Which loan fits? (Buying a home to live in)', scrollTo: 'fin-options-head', why: 'Conventional, FHA, VA and USDA loans, and renovation loans for a home that needs work.' },
           { label: 'Before you call a lender', scrollTo: 'fin-call', why: 'What to ask, and a script for the call.' },
         ],
   };
@@ -161,7 +161,7 @@ export function searchConfig(): NarrowConfig {
         { label: 'Find deals', href: '#/find-deals', why: 'Your county’s official sources, and agents who can set up a search.' },
       ]
       : [
-        { label: 'Live tax sales', href: '#/live', why: 'The county Treasurer’s current list, checked against the official source.' },
+        { label: 'Live tax sales', href: '#/live', why: 'The county Treasurer’s list whenever a sale is open, checked against the official source.' },
         { label: 'Sale guides', href: '#/playbooks', why: 'How each kind of auction works, step by step, before you bid.' },
       ],
   };
