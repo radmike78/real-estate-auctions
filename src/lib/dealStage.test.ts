@@ -609,7 +609,7 @@ describe('Nevada round 4 flow', () => {
     expect(withRow(rows, { when: '2026-11-12', what: 'Payment deadline', who: 'the trustee' })).toEqual([rows[0], { when: '2026-11-12', what: 'Payment deadline', who: 'the trustee' }]);
     // A row dated later than the missed deadline takes the deadline that counted; an earlier one is kept; no row adds one.
     const dated = [{ when: '2026-11-20', what: 'Payment deadline', who: 'HOA agent' }];
-    expect(withRow(dated, { when: '2026-11-12', what: 'Payment deadline', who: 'x' })).toEqual([{ when: '2026-11-12', what: 'Payment deadline', who: 'HOA agent (you had typed Nov 20, 2026)' }]);
+    expect(withRow(dated, { when: '2026-11-12', what: 'Payment deadline', who: 'x' })).toEqual([{ when: '2026-11-12', what: 'Payment deadline', who: 'HOA agent; you had typed Nov 20, 2026' }]);
     expect(withRow(dated, { when: '2026-11-25', what: 'Payment deadline', who: 'x' })).toEqual(dated);
     expect(withRow([rows[0]], { when: '2026-11-12', what: 'Payment deadline', who: 'x' })).toHaveLength(2);
   });
@@ -712,20 +712,20 @@ describe('Nevada round 4 flow', () => {
     // The reader can say the Treasurer gave the later date: then that date's own steps follow.
     const conf = dealNextTask(clark, typed, new Date('2026-11-14T18:00:00Z'), 'contract');
     expect(conf.record?.label).toBe('The Treasurer gave me this date in writing');
-    expect(conf.record?.row.when).toBe('2026-11-18');
+    expect(conf.record?.row.who).toBe('Treasurer, for Nov 18, 2026');
     const confirmed = { ...EMPTY_PACKET, dates: [...typed.dates, conf.record!.row] };
     savePacket(`analyzed:${clark.id}`, confirmed);
     expect(dealNextTask(clark, confirmed, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/^Pay for .* by its payment deadline, in 4 days \(Nov 18, 2026\)/);
     // A date weeks out keeps its date; a changed typed date ends the answer, and the county's steps return.
-    const farOk = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-12-01', what: 'Payment deadline', who: '' }, { when: '2026-12-01', what: 'Payment date confirmed by the Treasurer in writing', who: 'Treasurer', resolved: true }] };
+    const farOk = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-12-01', what: 'Payment deadline', who: '' }, { when: '2026-11-13', what: 'Treasurer confirmed the later payment date in writing', who: 'Treasurer, for Dec 1, 2026', resolved: true }] };
     savePacket(`analyzed:${clark.id}`, farOk);
     expect(dealNextTask(clark, farOk, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/\(Dec 1, 2026\)/);
-    expect(dealNextTask(clark, farOk, new Date('2026-11-14T18:00:00Z'), 'contract').undo?.removeRow).toBe('Payment date confirmed by the Treasurer in writing');
+    expect(dealNextTask(clark, farOk, new Date('2026-11-14T18:00:00Z'), 'contract').undo?.removeRow).toBe('Treasurer confirmed the later payment date in writing');
     const moved = { ...farOk, dates: farOk.dates.map((x) => (x.what === 'Payment deadline' ? { ...x, when: '2026-12-03' } : x)) };
     savePacket(`analyzed:${clark.id}`, moved);
     expect(dealNextTask(clark, moved, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/^Did you pay for .*You typed a later payment date/);
     // Answering again for the new date replaces the old answer.
-    expect(dealNextTask(clark, moved, new Date('2026-11-14T18:00:00Z'), 'contract').record).toMatchObject({ replace: true, row: { when: '2026-12-03' } });
+    expect(dealNextTask(clark, moved, new Date('2026-11-14T18:00:00Z'), 'contract').record).toMatchObject({ replace: true, row: { who: 'Treasurer, for Dec 3, 2026' } });
   });
 
   it('a Nevada trustee win left unpaid after the sale day is urgent', () => {
