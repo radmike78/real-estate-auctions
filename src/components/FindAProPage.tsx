@@ -18,7 +18,7 @@ import { COMMERCIAL_OFFER_ROLES, guideKeyFor } from '../lib/dealPacket';
 import { STATES, stateByCode, countyName, type StateCode } from '../lib/regions';
 import { isListable } from '../lib/pros';
 import { LICENSE_LOOKUPS, type Lookup } from '../lib/licenseLookups';
-import { useMyState, forStateText, showFor, mentionsOtherState } from '../lib/myState';
+import { useMyState, forStateText, showFor, mentionsOtherState, nameYourState } from '../lib/myState';
 import { useMarkStep, stepEyebrow } from '../lib/path';
 import PathNext from './PathNext';
 import { PRO_GUIDES, proGuideByKey, type ProGuide, type ProKey } from '../lib/proGuide';
@@ -343,7 +343,7 @@ export default function FindAProPage({ section }: { section?: string }) {
   const near = myArea?.county ? myArea : nvFallback(myArea?.state ?? mine);
   const nearName = near ? near.city ?? (near.county ? countyName(near.county) : '') : '';
   const listedFor = (g: ProGuide) => (near && g.directory ? prosInArea(listedPros.filter((x) => !x.isSample && isListable(x) && g.directory!.includes(x.category)), near).length : 0);
-  const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: listedFor(g) ? <>{g.summary} <strong className="drill-listed">{listedFor(g)} listed in {nearName}</strong></> : g.summary, icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
+  const sections: DrillSection[] = PRO_GUIDES.map((g) => ({ key: g.key, title: g.title, summary: listedFor(g) ? <>{nameYourState(g.summary, mine)} <strong className="drill-listed">{listedFor(g)} listed in {nearName}</strong></> : nameYourState(g.summary, mine), icon: ICONS[g.key], content: () => <GuideBody g={g} /> }));
   // The lien deal you're working on can be in Nevada or Arizona while your own state is another: its lien team is
   // offered too (the same state practiceState() gives the roadmap's lien practice).
   const teamGuides = () => {

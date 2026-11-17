@@ -170,7 +170,7 @@ export const STRATEGIES: Strategy[] = [
       { id: 'hh-lesson', text: 'Read the traditional financing lesson: FHA and VA loans for a home you’ll live in.', href: '#/learn/financing' },
       { id: 'hh-lender', text: 'Talk to a licensed loan officer about pre-approval for a 2–4 unit home you’ll live in.', href: '#/pros/lender', cashText: 'Paying cash: get proof of funds (a recent statement or a bank letter); a loan officer can still show you what an owner-occupant loan would change.' },
       { id: 'hh-reserves', text: 'Save for closing costs and reserves. An FHA loan on 3–4 units needs three months of payments left in savings after closing, and the rents must pass FHA’s self-sufficiency test.' },
-      { id: 'hh-rules', text: 'Learn your state’s landlord-tenant rules and any local rent rules.' },
+      { id: 'hh-rules', text: 'Learn your state’s landlord-tenant rules and any city, county or HOA rules.' },
       { id: 'hh-agent', text: 'Find a buyer’s agent who knows small multi-unit homes.', href: '#/pros/agent' },
       { id: 'hh-numbers', text: 'Run the numbers with the rent from the other units, including vacancy and repairs.', href: '#/analyze?plan=rent' },
       { id: 'hh-landlord', text: 'Get ready to be a landlord: screening, leases and repairs.', href: '#/learn/reading' },

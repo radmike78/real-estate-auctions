@@ -22,7 +22,7 @@ export const PATH: PathStep[] = [
   { key: 'learn', n: 2, label: 'Learn', href: '#/learn', blurb: 'How investing works, starting with property types and the seminar pitches to avoid; your strategy’s lessons are listed in Decide.' },
   { key: 'practice', n: 3, label: 'Practice', href: '#/practice', blurb: 'Buy a fictional property step by step before you risk real money.' },
   { key: 'team', n: 4, label: 'Your team', href: '#/pros', blurb: 'Line up a lender, agent and the other professionals before you make an offer or bid.' },
-  { key: 'deals', n: 5, label: 'Find deals', href: '#/find-deals', blurb: 'Where to look in your state and county, starting with official sources.' },
+  { key: 'deals', n: 5, label: 'Find deals', href: '#/find-deals', blurb: 'Where to look in your state and your county, starting with official sources.' },
   { key: 'analyze', n: 6, label: 'Analyze a deal', href: '#/analyze', blurb: 'Run the numbers on a real deal and work through buying it.' },
 ];
 

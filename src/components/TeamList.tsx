@@ -1,15 +1,17 @@
 import type { Playbook } from '../lib/playbooks';
+import { nameYourState, useMyState } from '../lib/myState';
 
 const isExternal = (u: string) => /^https:\/\//.test(u);
 
 /** The professionals a sale type needs, when each one comes in, and how to find one. */
 export default function TeamList({ team }: { team: Playbook['team'] }) {
+  const [st] = useMyState();
   return (
     <ul className="team-list">
       {team.map((t) => (
         <li key={t.role}>
           <strong>{t.role}</strong>
-          <span>{t.when}</span>
+          <span>{nameYourState(t.when, st)}</span>
           {t.href && (isExternal(t.href)
             ? <a href={t.href} target="_blank" rel="noopener noreferrer">Find one&nbsp;↗</a>
             : <a href={t.href}>How to find one<span className="sr-only">: {t.role}</span>&nbsp;→</a>)}

@@ -3,7 +3,7 @@ import { BUSINESS_SOURCES, SALE_CHANNELS } from '../lib/businessAssets';
 import BuyerChecklistBox from './BuyerChecklistBox';
 import ByState from './ByState';
 import StatePicker from './StatePicker';
-import { getMyState, useMyState } from '../lib/myState';
+import { getMyState, nameYourState, useMyState } from '../lib/myState';
 import { stateByCode } from '../lib/regions';
 import { BUYING, NEVADA_ONLY_SOURCES, NOTICES, SELLERS } from '../lib/states/businessAssets';
 import Disclaimer from './Disclaimer';
@@ -41,7 +41,7 @@ export const SECTIONS: DrillSection[] = [
     summary: 'Official sellers in your state, where their sales are noticed, and nationwide sources like the IRS and GSA',
     content: () => (
       <>
-        <h3 className="topic-head">Official sellers in your state</h3>
+        <h3 className="topic-head">{nameYourState('Official sellers in your state', getMyState())}</h3>
         <p>Court-appointed receivers, bankruptcy trustees and the sheriff, plus how assignments for the benefit of creditors work (a private process, not a court sale). Each line names its state.</p>
         <ByState lines={SELLERS} />
         <h3 className="topic-head">Where sales are noticed</h3>
@@ -86,7 +86,7 @@ export const SECTIONS: DrillSection[] = [
         <li><strong>Licenses and permits.</strong> Many business, liquor, health and contractor licenses are issued to the owner and don’t simply pass to you. You may need a new license, a transfer approval or a change-of-ownership filing. Confirm with each agency that issued one before you reopen.</li>
         <li><strong>The lease and the name.</strong> The building lease usually needs the landlord’s consent. Trade names, websites and phone numbers must be included in the sale to be yours.</li>
       </ul>
-      <h3 className="topic-head">Tax clearance, liens and bulk sales in your state</h3>
+      <h3 className="topic-head">{nameYourState('Tax clearance, liens and bulk sales in your state', getMyState())}</h3>
       <ByState lines={BUYING} />
       </>
     ),
@@ -159,7 +159,7 @@ export default function BusinessAssetsPage({ section }: { section?: string }) {
         </div>
       )}
       <StatePicker label="Where is the business?" />
-      <DrillDown sections={SECTIONS} active={section} baseHref="#/business-assets" label="Business assets guide" />
+      <DrillDown sections={SECTIONS.map((x) => ({ ...x, summary: typeof x.summary === 'string' ? nameYourState(x.summary, state) : x.summary }))} active={section} baseHref="#/business-assets" label="Business assets guide" />
       <Disclaimer kind="sales" compact />
     </main>
   );

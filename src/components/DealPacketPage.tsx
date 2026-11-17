@@ -103,7 +103,8 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
   // Passed, sold or repaid: its dates are a record (the rows fold under "Edit these dates").
   const finalDeal = stageOf(deal) === 'passed' || !!soldOf(deal) || finishedDeal(deal);
   // (A deal moved to Passed by its repayment is finished, not passed on.)
-  const passedOn = stageOf(deal) === 'passed' && !finishedDeal(deal);
+  // A void tax sale (the law undid it) isn't the reader's pass: it reads as the sale's records, not a decision to walk away.
+  const passedOn = stageOf(deal) === 'passed' && !finishedDeal(deal) && sidState(deal) !== 'void';
   // An offer bought with no dates in its packet: Key dates is a record left blank, like the other parts from before.
   const boughtNoDates = wayOf(deal) === 'offer' && ['closed', 'owned'].includes(stageOf(deal)) && p.dates.length === 0;
   // Usual dates removed (or added since the packet was started): add back only those, at the end.

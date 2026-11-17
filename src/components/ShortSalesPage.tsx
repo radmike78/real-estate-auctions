@@ -7,7 +7,7 @@ import { IconCheckList, IconFlag, IconGavel, IconLayers, IconSteps, IconStop } f
 import SaleDocsPanel from './SaleDocsPanel';
 import ByState, { hasLines } from './ByState';
 import StatePicker from './StatePicker';
-import { useMyState } from '../lib/myState';
+import { getMyState, nameYourState, useMyState } from '../lib/myState';
 import { stateByCode } from '../lib/regions';
 import { DEFICIENCY, DISCLOSURES, NOTES, OWNERS } from '../lib/states/shortSales';
 import AdSpot from './AdSpot';
@@ -138,7 +138,7 @@ export const SECTIONS: DrillSection[] = [
           agent usually lists the home on the MLS; ask your agent. To follow a property’s foreclosure status without contacting anyone,
           use the <a href="#/pre-foreclosures">pre-foreclosure tracker</a>.
         </p>
-        <h3 className="topic-head">The law in your state</h3>
+        <h3 className="topic-head">{nameYourState('The law in your state', getMyState())}</h3>
         <ByState lines={OWNERS} />
       </>
     ),
@@ -176,7 +176,7 @@ export default function ShortSalesPage({ section }: { section?: string }) {
         : 'How short sales work, how to buy one step by step, the risks, and the rules in Nevada, California, Arizona, Utah and Texas. Pick your state to see only its rules.'}</p>}
       <StatePicker label="Where is the home?" />
 
-      <DrillDown sections={SECTIONS} active={section} baseHref="#/short-sales" label="Short sale guide" />
+      <DrillDown sections={SECTIONS.map((x) => ({ ...x, title: nameYourState(x.title, state) }))} active={section} baseHref="#/short-sales" label="Short sale guide" />
 
       <p className="muted small ss-general">General information only, not legal, tax or financial advice. If you’re the seller, ask a tax professional and an attorney whether you could still owe the lender afterward (a deficiency) and what the tax consequences are.</p>
       <Disclaimer kind="sales" compact />

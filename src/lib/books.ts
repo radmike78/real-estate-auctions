@@ -71,7 +71,7 @@ export const BOOK_GROUPS: { topic: string; books: Book[] }[] = [
   {
     topic: 'Taxes',
     books: [
-      { title: 'Every Landlord’s Tax Deduction Guide', author: 'Stephen Fishman (Nolo)', edition: '2026 edition', isbn10: '1413333117', about: 'Federal tax deductions, depreciation and record-keeping for landlords.', note: 'Federal taxes only; ask a tax advisor about your state.' },
+      { title: 'Every Landlord’s Tax Deduction Guide', author: 'Stephen Fishman (Nolo)', edition: '2026 edition', isbn10: '1413333117', about: 'Federal tax deductions, depreciation and record-keeping for landlords.', note: 'Federal taxes only; ask a tax advisor about your state’s taxes.' },
     ],
   },
 ];

@@ -39,6 +39,7 @@ export function oneState(text: string, st: StateCode | null): string {
   return text
     .replace(/\s*Choose your state (?:above|below) to see only its [^.]*\./g, '')
     .replace(/\b(in|across) (?:all five states|Nevada, California, Arizona, Utah and Texas)\b/g, `$1 ${nameOf(st)}`)
+    .replace(/The rules change a lot from state to state\.(\s*)/g, `This lesson shows the rules in ${nameOf(st)}.$1`)
     .replace(/[^]*/, (t) => nameYourState(t, st))
     .trim();
 }

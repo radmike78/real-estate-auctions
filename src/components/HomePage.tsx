@@ -9,6 +9,7 @@ import PlanNext, { ContinueButton } from './PlanNext';
 import { planNow, planStarted } from '../lib/planNext';
 import { navigate } from '../lib/nav';
 import { taskHeadParts } from '../lib/dealStage';
+import { getMyState, nameYourState } from '../lib/myState';
 
 
 // Straight to the tools and references, for "I know the basics", in the site's order (practice, team, deals, analyze).
@@ -116,7 +117,7 @@ export default function HomePage() {
                   <span className="path-n" aria-hidden>{s.n}</span>
                   <span className="path-body">
                     <strong>{s.label}</strong>
-                    <span>{s.blurb}</span>
+                    <span>{nameYourState(s.blurb, getMyState())}</span>
                     {opened && <span className="path-visited">Visited</span>}
                   </span>
                   <span className="path-go" aria-hidden>→</span>

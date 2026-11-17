@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { AMAZON_TAG, amazonUrl, coverFallback, coverUrl, type Book } from '../lib/books';
 import '../styles/review-lessons.css';
-import { useMyState } from '../lib/myState';
+import { nameYourState, useMyState } from '../lib/myState';
 import { stateByCode } from '../lib/regions';
 
 const rel = AMAZON_TAG ? 'sponsored noopener noreferrer' : 'noopener noreferrer';
@@ -49,7 +49,7 @@ export function BookCard({ b, top }: { b: Book; top?: string }) {
       <div className="book-info">
         <strong className="book-title">{b.title}</strong>
         <span className="book-author">{b.author} · {b.edition}</span>
-        <span>{b.about}</span>
+        <span>{nameYourState(b.about, st)}</span>
         {note && <span className="book-note">{note}</span>}
         {b.audio && <span className="book-audio-tag">Also on Audible</span>}
         <span className="book-buttons">

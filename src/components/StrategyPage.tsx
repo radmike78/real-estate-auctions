@@ -3,7 +3,7 @@ import { getMyArea } from '../lib/myArea';
 import { useMarkStep } from '../lib/path';
 import { stateNote } from '../lib/decide';
 import { LEARN_MODULES } from '../lib/learn';
-import { useMyState } from '../lib/myState';
+import { nameYourState, useMyState } from '../lib/myState';
 import { stateByCode } from '../lib/regions';
 import '../styles/review-lessons.css';
 import { proGuideByKey } from '../lib/proGuide';
@@ -94,12 +94,12 @@ export default function StrategyPage({ slug }: { slug?: string }) {
       </section>
       <section>
         <h2>What goes wrong on a first deal</h2>
-        <ul className="deep-list">{g.watchFor.map((x) => <li key={x}>{x}</li>)}</ul>
+        <ul className="deep-list">{g.watchFor.map((x) => <li key={x}>{nameYourState(x, st)}</li>)}</ul>
       </section>
       <section>
         <h2>Your first steps</h2>
         {/* Every step reads as plain text; where we have a page for it, a small "Open" link follows. */}
-        <ol className="deep-list first-steps">{s.checklist.map((c) => <li key={c.id}>{c.text}{c.href && <> <a className="step-open" href={c.href}>Open&nbsp;→</a></>}</li>)}</ol>
+        <ol className="deep-list first-steps">{s.checklist.map((c) => <li key={c.id}>{nameYourState(c.text, st)}{c.href && <> <a className="step-open" href={c.href}>Open&nbsp;→</a></>}</li>)}</ol>
       </section>
       <section>
         <h2>Learn, practice and run the numbers</h2>
@@ -115,7 +115,7 @@ export default function StrategyPage({ slug }: { slug?: string }) {
                 // The foreclosure-auction drill comes in every state: open the reader's own state's version.
                 const name = st ? stateByCode(st)?.name : undefined;
                 const mine = st && name && /-nv$/.test(p.href) && p.label.includes('(Nevada)') ? { href: p.href.replace(/-nv$/, `-${st.toLowerCase()}`), label: p.label.replace('(Nevada)', `(${name})`) } : p;
-                return <li key={p.href}><a href={mine.href}>{mine.label}</a></li>;
+                return <li key={p.href}><a href={mine.href}>{nameYourState(mine.label, st)}</a></li>;
               })}
               {g.calc && <li><a href={g.calc.href}>{g.calc.label}</a></li>}
               {!g.practice.length && !g.calc && <li>There’s nothing to buy and manage here; compare funds’ fees and read the offering documents.</li>}
@@ -128,7 +128,7 @@ export default function StrategyPage({ slug }: { slug?: string }) {
         <ul className="deep-list link-columns">
           {g.team.map((k) => {
             const p = proGuideByKey(k);
-            return p ? <li key={k}><a href={`#/pros/${k}`}>{p.title}</a>: {p.summary}</li> : null;
+            return p ? <li key={k}><a href={`#/pros/${k}`}>{p.title}</a>: {nameYourState(p.summary, st)}</li> : null;
           })}
         </ul>
       </section>

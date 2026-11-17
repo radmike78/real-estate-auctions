@@ -1,4 +1,5 @@
 import { workStorage as localStorage } from './workStorage';
+import { getMyState } from './myState';
 import { nvHoliday } from './time';
 // Where a saved deal stands (researching, preparing an offer or bid, under contract or won, closed, owned and
 // operating, or passed) and the tasks that belong to that stage. The stage picks the deal's next action in My plan:
@@ -36,8 +37,10 @@ const localDay = (now: Date) => `${now.getFullYear()}-${String(now.getMonth() + 
 /** Today in the deal's state (its own time zone), so a deadline ends at that state's midnight wherever the reader is;
  * the reader's own day when the state isn't known. */
 const ZONE: Record<string, string> = { NV: 'America/Los_Angeles', CA: 'America/Los_Angeles', AZ: 'America/Phoenix', UT: 'America/Denver', TX: 'America/Chicago' };
+/** Today in the reader's chosen state, for checks that don't know the deal (the reader's own day when none is chosen). */
+const readerDay = (now: Date) => dayOf({ state: getMyState() ?? undefined }, now);
 export const dayOf = (d: { state?: string } | null | undefined, now: Date) => { const z = d?.state ? ZONE[d.state] : undefined; if (!z) return localDay(now); const f = new Intl.DateTimeFormat('en-CA', { timeZone: z, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now); const g = (t: string) => f.find((x) => x.type === t)?.value ?? ''; return `${g('year')}-${g('month')}-${g('day')}`; };
-const handled = (p: PacketData, what: string, now: Date) => p.dates.some((x) => sameDate(x.what, what) && !!x.resolved && (!x.when || x.when < localDay(now)));
+const handled = (p: PacketData, what: string, now: Date) => p.dates.some((x) => sameDate(x.what, what) && !!x.resolved && (!x.when || x.when < readerDay(now)));
 /** A home you'll live in: bought by offer to keep, by a reader buying a home to live in (Decide), unless this property is
  *  marked a rental (or the rent recorded in its tracker covers its costs). The reader can say so for each property. */
 export function liveIn(d: { kind: Deal['kind']; plan?: Deal['plan']; id?: string; home?: Deal['home'] }): boolean {
@@ -114,8 +117,8 @@ export function sidFirst<T extends { what: string; when: string; days: number }>
 }
 export function contingencyFirst<T extends { what: string; when: string; days: number }>(nd: T | null, p: PacketData, now: Date, stage: string, kind?: string): T | (PacketData['dates'][number] & { days: number }) | null {
   if (!nd || nd.days >= 0 || stage !== 'contract' || !windowEnded(nd.what, -nd.days, kind)?.ask) return nd;
-  const soon = p.dates.filter((x) => !x.resolved && x.when && x.when >= localDay(now) && ['Inspection period ends', 'Option period ends', 'Appraisal deadline', 'Loan approval deadline'].some((n) => sameEvent(x.what, n))).sort((x, y) => x.when.localeCompare(y.when))[0];
-  const days = soon ? Math.round((new Date(`${soon.when}T12:00:00`).getTime() - new Date(`${localDay(now)}T12:00:00`).getTime()) / 864e5) : 99;
+  const soon = p.dates.filter((x) => !x.resolved && x.when && x.when >= readerDay(now) && ['Inspection period ends', 'Option period ends', 'Appraisal deadline', 'Loan approval deadline'].some((n) => sameEvent(x.what, n))).sort((x, y) => x.when.localeCompare(y.when))[0];
+  const days = soon ? Math.round((new Date(`${soon.when}T12:00:00`).getTime() - new Date(`${readerDay(now)}T12:00:00`).getTime()) / 864e5) : 99;
   return soon && days <= 2 ? { ...soon, days } : nd;
 }
 /** At a certificate-first win, the redemption end and the deed are ahead: not reminders yet (and not behind you). */
@@ -222,7 +225,7 @@ export function nextOpenDeal(fromId: string): Deal | undefined {
 }
 /** The row a Nevada tax-sale buyer records once the city or county has sent the Treasurer its SID payment affidavit. */
 export const SID_AFFIDAVIT_SENT = 'SID payment affidavit sent to the Treasurer';
-export const remindable = (p: PacketData, now: Date, early: boolean, behind: string[] = [], saleToday = localDay(now)): PacketData => {
+export const remindable = (p: PacketData, now: Date, early: boolean, behind: string[] = [], saleToday = readerDay(now)): PacketData => {
   const deed = ticked(p, DEED_AFTER_WAIT);
   // (A Nevada sale day counts in Nevada's day, wherever the reader is: pass that day as saleToday.)
   const past = (x: { when: string; what: string }) => !!x.when && x.when < (sameEvent(x.what, 'Sale day') ? saleToday : localDay(now));
@@ -236,7 +239,7 @@ const EVENTS = ['Sale day', 'Contract signed', 'Offer accepted (Day 0)', 'Accept
 /** Registration rows: past the bidding (won, closed), they're behind you. */
 const BEFORE_SALE = ['Registration', 'Bidder registration', 'Sealed bid and full payment due'];
 /** Sale day is marked handled, or its date has passed: time to say whether you won. */
-export const saleOver = (p: PacketData, now: Date) => p.dates.some((x) => sameDate(x.what, 'Sale day') && (x.when ? x.when < localDay(now) || (!!x.resolved && x.when <= localDay(now)) : !!x.resolved));
+export const saleOver = (p: PacketData, now: Date) => p.dates.some((x) => sameDate(x.what, 'Sale day') && (x.when ? x.when < readerDay(now) || (!!x.resolved && x.when <= readerDay(now)) : !!x.resolved));
 /** The same for a Nevada sale, counted in Nevada's day (its steps run in Nevada days, wherever the reader is). */
 export const saleOverFor = (d: { state?: Deal['state']; kind?: Deal['kind']; county?: string }, p: PacketData, now: Date) => { if (d.state !== 'NV') return saleOver(p, now); const today = nvParts(now).day; return p.dates.some((x) => sameDate(x.what, 'Sale day') && (x.when ? x.when < today || (!!x.resolved && x.when <= today) : !!x.resolved)); };
 /** A row marked handled, with or without its date (the deed: you have it). */
@@ -372,7 +375,7 @@ export const fillSealedDay = (d: { state?: Deal['state']; kind?: Deal['kind']; c
   return { ...p, sealedFor: sale, dates: p.dates.map((x) => (redo(x) ? { ...x, when: due } : x)) };
 };
 /** An offer's closing is marked handled, and its date (if any) has come. */
-export const closingDoneIn = (p: PacketData, now: Date) => p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved && (!x.when || x.when <= localDay(now)));
+export const closingDoneIn = (p: PacketData, now: Date) => p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved && (!x.when || x.when <= readerDay(now)));
 /** A paid Nevada tax sale whose SID question is still open: what to do about it (or '' when nothing is pending). */
 export const sidPending = (d: { id?: string; state?: Deal['state']; kind: Deal['kind'] }, now: Date = new Date()): string => {
   if (!d.id || d.state !== 'NV' || d.kind !== 'taxSale' || !sidUnasked(d) || !paidAtWin(d as Deal)) return '';
@@ -391,7 +394,7 @@ export const sidPending = (d: { id?: string; state?: Deal['state']; kind: Deal['
 // (An undated tick counts only once the 20 days are over: while they run, the recording date settles it.)
 export const deedOnRecord = (p: PacketData, now: Date = new Date()) => p.dates.some((x) => !!x.resolved && (x.when ? x.when <= nvParts(now).day : !(sidDeadline(p) && sidDeadline(p) >= nvParts(now).day)) && ['Treasurer’s deed recorded', 'Deed recorded', 'Deed or certificate recorded'].some((r) => sameDate(x.what, r)));
 /** A recording row ticked, dated today or earlier (or undated): a date that hasn't come yet isn't recorded. */
-const recordedOn = (p: PacketData, now: Date = new Date()) => p.dates.some((x) => !!x.resolved && (!x.when || x.when <= localDay(now)) && RECORDED_ROWS.some((r) => sameDate(x.what, r)));
+const recordedOn = (p: PacketData, now: Date = new Date()) => p.dates.some((x) => !!x.resolved && (!x.when || x.when <= readerDay(now)) && RECORDED_ROWS.some((r) => sameDate(x.what, r)));
 const sidPayDue = (p: PacketData, now: Date) => { const dl = sidDeadline(p); const r = p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && !!x.when && !x.resolved); return dl && r && dl >= nvParts(now).day ? { dl, row: r.what } : null; };
 const sidUnasked = (d: { id?: string }) => { if (!d.id) return false; const p = loadPacket(`analyzed:${d.id}`); return !!sidDeadline(p) && !deedOnRecord(p) && !p.dates.some((x) => (sameDate(x.what, 'SID certificate payoff') && x.resolved) || sameDate(x.what, NO_SID_ROW) || sameDate(x.what, SID_VOID_ROW)); };
 /** A Nevada tax-sale win not yet paid whose open payment date falls on or after the 20-day SID deadline: the SID question

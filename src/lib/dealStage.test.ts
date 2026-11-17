@@ -2136,4 +2136,25 @@ describe('round 39: Eureka sealed-bid sale', () => {
     setDealStage('dcl40', 'contract');
     expect(loadPacket('analyzed:dcl40').dates.some((x) => x.what === 'Payment deadline')).toBe(false);
   });
+
+  it('round 93: day checks that don’t know the deal count in the chosen state’s day', async () => {
+    const { closingDoneIn } = await import('./dealStage');
+    localStorage.setItem('deedowl.state.v1', 'NV');
+    // 06:00 UTC on Nov 18 is still Nov 17 in Nevada: a closing ticked for Nov 18 hasn't happened yet.
+    const at = new Date('2026-11-18T06:00:00Z');
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-18', what: 'Closing', who: 'Escrow', resolved: true }] };
+    expect(closingDoneIn(p, at)).toBe(false);
+    expect(closingDoneIn(p, new Date('2026-11-18T20:00:00Z'))).toBe(true);
+  });
+
+  it('round 93: a void Nevada tax sale, once passed, reads as the void sale, not the reader’s pass', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const tax: Deal = { ...deal, id: 'v93', name: '2210 Mesa Verde Ln', state: 'NV', county: 'Nye', kind: 'taxSale', plan: 'flip', stage: 'passed' };
+    saveDeals([tax]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-12-03', what: 'The sale is void (the SID payoff wasn’t made within 20 days, NRS 361.595(6))', who: 'Me', resolved: true }] };
+    savePacket(`analyzed:${tax.id}`, p);
+    const text = JSON.stringify(packetSections(tax, p, new Date('2026-12-04T18:00:00Z')));
+    expect(text).not.toMatch(/before you passed|you moved it to Passed/);
+    expect(text).toMatch(/before the sale/);
+  });
 });

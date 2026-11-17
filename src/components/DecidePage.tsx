@@ -12,7 +12,7 @@ import { creditStep } from '../lib/roadmapState';
 import { DECIDE_KEY, joinReasons, notYetWhy, QUESTIONS, rank, stateNote, type Answers, asAnswered } from '../lib/decide';
 import { strategyHref } from '../lib/strategies';
 import { stateByCode, type StateCode } from '../lib/regions';
-import { getMyState, setMyState } from '../lib/myState';
+import { getMyState, nameYourState, setMyState } from '../lib/myState';
 import CheckFold from './CheckFold';
 import AdSpot from './AdSpot';
 
@@ -220,7 +220,7 @@ export default function DecidePage() {
                       <li key={c.id}>
                         <label>
                           <input type="checkbox" checked={saved.done.includes(c.id) || seenDone(c)} disabled={seenDone(c)} onChange={() => toggle(c.id)} />
-                          <span>{c.text}{seenDone(c) && <span className="muted"> (done: the site saw you finish it)</span>}</span>
+                          <span>{nameYourState(c.text, getMyState())}{seenDone(c) && <span className="muted"> (done: the site saw you finish it)</span>}</span>
                         </label>
                         {c.href && <a href={c.href}>{linkLabel(c.href)}&nbsp;→</a>}
                       </li>
