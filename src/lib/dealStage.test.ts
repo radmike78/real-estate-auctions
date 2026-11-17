@@ -2379,4 +2379,19 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(sec.lines.some((t) => /not in this packet: .*Recovery-suit/.test(t))).toBe(false);
     expect(sec.hold).toBe(true);
   });
+
+  it('round 103 clarity: a challenge or recovery-suit window can’t be marked before it ends, and an early tick doesn’t lift the repairs gate', async () => {
+    const { windowMarkWait, clearEarlyRedemptionEnds } = await import('./dealStage');
+    const { loadPacket } = await import('./dealPacket');
+    const tr: Deal = { ...deal, id: 'w103', name: '8 Fir', state: 'NV', county: 'Washoe', kind: 'trustee', plan: 'flip', stage: 'closed' };
+    saveDeals([tr]);
+    const now = new Date('2026-11-17T20:00:00Z');
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'Trustee', resolved: true }, { when: '2026-11-17', what: 'Deed recorded', who: 'County', resolved: true }, { when: '', what: 'Challenge window ends', who: '', resolved: true }] };
+    expect(windowMarkWait(tr, p, 'Challenge window ends', now)).toBe('2026-12-17');
+    savePacket(`analyzed:${tr.id}`, p);
+    clearEarlyRedemptionEnds(now);
+    expect(loadPacket(`analyzed:${tr.id}`).dates.find((x) => x.what === 'Challenge window ends')?.resolved).toBeFalsy();
+    const tx: Deal = { ...tr, id: 'x103', kind: 'taxSale' };
+    expect(windowMarkWait(tx, { ...EMPTY_PACKET, dates: [{ when: '2026-06-20', what: 'Treasurer’s deed recorded', who: 'T', resolved: true }] }, 'Recovery-suit window ends', now)).toBe('2028-06-20');
+  });
 });

@@ -141,11 +141,32 @@ export function fixRedemptionRows(d: Deal, p: PacketData, now: Date = new Date()
   return changed ? { ...p, dates } : null;
 }
 
+/**
+ * Whether a Nevada challenge or recovery-suit window row must wait before it's marked handled ('' when it may be): the
+ * trustee's 30-day challenge window after the deed is recorded (NRS 107.080(5)), or the tax deed's 2-year recovery-suit
+ * window (NRS 361.600). Returns the end date while it runs, or 'no-deed' when there's no recorded deed to count from.
+ */
+export function windowMarkWait(d: Deal, p: PacketData, what: string, now: Date = new Date()): string {
+  const trustee = d.state === 'NV' && d.kind === 'trustee' && sameDate(what, 'Challenge window ends');
+  const tax = d.state === 'NV' && d.kind === 'taxSale' && sameDate(what, 'Recovery-suit window ends');
+  if (!trustee && !tax) return '';
+  const typed = p.dates.find((x) => sameDate(x.what, what) && x.when)?.when;
+  const deed = p.dates.find((x) => x.when && x.resolved && (trustee ? ['Deed recorded', 'Trustee’s deed recorded'] : ['Treasurer’s deed recorded']).some((r) => sameDate(x.what, r)))?.when;
+  let worked = '';
+  if (deed) { const t = new Date(`${deed}T12:00:00`); if (trustee) t.setDate(t.getDate() + 30); else t.setFullYear(t.getFullYear() + 2); worked = localDay(t); }
+  const end = typed && worked ? (typed > worked ? typed : worked) : typed || worked;
+  if (!end) return 'no-deed';
+  return end >= dayOf(d, now) ? end : '';
+}
+
 /** Older data (and dates edited before the law's end was known): see fixRedemptionRows. */
 export function clearEarlyRedemptionEnds(now: Date = new Date()) {
   for (const d of loadDeals()) {
-    const q = fixRedemptionRows(d, loadPacket(`analyzed:${d.id}`), now);
-    if (q) savePacket(`analyzed:${d.id}`, q);
+    let q = fixRedemptionRows(d, loadPacket(`analyzed:${d.id}`), now) ?? loadPacket(`analyzed:${d.id}`);
+    // (A challenge or recovery-suit window ticked before it ended goes back to open, keeping its date.)
+    const early = q.dates.some((x) => x.resolved && (sameDate(x.what, 'Challenge window ends') || sameDate(x.what, 'Recovery-suit window ends')) && windowMarkWait(d, q, x.what, now));
+    if (early) q = { ...q, dates: q.dates.map((x) => (x.resolved && (sameDate(x.what, 'Challenge window ends') || sameDate(x.what, 'Recovery-suit window ends')) && windowMarkWait(d, q, x.what, now) ? { ...x, resolved: false } : x)) };
+    if (early || fixRedemptionRows(d, loadPacket(`analyzed:${d.id}`), now)) savePacket(`analyzed:${d.id}`, q);
   }
 }
 
@@ -1146,7 +1167,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     const win = d.state === 'NV' && d.kind === 'trustee' ? { row: 'Challenge window ends', base: 'Deed recorded', days: 30 } : d.state === 'NV' && d.kind === 'taxSale' ? { row: 'Recovery-suit window ends', base: 'Treasurer’s deed recorded', days: 0 } : null;
     const plusDays = (from: string | undefined, days: number) => (from ? (() => { const t = new Date(`${from}T12:00:00`); t.setDate(t.getDate() + days); return localDay(t); })() : '');
     // A Nevada trustee's sale: the work waits for the challenge window (until its row is ticked).
-    const windowOpen = d.state === 'NV' && d.kind === 'trustee' && !p.dates.some((x) => sameDate(x.what, 'Challenge window ends') && x.resolved);
+    const windowOpen = d.state === 'NV' && d.kind === 'trustee' && (!p.dates.some((x) => sameDate(x.what, 'Challenge window ends') && x.resolved) || !!windowMarkWait(d, p, 'Challenge window ends', now));
     const windowEnd = p.dates.find((x) => sameDate(x.what, 'Challenge window ends') && x.when)?.when || plusDays(p.dates.find((x) => sameDate(x.what, 'Deed recorded') && x.when)?.when, 30);
     const late90 = plusDays(p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when, 90);
     const windowWords = windowEnd ? ` (${prettyDay(windowEnd)}${late90 && late90 > windowEnd ? `, or ${prettyDay(late90)} if anyone wasn’t properly notified; ask your title company` : ''})` : '';
