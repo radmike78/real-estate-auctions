@@ -711,9 +711,9 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(clark, typed, new Date('2026-11-12T18:00:00Z'), 'contract').label).toMatch(/^Pay for .* by 1:00 p.m. Nevada time today.*You typed a later payment date/);
     // The reader can say the Treasurer gave the later date: then that date's own steps follow.
     const conf = dealNextTask(clark, typed, new Date('2026-11-14T18:00:00Z'), 'contract');
-    expect(conf.record?.label).toBe('The Treasurer gave me this date in writing');
-    expect(conf.record?.row.who).toBe('Treasurer, for Nov 18, 2026');
-    const confirmed = { ...EMPTY_PACKET, dates: [...typed.dates, conf.record!.row] };
+    expect(conf.undo?.label).toBe('The Treasurer gave me this date in writing');
+    expect(conf.undo?.addRow?.who).toBe('Treasurer, for Nov 18, 2026');
+    const confirmed = { ...EMPTY_PACKET, dates: [...typed.dates, conf.undo!.addRow!] };
     savePacket(`analyzed:${clark.id}`, confirmed);
     expect(dealNextTask(clark, confirmed, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/^Pay for .* by its payment deadline, in 4 days \(Nov 18, 2026\)/);
     // A written date after the 20-day SID deadline: the SID question comes with the payment step.
@@ -727,8 +727,10 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(clark, close, new Date('2026-11-27T18:00:00Z'), 'contract').label).toMatch(/Any SID payoff is due Dec 2, 2026/);
     expect(dealNextTask(clark, close, new Date('2026-11-27T18:00:00Z'), 'contract').record?.label).toBe('The Treasurer confirmed no SID affidavit');
     savePacket(`analyzed:${clark.id}`, late20);
+    // Day 20 counts in Nevada's day: at 9 p.m. Dec 2 in Nevada (already Dec 3 in UTC) it hasn't ended.
+    expect(dealNextTask(clark, late20, new Date('2026-12-03T05:00:00Z'), 'contract').label).toMatch(/pay it by Dec 2, 2026/);
     // After the 20 days it still warns before the payment.
-    expect(dealNextTask(clark, late20, new Date('2026-12-04T18:00:00Z'), 'contract').label).toMatch(/The 20 days for any special improvement district \(SID\) payoff ended Dec 2, 2026\. Before you pay/);
+    expect(dealNextTask(clark, late20, new Date('2026-12-04T18:00:00Z'), 'contract').label).toMatch(/The 20 days for any special improvement district \(SID\) payoff ended Dec 2, 2026\. Ask the Treasurer in writing now/);
     // A date weeks out keeps its date; a changed typed date ends the answer, and the county's steps return.
     const farOk = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-12-01', what: 'Payment deadline', who: '' }, { when: '2026-11-13', what: 'Treasurer confirmed the later payment date in writing', who: 'Treasurer, for Dec 1, 2026', resolved: true }] };
     savePacket(`analyzed:${clark.id}`, farOk);
@@ -738,7 +740,7 @@ describe('Nevada round 4 flow', () => {
     savePacket(`analyzed:${clark.id}`, moved);
     expect(dealNextTask(clark, moved, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/^Did you pay for .*You typed a later payment date/);
     // Answering again for the new date replaces the old answer.
-    expect(dealNextTask(clark, moved, new Date('2026-11-14T18:00:00Z'), 'contract').record).toMatchObject({ replace: true, row: { who: 'Treasurer, for Dec 3, 2026' } });
+    expect(dealNextTask(clark, moved, new Date('2026-11-14T18:00:00Z'), 'contract').undo).toMatchObject({ removeRow: 'Treasurer confirmed the later payment date in writing', addRow: { who: 'Treasurer, for Dec 3, 2026' } });
   });
 
   it('a Nevada trustee win left unpaid after the sale day is urgent', () => {

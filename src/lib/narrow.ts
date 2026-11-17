@@ -161,7 +161,7 @@ export function searchConfig(): NarrowConfig {
         { label: 'Find deals', href: '#/find-deals', why: 'Your county’s official sources, and agents who can set up a search.' },
       ]
       : [
-        { label: 'Live tax sales', href: '#/live', why: 'The county Treasurer’s list whenever a sale is open, checked against the official source.' },
+        { label: 'Find deals', href: '#/find-deals', why: 'Your county’s official sale offices: the Treasurer, the sheriff and trustees’ notices.' },
         { label: 'Sale guides', href: '#/playbooks', why: 'How each kind of auction works, step by step, before you bid.' },
       ],
   };
