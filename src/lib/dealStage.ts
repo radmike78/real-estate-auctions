@@ -1,4 +1,5 @@
 import { workStorage as localStorage } from './workStorage';
+import { nvHoliday } from './time';
 // Where a saved deal stands (researching, preparing an offer or bid, under contract or won, closed, owned and
 // operating, or passed) and the tasks that belong to that stage. The stage picks the deal's next action in My plan:
 // a new candidate gets research and verification tasks, and the accepted-offer deadlines only appear once the seller
@@ -291,16 +292,7 @@ export const WON_BID_ROW = 'Winning bid entered in Analyze';
 export const forCalendar = (d: { id?: string; kind: Deal['kind']; state?: Deal['state']; plan?: Deal['plan']; county?: string }, p: PacketData, stage: string): PacketData => (stage === 'contract' && wayOf(d) !== 'offer' && (paidAtWin(d) || !!taxPayState(d, p, new Date()).state) ? { ...p, dates: p.dates.filter((x) => !(sameDate(x.what, 'Payment deadline') && !x.when)) } : stage === 'contract' && wayOf(d) === 'offer' && !p.dates.some((x) => sameEvent(x.what, 'Closing') || /close of escrow|settlement|\bCOE\b/i.test(x.what)) ? { ...p, dates: [...p.dates, { when: '', what: 'Closing', who: '' }] } : p);
 /** At a won auction, the payment is made (its evidence ticked, or its row handled). */
 /** Eureka County's tax sale is sealed-bid: full payment goes in with the bid (Eureka County Treasurer). */
-/** A Nevada legal holiday (NRS 236.015), as observed (a Sunday holiday on Monday, a Saturday one on Friday): county
- * offices are closed. */
-export const nvHoliday = (t: Date): boolean => {
-  const y = t.getFullYear(); const m = t.getMonth(); const day = t.getDate();
-  const nth = (mo: number, wd: number, n: number) => { const f = new Date(y, mo, 1).getDay(); return 1 + ((wd - f + 7) % 7) + (n - 1) * 7; };
-  const last = (mo: number, wd: number) => { const lastDay = new Date(y, mo + 1, 0); return lastDay.getDate() - ((lastDay.getDay() - wd + 7) % 7); };
-  const fixed = [[y, 0, 1], [y + 1, 0, 1], [y, 5, 19], [y, 6, 4], [y, 10, 11], [y, 11, 25]].some(([yy, mo, dd]) => { const h = new Date(yy, mo, dd); const o = h.getDay() === 0 ? new Date(yy, mo, dd + 1) : h.getDay() === 6 ? new Date(yy, mo, dd - 1) : h; return o.getFullYear() === y && o.getMonth() === m && o.getDate() === day; });
-  const thanks = nth(10, 4, 4);
-  return fixed || (m === 0 && day === nth(0, 1, 3)) || (m === 1 && day === nth(1, 1, 3)) || (m === 4 && day === last(4, 1)) || (m === 8 && day === nth(8, 1, 1)) || (m === 9 && day === last(9, 5)) || (m === 10 && (day === thanks || day === thanks + 1));
-};
+export { nvHoliday };
 /** Eureka's sealed-bid row: the bid and full payment go in together, the day before the sale. */
 export const SEALED_ROW = 'Sealed bid and full payment due';
 export const sealedBid = (d: { state?: Deal['state']; kind?: Deal['kind']; county?: string }) => d.state === 'NV' && d.kind === 'taxSale' && d.county === 'Eureka';
@@ -405,7 +397,7 @@ export const sidBeforePay = (d: { id?: string; state?: Deal['state']; kind: Deal
   const dl = sidDeadline(p);
   const pay = p.dates.find((x) => sameDate(x.what, 'Payment deadline') && !!x.when && !x.resolved)?.when ?? '';
   if (!dl || !pay || pay < dl || dl < nvParts(now).day) return '';
-  return ` The special improvement district (SID) payoff can’t wait for that date: it runs 20 days from the sale. Ask the Treasurer by ${prettyDay(dl)} whether an SID affidavit was filed, and if one was, pay the SID certificate by then, or the sale is void (NRS 361.595(6)).`;
+  return `${pay === dl ? ' Any special improvement district (SID) payoff is due that same day, 20 days from the sale.' : ' Any special improvement district (SID) payoff can’t wait for that date: it’s due 20 days from the sale.'} Ask the Treasurer now whether an SID affidavit was filed, and if one was, pay the SID certificate by ${prettyDay(dl)}, or the sale is void (NRS 361.595(6)).`;
 };
 /** A Nevada tax sale's SID payoff after its 20 days: 'late' (no answer from the Treasurer yet), 'void', or ''. */
 export const sidState = (d: { id?: string; state?: Deal['state']; kind: Deal['kind'] }): '' | 'late' | 'void' => {

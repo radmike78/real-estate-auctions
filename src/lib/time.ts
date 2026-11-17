@@ -30,3 +30,14 @@ export function ago(iso: string, now = Date.now()): string {
 export function pacificDay(d: Date): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
 }
+
+/** A Nevada legal holiday (NRS 236.015), as observed (a Sunday holiday on Monday, a Saturday one on Friday): county
+ * offices are closed. */
+export const nvHoliday = (t: Date): boolean => {
+  const y = t.getFullYear(); const m = t.getMonth(); const day = t.getDate();
+  const nth = (mo: number, wd: number, n: number) => { const f = new Date(y, mo, 1).getDay(); return 1 + ((wd - f + 7) % 7) + (n - 1) * 7; };
+  const last = (mo: number, wd: number) => { const lastDay = new Date(y, mo + 1, 0); return lastDay.getDate() - ((lastDay.getDay() - wd + 7) % 7); };
+  const fixed = [[y, 0, 1], [y + 1, 0, 1], [y, 5, 19], [y, 6, 4], [y, 10, 11], [y, 11, 25]].some(([yy, mo, dd]) => { const h = new Date(yy, mo, dd); const o = h.getDay() === 0 ? new Date(yy, mo, dd + 1) : h.getDay() === 6 ? new Date(yy, mo, dd - 1) : h; return o.getFullYear() === y && o.getMonth() === m && o.getDate() === day; });
+  const thanks = nth(10, 4, 4);
+  return fixed || (m === 0 && day === nth(0, 1, 3)) || (m === 1 && day === nth(1, 1, 3)) || (m === 4 && day === last(4, 1)) || (m === 8 && day === nth(8, 1, 1)) || (m === 9 && day === last(9, 5)) || (m === 10 && (day === thanks || day === thanks + 1));
+};

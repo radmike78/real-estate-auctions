@@ -14,7 +14,7 @@ import type {
   SaleDetails,
   SourceRef,
 } from '../types';
-import { pacificToIso } from '../lib/time';
+import { nvHoliday, pacificToIso } from '../lib/time';
 
 function mulberry32(seed: number) {
   return () => {
@@ -42,6 +42,12 @@ const isoAt = (d: number, hour: number) => {
   const x = daysFrom(d);
   return pacificToIso(x.getUTCFullYear(), x.getUTCMonth(), x.getUTCDate(), hour);
 };
+
+// (Sales and their deadlines on a Nevada county business day: Monday to Thursday, as Clark's Treasurer is open, never a
+// legal holiday.)
+const workday = (d: number) => { const x = daysFrom(d); const t = new Date(x.getUTCFullYear(), x.getUTCMonth(), x.getUTCDate()); return t.getDay() >= 1 && t.getDay() <= 4 && !nvHoliday(t); };
+const nextWork = (d: number) => { let n = d; while (!workday(n)) n++; return n; };
+const prevWork = (d: number) => { let n = d; while (!workday(n)) n--; return n; };
 
 const AREAS = [
   { city: 'Las Vegas', zip: '89101', lat: 36.172, lng: -115.141 },
@@ -180,7 +186,7 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
     if (rand() < 0.1) liens.push(lien('MECHANICS', 'Sample Roofing Inc.', between(4_000, 25_000), int(60, 500)));
     if (rand() < 0.1) liens.push(lien('MUNICIPAL_UTILITY', 'Sample Water/Sewer District', between(300, 2_500), int(60, 700)));
   };
-  const saleDay = int(4, 60);
+  const saleDay = nextWork(int(4, 60));
 
   switch (scenario) {
     case 'tax_deed': {
@@ -203,8 +209,8 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
         location: 'Commission Chambers, Clark County Government Center, 500 S. Grand Central Pkwy, Las Vegas',
         minimumBid: round(owed + 350, 10),
         deposit: '$5,000 registration deposit per bidder, certified funds; credited if you win (per the Treasurer auction notice)',
-        registrationDeadline: isoAt(saleDay - 8, 17),
-        paymentMethods: ['Cash', "Cashier's check", 'Money order'],
+        registrationDeadline: isoAt(prevWork(saleDay - 8), 17),
+        paymentMethods: ['Cash', "Cashier's check", 'Wire', 'Money order'],
         finalPaymentDeadline: isoAt(saleDay, 13),
         deedType: 'Quitclaim deed from the Treasurer, recorded within 30 days, in the name on the bidder’s registration form',
         redemptionPeriod: 'None after the auction. Anyone claiming the land can sue to recover it for 2 years after the Treasurer’s deed is delivered (title insurance may be unavailable meanwhile); if the sale wiped out a federal tax lien, the IRS may still redeem within 120 days (a lien the sale didn’t wipe out stays on the land)',
@@ -225,7 +231,7 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
       const nodBy = pick(TRUSTEES);
       const noticeAgo = int(25, 60);
       const trustee = pick(TRUSTEES);
-      const date = scenario === 'stale' ? -int(10, 30) : saleDay;
+      const date = scenario === 'stale' ? prevWork(-int(10, 30)) : saleDay;
       // The notice of sale is posted at least 20 days before the sale (NRS 107.080(4)(b)). A stale sale is already
       // past, so its notice goes 21 to 40 days before that date (same random draws, so other samples don't change).
       events.push(
@@ -371,7 +377,7 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
           registrationDeadline: isoAt(saleDay + 2, 17),
           buyerPremiumPct: 0,
           deposit: 'Earnest money within 24 h of acceptance (see the lender’s terms)',
-          finalPaymentDeadline: isoAt(saleDay + 33, 17),
+          finalPaymentDeadline: isoAt(nextWork(saleDay + 33), 17),
         });
         // (Still an offer through escrow, not an auction: the lender takes the offers on its own site for a set period.)
       }

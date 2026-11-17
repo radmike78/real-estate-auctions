@@ -719,7 +719,7 @@ describe('Nevada round 4 flow', () => {
     // A written date after the 20-day SID deadline: the SID question comes with the payment step.
     const late20 = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-12-10', what: 'Payment deadline', who: '' }, { when: '2026-11-13', what: 'Treasurer confirmed the later payment date in writing', who: 'Treasurer, for Dec 10, 2026', resolved: true }] };
     savePacket(`analyzed:${clark.id}`, late20);
-    expect(dealNextTask(clark, late20, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/Ask the Treasurer by Dec 2, 2026 whether an SID affidavit was filed/);
+    expect(dealNextTask(clark, late20, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/Ask the Treasurer now whether an SID affidavit was filed, and if one was, pay the SID certificate by Dec 2, 2026/);
     // A date weeks out keeps its date; a changed typed date ends the answer, and the county's steps return.
     const farOk = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-12-01', what: 'Payment deadline', who: '' }, { when: '2026-11-13', what: 'Treasurer confirmed the later payment date in writing', who: 'Treasurer, for Dec 1, 2026', resolved: true }] };
     savePacket(`analyzed:${clark.id}`, farOk);
