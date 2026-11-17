@@ -730,6 +730,9 @@ describe('Nevada round 4 flow', () => {
     const lastDay = dealNextTask(clark, yes, new Date('2026-12-03T06:00:00Z'), 'contract');
     expect(lastDay.label).not.toMatch(/ended/);
     expect(lastDay.days).toBe(0);
+    expect(lastDay.label).toMatch(/Pay it by Dec 2, 2026, 20 days after the sale, or the sale is void/);
+    // Just after Nevada midnight it has ended, wherever the reader is.
+    expect(dealNextTask(clark, yes, new Date('2026-12-03T08:30:00Z'), 'contract').days).toBeLessThan(0);
     savePacket(`analyzed:${clark.id}`, late20);
     // A payment date a day before the SID deadline warns too; one well before it doesn't.
     const close = { ...late20, dates: late20.dates.map((x) => (x.what === 'Payment deadline' ? { ...x, when: '2026-12-01' } : x.what.startsWith('Treasurer confirmed') ? { ...x, who: 'Treasurer, for Dec 1, 2026' } : x)) };
