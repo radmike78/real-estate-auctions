@@ -2293,4 +2293,18 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(row?.when).toBe(law);
     expect(row?.resolved).toBeFalsy();
   });
+
+  it('round 97 verifier: an early typed end entered before the Sale day asks to fix the date, with no "No one redeemed"', async () => {
+    const { fixRedemptionRows } = await import('./dealStage');
+    const hoa: Deal = { ...deal, id: 'v97', name: '45 Elm Ave', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'closed' };
+    saveDeals([hoa]);
+    const now = new Date('2026-11-17T20:00:00Z');
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-01', what: 'Sale day', who: 'HOA agent', resolved: true }, { when: '2026-11-10', what: 'Redemption period ends', who: 'HOA agent' }, { when: '', what: 'Deed delivered (if no one redeemed)', who: 'HOA agent', resolved: true }] };
+    savePacket(`analyzed:${hoa.id}`, p);
+    const t = dealNextTask(hoa, p, now, 'closed');
+    expect(JSON.stringify(t)).not.toMatch(/No one redeemed: mark it handled/);
+    const q = fixRedemptionRows(hoa, p, now)!;
+    expect(q.dates.find((x) => x.what === 'Redemption period ends')!.when > '2026-12-29').toBe(true);
+    expect(q.dates.find((x) => x.what === 'Deed delivered (if no one redeemed)')!.resolved).toBe(false);
+  });
 });

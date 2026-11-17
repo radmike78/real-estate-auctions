@@ -262,7 +262,7 @@ const NEVADA: Playbook[] = [
     short: 'Sheriff sales',
     oneLine: 'Property sold to pay a court judgment, including judicial foreclosures.',
     youGet: 'The debtor’s interest, subject to a 1-year redemption right, and to anything senior to the judgment or mortgage being enforced.',
-    plain: 'A certificate of sale first, and the house as the owner held it by deed only if no one buys it back: the owner, or a creditor whose judgment or mortgage lien came after the lien the sale is held on, can redeem for 1 year (NRS 21.200, 21.210). Liens recorded ahead of that lien stay with it.',
+    plain: 'A certificate of sale first, and the house as the owner held it by deed only if no one buys it back: the owner, or a creditor whose judgment or mortgage lien came after the lien the sale is held on, can redeem for 1 year (NRS 21.200, 21.210). Liens recorded ahead of that lien stay with it, and a federal tax lien can too.*',
     forSale: true,
     glance: [
       { label: 'Law', value: 'NRS 21 (execution sales)' },

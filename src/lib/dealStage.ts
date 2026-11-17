@@ -96,19 +96,29 @@ export function redemptionMarkWait(d: Deal, p: PacketData, now: Date = new Date(
   return end >= dayOf(d, now) ? end : '';
 }
 
+/**
+ * A certificate-first win's redemption rows made consistent with the law (null when nothing changes): a typed end earlier
+ * than the law's moves to the law's end; while someone can still redeem (or with no Sale day to count from), a ticked end
+ * or "Deed delivered" row goes back to open, keeping its date. Not on a redeemed deal.
+ */
+export function fixRedemptionRows(d: Deal, p: PacketData, now: Date = new Date()): PacketData | null {
+  if (!certificateFirst(d) || redeemedIn(p)) return null;
+  const law = lawRedemptionEnd(d, p);
+  let changed = false;
+  let dates = p.dates.map((x) => {
+    if (sameDate(x.what, 'Redemption period ends') && x.when && law && x.when < law) { changed = true; return { ...x, when: law }; }
+    return x;
+  });
+  const wait = redemptionMarkWait(d, { ...p, dates }, now);
+  if (wait) dates = dates.map((x) => ((sameDate(x.what, 'Redemption period ends') || sameDate(x.what, DEED_AFTER_WAIT)) && x.resolved ? ((changed = true), { ...x, resolved: false }) : x));
+  return changed ? { ...p, dates } : null;
+}
+
+/** Older data (and dates edited before the law's end was known): see fixRedemptionRows. */
 export function clearEarlyRedemptionEnds(now: Date = new Date()) {
   for (const d of loadDeals()) {
-    if (!certificateFirst(d)) continue;
-    const p = loadPacket(`analyzed:${d.id}`);
-    if (redeemedIn(p)) continue;
-    // A typed end earlier than the law's (someone can redeem until the law's end) moves to the law's end.
-    const law = lawRedemptionEnd(d, p);
-    const early = p.dates.findIndex((x) => sameDate(x.what, 'Redemption period ends') && !!x.when && !!law && x.when < law);
-    if (early >= 0) { const q = { ...p, dates: p.dates.map((x, j) => (j === early ? { ...x, when: law, resolved: law >= dayOf(d, now) ? false : x.resolved } : x)) }; savePacket(`analyzed:${d.id}`, q); continue; }
-    const i = p.dates.findIndex((x) => sameDate(x.what, 'Redemption period ends') && !!x.resolved);
-    if (i < 0) continue;
-    const end = p.dates[i].when || redemptionEnd(d, p);
-    if (end && end >= dayOf(d, now)) savePacket(`analyzed:${d.id}`, { ...p, dates: p.dates.map((x, j) => (j === i ? { ...x, resolved: false } : x)) });
+    const q = fixRedemptionRows(d, loadPacket(`analyzed:${d.id}`), now);
+    if (q) savePacket(`analyzed:${d.id}`, q);
   }
 }
 
@@ -1325,6 +1335,17 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
       const what = t0 ? t0.label.replace(/ by closing$/, '') : '';
       if (t0 && t0.key === 'deposit-sent' && !ticked(p, 'Earnest money due')) return earnestAsk(t0, nd.days, nd.when);
       if (t0) { const label = `Closing is ${nd.days === 0 ? 'today' : nd.days === 1 ? 'tomorrow' : `in ${nd.days} days`} (${prettyDay(nd.when)}): ${nd.days === 0 ? 'first' : 'before then'}, ${what.charAt(0).toLowerCase()}${what.slice(1)}`; return { ...t0, days: nd.days, urgent: nd.days <= 1, label, text: label }; }
+    }
+    // A redemption end that disagrees with the law's (typed too early, or no Sale day to count from): no "No one redeemed"
+    // answer until it's fixed in Key dates (fixRedemptionRows corrects it there).
+    if (nd && sameDate(nd.what, 'Redemption period ends') && certificateFirst(d) && !redeemedIn(p)) {
+      const w = redemptionMarkWait(d, p, now);
+      if (w && (w === 'no-sale' || w !== nd.when)) {
+        const n = d.name || 'this property';
+        const text = w === 'no-sale' ? `Enter the Sale day for ${n} in Key dates: the redemption period is worked out from it, and someone can redeem until it ends.` : `${n}’s redemption period runs until ${prettyDay(w)} under the law for this sale, later than the date in Key dates (${prettyDay(nd.when)}): someone can still redeem until then. Fix the date in Key dates.`;
+        const days = w === 'no-sale' ? 0 : Math.round((Date.parse(`${w}T12:00:00Z`) - Date.parse(`${dayOf(d, now)}T12:00:00Z`)) / 864e5);
+        return { key: 'date', days, label: text, produces: 'the redemption period’s end in Key dates, as the law sets it', href: packetHref(d, 'dates'), support: [], done: false, urgent: false, text };
+      }
     }
     if (nd && !bidPrep && (nd.days <= 7 || (stage === 'contract' && sameDate(nd.what, 'SID certificate payoff')))) {
       const ended = nd.days < 0 ? windowEnded(nd.what, -nd.days, d.kind) : null;

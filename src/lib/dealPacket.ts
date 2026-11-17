@@ -299,6 +299,9 @@ export function noRedemptionShort(d: Pick<Deal, 'state' | 'kind'>): string {
  * sale with no owner redemption (a Nevada trustee sale, for one: NRS 107.080(5) sells "without equity or right of
  * redemption").
  */
+/** A redeemed property: its purchase numbers are kept as a record, but no longer apply. */
+const REDEEMED_NOTE = 'This property was redeemed: these numbers are kept as a record and no longer apply. You’re repaid your price plus what the law adds, and you don’t get the property.';
+
 export function redemptionWho(d: Pick<Deal, 'state' | 'kind'> & { id?: string }, i: BidInputs): string | null {
   const rule = redemptionRule(d, i);
   if (rule === 'usFederal' || rule === 'usCourt') return 'the United States';
@@ -1343,7 +1346,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   // Asked once: a second 'Enter your winning bid … to check/see …' in the same section is dropped.
   { const ask = /(?:^| )Enter [^.]+ in [^.]+ to (?:check|see) [^.]+\./; let asked = false; for (let k = 0; k < cash.length; k++) if (ask.test(cash[k])) { if (asked) cash[k] = cash[k].replace(ask, '').trim(); asked = true; } for (let k = cash.length - 1; k >= 0; k--) if (!cash[k]) cash.splice(k, 1); }
   const hasNums = hasSavedNumbers({ rent, bid, commercial, lien });
-  out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: stageOf(d) === 'passed' ? passedCash(cash, d) : cash.map((t) => settledWords(t, pricePhase(d), settledCtx(d))), fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
+  out.push({ key: 'cash', title: 'Cash you’ll need, and when', doneLabel: 'Calculated (not verified)', status: hasNums && !bid?.unentered.length && (!offer || p.earnest) ? 'done' : hasNums || p.earnest || flipNeedsRepairs(d) ? 'started' : 'missing', lines: [...(redeemedDeal(d) ? [REDEEMED_NOTE] : []), ...(stageOf(d) === 'passed' ? passedCash(cash, d) : cash.map((t) => settledWords(t, pricePhase(d), settledCtx(d))))], fix: hasNums ? undefined : { label: `${strategy} in Analyze`, href: '#/analyze' } });
 
   // 5. Numbers: base and downside, for the deal's strategy only
   const nums: string[] = ['Returns, profit and cash flow are before income tax; personal taxes and depreciation are not included.', `Strategy: ${strategyLine}. These are the numbers you saved in its calculator; other strategies’ calculators aren’t counted.`];
@@ -1409,7 +1412,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   else if (!hasNums) nums.push('No numbers yet. Every figure here is your estimate until a source backs it.');
   // Done only once there's a downside to look at, not just the base case.
   const downside = !!lien || (rent && rent.stress.length > 1) || (bid && bid.stress.length > 1) || (commercial && (commercial.none || commercial.stress.length > 0));
-  out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: downside && !bid?.unentered.length ? 'done' : hasNums || flipNeedsRepairs(d) ? 'started' : 'missing', lines: nums.map((t) => settledWords(t, pricePhase(d), settledCtx(d))), fix: { label: 'Open in Analyze', href: '#/analyze' } });
+  out.push({ key: 'numbers', title: 'Numbers: base case and downside', doneLabel: 'Calculated (not verified)', status: downside && !bid?.unentered.length ? 'done' : hasNums || flipNeedsRepairs(d) ? 'started' : 'missing', lines: [...(redeemedDeal(d) ? [REDEEMED_NOTE] : []), ...nums.map((t) => settledWords(t, pricePhase(d), settledCtx(d)))], fix: { label: 'Open in Analyze', href: '#/analyze' } });
 
   // 6. Evidence
   const areas = areasFor(d.kind, liveIn(d));
