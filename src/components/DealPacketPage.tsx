@@ -131,7 +131,7 @@ export default function DealPacketPage({ dealId, section }: { dealId: string; se
     const s = sec(k);
     return (
       <>
-        <ul className="packet-lines">{s.lines.map((l, i) => <li key={i}>{k === 'dates' && /^Every date entered is marked handled\. Usual dates for this sale not in this packet: /.test(l) ? `${l.replace(/; add any that apply\.$/, '')}; add any that apply with “Add the usual dates that are missing” above.` : l}</li>)}</ul>
+        <ul className="packet-lines">{s.lines.map((l, i) => <li key={i}>{k === 'dates' && /Usual dates for this sale not in this packet: /.test(l) ? `${l.replace(/; add any that apply\.$/, '')}; add any that apply with “Add the usual dates that are missing” above.` : k === 'dates' && /^Recovery-suit window ends: /.test(l) ? l.replace(/Add it to Key dates\.$/, 'Add it with “Add the usual dates that are missing” above.') : l}</li>)}</ul>
         {s.fix && <p><a href={s.fix.href} onClick={s.fix.href === '#/analyze' ? (e) => { e.preventDefault(); openDeal(deal); } : undefined}>{s.fix.label}&nbsp;→</a></p>}
       </>
     );

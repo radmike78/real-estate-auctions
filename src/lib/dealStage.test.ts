@@ -2368,14 +2368,15 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(dealNextTask(hoa, moved, now, 'closed').label).not.toMatch(/^Check the Sale day/);
   });
 
-  it('round 103: a usual date not in the packet is listed as optional and doesn’t hold Key dates', async () => {
+  it('round 103: a Nevada tax deed’s missing recovery-suit window is named with its date and holds Key dates', async () => {
     const { packetSections } = await import('./dealPacket');
     const tx: Deal = { ...deal, id: 'k102', name: '5 Pine', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'owned' };
     saveDeals([tx]);
     const p = { ...EMPTY_PACKET, calendarReviewedFor: 'owned', dates: [{ when: '2026-06-01', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-06-20', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }, { when: '2026-06-25', what: 'Treasurer confirmed the sale had no SID affidavit', who: 'Treasurer', resolved: true }] };
     savePacket(`analyzed:${tx.id}`, p);
     const sec = packetSections(tx, p, new Date('2026-11-17T20:00:00Z')).find((x) => x.key === 'dates')!;
-    expect(sec.lines.some((t) => /Usual dates for this sale not in this packet: .*Recovery-suit window ends.*add any that apply/.test(t))).toBe(true);
-    expect(sec.hold).toBe(false);
+    expect(sec.lines.some((t) => /^Recovery-suit window ends: 2 years after the Treasurer’s deed is delivered, about Jun 20, 2028 counting from its recording date \(NRS 361\.600\)\*/.test(t))).toBe(true);
+    expect(sec.lines.some((t) => /not in this packet: .*Recovery-suit/.test(t))).toBe(false);
+    expect(sec.hold).toBe(true);
   });
 });
