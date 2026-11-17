@@ -105,7 +105,7 @@ export const SALE_CHANNELS: SaleChannel[] = [
     seller: 'The IRS or another tax agency',
     howItWorks: 'Seized property is sold by public auction or sealed bid after notice.',
     whatYouGet: 'The taxpayer’s interest, which may be subject to earlier liens.',
-    watchFor: 'For real estate, the owner can redeem within 180 days of an IRS sale.',
+    watchFor: 'For real estate, the owner, or anyone with an interest or lien, can redeem within 180 days of an IRS sale (26 U.S.C. 6337(b)).',
   },
 ];
 

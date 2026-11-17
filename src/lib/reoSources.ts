@@ -63,7 +63,7 @@ export const REO_SOURCES: ReoSource[] = [
     group: 'government',
     url: 'https://www.irsauctions.gov/',
     what: 'Real estate the IRS seized for unpaid federal taxes.',
-    howToBuy: 'You bid at an IRS sale (sealed or public), not through a listing. You get only the owner’s interest, and the owner can buy it back (redeem) within 180 days.',
+    howToBuy: 'You bid at an IRS sale (sealed or public), not through a listing. You get only the owner’s interest, and the owner, or anyone with an interest in it or a lien on it, can buy it back (redeem) within 180 days (26 U.S.C. 6337(b)).',
     clarkCounty: 'Rare.',
     classes: ['residential', 'commercial'],
   },

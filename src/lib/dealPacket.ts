@@ -302,8 +302,8 @@ export function noRedemptionShort(d: Pick<Deal, 'state' | 'kind'>): string {
 export function redemptionWho(d: Pick<Deal, 'state' | 'kind'> & { id?: string }, i: BidInputs): string | null {
   const rule = redemptionRule(d, i);
   if (rule === 'usFederal' || rule === 'usCourt') return 'the United States';
-  // (After an HOA or sheriff sale, a junior lienholder can redeem too, not only the owner: NRS 116.31166(3), 21.200.)
-  if (rule === 'hoa' || rule === 'sheriff') return 'someone';
+  // (After an HOA, sheriff or IRS sale, a junior lienholder can redeem too, not only the owner: NRS 116.31166(3), 21.200; 26 U.S.C. 6337(b)(1).)
+  if (rule === 'hoa' || rule === 'sheriff' || rule === 'irs') return 'someone';
   // A sale that usually carries no redemption (the rule it starts from is "none": a trustee's mortgage foreclosure, a
   // Texas execution sale) makes a typed wait your what-if; the special rules it also offers (Texas property tax loans)
   // apply only when picked.
