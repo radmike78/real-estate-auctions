@@ -741,6 +741,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
           {bidBad && <small className="deal-urgent" role="status" id={`${uid}-bid-err`}>{calculatorInputError(bidText, '$')}</small>}
         </div>
         {atBid && profit !== null && <PriceHead level={3} kind="yours" label={yours} price={bid} result={profit} unit="profit" note={`Estimated cash you’d put in at this price, under these assumptions (through repairs and holding until it sells): ${fmtMoney(Math.round(cashNeededAtBid(i, bid)))}.${saveAs && !propertyId ? ' Saved with this deal as your price; its deal packet uses it.' : propertyId ? ' Saved for this property in this browser.' : ''}`} />}
+        {atBid && !offer && phase !== 'owed' && phase !== 'paid' && i.minimumBid > 0 && bid < i.minimumBid && <p className="deal-urgent" role="status">Below the opening bid ({fmtMoney(i.minimumBid)}): the sale won’t take a bid under it.</p>}
         {atBid && profit !== null && !needsValue && (
           <div className={`calc-verdict ${over || bidShort ? 'bad' : 'good'}`}>
             {over ? (

@@ -756,6 +756,20 @@ describe('Nevada round 4 flow', () => {
     expect(dealNextTask(clark, moved, new Date('2026-11-14T18:00:00Z'), 'contract').undo).toMatchObject({ removeRow: 'Treasurer confirmed the later payment date in writing', addRow: { who: 'Treasurer, for Dec 3, 2026' } });
   });
 
+  it('every Nevada date counts in Nevada’s day, and the SID step gives Clark’s own deadline over an unconfirmed later date', () => {
+    const tax = { ...nvFlip, kind: 'taxSale' as const, county: 'Clark', stage: 'contract' as const };
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-12-05', what: 'Payment deadline', who: '' }, { when: '2026-12-02', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }] };
+    savePacket(`analyzed:${tax.id}`, p);
+    const t = dealNextTask(tax, p, new Date('2026-11-20T18:00:00Z'), 'contract');
+    expect(t.label).toMatch(/Your winning bid isn’t marked paid: it was due by 1:00 p.m. Nevada time on the sale day, Nov 12, 2026/);
+    expect(t.record?.label).toBe('I paid the winning bid: mark it handled');
+    // 10:30 p.m. Oct 31 in Nevada (Nov 1 in UTC): a closed HOA deal's dates still count Oct 31 as today.
+    const hoa = { ...nvFlip, kind: 'hoa' as const, stage: 'closed' as const };
+    const hp = { ...EMPTY_PACKET, dates: [{ when: '2026-10-31', what: 'Redemption period ends', who: 'Agent' }] };
+    savePacket(`analyzed:${hoa.id}`, hp);
+    expect(dealNextTask(hoa, hp, new Date('2026-11-01T06:30:00Z'), 'closed').days).toBe(0);
+  });
+
   it('a Nevada trustee win left unpaid after the sale day is urgent', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Trustee', resolved: true }] };
     savePacket(`analyzed:${nvFlip.id}`, p);
