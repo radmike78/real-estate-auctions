@@ -31,7 +31,7 @@ export const LEARN_MODULES: LearnModule[] = [
   { key: 'negotiate', title: 'Making an offer and closing', summary: 'Who your agent works for, what goes into an offer, negotiating after the inspection, and the steps from an accepted offer to the keys.' },
   { key: 'forced-sales', title: 'Buying at forced sales', summary: 'Tax, foreclosure, HOA, sheriff and IRS sales and lien certificates across Nevada, California, Arizona, Utah and Texas, with step-by-step guides.' },
   { key: 'after-closing', title: 'Running a rental', summary: 'The first weeks, tenant screening and fair housing, deposits, entry and rent rules in your state, and records for taxes.' },
-  { key: 'taxes', title: 'Taxes from purchase to sale', summary: 'Transfer and property tax, rental income and depreciation, how flips are taxed, selling, 1031 exchanges and each state’s income tax.' },
+  { key: 'taxes', title: 'Taxes from purchase to sale', summary: 'Transfer and property tax, rental income and depreciation, how flips are taxed, selling, 1031 exchanges and state income tax, where there is one.' },
   { key: 'markets', title: 'Residential vs. commercial', summary: 'How the two markets differ: who buys, how prices are set, loans, leases and risk.' },
   { key: 'who', title: 'Who invests where, and why', summary: 'The kinds of investors in each market, and why someone picks one property type over another.' },
   { key: 'structuring', title: 'Holding title and structuring deals', summary: 'Ways to hold title, owning through an LLC, 1031 exchanges, installment sales and seller credits.' },

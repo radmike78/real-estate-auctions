@@ -187,7 +187,7 @@ export const DRILLS: Drill[] = [
     id: 'tax-deed-nv',
     title: 'A Nevada county tax sale: is a $14,000 house a bargain?',
     teaser: 'A Clark County tax sale lists a small house with a $14,000 minimum bid. Find out what a tax deed really gives you.',
-    where: 'A fictional house at a county tax sale in Nevada. Tax sales work differently in each state.',
+    where: 'A fictional house at a county tax sale in Nevada. Other states’ tax sales work differently.',
     facts: [
       { label: 'Sale', value: 'County treasurer’s tax sale, Nevada' },
       { label: 'Minimum bid', value: '$14,000 (back taxes, penalties and costs)' },

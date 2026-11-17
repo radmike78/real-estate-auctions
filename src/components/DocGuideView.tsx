@@ -1,5 +1,6 @@
 import type { DocGuide } from '../lib/docGuides';
 import { forStateText, useMyState } from '../lib/myState';
+import { stateByCode } from '../lib/regions';
 
 /** One document, annotated: who gives it to you, the parts to find, who fills each in, and how to check a corrected version. */
 export default function DocGuideView({ g, label }: { g: DocGuide; label?: string }) {
@@ -20,7 +21,7 @@ export default function DocGuideView({ g, label }: { g: DocGuide; label?: string
                 <th scope="row">{x.part}</th>
                 <td data-label="What to check">
                   {forStateText(state, x.look)}
-                  {x.rules && forStateText(state, x.rules) && <p className="doc-guide-rules"><strong>Your state’s rules:</strong> {forStateText(state, x.rules)}</p>}
+                  {x.rules && forStateText(state, x.rules) && <p className="doc-guide-rules"><strong>{state ? `${stateByCode(state)?.name ?? 'State'} rules:` : 'State rules:'}</strong> {forStateText(state, x.rules)}</p>}
                   {x.steps && <ol className="doc-guide-steps">{x.steps.map((st) => <li key={st}>{forStateText(state, st)}</li>)}</ol>}
                 </td>
                 <td data-label="Who fills it in">{x.who}</td>

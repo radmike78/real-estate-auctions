@@ -482,7 +482,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Escrow and settlement fees are listed on the Loan Estimate and Closing Disclosure and can be compared across providers (CFPB)."
     ],
     checklist: [
-      "Check that the title or escrow company is licensed with your state’s regulator and has been in business a while.",
+      "Check that the title or escrow company is licensed with the state regulator (the lookup on this page names it) and has been in business a while.",
       "Ask for the preliminary title report early and read every lien and exception. It’s an offer to insure, not a guarantee that title is clean.",
       "Ask about an owner’s policy. If you will own vacant land or a rental, also ask about post-closing forgery coverage (ALTA 49 endorsements).",
       "At the start, get the escrow officer’s phone number in person or from the company’s official website. Check all wire instructions by calling that number.",
@@ -830,7 +830,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
       "Nevada inspectors must carry $100,000 errors-and-omissions and $100,000 general liability insurance (Nevada Real Estate Division)."
     ],
     checklist: [
-      "In every state, check the inspector’s credential where one exists, and ask about insurance. In Nevada, check it with the Real Estate Division. In Arizona, check it with the Board of Technical Registration. In Utah, check the private home inspector license (since 2026) with the Division of Professional Licensing. In Texas, check it with TREC. California doesn’t license home inspectors.",
+      "Check the inspector’s credential where one exists, and ask about insurance. In Nevada, check it with the Real Estate Division. In Arizona, check it with the Board of Technical Registration. In Utah, check the private home inspector license (since 2026) with the Division of Professional Licensing. In Texas, check it with TREC. California doesn’t license home inspectors.",
       "Ask for a sample report and what is excluded (roof walk, crawlspace, sewer line, pool, solar).",
       "Attend the inspection and ask questions on site.",
       "Order specialist inspections for anything flagged: sewer scope, roof, structure, pests, mold.",
@@ -1407,7 +1407,7 @@ export const PRO_DEEP: Partial<Record<string, TopicDeep>> = {
   },
   property_manager: {
     overview: [
-      "A property manager finds and screens tenants, collects rent, handles repairs and keeps owners’ and tenants’ money in trust accounts. In Nevada, managing rentals for others requires a real estate license plus a property management permit. In Texas, collecting rent for someone else from a tenant in a single-family home counts as real estate brokerage, which needs a TREC license (Occupations Code 1101.002). Check your state’s real estate regulator for the licensing rules that apply to managers there.",
+      "A property manager finds and screens tenants, collects rent, handles repairs and keeps owners’ and tenants’ money in trust accounts. In Nevada, managing rentals for others requires a real estate license plus a property management permit. In Texas, collecting rent for someone else from a tenant in a single-family home counts as real estate brokerage, which needs a TREC license (Occupations Code 1101.002). Check the state real estate regulator for the licensing rules that apply to managers there.",
       "The biggest risk is the trust account. If a manager mixes or spends owner rents and tenant deposits, owners can lose months of rent. They can still owe tenants their deposits back. Nevada regulators found one Las Vegas broker’s security deposit account held $15 when his records said $185,343.",
       "A license lets you check that the manager is allowed to do the work, see any discipline, and file a complaint with the state regulator. Separately, a state recovery fund can repay some losses caused by licensees, but only certain claimants and claims qualify, usually after a court judgment, and only up to set limits. A recovery fund doesn’t insure your investment or cover every rental problem. In California, it’s the Department of Real Estate’s Consumer Recovery Account. In Nevada, it’s the Real Estate Education, Research and Recovery Fund. In Arizona, it’s the Real Estate Recovery Fund. In Texas, it’s the Real Estate Recovery Trust Account. In Utah, it’s the Real Estate Education, Research, and Recovery Fund (Utah Code 61-2f-503)."
     ],
