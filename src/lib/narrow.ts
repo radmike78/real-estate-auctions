@@ -48,7 +48,7 @@ const BUY_Q: NarrowQuestion = {
     { value: 'agent', label: 'Through an agent', hint: 'Listed homes, bank-owned homes and short sales' },
     { value: 'auction', label: 'At an auction', hint: 'Tax, foreclosure, sheriff, HOA and IRS sales, and lien certificates where a county sells them' },
   ],
-  suggest: () => ({ value: 'agent', why: 'Buying through an agent lets you inspect, get an appraisal and back out if something’s wrong. Auctions usually want full payment (cash or certified funds) the same day or the next business day, and need more research.' }),
+  suggest: () => ({ value: 'agent', why: 'Buying through an agent lets you inspect, get an appraisal and back out if something’s wrong. Auctions usually want full payment (cash or certified funds) at the sale or soon after, and need more research.' }),
 };
 
 const PROPERTY_Q: NarrowQuestion = {
@@ -85,6 +85,7 @@ export const guideKey = (st: string, kind: string) => GUIDE[(st as StateCode) in
 /** Which kinds of sale fit how and what someone wants to buy. */
 function salesFor(buy: string, property: string): { kind: string; why: string }[] {
   if (buy === 'agent') {
+    if (property === 'land') return [{ kind: 'reo', why: 'Banks sell land and manufactured homes they own through an agent, too, with time to check them.' }, { kind: 'tax', why: 'If you’d also buy at auction: most land at auction is sold at county tax sales.' }];
     if (property === 'commercial') return [{ kind: 'commercial', why: 'Due diligence, leases and environmental checks for commercial property.' }, { kind: 'reo', why: 'Banks sell commercial property they own, too.' }];
     return [
       { kind: 'reo', why: 'Bank-owned homes: a normal purchase through an agent, usually as-is, with time to inspect.' },
@@ -94,8 +95,8 @@ function salesFor(buy: string, property: string): { kind: string; why: string }[
   if (property === 'land') return [{ kind: 'tax', why: 'Most land at auction is sold at county tax sales.' }, { kind: 'foreclosure', why: 'Land with a loan against it can also sell at a foreclosure auction, under the same rules as a house.' }];
   if (property === 'commercial') return [{ kind: 'commercial', why: 'What to check before buying commercial property at any sale.' }, { kind: 'foreclosure', why: 'Commercial buildings often sell at foreclosure auctions.' }];
   return [
-    { kind: 'foreclosure', why: 'Foreclosure auctions are the most common, and they happen most weeks.' },
-    { kind: 'tax', why: 'Tax sales come once or twice a year in most counties, with their own rules.' },
+    { kind: 'foreclosure', why: 'Foreclosure auctions are the most common kind, and in larger counties they’re held most weeks.*' },
+    { kind: 'tax', why: 'Tax sales are less frequent (often about once a year, and some years not at all)*, with their own rules.' },
   ];
 }
 
@@ -106,7 +107,7 @@ export function findDealsConfig(): NarrowConfig {
     result: ({ buy, property }) => {
       if (buy === 'agent') {
         return [
-          { label: 'A buyer’s agent and an MLS search', href: '#/pros/agent', why: 'Most rentals are bought as regular listings. A buyer’s agent can set up an MLS search that matches your buy box, and you can inspect and back out if something’s wrong.' },
+          { label: 'A buyer’s agent and an MLS search', href: '#/pros/agent', why: `${property === 'commercial' ? 'Commercial property is often bought as a regular listing, through a commercial agent' : property === 'land' ? 'Land and manufactured homes are often bought as regular listings' : 'Most rentals are bought as regular listings'}. A buyer’s agent can set up an MLS search that matches your buy box, and you can inspect and back out if something’s wrong.` },
           { label: 'Bank-owned and government homes', href: '#/bank-owned', why: 'Homes sold by banks, HUD, Fannie Mae and Freddie Mac, usually through an agent.' },
           property === 'home'
             ? { label: 'How short sales work', href: '#/short-sales', why: 'Homes an owner sells with the lender’s approval, listed by an agent.' }
@@ -136,7 +137,7 @@ export function financingConfig(): NarrowConfig {
     }],
     result: ({ goal }) => goal === 'auction'
       ? [
-        { label: 'Which loan fits? (Buying at auction)', scrollTo: 'fin-options-head', why: 'Most auctions want full payment the same day or the next business day, so a regular mortgage usually can’t close in time.' },
+        { label: 'Which loan fits? (Buying at auction)', scrollTo: 'fin-options-head', why: 'Most auctions want full payment at the sale or soon after, so a regular mortgage usually can’t close in time.' },
         { label: 'Compare financing methods', href: '#/learn/financing', why: 'Savings, home equity and private lenders, with what each one costs and risks.' },
       ]
       : goal === 'invest'

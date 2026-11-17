@@ -312,13 +312,13 @@ export const STRATEGIES: Strategy[] = [
     },
     risk: {
       worst: 'You pay cash for a property with liens that survive, damage you couldn’t see, or occupants, and there’s usually no refund.',
-      atRisk: 'The full price, often due the same day or the next business day, plus any deposit. Your sale guide gives the exact deadline, and missing it can cost the deposit.',
+      atRisk: 'The full price, often due at the sale or soon after, plus any deposit. Your sale guide gives the exact deadline, and missing it can cost the deposit.',
       time: 'Learning a county’s process takes several sales. Some sales are held every month; some tax sales happen only once a year.',
     },
     checklist: [
       { id: 'au-lesson', text: 'Read the lesson on buying at forced sales in your state.', href: '#/learn/forced-sales' },
       { id: 'au-county', text: 'Find your county’s official sale pages: dates, deposit, payment deadline and what the deed promises.', href: '#/find-deals' },
-      { id: 'au-cash', text: 'Have the money ready: most auctions want cash or cashier’s checks the same day or the next business day. Your sale guide gives the exact deadline.' },
+      { id: 'au-cash', text: 'Have the money ready: most auctions want cash or cashier’s checks at the sale or soon after. Your sale guide gives the exact deadline.' },
       { id: 'au-research', text: 'Research every property: title, liens that survive, occupants and any bankruptcy.', href: '#/learn/tools' },
       { id: 'au-max', text: 'Set your maximum bid before the sale, so you know when the price stops fitting your numbers.', href: '#/analyze?plan=flip' },
       { id: 'au-redeem', text: 'Plan for any redemption period and for occupants, who have legal rights.' },

@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { NOT_SURE, resolveAnswers, type NarrowConfig } from '../lib/narrow';
+import { nameYourState, useMyState } from '../lib/myState';
 
 /**
  * "Not sure where to start?" at the top of a crowded page. Closed by default so the full page is still there;
  * opened, it asks a few questions one at a time and ends with two or three places to begin, each with the reason.
  */
 export default function NarrowDown({ config, title = 'Not sure where to start?', intro }: { config: NarrowConfig; title?: string; intro: string }) {
+  const [myState] = useMyState();
   const [open, setOpen] = useState(false);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [step, setStep] = useState(0);
@@ -84,8 +86,8 @@ export default function NarrowDown({ config, title = 'Not sure where to start?',
                 <span className="team-n" aria-hidden>{i + 1}</span>
                 <span className="team-body">
                   {i === 0 && <span className="team-top">Start with this one</span>}
-                  <strong>{r.label}</strong>
-                  <span>{r.why}</span>
+                  <strong>{nameYourState(r.label, myState)}</strong>
+                  <span>{nameYourState(r.why, myState)}</span>
                   {r.href ? <a href={r.href} className={i === 0 ? 'btn' : undefined}>{i === 0 ? 'Start\u00a0→' : 'Go there\u00a0→'}</a> : r.scrollTo ? <button type="button" className="linkish" onClick={() => jump(r.scrollTo!)}>Show me on this page&nbsp;↓</button> : null}
                 </span>
               </li>

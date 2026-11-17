@@ -56,3 +56,15 @@ describe('a buyer who lives there', () => {
     expect(items.map((i) => i.id).sort()).toEqual(checklistFor(d).flatMap((g) => g.items).map((i) => i.id).sort());
   });
 });
+
+describe('round 94: Nevada auction payment timing in the checklist', () => {
+  it('names when each Nevada sale wants the money, never "the next business day"', async () => {
+    const { checklistFor } = await import('./analyze');
+    const funds = (kind: 'trustee' | 'hoa' | 'court' | 'taxSale', county = 'Clark') => checklistFor({ state: 'NV', county, kind, plan: 'flip' }).flatMap((g) => g.items).find((i) => i.id === 'funds')!.text;
+    expect(funds('trustee')).toMatch(/at the sale/);
+    expect(funds('hoa')).toMatch(/NRS 116\.31164\(6\)\(b\)/);
+    expect(funds('taxSale')).toMatch(/1:00 p\.m\. on the sale day/);
+    expect(funds('taxSale', 'Washoe')).toMatch(/5:00 p\.m\. Nevada time the day after the sale/);
+    for (const k of ['trustee', 'hoa', 'court', 'taxSale'] as const) expect(funds(k)).not.toMatch(/next business day/);
+  });
+});

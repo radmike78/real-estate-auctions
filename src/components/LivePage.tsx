@@ -92,7 +92,7 @@ export default function LivePage() {
     <main className="page">
       <PageHero
         title={<>Live <span className="grad">tax sales</span></>}
-        sub={`Upcoming ${stateName ?? 'local'} county tax sales and verified IRS sales in your selected state. Read each official sale notice before bidding.`}
+        sub={`Upcoming ${stateName ?? 'local'} county tax sales and verified IRS sales in ${stateName ?? 'your selected state'}. Read each official sale notice before bidding.`}
       />
       {!result && <p>Verifying listings…</p>}
       {result && nothingLive && otherState && !blocked && !expired && (
@@ -107,13 +107,13 @@ export default function LivePage() {
       {otherState && countySection}
 
       {result && nothingLive && !(otherState && !blocked && !expired) && (
-        <EmptyState title={blocked ? 'No live listings shown' : expired ? 'Listings are being re-verified' : 'No verified listings in your selected state right now'}>
+        <EmptyState title={blocked ? 'No live listings shown' : expired ? 'Listings are being re-verified' : `No verified listings in ${stateName ?? 'your selected state'} right now`}>
           <p>
             {blocked
               ? "The latest data didn't pass our security checks, so for your safety nothing is shown until verified data is published."
               : expired
                 ? 'The last verification has expired, so listings are hidden until fresh data is published.'
-                : 'No property sales are verified for your selected state right now. Check your county’s official lists through Find deals.'}
+                : `No property sales are verified for ${stateName ?? 'your selected state'} right now. Check your county’s official lists through Find deals.`}
           </p>
           <p>
             Meanwhile, check the{' '}

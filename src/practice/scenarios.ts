@@ -257,7 +257,7 @@ const numbersTask = (p: PracticeProperty, inputs: BidInputs, compareTo: { label:
   kind: 'numbers',
   id: 'numbers',
   title: auction ? 'Set your maximum bid' : 'Set your maximum offer',
-  intro: `Practice numbers, worked in order from the starting price to your profit, using the same calculator as the real tool. ${auction ? 'Most auctions want full payment the same day or the next business day (the official notice gives the exact deadline), so nothing is financed at the sale.' : 'This purchase can be financed, so part of the price and repairs is borrowed.'}${tenantDeposits(p) && inputs.possession > 3_500 ? ` Taking possession includes ${money(tenantDeposits(p))} of tenant security deposits you’d take on.` : ''}`,
+  intro: `Practice numbers, worked in order from the starting price to your profit, using the same calculator as the real tool. ${auction ? 'Most auctions want full payment at the sale or soon after (the official notice gives the exact deadline), so nothing is financed at the sale.' : 'This purchase can be financed, so part of the price and repairs is borrowed.'}${tenantDeposits(p) && inputs.possession > 3_500 ? ` Taking possession includes ${money(tenantDeposits(p))} of tenant security deposits you’d take on.` : ''}`,
   inputs,
   compareTo,
   lesson,

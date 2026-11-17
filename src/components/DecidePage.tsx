@@ -17,7 +17,7 @@ import CheckFold from './CheckFold';
 import AdSpot from './AdSpot';
 
 /** Auctions aren't automatically cheaper: said wherever the strategy appears. */
-const AUCTION_REALITY = 'Are auctions cheaper? Sometimes, but not by default. Most auctions want full payment in certified funds the same day or the next business day, so any loan has to be arranged before the sale or come after it, and you buy as-is, often without seeing inside. Bidding usually rises toward what buyers think the property is worth after its liens, repairs and risks, and many sales are postponed or cancelled. The opening bid isn’t the price.';
+const AUCTION_REALITY = 'Are auctions cheaper? Sometimes, but not by default. Most auctions want full payment in certified funds at the sale or soon after, so any loan has to be arranged before the sale or come after it, and you buy as-is, often without seeing inside. Bidding usually rises toward what buyers think the property is worth after its liens, repairs and risks, and many sales are postponed or cancelled. The opening bid isn’t the price.';
 
 interface Saved {
   answers: Answers;
@@ -178,7 +178,7 @@ export default function DecidePage() {
                 ? 'High-interest debt can cost more each year than a rental earns,* and lenders count it against you. Many people pay it down before buying; your situation, finances and risk tolerance decide what fits you.'
                 : notYetWhy(saved.answers) === 'nofund'
                   ? 'Every strategy has surprises. Without an emergency fund, one vacancy or repair can force you to borrow at high rates or sell at a loss. Many investors build one first; what fits depends on your situation.'
-                  : 'Under $10,000 makes most purchases hard: an auction wants the full price the same day or the next business day, and a loan needs a down payment, closing costs and reserves. Some low-down-payment programs exist; a loan officer can tell you what you’d qualify for.'}{' '}
+                  : 'Under $10,000 makes most purchases hard: an auction wants the full price at the sale or soon after, and a loan needs a down payment, closing costs and reserves. Some low-down-payment programs exist; a loan officer can tell you what you’d qualify for.'}{' '}
               Meanwhile, learn and practice for free. <a href="#/learn/financing">Compare financing options&nbsp;→</a>{' '}<a href="#/learn/red-flags">Seminar red flags&nbsp;→</a>
             </OwlNote>
           )}

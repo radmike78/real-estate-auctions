@@ -5,7 +5,7 @@ export interface TeamEntry { role: string; when: string; href?: string; pro?: Pr
 /** The professionals a guide can list, and when each one comes in. */
 export const TEAM = {
   agent: { role: 'Real estate agent', when: 'Finding and pricing the property, and selling or renting it after', href: '#/pros/agent', pro: 'agent' },
-  lender: { role: 'Hard-money or private lender', when: 'Before the sale: most auctions want full payment the same day or the next business day, so any loan for the purchase (such as a hard-money or bridge loan) has to be arranged before it; borrowing against your own home puts that home at risk. A loan on the property itself usually comes after, once a lender will accept the title: often not until any redemption or challenge period is over, or a title company will insure it*', href: '#/pros/private_lender', pro: 'private_lender' },
+  lender: { role: 'Hard-money or private lender', when: 'Before the sale: most auctions want full payment at the sale or soon after, so any loan for the purchase (such as a hard-money or bridge loan) has to be arranged before it; borrowing against your own home puts that home at risk. A loan on the property itself usually comes after, once a lender will accept the title: often not until any redemption or challenge period is over, or a title company will insure it*', href: '#/pros/private_lender', pro: 'private_lender' },
   mortgage: { role: 'Loan officer or mortgage company', when: 'Pre-approval before you make an offer', href: '#/pros/lender', pro: 'lender' },
   title: { role: 'Title and escrow company', when: 'A title search before you bid, and title insurance when available', href: '#/pros/title', pro: 'title' },
   attorney: { role: 'Real estate attorney', when: 'Reviewing surviving liens, sale validity and quiet title', href: '#/pros/attorney', pro: 'attorney' },
@@ -27,7 +27,7 @@ export const TEAM = {
   cpa: { role: 'CPA or tax advisor', when: 'Before you buy: flips and rentals are taxed differently', href: '#/pros/cpa', pro: 'cpa' },
   commercialBroker: { role: 'Commercial real estate broker', when: 'Current rents and cap rates for this property type, and leasing it up after', href: '#/pros/agent', pro: 'agent' },
   environmental: { role: 'Environmental consultant', when: 'A Phase I environmental site assessment completed (or updated) within one year before you take title (site visit, interviews, record and lien searches within 180 days)', href: '#/pros/environmental', pro: 'environmental' },
-  commercialLender: { role: 'Commercial or bridge lender', when: 'Before the sale: most auctions want full payment the same day or the next business day (the official notice gives the exact deadline), so the long-term loan comes after', href: '#/pros/private_lender', pro: 'private_lender' },
+  commercialLender: { role: 'Commercial or bridge lender', when: 'Before the sale: most auctions want full payment at the sale or soon after (the official notice gives the exact deadline), so the long-term loan comes after', href: '#/pros/private_lender', pro: 'private_lender' },
   propertyManager: { role: 'Commercial property manager', when: 'From day one if there are tenants: rent collection, estoppels, repairs', href: '#/pros/property_manager', pro: 'property_manager' },
 } satisfies Record<string, TeamEntry>;
 
