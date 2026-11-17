@@ -63,6 +63,9 @@ describe('settledWords: pre-sale advice reworded once the price is agreed, won o
 describe('taskHeadParts', () => {
   it('keeps short tasks whole', () => {
     expect(taskHeadParts('Pay for Pine St lot as the sale requires', 'Pine St lot')).toEqual(['Pay for Pine St lot as the sale requires', '']);
+    // A citation's periods don't end the heading.
+    const irs = 'Pay for Pine St lot: IRS sales are paid in full when the bid is accepted, or the rest by its date (no more than 1 month after the sale, 26 U.S.C. 6335(e)). Enter that date as the Payment deadline in Key dates.';
+    expect(taskHeadParts(irs, 'Pine St lot')[0]).toMatch(/6335\(e\)\)\.$/);
   });
   it('splits a long question after its first sentence, not at a.m.', () => {
     const l = 'Did you pay for Pine St. lot? Its payment deadline was likely today at 10 a.m. Nevada time* (the day after the sale). If the sale ran into a later day, your deadline is later: change the Sale day first. If you paid, mark it handled.';

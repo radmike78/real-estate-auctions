@@ -3,7 +3,7 @@ import { workStorage as localStorage } from '../lib/workStorage';
 import { useEffect, useState, type ReactNode } from 'react';
 import '../styles/r8-plan.css';
 import { loadDeals, openDeal, type Deal, type DealStage } from '../lib/analyze';
-import { taskHeadParts, sealedBid, nextOpenDeal, stageTasks, deadlinePassed, needsAnswerNow, pressingWeight, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf, sellerName, paidAtWin } from '../lib/dealStage';
+import { taskHeadParts, sealedBid, nextOpenDeal, stageTasks, deadlinePassed, needsAnswerNow, pressingWeight, dealNextTask, finishedDeal, setDealStage, STAGE_STEPS, wayOf, stageHint, stageLabel, type PlanTask, stageOf, sellerName, owedAfterPass } from '../lib/dealStage';
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
@@ -79,7 +79,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
   const [noteDeal, setNoteDeal] = useState('');
   // A finished or passed property leaves the plan: the next one comes up (one with a deadline first), with a note.
   // (The same whichever page marked it: My plan's buttons, or its deal packet.)
-  const handOff = (deal: Deal) => { write(DEAL_KEY, ''); progressChanged(); const nextOne = nextOpenDeal(deal.id); const due = nextOne && (deadlinePassed(dealNextTask(nextOne)) || dealNextTask(nextOne).urgent) ? nextOne : undefined; if (nextOne) { write(DEAL_KEY, `analyzed:${nextOne.id}`); write(ROADMAP_PATH_KEY, pathForDeal(nextOne)); } else { /* (nothing else open: it stays, with its "Find your next …") */ write(DEAL_KEY, `analyzed:${deal.id}`); } const fresh = loadDeals().find((x) => x.id === deal.id) ?? deal; setNoteDeal(deal.id); setFinishedNote(`${finishedDeal(deal) ? `${deal.name} is finished.` : `You marked ${deal.name} passed.`}${fresh.passedFrom === 'won' && wayOf(fresh) === 'auction' && !paidAtWin(fresh) ? ` You won it and the payment isn’t marked paid: ask ${sellerName(fresh.kind, fresh.state)} and an attorney what you may owe.` : ''} ${nextOne ? `Next: ${nextOne.name}${due ? (dealNextTask(due).key === 'date' && dealNextTask(due).days !== undefined ? (dealNextTask(due).days! < 0 ? ', which has a date that has passed' : dealNextTask(due).days === 0 ? ', which has a date due today' : ', which has a date due within a week') : ', which has something waiting on you') : ''}.` : `Next: find your next ${deal.kind === 'lien' ? 'lien sale' : 'property'} in Find deals.`}`); setTimeout(() => document.getElementById('plan-finished-note')?.focus(), 0); };
+  const handOff = (deal: Deal) => { write(DEAL_KEY, ''); progressChanged(); const nextOne = nextOpenDeal(deal.id); const due = nextOne && (deadlinePassed(dealNextTask(nextOne)) || dealNextTask(nextOne).urgent) ? nextOne : undefined; if (nextOne) { write(DEAL_KEY, `analyzed:${nextOne.id}`); write(ROADMAP_PATH_KEY, pathForDeal(nextOne)); } else { /* (nothing else open: it stays, with its "Find your next …") */ write(DEAL_KEY, `analyzed:${deal.id}`); } setNoteDeal(deal.id); setFinishedNote(`${finishedDeal(deal) ? `${deal.name} is finished.` : `You marked ${deal.name} passed.`} ${nextOne ? `Next: ${nextOne.name}${due ? (dealNextTask(due).key === 'date' && dealNextTask(due).days !== undefined ? (dealNextTask(due).days! < 0 ? ', which has a date that has passed' : dealNextTask(due).days === 0 ? ', which has a date due today' : ', which has a date due within a week') : ', which has something waiting on you') : ''}.` : `Next: find your next ${deal.kind === 'lien' ? 'lien sale' : 'property'} in Find deals.`}`); setTimeout(() => document.getElementById('plan-finished-note')?.focus(), 0); };
   useEffect(() => {
     const k = (() => { try { return JSON.parse(localStorage.getItem(DEAL_KEY) ?? '""') as string; } catch { return ''; } })();
     const d = typeof k === 'string' && k.startsWith('analyzed:') ? loadDeals().find((x) => `analyzed:${x.id}` === k) : undefined;
@@ -189,6 +189,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
           </div>
         )}
         {finishedNote && (() => { const nd = loadDeals().find((x) => x.id === noteDeal); return !nd || stageOf(nd) === 'passed' || finishedDeal(nd); })() && <p id="plan-finished-note" className="notice" role="status" tabIndex={-1}>{finishedNote}{/in Find deals\.$/.test(finishedNote) && <> <a href="#/find-deals">Open Find deals&nbsp;→</a></>}</p>}
+        {owedAfterPass().filter((x) => x.id !== deal?.id).map((x) => <p key={x.id} className="caution" role="note">You passed {x.name || 'a property'} after winning it, and the payment isn’t marked paid: ask {sellerName(x.kind, x.state)} and an attorney what you may owe. <a href={`#/deals/packet/${x.id}`}>Open its deal packet&nbsp;→</a></p>)}
         <div className={`plan-now-task${task.urgent ? ' urgent' : ''}`}>
           <p className="plan-now-k">{nextLabel}</p>
           {(() => { const [head, rest] = taskHeadParts(task.label, deal?.name); return <><h3>{head}</h3>{rest && <p className="plan-now-detail">{rest}</p>}</>; })()}

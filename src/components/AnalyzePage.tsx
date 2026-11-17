@@ -323,7 +323,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
         const home = stored?.home ?? deal.home;
         const homeFrom = stored?.home ? stored.homeFrom : deal.homeFrom;
         // (And whether a pass came after a win, which only the stage buttons set.)
-        const mine = (): Deal => { const { home: _h, homeFrom: _f, passedFrom: _p, ...rest } = deal; return { ...rest, ...(stage ? { stage } : {}), ...(home ? { home, ...(homeFrom ? { homeFrom } : {}) } : {}), ...(stored?.passedFrom && stage === 'passed' ? { passedFrom: stored.passedFrom } : {}) }; };
+        const mine = (): Deal => { const { home: _h, homeFrom: _f, passedFrom: _p, passedOn: _o, ...rest } = deal; return { ...rest, ...(stage ? { stage } : {}), ...(home ? { home, ...(homeFrom ? { homeFrom } : {}) } : {}), ...(stored?.passedFrom && stage === 'passed' ? { passedFrom: stored.passedFrom, ...(stored.passedOn ? { passedOn: stored.passedOn } : {}) } : {}) }; };
         const next = list.map((d) => (d.id === deal.id ? mine() : d));
         saveDeals(next);
         return next;
