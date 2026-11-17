@@ -691,7 +691,7 @@ describe('Nevada round 4 flow', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }] };
     savePacket(`analyzed:${elko.id}`, p);
     const t = stageTasks(elko, 'contract', p, new Date('2026-11-14T18:00:00Z')).find((x) => x.key === 'ev-terms')!;
-    expect(t.label).toMatch(/contact the Treasurer today/);
+    expect(t.label).toMatch(/^Did you pay for .*online auction’s terms of sale.*contact the Treasurer and an attorney today/);
     expect(t.advance2?.stage).toBe('passed');
     const clark = { ...elko, county: 'Clark' };
     expect(countyTermsNote(clark, { ...EMPTY_PACKET, dates: [...p.dates, { when: '2026-11-18', what: 'Payment deadline', who: '' }] })).toMatch(/You typed a later payment date \(Nov 18, 2026\)/);
