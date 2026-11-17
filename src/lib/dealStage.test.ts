@@ -2188,4 +2188,18 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(t.label).toMatch(/did escrow receive the earnest money\?/);
     expect(t.label).not.toMatch(/send the earnest money/);
   });
+
+  it('round 94 verifier: a redemption end ticked ahead of its date keeps the wait, at Won and with another state chosen', () => {
+    const hoa: Deal = { ...deal, id: 'w94', name: '45 Elm Ave', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'contract' };
+    saveDeals([hoa]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-17', what: 'Sale day', who: 'HOA agent', resolved: true }, { when: '2026-09-17', what: 'Payment deadline', who: 'HOA agent', resolved: true }, { when: '2026-11-17', what: 'Redemption period ends', who: 'HOA agent', resolved: true }] };
+    savePacket(`analyzed:${hoa.id}`, p);
+    expect(dealNextTask(hoa, p, new Date('2026-11-16T18:00:00Z'), 'contract').label).not.toMatch(/No one redeemed/);
+    // 11 p.m. Pacific on Nov 17 is still the last day in Nevada, even with Texas chosen.
+    localStorage.setItem('deedowl.state.v1', 'TX');
+    const closed = { ...hoa, stage: 'closed' as const };
+    saveDeals([closed]);
+    const t = dealNextTask(closed, p, new Date('2026-11-18T07:00:00Z'), 'closed');
+    expect(t.label).not.toMatch(/^Get the deed/);
+  });
 });

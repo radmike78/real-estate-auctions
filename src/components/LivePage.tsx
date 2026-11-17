@@ -84,7 +84,7 @@ export default function LivePage() {
         Counties post their own property lists for these sales. Open the list on the county’s site to see every property, its parcel number
         and minimum bid. Lists change up to the sale as owners pay their taxes, so check the county’s latest list before you bid.
       </p>
-      {countySales.length > 0 ? <CountySales sales={countySales} /> : <OwlNote>No upcoming county tax sales listed for {stateName} yet.</OwlNote>}
+      {countySales.length > 0 ? <CountySales sales={countySales} /> : <OwlNote>{stateName ? `No upcoming county tax sales listed for ${stateName} yet.` : 'Choose your state to see its upcoming county tax sales.'}</OwlNote>}
 
     </section>
   );
@@ -118,7 +118,7 @@ export default function LivePage() {
           <p>
             Meanwhile, check the{' '}
             <a href={myState === 'NV' ? nvSaleUrl : '#/find-deals'}>
-              {myState === 'NV' ? (nvCounty === 'Clark' ? 'Clark County Treasurer’s official sale list ↗' : nvOffice?.taxSale?.contactOnly ? `${nvTreasurer} (contact the office for the next sale) ↗` : `${nvTreasurer}’s tax sale page ↗`) : 'Your county’s official sale lists →'}
+              {myState === 'NV' ? (nvCounty === 'Clark' ? 'Clark County Treasurer’s official sale list ↗' : nvOffice?.taxSale?.contactOnly ? `${nvTreasurer} (contact the office for the next sale) ↗` : `${nvTreasurer}’s tax sale page ↗`) : 'your county’s official sale lists →'}
             </a>{' '}
             and the{' '}
             <a href="https://www.irsauctions.gov/" target="_blank" rel="noreferrer noopener">

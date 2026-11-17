@@ -460,7 +460,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <PageHero
         eyebrow={<span className="eyebrow">{stepEyebrow('analyze')}</span>}
         title={<>Analyze <span className="grad">a deal</span></>}
-        sub={nameYourState('Found one you like? Tell us about it, get the checklist for that kind of sale in your state, and know your number before you offer or bid.', getMyState())}
+        sub={nameYourState('Found one you like? Tell us about it, get the checklist for that kind of sale in your state, and know your number before you offer or bid.', (deal.id && deal.state) || getMyState())}
       />
       {keptNote && <p className="note" role="status">{keptNote} <a href="#/deals">Open My deals&nbsp;→</a></p>}
 

@@ -108,10 +108,10 @@ export function findDealsConfig(): NarrowConfig {
       if (buy === 'agent') {
         return [
           { label: 'A buyer’s agent and an MLS search', href: '#/pros/agent', why: `${property === 'commercial' ? 'Commercial property is often bought as a regular listing, through a commercial agent' : property === 'land' ? 'Land and manufactured homes are often bought as regular listings' : 'Most rentals are bought as regular listings'}. A buyer’s agent can set up an MLS search that matches your buy box, and you can inspect and back out if something’s wrong.` },
-          { label: 'Bank-owned and government homes', href: '#/bank-owned', why: 'Homes sold by banks, HUD, Fannie Mae and Freddie Mac, usually through an agent.' },
+          { label: 'Bank-owned and government homes', href: '#/bank-owned', why: property === 'home' ? 'Homes sold by banks, HUD, Fannie Mae and Freddie Mac, usually through an agent.' : 'Banks sell commercial property and land they own too, usually through an agent; HUD, Fannie Mae and Freddie Mac sell homes.' },
           property === 'home'
             ? { label: 'How short sales work', href: '#/short-sales', why: 'Homes an owner sells with the lender’s approval, listed by an agent.' }
-            : { label: 'Official sellers across your state and nationwide', scrollTo: 'deals-national', why: 'Federal agencies and the banks that own the homes, on this page.' },
+            : { label: 'Official sellers across your state and nationwide', scrollTo: 'deals-national', why: 'Federal agencies and the banks that own the properties, on this page.' },
         ];
       }
       return [
