@@ -94,7 +94,7 @@ export const BUY: ByStateLines = {
 /** What a notice of sale must say, by state (the "How to read a notice of sale" list). */
 export const READ_NOTICE: ByStateLines = {
   NV: [
-    { text: 'In Nevada, the law requires the date, time and place, a description of the property and its address, and the trustee’s contact details.' },
+    { text: 'In Nevada, the notice gives the time and place of the sale (NRS 107.080(4), 21.130). For a home, it also gives the address and the trustee’s contact information (NRS 107.087(1)(b)). An HOA’s notice of sale must also state the amount needed to pay off its lien as of the sale date (NRS 116.311635(3)).' },
   ],
   CA: [
     { text: 'In California, the notice of sale must give the time of sale, the street address and the exact place of the sale, and a description of the property. It must be recorded, and posted on the property, at least 20 days before the sale (Civil Code 2924f). It must also state the total unpaid balance and estimated costs as of the first publication (Civil Code 2924f(b)(7)).' },
