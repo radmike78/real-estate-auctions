@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanDeal, loadDeals, saveDeals, type Deal } from './analyze';
 import { EMPTY_PACKET, nextAction, savePacket } from './dealPacket';
-import { countyTermsNote, owedAfterPass, dealNextTask, earlyMoveNote, inferStage, paymentPassed, saleOverFor, withRow, setDealStage, STAGE_STEPS, stageHint, stageLabel, stageOf, stageTasks } from './dealStage';
+import { countyTermsNote, dayOf, owedAfterPass, dealNextTask, earlyMoveNote, inferStage, paymentPassed, saleOverFor, withRow, setDealStage, STAGE_STEPS, stageHint, stageLabel, stageOf, stageTasks } from './dealStage';
 import { cleanLog, saveLog } from './evidence';
 import { saveOwned } from './owned';
 import { planNow } from './planNext';
@@ -781,6 +781,16 @@ describe('Nevada round 4 flow', () => {
     const hp = { ...EMPTY_PACKET, dates: [{ when: '2026-10-31', what: 'Redemption period ends', who: 'Agent' }] };
     savePacket(`analyzed:${hoa.id}`, hp);
     expect(dealNextTask(hoa, hp, new Date('2026-11-01T06:30:00Z'), 'closed').days).toBe(0);
+  });
+
+  it('today is the deal state’s day, and a rural tax win past both deadlines keeps the SID payoff and its answers', () => {
+    expect(dayOf({ state: 'NV' }, new Date('2026-11-19T02:00:00Z'))).toBe('2026-11-18');
+    expect(dayOf({ state: 'TX' }, new Date('2026-11-19T05:30:00Z'))).toBe('2026-11-18');
+    const elko = { ...nvFlip, kind: 'taxSale' as const, county: 'Elko', stage: 'contract' as const };
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-11-20', what: 'Payment deadline', who: '' }, { when: '2026-12-02', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }] };
+    savePacket(`analyzed:${elko.id}`, p);
+    const t = dealNextTask(elko, p, new Date('2026-12-04T18:00:00Z'), 'contract');
+    expect(t.label).toMatch(/SID payoff/);
   });
 
   it('a Nevada trustee win left unpaid after the sale day is urgent', () => {
