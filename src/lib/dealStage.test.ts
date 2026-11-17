@@ -2231,4 +2231,22 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const t = dealNextTask(owned, open, new Date('2026-11-16T18:00:00Z'), 'owned');
     expect(JSON.stringify(t.advance2 ?? null)).toMatch(/redeem/i);
   });
+
+  it('round 95 verifier: an undated redemption end ticked early isn’t over until the worked-out end passes', async () => {
+    const { redemptionOver, redemptionPast } = await import('./dealStage');
+    const hoa: Deal = { ...deal, id: 'u95', name: '45 Elm Ave', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'closed' };
+    saveDeals([hoa]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-18', what: 'Sale day', who: 'HOA agent', resolved: true }, { when: '2026-09-19', what: 'Certificate of sale recorded', who: 'County', resolved: true }, { when: '', what: 'Redemption period ends', who: 'HOA agent', resolved: true }] };
+    savePacket(`analyzed:${hoa.id}`, p);
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date('2026-11-10T18:00:00Z'));
+      expect(redemptionOver(hoa)).toBe(false);
+      expect(redemptionPast(hoa)).toBe(false);
+      expect(dealNextTask(hoa, p, new Date(), 'closed').label).not.toMatch(/^Get the deed|No one redeemed/);
+      vi.setSystemTime(new Date('2026-11-25T18:00:00Z'));
+      expect(redemptionOver(hoa)).toBe(true);
+      expect(redemptionPast(hoa)).toBe(true);
+    } finally { vi.useRealTimers(); }
+  });
 });

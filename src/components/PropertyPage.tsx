@@ -369,7 +369,7 @@ export default function PropertyPage({ id, section }: { id: string; section?: st
             summary: `${plural(playbook.team.length, 'professional')} you need for this ${commercial ? 'commercial property' : 'sale type'}`,
             content: () => (
               <>
-                <p className="muted">Who you need, and when, for this kind of sale ({playbook.short}). {p.sale?.saleType === 'REO' ? 'Line them up before you make an offer.' : 'Line them up before you bid.'}</p>
+                <p className="muted">Who you need for this kind of sale, and when. {p.sale?.saleType === 'REO' ? 'Line them up before you make an offer.' : 'Line them up before you bid.'}</p>
                 <TeamList team={playbook.team} />
               </>
             ),

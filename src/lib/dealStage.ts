@@ -40,9 +40,14 @@ const ZONE: Record<string, string> = { NV: 'America/Los_Angeles', CA: 'America/L
 /** Today in the reader's chosen state, for checks that don't know the deal (the reader's own day when none is chosen). */
 export const readerDay = (now: Date) => dayOf({ state: getMyState() ?? undefined }, now);
 export const dayOf = (d: { state?: string } | null | undefined, now: Date) => { const z = d?.state ? ZONE[d.state] : undefined; if (!z) return localDay(now); const f = new Intl.DateTimeFormat('en-CA', { timeZone: z, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now); const g = (t: string) => f.find((x) => x.type === t)?.value ?? ''; return `${g('year')}-${g('month')}-${g('day')}`; };
-const handled = (p: PacketData, what: string, now: Date, d?: { state?: string }) => p.dates.some((x) => sameDate(x.what, what) && !!x.resolved && (!x.when || x.when < (d ? dayOf(d, now) : readerDay(now))));
+const handled = (p: PacketData, what: string, now: Date, d?: { state?: string; kind?: Deal['kind']; id?: string; plan?: Deal['plan'] }) => {
+  const today = d ? dayOf(d, now) : readerDay(now);
+  // (An undated redemption end ticked early counts only once the worked-out end has passed: until then someone can redeem.)
+  const worked = !!d?.kind && sameDate(what, 'Redemption period ends') ? redemptionEnd({ kind: d.kind, state: (d.state ?? 'NV') as Deal['state'], id: d.id, plan: d.plan }, p) : '';
+  return p.dates.some((x) => sameDate(x.what, what) && !!x.resolved && (x.when ? x.when < today : !worked || worked < today));
+};
 /** The redemption end row ticked, and its date (if any) already behind in the deal's day: no one can redeem any more. */
-const endPassed = (d: { id?: string; state?: string }) => !!d.id && handled(loadPacket(`analyzed:${d.id}`), 'Redemption period ends', new Date(), d);
+const endPassed = (d: { id?: string; state?: string; kind?: Deal['kind']; plan?: Deal['plan'] }) => !!d.id && handled(loadPacket(`analyzed:${d.id}`), 'Redemption period ends', new Date(), d);
 /** A home you'll live in: bought by offer to keep, by a reader buying a home to live in (Decide), unless this property is
  *  marked a rental (or the rent recorded in its tracker covers its costs). The reader can say so for each property. */
 export function liveIn(d: { kind: Deal['kind']; plan?: Deal['plan']; id?: string; home?: Deal['home'] }): boolean {
