@@ -102,7 +102,7 @@ function NoticeDebtLine() {
   const [myState] = useMyState();
   const ca = 'In California, the notice must state the total unpaid balance of the loan plus estimated costs as of its first publication (Civil Code 2924f). That isn’t the opening bid or the property’s value, and the amount can change, so ask the trustee.';
   const other = 'Many notices also list an estimate of the unpaid debt and the form of payment. Some states require it; ask the trustee. The debt estimate and the opening bid can differ, and neither is the property’s value.';
-  const nv = 'In Nevada, an HOA’s notice of sale must state the amount needed to pay off its lien (NRS 116.311635(3)). A trustee’s notice may not list the debt*; ask the trustee. The amount and the opening bid can differ, and neither is the property’s value.';
+  const nv = 'In Nevada, the copy of an HOA’s notice of sale served on the owner or posted on the home must state the amount needed to pay off its lien as of the sale date (NRS 116.311635(3)). A trustee’s notice may not list the debt*; ask the trustee. The amount and the opening bid can differ, and neither is the property’s value.';
   if (myState === 'CA') return <li>{dropStateLead(ca, 'CA')}</li>;
   if (myState === 'NV') return <li>{dropStateLead(nv, 'NV')}</li>;
   if (myState) return <li>{other}</li>;
