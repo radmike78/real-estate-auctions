@@ -224,7 +224,7 @@ const NEVADA: Playbook[] = [
       { label: 'Fannie Mae / Freddie Mac loans', value: 'If one of them owned the loan while under federal conservatorship, the mortgage generally survives an HOA sale unless the Federal Housing Finance Agency (FHFA, which oversees Fannie Mae and Freddie Mac) consented. This federal rule is called the Foreclosure Bar (12 U.S.C. 4617(j)(3))*' },
       { label: 'Redemption', value: '60 days after the sale. The redeemer pays your price plus 1% a month, plus taxes, assessments, payments on liens from before the sale (such as a surviving first mortgage) and upkeep you paid' },
       { label: 'What you get first', value: 'A certificate of sale; a deed without warranty after the redemption period (NRS 116.31166). If the sale wiped out a junior federal tax lien, the U.S. can buy it back for 120 days, longer than the 60 days for the owner or a junior lender (26 U.S.C. 7425); a lien the sale didn’t wipe out stays on the home. Ask a title company before bidding whether it will insure without a quiet title lawsuit' },
-      { label: 'Payment', value: 'Certified funds; confirm the terms with the HOA’s foreclosure agent' },
+      { label: 'Payment', value: 'Certified funds, usually at the sale*: Nevada HOA sales go to the highest cash bidder (NRS 116.31164(6)(b)). Confirm the terms with the HOA’s foreclosure agent' },
     ],
     steps: [
       { title: 'Find the sale notice', detail: 'Notices for HOA sales are given and recorded the same way as for trustee sales. Confirm the date with the HOA’s foreclosure agent.' },
