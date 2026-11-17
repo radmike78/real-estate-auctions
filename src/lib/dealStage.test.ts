@@ -414,7 +414,7 @@ describe('Nevada round 4 flow', () => {
     expect(calendarRows({ ...EMPTY_PACKET, dates: rows }, 'contract')).toHaveLength(4);
     expect(windowEnded('Challenge window ends', 27)!.text).toBe('the challenge window ended 27 days ago');
     expect(windowEnded('Sale day', 2)).toBeNull();
-    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-08', what: 'Challenge window ends', who: 'Title company' }] };
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-08-09', what: 'Deed recorded', who: 'County', resolved: true }, { when: '2026-09-08', what: 'Challenge window ends', who: 'Title company' }] };
     expect(dealNextTask({ ...nvFlip, stage: 'closed' }, p, now, 'closed').label).toBe('The challenge window ended 28 days ago: ask your title company or attorney whether any suit was filed, and whether the 90-day limit for anyone not properly notified (NRS 107.080(6)) still runs. If none was filed, mark it handled.');
   });
 
@@ -559,7 +559,7 @@ describe('Nevada round 4 flow', () => {
     expect(stageTasks(hoa, 'closed', hp, now).find((x) => x.key === 'redemption-wait')!.label).toMatch(/ends Oct 31, 2026/);
     const tax = { ...nvFlip, kind: 'taxSale' as const };
     expect(stageTasks(tax, 'contract', EMPTY_PACKET, now).some((x) => x.key === 'sid-affidavit')).toBe(true);
-    const cw = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-01', what: 'Challenge window ends', who: 'Title' }] };
+    const cw = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-01', what: 'Deed recorded', who: 'County', resolved: true }, { when: '2026-10-01', what: 'Challenge window ends', who: 'Title' }] };
     expect(dealNextTask(nvFlip, cw, now, 'closed').redate?.when).toBe('2026-11-30');
   });
 
@@ -2476,5 +2476,34 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${tx.id}`, blank);
     expect(packetSections(tx, blank, now).find((x) => x.key === 'dates')!.lines.some((t) => /^Still to add: the date on the “Treasurer’s deed recorded” row/.test(t))).toBe(true);
     expect(dealNextTask(tx, blank, now, 'closed').label).toMatch(/^Enter the date 9 Fir’s deed was recorded in Key dates/);
+  });
+
+  it('round 105 tools: a dated deed row not yet ticked still sets the window’s law end; the deed date leads at Owned; a blank recovery row at Owned is still to add, with its date', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const { lawWindowEnd, windowMarkWait } = await import('./dealStage');
+    const tr: Deal = { ...deal, id: 'u105', name: '7 Elm', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'closed' };
+    saveDeals([tr]);
+    const now = new Date('2026-12-12T20:00:00Z');
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-17', what: 'Deed recorded', who: 'County' }, { when: '2026-12-10', what: 'Challenge window ends', who: 'Me' }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    expect(lawWindowEnd(tr, p, 'Challenge window ends')).toBe('2026-12-17');
+    expect(windowMarkWait(tr, p, 'Challenge window ends', now)).toBe('2026-12-17');
+    const t = dealNextTask(tr, p, now, 'closed');
+    expect(t.label).not.toMatch(/ended/);
+    expect(t.label).toMatch(/^In 5 days: Challenge window ends/);
+    const rep = stageTasks(tr, 'closed', p, now).find((x) => x.key === 'repairs');
+    if (rep) expect(rep.label).not.toMatch(/Dec 10/);
+    const ow: Deal = { ...tr, id: 'u105o', stage: 'owned', plan: 'rent' };
+    saveDeals([ow]);
+    const q = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }] };
+    savePacket(`analyzed:${ow.id}`, q);
+    expect(dealNextTask(ow, q, now, 'owned').label).toMatch(/^Enter the date 7 Elm’s deed was recorded/);
+    const tx: Deal = { ...tr, id: 'u105t', kind: 'taxSale', stage: 'owned' };
+    saveDeals([tx]);
+    const r = { ...EMPTY_PACKET, dates: [{ when: '2024-02-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2024-02-05', what: 'Payment deadline', who: 'T', resolved: true }, { when: '2024-02-06', what: 'Treasurer confirmed no SID affidavit', who: 'T', resolved: true }, { when: '2024-11-01', what: 'Treasurer’s deed recorded', who: 'T', resolved: true }, { when: '', what: 'Recovery-suit window ends', who: '' }] };
+    savePacket(`analyzed:${tx.id}`, r);
+    const lines = packetSections(tx, r, now).find((x) => x.key === 'dates')!.lines;
+    expect(lines.some((x) => /^Still to add: the date for Recovery-suit window ends \(2 years after the deed is delivered, so it likely ended about Nov 1, 2026/.test(x))).toBe(true);
+    expect(lines).not.toContain('Nothing else is due now.');
   });
 });

@@ -151,7 +151,7 @@ export function windowMarkWait(d: Deal, p: PacketData, what: string, now: Date =
   const tax = d.state === 'NV' && d.kind === 'taxSale' && sameDate(what, 'Recovery-suit window ends');
   if (!trustee && !tax) return '';
   const typed = p.dates.find((x) => sameDate(x.what, what) && x.when)?.when;
-  const deed = p.dates.find((x) => x.when && x.resolved && DEED_ROWS[trustee ? 'trustee' : 'tax'].some((r) => sameDate(x.what, r)))?.when;
+  const deed = deedRecordedOn(p, trustee);
   let worked = '';
   if (deed) { const t = new Date(`${deed}T12:00:00`); if (trustee) t.setDate(t.getDate() + 30); else t.setFullYear(t.getFullYear() + 2); worked = localDay(t); }
   const end = typed && worked ? (typed > worked ? typed : worked) : typed || worked;
@@ -161,6 +161,12 @@ export function windowMarkWait(d: Deal, p: PacketData, what: string, now: Date =
 
 /** The names a Nevada trustee's or Treasurer's deed recording row goes by. */
 export const DEED_ROWS = { trustee: ['Deed recorded', 'Trustee’s deed recorded'], tax: ['Treasurer’s deed recorded', 'Deed recorded'] };
+/** The deed's recording date the window counts from: a ticked row's, else a dated row's not yet ticked (the window
+ *  is never read as ending before the law's end from a date the reader typed). */
+function deedRecordedOn(p: PacketData, trustee: boolean): string | undefined {
+  const rows = p.dates.filter((x) => x.when && DEED_ROWS[trustee ? 'trustee' : 'tax'].some((r) => sameDate(x.what, r)));
+  return (rows.find((x) => x.resolved) || rows[0])?.when;
+}
 /** A Nevada trustee or tax deal at Deed recorded or later whose deed has no ticked, dated recording row, while its window
  *  isn't answered yet: the 30-day or 2-year window is counted from that date ('' when nothing is missing). */
 export function deedDateMissing(d: Deal, p: PacketData, stage: DealStage = stageOf(d)): '' | 'trustee' | 'tax' {
@@ -175,7 +181,7 @@ export function lawWindowEnd(d: { state?: Deal['state']; kind: Deal['kind'] }, p
   const trustee = d.state === 'NV' && d.kind === 'trustee' && sameDate(what, 'Challenge window ends');
   const tax = d.state === 'NV' && d.kind === 'taxSale' && sameDate(what, 'Recovery-suit window ends');
   if (!trustee && !tax) return '';
-  const deed = p.dates.find((x) => x.when && x.resolved && DEED_ROWS[trustee ? 'trustee' : 'tax'].some((r) => sameDate(x.what, r)))?.when;
+  const deed = deedRecordedOn(p, trustee);
   if (!deed) return '';
   const t = new Date(`${deed}T12:00:00`);
   if (trustee) t.setDate(t.getDate() + 30); else t.setFullYear(t.getFullYear() + 2);
@@ -1179,7 +1185,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     const withRedeem = (t: PlanTask): PlanTask => (waiting && !t.advance2 ? { ...t, advance2: redeemButton(d, redeemLabel(d, p, now)) } : t);
     // (A Nevada trustee or tax deed with no recorded date: its window is counted from it, so that date comes first.)
     const deedMiss = deedDateMissing(d as Deal, p, stage);
-    if (deedMiss) out.push(task({ key: 'deed-date', label: `Enter the date ${n}’s deed was recorded in Key dates`, produces: `the recording date in Key dates, marked handled: the ${deedMiss === 'trustee' ? '30-day challenge window (NRS 107.080(5))' : '2-year recovery-suit window (NRS 361.600)*'} is counted from it`, href: packetHref(d, 'dates'), support: [], done: false }));
+    const deedRow = deedMiss ? p.dates.find((x) => DEED_ROWS[deedMiss].some((r) => sameDate(x.what, r))) : undefined;
+    if (deedMiss) out.push(task({ key: 'deed-date', label: deedRow?.when ? `Mark ${n}’s deed recording handled in Key dates once it’s recorded (the date entered is ${prettyDay(deedRow.when)})` : deedRow?.resolved ? `Enter the date ${n}’s deed was recorded on its row in Key dates` : `Enter the date ${n}’s deed was recorded in Key dates`, produces: `the recording date in Key dates, marked handled: the ${deedMiss === 'trustee' ? '30-day challenge window (NRS 107.080(5))' : '2-year recovery-suit window (NRS 361.600)*'} is counted from it`, href: packetHref(d, 'dates'), support: [], done: false }));
     if (!deedFirst) out.push(withRedeem(firstWeek));
     const wonLater = w === 'auction' && (d.plan === 'flip' || d.plan === 'rent') ? wonPrice(d as Deal, p, n) : undefined;
     const won = wonLater && !wonLater.done && !bidTyped(d as Deal) ? wonLater : undefined;
@@ -1241,6 +1248,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     if (d.state === 'NV' && d.kind === 'taxSale') { const t = sidPaidAffidavit(d, p, now, n); if (t && !t.done) out.push(t); }
     if (d.state === 'NV' && d.kind === 'taxSale') { const due = sidPayDue(p, now); if (due) out.push(task({ key: 'sid-pay', label: `Pay off what’s owed on the special improvement district (SID) certificate for ${n} by ${prettyDay(due.dl)}, or the sale is void (NRS 361.595(6))`, produces: 'the payment to the city or county, with its receipt, and its affidavit sent to the Treasurer', href: packetHref(d, 'dates'), tick: { label: 'I paid it: mark it handled', row: due.row, setWhen: dayOf(d, now) }, support: [], done: false })); }
     if (d.state === 'NV' && d.kind === 'taxSale') { const st = sidTasks(d, p, now, n).filter((t) => !t.done); if (st.length) { out.push(...st); return out; } }
+    // (A Nevada trustee or tax deed with no recorded date: that date still comes first.)
+    if (!owned[d.id]?.sold) { const dd = stageTasks(d, 'closed', p, now).find((t) => t.key === 'deed-date'); if (dd) out.push(dd); }
     // (A certificate-first deal moved here before its deed: once the deed comes, the first week and the
     // before-remodel check still come first, as at Deed recorded.)
     if (wayOf(d) !== 'lien' && certificateFirst(d) && !owned[d.id]?.sold) { const safe = stageTasks(d, 'closed', p, now).filter((t) => !t.done && (t.key === 'first-week' || t.key === 'before-remodel')); out.push(...safe); }
@@ -1446,6 +1455,9 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     }
     // A challenge or recovery-suit window typed earlier than the law's end: no "ended" question until the law's end.
     if (nd && (sameDate(nd.what, 'Challenge window ends') || sameDate(nd.what, 'Recovery-suit window ends'))) {
+      // (No recorded deed date to count from yet: that date comes first.)
+      const dd = deedDateMissing(d, p, stage) && !deedRecordedOn(p, d.kind === 'trustee') ? stageTasks(d, 'closed', p, now).find((t) => t.key === 'deed-date') : undefined;
+      if (dd) return dd;
       const w = windowMarkWait(d, p, nd.what, now);
       if (w && w !== 'no-deed' && w !== nd.when) {
         const n = d.name || 'this property';
