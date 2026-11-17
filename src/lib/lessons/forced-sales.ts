@@ -69,11 +69,11 @@ export const forcedSales: Lesson = {
       ],
     },
     {
-      heading: 'Sales the owner can undo: the right to redeem',
+      heading: 'Sales that can be undone: the right to redeem',
       blocks: [
-        'Sometimes a foreclosure goes through court, or a sheriff sells property to pay a judgment. When that happens, the owner, or a creditor whose lien came after the one sold on, may be able to buy it back for a while after the sale. You may hold only a certificate of sale until that right runs out, and get the deed after.',
+        'Sometimes a foreclosure goes through court, or a sheriff sells property to pay a judgment. When that happens, the former owner, and after some sales a lender or creditor with a later lien, may be able to buy it back for a while after the sale. You may hold only a certificate of sale until that right runs out, and get the deed after.',
         { list: [
-          'Nevada: after a sheriff’s execution sale, the owner (or a creditor with the right to redeem) can buy it back within 1 year by paying your price plus 1% a month, and certain taxes and liens you paid (NRS 21.210).',
+          'Nevada: after a sheriff’s execution sale, the former owner, or a creditor with a later lien, can buy it back within 1 year by paying your price plus 1% a month, and certain taxes and liens you paid (NRS 21.210).',
           'Nevada HOA foreclosures: the former owner, or a lender whose loan ranked below the HOA’s lien, can buy it back within 60 days by paying your price plus 1% a month and certain costs (NRS 116.31166(3)). You get a certificate of sale first, and the first mortgage may survive*.',
           'California: only when the judgment allows a deficiency (the notice of sale says whether the sale is subject to redemption): 3 months after a judicial foreclosure sale if the sale paid the debt in full, or 1 year if it didn’t (CCP 729.010, 729.030).',
           'Arizona: 6 months after a judicial foreclosure sale, or 30 days if the judgment found the property both abandoned and not used mainly for farming or grazing. After that, junior lienholders can redeem in turn, 5 days each (A.R.S. 12-1282).',

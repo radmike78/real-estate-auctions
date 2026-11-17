@@ -1,4 +1,4 @@
-import { prettyDay, nvNow, treasurerGave, sidBeforePay, sellerShort, taxPayState, unpaidAfterSale, sidState, sidPending, deedOnRecord, beforeDeed, beforeWhat, clarkPayDay, clarkWinnerPast, nvLienDueLikelyPassed, nvLienDueToday, paidAtWin, liveIn, stageLabel, stageOf, finishedDeal } from '../lib/dealStage';
+import { redeemedDeal, prettyDay, nvNow, treasurerGave, sidBeforePay, sellerShort, taxPayState, unpaidAfterSale, sidState, sidPending, deedOnRecord, beforeDeed, beforeWhat, clarkPayDay, clarkWinnerPast, nvLienDueLikelyPassed, nvLienDueToday, paidAtWin, liveIn, stageLabel, stageOf, finishedDeal } from '../lib/dealStage';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
 import { planNow, practiceLienDeal, roadmapNextStep } from '../lib/planNext';
 import { lienDealFor, planPath, progressChanged } from '../lib/roadmapState';
@@ -417,6 +417,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     if (overdueIntro(sd)) return { text: `${inPacket(overdueIntro(sd))}${sidBeforePay(sd, loadPacket(`analyzed:${sd.id}`))}`, packet: true };
     // A Nevada tax sale's open SID payoff can void the sale (NRS 361.595(6)): say so before the numbers.
     // A void Nevada tax sale, or one whose SID payoff came late: the numbers wait on the Treasurer (NRS 361.595(6)).
+    if (redeemedDeal(sd)) return { text: 'This property was redeemed: you’re repaid your price plus what the law adds, and you don’t get the property. These numbers no longer apply; its deal packet has the payoff steps.', packet: true };
     if (sidState(sd) === 'void' && stageOf(sd) === 'passed') return { text: 'This sale was void (NRS 361.595(6)), and you marked the refund received. These numbers no longer apply.', packet: true };
     if (sidState(sd) === 'void') return { text: 'This sale is void: ask the Treasurer in writing for the rest of what you paid* (NRS 361.595(6)). These numbers no longer apply.', packet: true };
     if (sidState(sd) === 'late') return { text: 'The SID payoff came after its 20 days: ask the Treasurer in writing whether the sale stands*, and answer it in its deal packet before you rely on these numbers.', packet: true };

@@ -84,6 +84,9 @@ const HOMES_SETTLED_KEY = 'deedowl.homes-settled.v1';
  * marked; otherwise why not ('no-sale': no Sale day to count from; or the date the period runs until). A typed end earlier
  * than the law's period counts from the law's end.
  */
+/** The law's redemption end for a certificate-first win, worked out from the Sale day whatever date is typed ('' when unknown). */
+export const lawRedemptionEnd = (d: Deal, p: PacketData) => (certificateFirst(d) ? redemptionEnd(d, { ...p, dates: p.dates.filter((x) => !sameDate(x.what, 'Redemption period ends')) }) : '');
+
 export function redemptionMarkWait(d: Deal, p: PacketData, now: Date = new Date()): string {
   if (!certificateFirst(d) || redeemedIn(p)) return '';
   const typed = p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when ?? '';
@@ -98,6 +101,10 @@ export function clearEarlyRedemptionEnds(now: Date = new Date()) {
     if (!certificateFirst(d)) continue;
     const p = loadPacket(`analyzed:${d.id}`);
     if (redeemedIn(p)) continue;
+    // A typed end earlier than the law's (someone can redeem until the law's end) moves to the law's end.
+    const law = lawRedemptionEnd(d, p);
+    const early = p.dates.findIndex((x) => sameDate(x.what, 'Redemption period ends') && !!x.when && !!law && x.when < law);
+    if (early >= 0) { const q = { ...p, dates: p.dates.map((x, j) => (j === early ? { ...x, when: law, resolved: law >= dayOf(d, now) ? false : x.resolved } : x)) }; savePacket(`analyzed:${d.id}`, q); continue; }
     const i = p.dates.findIndex((x) => sameDate(x.what, 'Redemption period ends') && !!x.resolved);
     if (i < 0) continue;
     const end = p.dates[i].when || redemptionEnd(d, p);

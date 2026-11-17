@@ -2278,4 +2278,19 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(redemptionMarkWait(hoa, early, new Date('2026-11-20T18:00:00Z'))).toBe('');
     expect(redemptionMarkWait(hoa, { ...early, dates: [...early.dates, { when: '2026-09-25', what: 'Redemption money collected', who: 'HOA agent', resolved: true }] }, now)).toBe('');
   });
+
+  it('round 97 clarity: a typed redemption end earlier than the law moves to the law’s end', async () => {
+    const { clearEarlyRedemptionEnds, lawRedemptionEnd } = await import('./dealStage');
+    const { loadPacket } = await import('./dealPacket');
+    const hoa: Deal = { ...deal, id: 'l97', name: '45 Elm Ave', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'closed' };
+    saveDeals([hoa]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-01', what: 'Sale day', who: 'HOA agent', resolved: true }, { when: '2026-11-10', what: 'Redemption period ends', who: 'HOA agent', resolved: true }] };
+    savePacket(`analyzed:${hoa.id}`, p);
+    const law = lawRedemptionEnd(hoa, p);
+    expect(law > '2026-12-29').toBe(true);
+    clearEarlyRedemptionEnds(new Date('2026-11-17T20:00:00Z'));
+    const row = loadPacket(`analyzed:${hoa.id}`).dates.find((x) => x.what === 'Redemption period ends');
+    expect(row?.when).toBe(law);
+    expect(row?.resolved).toBeFalsy();
+  });
 });

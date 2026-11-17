@@ -282,7 +282,7 @@ const NEVADA: Playbook[] = [
     ],
     survives: {
       wipedOut: ['The judgment lien being enforced', 'Junior liens, in most cases'],
-      mayStay: ['Mortgages and liens senior to the judgment', 'Property taxes', 'Federal tax liens: after a court foreclosure where the United States wasn’t made a party, a federal tax lien filed before the case began stays with the property (26 U.S.C. 7425(a); 28 U.S.C. 2410(c)).* Ask your title company to check for one.', 'The 1-year redemption right'],
+      mayStay: ['Mortgages and liens senior to the judgment', 'Property taxes', 'Federal tax liens: a sheriff’s sale can leave a federal tax lien on the property. For example, after a court foreclosure where the United States wasn’t made a party, a federal tax lien filed before the case began stays (26 U.S.C. 7425(a); 28 U.S.C. 2410(c)).* Ask your title company to check for one.', 'The 1-year redemption right'],
     },
     mistakes: [{ mistake: 'Treating it like a quick flip', prevent: 'Expect to wait out the 1-year redemption period before you can count on keeping or reselling it.' }],
     example: {
