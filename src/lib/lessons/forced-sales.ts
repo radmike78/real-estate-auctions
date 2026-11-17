@@ -71,7 +71,7 @@ export const forcedSales: Lesson = {
     {
       heading: 'Sales that can be undone: the right to redeem',
       blocks: [
-        'Sometimes a foreclosure goes through court, or a sheriff sells property to pay a judgment. When that happens, the former owner, and after some sales a lender or creditor with a later lien, may be able to buy it back for a while after the sale. You may hold only a certificate of sale until that right runs out, and get the deed after.',
+        'After some sales (a court foreclosure, a sheriff’s sale to pay a judgment, and in some states an HOA or IRS sale), the former owner, and after some of them a lender or creditor with a lien on the property, may be able to buy it back for a while after the sale. You may hold only a certificate of sale until that right runs out, and get the deed after.',
         { list: [
           'Nevada: after a sheriff’s execution sale, the former owner, or a creditor with a later lien, can buy it back within 1 year by paying your price plus 1% a month, and certain taxes and liens you paid (NRS 21.210).',
           'Nevada HOA foreclosures: the former owner, or a lender whose loan ranked below the HOA’s lien, can buy it back within 60 days by paying your price plus 1% a month and certain costs (NRS 116.31166(3)). You get a certificate of sale first, and the first mortgage may survive*.',
@@ -121,7 +121,7 @@ export const forcedSales: Lesson = {
     { term: 'Tax lien', meaning: 'A claim for unpaid taxes. Some states sell these liens to investors, who earn interest until it’s paid; others sell the property itself (the table above shows which your state does).' },
     { term: 'Tax deed', meaning: 'A deed to the property itself, sold by the county for unpaid taxes. In Nevada it’s the Treasurer’s deed, a quitclaim deed from the county treasurer.' },
     { term: 'Trustee sale', meaning: 'An out-of-court foreclosure auction held by the trustee under a deed of trust.' },
-    { term: 'Right of redemption', meaning: 'The right of the former owner, and after some sales a lender or creditor whose lien came later, to buy the property back for a time after the sale.' },
+    { term: 'Right of redemption', meaning: 'The right of the former owner, and after some sales a lender or creditor with a lien on the property, to buy it back for a time after the sale.' },
     { term: 'Quitclaim deed', meaning: 'A deed that passes whatever interest the seller has, with no promise that title is clear.' },
     { term: 'Quiet title action', meaning: 'A court case that confirms you own the property free of old owners’ claims, which a title company usually wants before it will insure the title.*' },
   ],

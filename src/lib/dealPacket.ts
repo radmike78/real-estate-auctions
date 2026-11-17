@@ -1167,7 +1167,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const eurekaSaleToday = sealedBid(d) && ['researching', 'offer'].includes(stageOf(d)) && !saleOverFor(d, p, now) && p.dates.some((x) => sameDate(x.what, 'Sale day') && x.when === nvNow(now).day);
   const bidNext = eurekaSaleToday ? 'Next: Sale day, today in Nevada' : bidDl ? (bidPast ? `Next: the sealed bid and full payment were likely due ${prettyDay(bidDl)}, the Treasurer’s last open day before the sale*: see Your next action.` : `Next: the sealed bid and full payment, due ${prettyDay(bidDl)} (usually by 4 p.m. Nevada time, the Treasurer’s last open day before the sale; check the notice*).`) : '';
   const openAfter = early && p.dates.some((x) => x.when && !x.resolved && afterSale(x.what));
-  const dated = pk.dates.filter((x) => x.when && !sameDate(x.what, 'Winning bid entered in Analyze'));
+  // (A certificate-first win's redemption end is listed at its effective end, the same date "Next" counts to.)
+  const dated = withEffectiveEnd(d, pk).dates.filter((x) => x.when && !sameDate(x.what, 'Winning bid entered in Analyze'));
   const undatedDone = p.dates.filter((x) => !x.when && x.resolved && x.what.trim());
   out.push({
     key: 'dates',
