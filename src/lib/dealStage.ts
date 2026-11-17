@@ -95,6 +95,23 @@ export const withEffectiveEnd = (d: Deal, p: PacketData): PacketData => {
   return p.dates.some((x) => sameDate(x.what, 'Redemption period ends') && x.when && x.when !== eff) ? { ...p, dates: p.dates.map((x) => (sameDate(x.what, 'Redemption period ends') && x.when ? { ...x, when: eff } : x)) } : p;
 };
 
+/**
+ * Why a won auction's Sale day looks mistyped ('' when it looks fine): after today, after a date that comes from the
+ * sale, or months before the payment or certificate date.
+ */
+export function saleDayOdd(d: Deal, p: PacketData, now: Date = new Date()): string {
+  if (wayOf(d) !== 'auction' || !['contract', 'closed', 'owned'].includes(stageOf(d))) return '';
+  const sd = p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when;
+  if (!sd) return '';
+  const today = dayOf(d, now);
+  const gap = (a: string, b: string) => Math.round((Date.parse(`${a}T12:00:00Z`) - Date.parse(`${b}T12:00:00Z`)) / 864e5);
+  const later = p.dates.filter((y) => y.when && ['Payment deadline', 'Certificate of sale recorded', 'Certificate of sale received', 'Trustee’s deed recorded', 'Treasurer’s deed recorded'].some((r) => sameDate(y.what, r))).map((y) => y.when);
+  if (sd > today) return 'is after today, but you’ve already won';
+  if (later.some((w) => w < sd)) return 'is after a date that comes from the sale';
+  if (later.some((w) => gap(w, sd) > 120)) return 'is months before the payment or certificate date';
+  return '';
+}
+
 /** The law's redemption end for a certificate-first win, worked out from the Sale day whatever date is typed ('' when unknown). */
 export const lawRedemptionEnd = (d: Deal, p: PacketData): string => {
   if (!certificateFirst(d)) return '';
@@ -1357,6 +1374,12 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     }
     // A redemption end that disagrees with the law's (typed too early, or no Sale day to count from): no "No one redeemed"
     // answer until it's fixed in Key dates (fixRedemptionRows corrects it there).
+    // A won auction's Sale day that looks mistyped: every deadline counts from it, so it comes first.
+    if (['contract', 'closed', 'owned'].includes(stage) && saleDayOdd(d, p, now)) {
+      const n = d.name || 'this property';
+      const text = `Check the Sale day for ${n} in Key dates: it ${saleDayOdd(d, p, now)}. The deadlines after the sale are counted from it, so fix it (often the year) before relying on them.`;
+      return { key: 'date', days: 0, urgent: true, label: text, produces: 'the right Sale day in Key dates', href: packetHref(d, 'dates'), support: [], done: false, text };
+    }
     // A closing dated before the contract (or, for a short sale, before the lender's approval): a date to fix, not a closing.
     if (nd && stage === 'contract' && wayOf(d) === 'offer' && sameEvent(nd.what, 'Closing') && nd.when) {
       const before = p.dates.find((y) => /^(Offer accepted|Acceptance|Contract signed)/i.test(y.what) && y.when && nd.when < y.when) ?? (d.kind === 'short' ? p.dates.find((y) => sameDate(y.what, 'Approval notice received') && y.when && nd.when < y.when) : undefined);
