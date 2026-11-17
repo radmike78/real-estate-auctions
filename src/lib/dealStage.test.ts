@@ -2249,4 +2249,19 @@ describe('round 39: Eureka sealed-bid sale', () => {
       expect(redemptionPast(hoa)).toBe(true);
     } finally { vi.useRealTimers(); }
   });
+
+  it('round 96 verifier: an early-marked redemption end goes back to open while the period runs, and stays once it has passed', async () => {
+    const { clearEarlyRedemptionEnds } = await import('./dealStage');
+    const { loadPacket } = await import('./dealPacket');
+    const hoa: Deal = { ...deal, id: 'm96', name: '45 Elm Ave', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'closed' };
+    const other: Deal = { ...hoa, id: 'n96' };
+    saveDeals([hoa, other]);
+    const row = { when: '2026-11-17', what: 'Redemption period ends', who: 'HOA agent', resolved: true };
+    savePacket(`analyzed:${hoa.id}`, { ...EMPTY_PACKET, dates: [{ when: '2026-09-17', what: 'Sale day', who: 'HOA agent', resolved: true }, row] });
+    savePacket(`analyzed:${other.id}`, { ...EMPTY_PACKET, dates: [{ when: '2026-09-17', what: 'Sale day', who: 'HOA agent', resolved: true }, { ...row, when: '2026-11-10' }] });
+    clearEarlyRedemptionEnds(new Date('2026-11-17T18:00:00Z'));
+    expect(loadPacket(`analyzed:${hoa.id}`).dates.find((x) => x.what === 'Redemption period ends')).toMatchObject({ when: '2026-11-17' });
+    expect(loadPacket(`analyzed:${hoa.id}`).dates.find((x) => x.what === 'Redemption period ends')?.resolved).toBeFalsy();
+    expect(loadPacket(`analyzed:${other.id}`).dates.find((x) => x.what === 'Redemption period ends')?.resolved).toBe(true);
+  });
 });

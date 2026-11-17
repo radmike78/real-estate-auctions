@@ -74,6 +74,23 @@ export const asksHome = (d: { kind: Deal['kind']; plan?: Deal['plan']; id?: stri
 };
 const HOMES_SETTLED_KEY = 'deedowl.homes-settled.v1';
 /** Homes already bought with no answer yet keep the one they have now (so a later Decide change doesn't switch them). */
+/**
+ * Older data could mark "Redemption period ends" handled before the period ended (Key dates now refuses that). Such a
+ * tick isn't an answer to "did anyone redeem?", so while the period still runs it goes back to open, keeping its date:
+ * once the period ends, the reader is asked, with both answers.
+ */
+export function clearEarlyRedemptionEnds(now: Date = new Date()) {
+  for (const d of loadDeals()) {
+    if (!certificateFirst(d)) continue;
+    const p = loadPacket(`analyzed:${d.id}`);
+    if (redeemedIn(p)) continue;
+    const i = p.dates.findIndex((x) => sameDate(x.what, 'Redemption period ends') && !!x.resolved);
+    if (i < 0) continue;
+    const end = p.dates[i].when || redemptionEnd(d, p);
+    if (end && end >= dayOf(d, now)) savePacket(`analyzed:${d.id}`, { ...p, dates: p.dates.map((x, j) => (j === i ? { ...x, resolved: false } : x)) });
+  }
+}
+
 export function settleHomes() {
   // Once per device: later Decide changes never relabel a bought property.
   if (localStorage.getItem(HOMES_SETTLED_KEY)) return;

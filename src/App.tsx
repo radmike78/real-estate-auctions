@@ -1,7 +1,7 @@
 import { loadDeals } from './lib/analyze';
 import { adoptLinkedDeal } from './lib/roadmapState';
 import AccountPage, { AccountBar } from './components/AccountPage';
-import { settleHomes, settleAllSteps } from './lib/dealStage';
+import { clearEarlyRedemptionEnds, settleHomes, settleAllSteps } from './lib/dealStage';
 import { continueAsGuest, useAccountRuntime } from './lib/account';
 import { lazy, Suspense, useEffect, useState, type ComponentType } from 'react';
 import WelcomeGate, { StateBar } from './components/WelcomeGate';
@@ -312,7 +312,7 @@ export default function App() {
   // The prerendered first page is only right until the reader moves to another page.
   useEffect(() => { if (nav > 0) releasePrerender(); }, [nav]);
 
-  useEffect(() => { try { settleHomes(); for (const d of loadDeals()) settleAllSteps(`analyzed:${d.id}`); } catch { /* storage unavailable */ } }, []);
+  useEffect(() => { try { settleHomes(); clearEarlyRedemptionEnds(); for (const d of loadDeals()) settleAllSteps(`analyzed:${d.id}`); } catch { /* storage unavailable */ } }, []);
   useEffect(() => {
     const onNav = (e?: Event) => {
       releasePrerender(); // the first page's prerendered copy belongs to that page only
