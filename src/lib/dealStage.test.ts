@@ -2367,4 +2367,16 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${hoa.id}`, moved);
     expect(dealNextTask(hoa, moved, now, 'closed').label).not.toMatch(/^Check the Sale day/);
   });
+
+  it('round 102 verifier: Key dates can’t be completed by the review tick while a date still waits', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const tx: Deal = { ...deal, id: 'k102', name: '5 Pine', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'owned' };
+    saveDeals([tx]);
+    const p = { ...EMPTY_PACKET, calendarReviewedFor: 'owned', dates: [{ when: '2026-06-01', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-06-20', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }, { when: '2026-06-25', what: 'Treasurer confirmed the sale had no SID affidavit', who: 'Treasurer', resolved: true }] };
+    savePacket(`analyzed:${tx.id}`, p);
+    const sec = packetSections(tx, p, new Date('2026-11-17T20:00:00Z')).find((x) => x.key === 'dates')!;
+    expect(sec.lines.some((t) => /Still to add/.test(t))).toBe(true);
+    expect(sec.status).not.toBe('done');
+    expect(sec.hold).toBe(true);
+  });
 });
