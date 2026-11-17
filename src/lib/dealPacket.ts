@@ -1201,7 +1201,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       const recovery = deedOn ? req.find((w) => sameDate(w, 'Recovery-suit window ends')) : undefined;
       const optional = req.filter((w) => w !== recovery);
       if (recovery && deedOn) { const t = new Date(`${deedOn}T12:00:00`); t.setFullYear(t.getFullYear() + 2); ln.push(`Recovery-suit window ends: 2 years after the Treasurer’s deed is delivered, about ${prettyDay(`${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`)} counting from its recording date (NRS 361.600)*. Add it to Key dates.`); }
-      if (optional.length) { const k = ln.indexOf('All dated items are marked handled.'); const text = `Usual dates for this sale not in this packet: ${optional.join('; ')}; add any that apply.`; if (k >= 0) ln[k] = `Every date entered is marked handled. ${text}`; else if (!offer) ln.push(text); }
+      if (optional.length && !offer) { const k = ln.indexOf('All dated items are marked handled.'); const text = `Usual dates for this sale not in this packet: ${optional.join('; ')}; add any that apply.`; if (k >= 0) ln[k] = `Every date entered is marked handled. ${text}`; else if (!offer) ln.push(text); }
       // (Optional usual dates don't hold the part: the reader may have removed ones that don't apply. The recovery window does.)
       const waiting = !!recovery || ln.some((t) => /^Still to add/.test(t) || (/^Next:/.test(t) && /Your next action|until you mark|did anyone|ask the Treasurer|collect|enter the new/i.test(t)));
       datesWaiting = waiting;

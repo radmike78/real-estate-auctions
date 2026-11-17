@@ -1408,6 +1408,16 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
       const text = `Enter the Sale day for ${n} in Key dates (use “Add a date” and name it Sale day if there’s no row): the law counts the redemption period from it${typedEnd ? `, so the end you entered (${prettyDay(typedEnd)}) can’t be checked without it` : ''}. Someone can redeem until it ends.`;
       return { key: 'date', days: 0, label: text, produces: 'the Sale day in Key dates, so the redemption period’s end can be worked out', href: packetHref(d, 'dates'), support: [], done: false, urgent: false, text };
     }
+    // A challenge or recovery-suit window typed earlier than the law's end: no "ended" question until the law's end.
+    if (nd && (sameDate(nd.what, 'Challenge window ends') || sameDate(nd.what, 'Recovery-suit window ends'))) {
+      const w = windowMarkWait(d, p, nd.what, now);
+      if (w && w !== 'no-deed' && w !== nd.when) {
+        const n = d.name || 'this property';
+        const text = `${n}’s ${sameDate(nd.what, 'Challenge window ends') ? 'challenge window' : 'recovery-suit window'} runs until ${prettyDay(w)} under the law, later than the date in Key dates (${prettyDay(nd.when)}). Fix the date in Key dates; hold off on repairs until it ends.`;
+        const days = Math.round((Date.parse(`${w}T12:00:00Z`) - Date.parse(`${dayOf(d, now)}T12:00:00Z`)) / 864e5);
+        return { key: 'date', days, label: text, produces: 'the window’s end in Key dates, as the law sets it', href: packetHref(d, 'dates'), support: [], done: false, urgent: false, text };
+      }
+    }
     if (nd && sameDate(nd.what, 'Redemption period ends') && certificateFirst(d) && !redeemedIn(p)) {
       const w = redemptionMarkWait(d, p, now);
       if (w && (w === 'no-sale' || w !== nd.when)) {
