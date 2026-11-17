@@ -701,6 +701,7 @@ describe('Nevada round 4 flow', () => {
     savePacket(`analyzed:${clark.id}`, typed);
     expect(dealNextTask(clark, typed, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/^Clark County’s terms say payment for .* was due by 1:00 p.m..*Did you pay\?/);
     expect(dealNextTask(clark, typed, new Date('2026-11-14T18:00:00Z'), 'contract').advance2?.stage).toBe('passed');
+    expect(dealNextTask(clark, typed, new Date('2026-11-14T18:00:00Z'), 'contract').days).toBe(-1);
     // Before the county's time it is still due, with no 'didn't pay' answer yet.
     expect(dealNextTask(clark, typed, new Date('2026-11-12T18:00:00Z'), 'contract').label).toMatch(/is due by 1:00 p.m./);
   });
