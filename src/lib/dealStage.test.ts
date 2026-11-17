@@ -2145,6 +2145,13 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-18', what: 'Closing', who: 'Escrow', resolved: true }] };
     expect(closingDoneIn(p, at)).toBe(false);
     expect(closingDoneIn(p, new Date('2026-11-18T20:00:00Z'))).toBe(true);
+    // A Nevada deal counts in Nevada's day even when another state is chosen.
+    localStorage.setItem('deedowl.state.v1', 'TX');
+    expect(closingDoneIn(p, at, { state: 'NV' })).toBe(false);
+    const { nextDate } = await import('./dealPacket');
+    const q = { ...EMPTY_PACKET, dates: [{ when: '2026-11-17', what: 'Seller’s disclosure form due', who: 'Seller' }] };
+    expect(nextDate(q, at, { state: 'NV' })?.days).toBe(0);
+    expect(nextDate(q, at, { state: 'TX' })?.days).toBe(-1);
   });
 
   it('round 93: a void Nevada tax sale, once passed, reads as the void sale, not the reader’s pass', async () => {

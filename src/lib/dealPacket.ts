@@ -18,7 +18,7 @@ import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
 import { dealProgress } from './roadmapState';
-import { SEALED_ROW, sidBeforePay, treasurerGave, taxPayState, sidFirst, saleOverFor, sealedDay, nvNow, dealNextTask, nvPayDays, paidAtWin, paymentPassed, sellerName, sellerShort, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
+import { dayOf, readerDay, SEALED_ROW, sidBeforePay, treasurerGave, taxPayState, sidFirst, saleOverFor, sealedDay, nvNow, dealNextTask, nvPayDays, paidAtWin, paymentPassed, sellerName, sellerShort, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionOver, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -1065,12 +1065,13 @@ export interface PacketSection {
   fix?: { label: string; href: string };
 }
 
-// Counted from the reader's own calendar day: in the evening (Pacific), the UTC date is already tomorrow.
-const daysFrom = (iso: string, now: Date) => Math.round((Date.parse(`${iso}T12:00:00Z`) - Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), 12)) / 86_400_000);
+// Counted from the deal state's calendar day (the chosen state's, or the reader's own, when no deal is given).
+const daysFrom = (iso: string, today: string) => Math.round((Date.parse(`${iso}T12:00:00Z`) - Date.parse(`${today}T12:00:00Z`)) / 86_400_000);
 
 /** The next date on the deal's calendar that hasn't passed. */
-export function nextDate(p: PacketData, now = new Date()): (PacketDate & { days: number }) | null {
-  const up = p.dates.filter((x) => x.when && !x.resolved).map((x) => ({ ...x, days: daysFrom(x.when, now) }));
+export function nextDate(p: PacketData, now = new Date(), d?: { state?: Deal['state'] }): (PacketDate & { days: number }) | null {
+  const today = d ? dayOf(d, now) : readerDay(now);
+  const up = p.dates.filter((x) => x.when && !x.resolved).map((x) => ({ ...x, days: daysFrom(x.when, today) }));
   up.sort((a, b) => a.days - b.days);
   return up[0] ?? null;
 }
@@ -1117,13 +1118,13 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const pk0: PacketData = workedEnd ? { ...p, dates: [...p.dates.filter((x) => !(sameDate(x.what, 'Redemption period ends') && !x.when)), { when: workedEnd, what: 'Redemption period ends (worked out from the sale day; confirm it)', who: '' }] } : p;
   // FLOW-1: a Nevada tax sale's SID payoff deadline, worked out from the sale day, until it's dated or the Treasurer says there's no affidavit.
   // (Not once the Treasurer’s deed is ticked as recorded: it isn’t issued while an SID payoff is owed, NRS 361.595(6).)
-  const sidWorked = d.state === 'NV' && d.kind === 'taxSale' && ['contract', 'closed', 'owned'].includes(stageOf(d)) && !p.dates.some((x) => (!!x.resolved && (x.when ? x.when <= `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}` : !(sidDeadline(p) && sidDeadline(p) >= `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`)) && ['Treasurer’s deed recorded', 'Deed recorded', 'Deed or certificate recorded'].some((r) => sameDate(x.what, r))) || (sameDate(x.what, 'SID certificate payoff') && (x.when || x.resolved)) || sameDate(x.what, 'Treasurer confirmed no SID affidavit') || sameDate(x.what, 'The sale is void')) ? sidDeadline(p) : '';
+  const sidWorked = d.state === 'NV' && d.kind === 'taxSale' && ['contract', 'closed', 'owned'].includes(stageOf(d)) && !p.dates.some((x) => (!!x.resolved && (x.when ? x.when <= nvNow(now).day : !(sidDeadline(p) && sidDeadline(p) >= nvNow(now).day)) && ['Treasurer’s deed recorded', 'Deed recorded', 'Deed or certificate recorded'].some((r) => sameDate(x.what, r))) || (sameDate(x.what, 'SID certificate payoff') && (x.when || x.resolved)) || sameDate(x.what, 'Treasurer confirmed no SID affidavit') || sameDate(x.what, 'The sale is void')) ? sidDeadline(p) : '';
   // FLOW-14: a Nevada trustee sale's challenge window, 30 days after the deed was recorded, until its row is dated.
   const deedOn = d.state === 'NV' && d.kind === 'trustee' && (stageOf(d) === 'closed' || (stageOf(d) === 'owned' && !loadOwned()[d.id]?.sold)) && !p.dates.some((x) => sameDate(x.what, 'Challenge window ends') && (x.when || x.resolved)) ? p.dates.find((x) => sameDate(x.what, 'Deed recorded') && x.when)?.when ?? '' : '';
   const winWorked = deedOn ? (() => { const t = new Date(`${deedOn}T12:00:00`); t.setDate(t.getDate() + 30); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })() : '';
   const localDayOf = (t: Date) => `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
   // (Nevada dates count in Nevada's day, wherever the reader is: the same day the steps use.)
-  const todayHere = d.state === 'NV' ? nvNow(now).day : localDayOf(now);
+  const todayHere = dayOf(d, now);
   // UX-3: and, while it's ahead, the 90-day limit for anyone not properly notified (NRS 107.080(6)).
   const winEndAt = winWorked || p.dates.find((x) => sameDate(x.what, 'Challenge window ends') && x.when && !x.resolved)?.when || '';
   const s90w = d.state === 'NV' && d.kind === 'trustee' && (stageOf(d) === 'closed' || (stageOf(d) === 'owned' && !loadOwned()[d.id]?.sold)) && winEndAt && !p.dates.some((x) => sameDate(x.what, 'Challenge window ends') && x.resolved) && sale90(p) > winEndAt && sale90(p) >= todayHere && !p.dates.some((x) => sameDate(x.what, 'Challenge window ends') && x.when === sale90(p)) ? sale90(p) : '';
@@ -1137,7 +1138,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const closingDone = stageOf(d) === 'contract' && isOffer(d) && p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved && (!x.when || x.when <= todayHere));
   // FLOW-4: before you win, a sale day that has passed asks "did you win?" (no countdown to the rows after the sale).
   const saleDone = early && !isOffer(d) && saleOverFor(d, p, now);
-  const nd = nvPayDays(d, stageOf(d) === 'passed' || finishedDeal(d) || closingDone || saleDone ? null : sidFirst(contingencyFirst(nextDate(remindable(capSid(pk, d), now, early, [...behindStage(d, stageOf(d)), ...notYet(d, stageOf(d), pk, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT], d.state === 'NV' ? nvNow(now).day : undefined), now), pk, now, stageOf(d), d.kind), pk, d, now), now, pk);
+  const nd = nvPayDays(d, stageOf(d) === 'passed' || finishedDeal(d) || closingDone || saleDone ? null : sidFirst(contingencyFirst(nextDate(remindable(capSid(pk, d), now, early, [...behindStage(d, stageOf(d)), ...notYet(d, stageOf(d), pk, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT], dayOf(d, now)), now, d), pk, now, stageOf(d), d.kind, d.state), pk, d, now), now, pk);
   // Rows the stage has put behind you read "passed", not "open" (the sale day once won; the offer once accepted).
   const behind = behindStage(d, stageOf(d));
   // (At a win, a row dated after today isn't "passed"; after the closing it's "not needed now".)

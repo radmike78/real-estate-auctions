@@ -38,7 +38,7 @@ const localDay = (now: Date) => `${now.getFullYear()}-${String(now.getMonth() + 
  * the reader's own day when the state isn't known. */
 const ZONE: Record<string, string> = { NV: 'America/Los_Angeles', CA: 'America/Los_Angeles', AZ: 'America/Phoenix', UT: 'America/Denver', TX: 'America/Chicago' };
 /** Today in the reader's chosen state, for checks that don't know the deal (the reader's own day when none is chosen). */
-const readerDay = (now: Date) => dayOf({ state: getMyState() ?? undefined }, now);
+export const readerDay = (now: Date) => dayOf({ state: getMyState() ?? undefined }, now);
 export const dayOf = (d: { state?: string } | null | undefined, now: Date) => { const z = d?.state ? ZONE[d.state] : undefined; if (!z) return localDay(now); const f = new Intl.DateTimeFormat('en-CA', { timeZone: z, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now); const g = (t: string) => f.find((x) => x.type === t)?.value ?? ''; return `${g('year')}-${g('month')}-${g('day')}`; };
 const handled = (p: PacketData, what: string, now: Date) => p.dates.some((x) => sameDate(x.what, what) && !!x.resolved && (!x.when || x.when < readerDay(now)));
 /** A home you'll live in: bought by offer to keep, by a reader buying a home to live in (Decide), unless this property is
@@ -115,10 +115,11 @@ export function sidFirst<T extends { what: string; when: string; days: number }>
   const when = dl && sp.when > dl ? dl : sp.when;
   return { ...sp, when, days: Math.round((Date.parse(`${when}T12:00:00Z`) - Date.parse(`${dayOf(d, now)}T12:00:00Z`)) / 86400000) };
 }
-export function contingencyFirst<T extends { what: string; when: string; days: number }>(nd: T | null, p: PacketData, now: Date, stage: string, kind?: string): T | (PacketData['dates'][number] & { days: number }) | null {
+export function contingencyFirst<T extends { what: string; when: string; days: number }>(nd: T | null, p: PacketData, now: Date, stage: string, kind?: string, state?: Deal['state']): T | (PacketData['dates'][number] & { days: number }) | null {
+  const today = state ? dayOf({ state }, now) : readerDay(now);
   if (!nd || nd.days >= 0 || stage !== 'contract' || !windowEnded(nd.what, -nd.days, kind)?.ask) return nd;
-  const soon = p.dates.filter((x) => !x.resolved && x.when && x.when >= readerDay(now) && ['Inspection period ends', 'Option period ends', 'Appraisal deadline', 'Loan approval deadline'].some((n) => sameEvent(x.what, n))).sort((x, y) => x.when.localeCompare(y.when))[0];
-  const days = soon ? Math.round((new Date(`${soon.when}T12:00:00`).getTime() - new Date(`${readerDay(now)}T12:00:00`).getTime()) / 864e5) : 99;
+  const soon = p.dates.filter((x) => !x.resolved && x.when && x.when >= today && ['Inspection period ends', 'Option period ends', 'Appraisal deadline', 'Loan approval deadline'].some((n) => sameEvent(x.what, n))).sort((x, y) => x.when.localeCompare(y.when))[0];
+  const days = soon ? Math.round((new Date(`${soon.when}T12:00:00`).getTime() - new Date(`${today}T12:00:00`).getTime()) / 864e5) : 99;
   return soon && days <= 2 ? { ...soon, days } : nd;
 }
 /** At a certificate-first win, the redemption end and the deed are ahead: not reminders yet (and not behind you). */
@@ -227,8 +228,8 @@ export function nextOpenDeal(fromId: string): Deal | undefined {
 export const SID_AFFIDAVIT_SENT = 'SID payment affidavit sent to the Treasurer';
 export const remindable = (p: PacketData, now: Date, early: boolean, behind: string[] = [], saleToday = readerDay(now)): PacketData => {
   const deed = ticked(p, DEED_AFTER_WAIT);
-  // (A Nevada sale day counts in Nevada's day, wherever the reader is: pass that day as saleToday.)
-  const past = (x: { when: string; what: string }) => !!x.when && x.when < (sameEvent(x.what, 'Sale day') ? saleToday : localDay(now));
+  // (Every row counts in the deal's day, wherever the reader is: callers pass that day as saleToday.)
+  const past = (x: { when: string; what: string }) => !!x.when && x.when < saleToday;
   return { ...p, dates: p.dates.filter((x) => !(early && afterSale(x.what)) && !(EVENTS.some((n) => sameDate(x.what, n)) && (past(x) || !early)) && !(!early && BEFORE_SALE.some((n) => sameDate(x.what, n))) && !((deed || redeemedIn(p)) && sameDate(x.what, 'Redemption period ends')) && !(redeemedIn(p) && [DEED_AFTER_WAIT, REDEEMED_ROW, 'Earliest you may act (unpaid lien)', 'Certificate expires'].some((n) => sameDate(x.what, n))) && !behind.some((n) => sameDate(x.what, n))) };
 };
 /** The usual dates a stage has put behind you: once it's closed or owned, the ones before closing and the recording rows. */
@@ -375,7 +376,7 @@ export const fillSealedDay = (d: { state?: Deal['state']; kind?: Deal['kind']; c
   return { ...p, sealedFor: sale, dates: p.dates.map((x) => (redo(x) ? { ...x, when: due } : x)) };
 };
 /** An offer's closing is marked handled, and its date (if any) has come. */
-export const closingDoneIn = (p: PacketData, now: Date) => p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved && (!x.when || x.when <= readerDay(now)));
+export const closingDoneIn = (p: PacketData, now: Date, d?: { state?: Deal['state'] }) => p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved && (!x.when || x.when <= (d ? dayOf(d, now) : readerDay(now))));
 /** A paid Nevada tax sale whose SID question is still open: what to do about it (or '' when nothing is pending). */
 export const sidPending = (d: { id?: string; state?: Deal['state']; kind: Deal['kind'] }, now: Date = new Date()): string => {
   if (!d.id || d.state !== 'NV' || d.kind !== 'taxSale' || !sidUnasked(d) || !paidAtWin(d as Deal)) return '';
@@ -394,7 +395,7 @@ export const sidPending = (d: { id?: string; state?: Deal['state']; kind: Deal['
 // (An undated tick counts only once the 20 days are over: while they run, the recording date settles it.)
 export const deedOnRecord = (p: PacketData, now: Date = new Date()) => p.dates.some((x) => !!x.resolved && (x.when ? x.when <= nvParts(now).day : !(sidDeadline(p) && sidDeadline(p) >= nvParts(now).day)) && ['Treasurer’s deed recorded', 'Deed recorded', 'Deed or certificate recorded'].some((r) => sameDate(x.what, r)));
 /** A recording row ticked, dated today or earlier (or undated): a date that hasn't come yet isn't recorded. */
-const recordedOn = (p: PacketData, now: Date = new Date()) => p.dates.some((x) => !!x.resolved && (!x.when || x.when <= readerDay(now)) && RECORDED_ROWS.some((r) => sameDate(x.what, r)));
+const recordedOn = (p: PacketData, now: Date = new Date(), d?: { state?: Deal['state'] }) => p.dates.some((x) => !!x.resolved && (!x.when || x.when <= (d ? dayOf(d, now) : readerDay(now))) && RECORDED_ROWS.some((r) => sameDate(x.what, r)));
 const sidPayDue = (p: PacketData, now: Date) => { const dl = sidDeadline(p); const r = p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && !!x.when && !x.resolved); return dl && r && dl >= nvParts(now).day ? { dl, row: r.what } : null; };
 const sidUnasked = (d: { id?: string }) => { if (!d.id) return false; const p = loadPacket(`analyzed:${d.id}`); return !!sidDeadline(p) && !deedOnRecord(p) && !p.dates.some((x) => (sameDate(x.what, 'SID certificate payoff') && x.resolved) || sameDate(x.what, NO_SID_ROW) || sameDate(x.what, SID_VOID_ROW)); };
 /** A Nevada tax-sale win not yet paid whose open payment date falls on or after the 20-day SID deadline: the SID question
@@ -1007,7 +1008,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       // that it was paid (NRS 361.595(6)).
       { const t = sidPaidAffidavit(d, p, now, n); if (t) out.push(t); }
       const certFirst = certificateFirst(d);
-      const recordedTick = w !== 'lien' && (d.state === 'NV' && d.kind === 'taxSale' ? deedOnRecord(p, now) : recordedOn(p, now));
+      const recordedTick = w !== 'lien' && (d.state === 'NV' && d.kind === 'taxSale' ? deedOnRecord(p, now) : recordedOn(p, now, d));
       { const rec = task({ key: 'record', label: recordedTick ? `The ${certFirst ? 'certificate of sale' : 'deed'} for ${n} is ${certFirst && d.kind === 'irs' ? 'in hand' : 'recorded'}: mark it to go on to the next tasks` : w === 'lien' ? `Get the certificate for ${n}` : certFirst ? (d.kind === 'irs' ? `Get the certificate of sale for ${n}` : d.state === 'NV' && d.kind === 'hoa' ? `Confirm the certificate of sale for ${n} is recorded (whoever ran the sale records it, NRS 116.31166(2))` : d.state === 'NV' && d.kind === 'court' ? `Confirm the certificate of sale for ${n} is recorded (the sheriff files a copy with the county recorder, NRS 21.190)` : `Get the certificate of sale for ${n} recorded`) : d.state === 'NV' && d.kind === 'taxSale' ? `Confirm the Treasurer recorded the deed for ${n} (it records it at your cost before giving it to you, NRS 361.595(7))` : d.state === 'NV' && d.kind === 'trustee' ? `Confirm the deed for ${n} is recorded (the trustee records it within 30 days of the sale, or gives it to you to record, NRS 107.080(10))` : `Get the deed for ${n} recorded`, produces: w === 'lien' ? 'the certificate in your records. Then mark it in hand and the holding tasks appear here' : certFirst ? `the ${d.kind === 'irs' ? '' : 'recorded '}certificate of sale. The deed comes after the redemption period (${waitWord(d)} after the sale), if no one redeems. Then mark it ${d.kind === 'irs' ? 'received' : 'recorded'} (its date is set to today: change it to the date on the certificate if different) and the tasks for the wait appear here` : recordedTick ? 'the recorded deed, already marked in Key dates. Press the button to go on to the new-owner tasks' : 'the recorded deed. Then mark it recorded (its date is set to today: change it to the recording date on the deed if different) and the new-owner tasks appear here', href: ROADMAP_HREF, advance: { stage: 'closed', label: w === 'lien' ? 'I have the certificate: mark it' : certFirst ? (d.kind === 'irs' ? 'I have the certificate of sale: mark it' : 'The certificate of sale is recorded: mark it') : 'The deed is recorded: mark it', ticks: w === 'lien' ? [] : [d.kind === 'taxSale' && d.state === 'NV' ? 'Treasurer’s deed recorded' : certFirst ? (d.kind === 'irs' ? 'Certificate of sale received' : 'Certificate of sale recorded') : d.kind === 'trustee' ? 'Deed recorded' : 'Deed or certificate recorded', ...RECORDED_ROWS], tickWho: d.kind === 'trustee' ? 'The trustee' : d.kind === 'taxSale' ? 'The county treasurer' : d.kind === 'irs' ? 'The IRS' : d.kind === 'hoa' ? 'The person who conducted the sale (the HOA’s agent)' : 'The sheriff' }, support: [L.guides], done: false }); if (recordedTick) out.unshift(rec); else out.push(rec); }
     }
     return out;
@@ -1181,15 +1182,15 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
       return task({ key: 'bid', label: picked ? `Sale day has passed for ${n}: were you picked?` : (d.state === 'NV' ? `The sale day for ${n} is over in Nevada: did you win?` : `Sale day has passed for ${n}: did you win?`), produces: picked ? 'your answer. If you were picked, mark it and the payment step appears here; if the sale was postponed, clear its date and enter the new one; if not, mark it passed' : `your answer. If you won, mark it and the ${sealedBid(d) ? 'recording steps (the payment went in with your bid; the Treasurer contacts each winning bidder by phone or mail)' : 'payment and recording steps'} appear here; if the sale was postponed, clear its date and enter the new one; if not, mark it passed`, href: packetHref(d, 'decision'), advance: { stage: 'contract', label: picked ? 'I was picked: mark it' : sealedBid(d) && !ticked(p, SEALED_ROW) ? 'My sealed bid went in on time and won: mark it won' : 'I won the bid: mark it won', ...(sealedBid(d) ? { ticks: [SEALED_ROW], tickWho: 'You', tickWhen: sealedDay(p) } : {}) }, advance2: { stage: 'passed', label: picked ? 'I wasn’t picked: mark it passed' : sealedBid(d) ? (ticked(p, SEALED_ROW) ? 'My bid didn’t win: mark it passed (the county returns the enclosed payment by certified mail)' : 'My bid didn’t win, or I didn’t send one: mark it passed (the county returns any enclosed payment by certified mail)') : 'I didn’t win (or didn’t bid): mark it passed' }, postpone: POSTPONE, answer: true, urgent: true, support: [], done: false });
     }
     // An offer's closing marked handled: "It closed" comes before any earlier contract date.
-    if (stage === 'contract' && wayOf(d) === 'offer' && closingDoneIn(p, now)) { const c = stageTasks(d, stage, p, now).find((x) => x.key === 'close'); if (c) return { ...c, produces: `${c.produces}. Mark the earlier dates handled for your records` }; }
+    if (stage === 'contract' && wayOf(d) === 'offer' && closingDoneIn(p, now, d)) { const c = stageTasks(d, stage, p, now).find((x) => x.key === 'close'); if (c) return { ...c, produces: `${c.produces}. Mark the earlier dates handled for your records` }; }
     // Before you've won, a date that only matters after the sale isn't a reminder yet; a sale day that has passed isn't
     // a reminder at all; and once the deed is in hand, the redemption period is behind you.
     const early = stage === 'researching' || stage === 'offer';
     // (On or after sale day, the sale day leads: registration is behind it.)
     const saleToday = d.state === 'NV' ? nvParts(now).day : dayOf(d, now);
     const saleNow = early && p.dates.some((x) => sameDate(x.what, 'Sale day') && x.when && x.when <= saleToday);
-    let nd = nextDate(remindable(capSid(p, d), now, early, [...(stage === 'contract' && taxPayState(d, p, now).state ? ['Payment deadline', 'SID certificate payoff'] : []), ...behindStage(d, stage), ...notYet(d, stage, p, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT, ...(saleNow ? ['Bidder registration', 'Registration', SEALED_ROW] : [])], saleToday), now);
-    nd = contingencyFirst(nd, p, now, stage, d.kind);
+    let nd = nextDate(remindable(capSid(p, d), now, early, [...(stage === 'contract' && taxPayState(d, p, now).state ? ['Payment deadline', 'SID certificate payoff'] : []), ...behindStage(d, stage), ...notYet(d, stage, p, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT, ...(saleNow ? ['Bidder registration', 'Registration', SEALED_ROW] : [])], saleToday), now, d);
+    nd = contingencyFirst(nd, p, now, stage, d.kind, d.state);
     // A Nevada tax sale's open SID payoff comes before the deed's recording: the Treasurer can't issue the deed until it's
     // paid (NRS 361.595(6)), and missing it voids the sale.
     nd = sidFirst(nd, p, d, now);
@@ -1365,7 +1366,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
   }
   const tasks = stageTasks(d, stage, p, now);
   // An offer's closing marked handled: "It closed" comes first.
-  if (stage === 'contract' && wayOf(d) === 'offer' && closingDoneIn(p, now)) { const c = tasks.find((x) => x.key === 'close'); if (c) return c; }
+  if (stage === 'contract' && wayOf(d) === 'offer' && closingDoneIn(p, now, d)) { const c = tasks.find((x) => x.key === 'close'); if (c) return c; }
   // (The winning bid, while it still needs numbers in Analyze, waits behind the sale's own steps.)
   const t = tasks.find((x) => !x.done && !(stage === 'contract' && x.key === 'won-price' && !x.tick)) ?? tasks.find((x) => !x.done) ?? tasks[tasks.length - 1];
   // Every date it needs is in: what's left is the review for this stage.

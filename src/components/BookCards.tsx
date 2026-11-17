@@ -41,7 +41,7 @@ export function BookCover({ b }: { b: Book }) {
 export function BookCard({ b, top }: { b: Book; top?: string }) {
   const [st] = useMyState();
   // "Check Nevada, California, Arizona, Utah or Texas law" reads "check Texas law" once a state is chosen.
-  const note = st && b.note ? b.note.replace('Nevada, California, Arizona, Utah or Texas', stateByCode(st)?.name ?? st) : b.note;
+  const note = st && b.note ? nameYourState(b.note, st).replace('Nevada, California, Arizona, Utah or Texas', stateByCode(st)?.name ?? st) : b.note;
   return (
     <li className={`book-card${top ? ' book-top' : ''}`}>
       {top && <span className="book-top-label">{top}</span>}

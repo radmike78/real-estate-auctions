@@ -417,6 +417,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     if (overdueIntro(sd)) return { text: `${inPacket(overdueIntro(sd))}${sidBeforePay(sd, loadPacket(`analyzed:${sd.id}`))}`, packet: true };
     // A Nevada tax sale's open SID payoff can void the sale (NRS 361.595(6)): say so before the numbers.
     // A void Nevada tax sale, or one whose SID payoff came late: the numbers wait on the Treasurer (NRS 361.595(6)).
+    if (sidState(sd) === 'void' && stageOf(sd) === 'passed') return { text: 'This sale was void (NRS 361.595(6)), and you marked the refund received. These numbers no longer apply.', packet: true };
     if (sidState(sd) === 'void') return { text: 'This sale is void: ask the Treasurer in writing for the rest of what you paid* (NRS 361.595(6)). These numbers no longer apply.', packet: true };
     if (sidState(sd) === 'late') return { text: 'The SID payoff came after its 20 days: ask the Treasurer in writing whether the sale stands*, and answer it in its deal packet before you rely on these numbers.', packet: true };
     if (sd.state === 'NV' && sd.kind === 'taxSale' && ['contract', 'closed', 'owned'].includes(stageOf(sd))) {
@@ -469,7 +470,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
           <p className="note">“{deal.name}” is past researching (stage: {stageLabel(stageOf(saved.find((d) => d.id === deal.id)!), deal)}). Changes here update it in My deals. {locked ? 'Its state, county, kind of sale and plan are locked, since changing them changes its packet dates and next tasks' : 'You unlocked its state, county, kind of sale and plan: changing them changes its packet dates and next tasks'}{locked ? <>: <button type="button" className="linkish" onClick={() => { if (window.confirm('Changing this deal’s state, county, kind of sale or plan changes its packet dates and next tasks. Unlock them?')) { setUnlockedFor(deal.id); setTimeout(() => document.querySelector<HTMLSelectElement>('.deal-fields select')?.focus(), 0); } }}>Change them</button></> : ''}. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); setTimeout(() => document.getElementById('deal-name')?.focus(), 0); }}>Start a new deal</button></p>
         )}
         {deal.id && saved.find((d) => d.id === deal.id)?.stage === 'passed' && (
-          <p className="note">You passed on “{deal.name}”. Changes here update it in My deals. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button></p>
+          <p className="note">{sidState(deal) === 'void' ? <>The sale of “{deal.name}” was void.</> : <>You passed on “{deal.name}”.</>} Changes here update it in My deals. Looking at a different property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button></p>
         )}
         {deal.id && deal.practice && !savingPractice() && saved.find((d) => d.id === deal.id)?.stage !== 'passed' && (
           <p className="note">This is your practice analysis “{deal.name}”. Changes here update it in My deals, and it stays a practice analysis. Found a real property? <button type="button" className="linkish" onClick={() => { clearDraftNumbers(); setDeal(blank(mine ?? deal.state)); }}>Start a new deal</button>. Is this one real? <button type="button" className="linkish" onClick={() => {
@@ -595,7 +596,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
             <ul>
               {saved.map((d) => (
                 <li key={d.id} className={d.id === deal.id ? 'on' : ''}>
-                  <button type="button" className="linkish" onClick={() => { try { localStorage.setItem(OPENED_KEY, JSON.stringify(d.id)); } catch { /* storage unavailable */ } const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); setDeal({ ...d, updatedAt: nextStamp(d.updatedAt) }); } else setDeal(d); }}>{d.name}{d.practice ? ' (practice)' : ''}{finishedDeal(d) ? ` (${stageLabel(stageOf(d), d).toLowerCase().replace(/ \((.*)\)$/, ', $1')})` : d.stage === 'passed' ? ' (passed)' : ''}</button>
+                  <button type="button" className="linkish" onClick={() => { try { localStorage.setItem(OPENED_KEY, JSON.stringify(d.id)); } catch { /* storage unavailable */ } const kept = keepUnsaved(); if (kept) { setKeptNote(kept); setSaved(loadDeals()); setDeal({ ...d, updatedAt: nextStamp(d.updatedAt) }); } else setDeal(d); }}>{d.name}{d.practice ? ' (practice)' : ''}{finishedDeal(d) ? ` (${stageLabel(stageOf(d), d).toLowerCase().replace(/ \((.*)\)$/, ', $1')})` : d.stage === 'passed' ? (sidState(d) === 'void' ? ' (void sale)' : ' (passed)') : ''}</button>
                   <span className="muted"> · {countyName(d.county)}, {d.state}</span>
                   <button type="button" className="linkish danger" aria-label={`Delete ${d.name}`} onClick={() => remove(d.id)}>Delete</button>
                 </li>
