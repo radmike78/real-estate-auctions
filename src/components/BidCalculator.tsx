@@ -1,6 +1,6 @@
 import { cashShortAfter, noPriceAfter, owedWords, pricePhase, type SettledContext, noRedemptionWords, shortestRedemptionMonths, shortestRedemptionWords, shorterThanLaw, waitWords } from '../lib/dealPacket';
 import { loadDeals, type Deal } from '../lib/analyze';
-import { beforeDeed, paymentPassed, savedStageOf, sealedBid } from '../lib/dealStage';
+import { beforeDeed, certificateFirst, paymentPassed, redemptionPast, savedStageOf, sealedBid } from '../lib/dealStage';
 
 const SEALED_PAY = 'Eureka County’s sale is sealed-bid: the full payment goes in with your bid and must reach the Treasurer by the notice’s deadline, before the sale, so any loan comes afterward.';
 import { getMyArea } from '../lib/myArea';
@@ -188,6 +188,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
   // (Once the price is fixed, agreed, won or paid, the figures are about prices, not a bid or offer to make.)
   const fixedPrice = agreed || wonBid || boughtOffer;
   const ownDeal = saveAs?.startsWith('analyzed-') ? loadDeals().find((x) => `analyzed-${x.id}` === saveAs) : undefined;
+  // A won certificate-first sale whose redemption period is over: no 'if someone redeems' what-if (the packet and My deals drop it too).
+  const redemptionGone = !!ownDeal && wonBid && certificateFirst(ownDeal) && redemptionPast(ownDeal);
   // Where the fixed price stands: agreed, a won bid still owed, or paid (a win marked paid counts as paid).
   const phase: 'agreed' | 'owed' | 'paid' | null = fixedPrice && ownDeal ? pricePhase(ownDeal) : null;
   const w = fixedPrice
@@ -717,7 +719,8 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         {shortNote && !needsValue && (
           <p className="calc-note small" role="note"><strong>Shorter than the law’s shortest redemption period for this sale.</strong> The shortest is {shortestRedemptionWords({ state: region.state, kind: saleKind as Deal['kind'] })},* and the owner can redeem until it ends. These numbers count only {Math.round(i.redemptionMonths * 10) === 0 ? 'no wait' : <>your {Math.round(i.redemptionMonths * 10) / 10}-month wait</>}: type at least {shortestOwner} months, or pick the rule under Holding and financing, to count the full wait.</p>
         )}
-        {redeemed && !needsValue && !(ruleNow === 'custom' && choices?.start === 'none') && (
+        {redemptionGone && Math.round(i.redemptionMonths * 10) > 0 && !needsValue && <p className="calc-note small" role="note">The redemption period is over: its months count here only as holding time, not as a chance someone redeems.</p>}
+        {redeemed && !redemptionGone && !needsValue && !(ruleNow === 'custom' && choices?.start === 'none') && (
           <div className="calc-note">
             <strong>If {ruleNow === 'usFederal' || ruleNow === 'usCourt' ? 'the United States' : ruleNow === 'hoa' || ruleNow === 'sheriff' ? 'someone' : 'the owner'} redeems: an illustration {(wonBid || boughtOffer) && !(bid > 0) ? 'at the most this plan could have paid (not your price)' : 'of your price'} and what the law adds</strong>
             <p className="small">

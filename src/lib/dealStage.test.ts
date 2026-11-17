@@ -1230,7 +1230,7 @@ describe('Nevada round 4 flow', () => {
     const offer = { ...nvFlip, id: 'dof26', kind: 'reo' as const, plan: 'rent' as const, stage: 'contract' as const };
     saveDeals([offer]);
     const t = dealNextTask(offer, { ...EMPTY_PACKET, dates: [{ when: '2026-10-07', what: 'COE date', who: 'Escrow' }] }, now, 'contract');
-    expect(t.label).toMatch(/^Closing (for .* )?is tomorrow.*did escrow receive the earnest money/);
+    expect(t.label).toMatch(/^Closing (for .* )?is tomorrow.*did escrow receive it\?/);
     expect(t.urgent).toBe(true);
     const tax = { ...nvFlip, id: 'tx26', kind: 'taxSale' as const, stage: 'closed' as const };
     saveDeals([tax]);
@@ -2185,8 +2185,15 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${offer.id}`, p);
     const t = dealNextTask(offer, p, new Date('2026-11-17T18:00:00Z'), 'contract');
     expect(t.key).toBe('deposit-sent');
-    expect(t.label).toMatch(/did escrow receive the earnest money\?/);
+    expect(t.label).toMatch(/the earnest money isn’t marked received: did escrow receive it\?/);
     expect(t.label).not.toMatch(/send the earnest money/);
+    expect(t.tick?.label).toBe('Escrow has it: mark it handled');
+    expect(t.tick?.noDate).toBe(true);
+    // A dated, overdue earnest row in the closing week puts the closing first.
+    const late = { ...p, dates: p.dates.map((x) => (x.what === 'Earnest money due' ? { ...x, when: '2026-10-23' } : x)) };
+    savePacket(`analyzed:${offer.id}`, late);
+    const lt = dealNextTask(offer, late, new Date('2026-11-17T18:00:00Z'), 'contract');
+    expect(lt.label).toMatch(/^Closing for 45 Elm Ave is tomorrow \(Nov 18, 2026\), and the earnest money \(due Oct 23, 2026\) isn’t marked received/);
   });
 
   it('round 94 verifier: a redemption end ticked ahead of its date keeps the wait, at Won and with another state chosen', () => {
@@ -2201,5 +2208,27 @@ describe('round 39: Eureka sealed-bid sale', () => {
     saveDeals([closed]);
     const t = dealNextTask(closed, p, new Date('2026-11-18T07:00:00Z'), 'closed');
     expect(t.label).not.toMatch(/^Get the deed/);
+  });
+
+  it('round 95: an early-ticked redemption end isn’t over, and a redemption can be recorded at Owned before the deed', async () => {
+    const { redemptionOver } = await import('./dealStage');
+    const hoa: Deal = { ...deal, id: 'r95', name: '45 Elm Ave', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'contract' };
+    saveDeals([hoa]);
+    const sale = { when: '2026-09-17', what: 'Sale day', who: 'HOA agent', resolved: true };
+    const ticked = { ...EMPTY_PACKET, dates: [sale, { when: '2026-11-17', what: 'Redemption period ends', who: 'HOA agent', resolved: true }] };
+    savePacket(`analyzed:${hoa.id}`, ticked);
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date('2026-11-16T18:00:00Z'));
+      expect(redemptionOver(hoa)).toBe(false);
+      vi.setSystemTime(new Date('2026-11-19T18:00:00Z'));
+      expect(redemptionOver(hoa)).toBe(true);
+    } finally { vi.useRealTimers(); }
+    const owned = { ...hoa, stage: 'owned' as const };
+    saveDeals([owned]);
+    const open = { ...EMPTY_PACKET, dates: [sale, { when: '2026-09-18', what: 'Certificate of sale recorded', who: 'County', resolved: true }, { when: '2026-11-17', what: 'Redemption period ends', who: 'HOA agent' }] };
+    savePacket(`analyzed:${hoa.id}`, open);
+    const t = dealNextTask(owned, open, new Date('2026-11-16T18:00:00Z'), 'owned');
+    expect(JSON.stringify(t.advance2 ?? null)).toMatch(/redeem/i);
   });
 });
