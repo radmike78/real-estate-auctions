@@ -96,7 +96,7 @@ function salesFor(buy: string, property: string): { kind: string; why: string }[
   if (property === 'commercial') return [{ kind: 'commercial', why: 'What to check before buying commercial property at any sale.' }, { kind: 'foreclosure', why: 'Commercial buildings often sell at foreclosure auctions.' }];
   return [
     { kind: 'foreclosure', why: 'Foreclosure auctions are the most common kind, and in larger counties they’re held most weeks.*' },
-    { kind: 'tax', why: 'Tax sales are less frequent (often about once a year, and some years not at all)*, with their own rules.' },
+    { kind: 'tax', why: 'Tax sales are less frequent (often about once a year)*, with their own rules.' },
   ];
 }
 

@@ -71,7 +71,7 @@ export const forcedSales: Lesson = {
     {
       heading: 'Sales the owner can undo: the right to redeem',
       blocks: [
-        'Sometimes a foreclosure goes through court, or a sheriff sells property to pay a judgment. When that happens, the owner (and sometimes a creditor with a later lien) may be able to buy it back for a while after the sale. You may hold only a certificate of sale until that right runs out, and get the deed after.',
+        'Sometimes a foreclosure goes through court, or a sheriff sells property to pay a judgment. When that happens, the owner, or a creditor whose lien came after the one sold on, may be able to buy it back for a while after the sale. You may hold only a certificate of sale until that right runs out, and get the deed after.',
         { list: [
           'Nevada: after a sheriff’s execution sale, the owner (or a creditor with the right to redeem) can buy it back within 1 year by paying your price plus 1% a month, and certain taxes and liens you paid (NRS 21.210).',
           'Nevada HOA foreclosures: the former owner, or a lender whose loan ranked below the HOA’s lien, can buy it back within 60 days by paying your price plus 1% a month and certain costs (NRS 116.31166(3)). You get a certificate of sale first, and the first mortgage may survive*.',
@@ -97,7 +97,7 @@ export const forcedSales: Lesson = {
       heading: 'Before any forced sale',
       blocks: [
         { list: [
-          'Read the official notice and the seller’s rules: deposit, payment deadline, and what you get (a deed, or a certificate while the owner can still redeem).',
+          'Read the official notice and the seller’s rules: deposit, payment deadline, and what you get (a deed, or a certificate while someone can still redeem).',
           'Get a title search. Which liens survive depends on the kind of sale.',
           'Expect to buy as-is, usually without seeing inside.',
           'Check whether the owner has filed bankruptcy, which can stop a sale.',
@@ -121,9 +121,9 @@ export const forcedSales: Lesson = {
     { term: 'Tax lien', meaning: 'A claim for unpaid taxes. Some states sell these liens to investors, who earn interest until it’s paid; others sell the property itself (the table above shows which your state does).' },
     { term: 'Tax deed', meaning: 'A deed to the property itself, sold by the county for unpaid taxes. In Nevada it’s the Treasurer’s deed, a quitclaim deed from the county treasurer.' },
     { term: 'Trustee sale', meaning: 'An out-of-court foreclosure auction held by the trustee under a deed of trust.' },
-    { term: 'Right of redemption', meaning: 'The owner’s right to buy the property back for a time after certain sales.' },
+    { term: 'Right of redemption', meaning: 'The right of the former owner, and after some sales a lender or creditor whose lien came later, to buy the property back for a time after the sale.' },
     { term: 'Quitclaim deed', meaning: 'A deed that passes whatever interest the seller has, with no promise that title is clear.' },
-    { term: 'Quiet title action', meaning: 'A court case that confirms you own the property free of old owners’ claims, so a title company will insure it.' },
+    { term: 'Quiet title action', meaning: 'A court case that confirms you own the property free of old owners’ claims, which a title company usually wants before it will insure the title.*' },
   ],
   tryIt: { label: 'Find your county’s sale offices', href: '#/find-deals' },
   practiceLink: { label: 'Practice auction decisions', href: '#/practice?sale=tax' },
@@ -169,6 +169,6 @@ export const forcedSales: Lesson = {
     { label: 'HUD Home Store', url: 'https://www.hudhomestore.gov/' },
     { label: 'Federal Reserve: Protecting Tenants at Foreclosure Act restored', url: 'https://www.federalreserve.gov/supervisionreg/caletters/caltr1804.htm' },
   ],
-  practice: 'Find your county’s official sale page and write down the deposit, the payment deadline and what you get (a deed, or a certificate while the owner can still redeem).',
+  practice: 'Find your county’s official sale page and write down the deposit, the payment deadline and what you get (a deed, or a certificate while someone can still redeem).',
   reviewed: '2026-10-05',
 };

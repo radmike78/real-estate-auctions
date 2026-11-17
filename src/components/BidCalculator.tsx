@@ -606,7 +606,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
                 ? <>your own numbers: a {Math.round(i.redemptionMonths * 10) / 10}-month what-if wait (the note below says what it means).</>
                 : shortNote && !needsValue
                   ? <>your own numbers: {waitWords(Math.round(i.redemptionMonths * 10) / 10)} (the note under the price says what it means).</>
-                  : <>your own numbers: {waitWords(Math.round(i.redemptionMonths * 10) / 10)}. That’s a what-if for holding costs, not the legal deadline: the owner can still redeem until the period the law sets ends.</>
+                  : <>your own numbers: {waitWords(Math.round(i.redemptionMonths * 10) / 10)}. That’s a what-if for holding costs, not the legal deadline: someone can still redeem until the period the law sets ends.</>
               : <>{offered[ruleNow]?.label}.</>}{' '}
             {ruleNow === 'custom' && choices?.start === 'none' ? 'Once you’ve checked the records, confirm below that no redemption rule applies, or pick the one that does under Holding and financing (Detailed).' : ruleNow === choices?.start ? 'Pick the rule under Holding and financing (Detailed), then confirm it here.' : ruleNow === 'custom' ? 'Once the records show which rule applies, pick it under Holding and financing (Detailed) and confirm it here.' : 'Once the records show this rule applies, confirm it here (or pick another under Holding and financing, Detailed).'}
             <label className="calc-check calc-check-block">
@@ -705,7 +705,7 @@ export default function BidCalculator({ propertyId, saveAs, defaults = START_INP
         )}
         {!r.noBidWorks && !needsValue && i.financedPct > 0 && <p className="calc-note small">{DRAW_NOTE}</p>}
         {!r.noBidWorks && !needsValue && !offer && i.financedPct > 0 && i.redemptionMonths > 0 && (
-          <p className="calc-note small">Lenders rarely lend on a property while the owner can still redeem it, so plan to pay the full {w.bid} in cash and carry it until the redemption period ends. The calculator still charges loan costs for the whole wait, as a cautious assumption. The return above is figured on the estimated cash you’d put in.</p>
+          <p className="calc-note small">Lenders rarely lend on a property while someone can still redeem it, so plan to pay the full {w.bid} in cash and carry it until the redemption period ends. The calculator still charges loan costs for the whole wait, as a cautious assumption. The return above is figured on the estimated cash you’d put in.</p>
         )}
         {!r.noBidWorks && !needsValue && r.yearlyReturn !== null && totalMonths(i) > 12 && (
           <p className="calc-note small">This deal ties up your cash for {Math.round(totalMonths(i))} months, so compare the return per year with your other options, not just the profit.</p>

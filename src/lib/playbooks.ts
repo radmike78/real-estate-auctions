@@ -54,7 +54,7 @@ const NEVADA: Playbook[] = [
     forSale: true,
     glance: [
       { label: 'Run by', value: 'Clark County Treasurer (holds the property in trust for the state and county)' },
-      { label: 'How often', value: 'Usually in the spring; some years add a second auction in the fall. Some years have none: the Treasurer holds one only if needed. Dates are posted on the Treasurer’s website. There is no mailing list.' },
+      { label: 'How often', value: 'Usually in the spring; a second auction in the fall is held only if needed. Dates are posted on the Treasurer’s website. There is no mailing list.' },
       { label: 'Where', value: 'In person, Commission Chambers, 500 S. Grand Central Pkwy (confirm in the notice)' },
       { label: 'Register', value: 'Opens about 3–4 weeks before and closes about a week before. Capped at 280 bidders. No registration on the day.' },
       { label: 'Deposit', value: '$5,000 per bidder in certified funds; credited if you win' },
@@ -282,13 +282,13 @@ const NEVADA: Playbook[] = [
     ],
     survives: {
       wipedOut: ['The judgment lien being enforced', 'Junior liens, in most cases'],
-      mayStay: ['Mortgages and liens senior to the judgment', 'Property taxes', 'The 1-year redemption right'],
+      mayStay: ['Mortgages and liens senior to the judgment', 'Property taxes', 'Federal tax liens: after a court foreclosure where the United States wasn’t made a party, a federal tax lien filed before the case began stays with the property (26 U.S.C. 7425(a); 28 U.S.C. 2410(c)).* Ask your title company to check for one.', 'The 1-year redemption right'],
     },
     mistakes: [{ mistake: 'Treating it like a quick flip', prevent: 'Expect to wait out the 1-year redemption period before you can count on keeping or reselling it.' }],
     example: {
       title: 'A year of waiting',
       story: 'A buyer paid $120,000 at a sheriff’s sale and started repairs. Eleven months later the debtor redeemed. The debtor repaid the price plus 1% a month, but not the repair spending.',
-      lesson: 'The interest covered the wait, not the repairs. Any rent you collected, or were entitled to collect, during the year is also subtracted from the payoff (NRS 21.250). Repairs aren’t repaid if the owner redeems, so many buyers hold off on improvements until the redemption period ends.',
+      lesson: 'The interest covered the wait, not the repairs. Any rent you collected, or were entitled to collect, during the year is also subtracted from the payoff (NRS 21.250). Repairs aren’t repaid if someone redeems, so many buyers hold off on improvements until the redemption period ends.',
     },
     team: [T.attorney, T.title, T.lender, T.insuranceCert, T.evictionAfterDeed, T.contractor, T.agent],
     sources: [
