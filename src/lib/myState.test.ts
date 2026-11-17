@@ -50,8 +50,8 @@ describe('forStateText', () => {
     const lender = 'In California, a private lender may hold a DFPI license. Check it with that regulator. Get every term in writing.';
     expect(forStateText('TX', lender)).toBe('');
     const inspector = 'Rules differ by state. Look the inspector up on your state’s lookup. In Nevada, the state certifies inspectors. A residential inspector there needs 40 hours. In Texas, TREC licenses three levels.';
-    expect(forStateText('TX', inspector)).toBe('Rules differ by state. Look the inspector up on your state’s lookup. TREC licenses three levels.');
-    expect(forStateText('NV', inspector)).toBe('Rules differ by state. Look the inspector up on your state’s lookup. The state certifies inspectors. A residential inspector there needs 40 hours.');
+    expect(forStateText('TX', inspector)).toBe('Rules differ by state. Look the inspector up on Texas’s lookup. TREC licenses three levels.');
+    expect(forStateText('NV', inspector)).toBe('Rules differ by state. Look the inspector up on Nevada’s lookup. The state certifies inspectors. A residential inspector there needs 40 hours.');
     expect(forStateText('NV', 'In Texas, notice is posted 21 days ahead. The sale is held on the first Tuesday. Other states differ, so read the guide.')).toBe('Other states differ, so read the guide.');
   });
 });

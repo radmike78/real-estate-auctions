@@ -129,5 +129,8 @@ export const forStateText = (state: StateCode | null, text: string) => {
       return !dropped;
     })
     .map((x) => dropStateLead(x, state))
-    .join(' ');
+    .join(' ')
+    // (A general "your state" reads as the chosen state's name.)
+    .replace(/\b[Yy]our state’s\b/g, `${NAME_OF[state]}’s`)
+    .replace(/\b[Yy]our state\b/g, NAME_OF[state]);
 };
