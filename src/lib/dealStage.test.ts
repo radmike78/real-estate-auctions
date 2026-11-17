@@ -2375,7 +2375,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const p = { ...EMPTY_PACKET, calendarReviewedFor: 'owned', dates: [{ when: '2026-06-01', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-06-20', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }, { when: '2026-06-25', what: 'Treasurer confirmed the sale had no SID affidavit', who: 'Treasurer', resolved: true }] };
     savePacket(`analyzed:${tx.id}`, p);
     const sec = packetSections(tx, p, new Date('2026-11-17T20:00:00Z')).find((x) => x.key === 'dates')!;
-    expect(sec.lines.some((t) => /^Recovery-suit window ends: 2 years after the Treasurer’s deed is delivered, about Jun 20, 2028 counting from its recording date \(NRS 361\.600\)\*/.test(t))).toBe(true);
+    expect(sec.lines.some((t) => /^Recovery-suit window ends: 2 years after the Treasurer’s deed is delivered, about Jun 20, 2028, counting from its recording date \(NRS 361\.600\)\*/.test(t))).toBe(true);
     expect(sec.lines.some((t) => /not in this packet: .*Recovery-suit/.test(t))).toBe(false);
     expect(sec.hold).toBe(true);
   });
@@ -2407,5 +2407,28 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(dates.lines.join(' ')).not.toMatch(/ended 2 days ago/);
     const reps = stageTasks(tr, 'closed', p, now).find((t) => t.key === 'repairs');
     if (reps) expect(reps.label).not.toMatch(/Dec 10/);
+  });
+
+  it('round 104 content: a tax deed’s recovery window is no earlier than; before the deed it comes later, not as optional; a passed window doesn’t hold', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const tx: Deal = { ...deal, id: 'r104', name: '6 Pine', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'closed' };
+    saveDeals([tx]);
+    const now = new Date('2026-11-17T20:00:00Z');
+    const typed = { ...EMPTY_PACKET, dates: [{ when: '2026-06-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-06-20', what: 'Treasurer’s deed recorded', who: 'T', resolved: true }, { when: '2027-01-01', what: 'Recovery-suit window ends', who: 'Me' }] };
+    savePacket(`analyzed:${tx.id}`, typed);
+    const a = packetSections(tx, typed, now).find((x) => x.key === 'dates')!.lines.join(' ');
+    expect(a).toMatch(/Recovery-suit window ends \(the date you entered, Jan 1, 2027, is earlier than the law allows: the window ends no earlier than this.*after\*\)/);
+    const pre = { ...EMPTY_PACKET, dates: [{ when: '2026-06-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-06-05', what: 'Payment deadline', who: 'T', resolved: true }] };
+    savePacket(`analyzed:${tx.id}`, pre);
+    const b = packetSections(tx, pre, now).find((x) => x.key === 'dates')!.lines;
+    expect(b.some((t) => /add any that apply/.test(t) && /Treasurer’s deed recorded|Recovery-suit/.test(t))).toBe(false);
+    expect(b.some((t) => /^Later: .*Recovery-suit window ends: 2 years after the deed is delivered \(NRS 361\.600\)\*/.test(t))).toBe(true);
+    const old = { ...EMPTY_PACKET, calendarReviewedFor: 'owned', dates: [{ when: '2024-02-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2024-02-29', what: 'Treasurer’s deed recorded', who: 'T', resolved: true }, { when: '2024-03-05', what: 'Treasurer confirmed the sale had no SID affidavit', who: 'T', resolved: true }] };
+    const ox: Deal = { ...tx, id: 'o104', stage: 'owned' };
+    saveDeals([ox]);
+    savePacket(`analyzed:${ox.id}`, old);
+    const c = packetSections(ox, old, now).find((x) => x.key === 'dates')!;
+    expect(c.lines.some((t) => /likely ended about Mar 1, 2026/.test(t))).toBe(true);
+    expect(c.lines.some((t) => /^Recovery-suit window ends: /.test(t))).toBe(false);
   });
 });

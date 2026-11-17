@@ -149,7 +149,7 @@ const WINDOWS: { name: string; what: string; then: (kind?: string) => string; ti
   { name: 'Redemption period ends', what: 'the redemption period', tick: 'No one redeemed: mark it handled',
     then: (k) => `ask ${sellerShort(k)} in writing whether anyone redeemed. If no one did, mark it handled and ask for the deed` },
   { name: 'Challenge window ends', what: 'the challenge window', tick: 'No suit was filed, and the 90-day limit doesn’t apply*: mark it handled', then: () => 'ask your title company or attorney whether any suit was filed, and whether the 90-day limit for anyone not properly notified (NRS 107.080(6)) still runs. If it does, move the end date; if not, mark it handled' },
-  { name: 'Recovery-suit window ends', what: 'the recovery-suit window', tick: 'No suit was filed: mark it handled', then: () => 'ask your title company or attorney whether any suit was filed. If not, mark it handled' },
+  { name: 'Recovery-suit window ends', what: 'the recovery-suit window', tick: 'No suit or counterclaim was filed: mark it handled', then: () => 'ask your title company or attorney whether any suit or counterclaim to recover the property was filed. If not, mark it handled' },
   { name: 'Earliest you may act (unpaid lien)', what: 'the wait before you may act on an unpaid lien', tick: 'Still unpaid, and I’ve asked my attorney: mark it handled', then: () => 'if it’s still unpaid, ask your attorney about your next step, or mark it handled' },
 ];
 /** A window past its date: `text` for a sentence ("the challenge window ended 3 days ago"), `short` for a list. */
@@ -1182,7 +1182,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const lawEnd = effEnd ? lawRedemptionEnd(d, pk) : '';
   const endNote = (x: { what: string; when: string }) => {
     const typedWin = (sameDate(x.what, 'Challenge window ends') || sameDate(x.what, 'Recovery-suit window ends')) ? p.dates.find((y) => sameDate(y.what, x.what) && y.when)?.when : '';
-    if (typedWin && typedWin !== x.when) return ` (the date you entered, ${prettyDay(typedWin)}, is earlier than the law allows: this is the law’s end, counted from the deed)`;
+    if (typedWin && typedWin !== x.when) return sameDate(x.what, 'Recovery-suit window ends') ? ` (the date you entered, ${prettyDay(typedWin)}, is earlier than the law allows: the window ends no earlier than this, 2 years from the deed’s recording; the law counts from its delivery, which comes after*)` : ` (the date you entered, ${prettyDay(typedWin)}, is earlier than the law allows: this is the law’s end, counted from the deed’s recording)`;
     if (!certificateFirst(d) || redeemedIn(pk) || !sameDate(x.what, 'Redemption period ends')) return '';
     if (!effEnd) return ' (the date you entered; enter the Sale day to check it against the law)';
     const can = effEnd < todayHere ? 'someone could redeem until' : 'someone can redeem until';
@@ -1201,11 +1201,15 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       // (A Nevada tax deed always carries the 2-year recovery-suit window, NRS 361.600: once the deed is recorded it isn't optional.)
       const deedOn = d.state === 'NV' && d.kind === 'taxSale' ? p.dates.find((x) => sameDate(x.what, 'Treasurer’s deed recorded') && x.when && x.resolved)?.when : undefined;
       const recovery = deedOn ? req.find((w) => sameDate(w, 'Recovery-suit window ends')) : undefined;
-      const optional = req.filter((w) => w !== recovery);
-      if (recovery && deedOn) { const t = new Date(`${deedOn}T12:00:00`); t.setFullYear(t.getFullYear() + 2); ln.push(`Recovery-suit window ends: 2 years after the Treasurer’s deed is delivered, about ${prettyDay(`${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`)} counting from its recording date (NRS 361.600)*. Add it to Key dates.`); }
+      // (Before the Treasurer's deed is recorded, its row and the recovery window come later, not as optional dates.)
+      const later = d.state === 'NV' && d.kind === 'taxSale' && !deedOn ? req.filter((w) => sameDate(w, 'Treasurer’s deed recorded') || sameDate(w, 'Recovery-suit window ends')) : [];
+      const optional = req.filter((w) => w !== recovery && !later.includes(w));
+      if (later.length) ln.push(later.some((w) => sameDate(w, 'Treasurer’s deed recorded')) ? 'Later: add the date for Treasurer’s deed recorded once it’s recorded, then Recovery-suit window ends: 2 years after the deed is delivered (NRS 361.600)*.' : 'Later: once the Treasurer’s deed is recorded, add Recovery-suit window ends: 2 years after the deed is delivered (NRS 361.600)*.');
+      let recoveryHolds = false;
+      if (recovery && deedOn) { const t = new Date(`${deedOn}T12:00:00`); t.setFullYear(t.getFullYear() + 2); const about = `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; recoveryHolds = about >= todayHere; ln.push(recoveryHolds ? `Recovery-suit window ends: 2 years after the Treasurer’s deed is delivered, about ${prettyDay(about)}, counting from its recording date (NRS 361.600)*. Add it to Key dates.` : `Recovery-suit window: 2 years after the Treasurer’s deed is delivered, so it likely ended about ${prettyDay(about)}, counting from its recording date (NRS 361.600)*. Add it to Key dates for your records.`); }
       if (optional.length && !offer) { const k = ln.indexOf('All dated items are marked handled.'); const text = `Usual dates for this sale not in this packet: ${optional.join('; ')}; add any that apply.`; if (k >= 0) ln[k] = `Every date entered is marked handled. ${text}`; else if (!offer) ln.push(text); }
       // (Optional usual dates don't hold the part: the reader may have removed ones that don't apply. The recovery window does.)
-      const waiting = !!recovery || ln.some((t) => /^Still to add/.test(t) || (/^Next:/.test(t) && /Your next action|until you mark|did anyone|ask the Treasurer|collect|enter the new/i.test(t)));
+      const waiting = recoveryHolds || ln.some((t) => /^Still to add/.test(t) || (/^Next:/.test(t) && /Your next action|until you mark|did anyone|ask the Treasurer|collect|enter the new/i.test(t)));
       datesWaiting = waiting;
       return tickShown && !waiting && p.calendarReviewedFor !== stageOf(d) && !keyDatesDone(p) && keyDatesDone({ ...p, calendarReviewedFor: stageOf(d) }) ? [...ln, `To finish this part, check the box “I checked every deadline for this stage” in Key dates once the dates match ${offer ? 'your signed contract' : 'the official notices'}.`] : ln; })();
   out.push({
