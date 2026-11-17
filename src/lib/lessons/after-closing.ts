@@ -175,7 +175,7 @@ export const afterClosing: Lesson = {
   terms: [
     { term: 'Security deposit', meaning: 'Money a tenant pays up front to cover unpaid rent or damage, returned with an itemized list of any deductions.' },
     { term: 'Fair housing', meaning: 'Laws that ban discrimination in renting and selling housing.' },
-    { term: 'Just cause', meaning: 'A reason the law accepts for ending a tenancy, such as unpaid rent.' },
+    { term: 'Just cause', meaning: 'In California, a reason the law accepts for ending a tenancy, such as unpaid rent (Civil Code 1946.2).' },
     { term: 'Depreciation', meaning: 'A yearly tax deduction for the wear on a building, spread over its set recovery period.' },
     { term: 'Schedule E', meaning: 'The IRS form where most landlords report rental income and expenses.' },
     { term: 'Short-term rental', meaning: 'A home rented by the night or week, usually for fewer than 30 days in a row. Many cities and counties require a license.' },
