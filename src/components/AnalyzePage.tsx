@@ -1,4 +1,4 @@
-import { redeemedDeal, redeemedWin, prettyDay, nvNow, treasurerGave, sidBeforePay, sellerShort, taxPayState, unpaidAfterSale, sidState, sidPending, deedOnRecord, beforeDeed, beforeWhat, clarkPayDay, clarkWinnerPast, nvLienDueLikelyPassed, nvLienDueToday, paidAtWin, liveIn, stageLabel, stageOf, finishedDeal } from '../lib/dealStage';
+import { redeemedDeal, prettyDay, nvNow, treasurerGave, sidBeforePay, sellerShort, taxPayState, unpaidAfterSale, sidState, sidPending, deedOnRecord, beforeDeed, beforeWhat, clarkPayDay, clarkWinnerPast, nvLienDueLikelyPassed, nvLienDueToday, paidAtWin, liveIn, stageLabel, stageOf, finishedDeal } from '../lib/dealStage';
 import { CONFIRMED_EVENT } from '../lib/calcConfirmation';
 import { planNow, practiceLienDeal, roadmapNextStep } from '../lib/planNext';
 import { lienDealFor, planPath, progressChanged } from '../lib/roadmapState';
@@ -417,7 +417,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
     if (overdueIntro(sd)) return { text: `${inPacket(overdueIntro(sd))}${sidBeforePay(sd, loadPacket(`analyzed:${sd.id}`))}`, packet: true };
     // A Nevada tax sale's open SID payoff can void the sale (NRS 361.595(6)): say so before the numbers.
     // A void Nevada tax sale, or one whose SID payoff came late: the numbers wait on the Treasurer (NRS 361.595(6)).
-    if (redeemedWin(sd)) return { text: 'This property was redeemed: you’re repaid your price plus what the law adds, and you don’t get the property. These numbers no longer apply; its deal packet has the payoff steps.', packet: true };
+    if (redeemedDeal(sd)) return { text: sd.kind === 'lien' ? 'The owner paid off this lien: you’re repaid what you paid plus what the law adds. These numbers no longer apply; its deal packet has the payoff steps.' : 'This property was redeemed: you’re repaid your price plus what the law adds, and you don’t get the property. These numbers no longer apply; its deal packet has the payoff steps.', packet: true };
     if (sidState(sd) === 'void' && stageOf(sd) === 'passed') return { text: 'This sale was void (NRS 361.595(6)), and you marked the refund received. These numbers no longer apply.', packet: true };
     if (sidState(sd) === 'void') return { text: 'This sale is void: ask the Treasurer in writing for the rest of what you paid* (NRS 361.595(6)). These numbers no longer apply.', packet: true };
     if (sidState(sd) === 'late') return { text: 'The SID payoff came after its 20 days: ask the Treasurer in writing whether the sale stands*, and answer it in its deal packet before you rely on these numbers.', packet: true };
@@ -638,7 +638,11 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <h2 id="numbers" ref={numbersRef}>3. Run the numbers</h2>
       <ProfileNote deal={deal} />
       <CalcRegion.Provider value={{ state: deal.state, county: deal.county }}>
+        {redeemedDeal(deal) ? <details className="calc-record"><summary>Your purchase numbers, kept as a record (they no longer apply)</summary>
         <Calculators key={`${deal.id}-${deal.state}-${deal.county}-${deal.kind}`} dealId={deal.id || undefined} onAnalyze initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} saleKind={deal.kind} offer={deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short'} lien={deal.kind === 'lien'} />
+        </details> : <>
+        <Calculators key={`${deal.id}-${deal.state}-${deal.county}-${deal.kind}`} dealId={deal.id || undefined} onAnalyze initial={calcTabFor(deal.plan)} onTab={(k) => { const p = PLANS.find((x) => calcTabFor(x.key) === k)?.key; if (p && p !== deal.plan && plans.some((x) => x.key === p)) set({ plan: p }); }} state={deal.state} saleKind={deal.kind} offer={deal.kind === 'listing' || deal.kind === 'reo' || deal.kind === 'short'} lien={deal.kind === 'lien'} />
+        </>}
         {/* For a listed or bank-owned home, the seller may offer to carry the loan (a short sale's lender takes the proceeds, so its seller can't). */}
         {(deal.kind === 'listing' || deal.kind === 'reo') && !['closed', 'owned'].includes(deal.stage ?? '') && (
           <details className="plan-section" id="seller-financing">

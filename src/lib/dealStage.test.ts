@@ -526,7 +526,7 @@ describe('Nevada round 4 flow', () => {
 
   it('round 7: a ticked undated wait counts; a paid-off lien’s rows stop reminding; the lien reminder carries the payoff button', () => {
     const hoa = { ...nvFlip, kind: 'hoa' as const };
-    const undated = { ...EMPTY_PACKET, dates: [{ when: '', what: 'Redemption period ends', who: 'Owner', resolved: true }] };
+    const undated = { ...EMPTY_PACKET, dates: [{ when: '2026-07-01', what: 'Sale day', who: 'Owner', resolved: true }, { when: '', what: 'Redemption period ends', who: 'Owner', resolved: true }] };
     expect(stageTasks(hoa, 'closed', undated, now).find((x) => x.key === 'redemption-wait')!.done).toBe(true);
     const lien = { ...nvFlip, kind: 'lien' as const, plan: 'lien' as const };
     const near = { ...EMPTY_PACKET, dates: [{ when: '2026-10-08', what: 'Earliest you may act (unpaid lien)', who: 'Treasurer' }] };
@@ -979,7 +979,7 @@ describe('Nevada round 4 flow', () => {
     expect(stageTasks(listing, 'contract', lp, now).find((x) => x.key === 'close')!.label).toBe('The closing is marked handled: mark 2210 Mesa Verde Ln closed');
     expect(stageHint('contract', listing)).toBe('Closed? Mark it below to start the new-owner tasks.');
     const hoa = { ...nvFlip, kind: 'hoa' as const };
-    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-09-30', what: 'Redemption period ends', who: 'A', resolved: true }] });
+    savePacket('analyzed:f1', { ...EMPTY_PACKET, dates: [{ when: '2026-08-01', what: 'Sale day', who: 'A', resolved: true }, { when: '2026-09-30', what: 'Redemption period ends', who: 'A', resolved: true }] });
     expect(stageHint('closed', hoa)).toMatch(/^No one redeemed: get the deed from the person who conducted the sale/);
   });
 
@@ -2315,5 +2315,25 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-08-03', what: 'Certificate of sale recorded', who: 'County', resolved: true }, { when: '2026-09-04', what: 'Redemption period ends', who: 'Sheriff' }] };
     expect(redemptionMarkWait(sh, p, new Date('2026-11-17T20:00:00Z'))).toBe('no-sale');
     expect(dealNextTask(sh, p, new Date('2026-11-17T20:00:00Z'), 'closed').label).toMatch(/^Enter the Sale day/);
+  });
+
+  it('round 98 verifier: a typed end earlier than the law’s isn’t treated as ended anywhere', async () => {
+    const { redemptionEnd } = await import('./dealStage');
+    const hoa: Deal = { ...deal, id: 'e98', name: '2 Ash', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'closed' };
+    saveDeals([hoa]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'A', resolved: true }, { when: '2026-11-05', what: 'Redemption period ends', who: 'A' }] };
+    savePacket(`analyzed:${hoa.id}`, p);
+    expect(redemptionEnd(hoa, p)).toBe('2026-11-30');
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date('2026-11-17T20:00:00Z'));
+      expect(stageHint('closed', hoa)).not.toMatch(/ended/);
+    } finally { vi.useRealTimers(); }
+    // At Won (paid) with no Sale day, the Sale day comes first.
+    const won = { ...hoa, stage: 'contract' as const };
+    const q = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Payment deadline', who: 'A', resolved: true }, { when: '2026-11-05', what: 'Redemption period ends', who: 'A' }] };
+    saveDeals([won]);
+    savePacket(`analyzed:${hoa.id}`, q);
+    expect(dealNextTask(won, q, new Date('2026-11-17T20:00:00Z'), 'contract').label).not.toMatch(/ended/);
   });
 });
