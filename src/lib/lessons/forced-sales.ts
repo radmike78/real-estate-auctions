@@ -71,7 +71,7 @@ export const forcedSales: Lesson = {
     {
       heading: 'Sales that can be undone: the right to redeem',
       blocks: [
-        'After some sales (an IRS seizure sale, a court foreclosure, a sheriff’s sale to pay a judgment, and an HOA sale in Nevada and some other states), the former owner, and after some of them a lender or creditor with a lien on the property, may be able to buy it back for a while after the sale. You may hold only a certificate of sale until that right runs out, and get the deed after.',
+        'After some sales (an IRS seizure sale, a court foreclosure, a sheriff’s sale to pay a judgment, and an HOA sale where the state’s law allows redemption), the former owner, and after some of them a lender or creditor with a lien on the property, may be able to buy it back for a while after the sale. You may hold only a certificate of sale until that right runs out, and get the deed after.',
         { list: [
           'Nevada: after a sheriff’s execution sale, the former owner, or a creditor with a later lien, can buy it back within 1 year by paying your price plus 1% a month, and certain taxes and liens you paid (NRS 21.210).',
           'Nevada HOA foreclosures: the former owner, or a lender whose loan ranked below the HOA’s lien, can buy it back within 60 days by paying your price plus 1% a month and certain costs (NRS 116.31166(3)). You get a certificate of sale first, and the first mortgage may survive*.',

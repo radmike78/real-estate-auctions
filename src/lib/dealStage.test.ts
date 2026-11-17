@@ -1382,7 +1382,7 @@ describe('Nevada round 4 flow', () => {
     savePacket('analyzed:dhw30', p);
     const later = new Date('2026-11-11T15:00:00Z');
     const t = dealNextTask(hoa, p, later, 'contract');
-    expect(t.label).toMatch(/ended Oct 19, 2026: move it to/);
+    expect(t.label).toMatch(/ended Oct 19, 2026 \(counted from the Sale day you entered, [A-Z][a-z]{2} \d+, 2026\): move it to/);
     expect(t.label).not.toMatch(/once you have the certificate/);
     expect(t.advance?.label).toMatch(/^Move it to/);
     expect(stageHint('closed', hoa)).toMatch(/^The redemption period ended on Oct 19, 2026: find out whether anyone redeemed/);
