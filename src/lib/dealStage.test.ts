@@ -609,7 +609,7 @@ describe('Nevada round 4 flow', () => {
     expect(withRow(rows, { when: '2026-11-12', what: 'Payment deadline', who: 'the trustee' })).toEqual([rows[0], { when: '2026-11-12', what: 'Payment deadline', who: 'the trustee' }]);
     // A row dated later than the missed deadline takes the deadline that counted; an earlier one is kept; no row adds one.
     const dated = [{ when: '2026-11-20', what: 'Payment deadline', who: 'HOA agent' }];
-    expect(withRow(dated, { when: '2026-11-12', what: 'Payment deadline', who: 'x' })).toEqual([{ when: '2026-11-12', what: 'Payment deadline', who: 'HOA agent; you had typed Nov 20, 2026' }]);
+    expect(withRow(dated, { when: '2026-11-12', what: 'Payment deadline', who: 'x' })).toEqual([{ when: '2026-11-12', what: 'Payment deadline', who: 'x; you had typed Nov 20, 2026' }]);
     expect(withRow(dated, { when: '2026-11-25', what: 'Payment deadline', who: 'x' })).toEqual(dated);
     expect(withRow([rows[0]], { when: '2026-11-12', what: 'Payment deadline', who: 'x' })).toHaveLength(2);
   });
@@ -716,6 +716,10 @@ describe('Nevada round 4 flow', () => {
     const confirmed = { ...EMPTY_PACKET, dates: [...typed.dates, conf.record!.row] };
     savePacket(`analyzed:${clark.id}`, confirmed);
     expect(dealNextTask(clark, confirmed, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/^Pay for .* by its payment deadline, in 4 days \(Nov 18, 2026\)/);
+    // A written date after the 20-day SID deadline: the SID question comes with the payment step.
+    const late20 = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-12-10', what: 'Payment deadline', who: '' }, { when: '2026-11-13', what: 'Treasurer confirmed the later payment date in writing', who: 'Treasurer, for Dec 10, 2026', resolved: true }] };
+    savePacket(`analyzed:${clark.id}`, late20);
+    expect(dealNextTask(clark, late20, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/Ask the Treasurer by Dec 2, 2026 whether an SID affidavit was filed/);
     // A date weeks out keeps its date; a changed typed date ends the answer, and the county's steps return.
     const farOk = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-12-01', what: 'Payment deadline', who: '' }, { when: '2026-11-13', what: 'Treasurer confirmed the later payment date in writing', who: 'Treasurer, for Dec 1, 2026', resolved: true }] };
     savePacket(`analyzed:${clark.id}`, farOk);
