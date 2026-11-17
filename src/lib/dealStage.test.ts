@@ -719,7 +719,7 @@ describe('Nevada round 4 flow', () => {
     // A date weeks out keeps its date; a changed typed date ends the answer, and the county's steps return.
     const farOk = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-12-01', what: 'Payment deadline', who: '' }, { when: '2026-11-13', what: 'Treasurer confirmed the later payment date in writing', who: 'Treasurer, for Dec 1, 2026', resolved: true }] };
     savePacket(`analyzed:${clark.id}`, farOk);
-    expect(dealNextTask(clark, farOk, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/\(Dec 1, 2026\)/);
+    expect(dealNextTask(clark, farOk, new Date('2026-11-14T18:00:00Z'), 'contract').label).toMatch(/\(Dec 1, 2026\), the date the Treasurer gave you in writing/);
     expect(dealNextTask(clark, farOk, new Date('2026-11-14T18:00:00Z'), 'contract').undo?.removeRow).toBe('Treasurer confirmed the later payment date in writing');
     const moved = { ...farOk, dates: farOk.dates.map((x) => (x.what === 'Payment deadline' ? { ...x, when: '2026-12-03' } : x)) };
     savePacket(`analyzed:${clark.id}`, moved);
