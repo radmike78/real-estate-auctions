@@ -79,6 +79,20 @@ const HOMES_SETTLED_KEY = 'deedowl.homes-settled.v1';
  * tick isn't an answer to "did anyone redeem?", so while the period still runs it goes back to open, keeping its date:
  * once the period ends, the reader is asked, with both answers.
  */
+/**
+ * Whether marking "Redemption period ends" or the deed after it must wait, for a certificate-first win: '' when it may be
+ * marked; otherwise why not ('no-sale': no Sale day to count from; or the date the period runs until). A typed end earlier
+ * than the law's period counts from the law's end.
+ */
+export function redemptionMarkWait(d: Deal, p: PacketData, now: Date = new Date()): string {
+  if (!certificateFirst(d) || redeemedIn(p)) return '';
+  const typed = p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when ?? '';
+  const law = redemptionEnd(d, { ...p, dates: p.dates.filter((x) => !sameDate(x.what, 'Redemption period ends')) });
+  const end = typed && law ? (typed > law ? typed : law) : typed || law;
+  if (!end) return 'no-sale';
+  return end >= dayOf(d, now) ? end : '';
+}
+
 export function clearEarlyRedemptionEnds(now: Date = new Date()) {
   for (const d of loadDeals()) {
     if (!certificateFirst(d)) continue;
@@ -846,7 +860,7 @@ function sidTasks(d: Deal, p: PacketData, now: Date, n: string): PlanTask[] {
 /** At a win (and after it, until it's entered): the winning bid in Analyze, so the packet's numbers use it. */
 function wonPrice(d: Deal, p: PacketData, n: string): PlanTask {
   const typed = bidTyped(d);
-  return task({ key: 'won-price', label: typed ? `Enter your winning bid for ${n} in Analyze` : `No bid is saved for ${n} yet: enter your winning bid in Analyze`, produces: `the price you paid, in ${d.plan === 'flip' ? '“Check a bid” under Fix and flip (it appears once the resale value is in)' : '“Your winning bid” under Buy and hold'}, so the packet’s cash and numbers use it instead of the ${d.plan === 'flip' ? 'opening bid' : 'walk-away price'}. ${typed ? 'Then mark it here' : 'Then come back here: a button to mark it appears once the bid is in'}`, href: '#/analyze', openDeal: true, ...(typed ? { tick: { label: 'I entered my winning bid: mark it', row: WON_BID_ROW, who: 'Me' } } : {}), support: [], done: p.dates.some((x) => sameDate(x.what, WON_BID_ROW)) });
+  return task({ key: 'won-price', label: typed ? `Enter your winning bid for ${n} in Analyze` : `No bid is saved for ${n} yet: enter your winning bid in Analyze`, produces: `the price you paid, in ${d.plan === 'flip' ? '“Your winning bid” under Fix and flip (it appears once the resale value is in)' : '“Your winning bid” under Buy and hold'}, so the packet’s cash and numbers use it instead of the ${d.plan === 'flip' ? 'opening bid' : 'walk-away price'}. ${typed ? 'Then mark it here' : 'Then come back here: a button to mark it appears once the bid is in'}`, href: '#/analyze', openDeal: true, ...(typed ? { tick: { label: 'I entered my winning bid: mark it', row: WON_BID_ROW, who: 'Me' } } : {}), support: [], done: p.dates.some((x) => sameDate(x.what, WON_BID_ROW)) });
 }
 
 /** A task in the stage's list. `text` defaults to the label. */

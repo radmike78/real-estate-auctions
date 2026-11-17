@@ -2264,4 +2264,18 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(loadPacket(`analyzed:${hoa.id}`).dates.find((x) => x.what === 'Redemption period ends')?.resolved).toBeFalsy();
     expect(loadPacket(`analyzed:${other.id}`).dates.find((x) => x.what === 'Redemption period ends')?.resolved).toBe(true);
   });
+
+  it('round 97: the redemption end and the deed after it wait for the law’s end (or a Sale day to count from)', async () => {
+    const { redemptionMarkWait } = await import('./dealStage');
+    const hoa: Deal = { ...deal, id: 'g97', name: '45 Elm Ave', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'closed' };
+    saveDeals([hoa]);
+    const now = new Date('2026-10-01T18:00:00Z');
+    expect(redemptionMarkWait(hoa, { ...EMPTY_PACKET, dates: [] }, now)).toBe('no-sale');
+    const sale = { when: '2026-09-17', what: 'Sale day', who: 'HOA agent', resolved: true };
+    // A typed end 9 days after the sale still waits for the law's 60 days.
+    const early = { ...EMPTY_PACKET, dates: [sale, { when: '2026-09-26', what: 'Redemption period ends', who: 'HOA agent' }] };
+    expect(redemptionMarkWait(hoa, early, now)).toMatch(/^2026-11-1[67]$/);
+    expect(redemptionMarkWait(hoa, early, new Date('2026-11-20T18:00:00Z'))).toBe('');
+    expect(redemptionMarkWait(hoa, { ...early, dates: [...early.dates, { when: '2026-09-25', what: 'Redemption money collected', who: 'HOA agent', resolved: true }] }, now)).toBe('');
+  });
 });
