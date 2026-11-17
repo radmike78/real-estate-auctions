@@ -14,6 +14,8 @@ import BuyerChecklistBox from './BuyerChecklistBox';
 import { checklistForFilters } from '../lib/buyerChecklists';
 import NoListingsYet from './NoListingsYet';
 import PageHero from './PageHero';
+import NarrowDown from './NarrowDown';
+import { searchConfig } from '../lib/narrow';
 import ClassSwitch from './ClassSwitch';
 import { typesFor, type ClassFilter } from '../lib/propertyClass';
 
@@ -125,6 +127,7 @@ export default function SearchPage({ initialLocation = '', initialSaleTypes = []
           {getMyState() && getMyState() !== 'NV' && <> For real sales in your selected state, start at <a href="#/find-deals">Find deals</a>, which lists your county’s official offices.</>}
         </div>
       )}
+      <NarrowDown config={searchConfig()} intro="Not sure what to search for? Answer one question and we’ll point you to two places to start. The filters stay below." />
       <div className="search-layout">
         {/* On phones the filters fold away behind one button, so results start right under the search bar. */}
         <details className="filters-wrap" open={filtersOpen} onToggle={(e) => setFiltersOpen((e.target as HTMLDetailsElement).open)}>

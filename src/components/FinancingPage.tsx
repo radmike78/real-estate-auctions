@@ -12,6 +12,8 @@ import { stateByCode } from '../lib/regions';
 import { advertisingOpen, useSiteFeatures } from '../lib/siteFeatures';
 import { IconGavel, IconHome, IconHouses, IconPercent, IconTools } from './Icons';
 import { FINANCING_ADVICE, FINANCING_FACTORS, FINANCING_POSITION } from '../lib/financingGuidance';
+import NarrowDown from './NarrowDown';
+import { financingConfig } from '../lib/narrow';
 
 const OPTIONS: [string, string, ReactNode][] = [
   ['Buying a home to live in', 'Conventional (not government-backed), FHA (low down payment, government-insured), VA (for eligible veterans) and USDA (some rural areas) loans from loan officers, banks and credit unions. FHA 203k and Fannie Mae HomeStyle loans include repair money in the loan.', <IconHome />],
@@ -46,6 +48,8 @@ export default function FinancingPage({ initialLocation = '' }: { initialLocatio
         </div>
       )}
 
+      <NarrowDown config={financingConfig()} intro="Answer one quick question and we’ll point you to the part of this page to read first. Everything else stays below." />
+
       <section aria-labelledby="fin-decision-head">
         <h2 id="fin-decision-head">Choose financing for your situation</h2>
         <p>{FINANCING_POSITION}</p>
@@ -55,7 +59,7 @@ export default function FinancingPage({ initialLocation = '' }: { initialLocatio
       </section>
 
       <h2 className="section-title">Which loan fits?</h2>
-      <section className="options-grid fin-options" aria-label="Financing options">
+      <section id="fin-options" className="options-grid fin-options" aria-label="Financing options">
         {OPTIONS.map(([t, d, icon], i) => (
           <div key={t} className={`option-card fin-tone-${i}`}>
             <span className="fin-icon" aria-hidden>{icon}</span>
@@ -65,7 +69,7 @@ export default function FinancingPage({ initialLocation = '' }: { initialLocatio
         ))}
       </section>
 
-      <section aria-labelledby="fin-call-head">
+      <section id="fin-call" aria-labelledby="fin-call-head">
         <h2 id="fin-call-head">Before you call a lender</h2>
         <div className="roadmap-cols">
           <div>

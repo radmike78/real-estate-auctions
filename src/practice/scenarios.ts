@@ -423,7 +423,7 @@ const TAX: Flow = {
       id: 'registration',
       title: 'Registration worksheet (practice)',
       from: 'You',
-      purpose: 'Decide these before you fill in the Treasurer’s real Trustee Auction Registration Form.',
+      purpose: 'Decide these before you fill in the Treasurer’s real Trustee Auction Registration Form (Clark County’s name for its tax-sale bidder registration; it isn’t a foreclosure trustee’s sale).',
       lines: [
         { label: 'Name on the deed', value: 'Exactly the bidder name you register, which must be an individual’s name. To hold it in an LLC or trust, record a new deed afterwards.' },
         { label: 'Deposit', value: '$5,000 in certified funds, by the registration deadline (about a week before the auction). Credited if you win.' },

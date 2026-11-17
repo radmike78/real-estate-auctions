@@ -121,6 +121,52 @@ export function findDealsConfig(): NarrowConfig {
   };
 }
 
+/** Find financing: which kind of loan to read about first. */
+export function financingConfig(): NarrowConfig {
+  return {
+    questions: [{
+      key: 'goal',
+      question: 'What do you want to finance?',
+      options: [
+        { value: 'home', label: 'A home to live in' },
+        { value: 'auction', label: 'A property at auction', hint: 'Tax, foreclosure, sheriff, HOA or IRS sales' },
+        { value: 'invest', label: 'A flip or a rental' },
+      ],
+      suggest: () => ({ value: 'home', why: 'A home you’ll live in usually has the most loan choices, with the lowest down payments and rates.' }),
+    }],
+    result: ({ goal }) => goal === 'auction'
+      ? [
+        { label: 'Which loan fits? (Buying at auction)', scrollTo: 'fin-options', why: 'Most auctions want full payment the same day or the next business day, so a regular mortgage usually can’t close in time.' },
+        { label: 'Compare financing methods', href: '#/learn/financing', why: 'Savings, home equity and private lenders, with what each one costs and risks.' },
+      ]
+      : goal === 'invest'
+        ? [
+          { label: 'Which loan fits? (Fix and flip, Rental investors)', scrollTo: 'fin-options', why: 'Short-term renovation loans for a flip; DSCR and portfolio loans for a rental.' },
+          { label: 'Before you call a lender', scrollTo: 'fin-call', why: 'What to ask, and a script for the call.' },
+        ]
+        : [
+          { label: 'Which loan fits? (Buying a home to live in)', scrollTo: 'fin-options', why: 'Conventional, FHA, VA and USDA loans, and renovation loans for a home that needs work.' },
+          { label: 'Before you call a lender', scrollTo: 'fin-call', why: 'What to ask, and a script for the call.' },
+        ],
+  };
+}
+
+/** Search: where to start, before the filters. */
+export function searchConfig(): NarrowConfig {
+  return {
+    questions: [BUY_Q],
+    result: ({ buy }) => buy === 'agent'
+      ? [
+        { label: 'Bank-owned and government homes', href: '#/bank-owned', why: 'Homes sold by banks, HUD, Fannie Mae and Freddie Mac, usually through an agent, with time to inspect.' },
+        { label: 'Find deals', href: '#/find-deals', why: 'Your county’s official sources, and agents who can set up a search.' },
+      ]
+      : [
+        { label: 'Live tax sales', href: '#/live', why: 'The county Treasurer’s current list, checked against the official source.' },
+        { label: 'Sale guides', href: '#/playbooks', why: 'How each kind of auction works, step by step, before you bid.' },
+      ],
+  };
+}
+
 /** Sale guides: which guides to read first. */
 export function guidesConfig(myState: string | null): NarrowConfig {
   return {
