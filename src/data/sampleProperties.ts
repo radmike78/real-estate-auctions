@@ -345,7 +345,7 @@ function makeProperty(i: number, scenario: Scenario, commercial?: PropertyType):
         paymentMethods: ["Cashier's check", 'Certified check'],
         deedType: 'Certificate of sale, then an IRS deed',
         redemptionPeriod: '180 days (26 U.S.C. § 6337)',
-        eligibility: 'The taxpayer and IRS employees may not bid',
+        eligibility: 'IRS employees may not bid (5 CFR 3101.103); the notice of sale lists any other limits',
       });
       status = 'SEALED_BID';
       break;

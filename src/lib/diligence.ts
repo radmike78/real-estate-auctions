@@ -131,7 +131,11 @@ export function diligenceReport(p: Property): Check[] {
       detail:
         p.sale?.saleType === 'REO'
           ? 'Typically available on a lender sale.'
-          : 'Many insurers will not insure right after a tax, HOA or execution sale without a quiet-title action. Ask a title company.',
+          : p.sale?.saleType === 'TRUSTEE_SALE'
+            ? 'In Nevada, a suit to void a trustee’s sale can be filed within 30 days after the trustee’s deed is recorded, or within 90 days after the sale by someone who wasn’t properly notified (NRS 107.080(5), (6)). Some title companies wait until that window passes before insuring.* Ask a title company before you bid.'
+            : p.sale?.saleType === 'FEDERAL_TAX_SEIZURE'
+              ? 'You get a certificate of sale first; the deed comes only after the 180-day redemption period (26 U.S.C. 6337(b), 6338), and a title company may not insure it as yours before then.* Ask a title company.'
+              : 'Many insurers won’t insure right after a tax, HOA or execution sale without a quiet-title action.* Ask a title company.',
     },
   ];
   if (p.liensChecked !== false) return report;

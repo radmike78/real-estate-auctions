@@ -1946,7 +1946,7 @@ export const DRILLS: Drill[] = [
       choices: [
         { label: 'Buy', feedback: 'Only if you could absorb a $21,000 loss, which most first flips can’t.' },
         { label: 'Investigate', feedback: 'Good: check permit timelines and get firm bids before offering.' },
-        { label: 'Pass', feedback: 'Right at this price. A price that survives delays is the only safe one.' },
+        { label: 'Pass', feedback: 'Reasonable at this price. A price that still works when repairs, time and the sale price go against you leaves room for surprises; how much room you need depends on your finances and risk tolerance.' },
       ],
       expert: 'Pass at $210,000. Set your maximum price so the deal still breaks even when repairs run 15% over, it takes 4 months longer, and it sells for 5% less.',
     },
@@ -2044,7 +2044,7 @@ export const DRILLS: Drill[] = [
         question: 'Pick the sensible options.',
         multi: true,
         options: [
-          { label: 'Take a smaller loan and leave more cash in, so the rent covers the payment', good: true, why: 'Right. A rental that pays for itself beats one that needs your money every month.' },
+          { label: 'Take a smaller loan and leave more cash in, so the rent covers the payment', good: true, why: 'Right. A smaller loan the rent covers means the property doesn’t need your money each month; whether that’s worth leaving more cash in depends on your finances and risk tolerance.' },
           { label: 'Keep the house without refinancing until you find better terms, if your cash allows', good: true, why: 'Reasonable if you don’t need the cash right away.' },
           { label: 'Take the full loan and cover the shortfall from your paycheck indefinitely', good: false, why: 'That turns your rental into a monthly expense, and a vacancy makes it worse.' },
         ],
@@ -2058,7 +2058,7 @@ export const DRILLS: Drill[] = [
         { label: 'Investigate', feedback: 'Good: compare lenders and loan sizes, and pick the largest loan the rent comfortably covers.' },
         { label: 'Pass', feedback: 'Holding off on refinancing is a reasonable choice if your cash allows it.' },
       ],
-      expert: 'Size the loan to the rent, not to your purchase cost. Leaving some cash in a rental that pays for itself is better than pulling it all out and feeding the property every month.',
+      expert: 'Size the loan to the rent, not to your purchase cost. Leaving some cash in can keep the rental paying for itself; whether that beats pulling more out depends on your situation, finances and risk tolerance.',
     },
   },
   {

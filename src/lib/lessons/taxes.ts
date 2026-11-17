@@ -38,7 +38,7 @@ export const taxes: Lesson = {
       heading: 'While you own it: property tax and appeals',
       blocks: [
         'Property tax can be one of your largest costs after the loan. Put the bill for your use (a rental, not the seller’s home) in your numbers, and check each year’s notice of value.',
-        'If the county’s value is too high, you can appeal it, but only within a short window after the notice of value arrives. The notice gives the deadline and where to file. Bring sold comparables and photos of anything that lowers the value.',
+        'If the county’s value is too high, you can appeal it, but only by a deadline, often soon after the notice of value arrives. The notice gives the deadline and where to file. Bring sold comparables and photos of anything that lowers the value.',
         'In Texas, you protest to the appraisal review board by May 15, or 30 days after the notice was delivered if that’s later (Tax Code 41.44).',
         'In Nevada, the deadline is a fixed date: appeal to the county board of equalization by January 15 (the next business day if it falls on a weekend or holiday), on the county assessor’s form (NRS 361.356, 361.357). When the assessor appraises or reappraises a property, it mails the notice of assessed value by December 18 (NRS 361.300(6)), so the window can be short.',
       ],
