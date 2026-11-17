@@ -2279,7 +2279,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(redemptionMarkWait(hoa, { ...early, dates: [...early.dates, { when: '2026-09-25', what: 'Redemption money collected', who: 'HOA agent', resolved: true }] }, now)).toBe('');
   });
 
-  it('round 97 clarity: a typed redemption end earlier than the law moves to the law’s end', async () => {
+  it('round 98 clarity: a typed redemption end earlier than the law keeps its date but reopens while someone can redeem', async () => {
     const { clearEarlyRedemptionEnds, lawRedemptionEnd } = await import('./dealStage');
     const { loadPacket } = await import('./dealPacket');
     const hoa: Deal = { ...deal, id: 'l97', name: '45 Elm Ave', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'closed' };
@@ -2290,7 +2290,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(law > '2026-12-29').toBe(true);
     clearEarlyRedemptionEnds(new Date('2026-11-17T20:00:00Z'));
     const row = loadPacket(`analyzed:${hoa.id}`).dates.find((x) => x.what === 'Redemption period ends');
-    expect(row?.when).toBe(law);
+    expect(row?.when).toBe('2026-11-10');
     expect(row?.resolved).toBeFalsy();
   });
 
@@ -2304,7 +2304,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const t = dealNextTask(hoa, p, now, 'closed');
     expect(JSON.stringify(t)).not.toMatch(/No one redeemed: mark it handled/);
     const q = fixRedemptionRows(hoa, p, now)!;
-    expect(q.dates.find((x) => x.what === 'Redemption period ends')!.when > '2026-12-29').toBe(true);
+    expect(q.dates.find((x) => x.what === 'Redemption period ends')!.when).toBe('2026-11-10');
     expect(q.dates.find((x) => x.what === 'Deed delivered (if no one redeemed)')!.resolved).toBe(false);
   });
 

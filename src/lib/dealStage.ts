@@ -103,19 +103,15 @@ export function redemptionMarkWait(d: Deal, p: PacketData, now: Date = new Date(
 }
 
 /**
- * A certificate-first win's redemption rows made consistent with the law (null when nothing changes): a typed end earlier
- * than the law's moves to the law's end; while someone can still redeem (or with no Sale day to count from), a ticked end
+ * A certificate-first win's redemption rows made consistent with the law (null when nothing changes): while someone can
+ * still redeem (or with no Sale day to count from), a ticked end
  * or "Deed delivered" row goes back to open, keeping its date. Not on a redeemed deal.
  */
 export function fixRedemptionRows(d: Deal, p: PacketData, now: Date = new Date()): PacketData | null {
   if (!certificateFirst(d) || redeemedIn(p)) return null;
-  const law = lawRedemptionEnd(d, p);
   let changed = false;
-  let dates = p.dates.map((x) => {
-    if (sameDate(x.what, 'Redemption period ends') && x.when && law && x.when < law) { changed = true; return { ...x, when: law }; }
-    return x;
-  });
-  const wait = redemptionMarkWait(d, { ...p, dates }, now);
+  let dates = p.dates;
+  const wait = redemptionMarkWait(d, p, now);
   if (wait) dates = dates.map((x) => ((sameDate(x.what, 'Redemption period ends') || sameDate(x.what, DEED_AFTER_WAIT)) && x.resolved ? ((changed = true), { ...x, resolved: false }) : x));
   return changed ? { ...p, dates } : null;
 }
@@ -1131,7 +1127,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       const baseDate = p.dates.find((x) => sameDate(x.what, win.base) && x.when)?.when;
       const end = win.days ? plusDays(baseDate, win.days) : '';
       const late = win.days ? plusDays(p.dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when, 90) : '';
-      out.push(task({ key: 'window', label: win.days ? `Put the challenge window’s end on ${n}’s calendar` : `Put the recovery-suit window’s end on ${n}’s calendar`, produces: win.days ? `the date the challenge window ends, in its Key dates: 30 days after the trustee’s deed was recorded${end ? ` (${prettyDay(end)})` : ''}, or 90 days after the sale${late ? ` (${prettyDay(late)})` : ''} if anyone didn’t get proper notice (NRS 107.080(5), (6)). Ask your title company which applies, and plan repairs and new contracts for after it, as your attorney advises` : `its end date in its dates (2 years after the Treasurer’s deed was delivered to you, NRS 361.600${baseDate ? `; about ${prettyDay((() => { const t = new Date(`${baseDate}T12:00:00`); const m = t.getMonth(); t.setFullYear(t.getFullYear() + 2); if (t.getMonth() !== m) t.setDate(0); return localDay(t); })())} if it was delivered the day it was recorded, ${prettyDay(baseDate)}*` : ''}), and a title company’s answer on when it will insure`, href: packetHref(d, 'dates'), support: [L.pro('title')], done: p.dates.some((x) => sameDate(x.what, win.row) && (!!x.when || !!x.resolved)) }));
+      out.push(task({ key: 'window', label: win.days ? (end ? `Confirm the challenge window’s end for ${n} (${prettyDay(end)}, worked out from the deed’s recording) with your title company` : `Put the challenge window’s end on ${n}’s calendar`) : `Put the recovery-suit window’s end on ${n}’s calendar`, produces: win.days ? `the date the challenge window ends, in its Key dates: 30 days after the trustee’s deed was recorded${end ? ` (${prettyDay(end)})` : ''}, or 90 days after the sale${late ? ` (${prettyDay(late)})` : ''} if anyone didn’t get proper notice (NRS 107.080(5), (6)). Ask your title company which applies, and plan repairs and new contracts for after it, as your attorney advises` : `its end date in its dates (2 years after the Treasurer’s deed was delivered to you, NRS 361.600${baseDate ? `; about ${prettyDay((() => { const t = new Date(`${baseDate}T12:00:00`); const m = t.getMonth(); t.setFullYear(t.getFullYear() + 2); if (t.getMonth() !== m) t.setDate(0); return localDay(t); })())} if it was delivered the day it was recorded, ${prettyDay(baseDate)}*` : ''}), and a title company’s answer on when it will insure`, href: packetHref(d, 'dates'), support: [L.pro('title')], done: p.dates.some((x) => sameDate(x.what, win.row) && (!!x.when || !!x.resolved)) }));
     }
     if (nvTax) out.push(task({ key: 'before-remodel', label: `Check the recovery-suit window, possession and title for ${n} before you remodel`, produces: 'a written answer on the 2-year recovery-suit window (no owner buy-back after a Nevada tax sale, NRS 361.600), lawful possession and when a title company will insure', href: stepHref('a-before-remodel'), support: [L.guides, L.pro('title')], done: stepDone('a-before-remodel') }));
     if (nvTrustee) out.push(task({ key: 'before-remodel', label: d.state === 'NV' && d.kind === 'trustee' ? `Check possession and title insurance for ${n} before you remodel` : `Check redemption, possession and title for ${n} before you remodel`, produces: d.state === 'NV' && d.kind === 'trustee' ? 'a written answer on lawful possession and when title insurance is available (there’s no owner buy-back after a Nevada trustee’s sale)' : 'a written answer on any redemption period, lawful possession and title insurance', href: stepHref('a-before-remodel'), support: [L.guides], done: stepDone('a-before-remodel') }));
@@ -1347,9 +1343,10 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     // A redemption end that disagrees with the law's (typed too early, or no Sale day to count from): no "No one redeemed"
     // answer until it's fixed in Key dates (fixRedemptionRows corrects it there).
     // A won certificate-first sale with no Sale day: the redemption period can't be worked out, so ask for it first.
-    if ((stage === 'closed' || (stage === 'owned' && !!beforeDeed(d))) && certificateFirst(d) && !redeemedIn(p) && redemptionMarkWait(d, p, now) === 'no-sale') {
+    if ((stage === 'closed' || (stage === 'owned' && !!beforeDeed(d)) || (stage === 'contract' && paidIn(p, d))) && certificateFirst(d) && !redeemedIn(p) && redemptionMarkWait(d, p, now) === 'no-sale') {
       const n = d.name || 'this property';
-      const text = `Enter the Sale day for ${n} in Key dates: the redemption period is worked out from it, and someone can redeem until it ends.`;
+      const typedEnd = p.dates.find((x) => sameDate(x.what, 'Redemption period ends') && x.when)?.when;
+      const text = `Enter the Sale day for ${n} in Key dates (use “Add a date” and name it Sale day if there’s no row): the law counts the redemption period from it${typedEnd ? `, so the end you entered (${prettyDay(typedEnd)}) can’t be checked without it` : ''}. Someone can redeem until it ends.`;
       return { key: 'date', days: 0, label: text, produces: 'the Sale day in Key dates, so the redemption period’s end can be worked out', href: packetHref(d, 'dates'), support: [], done: false, urgent: false, text };
     }
     if (nd && sameDate(nd.what, 'Redemption period ends') && certificateFirst(d) && !redeemedIn(p)) {
