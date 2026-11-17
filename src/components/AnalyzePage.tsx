@@ -15,7 +15,7 @@ import { SellerFinanceCalculator } from './HoldCalculators';
 import AnnouncedResults from './AnnouncedResults';
 import { CalcRegion } from './calcRegion';
 import { useMarkStep, stepEyebrow } from '../lib/path';
-import { dropStateLead, useMyState, setMyState } from '../lib/myState';
+import { dropStateLead, getMyState, nameYourState, useMyState, setMyState } from '../lib/myState';
 import { STATES, countyName, stateByCode, type StateCode } from '../lib/regions';
 import { CURRENT_KEY, KEPT_NOTE_KEY, makeRealDeal, OPENED_KEY, clearLienDraftNumbers, keepUnsavedDraft, movedFrom, noteStateMove, savingPractice, PLANS, calcTabFor, checklistFor, carryDraftNumbers, clearDraftNumbers, cleanDeal, forgetDeal, nextStamp, restoreDraftNumbers, kindLabel, kindsFor, loadDeals, plansFor, saveDeals, withPlan, type Deal, type Plan, type Prefill, type SaleKind } from '../lib/analyze';
 import { checkAdvice, loadPacket, NO_PRICE_AFTER, overdueIntro, pricePhase, sameDate, sidDeadline } from '../lib/dealPacket';
@@ -460,7 +460,7 @@ export default function AnalyzePage({ plan, prefill }: { plan?: Plan; prefill?: 
       <PageHero
         eyebrow={<span className="eyebrow">{stepEyebrow('analyze')}</span>}
         title={<>Analyze <span className="grad">a deal</span></>}
-        sub="Found one you like? Tell us about it, get the checklist for that kind of sale in your state, and know your number before you offer or bid."
+        sub={nameYourState('Found one you like? Tell us about it, get the checklist for that kind of sale in your state, and know your number before you offer or bid.', getMyState())}
       />
       {keptNote && <p className="note" role="status">{keptNote} <a href="#/deals">Open My deals&nbsp;→</a></p>}
 

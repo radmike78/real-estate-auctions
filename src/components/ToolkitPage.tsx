@@ -9,7 +9,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { useLastActivity } from '../lib/journey';
 import PageHero from './PageHero';
 import { STATES, countyName, stateByCode } from '../lib/regions';
-import { dropStateLead, forStateText, getMyState, useMyState } from '../lib/myState';
+import { dropStateLead, forStateText, getMyState, nameYourState, useMyState } from '../lib/myState';
 import { fmtMoney } from '../lib/status';
 import { getMyArea, useMyArea } from '../lib/myArea';
 import { countyTaxLine, countyTaxRate, stateMedianTaxRate } from '../lib/stateCosts';
@@ -220,7 +220,7 @@ function StepBody({ s, status, setStatus, deal, elsewhere, past }: { s: RoadmapS
   return (
     <div className="roadmap-step-body">
       <p>{dropStateLead(forStateText(myState, s.text), myState)}</p>
-      <p className="roadmap-outcome"><strong>You’ll have:</strong> {s.outcome}</p>
+      <p className="roadmap-outcome"><strong>You’ll have:</strong> {nameYourState(s.outcome, myState)}</p>
       <div className="roadmap-actions">
         <div>
           <h4>What to do</h4>
@@ -253,7 +253,7 @@ function StepBody({ s, status, setStatus, deal, elsewhere, past }: { s: RoadmapS
       {(s.id === 'buybox' || s.id === 'c-buybox') && status === 'done' && isBlank(read(BUYBOX_KEY, EMPTY_BUY_BOX, cleanBuyBox)) && <p className="note small" role="note">This step shows Done, but no buy box is saved yet. <button type="button" className="linkish" onClick={showBuyBox}>Fill it in</button> so you can judge each property against it in its deal packet.</p>}
       {s.id === 'market' && <AreaLine county what="Your sources, rules and checklists follow it." />}
       {s.stop && forStateText(myState, s.stop) && <p className="roadmap-stop"><strong>When to pause:</strong> {dropStateLead(forStateText(myState, s.stop), myState)}</p>}
-      <p className="roadmap-done"><strong>Done when:</strong> {s.doneWhen}</p>
+      <p className="roadmap-done"><strong>Done when:</strong> {nameYourState(s.doneWhen, myState)}</p>
       {elsewhere && <p className="roadmap-has"><strong>Counted done:</strong> {PRACTICE_NAME[elsewhere].replace(/^t/, 'T')} is done in My plan, which counts as practice part 2. This practice is still there if you’d like it.</p>}
       {status !== 'done' && stepEvidence(s.id) && (
         <p className="roadmap-has">✓ {stepEvidence(s.id)} <button type="button" className="linkish" onClick={(e) => { const host = e.currentTarget.closest<HTMLElement>('.roadmap-step-body'); setStatus('done'); keepFocus(host); }}>Mark it done</button></p>

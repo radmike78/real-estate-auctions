@@ -5,7 +5,7 @@ import type { Deal } from '../lib/analyze';
 import { flipBudget, flipBudgetLine, flipSaleLine, loadPacket, sameDate, sameEvent, savedNumbers } from '../lib/dealPacket';
 import { loadOwned, OWNED_EVENT, ownedSummary, saveOwned, type Owned } from '../lib/owned';
 import { fmtMoney } from '../lib/status';
-import { sealedBid, firstFullMonth, setDealHome, sidState, trackerAsksHome, certificateFirst, finishedDeal, liveIn, prettyDay, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
+import { readerDay, sealedBid, firstFullMonth, setDealHome, sidState, trackerAsksHome, certificateFirst, finishedDeal, liveIn, prettyDay, redeemingNow, setDealStage, stageOf, wayOf } from '../lib/dealStage';
 
 /** The monthly cash flow the deal was bought on, from its Keep and rent numbers (null without them). */
 export function projectedMonthly(d: Deal): number | null {
@@ -28,11 +28,8 @@ export function useOwned(): Record<string, Owned> {
 /** "2027-01" -> "Jan 2027". */
 const monthWords = (m: string) => (/^\d{4}-\d{2}$/.test(m) ? new Date(`${m}-15T12:00:00`).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : m);
 const signed = (n: number) => `${n < 0 ? '−' : ''}${fmtMoney(Math.abs(Math.round(n)))}`;
-// Today in this browser's own time zone (toISOString would give the UTC date, a day ahead in the evening).
-const today = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
+// Today in the chosen state's day (the browser's own when none is chosen), like the rest of the deal's dates.
+const today = () => readerDay(new Date());
 
 /** The purchase date from its packet (the closing, the deed or the sale), else today. */
 /** The earliest finished month (from the purchase on) not yet recorded; '' when every one is in. */

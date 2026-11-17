@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { DEAL_STAGES, type Deal, type DealStage } from '../lib/analyze';
-import { beforeDeed, earlyMoveNote, openDeedChecks, prettyDay, stageLabel } from '../lib/dealStage';
+import { beforeDeed, dayOf, earlyMoveNote, openDeedChecks, prettyDay, stageLabel } from '../lib/dealStage';
 
 /**
  * "Where it stands": picking a stage doesn't move the deal on its own (an arrow key in a closed menu would), so a
@@ -11,7 +11,8 @@ export default function StageSelect({ stage, deal, onMove }: { stage: DealStage;
   const menu = useRef<HTMLSelectElement>(null);
   // (A certificate-first deal without its deed: moving it to the owner stage gets a caution.)
   const wait = beforeDeed(deal);
-  const today = new Date().toLocaleDateString('en-CA');
+  // (Counted in the deal state's day, like its tasks and Key dates.)
+  const today = dayOf(deal, new Date());
   // (Moved elsewhere, by a task button or another tab, or another property shown: the menu follows.)
   useEffect(() => setPick(stage), [stage, deal.id]);
   // (The buttons go away once pressed: focus returns to the menu, not the page.)

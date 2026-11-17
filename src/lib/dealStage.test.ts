@@ -1230,7 +1230,7 @@ describe('Nevada round 4 flow', () => {
     const offer = { ...nvFlip, id: 'dof26', kind: 'reo' as const, plan: 'rent' as const, stage: 'contract' as const };
     saveDeals([offer]);
     const t = dealNextTask(offer, { ...EMPTY_PACKET, dates: [{ when: '2026-10-07', what: 'COE date', who: 'Escrow' }] }, now, 'contract');
-    expect(t.label).toMatch(/^Closing is tomorrow/);
+    expect(t.label).toMatch(/^Closing (for .* )?is tomorrow.*did escrow receive the earnest money/);
     expect(t.urgent).toBe(true);
     const tax = { ...nvFlip, id: 'tx26', kind: 'taxSale' as const, stage: 'closed' as const };
     saveDeals([tax]);
@@ -2163,5 +2163,29 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const text = JSON.stringify(packetSections(tax, p, new Date('2026-12-04T18:00:00Z')));
     expect(text).not.toMatch(/before you passed|you moved it to Passed/);
     expect(text).toMatch(/before the sale/);
+  });
+
+  it('round 94: a redemption end ticked ahead of its date isn’t "No one redeemed" yet', () => {
+    const hoa: Deal = { ...deal, id: 'h94', name: '45 Elm Ave', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'closed' };
+    saveDeals([hoa]);
+    savePacket(`analyzed:${hoa.id}`, { ...EMPTY_PACKET, dates: [{ when: '2026-09-17', what: 'Sale day', who: 'HOA agent', resolved: true }, { when: '2026-09-18', what: 'Certificate of sale recorded', who: 'County', resolved: true }, { when: '2026-11-17', what: 'Redemption period ends', who: 'HOA agent', resolved: true }] });
+    vi.useFakeTimers({ toFake: ['Date'] });
+    try {
+      vi.setSystemTime(new Date('2026-11-17T18:00:00Z'));
+      expect(stageHint('closed', hoa)).not.toMatch(/No one redeemed/);
+      vi.setSystemTime(new Date('2026-11-19T18:00:00Z'));
+      expect(stageHint('closed', hoa)).toMatch(/No one redeemed/);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it('round 94: in the closing week, unticked earnest money asks whether escrow received it', () => {
+    const offer: Deal = { ...deal, id: 'e94', name: '45 Elm Ave', state: 'NV', county: 'Washoe', kind: 'listing', plan: 'rent', stage: 'contract' };
+    saveDeals([offer]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-20', what: 'Offer accepted', who: 'Seller' }, { when: '', what: 'Earnest money due', who: 'Escrow' }, { when: '2026-11-18', what: 'Closing', who: 'Escrow' }] };
+    savePacket(`analyzed:${offer.id}`, p);
+    const t = dealNextTask(offer, p, new Date('2026-11-17T18:00:00Z'), 'contract');
+    expect(t.key).toBe('deposit-sent');
+    expect(t.label).toMatch(/did escrow receive the earnest money\?/);
+    expect(t.label).not.toMatch(/send the earnest money/);
   });
 });
