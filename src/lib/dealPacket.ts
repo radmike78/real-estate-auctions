@@ -18,7 +18,7 @@ import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
 import { dealProgress } from './roadmapState';
-import { wayOf, NO_SID_ROW, soldOf, lawRedemptionEnd, withEffectiveEnd, redemptionEnd as redemptionEndFor, redeemedDeal, redemptionOver, dayOf, readerDay, SEALED_ROW, sidBeforePay, treasurerGave, taxPayState, sidFirst, saleOverFor, sealedDay, nvNow, dealNextTask, nvPayDays, paidAtWin, paymentPassed, sellerName, sellerShort, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
+import { withEffectiveWindows, wayOf, NO_SID_ROW, soldOf, lawRedemptionEnd, withEffectiveEnd, redemptionEnd as redemptionEndFor, redeemedDeal, redemptionOver, dayOf, readerDay, SEALED_ROW, sidBeforePay, treasurerGave, taxPayState, sidFirst, saleOverFor, sealedDay, nvNow, dealNextTask, nvPayDays, paidAtWin, paymentPassed, sellerName, sellerShort, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -1152,7 +1152,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const lienEnd = lienSale ? (() => { const t = new Date(`${lienSale}T12:00:00`); t.setDate(t.getDate() + 120); return localDayOf(t); })() : '';
   const pk1a: PacketData = s90w ? { ...pk0, dates: [...pk0.dates, { when: s90w, what: '90-day limit for anyone not properly notified ends (90 days after the sale, NRS 107.080(6); confirm it with your title company)', who: '' }] } : pk0;
   const pk1: PacketData = pk1a;
-  const pk: PacketData = sidWorked || winWorked ? { ...pk1, dates: [...pk1.dates.filter((x) => !(sidWorked && sameDate(x.what, 'SID certificate payoff') && !x.when) && !(winWorked && sameDate(x.what, 'Challenge window ends') && !x.when)), ...(sidWorked ? [{ when: sidWorked, what: 'SID certificate payoff deadline, if there’s an SID affidavit (worked out from the sale day; confirm it with the Treasurer)', who: '' }] : []), ...(winWorked ? [{ when: winWorked, what: 'Challenge window ends (worked out from the deed’s recording; confirm it with your title company)', who: '' }] : [])] } : pk1;
+  const pk: PacketData = withEffectiveWindows(d, sidWorked || winWorked ? { ...pk1, dates: [...pk1.dates.filter((x) => !(sidWorked && sameDate(x.what, 'SID certificate payoff') && !x.when) && !(winWorked && sameDate(x.what, 'Challenge window ends') && !x.when)), ...(sidWorked ? [{ when: sidWorked, what: 'SID certificate payoff deadline, if there’s an SID affidavit (worked out from the sale day; confirm it with the Treasurer)', who: '' }] : []), ...(winWorked ? [{ when: winWorked, what: 'Challenge window ends (worked out from the deed’s recording; confirm it with your title company)', who: '' }] : [])] } : pk1);
   // An offer's closing marked handled: the deal is ready to be marked closed.
   const closingDone = stageOf(d) === 'contract' && isOffer(d) && p.dates.some((x) => sameEvent(x.what, 'Closing') && !!x.resolved && (!x.when || x.when <= todayHere));
   // FLOW-4: before you win, a sale day that has passed asks "did you win?" (no countdown to the rows after the sale).
@@ -1181,6 +1181,8 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const effEnd = certificateFirst(d) && !redeemedIn(pk) ? redemptionEndFor(d, pk) : '';
   const lawEnd = effEnd ? lawRedemptionEnd(d, pk) : '';
   const endNote = (x: { what: string; when: string }) => {
+    const typedWin = (sameDate(x.what, 'Challenge window ends') || sameDate(x.what, 'Recovery-suit window ends')) ? p.dates.find((y) => sameDate(y.what, x.what) && y.when)?.when : '';
+    if (typedWin && typedWin !== x.when) return ` (the date you entered, ${prettyDay(typedWin)}, is earlier than the law allows: this is the law’s end, counted from the deed)`;
     if (!certificateFirst(d) || redeemedIn(pk) || !sameDate(x.what, 'Redemption period ends')) return '';
     if (!effEnd) return ' (the date you entered; enter the Sale day to check it against the law)';
     const can = effEnd < todayHere ? 'someone could redeem until' : 'someone can redeem until';

@@ -159,6 +159,26 @@ export function windowMarkWait(d: Deal, p: PacketData, what: string, now: Date =
   return end >= dayOf(d, now) ? end : '';
 }
 
+/** The law's end of a Nevada challenge or recovery-suit window, worked out from the recorded deed ('' when unknown). */
+export function lawWindowEnd(d: { state?: Deal['state']; kind: Deal['kind'] }, p: PacketData, what: string): string {
+  const trustee = d.state === 'NV' && d.kind === 'trustee' && sameDate(what, 'Challenge window ends');
+  const tax = d.state === 'NV' && d.kind === 'taxSale' && sameDate(what, 'Recovery-suit window ends');
+  if (!trustee && !tax) return '';
+  const deed = p.dates.find((x) => x.when && x.resolved && (trustee ? ['Deed recorded', 'Trustee’s deed recorded'] : ['Treasurer’s deed recorded']).some((r) => sameDate(x.what, r)))?.when;
+  if (!deed) return '';
+  const t = new Date(`${deed}T12:00:00`);
+  if (trustee) t.setDate(t.getDate() + 30); else t.setFullYear(t.getFullYear() + 2);
+  return localDay(t);
+}
+/** The packet with a window row typed earlier than the law's end read at the law's end (the reader's date is kept on disk
+ *  and shown in Key dates with a note), so every step, hint and summary counts from the same end. */
+export const withEffectiveWindows = (d: { state?: Deal['state']; kind: Deal['kind'] }, p: PacketData): PacketData => {
+  if (d.state !== 'NV' || (d.kind !== 'trustee' && d.kind !== 'taxSale')) return p;
+  let changed = false;
+  const dates = p.dates.map((x) => { const law = x.when ? lawWindowEnd(d, p, x.what) : ''; if (law && x.when < law) { changed = true; return { ...x, when: law }; } return x; });
+  return changed ? { ...p, dates } : p;
+};
+
 /** Older data (and dates edited before the law's end was known): see fixRedemptionRows. */
 export function clearEarlyRedemptionEnds(now: Date = new Date()) {
   for (const d of loadDeals()) {
@@ -389,7 +409,7 @@ export const redemptionEnd = (d: Pick<Deal, 'kind' | 'state'> & { id?: string; p
 /** A certificate-first deal's redemption end (typed or worked out) when it is already past, else ''. */
 const endedOn = (d: Pick<Deal, 'kind'> & { plan?: Deal['plan']; state?: Deal['state']; id?: string }) => { if (!d.id) return ''; const e = redemptionEnd({ ...d, state: d.state ?? 'NV' }, loadPacket(`analyzed:${d.id}`)); return e && e < dayOf(d, new Date()) ? e : ''; };
 /** A deal's dated "Challenge window ends" row. */
-const windowEndOf = (d: { id?: string }) => (d.id ? loadPacket(`analyzed:${d.id}`).dates.find((x) => sameDate(x.what, 'Challenge window ends') && x.when)?.when ?? '' : '');
+const windowEndOf = (d: { id?: string; state?: Deal['state']; kind?: Deal['kind'] }) => (d.id ? (d.kind ? withEffectiveWindows({ state: d.state, kind: d.kind }, loadPacket(`analyzed:${d.id}`)) : loadPacket(`analyzed:${d.id}`)).dates.find((x) => sameDate(x.what, 'Challenge window ends') && x.when)?.when ?? '' : '');
 /** A Nevada tax sale's answer from the Treasurer that the sale stands, after an SID payoff dated past its 20 days. */
 export const SID_STANDS_ROW = 'Treasurer confirmed the sale stands';
 /** …or that the sale is void (the payoff wasn't made within 20 days). */
@@ -943,6 +963,7 @@ function task(t: Omit<PlanTask, 'text' | 'support'> & { support?: Support[]; tex
  * never done: it's the event that moves the deal on.
  */
 export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date(), log: EvidenceLog = loadLog(`analyzed:${d.id}`), owned: Record<string, Owned> = loadOwned()): PlanTask[] {
+  p = withEffectiveWindows(d, p);
   p = fillSealedDay(d, p);
   // (A step link names this property, so the roadmap opens on it.)
   const stepHref = (id: string) => stepHrefFor(id, d.id);
@@ -1262,6 +1283,7 @@ export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.i
   return stage === 'contract' && certificateFirst(d) && paidIn(p, d) && !redeemedIn(p) && !handled(p, 'Redemption period ends', now, d) && !t.advance2 && !t.done ? { ...t, advance2: redeemButton(d, redeemLabel(d, p, now)) } : t;
 }
 function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanTask {
+  p = withEffectiveWindows(d, p);
   // A certificate-first win left at Won, paid, after its redemption period ended: whether anyone redeemed comes first,
   // as at Certificate of sale recorded.
   if (stage === 'contract' && wayOf(d) !== 'offer' && certificateFirst(d) && paidIn(p, d) && !redeemedIn(p)) {

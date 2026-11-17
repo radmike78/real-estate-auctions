@@ -2394,4 +2394,18 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const tx: Deal = { ...tr, id: 'x103', kind: 'taxSale' };
     expect(windowMarkWait(tx, { ...EMPTY_PACKET, dates: [{ when: '2026-06-20', what: 'Treasurer’s deed recorded', who: 'T', resolved: true }] }, 'Recovery-suit window ends', now)).toBe('2028-06-20');
   });
+
+  it('round 104: a challenge window typed earlier than the law’s end is read at the law’s end everywhere', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const tr: Deal = { ...deal, id: 'c104', name: '8 Fir', state: 'NV', county: 'Washoe', kind: 'trustee', plan: 'flip', stage: 'closed' };
+    saveDeals([tr]);
+    const now = new Date('2026-12-12T20:00:00Z');
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'Trustee', resolved: true }, { when: '2026-11-17', what: 'Deed recorded', who: 'County', resolved: true }, { when: '2026-12-10', what: 'Challenge window ends', who: 'Me' }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    const dates = packetSections(tr, p, now).find((x) => x.key === 'dates')!;
+    expect(dates.lines.join(' ')).toMatch(/Dec 17, 2026: Challenge window ends \(the date you entered, Dec 10, 2026, is earlier than the law allows/);
+    expect(dates.lines.join(' ')).not.toMatch(/ended 2 days ago/);
+    const reps = stageTasks(tr, 'closed', p, now).find((t) => t.key === 'repairs');
+    if (reps) expect(reps.label).not.toMatch(/Dec 10/);
+  });
 });
