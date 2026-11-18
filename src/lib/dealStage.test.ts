@@ -2725,4 +2725,49 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${tr.id}`, p);
     expect(dealNextTask(tr, p, now, 'owned').label).toMatch(/Registration of my LLC/);
   });
+  it('round 110 verifier: one rule says which renamed rows are the sale’s registration, closing and SID payoff', async () => {
+    const { sameDate, registrationRow, calendarRows } = await import('./dealPacket');
+    const { officialRow } = await import('./dealStage');
+    for (const n of ['Registration deadline', 'Bidder registration due Nov 21', 'Bidder registration closes Nov 23', 'Bidder registration online', 'Bidder registration and $5,000 deposit', 'Bidder registration with the trustee', 'Registration, Nov 21']) expect([n, registrationRow(n), sameDate(n, 'Registration')]).toEqual([n, true, true]);
+    for (const n of ['Registration of my LLC', 'Registration for my LLC']) expect([n, registrationRow(n)]).toEqual([n, false]);
+    for (const n of ['Closing scheduled with escrow', 'Closing, Dec 3', 'Closing with First American', 'Closing - title company']) expect([n, sameDate(n, 'Closing')]).toEqual([n, true]);
+    for (const n of ['Closing costs: ask the title company', 'Closing statement: send to my CPA', 'Closing Disclosure received']) expect([n, sameDate(n, 'Closing')]).toEqual([n, false]);
+    const tax: Deal = { ...deal, id: 'v110s', name: '4 Oak', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    expect(officialRow(tax, 'SID certificate payoff deadline')).toBe(true);
+    expect(officialRow(tax, 'SID certificate payoff to the City of Henderson')).toBe(true);
+    expect(officialRow(tax, 'Registration deadline')).toBe(true);
+    expect(officialRow(tax, 'Registration of my LLC')).toBe(false);
+    const now = new Date('2026-11-20T20:00:00Z');
+    saveDeals([tax]);
+    // (V110-1) A renamed SID payoff row at Won still leads: missing it voids the sale.
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-15', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-16', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '', what: 'Treasurer’s deed recorded', who: 'Treasurer' }, { when: '', what: 'Recovery-suit window ends', who: 'Me' }, { when: '2026-11-25', what: 'SID certificate payoff deadline', who: 'Me' }] };
+    savePacket(`analyzed:${tax.id}`, p);
+    expect(dealNextTask(tax, p, now, 'contract').label).toMatch(/SID/);
+    // (V110-2) A renamed registration row tomorrow leads the sale 4 days out.
+    const tr: Deal = { ...deal, id: 'v110r', name: '5 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'researching' };
+    saveDeals([tr]);
+    const q = { ...EMPTY_PACKET, dates: [{ when: '2026-11-21', what: 'Registration deadline', who: 'Trustee' }, { when: '2026-11-24', what: 'Sale day', who: 'Trustee' }, { when: '2026-11-24', what: 'Payment deadline', who: 'Me' }] };
+    savePacket(`analyzed:${tr.id}`, q);
+    expect(dealNextTask(tr, q, now, 'researching').label).toMatch(/Registration deadline/);
+    // (V110-3) After a win, a renamed registration row is behind you, in the reminders and the calendar alike.
+    const won = { ...EMPTY_PACKET, dates: [{ when: '2026-11-14', what: 'Bidder registration online', who: 'Trustee' }, { when: '2026-11-15', what: 'Sale day', who: 'Trustee', resolved: true }, { when: '2026-11-15', what: 'Payment deadline', who: 'Me', resolved: true }] };
+    saveDeals([{ ...tr, stage: 'contract' }]);
+    savePacket(`analyzed:${tr.id}`, won);
+    expect(dealNextTask({ ...tr, stage: 'contract' }, won, now, 'contract').label).not.toMatch(/registration/i);
+    expect(calendarRows(won, 'contract').some((x) => /registration/i.test(x.what))).toBe(false);
+    // (V110-4) After closing, a renamed, unticked closing row is behind you.
+    const re: Deal = { ...deal, id: 'v110c', name: '6 Oak', state: 'NV', county: 'Clark', kind: 'reo', plan: 'flip', stage: 'closed' };
+    saveDeals([re]);
+    const c = { ...EMPTY_PACKET, dates: [{ when: '2026-10-20', what: 'Offer accepted (Day 0)', who: 'Me', resolved: true }, { when: '2026-11-13', what: 'Closing scheduled with escrow', who: 'Escrow' }] };
+    savePacket(`analyzed:${re.id}`, c);
+    expect(dealNextTask(re, c, now, 'closed').label).not.toMatch(/Closing scheduled/);
+    // (V110-5) The reader's own LLC reminder doesn't get the registration button.
+    const llc = { ...EMPTY_PACKET, dates: [{ when: '2026-06-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-06-01', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-06-10', what: 'Deed recorded', who: 'C', resolved: true }, { when: '2026-07-10', what: 'Challenge window ends', who: 'Me', resolved: true }, { when: '2026-11-15', what: 'Registration of my LLC', who: 'Me' }] };
+    const ow = { ...tr, stage: 'owned' as const };
+    saveDeals([ow]);
+    savePacket(`analyzed:${tr.id}`, llc);
+    const t = dealNextTask(ow, llc, now, 'owned');
+    expect(t.label).toMatch(/Registration of my LLC/);
+    expect(JSON.stringify(t)).not.toMatch(/I registered/);
+  });
 });
