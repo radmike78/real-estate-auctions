@@ -2885,6 +2885,9 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(em === '' || suggestedDates(li).includes(em)).toBe(true);
     expect(eventFor(li, 'EMD due Nov 3')).toBe(suggestedDates(li).find((n) => /^earnest money/i.test(n)) ?? '');
     expect(eventFor(li, 'COE Dec 5')).toBe(suggestedDates(li).find((n) => /^closing/i.test(n)) ?? '');
+    expect(eventFor(tr, 'Registration deadline')).toBe(suggestedDates(tr).find((n) => /registration/i.test(n)) ?? '');
+    const tx = { state: 'NV' as const, kind: 'taxSale' as const };
+    expect(eventFor(tx, 'Deed recorded')).toBe(suggestedDates(tx).find((n) => /deed recorded/i.test(n)) ?? '');
   });
   it('round 112 content: at Owned, a Nevada trustee buy’s passed worked-out challenge window leads a reader’s reminder', async () => {
     const now = new Date('2026-11-20T20:00:00Z');

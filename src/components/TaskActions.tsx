@@ -28,10 +28,15 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
           const el = e.currentTarget;
           edit((p) => {
             // (The row the reminder named, exactly; else the first open row of that kind.)
-            const exact = p.dates.findIndex((x) => x.what === tick.row && !x.resolved);
-            const i = exact >= 0 ? exact : p.dates.findIndex((x) => sameDate(x, tick.row) && !x.resolved);
+            // (The site's own row first; a reader's own row of the same name only when there's no site row.)
+            const named = (x: PacketData['dates'][number]) => x.what === tick.row && !x.resolved;
+            const own = (x: PacketData['dates'][number]) => !!x.own && !x.as;
+            const exact = p.dates.findIndex((x) => named(x) && (tick.asIs || !own(x)));
+            const kind = exact >= 0 ? -1 : p.dates.findIndex((x) => sameDate(x, tick.row) && !x.resolved);
+            const i = exact >= 0 ? exact : kind >= 0 ? kind : p.dates.findIndex((x) => named(x));
+            const adopt = !tick.asIs && adopts(dealId, tick.row);
             // (An event with no date yet, such as the payoff, is dated today.)
-            const rows = i < 0 ? (p.dates.some((x) => sameDate(x, tick.row)) ? p.dates : [...p.dates, { what: tick.row, when: tick.when ?? (tick.noDate ? '' : todayFor(dealId)), who: tick.who ?? '', resolved: true }]) : p.dates.map((x, j) => (j === i ? { ...x, ...(x.own && !x.as && adopts(dealId, tick.row) ? { as: tick.row } : {}), resolved: true, when: tick.setWhen || x.when || tick.when || (tick.noDate ? '' : todayFor(dealId)), who: x.who || tick.who || '' } : x));
+            const rows = i < 0 ? (p.dates.some((x) => sameDate(x, tick.row)) ? p.dates : [...p.dates, { what: tick.row, when: tick.when ?? (tick.noDate ? '' : todayFor(dealId)), who: tick.who ?? '', resolved: true }]) : p.dates.map((x, j) => (j === i || (adopt && j !== i && own(x) && named(x)) ? { ...x, ...(own(x) && adopt ? { as: tick.row } : {}), resolved: true, when: tick.setWhen || x.when || tick.when || (tick.noDate ? '' : todayFor(dealId)), who: x.who || tick.who || '' } : x));
             const kept = tick.drops ? rows.filter((x) => !(sameDate(x, tick.drops!) && !x.when)) : rows;
             return { ...p, dates: tick.closes ? kept.map((x) => (sameDate(x, tick.closes!) ? { ...x, resolved: true } : x)) : kept };
           });
