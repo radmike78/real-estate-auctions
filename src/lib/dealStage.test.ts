@@ -2653,4 +2653,19 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${hoa.id}`, r);
     expect(dealNextTask(hoa, r, now, 'closed').label).not.toMatch(/contractor bids/);
   });
+
+  it('round 109 clarity: the overdue-answer rule only uses rows the stage still reminds about; a redemption payoff leads a reader’s date', async () => {
+    const { REDEEMED_ROW } = await import('./dealStage');
+    const now = new Date('2026-11-20T20:00:00Z');
+    const tr: Deal = { ...deal, id: 'g109', name: '5 Ash', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'owned' };
+    saveDeals([tr]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-06-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-06-02', what: 'Payment deadline', who: 'Me' }, { when: '2026-06-10', what: 'Deed recorded', who: 'C', resolved: true }, { when: '2026-07-10', what: 'Challenge window ends', who: 'Me', resolved: true }, { when: '2026-11-23', what: 'Get contractor bids', who: 'Me' }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    expect(dealNextTask(tr, p, now, 'owned').label).not.toMatch(/Payment deadline/);
+    const hoa: Deal = { ...tr, id: 'r109', kind: 'hoa', stage: 'closed' };
+    saveDeals([hoa]);
+    const q = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-10', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-09-12', what: 'Certificate of sale recorded', who: 'C', resolved: true }, { when: '2026-11-09', what: 'Redemption period ends', who: 'HOA' }, { when: '', what: REDEEMED_ROW, who: 'HOA' }, { when: '2026-11-23', what: 'Get contractor bids', who: 'Me' }] };
+    savePacket(`analyzed:${hoa.id}`, q);
+    expect(dealNextTask(hoa, q, now, 'closed').label).toMatch(/^Collect the redemption money/);
+  });
 });

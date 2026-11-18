@@ -1357,7 +1357,8 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     // (On or after sale day, the sale day leads: registration is behind it.)
     const saleToday = d.state === 'NV' ? nvParts(now).day : dayOf(d, now);
     const saleNow = early && p.dates.some((x) => sameDate(x.what, 'Sale day') && x.when && x.when <= saleToday);
-    let nd = nextDate(remindable(capSid(withEffectiveEnd(d, p), d), now, early, [...(stage === 'contract' && taxPayState(d, p, now).state ? ['Payment deadline', 'SID certificate payoff'] : []), ...behindStage(d, stage), ...notYet(d, stage, p, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT, ...(saleNow ? ['Bidder registration', 'Registration', SEALED_ROW] : [])], saleToday), now, d);
+    const remP = remindable(capSid(withEffectiveEnd(d, p), d), now, early, [...(stage === 'contract' && taxPayState(d, p, now).state ? ['Payment deadline', 'SID certificate payoff'] : []), ...behindStage(d, stage), ...notYet(d, stage, p, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT, ...(saleNow ? ['Bidder registration', 'Registration', SEALED_ROW] : [])], saleToday);
+    let nd = nextDate(remP, now, d);
     nd = contingencyFirst(nd, p, now, stage, d.kind, d.state);
     // A Nevada tax sale's open SID payoff comes before the deed's recording: the Treasurer can't issue the deed until it's
     // paid (NRS 361.595(6)), and missing it voids the sale.
@@ -1365,7 +1366,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     // (A date the reader added, not one of this sale's own, never hides a legal answer that's due: an unanswered
     //  redemption end, payment or SID payoff that has passed comes first.)
     if (nd && !officialRow(d, nd.what)) {
-      const due = p.dates.filter((x) => x.when && !x.resolved && x.when < saleToday && ['Redemption period ends', 'Payment deadline', 'SID certificate payoff'].some((n) => sameDate(x.what, n))).sort((a, b) => a.when.localeCompare(b.when))[0];
+      const due = redeemedIn(p) ? undefined : remP.dates.filter((x) => x.when && !x.resolved && x.when < saleToday && ['Redemption period ends', 'Payment deadline', 'SID certificate payoff'].some((n) => sameDate(x.what, n))).sort((a, b) => a.when.localeCompare(b.when))[0];
       if (due) nd = { ...due, days: -Math.round((Date.parse(`${saleToday}T12:00:00Z`) - Date.parse(`${due.when}T12:00:00Z`)) / 864e5) } as typeof nd;
     }
     // A Nevada SID lien's payment deadline counts Nevada days (its 10 a.m. cutoff is Nevada time), wherever the reader is.
@@ -1501,8 +1502,8 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const sidAhead = recRow && stage === 'contract' && d.state === 'NV' && d.kind === 'taxSale' && paidIn(p, d) && sidState(d) !== 'void' && sidUnasked(d);
     // (At Won, a typed window end has no recorded deed to count from yet: no window question until there is one.)
     const winEarly = !!nd && (sameDate(nd.what, 'Challenge window ends') || sameDate(nd.what, 'Recovery-suit window ends')) && windowBeforeDeed(d, p, stage);
-    // (A date the reader added doesn't lead an unpaid win, or a paid Nevada tax sale's open SID question.)
-    const customLead = !!nd && !officialRow(d, nd.what) && ((stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || (d.state === 'NV' && d.kind === 'taxSale' && ['contract', 'closed', 'owned'].includes(stage) && paidIn(p, d) && sidState(d) !== 'void' && sidUnasked(d)));
+    // (A date the reader added doesn't lead an unpaid win, a paid Nevada tax sale's open SID question, or collecting a redemption.)
+    const customLead = !!nd && !officialRow(d, nd.what) && ((certificateFirst(d) && redeemedIn(p)) || (stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || (d.state === 'NV' && d.kind === 'taxSale' && ['contract', 'closed', 'owned'].includes(stage) && paidIn(p, d) && sidState(d) !== 'void' && sidUnasked(d)));
     const payFirst = customLead || (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly;
     if (nd && !bidPrep && !payFirst && (nd.days <= 7 || (stage === 'contract' && sameDate(nd.what, 'SID certificate payoff')))) {
       const ended = nd.days < 0 ? windowEnded(nd.what, -nd.days, d.kind) : null;
