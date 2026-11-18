@@ -2582,4 +2582,15 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(t.tick?.label ?? '').not.toMatch(/no suit/);
     expect(windowTickWait(tr, { ...p, dates: [...p.dates, { when: '2026-12-25', what: 'Challenge window ends', who: '' }] }, 'Challenge window ends', now)).toBe('no-deed');
   });
+
+  it('round 107 clarity: My plan dates no window or repairs from an expected deed date', async () => {
+    const now = new Date('2026-11-20T20:00:00Z');
+    const tr: Deal = { ...deal, id: 'm107', name: '6 Elm', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'closed' };
+    saveDeals([tr]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-25', what: 'Deed recorded', who: 'County' }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    const tasks = stageTasks(tr, 'closed', p, now);
+    expect(tasks.map((t) => t.label).join(' | ')).not.toMatch(/Dec 25, 2026/);
+    expect(tasks.find((t) => t.key === 'window')?.label).toMatch(/^Put the challenge window’s end on 6 Elm’s calendar/);
+  });
 });
