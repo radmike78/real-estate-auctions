@@ -36,15 +36,19 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
             const self = tick.asIs && tick.at !== undefined ? p.dates.findIndex((x) => named(x) && x.when === tick.at && !!x.own === !!tick.ownRow) : -1;
             // (Every open row that counts as this date — the site's, and a reader's that counts as it — a dated one first.)
             const counts = (x: PacketData['dates'][number]) => !x.resolved && ((named(x) && !own(x)) || (!!x.own && !!x.as && (x.as.trim().toLowerCase() === tick.row.trim().toLowerCase() || sameDate(x, tick.row))));
-            const dated = p.dates.findIndex((x) => counts(x) && !!x.when);
+            /* (the row the step names: the earliest dated one) */ const dated = p.dates.reduce((b, x, k) => (counts(x) && !!x.when && (b < 0 || x.when < p.dates[b].when) ? k : b), -1);
             const exact = self >= 0 ? self : tick.asIs ? p.dates.findIndex(named) : dated >= 0 ? dated : p.dates.findIndex(counts);
             const kind = exact >= 0 ? -1 : p.dates.findIndex((x) => sameDate(x, tick.row) && !x.resolved);
             const i = exact >= 0 ? exact : kind >= 0 ? kind : p.dates.findIndex((x) => named(x) && (tick.asIs || !mine(x)));
             const adopt = !tick.asIs && adopts(dealId, tick.row);
+            // (A twin on another past date is a different answer: left open, not ticked on its own date. A second SID
+            //  payoff to a different payee is a different payment.)
+            const otherPast = (x: PacketData['dates'][number]) => exact >= 0 && !!x.when && x.when <= todayFor(dealId) && !!p.dates[exact].when && x.when !== p.dates[exact].when;
+            const otherPayee = (x: PacketData['dates'][number]) => exact >= 0 && sameDate(tick.row, 'SID certificate payoff') && !!x.who.trim() && !!p.dates[exact].who.trim() && x.who.trim().toLowerCase() !== p.dates[exact].who.trim().toLowerCase();
             // (A recording or deed date after today becomes today: it's recorded now. Blank twins take the same day.)
             const whenOf = (x: PacketData['dates'][number]) => tick.setWhen || (x.when && x.when > todayFor(dealId) && [...RECORDED_ROWS, DEED_AFTER_WAIT].some((r) => sameDate(x, r)) ? todayFor(dealId) : '') || x.when;
             // (An event with no date yet, such as the payoff, is dated today.)
-            const rows = i < 0 ? (p.dates.some((x) => sameDate(x, tick.row)) ? p.dates : [...p.dates, { what: tick.row, when: tick.when ?? (tick.noDate ? '' : todayFor(dealId)), who: tick.who ?? '', resolved: true }]) : p.dates.map((x, j) => (j === i || (!tick.asIs && exact >= 0 && counts(x)) || (adopt && j !== i && own(x) && !mine(x) && named(x)) ? { ...x, ...(own(x) && !mine(x) && adopt ? { as: tick.row } : {}), resolved: true, when: (j !== i && (!x.when || x.when > todayFor(dealId)) ? whenOf(p.dates[i]) : whenOf(x)) || tick.when || (tick.noDate ? '' : todayFor(dealId)), who: x.who || tick.who || '' } : x));
+            const rows = i < 0 ? (p.dates.some((x) => sameDate(x, tick.row)) ? p.dates : [...p.dates, { what: tick.row, when: tick.when ?? (tick.noDate ? '' : todayFor(dealId)), who: tick.who ?? '', resolved: true }]) : p.dates.map((x, j) => (j === i || (!tick.asIs && exact >= 0 && counts(x) && !otherPast(x) && !otherPayee(x)) || (adopt && j !== i && own(x) && !mine(x) && named(x)) ? { ...x, ...(own(x) && !mine(x) && adopt ? { as: tick.row } : {}), resolved: true, when: (j !== i && (!x.when || x.when > todayFor(dealId)) ? whenOf(p.dates[i]) : whenOf(x)) || tick.when || (tick.noDate ? '' : todayFor(dealId)), who: x.who || tick.who || '' } : x));
             const kept = tick.drops ? rows.filter((x) => !(sameDate(x, tick.drops!) && !x.when)) : rows;
             return { ...p, dates: tick.closes ? kept.map((x) => (sameDate(x, tick.closes!) ? { ...x, resolved: true } : x)) : kept };
           });
