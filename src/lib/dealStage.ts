@@ -180,6 +180,8 @@ export function deedDateMissing(d: Deal, p: PacketData, stage: DealStage = stage
 }
 /** No date to count a Nevada window from: the deed's recording date is missing while its window is unanswered. */
 export const noDeedDate = (d: Deal, p: PacketData, stage: DealStage = stageOf(d)): boolean => !!deedDateMissing(d, p, stage) && !deedRecordedOn(p, d.kind === 'trustee');
+/** One of this sale's own dates (its usual dates and the ones the site adds), not one the reader added. */
+export const officialRow = (d: Pick<Deal, 'kind' | 'state'>, what: string): boolean => [...suggestedDates(d), ...RECORDED_ROWS, 'Payment deadline', 'SID certificate payoff', 'Redemption period ends', 'Challenge window ends', 'Recovery-suit window ends', DEED_AFTER_WAIT, 'Sale day', SEALED_ROW].some((n) => sameDate(what, n));
 /** Before the deed stage (at Won), a Nevada trustee or tax deal with no ticked, dated recording: a window has nothing to count from. */
 export const windowBeforeDeed = (d: Deal, p: PacketData, stage: DealStage = stageOf(d)): boolean => d.state === 'NV' && (d.kind === 'trustee' || d.kind === 'taxSale') && ['researching', 'offer', 'contract'].includes(stage) && !p.dates.some((x) => x.when && x.resolved && DEED_ROWS[d.kind === 'trustee' ? 'trustee' : 'tax'].some((r) => sameDate(x.what, r)));
 /** Whether a window row's tick must wait (as windowMarkWait), and 'no-deed' while there's no deed date to count from. */
@@ -550,7 +552,7 @@ export const deedOnRecord = (p: PacketData, now: Date = new Date()) => p.dates.s
 /** A recording row ticked, dated today or earlier (or undated): a date that hasn't come yet isn't recorded. */
 const recordedOn = (p: PacketData, now: Date = new Date(), d?: { state?: Deal['state'] }) => p.dates.some((x) => !!x.resolved && (!x.when || x.when <= (d ? dayOf(d, now) : readerDay(now))) && RECORDED_ROWS.some((r) => sameDate(x.what, r)));
 const sidPayDue = (p: PacketData, now: Date) => { const dl = sidDeadline(p); const r = p.dates.find((x) => sameDate(x.what, 'SID certificate payoff') && !!x.when && !x.resolved); return dl && r && dl >= nvParts(now).day ? { dl, row: r.what } : null; };
-const sidUnasked = (d: { id?: string }) => { if (!d.id) return false; const p = loadPacket(`analyzed:${d.id}`); return !!sidDeadline(p) && !deedOnRecord(p) && !p.dates.some((x) => (sameDate(x.what, 'SID certificate payoff') && x.resolved) || sameDate(x.what, NO_SID_ROW) || sameDate(x.what, SID_VOID_ROW)); };
+export const sidUnasked = (d: { id?: string }) => { if (!d.id) return false; const p = loadPacket(`analyzed:${d.id}`); return !!sidDeadline(p) && !deedOnRecord(p) && !p.dates.some((x) => (sameDate(x.what, 'SID certificate payoff') && x.resolved) || sameDate(x.what, NO_SID_ROW) || sameDate(x.what, SID_VOID_ROW)); };
 /** A Nevada tax-sale win not yet paid whose open payment date falls on or after the 20-day SID deadline: the SID question
  * can't wait for the payment (NRS 361.595(6) counts from the sale). '' otherwise. */
 export const sidBeforePay = (d: { id?: string; state?: Deal['state']; kind: Deal['kind'] }, p: PacketData, now: Date = new Date()): string => {
@@ -1360,6 +1362,12 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     // A Nevada tax sale's open SID payoff comes before the deed's recording: the Treasurer can't issue the deed until it's
     // paid (NRS 361.595(6)), and missing it voids the sale.
     nd = sidFirst(nd, p, d, now);
+    // (A date the reader added, not one of this sale's own, never hides a legal answer that's due: an unanswered
+    //  redemption end, payment or SID payoff that has passed comes first.)
+    if (nd && !officialRow(d, nd.what)) {
+      const due = p.dates.filter((x) => x.when && !x.resolved && x.when < saleToday && ['Redemption period ends', 'Payment deadline', 'SID certificate payoff'].some((n) => sameDate(x.what, n))).sort((a, b) => a.when.localeCompare(b.when))[0];
+      if (due) nd = { ...due, days: -Math.round((Date.parse(`${saleToday}T12:00:00Z`) - Date.parse(`${due.when}T12:00:00Z`)) / 864e5) } as typeof nd;
+    }
     // A Nevada SID lien's payment deadline counts Nevada days (its 10 a.m. cutoff is Nevada time), wherever the reader is.
     // (Every Nevada date counts in Nevada's day: a redemption or challenge window ends at Nevada's midnight, wherever the reader is.)
     if (nd && d.state === 'NV' && nd.when) nd = { ...nd, days: Math.round((Date.parse(`${nd.when}T12:00:00Z`) - Date.parse(`${nvParts(now).day}T12:00:00Z`)) / 86400000) };
@@ -1493,7 +1501,9 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const sidAhead = recRow && stage === 'contract' && d.state === 'NV' && d.kind === 'taxSale' && paidIn(p, d) && sidState(d) !== 'void' && sidUnasked(d);
     // (At Won, a typed window end has no recorded deed to count from yet: no window question until there is one.)
     const winEarly = !!nd && (sameDate(nd.what, 'Challenge window ends') || sameDate(nd.what, 'Recovery-suit window ends')) && windowBeforeDeed(d, p, stage);
-    const payFirst = (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly;
+    // (A date the reader added doesn't lead an unpaid win, or a paid Nevada tax sale's open SID question.)
+    const customLead = !!nd && !officialRow(d, nd.what) && ((stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || (d.state === 'NV' && d.kind === 'taxSale' && ['contract', 'closed', 'owned'].includes(stage) && paidIn(p, d) && sidState(d) !== 'void' && sidUnasked(d)));
+    const payFirst = customLead || (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly;
     if (nd && !bidPrep && !payFirst && (nd.days <= 7 || (stage === 'contract' && sameDate(nd.what, 'SID certificate payoff')))) {
       const ended = nd.days < 0 ? windowEnded(nd.what, -nd.days, d.kind) : null;
       const late90Ahead = ended && d.state === 'NV' && d.kind === 'trustee' && sameDate(nd.what, 'Challenge window ends') ? challenge90Ahead(p, now) : '';
