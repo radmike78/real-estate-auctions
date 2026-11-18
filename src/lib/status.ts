@@ -76,7 +76,7 @@ export const STATUS: Record<AcquisitionStatus, StatusInfo> = {
 function deedStep(saleType: SaleType | undefined): string {
   switch (saleType) {
     case 'TAX_DEED':
-      return 'The Treasurer records the quitclaim deed (usually within 30 days) and mails it to you.';
+      return 'In Clark County, the Treasurer records the quitclaim deed within 30 days and mails it to you (Clark County Treasurer FAQ).';
     case 'TRUSTEE_SALE':
       return 'In Nevada, the trustee records the trustee’s deed within 30 days, or gives it to you within 20 days for you to record within 10 (NRS 107.080).';
     case 'HOA_FORECLOSURE':

@@ -2626,5 +2626,9 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${tr.id}`, q);
     expect(windowTickWait(tr, q, 'Challenge window ends', now)).toBe('no-deed');
     expect(dealNextTask(tr, q, now, 'contract').label).not.toMatch(/challenge window ended/i);
+    const { packetSections } = await import('./dealPacket');
+    const ql = packetSections({ ...tr, stage: 'contract' }, q, now).find((x) => x.key === 'dates')!.lines;
+    expect(ql).toContain('Next: once the deed is recorded, the window’s end is worked out from its recording date.');
+    expect(ql.join(' ')).not.toMatch(/window ended/);
   });
 });
