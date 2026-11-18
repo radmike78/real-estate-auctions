@@ -142,13 +142,13 @@ const LATER = ['Redemption money collected', 'Challenge window ends', 'Recovery-
  *  counted from a later event (they can wait for it). */
 /** An open row that is a copy of a date already handled on the same day (the reader added it again): it's done too. */
 export const handledCopy = (p: PacketData, x: PacketDate): boolean => {
-  if (x.resolved || !x.when) return false;
+  if (x.resolved || (!x.when && !x.own)) return false;
   // (Only rows that count as one of the sale's dates, by their full name: a reader's own reminder is never a copy.)
   const nb = (w: string) => curly(w.trim().replace(/\s+/g, ' ').toLowerCase());
   const key = (r: PacketDate) => (r.own ? '' : r.what);
   // (An SID payoff is never a copy: a parcel can owe two, to different districts, due the same day.)
   // (A reader's reminder that repeats a handled site row exactly, same name and day, is a duplicate reminder.)
-  if (x.own) return p.dates.some((y) => y !== x && !y.own && !!y.resolved && y.when === x.when && nb(y.what) === nb(x.what));
+  if (x.own) return p.dates.some((y) => y !== x && !y.own && !!y.resolved && nb(y.what) === nb(x.what));
   if (!key(x) || sameDate(key(x), 'SID certificate payoff')) return false;
   return p.dates.some((y) => y !== x && !!y.resolved && y.when === x.when && !!key(y) && nb(key(x)) === nb(key(y)));
 };
@@ -579,7 +579,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
 export function missingUsualDates(deal: Deal, p: PacketData): string[] {
   const behind = wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? [] : behindStage(deal, finishedDeal(deal) ? 'closed' : stageOf(deal));
   const redeemed = p.dates.some((x) => sameDate(x, REDEEMED_ROW));
-  return p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x, w)) && (!behind.some((b) => sameDate(w, b)) || (wayOf(deal) !== 'offer' && sameDate(w, 'Sale day'))) && !(redeemed && sameDate(w, DEED_AFTER_WAIT)) && !(sidState(deal) === 'void' && (RECORDED_ROWS.some((r) => sameDate(w, r)) || sameDate(w, 'Recovery-suit window ends') || sameDate(w, 'SID certificate payoff'))) && !(sameDate(w, 'SID certificate payoff') && p.dates.some((x) => sameDate(x, NO_SID_ROW)))) : [];
+  return p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x, w)) && (!behind.some((b) => sameDate(w, b)) || (wayOf(deal) !== 'offer' && (sameDate(w, 'Sale day') || RECORDED_ROWS.some((r) => sameDate(w, r)) || sameDate(w, DEED_AFTER_WAIT)))) && !(redeemed && sameDate(w, DEED_AFTER_WAIT)) && !(sidState(deal) === 'void' && (RECORDED_ROWS.some((r) => sameDate(w, r)) || sameDate(w, 'Recovery-suit window ends') || sameDate(w, 'SID certificate payoff'))) && !(sameDate(w, 'SID certificate payoff') && p.dates.some((x) => sameDate(x, NO_SID_ROW)))) : [];
 }
 
 export function suggestedDates(d: Pick<Deal, 'kind' | 'state'>): string[] {

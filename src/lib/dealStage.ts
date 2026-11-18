@@ -1485,7 +1485,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     // answer until it's fixed in Key dates (fixRedemptionRows corrects it there).
     // A closing dated before the contract (or, for a short sale, before the lender's approval): a date to fix, not a closing.
     if (nd && stage === 'contract' && wayOf(d) === 'offer' && sameEvent(nd, 'Closing') && nd.when) {
-      const before = p.dates.find((y) => /^(Offer accepted|Acceptance|Contract signed)/i.test(y.what) && y.when && nd.when < y.when) ?? (d.kind === 'short' ? p.dates.find((y) => sameDate(y, 'Approval notice received') && y.when && nd.when < y.when) : undefined);
+      const before = p.dates.find((y) => (!y.own && /^(Offer accepted|Acceptance|Contract signed)/i.test(y.what)) && y.when && nd.when < y.when) ?? (d.kind === 'short' ? p.dates.find((y) => sameDate(y, 'Approval notice received') && y.when && nd.when < y.when) : undefined);
       if (before) {
         const n = d.name || 'this property';
         const text = `The closing date for ${n} (${prettyDay(nd.when)}) is before ${sameDate(before, 'Approval notice received') ? 'the lender’s approval' : 'the contract date'} (${prettyDay(before.when)}): check both dates with your agent or escrow and fix them in Key dates.`;
@@ -1595,7 +1595,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
       const redeemable = (stage === 'closed' || (stage === 'owned' && !!beforeDeed(d))) && certificateFirst(d) && (sameDate(nd, 'Redemption period ends') || (sameDate(nd, DEED_AFTER_WAIT) && !handled(p, 'Redemption period ends', now, d)));
       // The stage's own event (the deed recorded, the closing): its "mark it" button comes with the reminder.
       // (A closing dated before the contract is a typing mistake to fix in Key dates, not a closing to mark.)
-      const contractOn = p.dates.find((y) => /^(Offer accepted|Acceptance|Contract signed)/i.test(y.what) && y.when)?.when;
+      const contractOn = p.dates.find((y) => (!y.own && /^(Offer accepted|Acceptance|Contract signed)/i.test(y.what)) && y.when)?.when;
       const own = stage === 'contract' && (RECORDED_ROWS.some((r) => sameEvent(nd, r)) || (sameEvent(nd, 'Closing') && nd.days <= 0 && !(contractOn && nd.when < contractOn))) ? stageTasks(d, stage, p, now).find((t) => t.advance)?.advance : undefined;
       // CODE-5: the sale day (or the day the offer is accepted) itself: its answer buttons come with the reminder.
       const today = (stage === 'offer' || stage === 'researching') && nd.days === 0 && (wayOf(d) === 'offer' ? ['Offer accepted', 'Acceptance'] : ['Sale day']).some((n) => sameEvent(nd, n));
