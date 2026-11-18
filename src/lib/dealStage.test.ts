@@ -2556,4 +2556,17 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(lines.some((t) => /^Still to add: “Deed recorded”, expected Nov 25, 2026/.test(t))).toBe(true);
     expect(stageTasks(tr, 'closed', p, now).find((t) => t.key === 'deed-date')?.label).toMatch(/once it’s recorded \(expected Nov 25, 2026\)/);
   });
+
+  it('round 106 clarity: an expected deed date still ahead drives no window', async () => {
+    const { lawWindowEnd, windowMarkWait, deedRecordedOn } = await import('./dealStage');
+    const now = new Date('2026-11-20T20:00:00Z');
+    const tr: Deal = { ...deal, id: 'e106', name: '5 Elm', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'closed' };
+    saveDeals([tr]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-25', what: 'Deed recorded', who: 'County' }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    expect(deedRecordedOn(p, true, now)).toBeUndefined();
+    expect(lawWindowEnd(tr, p, 'Challenge window ends', now)).toBe('');
+    expect(windowMarkWait(tr, p, 'Challenge window ends', now)).toBe('no-deed');
+    expect(deedRecordedOn(p, true, new Date('2026-11-26T20:00:00Z'))).toBe('2026-11-25');
+  });
 });
