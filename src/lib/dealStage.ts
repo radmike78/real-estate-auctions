@@ -1226,7 +1226,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
     const withRedeem = (t: PlanTask): PlanTask => (waiting && !t.advance2 ? { ...t, advance2: redeemButton(d, redeemLabel(d, p, now)) } : t);
     // (A Nevada trustee or tax deed with no recorded date: its window is counted from it, so that date comes first.)
     const deedMiss = deedDateMissing(d as Deal, p, stage);
-    const deedRow = deedMiss ? p.dates.find((x) => DEED_ROWS[deedMiss].some((r) => sameDate(x, r))) : undefined;
+    const deedRows = deedMiss ? p.dates.filter((x) => DEED_ROWS[deedMiss].some((r) => sameDate(x, r))) : [];
+    const deedRow = deedRows.find((x) => x.when) ?? deedRows[0];
     if (deedMiss) out.push(task({ key: 'deed-date', label: deedRow?.when && deedRow.when > dayOf(d as Deal, now) ? `Mark ${n}’s deed recording handled in Key dates once it’s recorded (expected ${prettyDay(deedRow.when)})` : deedRow?.when ? `Mark ${n}’s deed recording handled in Key dates to confirm its date (${prettyDay(deedRow.when)})` : deedRow?.resolved ? `Enter the date ${n}’s deed was recorded on its row in Key dates` : `Enter the date ${n}’s deed was recorded in Key dates`, produces: `the recording date in Key dates, marked handled: the ${deedMiss === 'trustee' ? '30-day challenge window (NRS 107.080(5))' : '2-year recovery-suit window’s earliest end (NRS 361.600)'} is counted from it${deedMiss === 'tax' ? ` (${'the 2 years run from the deed’s delivery: the Treasurer records the deed, then delivers it to you, so ask the Treasurer when it was delivered*'})` : ''}`, href: packetHref(d, 'dates'), support: [], done: false }));
     if (!deedFirst) out.push(withRedeem(firstWeek));
     const wonLater = w === 'auction' && (d.plan === 'flip' || d.plan === 'rent') ? wonPrice(d as Deal, p, n) : undefined;

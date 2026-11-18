@@ -138,7 +138,10 @@ export const dateRowComplete = (d: { when: string; what: string; who: string; re
 const LATER = ['Redemption money collected', 'Challenge window ends', 'Recovery-suit window ends', 'Redemption period ends', 'Deed delivered (if no one redeemed)', 'Certificate expires', 'Earliest you may act (unpaid lien)', 'Rescission window ends', 'Intent-to-bid window ends', 'Eligible bid deadline (45 days)'];
 /** The rows this stage's calendar needs filled in: before the sale, only the dates before it; after, all but those
  *  counted from a later event (they can wait for it). */
-export const calendarRows = (p: PacketData, stage: string) => {
+/** A blank, open row with a twin that counts as the same date and is dated: the twin stands for it. */
+const coveredBlank = (p: PacketData, x: PacketDate) => !x.when && !x.resolved && !x.own && p.dates.some((y) => y !== x && !!y.when && !!y.own && sameDate(y, x.what));
+export const calendarRows = (p0: PacketData, stage: string) => {
+  const p = { ...p0, dates: p0.dates.filter((x) => !coveredBlank(p0, x)) };
   if (['researching', 'offer'].includes(stage)) return p.dates.filter((x) => !afterSale(x) && !CONTRACT_ROWS.some((n) => sameDate(x, n)) && !(registrationRow(x) && saleOver(p, new Date())));
   // A short sale's dates count from the lender's approval: until it's dated, it and the rows after it can wait.
   const approvalRow = p.dates.find((x) => sameDate(x, 'Approval notice received'));
