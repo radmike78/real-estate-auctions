@@ -2863,7 +2863,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const tr: Deal = { ...deal, id: 'v112c', name: '16 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
     for (const w of ['Payment deadline', 'Payment deadline for HOA dues', 'Sale day prep', 'Deed recorded copy to my lender']) expect([w, sameDate({ what: w, own: true }, w.split(' ').slice(0, 2).join(' '))]).toEqual([w, false]);
     expect(eventFor(tr, 'Sale day Wednesday 10am')).toBe('Sale day');
-    expect(eventFor(tr, 'Close of escrow Dec 5')).toBe('Closing');
+    expect(eventFor(tr, 'Close of escrow Dec 5')).toBe('');
     expect(eventFor(tr, 'Payment deadline for HOA dues')).toBe('');
     expect(eventFor(tr, 'Sale day prep')).toBe('');
     // (Chosen: it counts, and a note added later keeps it.)
@@ -2871,6 +2871,20 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(paidIn(paid, tr)).toBe(true);
     expect(cleanPacket(paid).dates[1].as).toBe('Payment deadline');
     expect(cleanPacket({ dates: [{ when: '', what: 'x', who: '', as: 'Sale day' }] }).dates[0].as).toBeUndefined();
+  });
+  it('round 112 verifier: the offer names this kind of sale’s usual date, by the name its steps look for', async () => {
+    const { eventFor } = await import('./dealStage');
+    const { suggestedDates } = await import('./dealPacket');
+    const tr = { state: 'NV' as const, kind: 'trustee' as const };
+    const li = { state: 'NV' as const, kind: 'listing' as const };
+    expect(eventFor(tr, 'Auction day Nov 24')).toBe(suggestedDates(tr).find((n) => /^sale day/i.test(n)));
+    expect(eventFor(tr, 'SID certificate payoff')).toBe('');
+    expect(eventFor(tr, 'Redemption period ends')).toBe('');
+    expect(eventFor(li, 'Sale day')).toBe('');
+    const em = eventFor(li, 'Earnest Money Deposit (wired Nov 3)');
+    expect(em === '' || suggestedDates(li).includes(em)).toBe(true);
+    expect(eventFor(li, 'EMD due Nov 3')).toBe(suggestedDates(li).find((n) => /^earnest money/i.test(n)) ?? '');
+    expect(eventFor(li, 'COE Dec 5')).toBe(suggestedDates(li).find((n) => /^closing/i.test(n)) ?? '');
   });
   it('round 112 content: at Owned, a Nevada trustee buy’s passed worked-out challenge window leads a reader’s reminder', async () => {
     const now = new Date('2026-11-20T20:00:00Z');

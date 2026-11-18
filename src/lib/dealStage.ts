@@ -183,8 +183,18 @@ export const noDeedDate = (d: Deal, p: PacketData, stage: DealStage = stageOf(d)
 /** One of this sale's own dates (its usual dates and the ones the site adds), not one the reader added. */
 /** This sale's own date names: its usual dates and the ones the site adds. */
 export const officialNames = (d: Pick<Deal, 'kind' | 'state'>): string[] => [...suggestedDates(d), ...(wayOf(d) === 'offer' ? CONTRACT_ROWS : []), 'Bidder registration', 'Registration', ...RECORDED_ROWS, 'Payment deadline', 'SID certificate payoff', 'Redemption period ends', 'Challenge window ends', 'Recovery-suit window ends', DEED_AFTER_WAIT, 'Sale day', SEALED_ROW];
-/** The sale's own date a reader's row reads like ("Sale day 10am" → "Sale day"), to offer, never to apply on its own. */
-export const eventFor = (d: Pick<Deal, 'kind' | 'state'>, what: string): string => (['Close of escrow', 'COE', 'Settlement'].some((n) => ownNamed(what, n)) ? 'Closing' : officialNames(d).find((n) => ownNamed(what, n)) ?? '');
+// (Other names readers use for the sale's dates, and the usual date each stands for.)
+const EVENT_ALIASES: [string, string][] = [['Close of escrow', 'Closing'], ['COE', 'Closing'], ['Settlement', 'Closing'], ['Earnest money deposit', 'Earnest money'], ['Earnest money', 'Earnest money'], ['EMD', 'Earnest money'], ['Acceptance', 'Offer accepted'], ['Auction day', 'Sale day'], ['Auction', 'Sale day'], ['Payment due', 'Payment deadline'], ['Payment', 'Payment deadline'], ['Challenge window', 'Challenge window ends'], ['Recovery-suit window', 'Recovery-suit window ends'], ['Redemption period', 'Redemption period ends'], ['Redemption ends', 'Redemption period ends'], ['Deed recording', 'Deed recorded'], ['Bidder registration', 'Registration']];
+/** The sale's own date a reader's row reads like ("Sale day 10am" → "Sale day"), to offer, never to apply on its
+ *  own: always one of this kind of sale's usual dates, by the name its steps look for. */
+export const eventFor = (d: Pick<Deal, 'kind' | 'state'>, what: string): string => {
+  const usual = suggestedDates(d);
+  const direct = usual.find((n) => ownNamed(what, n));
+  if (direct) return direct;
+  for (const [alias, canon] of EVENT_ALIASES) if (ownNamed(what, alias)) { const hit = usual.find((n) => sameDate(n, canon)); if (hit) return hit; }
+  return '';
+};
+
 export const officialRow = (d: Pick<Deal, 'kind' | 'state'>, what: RowRef): boolean => officialNames(d).some((n) => sameDate(what, n));
 /** The next date, with this sale's own dates first: one due within a week (or passed) leads any date the reader
  *  added; otherwise the nearest date of any kind. Your next action and Key dates both use it. */

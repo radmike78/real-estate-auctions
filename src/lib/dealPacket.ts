@@ -91,7 +91,7 @@ const matchText = (r: RowRef): string | null => (typeof r === 'string' ? r : r.o
 //  that choice when the name reads like one: it starts with the date's name, or the site's full name with its note,
 //  and every word after only says when ("Sale day Wednesday 10am", "Closing scheduled Dec 5"). "Sale day prep" or
 //  "Payment deadline for HOA dues" gets no offer.)
-const WHEN_WORDS = new Set('deadline date day days due moved postponed rescheduled new changed extended to at by on from of est estimated expected tentative approx approximately about if required needed applicable business calendar am pm a m p noon st nd rd th the and or scheduled set pt pst pdt hours hour week weeks after before sale deed monday tuesday wednesday thursday friday saturday sunday mon tue tues wed thu thur thurs fri sat sun'.split(' '));
+const WHEN_WORDS = new Set('deadline date day days due moved postponed rescheduled new changed extended to at by on from of est estimated expected tentative approx approximately about if required needed applicable business calendar am pm a m p noon st nd rd th the and or scheduled set pt pst pdt hours hour week weeks after before sale deed monday tuesday wednesday thursday friday saturday sunday mon tue tues wed thu thur thurs fri sat sun tbd instrument inst doc number no'.split(' '));
 // (The notes the site's own date names carry, copied by a reader: "(dates count from here)", "(check the notice)".)
 const SITE_NOTE = /\((if|only|from the|check the|dates count|worked out|affidavit filed|unpaid lien|it can replace)\b[^)]*\)/g;
 const MONTH_WORD = /^(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*$/;

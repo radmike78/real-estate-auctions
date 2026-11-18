@@ -1,5 +1,5 @@
 import { clearsOnPostpone, loadPacket, sameDate, type PacketData } from '../lib/dealPacket';
-import { dayOf, DEED_ROWS, prettyDay, setDealStage, type PlanTask, withRow } from '../lib/dealStage';
+import { dayOf, DEED_ROWS, prettyDay, setDealStage, officialNames, type PlanTask, withRow } from '../lib/dealStage';
 import { loadDeals } from '../lib/analyze';
 import { markDealStepDone } from '../lib/roadmapState';
 
@@ -9,6 +9,9 @@ import { markDealStepDone } from '../lib/roadmapState';
  */
 // (Today in the deal's state, so a date recorded from Tokyo is still Nevada's day.)
 const todayFor = (dealId: string) => dayOf(loadDeals().find((x) => x.id === dealId), new Date());
+// (A step's button that ticks a reader's own row named as one of the sale's dates ("Payment deadline") says it is
+//  that date: it's counted as it from then on, so the step doesn't stay.)
+const adopts = (dealId: string, row: string) => { const d = loadDeals().find((x) => x.id === dealId); return !!d && officialNames(d).some((n) => n.toLowerCase() === row.trim().toLowerCase()); };
 
 export default function TaskActions({ task, dealId, edit, after, big = false }: { task: PlanTask; dealId: string; edit: (f: (p: PacketData) => PacketData) => void; after: (el: HTMLElement, finished?: boolean) => void; big?: boolean }) {
   // The answer that moves the deal on is the main button when the task is a question.
@@ -28,7 +31,7 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
             const exact = p.dates.findIndex((x) => x.what === tick.row && !x.resolved);
             const i = exact >= 0 ? exact : p.dates.findIndex((x) => sameDate(x, tick.row) && !x.resolved);
             // (An event with no date yet, such as the payoff, is dated today.)
-            const rows = i < 0 ? (p.dates.some((x) => sameDate(x, tick.row)) ? p.dates : [...p.dates, { what: tick.row, when: tick.when ?? (tick.noDate ? '' : todayFor(dealId)), who: tick.who ?? '', resolved: true }]) : p.dates.map((x, j) => (j === i ? { ...x, resolved: true, when: tick.setWhen || x.when || tick.when || (tick.noDate ? '' : todayFor(dealId)), who: x.who || tick.who || '' } : x));
+            const rows = i < 0 ? (p.dates.some((x) => sameDate(x, tick.row)) ? p.dates : [...p.dates, { what: tick.row, when: tick.when ?? (tick.noDate ? '' : todayFor(dealId)), who: tick.who ?? '', resolved: true }]) : p.dates.map((x, j) => (j === i ? { ...x, ...(x.own && !x.as && adopts(dealId, tick.row) ? { as: tick.row } : {}), resolved: true, when: tick.setWhen || x.when || tick.when || (tick.noDate ? '' : todayFor(dealId)), who: x.who || tick.who || '' } : x));
             const kept = tick.drops ? rows.filter((x) => !(sameDate(x, tick.drops!) && !x.when)) : rows;
             return { ...p, dates: tick.closes ? kept.map((x) => (sameDate(x, tick.closes!) ? { ...x, resolved: true } : x)) : kept };
           });
