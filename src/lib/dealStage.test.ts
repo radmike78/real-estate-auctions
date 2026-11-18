@@ -2849,4 +2849,14 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${ho.id}`, p);
     expect(dealNextTask(ho, p, now, 'closed').label).toMatch(/redemption period ended/i);
   });
+  it('round 112 content: at Owned, a Nevada trustee buy’s passed worked-out challenge window leads a reader’s reminder', async () => {
+    const now = new Date('2026-11-20T20:00:00Z');
+    const tr: Deal = { ...deal, id: 'v112b', name: '15 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'rent', stage: 'owned' };
+    saveDeals([tr]);
+    for (const when of ['2026-11-20', '2026-11-22']) {
+      const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-25', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-25', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-10-01', what: 'Deed recorded', who: 'C', resolved: true }, { when: '', what: 'Challenge window ends', who: 'Me' }, { when, what: 'Call insurance agent', who: 'Me', own: true }] };
+      savePacket(`analyzed:${tr.id}`, p);
+      expect(dealNextTask(tr, p, now, 'owned').label).toMatch(/challenge window/i);
+    }
+  });
 });

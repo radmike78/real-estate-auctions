@@ -1511,7 +1511,10 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const winDeed = d.state === 'NV' && d.kind === 'trustee' && stage === 'closed' && !deedDateMissing(d, p, stage) && !p.dates.some((x) => sameDate(x, 'Challenge window ends') && (x.when || x.resolved)) ? deedRecordedOn(p, true, now) ?? '' : '';
     const winEnd = winDeed ? (() => { const t = new Date(`${winDeed}T12:00:00`); t.setDate(t.getDate() + 30); return localDay(t); })() : '';
     // (A reader's own reminder doesn't push aside a passed redemption end or challenge window the site worked out.)
-    const workedPassed = !!nd && !officialRow(d, nd) && ((!!computedEnd && computedEnd < dayHere) || (!!winEnd && winEnd < dayHere));
+    // (At Owned, until it's sold, the stage's own step confirms that worked-out window.)
+    const ownedWinDeed = d.state === 'NV' && d.kind === 'trustee' && stage === 'owned' && !soldOf(d) && !deedDateMissing(d, p, stage) && !p.dates.some((x) => sameDate(x, 'Challenge window ends') && (x.when || x.resolved)) ? deedRecordedOn(p, true, now) ?? '' : '';
+    const ownedWinEnd = ownedWinDeed ? (() => { const t = new Date(`${ownedWinDeed}T12:00:00`); t.setDate(t.getDate() + 30); return localDay(t); })() : '';
+    const workedPassed = !!nd && !officialRow(d, nd) && ((!!computedEnd && computedEnd < dayHere) || (!!winEnd && winEnd < dayHere) || (!!ownedWinEnd && ownedWinEnd < dayHere));
     // (A reader's own reminder due later — not today or overdue — doesn't push aside a win's or purchase's first safety step: insure it, the first week.)
     const safetyFirst = !!nd && nd.days >= 1 && !officialRow(d, nd) && ['contract', 'closed', 'owned'].includes(stage) && stageTasks(d, stage, p, now).some((t) => !t.done && (t.key === 'ev-insurance' || t.key === 'first-week'));
     const payFirst = customLead || safetyFirst || workedPassed || (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly;
