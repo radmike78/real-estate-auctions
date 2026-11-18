@@ -950,7 +950,7 @@ describe('Nevada round 4 flow', () => {
   it('round 10 UX: a 90-day limit that ended is named; passed rows; the SID row; undated contract rows; a ticked closing; no one redeemed', async () => {
     const { packetSections } = await import('./dealPacket');
     // now = Oct 6, 2026. Sale Jul 1 + 90 = Sep 29 (over); the window ended Aug 4.
-    const tr = { ...EMPTY_PACKET, dates: [{ when: '2026-07-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-07-05', what: 'Deed recorded', who: 'Me' }, { when: '2026-08-04', what: 'Challenge window ends', who: 'Me' }] };
+    const tr = { ...EMPTY_PACKET, dates: [{ when: '2026-07-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-07-05', what: 'Deed recorded', who: 'Me', resolved: true }, { when: '2026-08-04', what: 'Challenge window ends', who: 'Me' }] };
     const t = dealNextTask(nvFlip, tr, now, 'closed');
     expect(t.label).toMatch(/ended Sep 29, 2026\. If none was filed, mark it handled/);
     expect(t.label).not.toMatch(/still runs/);
@@ -958,7 +958,7 @@ describe('Nevada round 4 flow', () => {
     expect(t.redate).toBeUndefined();
     saveDeals([{ ...nvFlip, stage: 'closed' }]);
     const tl = packetSections({ ...nvFlip, stage: 'closed' }, tr, now).find((x) => x.key === 'dates')!.lines.join(' | ');
-    expect(tl).toMatch(/Jul 5, 2026: Deed recorded \(Me\) — not marked handled: mark it to confirm the recording date/);
+    expect(tl).toMatch(/Jul 5, 2026: Deed recorded \(Me\) — handled/);
     expect(tl).toMatch(/Next: the challenge window ended 63 days ago \(Aug 4, 2026\): see Your next action\./);
     const tax = { ...nvFlip, kind: 'taxSale' as const };
     const sid = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-20', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-30', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
@@ -2490,7 +2490,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(windowMarkWait(tr, p, 'Challenge window ends', now)).toBe('2026-12-17');
     const t = dealNextTask(tr, p, now, 'closed');
     expect(t.label).not.toMatch(/ended/);
-    expect(t.label).toMatch(/^In 5 days: Challenge window ends/);
+    expect(t.label).toMatch(/^Mark 7 Elm’s deed recording handled/);
     const rep = stageTasks(tr, 'closed', p, now).find((x) => x.key === 'repairs');
     if (rep) expect(rep.label).not.toMatch(/Dec 10/);
     const ow: Deal = { ...tr, id: 'u105o', stage: 'owned', plan: 'rent' };
@@ -2568,5 +2568,18 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(lawWindowEnd(tr, p, 'Challenge window ends', now)).toBe('');
     expect(windowMarkWait(tr, p, 'Challenge window ends', now)).toBe('no-deed');
     expect(deedRecordedOn(p, true, new Date('2026-11-26T20:00:00Z'))).toBe('2026-11-25');
+  });
+
+  it('round 107 tools: an expected deed date that has passed, never ticked, doesn’t open the window question; the deed tick comes first', async () => {
+    const { windowTickWait } = await import('./dealStage');
+    const now = new Date('2026-12-26T20:00:00Z');
+    const tr: Deal = { ...deal, id: 'x107', name: '1 Elm', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'closed' };
+    saveDeals([tr]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-25', what: 'Deed recorded', who: 'County' }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    const t = dealNextTask(tr, p, now, 'closed');
+    expect(t.label).toMatch(/^Mark 1 Elm’s deed recording handled/);
+    expect(t.tick?.label ?? '').not.toMatch(/no suit/);
+    expect(windowTickWait(tr, { ...p, dates: [...p.dates, { when: '2026-12-25', what: 'Challenge window ends', who: '' }] }, 'Challenge window ends', now)).toBe('no-deed');
   });
 });
