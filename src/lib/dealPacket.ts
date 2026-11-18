@@ -142,13 +142,13 @@ const LATER = ['Redemption money collected', 'Challenge window ends', 'Recovery-
  *  counted from a later event (they can wait for it). */
 /** An open row that is a copy of a date already handled on the same day (the reader added it again): it's done too. */
 export const handledCopy = (p: PacketData, x: PacketDate): boolean => {
-  if (x.resolved || (!x.when && !x.own)) return false;
+  if (x.resolved || !x.when) return false;
   // (Only rows that count as one of the sale's dates, by their full name: a reader's own reminder is never a copy.)
   const nb = (w: string) => curly(w.trim().replace(/\s+/g, ' ').toLowerCase());
   const key = (r: PacketDate) => (r.own ? '' : r.what);
   // (An SID payoff is never a copy: a parcel can owe two, to different districts, due the same day.)
   // (A reader's reminder that repeats a handled site row exactly, same name and day, is a duplicate reminder.)
-  if (x.own) return p.dates.some((y) => y !== x && !y.own && !!y.resolved && nb(y.what) === nb(x.what));
+  if (x.own) return !!x.when && p.dates.some((y) => y !== x && !y.own && !!y.resolved && y.when === x.when && nb(y.what) === nb(x.what));
   if (!key(x) || sameDate(key(x), 'SID certificate payoff')) return false;
   return p.dates.some((y) => y !== x && !!y.resolved && y.when === x.when && !!key(y) && nb(key(x)) === nb(key(y)));
 };

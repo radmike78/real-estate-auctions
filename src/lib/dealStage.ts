@@ -1546,8 +1546,18 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const deedFirst = !!nd && !officialRow(d, nd) && (stage === 'closed' || stage === 'owned') && !!deedDateMissing(d, p, stage);
     const payFirst = customLead || safetyFirst || workedPassed || deedFirst || (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly;
     // (A reader's own row named like one of the sale's dates the packet lacks: point to making it the sale's row.)
-    const ownEv = nd && nd.own && !payFirst && !bidPrep && nd.days <= 7 ? eventFor(d, nd.what) : '';
-    if (ownEv && !p.dates.some((x) => !x.own && sameDate(x, ownEv))) return task({ key: 'date', days: nd!.days, label: `“${nd!.what}” for ${d.name || 'this property'} is your own reminder: in Key dates, press “Make this the sale’s “${ownEv}” row” so the site’s steps use its date`, produces: `the sale’s “${ownEv}” row, which the steps count from`, href: packetHref(d, 'dates'), support: [], done: false });
+    // (A reader's own row named like one of the sale's dates: point to the sale's row. Before it's bought only (after,
+    //  a "Sale day" or "Closing" is the resale), except recording, deed and window rows. A hand-typed Sale day with no
+    //  sale row comes first, even before paying: the payment deadline is worked out from it.)
+    const guardedEv = (ev: string) => [...RECORDED_ROWS, DEED_AFTER_WAIT, 'Challenge window ends', 'Recovery-suit window ends', 'Redemption period ends'].some((n) => sameDate(ev, n));
+    const ownSale = !p.dates.some((x) => !x.own && sameDate(x, 'Sale day')) && wayOf(d) !== 'offer' && stage === 'contract' ? p.dates.find((x) => x.own && !x.resolved && eventFor(d, x.what) && sameDate(eventFor(d, x.what), 'Sale day')) : undefined;
+    const ownNd = ownSale ?? (nd && nd.own && !payFirst && !bidPrep && nd.days <= 7 ? nd : undefined);
+    const ownEv = ownNd ? eventFor(d, ownNd.what) : '';
+    if (ownNd && ownEv && (!['closed', 'owned'].includes(stage) || guardedEv(ownEv))) {
+      const siteRow = p.dates.find((x) => !x.own && sameDate(x, ownEv));
+      const n = d.name || 'this property';
+      return task({ key: 'date', days: 'days' in ownNd ? (ownNd as { days: number }).days : 0, label: siteRow ? `“${ownNd.what}” for ${n} is your own reminder: the sale’s own “${siteRow.what}” row is in Key dates${siteRow.when ? ` (${prettyDay(siteRow.when)})` : ''}; put the right date there, then press “Move this date” or remove your reminder` : `“${ownNd.what}” for ${n} is your own reminder: in Key dates, press “Make this the sale’s “${ownEv}” row” so the site’s steps use its date`, produces: `the sale’s “${ownEv}” row, which the steps count from`, href: packetHref(d, 'dates'), support: [], done: false });
+    }
     if (nd && !bidPrep && !payFirst && (nd.days <= 7 || (stage === 'contract' && sameDate(nd, 'SID certificate payoff')))) {
       const ended = nd.days < 0 ? windowEnded(nd, -nd.days, d.kind) : null;
       const late90Ahead = ended && d.state === 'NV' && d.kind === 'trustee' && sameDate(nd, 'Challenge window ends') ? challenge90Ahead(p, now) : '';
