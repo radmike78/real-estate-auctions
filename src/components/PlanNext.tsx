@@ -7,7 +7,7 @@ import { taskHeadParts, sealedBid, nextOpenDeal, stageTasks, deadlinePassed, nee
 import { EVIDENCE_AREAS, EVIDENCE_EVENT, loadLog } from '../lib/evidence';
 import { PLAN_EVENT } from '../lib/myPlan';
 import { OWNED_EVENT } from '../lib/owned';
-import { loadPacket, savePacket } from '../lib/dealPacket';
+import { loadPacket, sameDate, savePacket } from '../lib/dealPacket';
 import TaskActions from './TaskActions';
 import StageSelect from './StageSelect';
 import { guidedPracticeDone, practiceState, planNow, planStarted, roadmapNextStep, ROADMAP_TASK_HREF } from '../lib/planNext';
@@ -206,7 +206,7 @@ export default function PlanNext({ variant, helper }: { variant: 'plan' | 'home'
             </p></details>
           )}
         </div>
-        {onPlan && deal && stage === 'contract' && wayOf(deal) === 'offer' && !(deal.kind === 'short' && !loadPacket(`analyzed:${deal.id}`).dates.some((x) => /^approval notice received/i.test(x.what.trim()) && !!x.when && x.when <= new Date().toLocaleDateString('en-CA'))) && stageTasks(deal, 'contract').some((t) => !t.done && ['deposit-sent', 'inspection-complete', 'final-financing', 'appraisal-complete', 'contract-title'].includes(t.key)) && (
+        {onPlan && deal && stage === 'contract' && wayOf(deal) === 'offer' && !(deal.kind === 'short' && !loadPacket(`analyzed:${deal.id}`).dates.some((x) => sameDate(x, 'Approval notice received') && !!x.when && x.when <= new Date().toLocaleDateString('en-CA'))) && stageTasks(deal, 'contract').some((t) => !t.done && ['deposit-sent', 'inspection-complete', 'final-financing', 'appraisal-complete', 'contract-title'].includes(t.key)) && (
           <section aria-labelledby="contract-workstreams">
             <p id="contract-workstreams"><strong>Arrange the deposit, inspection, loan and title work promptly.</strong> These tasks run together.</p><details><summary>Who does what, and when</summary>
             <p>Do not wait for one to finish before arranging the others. Your signed contract controls deadlines; ask your team to confirm them.</p>

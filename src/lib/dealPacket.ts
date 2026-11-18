@@ -82,20 +82,24 @@ const OWN_TASK = /^(closing\s*:?\s*(costs?|statements?|disclosures?|documents?|d
 export type RowRef = string | { what: string; own?: boolean };
 const rowText = (r: RowRef) => (typeof r === 'string' ? r : r.what);
 const isOwn = (r: RowRef) => typeof r !== 'string' && !!r.own;
-const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 // (A row the reader added is the sale's own event only when named exactly as it: the name, optionally "deadline",
 //  "date", "day" or "due", then nothing, a date, or a dated note in parentheses. "Sale day prep", "Payment deadline for HOA dues" and
 //  "Closing day walk-through" are the reader's own reminders.)
-// (A date: 11/21, 11/21/2026, 2026-11-21 or Nov 21, 2026. A bare number such as "2nd" isn't one. A time: 10 a.m., 9:30am.)
-const DATEISH = String.raw`(\d{1,2}[/.-]\d{1,2}([/.-]\d{2,4})?|\d{4}-\d{1,2}-\d{1,2}|(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{1,2}(st|nd|rd|th)?(,?\s+\d{4})?)`;
-const TIMEISH = String.raw`(\d{1,2}(:\d{2})?\s*(a\.?\s?m\.?|p\.?\s?m\.?)|noon)`;
-// (A note in parentheses keeps it the event only when it's a date, a time, an "if …" or a change of date:
-//  "Sale day (moved to Dec 5)", "Sale day (10 a.m.)", not "Sale day (get cashier’s check)".)
-const OWN_NOTE = String.raw`\((if\b[^)]*|(moved|postponed|rescheduled|new date|extended|changed)\b[^)]*|tentative|estimated|expected|${DATEISH}|${TIMEISH})\)`;
-// ("Closing date", "Registration due" and, for a day, "Sale date" name the event too. After the name only a date,
-//  a time and such a note may follow, and nothing after them: "Payment deadline Nov 20 for HOA dues" is the reader's.)
-const OWN_TAIL = String.raw`(\s*[,:–—-]?\s*((on|by|at)\s+)?${DATEISH})?(\s*,?\s*(at\s+)?${TIMEISH})?(\s*${OWN_NOTE})?\s*\.?\s*$`;
-const ownNamed = (what: string, name: string) => new RegExp(`^(${esc(curly(dateBase(name)))}${/\sday$/i.test(dateBase(name)) ? `|${esc(curly(dateBase(name))).replace(/day$/i, 'date')}` : ''})(\\s+(deadline|date|day|due))?${OWN_TAIL}`, 'i').test(curly(what.trim()));
+// (A row the reader added is the sale's event when its name starts with the event's name, or with the site's full
+//  name for it ("Registration (check the notice)"), and every word after that only says when: a date, a time, or
+//  words like deadline, due, moved, postponed, estimated, if required. "Sale day prep", "Payment deadline Nov 20
+//  for HOA dues", "Closing day walk-through" and "Deed recorded copy to my lender" are the reader's own reminders.)
+const WHEN_WORDS = new Set('deadline date day days due moved postponed rescheduled new changed extended to at by on from of est estimated expected tentative approx approximately about if required needed applicable business calendar am pm a m p noon st nd rd th the and or'.split(' '));
+// (The notes the site's own date names carry, copied by a reader: "(dates count from here)", "(check the notice)".)
+const SITE_NOTE = /\((if|only|from the|check the|dates count|worked out|affidavit filed|unpaid lien|it can replace)\b[^)]*\)/g;
+const MONTH_WORD = /^(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*$/;
+const ownNamed = (what: string, name: string) => {
+  const t = curly(what.trim()).toLowerCase();
+  const base = curly(dateBase(name)).toLowerCase();
+  const heads = [curly(name).toLowerCase(), base, ...(/\sday$/.test(base) ? [base.replace(/day$/, 'date')] : [])];
+  const head = heads.find((h) => t.startsWith(h) && !/[a-z]/.test(t.charAt(h.length)));
+  return head !== undefined && (t.slice(head.length).replace(SITE_NOTE, ' ').match(/[a-z]+/g) ?? []).every((w) => WHEN_WORDS.has(w) || MONTH_WORD.test(w));
+};
 const ownClosing = (what: string) => ['Closing', 'Close of escrow', 'COE', 'Settlement'].some((n) => ownNamed(what, n));
 const eventWord = (rowWhat: string, word: RegExp) => { const t = curly(rowWhat.trim()); return word.test(t) && !OWN_TASK.test(t); };
 /** A row that is the sale's registration (renamed or not, "Registration deadline", "Bidder registration online"). */

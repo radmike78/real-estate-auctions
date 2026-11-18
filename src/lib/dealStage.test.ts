@@ -2822,7 +2822,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const { sameDate, sameEvent } = await import('./dealPacket');
     const { windowTickWait } = await import('./dealStage');
     const own = (what: string) => ({ what, own: true });
-    for (const [w, n] of [['Payment deadline Nov 20 for HOA dues', 'Payment deadline'], ['Payment deadline 11/16 for HOA dues', 'Payment deadline'], ['Closing 11/20 final walk-through', 'Closing'], ['Challenge window ends (30 days)', 'Challenge window ends']] as const) expect([w, sameDate(own(w), n), sameEvent(own(w), n)]).toEqual([w, false, false]);
+    for (const [w, n] of [['Payment deadline Nov 20 for HOA dues', 'Payment deadline'], ['Payment deadline 11/16 for HOA dues', 'Payment deadline'], ['Closing 11/20 final walk-through', 'Closing'], ['Challenge window ends? ask my attorney', 'Challenge window ends']] as const) expect([w, sameDate(own(w), n), sameEvent(own(w), n)]).toEqual([w, false, false]);
     for (const [w, n] of [['Sale day (10 a.m.)', 'Sale day'], ['Sale day 10am', 'Sale day'], ['Sale day (postponed to Dec 5)', 'Sale day'], ['Sale day (moved to Dec 5)', 'Sale day'], ['Sale day Nov 24, 2026 at 9:30 a.m.', 'Sale day'], ['Closing: Dec 3', 'Closing'], ['Payment deadline 11/21/2026', 'Payment deadline']] as const) expect([w, sameDate(own(w), n)]).toEqual([w, true]);
     const now = new Date('2026-11-20T20:00:00Z');
     const tr: Deal = { ...deal, id: 'v111d', name: '11 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
@@ -2831,6 +2831,22 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${tr.id}`, p);
     expect(dealNextTask(tr, p, now, 'contract').label).toMatch(/Pay HOA dues/);
     // (A reader's own reminder named like a window can be ticked.)
-    expect(windowTickWait(tr, p, own('Challenge window ends (30 days)'), now)).toBe('');
+    expect(windowTickWait(tr, p, own('Challenge window ends? ask my attorney'), now)).toBe('');
+  });
+  it('round 112 tools: after the event’s name only words that say when may follow; the site’s full names with their notes count', async () => {
+    const { sameDate, sameEvent, registrationRow } = await import('./dealPacket');
+    const own = (what: string) => ({ what, own: true });
+    for (const [w, n] of [['Sale day moved to Dec 5', 'Sale day'], ['Sale day (Nov 10, 10 a.m.)', 'Sale day'], ['Sale day at 10', 'Sale day'], ['Sale day 10:00', 'Sale day'], ['Payment deadline Nov 19 by 5pm', 'Payment deadline'], ['Closing (est.)', 'Closing'], ['Earnest money due (3 business days)', 'Earnest money due'], ['Approval notice received (dates count from here)', 'Approval notice received'], ['Payment deadline (', 'Payment deadline'], ['Payment deadline 1', 'Payment deadline']] as const) expect([w, sameDate(own(w), n) || sameEvent(own(w), n)]).toEqual([w, true]);
+    expect(registrationRow(own('Registration (check the notice)'))).toBe(true);
+    expect(sameDate(own('Registration (check the notice)'), 'Registration (check the notice)')).toBe(true);
+    for (const [w, n] of [['Sale day prep', 'Sale day'], ['Payment deadline Nov 20 for HOA dues', 'Payment deadline'], ['Payment deadline (HOA dues)', 'Payment deadline'], ['Closing day walk-through', 'Closing'], ['Closing may move', 'Closing'], ['Deed recorded copy to my lender', 'Deed recorded'], ['Registration of my LLC', 'Registration']] as const) expect([w, sameDate(own(w), n), sameEvent(own(w), n)]).toEqual([w, false, false]);
+  });
+  it('round 112 tools: a reader reminder due today doesn’t push aside a passed worked-out redemption end', async () => {
+    const now = new Date('2026-11-20T20:00:00Z');
+    const ho: Deal = { ...deal, id: 'v112a', name: '12 Oak', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'closed' };
+    saveDeals([ho]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-08-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-08-01', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-08-02', what: 'Certificate of sale recorded', who: 'C', resolved: true }, { when: '', what: 'Redemption period ends', who: 'Me' }, { when: '2026-11-20', what: 'Call the contractor', who: 'Me', own: true }] };
+    savePacket(`analyzed:${ho.id}`, p);
+    expect(dealNextTask(ho, p, now, 'closed').label).toMatch(/redemption period ended/i);
   });
 });
