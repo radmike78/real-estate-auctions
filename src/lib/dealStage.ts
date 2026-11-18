@@ -1550,13 +1550,15 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     //  a "Sale day" or "Closing" is the resale), except recording, deed and window rows. A hand-typed Sale day with no
     //  sale row comes first, even before paying: the payment deadline is worked out from it.)
     const guardedEv = (ev: string) => [...RECORDED_ROWS, DEED_AFTER_WAIT, 'Challenge window ends', 'Recovery-suit window ends', 'Redemption period ends'].some((n) => sameDate(ev, n));
-    const ownSale = !p.dates.some((x) => !x.own && sameDate(x, 'Sale day')) && wayOf(d) !== 'offer' && stage === 'contract' ? p.dates.find((x) => x.own && !x.resolved && eventFor(d, x.what) && sameDate(eventFor(d, x.what), 'Sale day')) : undefined;
-    const ownNd = ownSale ?? (nd && nd.own && !payFirst && !bidPrep && nd.days <= 7 ? nd : undefined);
+    const datedSite = (ev: string) => p.dates.some((x) => !x.own && sameDate(x, ev) && !!x.when);
+    const inWeek = (w: string) => !!w && Math.round((Date.parse(`${w}T12:00:00Z`) - Date.parse(`${dayOf(d, now)}T12:00:00Z`)) / 864e5) <= 7;
+    const ownLead = p.dates.find((x) => { if (!x.own || !inWeek(x.when)) return false; const ev = eventFor(d, x.what); return !!ev && (sameDate(ev, 'SID certificate payoff') ? !x.resolved : !datedSite(ev) && (!['closed', 'owned'].includes(stage) || guardedEv(ev) || sameDate(ev, 'Sale day'))); });
+    const ownNd = ownLead ?? (nd && nd.own && !payFirst && !bidPrep && nd.days <= 7 ? nd : undefined);
     const ownEv = ownNd ? eventFor(d, ownNd.what) : '';
-    if (ownNd && ownEv && (!['closed', 'owned'].includes(stage) || guardedEv(ownEv))) {
-      const siteRow = p.dates.find((x) => !x.own && sameDate(x, ownEv));
+    if (ownNd && ownEv && (sameDate(ownEv, 'SID certificate payoff') ? true : !datedSite(ownEv) && (!['closed', 'owned'].includes(stage) || guardedEv(ownEv) || sameDate(ownEv, 'Sale day')))) {
+      const siteRow = sameDate(ownEv, 'SID certificate payoff') ? undefined : p.dates.find((x) => !x.own && sameDate(x, ownEv));
       const n = d.name || 'this property';
-      return task({ key: 'date', days: 'days' in ownNd ? (ownNd as { days: number }).days : 0, label: siteRow ? `“${ownNd.what}” for ${n} is your own reminder: the sale’s own “${siteRow.what}” row is in Key dates${siteRow.when ? ` (${prettyDay(siteRow.when)})` : ''}; put the right date there, then press “Move this date” or remove your reminder` : `“${ownNd.what}” for ${n} is your own reminder: in Key dates, press “Make this the sale’s “${ownEv}” row” so the site’s steps use its date`, produces: `the sale’s “${ownEv}” row, which the steps count from`, href: packetHref(d, 'dates'), support: [], done: false });
+      return task({ key: 'date', days: 'days' in ownNd ? (ownNd as { days: number }).days : 0, label: siteRow ? `“${ownNd.what}” for ${n} is your own reminder: the sale’s own “${siteRow.what}” row is in Key dates${siteRow.when ? ` (${prettyDay(siteRow.when)})` : ''}; press “Move this date to the sale’s ${ownEv.replace(/\s*\([^)]*\)$/, '')} row” on your reminder` : `“${ownNd.what}” for ${n} is your own reminder: in Key dates, press “Make this the sale’s ${ownEv.replace(/\s*\([^)]*\)$/, '')} row” so the site’s steps use its date`, produces: `the sale’s “${ownEv}” row, which the steps count from`, href: packetHref(d, 'dates'), support: [], done: false });
     }
     if (nd && !bidPrep && !payFirst && (nd.days <= 7 || (stage === 'contract' && sameDate(nd, 'SID certificate payoff')))) {
       const ended = nd.days < 0 ? windowEnded(nd, -nd.days, d.kind) : null;
