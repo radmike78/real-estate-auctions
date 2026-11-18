@@ -556,7 +556,7 @@ export const COUNTY_OFFICES: Record<string, CountyOffices> = {
     sheriff: { url: "https://www.elkosheriff.com/", checked: "2026-10-08", contactOnly: true },
   },
   "NV/Esmeralda": {
-    taxSale: { url: "https://www.accessesmeralda.com/annual_land_auction_and_faqs.php", checked: "2026-09-29" },
+    taxSale: { url: "https://www.accessesmeralda.com/annual_land_auction_and_faqs.php", checked: "2026-09-29", note: "This page may still show an earlier year’s auction. Contact the Clerk-Treasurer for the current sale notice." },
     treasurer: { url: "https://www.accessesmeralda.com/county_offices/clerk_treasurer/index.php", checked: "2026-09-29" },
     assessor: { url: "https://www.accessesmeralda.com/county_offices/assessor/index.php", checked: "2026-09-29" },
     recorder: { url: "https://www.accessesmeralda.com/county_offices/auditor_recorder/index.php", checked: "2026-09-29" },
