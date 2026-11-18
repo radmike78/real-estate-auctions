@@ -2536,11 +2536,24 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${tr.id}`, p);
     expect(windowTickWait(tr, p, 'Challenge window ends', now)).toBe('no-deed');
     const lines = packetSections(tr, p, now).find((x) => x.key === 'dates')!.lines;
-    expect(lines).toContain('Next: the date the deed was recorded (see Your next action): the window is counted from it.');
+    expect(lines).toContain('Next: the date the deed was recorded (see Your next action): the window’s end is worked out from it.');
     expect(lines.some((t) => /marked handled without one/.test(t))).toBe(true);
     expect(stageHint('closed', tr)).toMatch(/^The deed is yours: enter the date it was recorded/);
     expect(lines.some((t) => /Challenge window ends \(Me\) — can’t be checked yet: enter the deed’s recording date/.test(t))).toBe(true);
     const done = { ...p, dates: p.dates.map((x) => (x.what === 'Challenge window ends' ? { ...x, resolved: true } : x)) };
     expect(windowTickWait(tr, done, 'Challenge window ends', now)).toBe('');
+  });
+
+  it('round 106 content: a deed row dated after today reads as expected, not as a date to confirm', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const now = new Date('2026-11-18T20:00:00Z');
+    const tr: Deal = { ...deal, id: 'f106', name: '2 Elm', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'closed' };
+    saveDeals([tr]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-25', what: 'Deed recorded', who: 'County' }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    const lines = packetSections(tr, p, now).find((x) => x.key === 'dates')!.lines;
+    expect(lines.some((t) => /Deed recorded \(County\) — expected: mark it handled once it’s recorded/.test(t))).toBe(true);
+    expect(lines.some((t) => /^Still to add: “Deed recorded”, expected Nov 25, 2026/.test(t))).toBe(true);
+    expect(stageTasks(tr, 'closed', p, now).find((t) => t.key === 'deed-date')?.label).toMatch(/once it’s recorded \(expected Nov 25, 2026\)/);
   });
 });
