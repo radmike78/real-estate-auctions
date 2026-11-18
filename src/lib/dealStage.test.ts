@@ -1781,7 +1781,7 @@ describe('Nevada round 4 flow', () => {
   it('round 15 flow: the winning bid after the deed; a past recording date; SID yes; future closing; passed vs not needed', async () => {
     const { packetSections } = await import('./dealPacket');
     expect(stageTasks(nvFlip, 'closed', EMPTY_PACKET, now).map((x) => x.key)).toContain('won-price');
-    const rp = { ...EMPTY_PACKET, dates: [{ when: '2026-07-08', what: 'Deed recorded', who: 'Trustee' }] };
+    const rp = { ...EMPTY_PACKET, dates: [{ when: '2026-07-01', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-07-08', what: 'Deed recorded', who: 'Trustee' }] };
     const t = dealNextTask(nvFlip, rp, now, 'contract');
     expect(t.label).toMatch(/^Deed recorded for 2210 Mesa Verde Ln: expected on Jul 8, 2026. If it’s recorded, mark it handled/);
     const tax = { ...nvFlip, kind: 'taxSale' as const };
@@ -2592,5 +2592,21 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const tasks = stageTasks(tr, 'closed', p, now);
     expect(tasks.map((t) => t.label).join(' | ')).not.toMatch(/Dec 25, 2026/);
     expect(tasks.find((t) => t.key === 'window')?.label).toMatch(/^Put the challenge window’s end on 6 Elm’s calendar/);
+  });
+
+  it('round 107 verifier: a won auction not marked paid asks for the payment before a recording reminder', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const now = new Date('2026-11-20T20:00:00Z');
+    const tr: Deal = { ...deal, id: 'p107', name: '8 Elm', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
+    saveDeals([tr]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-18', what: 'Deed recorded', who: 'Trustee' }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    const t = dealNextTask(tr, p, now, 'contract');
+    expect(t.label).toMatch(/pay/i);
+    expect(t.label).not.toMatch(/^Deed recorded/);
+    expect(packetSections(tr, p, now).find((x) => x.key === 'dates')!.lines).toContain('Next: the payment, until you mark it paid (see Your next action).');
+    const paid = { ...p, dates: [...p.dates, { when: '2026-11-10', what: 'Payment deadline', who: 'Me', resolved: true }] };
+    savePacket(`analyzed:${tr.id}`, paid);
+    expect(dealNextTask(tr, paid, now, 'contract').label).toMatch(/Deed recorded/);
   });
 });
