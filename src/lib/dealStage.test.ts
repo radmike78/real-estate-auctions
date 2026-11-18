@@ -2375,7 +2375,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const p = { ...EMPTY_PACKET, calendarReviewedFor: 'owned', dates: [{ when: '2026-06-01', what: 'Sale day', who: 'Treasurer', resolved: true }, { when: '2026-06-20', what: 'Treasurer’s deed recorded', who: 'Treasurer', resolved: true }, { when: '2026-06-25', what: 'Treasurer confirmed the sale had no SID affidavit', who: 'Treasurer', resolved: true }] };
     savePacket(`analyzed:${tx.id}`, p);
     const sec = packetSections(tx, p, new Date('2026-11-17T20:00:00Z')).find((x) => x.key === 'dates')!;
-    expect(sec.lines.some((t) => /^Recovery-suit window ends: 2 years after the Treasurer’s deed is delivered, about Jun 20, 2028, counting from its recording date \(NRS 361\.600\)\*/.test(t))).toBe(true);
+    expect(sec.lines.some((t) => /^Recovery-suit window ends: 2 years after the Treasurer’s deed is delivered, no earlier than Jun 20, 2028, 2 years from its recording date \(NRS 361\.600\)\*/.test(t))).toBe(true);
     expect(sec.lines.some((t) => /not in this packet: .*Recovery-suit/.test(t))).toBe(false);
     expect(sec.hold).toBe(true);
   });
@@ -2425,7 +2425,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const b = packetSections(won, pre, now).find((x) => x.key === 'dates')!.lines;
     expect(b.some((t) => /add any that apply/.test(t) && /Treasurer’s deed recorded|Recovery-suit/.test(t))).toBe(false);
     expect(b.filter((t) => /^Later: /.test(t)).length).toBe(1);
-    expect(b.some((t) => /^Later: .*Recovery-suit window ends: 2 years after the deed is delivered \(NRS 361\.600\)\*/.test(t))).toBe(true);
+    expect(b.some((t) => /^Later: .*then add “Recovery-suit window ends” \(2 years after the deed is delivered, NRS 361\.600\)\./.test(t))).toBe(true);
     // (At Deed recorded with no recorded deed date, the deed is still to add, and it holds the part.)
     saveDeals([tx]);
     savePacket(`analyzed:${tx.id}`, pre);
@@ -2438,7 +2438,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     saveDeals([ox]);
     savePacket(`analyzed:${ox.id}`, old);
     const c = packetSections(ox, old, now).find((x) => x.key === 'dates')!;
-    expect(c.lines.some((t) => /^Recovery-suit window ends: .*likely ended about Mar 1, 2026.*ask your title company whether any suit or counterclaim/.test(t))).toBe(true);
+    expect(c.lines.some((t) => /^Recovery-suit window ends: .*likely ended soon after Mar 1, 2026.*ask your title company whether any suit or counterclaim/.test(t))).toBe(true);
     expect(c.hold).toBe(true);
     const { windowEnded } = await import('./dealPacket');
     expect(windowEnded('Recovery-suit window ends', 3)!.text).toBe('the recovery-suit window likely ended 3 days ago');
@@ -2503,7 +2503,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const r = { ...EMPTY_PACKET, dates: [{ when: '2024-02-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2024-02-05', what: 'Payment deadline', who: 'T', resolved: true }, { when: '2024-02-06', what: 'Treasurer confirmed no SID affidavit', who: 'T', resolved: true }, { when: '2024-11-01', what: 'Treasurer’s deed recorded', who: 'T', resolved: true }, { when: '', what: 'Recovery-suit window ends', who: '' }] };
     savePacket(`analyzed:${tx.id}`, r);
     const lines = packetSections(tx, r, now).find((x) => x.key === 'dates')!.lines;
-    expect(lines.some((x) => /^Still to add: the date for Recovery-suit window ends \(2 years after the deed is delivered, so it likely ended about Nov 1, 2026/.test(x))).toBe(true);
+    expect(lines.some((x) => /^Still to add: the date for Recovery-suit window ends \(2 years after the deed is delivered, so it likely ended soon after Nov 1, 2026/.test(x))).toBe(true);
     expect(lines).not.toContain('Nothing else is due now.');
   });
 });
