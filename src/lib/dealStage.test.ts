@@ -2922,6 +2922,10 @@ describe('round 39: Eureka sealed-bid sale', () => {
     // (A split payment on another day still needs its own tick.)
     const q = { ...p, dates: [...p.dates.slice(0, 2), { when: '2026-11-25', what: 'Payment deadline (second half)', who: 'Me' }] };
     expect(paidIn(q, ho)).toBe(false);
+    // (A reader's own reminder, ticked, is never a copy of the sale's open payment.)
+    const r = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-20', what: 'Payment deadline', who: 'HOA' }, { when: '2026-11-20', what: 'Payment deadline (bring cashier’s check)', who: 'Me', own: true, resolved: true }] };
+    expect(handledCopy(r, r.dates[1])).toBe(false);
+    expect(paidIn(r, ho)).toBe(false);
   });
   it('round 112 content: at Owned, a Nevada trustee buy’s passed worked-out challenge window leads a reader’s reminder', async () => {
     const now = new Date('2026-11-20T20:00:00Z');

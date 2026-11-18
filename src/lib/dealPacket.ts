@@ -141,10 +141,11 @@ const LATER = ['Redemption money collected', 'Challenge window ends', 'Recovery-
 /** An open row that is a copy of a date already handled on the same day (the reader added it again): it's done too. */
 export const handledCopy = (p: PacketData, x: PacketDate): boolean => {
   if (x.resolved || !x.when) return false;
-  const nb = (w: string) => curly(dateBase(w).trim().replace(/\s+/g, ' ').toLowerCase());
-  const key = (r: PacketDate) => (r.own ? r.as ?? r.what : r.what);
-  const loose = (r: PacketDate) => !(r.own && !r.as);
-  return p.dates.some((y) => y !== x && !!y.resolved && y.when === x.when && (nb(key(x)) === nb(key(y)) || (loose(x) && loose(y) && (sameDate(key(x), key(y)) || sameDate(key(y), key(x))))));
+  // (Only rows that count as one of the sale's dates, by their full name: a reader's own reminder is never a copy.)
+  const nb = (w: string) => curly(w.trim().replace(/\s+/g, ' ').toLowerCase());
+  const key = (r: PacketDate) => (r.own ? r.as ?? '' : r.what);
+  if (!key(x)) return false;
+  return p.dates.some((y) => y !== x && !!y.resolved && y.when === x.when && !!key(y) && nb(key(x)) === nb(key(y)));
 };
 /** A blank, open row with a twin that counts as the same date and is dated: the twin stands for it. */
 const coveredBlank = (p: PacketData, x: PacketDate) => !x.when && !x.resolved && !x.own && p.dates.some((y) => y !== x && !!y.when && !!y.own && sameDate(y, x.what));
