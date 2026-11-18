@@ -146,12 +146,12 @@ export function fixRedemptionRows(d: Deal, p: PacketData, now: Date = new Date()
  * trustee's 30-day challenge window after the deed is recorded (NRS 107.080(5)), or the tax deed's 2-year recovery-suit
  * window (NRS 361.600). Returns the end date while it runs, or 'no-deed' when there's no recorded deed to count from.
  */
-export function windowMarkWait(d: Deal, p: PacketData, what: string, now: Date = new Date()): string {
+export function windowMarkWait(d: Deal, p: PacketData, what: RowRef, now: Date = new Date()): string {
   const at = now;
   const trustee = d.state === 'NV' && d.kind === 'trustee' && sameDate(what, 'Challenge window ends');
   const tax = d.state === 'NV' && d.kind === 'taxSale' && sameDate(what, 'Recovery-suit window ends');
   if (!trustee && !tax) return '';
-  const typed = p.dates.find((x) => sameDate(x, what) && x.when)?.when;
+  const typed = p.dates.find((x) => sameDate(x, typeof what === 'string' ? what : what.what) && x.when)?.when;
   const deed = deedRecordedOn(p, trustee, at);
   let worked = '';
   if (deed) { const t = new Date(`${deed}T12:00:00`); if (trustee) t.setDate(t.getDate() + 30); else t.setFullYear(t.getFullYear() + 2); worked = localDay(t); }
@@ -191,12 +191,12 @@ export const officialFirst = (rem: PacketData, d: Pick<Deal, 'kind' | 'state'>, 
 /** Before the deed stage (at Won), a Nevada trustee or tax deal with no ticked, dated recording: a window has nothing to count from. */
 export const windowBeforeDeed = (d: Deal, p: PacketData, stage: DealStage = stageOf(d)): boolean => d.state === 'NV' && (d.kind === 'trustee' || d.kind === 'taxSale') && ['researching', 'offer', 'contract'].includes(stage) && !p.dates.some((x) => x.when && x.resolved && DEED_ROWS[d.kind === 'trustee' ? 'trustee' : 'tax'].some((r) => sameDate(x, r)));
 /** Whether a window row's tick must wait (as windowMarkWait), and 'no-deed' while there's no deed date to count from. */
-export function windowTickWait(d: Deal, p: PacketData, what: string, now: Date = new Date()): string {
+export function windowTickWait(d: Deal, p: PacketData, what: RowRef, now: Date = new Date()): string {
   const own = (d.kind === 'trustee' && sameDate(what, 'Challenge window ends')) || (d.kind === 'taxSale' && sameDate(what, 'Recovery-suit window ends'));
   return own && d.state === 'NV' && (deedDateMissing(d, p) || windowBeforeDeed(d, p)) ? 'no-deed' : windowMarkWait(d, p, what, now);
 }
 /** The law's end of a Nevada challenge or recovery-suit window, worked out from the recorded deed ('' when unknown). */
-export function lawWindowEnd(d: { state?: Deal['state']; kind: Deal['kind'] }, p: PacketData, what: string, now: Date = new Date()): string {
+export function lawWindowEnd(d: { state?: Deal['state']; kind: Deal['kind'] }, p: PacketData, what: RowRef, now: Date = new Date()): string {
   const trustee = d.state === 'NV' && d.kind === 'trustee' && sameDate(what, 'Challenge window ends');
   const tax = d.state === 'NV' && d.kind === 'taxSale' && sameDate(what, 'Recovery-suit window ends');
   if (!trustee && !tax) return '';
@@ -211,7 +211,7 @@ export function lawWindowEnd(d: { state?: Deal['state']; kind: Deal['kind'] }, p
 export const withEffectiveWindows = (d: { state?: Deal['state']; kind: Deal['kind'] }, p: PacketData): PacketData => {
   if (d.state !== 'NV' || (d.kind !== 'trustee' && d.kind !== 'taxSale')) return p;
   let changed = false;
-  const dates = p.dates.map((x) => { const law = x.when ? lawWindowEnd(d, p, x.what) : ''; if (law && x.when < law) { changed = true; return { ...x, when: law }; } return x; });
+  const dates = p.dates.map((x) => { const law = x.when ? lawWindowEnd(d, p, x) : ''; if (law && x.when < law) { changed = true; return { ...x, when: law }; } return x; });
   return changed ? { ...p, dates } : p;
 };
 
@@ -1504,8 +1504,8 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const winEarly = !!nd && (sameDate(nd, 'Challenge window ends') || sameDate(nd, 'Recovery-suit window ends')) && windowBeforeDeed(d, p, stage);
     // (A date the reader added doesn't lead an unpaid win, a paid Nevada tax sale's open SID question, or collecting a redemption.)
     const customLead = !!nd && !officialRow(d, nd) && ((certificateFirst(d) && redeemedIn(p)) || redeemingNow(d) || (stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || (d.state === 'NV' && d.kind === 'taxSale' && ['contract', 'closed', 'owned'].includes(stage) && paidIn(p, d) && sidState(d) !== 'void' && sidUnasked(d)));
-    // (A reader's own reminder doesn't push aside a win's or purchase's first safety step: insure it, the first week.)
-    const safetyFirst = !!nd && !officialRow(d, nd) && ['contract', 'closed', 'owned'].includes(stage) && stageTasks(d, stage, p, now).some((t) => !t.done && (t.key === 'ev-insurance' || t.key === 'first-week'));
+    // (A reader's own reminder due later — not today or overdue — doesn't push aside a win's or purchase's first safety step: insure it, the first week.)
+    const safetyFirst = !!nd && nd.days >= 1 && !officialRow(d, nd) && ['contract', 'closed', 'owned'].includes(stage) && stageTasks(d, stage, p, now).some((t) => !t.done && (t.key === 'ev-insurance' || t.key === 'first-week'));
     const payFirst = customLead || safetyFirst || (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly;
     if (nd && !bidPrep && !payFirst && (nd.days <= 7 || (stage === 'contract' && sameDate(nd, 'SID certificate payoff')))) {
       const ended = nd.days < 0 ? windowEnded(nd, -nd.days, d.kind) : null;

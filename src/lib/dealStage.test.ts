@@ -2818,4 +2818,19 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${tr.id}`, p);
     expect(dealNextTask(tr, p, now, 'contract').label).toMatch(/Insure/);
   });
+  it('round 111 verifier: after a typed date only a time or a date note may follow; a reminder due today or overdue still leads', async () => {
+    const { sameDate, sameEvent } = await import('./dealPacket');
+    const { windowTickWait } = await import('./dealStage');
+    const own = (what: string) => ({ what, own: true });
+    for (const [w, n] of [['Payment deadline Nov 20 for HOA dues', 'Payment deadline'], ['Payment deadline 11/16 for HOA dues', 'Payment deadline'], ['Closing 11/20 final walk-through', 'Closing'], ['Challenge window ends (30 days)', 'Challenge window ends']] as const) expect([w, sameDate(own(w), n), sameEvent(own(w), n)]).toEqual([w, false, false]);
+    for (const [w, n] of [['Sale day (10 a.m.)', 'Sale day'], ['Sale day 10am', 'Sale day'], ['Sale day (postponed to Dec 5)', 'Sale day'], ['Sale day (moved to Dec 5)', 'Sale day'], ['Sale day Nov 24, 2026 at 9:30 a.m.', 'Sale day'], ['Closing: Dec 3', 'Closing'], ['Payment deadline 11/21/2026', 'Payment deadline']] as const) expect([w, sameDate(own(w), n)]).toEqual([w, true]);
+    const now = new Date('2026-11-20T20:00:00Z');
+    const tr: Deal = { ...deal, id: 'v111d', name: '11 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
+    saveDeals([tr]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-19', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-19', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-20', what: 'Pay HOA dues (late fee after today)', who: 'Me', own: true }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    expect(dealNextTask(tr, p, now, 'contract').label).toMatch(/Pay HOA dues/);
+    // (A reader's own reminder named like a window can be ticked.)
+    expect(windowTickWait(tr, p, own('Challenge window ends (30 days)'), now)).toBe('');
+  });
 });
