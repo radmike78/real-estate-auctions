@@ -1545,6 +1545,9 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     // (A deed date still to confirm comes before a reader's own reminder: the windows count from it.)
     const deedFirst = !!nd && !officialRow(d, nd) && (stage === 'closed' || stage === 'owned') && !!deedDateMissing(d, p, stage);
     const payFirst = customLead || safetyFirst || workedPassed || deedFirst || (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly;
+    // (A reader's own row named like one of the sale's dates the packet lacks: point to making it the sale's row.)
+    const ownEv = nd && nd.own && !payFirst && !bidPrep && nd.days <= 7 ? eventFor(d, nd.what) : '';
+    if (ownEv && !p.dates.some((x) => !x.own && sameDate(x, ownEv))) return task({ key: 'date', days: nd!.days, label: `“${nd!.what}” for ${d.name || 'this property'} is your own reminder: in Key dates, press “Make this the sale’s “${ownEv}” row” so the site’s steps use its date`, produces: `the sale’s “${ownEv}” row, which the steps count from`, href: packetHref(d, 'dates'), support: [], done: false });
     if (nd && !bidPrep && !payFirst && (nd.days <= 7 || (stage === 'contract' && sameDate(nd, 'SID certificate payoff')))) {
       const ended = nd.days < 0 ? windowEnded(nd, -nd.days, d.kind) : null;
       const late90Ahead = ended && d.state === 'NV' && d.kind === 'trustee' && sameDate(nd, 'Challenge window ends') ? challenge90Ahead(p, now) : '';
