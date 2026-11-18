@@ -181,7 +181,13 @@ export function deedDateMissing(d: Deal, p: PacketData, stage: DealStage = stage
 /** No date to count a Nevada window from: the deed's recording date is missing while its window is unanswered. */
 export const noDeedDate = (d: Deal, p: PacketData, stage: DealStage = stageOf(d)): boolean => !!deedDateMissing(d, p, stage) && !deedRecordedOn(p, d.kind === 'trustee');
 /** One of this sale's own dates (its usual dates and the ones the site adds), not one the reader added. */
-export const officialRow = (d: Pick<Deal, 'kind' | 'state'>, what: string): boolean => [...suggestedDates(d), ...RECORDED_ROWS, 'Payment deadline', 'SID certificate payoff', 'Redemption period ends', 'Challenge window ends', 'Recovery-suit window ends', DEED_AFTER_WAIT, 'Sale day', SEALED_ROW].some((n) => sameDate(what, n));
+export const officialRow = (d: Pick<Deal, 'kind' | 'state'>, what: string): boolean => [...suggestedDates(d), ...CONTRACT_ROWS, 'Bidder registration', 'Registration', ...RECORDED_ROWS, 'Payment deadline', 'SID certificate payoff', 'Redemption period ends', 'Challenge window ends', 'Recovery-suit window ends', DEED_AFTER_WAIT, 'Sale day', SEALED_ROW].some((n) => sameDate(what, n));
+/** The next date, with this sale's own dates first: one due within a week (or passed) leads any date the reader
+ *  added; otherwise the nearest date of any kind. Your next action and Key dates both use it. */
+export const officialFirst = (rem: PacketData, d: Pick<Deal, 'kind' | 'state'>, now: Date) => {
+  const off = nextDate({ ...rem, dates: rem.dates.filter((x) => officialRow(d, x.what)) }, now, d);
+  return off && off.days <= 7 ? off : nextDate(rem, now, d);
+};
 /** Before the deed stage (at Won), a Nevada trustee or tax deal with no ticked, dated recording: a window has nothing to count from. */
 export const windowBeforeDeed = (d: Deal, p: PacketData, stage: DealStage = stageOf(d)): boolean => d.state === 'NV' && (d.kind === 'trustee' || d.kind === 'taxSale') && ['researching', 'offer', 'contract'].includes(stage) && !p.dates.some((x) => x.when && x.resolved && DEED_ROWS[d.kind === 'trustee' ? 'trustee' : 'tax'].some((r) => sameDate(x.what, r)));
 /** Whether a window row's tick must wait (as windowMarkWait), and 'no-deed' while there's no deed date to count from. */
@@ -1358,17 +1364,11 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const saleToday = d.state === 'NV' ? nvParts(now).day : dayOf(d, now);
     const saleNow = early && p.dates.some((x) => sameDate(x.what, 'Sale day') && x.when && x.when <= saleToday);
     const remP = remindable(capSid(withEffectiveEnd(d, p), d), now, early, [...(stage === 'contract' && taxPayState(d, p, now).state ? ['Payment deadline', 'SID certificate payoff'] : []), ...behindStage(d, stage), ...notYet(d, stage, p, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT, ...(saleNow ? ['Bidder registration', 'Registration', SEALED_ROW] : [])], saleToday);
-    let nd = nextDate(remP, now, d);
+    let nd = officialFirst(remP, d, now);
     nd = contingencyFirst(nd, p, now, stage, d.kind, d.state);
     // A Nevada tax sale's open SID payoff comes before the deed's recording: the Treasurer can't issue the deed until it's
     // paid (NRS 361.595(6)), and missing it voids the sale.
     nd = sidFirst(nd, p, d, now);
-    // (A date the reader added, not one of this sale's own, never hides a legal answer that's due: an unanswered
-    //  redemption end, payment or SID payoff that has passed comes first.)
-    if (nd && !officialRow(d, nd.what)) {
-      const due = redeemedIn(p) ? undefined : remP.dates.filter((x) => x.when && !x.resolved && x.when < saleToday && ['Redemption period ends', 'Payment deadline', 'SID certificate payoff'].some((n) => sameDate(x.what, n))).sort((a, b) => a.when.localeCompare(b.when))[0];
-      if (due) nd = { ...due, days: -Math.round((Date.parse(`${saleToday}T12:00:00Z`) - Date.parse(`${due.when}T12:00:00Z`)) / 864e5) } as typeof nd;
-    }
     // A Nevada SID lien's payment deadline counts Nevada days (its 10 a.m. cutoff is Nevada time), wherever the reader is.
     // (Every Nevada date counts in Nevada's day: a redemption or challenge window ends at Nevada's midnight, wherever the reader is.)
     if (nd && d.state === 'NV' && nd.when) nd = { ...nd, days: Math.round((Date.parse(`${nd.when}T12:00:00Z`) - Date.parse(`${nvParts(now).day}T12:00:00Z`)) / 86400000) };

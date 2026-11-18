@@ -2668,4 +2668,28 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${hoa.id}`, q);
     expect(dealNextTask(hoa, q, now, 'closed').label).toMatch(/^Collect the redemption money/);
   });
+
+  it('round 109 verifier: a sale’s own date due within a week leads any reader date, in Your next action and Key dates alike', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const { REDEEMED_ROW } = await import('./dealStage');
+    const now = new Date('2026-11-20T20:00:00Z');
+    const tx: Deal = { ...deal, id: 'v109a', name: '4 Pine', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([tx]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-03', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-21', what: 'SID certificate payoff', who: 'Me' }, { when: '2026-10-05', what: 'Call the insurance agent', who: 'Me' }] };
+    savePacket(`analyzed:${tx.id}`, p);
+    expect(dealNextTask(tx, p, now, 'contract').label).toMatch(/SID/);
+    const pl = packetSections(tx, p, now).find((x) => x.key === 'dates')!.lines.join(' ');
+    expect(pl).not.toMatch(/Next: Call the insurance agent/);
+    expect(pl).not.toMatch(/Next: the special improvement district \(SID\) question/);
+    const of: Deal = { ...tx, id: 'v109b', kind: 'reo', stage: 'contract' };
+    saveDeals([of]);
+    const q = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Offer accepted', who: 'Agent', resolved: true }, { when: '2026-11-21', what: 'Inspection period ends', who: 'Me' }, { when: '2026-10-05', what: 'Call the insurance agent', who: 'Me' }] };
+    savePacket(`analyzed:${of.id}`, q);
+    expect(dealNextTask(of, q, now, 'contract').label).toMatch(/Inspection/i);
+    const hoa: Deal = { ...tx, id: 'v109c', kind: 'hoa', stage: 'closed' };
+    saveDeals([hoa]);
+    const r = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-10', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-09-12', what: 'Certificate of sale recorded', who: 'C', resolved: true }, { when: '2026-11-09', what: 'Redemption period ends', who: 'HOA' }, { when: '', what: REDEEMED_ROW, who: 'HOA' }, { when: '2026-11-23', what: 'Get contractor bids', who: 'Me' }] };
+    savePacket(`analyzed:${hoa.id}`, r);
+    expect(packetSections(hoa, r, now).find((x) => x.key === 'dates')!.lines.join(' ')).not.toMatch(/Next: Get contractor bids/);
+  });
 });
