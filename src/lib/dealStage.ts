@@ -195,6 +195,13 @@ export const eventFor = (d: Pick<Deal, 'kind' | 'state'>, what: string): string 
   return '';
 };
 
+/** This sale's usual date a reader's row is named exactly as ("Sale day", "closing", "Bidder registration"), or ''. */
+export const usualExact = (d: Pick<Deal, 'kind' | 'state'>, what: string): string => {
+  const n = (w: string) => w.trim().replace(/\s+/g, ' ').replace(/'/g, '’').toLowerCase();
+  return suggestedDates(d).find((u) => n(u) === n(what) || n(u.replace(/\s*\([^)]*\)$/, '')) === n(what)) ?? '';
+};
+/** An automatic match still holds while the name, its notes in parentheses aside, still reads as that date. */
+export const autoStillHolds = (what: string, as: string): boolean => ownNamed(what.replace(/\([^)]*\)/g, ' '), as);
 export const officialRow = (d: Pick<Deal, 'kind' | 'state'>, what: RowRef): boolean => officialNames(d).some((n) => sameDate(what, n));
 /** The next date, with this sale's own dates first: one due within a week (or passed) leads any date the reader
  *  added; otherwise the nearest date of any kind. Your next action and Key dates both use it. */
@@ -933,7 +940,7 @@ export interface PlanTask {
   /** The task is a question its buttons answer: no Continue or "Go there" link beside them. */
   answer?: boolean;
   /** A button that marks one of its date rows handled (then, optionally, moves the deal on). */
-  tick?: { label: string; row: string; /** Ticks the row as it is: a reader's own row stays their reminder (never counted as the sale's date). */ asIs?: boolean; /** The roadmap step it also marks done. */ step?: string; /** Sets the row's date (over one typed later). */ setWhen?: string; /** Leaves a blank date blank (instead of today). */ noDate?: boolean; then?: DealStage; closes?: string; /** Fills a blank "who" (and adds the row if it's missing). */ who?: string; /** The date to record when the row has none (else today). */ when?: string; /** An undated row this answer makes moot (removed). */ drops?: string };
+  tick?: { label: string; row: string; /** Ticks the row as it is: a reader's own row stays their reminder (never counted as the sale's date). */ asIs?: boolean; /** The step's own row: its date and whether the reader added it (so the press ticks that very row). */ at?: string; ownRow?: boolean; /** The roadmap step it also marks done. */ step?: string; /** Sets the row's date (over one typed later). */ setWhen?: string; /** Leaves a blank date blank (instead of today). */ noDate?: boolean; then?: DealStage; closes?: string; /** Fills a blank "who" (and adds the row if it's missing). */ who?: string; /** The date to record when the row has none (else today). */ when?: string; /** An undated row this answer makes moot (removed). */ drops?: string };
   /** Moves a row's date ("The 90-day limit still runs: move the end to …"). */
   redate?: { label: string; row: string; when: string; who?: string; /** Renames the row (the condition in its name is settled). */ as?: string };
   /** Records an answer as a new handled row ("I didn't pay it in time: the sale is void"). */
@@ -1544,7 +1551,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
       // A passed row with no other answer: mark it handled from here (registration, inspections, a contract date).
       // (Never a stage's own event: the sale, a closing, a recording or the deed. Those have their own answers.)
       const ownEvent = ['Sale day', 'Closing', 'Offer accepted', 'Acceptance', 'Contract signed', 'Payment deadline', 'Earnest money due', 'Option fee', 'Approval notice received', DEED_AFTER_WAIT].some((n) => sameEvent(nd, n)) || sameDate(nd, 'Payment deadline') || RECORDED_ROWS.some((r) => sameDate(nd, r)) || ['Redemption period ends', 'Redemption money collected'].some((n) => sameDate(nd, n));
-      const passedTick = nd.days < 0 && !approvalMissedRow && !ownEvent && !sameDate(nd, 'SID certificate payoff') && !windowEnded(nd, -nd.days, d.kind) ? { label: registrationRow(nd) ? 'I registered (or none was needed): mark it handled' : sameEvent(nd, 'Inspection period ends') ? 'Inspections done: mark it handled' : stage === 'contract' && wayOf(d) === 'offer' && (sameEvent(nd, 'Appraisal deadline') || sameEvent(nd, 'Appraisal addendum deadline') || sameEvent(nd, 'Loan approval deadline')) ? 'It was resolved: mark it handled' : 'Done (or it no longer applies): mark it handled', row: nd.what, asIs: true } : undefined;
+      const passedTick = nd.days < 0 && !approvalMissedRow && !ownEvent && !sameDate(nd, 'SID certificate payoff') && !windowEnded(nd, -nd.days, d.kind) ? { label: registrationRow(nd) ? 'I registered (or none was needed): mark it handled' : sameEvent(nd, 'Inspection period ends') ? 'Inspections done: mark it handled' : stage === 'contract' && wayOf(d) === 'offer' && (sameEvent(nd, 'Appraisal deadline') || sameEvent(nd, 'Appraisal addendum deadline') || sameEvent(nd, 'Loan approval deadline')) ? 'It was resolved: mark it handled' : 'Done (or it no longer applies): mark it handled', row: nd.what, asIs: true, at: nd.when, ownRow: !!nd.own } : undefined;
       const sidNone = sameDate(nd, 'SID certificate payoff') ? { label: 'No SID affidavit after all: remove the payoff row', removeRow: nd.what, addRow: { when: nvParts(now).day, what: NO_SID_ROW, who: 'The county treasurer', resolved: true } } : undefined;
       const sidLate = nd.days < 0 && sameDate(nd, 'SID certificate payoff') && d.state === 'NV' && stage === 'contract';
       const sidAfterDeed = sameDate(nd, 'SID certificate payoff') && d.state === 'NV' && (stage === 'closed' || stage === 'owned');

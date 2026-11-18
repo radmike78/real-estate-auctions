@@ -34,6 +34,8 @@ export interface PacketDate {
   own?: boolean;
   /** The sale's own date a reader's row stands for, chosen by the reader (“This is the sale's Sale day”). */
   as?: string;
+  /** as was set because the reader typed the date's exact name (not by pressing “Yes”): it lasts while the name still reads as that date. */
+  asAuto?: boolean;
   /** The roadmap step that ticked this row ("~step": it was already handled when the step was marked). */
   step?: string;
 }
@@ -83,19 +85,7 @@ const OWN_TASK = /^(closing\s*:?\s*(costs?|statements?|disclosures?|documents?|d
 /** A date row, or just its name. */
 export type RowRef = string | { what: string; own?: boolean; as?: string };
 /** The name a row is matched by: its own name, or for a row the reader added, the sale's date they said it is (none: it's their own reminder). */
-// (A reader's row named exactly as one of the sale's usual dates — "Sale day", "Closing", "Redemption period ends",
-//  with or without the site's note — is that date: there's nothing else it could mean.)
-const norm = (w: string) => curly(w.trim().replace(/\s+/g, ' ').toLowerCase());
-let exactNames: Set<string> | null = null;
-export const exactName = (w: string) => {
-  if (!exactNames) {
-    const kinds = ['trustee', 'taxSale', 'hoa', 'court', 'irs', 'lien', 'reo', 'listing', 'short', 'commercial'] as Deal['kind'][];
-    const names = [...(['NV', 'CA', 'AZ', 'UT', 'TX'] as Deal['state'][]).flatMap((state) => kinds.flatMap((kind) => { try { return suggestedDates({ kind, state }); } catch { return []; } })), ...RECORDED_ROWS, 'Sale day', 'Payment deadline', 'Registration', 'Bidder registration', 'Closing', 'SID certificate payoff', 'Redemption period ends', 'Challenge window ends', 'Recovery-suit window ends'];
-    exactNames = new Set(names.flatMap((n) => [norm(n), norm(dateBase(n))]));
-  }
-  return exactNames.has(norm(w));
-};
-const matchText = (r: RowRef): string | null => (typeof r === 'string' ? r : r.own ? (r.as ?? (exactName(r.what) ? r.what : null)) : r.what);
+const matchText = (r: RowRef): string | null => (typeof r === 'string' ? r : r.own ? (r.as ?? null) : r.what);
 // (A row the reader added is the sale's own event only when named exactly as it: the name, optionally "deadline",
 //  "date", "day" or "due", then nothing, a date, or a dated note in parentheses. "Sale day prep", "Payment deadline for HOA dues" and
 //  "Closing day walk-through" are the reader's own reminders.)
@@ -236,7 +226,7 @@ export function cleanPacket(v: unknown): PacketData {
     // (A void recorded before the row was renamed keeps counting.)
     const what0 = str(r.what, 200);
     const what = /^Treasurer: the sale is void/.test(what0) ? 'The sale is void (the Treasurer said so)' : what0;
-    return { when: DATE.test(when) ? when : '', what, who: str(r.who, 120), ...(r.resolved === true ? { resolved: true } : {}), ...(r.own === true ? { own: true, ...(typeof r.as === 'string' && r.as.trim() ? { as: str(r.as, 120) } : {}) } : {}), ...(typeof r.step === 'string' && /^~?[a-z-]{1,24}$/.test(r.step) ? { step: r.step } : {}) };
+    return { when: DATE.test(when) ? when : '', what, who: str(r.who, 120), ...(r.resolved === true ? { resolved: true } : {}), ...(r.own === true ? { own: true, ...(typeof r.as === 'string' && r.as.trim() ? { as: str(r.as, 120), ...(r.asAuto === true ? { asAuto: true } : {}) } : {}) } : {}), ...(typeof r.step === 'string' && /^~?[a-z-]{1,24}$/.test(r.step) ? { step: r.step } : {}) };
   });
   const qa = (Array.isArray(o.qa) ? o.qa : []).slice(0, 40).map((d) => {
     const r = obj(d);
