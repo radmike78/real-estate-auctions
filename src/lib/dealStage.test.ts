@@ -2780,8 +2780,8 @@ describe('round 39: Eureka sealed-bid sale', () => {
     for (const w of ['Closing day walk-through', 'Closing costs: ask title']) expect([w, sameEvent(own(w), 'Closing'), sameDate(own(w), 'Closing')]).toEqual([w, false, false]);
     for (const w of ['Registration with the Secretary of State', 'Registration for LLC', 'Registration: LLC annual list']) expect([w, registrationRow(own(w))]).toEqual([w, false]);
     for (const [w, n] of [['Sale day (get cashier’s check)', 'Sale day'], ['Payment deadline (HOA dues)', 'Payment deadline'], ['Closing (walk-through)', 'Closing']] as const) expect([w, sameDate(own(w), n), sameEvent(own(w), n)]).toEqual([w, false, false]);
-    for (const [w, n] of [['Bidder registration (if required)', 'Bidder registration'], ['Sale day (Nov 24)', 'Sale day'], ['Sale day (postponed)', 'Sale day']] as const) expect([w, offers(w, n), sameDate(own(w), n), sameDate({ what: w, own: true, as: n }, n)]).toEqual([w, true, false, true]);
-    for (const [w, n] of [['Sale day', 'Sale day'], ['Sale day (moved)', 'Sale day'], ['Payment deadline Nov 21', 'Payment deadline'], ['Registration deadline', 'Registration'], ['Closing: Dec 3', 'Closing'], ['Close of escrow', 'Closing']] as const) expect([w, offers(w, n), sameDate(own(w), n), sameDate({ what: w, own: true, as: n }, n)]).toEqual([w, true, false, true]);
+    for (const [w, n] of [['Bidder registration (if required)', 'Bidder registration'], ['Sale day (Nov 24)', 'Sale day'], ['Sale day (postponed)', 'Sale day']] as const) expect([w, offers(w, n), sameDate(own(w), n), sameDate({ what: w, own: true, as: n }, n)]).toEqual([w, true, false, false]);
+    for (const [w, n] of [['Sale day', 'Sale day'], ['Sale day (moved)', 'Sale day'], ['Payment deadline Nov 21', 'Payment deadline'], ['Registration deadline', 'Registration'], ['Closing: Dec 3', 'Closing'], ['Close of escrow', 'Closing']] as const) expect([w, offers(w, n), sameDate(own(w), n), sameDate({ what: w, own: true, as: n }, n)]).toEqual([w, true, false, false]);
     // (The site's own closing row, renamed, is still the closing in every check.)
     expect(sameEvent('Closing scheduled with escrow', 'Closing')).toBe(true);
     expect(sameEvent('Closing Disclosure received', 'Closing')).toBe(false);
@@ -2812,8 +2812,8 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const own = (what: string) => ({ what, own: true });
     const { ownNamed } = await import('./dealPacket');
     const offers = (w: string, n: string) => ownNamed(w, n) || (n === 'Closing' && ['Close of escrow', 'COE', 'Settlement'].some((a) => ownNamed(w, a)));
-    for (const [w, n] of [['Closing date', 'Closing'], ['Closing day', 'Closing'], ['COE date', 'Closing'], ['Sale date', 'Sale day'], ['Payment deadline 11/21', 'Payment deadline']] as const) expect([w, offers(w, n), sameDate(own(w), n), sameDate({ what: w, own: true, as: n }, n)]).toEqual([w, true, false, true]);
-    expect([ownNamed('Registration due', 'Registration'), registrationRow(own('Registration due')), registrationRow({ what: 'Registration due', own: true, as: 'Registration' })]).toEqual([true, false, true]);
+    for (const [w, n] of [['Closing date', 'Closing'], ['Closing day', 'Closing'], ['COE date', 'Closing'], ['Sale date', 'Sale day'], ['Payment deadline 11/21', 'Payment deadline']] as const) expect([w, offers(w, n), sameDate(own(w), n), sameDate({ what: w, own: true, as: n }, n)]).toEqual([w, true, false, false]);
+    expect([ownNamed('Registration due', 'Registration'), registrationRow(own('Registration due')), registrationRow({ what: 'Registration due', own: true, as: 'Registration' })]).toEqual([true, false, false]);
     for (const [w, n] of [['Payment deadline 2nd HOA installment', 'Payment deadline'], ['Closing 2nd walk-through', 'Closing'], ['Closing day walk-through', 'Closing']] as const) expect([w, sameDate(own(w), n), sameEvent(own(w), n)]).toEqual([w, false, false]);
     const now = new Date('2026-11-20T20:00:00Z');
     const tr: Deal = { ...deal, id: 'v111c', name: '10 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
@@ -2829,7 +2829,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const { ownNamed } = await import('./dealPacket');
     const offers = (w: string, n: string) => ownNamed(w, n) || (n === 'Closing' && ['Close of escrow', 'COE', 'Settlement'].some((a) => ownNamed(w, a)));
     for (const [w, n] of [['Payment deadline Nov 20 for HOA dues', 'Payment deadline'], ['Payment deadline 11/16 for HOA dues', 'Payment deadline'], ['Closing 11/20 final walk-through', 'Closing'], ['Challenge window ends? ask my attorney', 'Challenge window ends']] as const) expect([w, sameDate(own(w), n), sameEvent(own(w), n)]).toEqual([w, false, false]);
-    for (const [w, n] of [['Sale day (10 a.m.)', 'Sale day'], ['Sale day 10am', 'Sale day'], ['Sale day (postponed to Dec 5)', 'Sale day'], ['Sale day (moved to Dec 5)', 'Sale day'], ['Sale day Nov 24, 2026 at 9:30 a.m.', 'Sale day'], ['Closing: Dec 3', 'Closing'], ['Payment deadline 11/21/2026', 'Payment deadline']] as const) expect([w, offers(w, n), sameDate(own(w), n), sameDate({ what: w, own: true, as: n }, n)]).toEqual([w, true, false, true]);
+    for (const [w, n] of [['Sale day (10 a.m.)', 'Sale day'], ['Sale day 10am', 'Sale day'], ['Sale day (postponed to Dec 5)', 'Sale day'], ['Sale day (moved to Dec 5)', 'Sale day'], ['Sale day Nov 24, 2026 at 9:30 a.m.', 'Sale day'], ['Closing: Dec 3', 'Closing'], ['Payment deadline 11/21/2026', 'Payment deadline']] as const) expect([w, offers(w, n), sameDate(own(w), n), sameDate({ what: w, own: true, as: n }, n)]).toEqual([w, true, false, false]);
     const now = new Date('2026-11-20T20:00:00Z');
     const tr: Deal = { ...deal, id: 'v111d', name: '11 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
     saveDeals([tr]);
@@ -2844,9 +2844,9 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const own = (what: string) => ({ what, own: true });
     const { ownNamed } = await import('./dealPacket');
     const offers = (w: string, n: string) => ownNamed(w, n) || (n === 'Closing' && ['Close of escrow', 'COE', 'Settlement'].some((a) => ownNamed(w, a)));
-    for (const [w, n] of [['Sale day moved to Dec 5', 'Sale day'], ['Sale day (Nov 10, 10 a.m.)', 'Sale day'], ['Sale day at 10', 'Sale day'], ['Sale day 10:00', 'Sale day'], ['Payment deadline Nov 19 by 5pm', 'Payment deadline'], ['Closing (est.)', 'Closing'], ['Earnest money due (3 business days)', 'Earnest money due'], ['Approval notice received (dates count from here)', 'Approval notice received'], ['Payment deadline (', 'Payment deadline'], ['Payment deadline 1', 'Payment deadline']] as const) expect([w, offers(w, n), sameDate(own(w), n), sameDate({ what: w, own: true, as: n }, n)]).toEqual([w, true, false, true]);
+    for (const [w, n] of [['Sale day moved to Dec 5', 'Sale day'], ['Sale day (Nov 10, 10 a.m.)', 'Sale day'], ['Sale day at 10', 'Sale day'], ['Sale day 10:00', 'Sale day'], ['Payment deadline Nov 19 by 5pm', 'Payment deadline'], ['Closing (est.)', 'Closing'], ['Earnest money due (3 business days)', 'Earnest money due'], ['Approval notice received (dates count from here)', 'Approval notice received'], ['Payment deadline (', 'Payment deadline'], ['Payment deadline 1', 'Payment deadline']] as const) expect([w, offers(w, n), sameDate(own(w), n), sameDate({ what: w, own: true, as: n }, n)]).toEqual([w, true, false, false]);
     expect(ownNamed('Registration (check the notice)', 'Registration (check the notice)')).toBe(true);
-    expect(sameDate({ what: 'Registration (check the notice)', own: true, as: 'Registration (check the notice)' }, 'Registration')).toBe(true);
+    expect(sameDate({ what: 'Registration (check the notice)', own: true, as: 'Registration (check the notice)' }, 'Registration')).toBe(false);
     for (const [w, n] of [['Sale day prep', 'Sale day'], ['Payment deadline Nov 20 for HOA dues', 'Payment deadline'], ['Payment deadline (HOA dues)', 'Payment deadline'], ['Closing day walk-through', 'Closing'], ['Closing may move', 'Closing'], ['Deed recorded copy to my lender', 'Deed recorded'], ['Registration of my LLC', 'Registration']] as const) expect([w, sameDate(own(w), n), sameEvent(own(w), n)]).toEqual([w, false, false]);
   });
   it('round 112 tools: a reader reminder due today doesn’t push aside a passed worked-out redemption end', async () => {
@@ -2877,9 +2877,9 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(eventFor(tr, 'Close of escrow Dec 5')).toBe('');
     expect(eventFor(tr, 'Payment deadline for HOA dues')).toBe('');
     expect(eventFor(tr, 'Sale day prep')).toBe('');
-    // (Chosen: it counts, and a note added later keeps it.)
+    // (A reader's own row never counts as the sale's date, even one saved as chosen by an older build.)
     const paid = { ...EMPTY_PACKET, dates: [{ when: '2026-11-19', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-19', what: 'Payment deadline (wired from my bank)', who: 'Me', resolved: true, own: true, as: 'Payment deadline' }, { when: '2026-12-01', what: 'Payment deadline for HOA dues', who: 'Me', own: true }] };
-    expect(paidIn(paid, tr)).toBe(true);
+    expect(paidIn(paid, tr)).toBe(false);
     expect(cleanPacket(paid).dates[1].as).toBe('Payment deadline');
     expect(cleanPacket({ dates: [{ when: '', what: 'x', who: '', as: 'Sale day' }] }).dates[0].as).toBeUndefined();
   });
@@ -2917,6 +2917,8 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-10', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-10', what: 'Payment deadline', who: 'Me', own: true, as: 'Payment deadline', asAuto: true }] };
     expect(handledCopy(p, p.dates[2])).toBe(true);
     expect(paidIn(p, ho)).toBe(true);
+    // (A reader's row never counts as the sale's own: a differently dated one is just their reminder.)
+    expect(paidIn({ ...p, dates: [...p.dates.slice(0, 2), { when: '2026-11-12', what: 'Payment deadline', who: 'Me', own: true }] }, ho)).toBe(true);
     savePacket(`analyzed:${ho.id}`, p);
     expect(dealNextTask(ho, p, now, 'contract').label).not.toMatch(/payment deadline/i);
     // (A split payment on another day still needs its own tick.)

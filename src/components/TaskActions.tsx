@@ -1,5 +1,5 @@
 import { clearsOnPostpone, loadPacket, RECORDED_ROWS, sameDate, type PacketData } from '../lib/dealPacket';
-import { dayOf, DEED_AFTER_WAIT, DEED_ROWS, prettyDay, setDealStage, officialNames, type PlanTask, withRow } from '../lib/dealStage';
+import { dayOf, DEED_AFTER_WAIT, DEED_ROWS, prettyDay, setDealStage, type PlanTask, withRow } from '../lib/dealStage';
 import { loadDeals } from '../lib/analyze';
 import { markDealStepDone } from '../lib/roadmapState';
 
@@ -9,9 +9,6 @@ import { markDealStepDone } from '../lib/roadmapState';
  */
 // (Today in the deal's state, so a date recorded from Tokyo is still Nevada's day.)
 const todayFor = (dealId: string) => dayOf(loadDeals().find((x) => x.id === dealId), new Date());
-// (A step's button that ticks a reader's own row named as one of the sale's dates ("Payment deadline") says it is
-//  that date: it's counted as it from then on, so the step doesn't stay.)
-const adopts = (dealId: string, row: string) => { const d = loadDeals().find((x) => x.id === dealId); return !!d && officialNames(d).some((n) => n.toLowerCase() === row.trim().toLowerCase()); };
 
 export default function TaskActions({ task, dealId, edit, after, big = false }: { task: PlanTask; dealId: string; edit: (f: (p: PacketData) => PacketData) => void; after: (el: HTMLElement, finished?: boolean) => void; big?: boolean }) {
   // The answer that moves the deal on is the main button when the task is a question.
@@ -35,12 +32,12 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
             // ("Done" on a reader's reminder ticks that reminder, not a site row of the same name.)
             const self = tick.asIs && tick.at !== undefined ? p.dates.findIndex((x) => named(x) && x.when === tick.at && !!x.own === !!tick.ownRow) : -1;
             // (Every open row that counts as this date — the site's, and a reader's that counts as it — a dated one first.)
-            const counts = (x: PacketData['dates'][number]) => !x.resolved && ((named(x) && !own(x)) || (!!x.own && !!x.as && (x.as.trim().toLowerCase() === tick.row.trim().toLowerCase() || sameDate(x, tick.row))));
+            const counts = (x: PacketData['dates'][number]) => !x.resolved && !x.own && named(x);
             /* (the row the step names: the earliest dated one) */ const dated = p.dates.reduce((b, x, k) => (counts(x) && !!x.when && (b < 0 || x.when < p.dates[b].when) ? k : b), -1);
             const exact = self >= 0 ? self : tick.asIs ? p.dates.findIndex(named) : dated >= 0 ? dated : p.dates.findIndex(counts);
             const kind = exact >= 0 ? -1 : p.dates.findIndex((x) => sameDate(x, tick.row) && !x.resolved);
             const i = exact >= 0 ? exact : kind >= 0 ? kind : p.dates.findIndex((x) => named(x) && (tick.asIs || !mine(x)));
-            const adopt = !tick.asIs && adopts(dealId, tick.row);
+            const adopt = false; // (a reader's own row is never counted as the sale's date)
             // (A twin on another past date is a different answer: left open, not ticked on its own date. A second SID
             //  payoff to a different payee is a different payment.)
             const otherPast = (x: PacketData['dates'][number]) => exact >= 0 && [...RECORDED_ROWS, DEED_AFTER_WAIT].some((r) => sameDate(tick.row, r)) && !!x.when && x.when <= todayFor(dealId) && !!p.dates[exact].when && x.when !== p.dates[exact].when;

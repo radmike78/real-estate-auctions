@@ -87,7 +87,9 @@ const OWN_TASK = /^(closing\s*:?\s*(costs?|statements?|disclosures?|documents?|d
 /** A date row, or just its name. */
 export type RowRef = string | { what: string; own?: boolean; as?: string; notAs?: boolean };
 /** The name a row is matched by: its own name, or for a row the reader added, the sale's date they said it is (none: it's their own reminder). */
-const matchText = (r: RowRef): string | null => (typeof r === 'string' ? r : r.own ? (r.as ?? null) : r.what);
+// (A row the reader added is always their own reminder: the sale's dates come only from the site's rows, which the
+//  reader edits; "Add the usual dates that are missing" adds any the packet lacks.)
+const matchText = (r: RowRef): string | null => (typeof r === 'string' ? r : r.own ? null : r.what);
 // (A row the reader added is the sale's own event only when named exactly as it: the name, optionally "deadline",
 //  "date", "day" or "due", then nothing, a date, or a dated note in parentheses. "Sale day prep", "Payment deadline for HOA dues" and
 //  "Closing day walk-through" are the reader's own reminders.)
@@ -143,8 +145,10 @@ export const handledCopy = (p: PacketData, x: PacketDate): boolean => {
   if (x.resolved || !x.when) return false;
   // (Only rows that count as one of the sale's dates, by their full name: a reader's own reminder is never a copy.)
   const nb = (w: string) => curly(w.trim().replace(/\s+/g, ' ').toLowerCase());
-  const key = (r: PacketDate) => (r.own ? r.as ?? '' : r.what);
+  const key = (r: PacketDate) => (r.own ? '' : r.what);
   // (An SID payoff is never a copy: a parcel can owe two, to different districts, due the same day.)
+  // (A reader's reminder that repeats a handled site row exactly, same name and day, is a duplicate reminder.)
+  if (x.own) return p.dates.some((y) => y !== x && !y.own && !!y.resolved && y.when === x.when && nb(y.what) === nb(x.what));
   if (!key(x) || sameDate(key(x), 'SID certificate payoff')) return false;
   return p.dates.some((y) => y !== x && !!y.resolved && y.when === x.when && !!key(y) && nb(key(x)) === nb(key(y)));
 };
@@ -575,7 +579,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
 export function missingUsualDates(deal: Deal, p: PacketData): string[] {
   const behind = wayOf(deal) === 'offer' && ['researching', 'offer'].includes(stageOf(deal)) ? [] : behindStage(deal, finishedDeal(deal) ? 'closed' : stageOf(deal));
   const redeemed = p.dates.some((x) => sameDate(x, REDEEMED_ROW));
-  return p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x, w)) && !behind.some((b) => sameDate(w, b)) && !(redeemed && sameDate(w, DEED_AFTER_WAIT)) && !(sidState(deal) === 'void' && (RECORDED_ROWS.some((r) => sameDate(w, r)) || sameDate(w, 'Recovery-suit window ends') || sameDate(w, 'SID certificate payoff'))) && !(sameDate(w, 'SID certificate payoff') && p.dates.some((x) => sameDate(x, NO_SID_ROW)))) : [];
+  return p.dates.length ? suggestedDates(deal).filter((w) => !p.dates.some((x) => sameDate(x, w)) && (!behind.some((b) => sameDate(w, b)) || (wayOf(deal) !== 'offer' && sameDate(w, 'Sale day'))) && !(redeemed && sameDate(w, DEED_AFTER_WAIT)) && !(sidState(deal) === 'void' && (RECORDED_ROWS.some((r) => sameDate(w, r)) || sameDate(w, 'Recovery-suit window ends') || sameDate(w, 'SID certificate payoff'))) && !(sameDate(w, 'SID certificate payoff') && p.dates.some((x) => sameDate(x, NO_SID_ROW)))) : [];
 }
 
 export function suggestedDates(d: Pick<Deal, 'kind' | 'state'>): string[] {
@@ -1281,7 +1285,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
         const row = p.dates.find((x) => DEED_ROWS[miss].some((r) => sameDate(x, r)));
         const why = miss === 'trustee' ? 'The challenge window is worked out from it (NRS 107.080(5)).' : 'The 2-year recovery-suit window (NRS 361.600) runs from the deed’s delivery, after its recording: the Treasurer records the deed, then delivers it to you*.';
         { const k = ln.indexOf('Nothing else is due now.'); if (k >= 0) ln.splice(k, 1); }
-        ln.push(row && row.when && row.when > todayHere ? `Still to add: “${row.what}”, expected ${prettyDay(row.when)}: mark it handled once it’s recorded, with the day it was recorded. ${why}` : row && row.when ? `Still to add: mark “${row.what}” handled to confirm the recording date entered (${prettyDay(row.when)}). ${why}` : row ? `Still to add: the date on the “${row.what}” row${row.resolved ? ' (it’s marked handled without one)' : ', then mark it handled'}. ${why}` : `Still to add: the date the ${miss === 'trustee' ? 'trustee’s' : 'Treasurer’s'} deed was recorded (use “Add a date” and name it ${DEED_ROWS[miss][0]}, then mark it handled). ${why}`);
+        ln.push(row && row.when && row.when > todayHere ? `Still to add: “${row.what}”, expected ${prettyDay(row.when)}: mark it handled once it’s recorded, with the day it was recorded. ${why}` : row && row.when ? `Still to add: mark “${row.what}” handled to confirm the recording date entered (${prettyDay(row.when)}). ${why}` : row ? `Still to add: the date on the “${row.what}” row${row.resolved ? ' (it’s marked handled without one)' : ', then mark it handled'}. ${why}` : `Still to add: the date the ${miss === 'trustee' ? 'trustee’s' : 'Treasurer’s'} deed was recorded (on its “${DEED_ROWS[miss][0]}” row; if there’s none, press “Add the usual dates that are missing”, then mark it handled). ${why}`);
       }
       else if (!later.length && d.state === 'NV' && d.kind === 'taxSale' && stageOf(d) === 'contract') { const k = ln.findIndex((t) => /^Later: add the date for .*Treasurer’s deed recorded/.test(t)); if (k >= 0) ln[k] = `${ln[k]} The 2-year recovery-suit window (NRS 361.600) then runs from the deed’s delivery, after its recording: the Treasurer records the deed, then delivers it to you*.`; }
       else if (later.length) { const k = ln.findIndex((t) => /^Later: add the date for .*Treasurer’s deed recorded/.test(t)); const rec = '“Recovery-suit window ends” (2 years after the deed is delivered, NRS 361.600)'; if (k >= 0) ln[k] = `${ln[k]} Then add ${rec}.`; else ln.push(later.some((w) => sameDate(w, 'Treasurer’s deed recorded')) ? `Later: once the Treasurer’s deed is recorded, add its date (use “Add the usual dates that are missing” above), then add ${rec}.` : `Later: once the Treasurer’s deed is recorded, add ${rec}.`); }
