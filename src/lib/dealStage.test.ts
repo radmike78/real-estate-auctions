@@ -958,7 +958,7 @@ describe('Nevada round 4 flow', () => {
     expect(t.redate).toBeUndefined();
     saveDeals([{ ...nvFlip, stage: 'closed' }]);
     const tl = packetSections({ ...nvFlip, stage: 'closed' }, tr, now).find((x) => x.key === 'dates')!.lines.join(' | ');
-    expect(tl).toMatch(/Jul 5, 2026: Deed recorded \(Me\) — passed/);
+    expect(tl).toMatch(/Jul 5, 2026: Deed recorded \(Me\) — not marked handled: mark it to confirm the recording date/);
     expect(tl).toMatch(/Next: the challenge window ended 63 days ago \(Aug 4, 2026\): see Your next action\./);
     const tax = { ...nvFlip, kind: 'taxSale' as const };
     const sid = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-20', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-30', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
@@ -2505,5 +2505,24 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const lines = packetSections(tx, r, now).find((x) => x.key === 'dates')!.lines;
     expect(lines.some((x) => /^Still to add: the date for Recovery-suit window ends \(2 years after the deed is delivered, so it likely ended soon after Nov 1, 2026/.test(x))).toBe(true);
     expect(lines).not.toContain('Nothing else is due now.');
+  });
+
+  it('round 105 clarity: a dated deed row not yet ticked asks for its tick, not "passed"; the trustee rent hint names the window; the recovery task says no earlier than', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const { stageHint } = await import('./dealStage');
+    const now = new Date('2026-12-01T20:00:00Z');
+    const tr: Deal = { ...deal, id: 'q105', name: '4 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'rent', stage: 'owned' };
+    saveDeals([tr]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-17', what: 'Deed recorded', who: 'County' }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    const lines = packetSections(tr, p, now).find((x) => x.key === 'dates')!.lines;
+    expect(lines.some((t) => /Deed recorded \(County\) — not marked handled: mark it to confirm the recording date/.test(t))).toBe(true);
+    expect(lines).not.toContain('Nothing else is due now.');
+    expect(stageHint('owned', tr)).toMatch(/^Bought at a trustee’s sale: the challenge window comes first/);
+    const tx: Deal = { ...tr, id: 'q105t', kind: 'taxSale', stage: 'closed' };
+    const tp = { ...EMPTY_PACKET, dates: [{ when: '2026-11-17', what: 'Treasurer’s deed recorded', who: 'T', resolved: true }] };
+    const w = stageTasks(tx, 'closed', tp, now).find((t) => t.key === 'window')!;
+    expect(w.produces).toMatch(/no earlier than Nov 17, 2028, 2 years from its recording on Nov 17, 2026; the 2 years run from the deed’s delivery/);
+    expect(w.produces).not.toMatch(/about/);
   });
 });
