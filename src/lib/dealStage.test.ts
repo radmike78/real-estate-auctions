@@ -2539,6 +2539,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(lines).toContain('Next: the date the deed was recorded (see Your next action): the window is counted from it.');
     expect(lines.some((t) => /marked handled without one/.test(t))).toBe(true);
     expect(stageHint('closed', tr)).toMatch(/^The deed is yours: enter the date it was recorded/);
+    expect(lines.some((t) => /Challenge window ends \(Me\) — can’t be checked yet: enter the deed’s recording date/.test(t))).toBe(true);
     const done = { ...p, dates: p.dates.map((x) => (x.what === 'Challenge window ends' ? { ...x, resolved: true } : x)) };
     expect(windowTickWait(tr, done, 'Challenge window ends', now)).toBe('');
   });
