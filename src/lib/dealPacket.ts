@@ -144,7 +144,8 @@ export const handledCopy = (p: PacketData, x: PacketDate): boolean => {
   // (Only rows that count as one of the sale's dates, by their full name: a reader's own reminder is never a copy.)
   const nb = (w: string) => curly(w.trim().replace(/\s+/g, ' ').toLowerCase());
   const key = (r: PacketDate) => (r.own ? r.as ?? '' : r.what);
-  if (!key(x)) return false;
+  // (An SID payoff is never a copy: a parcel can owe two, to different districts, due the same day.)
+  if (!key(x) || sameDate(key(x), 'SID certificate payoff')) return false;
   return p.dates.some((y) => y !== x && !!y.resolved && y.when === x.when && !!key(y) && nb(key(x)) === nb(key(y)));
 };
 /** A blank, open row with a twin that counts as the same date and is dated: the twin stands for it. */
