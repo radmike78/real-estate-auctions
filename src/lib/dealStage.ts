@@ -410,7 +410,7 @@ export const remindable = (p: PacketData, now: Date, early: boolean, behind: str
   const deed = ticked(p, DEED_AFTER_WAIT);
   // (Every row counts in the deal's day, wherever the reader is: callers pass that day as saleToday.)
   const past = (x: { when: string; what: string }) => !!x.when && x.when < saleToday;
-  return { ...p, dates: p.dates.filter((x) => !(early && afterSale(x)) && !(EVENTS.some((n) => sameDate(x, n)) && (past(x) || !early)) && !(!early && BEFORE_SALE.some((n) => sameDate(x, n))) && !((deed || redeemedIn(p)) && sameDate(x, 'Redemption period ends')) && !(redeemedIn(p) && [DEED_AFTER_WAIT, REDEEMED_ROW, 'Earliest you may act (unpaid lien)', 'Certificate expires'].some((n) => sameDate(x, n))) && !behind.some((n) => sameDate(x, n))) };
+  return { ...p, dates: p.dates.filter((x) => !(early && afterSale(x)) && !(EVENTS.some((n) => sameDate(x, n)) && (past(x) || !early)) && !(!early && BEFORE_SALE.some((n) => sameDate(x, n))) && !((deed || redeemedIn(p)) && sameDate(x, 'Redemption period ends')) && !(redeemedIn(p) && [DEED_AFTER_WAIT, REDEEMED_ROW, 'Earliest you may act (unpaid lien)', 'Certificate expires'].some((n) => sameDate(x, n))) && !behind.some((n) => sameDate(x, n)) && !(!x.resolved && RECORDED_ROWS.some((r) => sameDate(x, r) && p.dates.some((y) => y !== x && y.resolved && !!y.when && sameDate(y, r))))) };
 };
 /** The usual dates a stage has put behind you: once it's closed or owned, the ones before closing and the recording rows. */
 export const behindStage = (d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan']; id?: string }, stage: DealStage): string[] =>
