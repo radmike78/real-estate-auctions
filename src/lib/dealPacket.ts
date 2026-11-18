@@ -148,7 +148,8 @@ export const handledCopy = (p: PacketData, x: PacketDate): boolean => {
   const key = (r: PacketDate) => (r.own ? '' : r.what);
   // (An SID payoff is never a copy: a parcel can owe two, to different districts, due the same day.)
   // (A reader's reminder that repeats a handled site row exactly, same name and day, is a duplicate reminder.)
-  if (x.own) return !!x.when && p.dates.some((y) => y !== x && !y.own && !!y.resolved && y.when === x.when && nb(y.what) === nb(x.what));
+  // (…or, for a recording, deed or window row, one that repeats a handled site row's name on any day: that's done.)
+  if (x.own) return !!x.when && p.dates.some((y) => y !== x && !y.own && !!y.resolved && nb(y.what) === nb(x.what) && (y.when === x.when || [...RECORDED_ROWS, 'Deed delivered (if no one redeemed)', 'Challenge window ends', 'Recovery-suit window ends'].some((r) => sameDate(y.what, r))));
   if (!key(x) || sameDate(key(x), 'SID certificate payoff')) return false;
   return p.dates.some((y) => y !== x && !!y.resolved && y.when === x.when && !!key(y) && nb(key(x)) === nb(key(y)));
 };
