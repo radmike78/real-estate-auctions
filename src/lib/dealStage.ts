@@ -180,10 +180,12 @@ export function deedDateMissing(d: Deal, p: PacketData, stage: DealStage = stage
 }
 /** No date to count a Nevada window from: the deed's recording date is missing while its window is unanswered. */
 export const noDeedDate = (d: Deal, p: PacketData, stage: DealStage = stageOf(d)): boolean => !!deedDateMissing(d, p, stage) && !deedRecordedOn(p, d.kind === 'trustee');
+/** Before the deed stage (at Won), a Nevada trustee or tax deal with no ticked, dated recording: a window has nothing to count from. */
+export const windowBeforeDeed = (d: Deal, p: PacketData, stage: DealStage = stageOf(d)): boolean => d.state === 'NV' && (d.kind === 'trustee' || d.kind === 'taxSale') && ['researching', 'offer', 'contract'].includes(stage) && !p.dates.some((x) => x.when && x.resolved && DEED_ROWS[d.kind === 'trustee' ? 'trustee' : 'tax'].some((r) => sameDate(x.what, r)));
 /** Whether a window row's tick must wait (as windowMarkWait), and 'no-deed' while there's no deed date to count from. */
 export function windowTickWait(d: Deal, p: PacketData, what: string, now: Date = new Date()): string {
   const own = (d.kind === 'trustee' && sameDate(what, 'Challenge window ends')) || (d.kind === 'taxSale' && sameDate(what, 'Recovery-suit window ends'));
-  return own && d.state === 'NV' && deedDateMissing(d, p) ? 'no-deed' : windowMarkWait(d, p, what, now);
+  return own && d.state === 'NV' && (deedDateMissing(d, p) || windowBeforeDeed(d, p)) ? 'no-deed' : windowMarkWait(d, p, what, now);
 }
 /** The law's end of a Nevada challenge or recovery-suit window, worked out from the recorded deed ('' when unknown). */
 export function lawWindowEnd(d: { state?: Deal['state']; kind: Deal['kind'] }, p: PacketData, what: string, now: Date = new Date()): string {
@@ -1486,7 +1488,12 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
       }
     }
     // (A won auction not marked paid: the payment comes before any recording reminder; nothing is recorded until it's paid.)
-    const payFirst = !!nd && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void' && (RECORDED_ROWS.some((r) => sameDate(nd.what, r)) || sameDate(nd.what, DEED_AFTER_WAIT));
+    const recRow = !!nd && (RECORDED_ROWS.some((r) => sameDate(nd.what, r)) || sameDate(nd.what, DEED_AFTER_WAIT));
+    // (Paid, but a Nevada tax sale's SID question is still open: that comes before the deed's recording, NRS 361.595(6).)
+    const sidAhead = recRow && stage === 'contract' && d.state === 'NV' && d.kind === 'taxSale' && paidIn(p, d) && sidState(d) !== 'void' && sidUnasked(d);
+    // (At Won, a typed window end has no recorded deed to count from yet: no window question until there is one.)
+    const winEarly = !!nd && (sameDate(nd.what, 'Challenge window ends') || sameDate(nd.what, 'Recovery-suit window ends')) && windowBeforeDeed(d, p, stage);
+    const payFirst = (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly;
     if (nd && !bidPrep && !payFirst && (nd.days <= 7 || (stage === 'contract' && sameDate(nd.what, 'SID certificate payoff')))) {
       const ended = nd.days < 0 ? windowEnded(nd.what, -nd.days, d.kind) : null;
       const late90Ahead = ended && d.state === 'NV' && d.kind === 'trustee' && sameDate(nd.what, 'Challenge window ends') ? challenge90Ahead(p, now) : '';

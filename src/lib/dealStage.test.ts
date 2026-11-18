@@ -2539,7 +2539,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(lines).toContain('Next: the date the deed was recorded (see Your next action): the window’s end is worked out from it.');
     expect(lines.some((t) => /marked handled without one/.test(t))).toBe(true);
     expect(stageHint('closed', tr)).toMatch(/^The deed is yours: enter the date it was recorded/);
-    expect(lines.some((t) => /Challenge window ends \(Me\) — can’t be checked yet: enter the deed’s recording date/.test(t))).toBe(true);
+    expect(lines.some((t) => /Challenge window ends \(Me\) — can’t be checked yet: it counts from the deed’s recording/.test(t))).toBe(true);
     const done = { ...p, dates: p.dates.map((x) => (x.what === 'Challenge window ends' ? { ...x, resolved: true } : x)) };
     expect(windowTickWait(tr, done, 'Challenge window ends', now)).toBe('');
   });
@@ -2608,5 +2608,23 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const paid = { ...p, dates: [...p.dates, { when: '2026-11-10', what: 'Payment deadline', who: 'Me', resolved: true }] };
     savePacket(`analyzed:${tr.id}`, paid);
     expect(dealNextTask(tr, paid, now, 'contract').label).toMatch(/Deed recorded/);
+  });
+
+  it('round 108 tools: a paid Nevada tax sale’s open SID question leads a near deed date; at Won a typed window waits for the deed', async () => {
+    const { windowTickWait } = await import('./dealStage');
+    const now = new Date('2026-11-20T20:00:00Z');
+    const tx: Deal = { ...deal, id: 's108', name: '9 Pine', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([tx]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-12', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-23', what: 'Treasurer’s deed recorded', who: 'T' }] };
+    savePacket(`analyzed:${tx.id}`, p);
+    const t = dealNextTask(tx, p, now, 'contract');
+    expect(t.label).not.toMatch(/Treasurer’s deed recorded/);
+    expect(t.label).toMatch(/SID/);
+    const tr: Deal = { ...tx, id: 'w108', kind: 'trustee' };
+    saveDeals([tr]);
+    const q = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-10-01', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-01', what: 'Challenge window ends', who: 'Me' }] };
+    savePacket(`analyzed:${tr.id}`, q);
+    expect(windowTickWait(tr, q, 'Challenge window ends', now)).toBe('no-deed');
+    expect(dealNextTask(tr, q, now, 'contract').label).not.toMatch(/challenge window ended/i);
   });
 });
