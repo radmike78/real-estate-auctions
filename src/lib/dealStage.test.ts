@@ -2692,4 +2692,22 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${hoa.id}`, r);
     expect(packetSections(hoa, r, now).find((x) => x.key === 'dates')!.lines.join(' ')).not.toMatch(/Next: Get contractor bids/);
   });
+
+  it('round 110 tools: a reader date named like a contract word stays the reader’s; a paid-off Nevada lien’s payoff leads a reader date', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const { REDEEMED_ROW } = await import('./dealStage');
+    const now = new Date('2026-11-20T20:00:00Z');
+    const tr: Deal = { ...deal, id: 'w110', name: '2 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
+    saveDeals([tr]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-19', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-21', what: 'Payment deadline', who: 'Me' }, { when: '2026-11-20', what: 'Closing costs: ask the title company', who: 'Me' }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    expect(dealNextTask(tr, p, now, 'contract').label).toMatch(/pay/i);
+    expect(dealNextTask(tr, p, now, 'contract').label).not.toMatch(/Closing costs/);
+    const ln: Deal = { ...tr, id: 'l110', kind: 'lien', stage: 'closed' };
+    saveDeals([ln]);
+    const q = { ...EMPTY_PACKET, dates: [{ when: '2026-06-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-06-01', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '', what: REDEEMED_ROW, who: 'Treasurer' }, { when: '2026-11-22', what: 'Call my accountant', who: 'Me' }] };
+    savePacket(`analyzed:${ln.id}`, q);
+    expect(dealNextTask(ln, q, now, 'closed').label).not.toMatch(/accountant/);
+    expect(packetSections(ln, q, now).find((x) => x.key === 'dates')!.lines.join(' ')).not.toMatch(/Next: Call my accountant/);
+  });
 });

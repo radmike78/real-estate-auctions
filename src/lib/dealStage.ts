@@ -181,7 +181,7 @@ export function deedDateMissing(d: Deal, p: PacketData, stage: DealStage = stage
 /** No date to count a Nevada window from: the deed's recording date is missing while its window is unanswered. */
 export const noDeedDate = (d: Deal, p: PacketData, stage: DealStage = stageOf(d)): boolean => !!deedDateMissing(d, p, stage) && !deedRecordedOn(p, d.kind === 'trustee');
 /** One of this sale's own dates (its usual dates and the ones the site adds), not one the reader added. */
-export const officialRow = (d: Pick<Deal, 'kind' | 'state'>, what: string): boolean => [...suggestedDates(d), ...CONTRACT_ROWS, 'Bidder registration', 'Registration', ...RECORDED_ROWS, 'Payment deadline', 'SID certificate payoff', 'Redemption period ends', 'Challenge window ends', 'Recovery-suit window ends', DEED_AFTER_WAIT, 'Sale day', SEALED_ROW].some((n) => sameDate(what, n));
+export const officialRow = (d: Pick<Deal, 'kind' | 'state'>, what: string): boolean => [...suggestedDates(d), ...(wayOf(d) === 'offer' ? CONTRACT_ROWS : []), 'Bidder registration', 'Registration', ...RECORDED_ROWS, 'Payment deadline', 'SID certificate payoff', 'Redemption period ends', 'Challenge window ends', 'Recovery-suit window ends', DEED_AFTER_WAIT, 'Sale day', SEALED_ROW].some((n) => sameEvent(what, n));
 /** The next date, with this sale's own dates first: one due within a week (or passed) leads any date the reader
  *  added; otherwise the nearest date of any kind. Your next action and Key dates both use it. */
 export const officialFirst = (rem: PacketData, d: Pick<Deal, 'kind' | 'state'>, now: Date) => {
@@ -1503,7 +1503,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     // (At Won, a typed window end has no recorded deed to count from yet: no window question until there is one.)
     const winEarly = !!nd && (sameDate(nd.what, 'Challenge window ends') || sameDate(nd.what, 'Recovery-suit window ends')) && windowBeforeDeed(d, p, stage);
     // (A date the reader added doesn't lead an unpaid win, a paid Nevada tax sale's open SID question, or collecting a redemption.)
-    const customLead = !!nd && !officialRow(d, nd.what) && ((certificateFirst(d) && redeemedIn(p)) || (stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || (d.state === 'NV' && d.kind === 'taxSale' && ['contract', 'closed', 'owned'].includes(stage) && paidIn(p, d) && sidState(d) !== 'void' && sidUnasked(d)));
+    const customLead = !!nd && !officialRow(d, nd.what) && ((certificateFirst(d) && redeemedIn(p)) || redeemingNow(d) || (stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || (d.state === 'NV' && d.kind === 'taxSale' && ['contract', 'closed', 'owned'].includes(stage) && paidIn(p, d) && sidState(d) !== 'void' && sidUnasked(d)));
     const payFirst = customLead || (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly;
     if (nd && !bidPrep && !payFirst && (nd.days <= 7 || (stage === 'contract' && sameDate(nd.what, 'SID certificate payoff')))) {
       const ended = nd.days < 0 ? windowEnded(nd.what, -nd.days, d.kind) : null;
