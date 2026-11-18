@@ -51,8 +51,8 @@ function openMonth(o?: Owned): string {
 
 function boughtDate(d: Deal): string {
   // An auction: you bought it when you paid (the money went in at the sale, not when the deed came).
-  if (wayOf(d) !== 'offer') { const pk = loadPacket(`analyzed:${d.id}`); const paid = pk.dates.filter((x) => x.when && x.resolved && sameDate(x.what, 'Payment deadline')).map((x) => x.when).sort().pop() ?? pk.dates.find((x) => x.when && sameEvent(x.what, 'Sale day'))?.when; if (paid && paid <= today()) return paid; }
-  const rows = loadPacket(`analyzed:${d.id}`).dates.filter((x) => x.when && (x.resolved || sameEvent(x.what, 'Closing')) && ['Closing', 'Deed recorded', 'Treasurer’s deed recorded', 'Certificate of sale recorded', 'Sale day'].some((n) => sameEvent(x.what, n)));
+  if (wayOf(d) !== 'offer') { const pk = loadPacket(`analyzed:${d.id}`); const paid = pk.dates.filter((x) => x.when && x.resolved && sameDate(x, 'Payment deadline')).map((x) => x.when).sort().pop() ?? pk.dates.find((x) => x.when && sameEvent(x, 'Sale day'))?.when; if (paid && paid <= today()) return paid; }
+  const rows = loadPacket(`analyzed:${d.id}`).dates.filter((x) => x.when && (x.resolved || sameEvent(x, 'Closing')) && ['Closing', 'Deed recorded', 'Treasurer’s deed recorded', 'Certificate of sale recorded', 'Sale day'].some((n) => sameEvent(x, n)));
   const latest = rows.map((x) => x.when).sort().pop();
   return latest && latest <= today() ? latest : today();
 }
@@ -172,7 +172,7 @@ export default function OwnedTracker({ deal }: { deal: Deal }) {
     <div>
       {/^\d{4}-\d{2}$/.test(month) && month > maxMonth && <p className="caution" role="note">That month isn’t over yet: record it once it ends.</p>}
       {month === '' && !o.sold && <p className="muted" id="owned-all-in" tabIndex={-1} role="status">{o.months.length ? 'Every finished month is recorded. Come back once this month ends, or pick an earlier month to change it.' : `Your first full month ends ${prettyDay((() => { const [y, m] = firstFullMonth(o); const t = new Date(y, m, 0); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })())}. Come back after that to record what it ${liveIn(deal) || deal.plan === 'flip' ? 'cost' : 'brought in and cost'}${Number(o.boughtOn.slice(8, 10)) > 1 ? `, including what you paid from ${prettyDay(o.boughtOn)}` : ''}.`}</p>}
-      {wayOf(deal) !== 'offer' && (() => { const s = loadPacket(`analyzed:${deal.id}`).dates.find((x) => sameDate(x.what, 'Sale day') && x.when)?.when; return s && o.boughtOn < s ? <p className="caution" role="note">You bought it at the {prettyDay(s)} sale: check the Bought on date.</p> : null; })()}
+      {wayOf(deal) !== 'offer' && (() => { const s = loadPacket(`analyzed:${deal.id}`).dates.find((x) => sameDate(x, 'Sale day') && x.when)?.when; return s && o.boughtOn < s ? <p className="caution" role="note">You bought it at the {prettyDay(s)} sale: check the Bought on date.</p> : null; })()}
       {!o.months.length && !o.sold && Number(o.boughtOn.slice(8, 10)) > 1 && month === `${firstFullMonth(o)[0]}-${String(firstFullMonth(o)[1]).padStart(2, '0')}` && <p className="muted" role="note">Include what you paid from {prettyDay(o.boughtOn)} in this first full month.</p>}
       {/^\d{4}-\d{2}$/.test(month) && month < o.boughtOn.slice(0, 7) && <p className="caution" role="note">That month is before you bought it ({prettyDay(o.boughtOn)}): pick a later month.</p>}
       {o.months.some((m) => m.month < o.boughtOn.slice(0, 7)) && <p className="caution" role="note">{o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).map((m) => monthWords(m.month)).join(', ')} {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'is' : 'are'} before the date you bought it ({prettyDay(o.boughtOn)}): remove {o.months.filter((m) => m.month < o.boughtOn.slice(0, 7)).length === 1 ? 'it' : 'them'} or check the date.</p>}

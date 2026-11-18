@@ -2770,4 +2770,37 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(t.label).toMatch(/Registration of my LLC/);
     expect(JSON.stringify(t)).not.toMatch(/I registered/);
   });
+  it('round 111 tools: a row the reader added (own) is the sale’s own event only when named exactly as it', async () => {
+    const { sameDate, sameEvent, registrationRow, cleanPacket } = await import('./dealPacket');
+    const { paidIn, officialRow, deedRecordedOn } = await import('./dealStage');
+    const own = (what: string) => ({ what, own: true });
+    for (const [w, n] of [['Sale day prep: get a cashier’s check', 'Sale day'], ['Payment deadline for HOA dues', 'Payment deadline'], ['Deed recorded copy to my lender', 'Deed recorded'], ['Earnest money: move cash', 'Earnest money'], ['Appraisal deadline for my refinance', 'Appraisal deadline']] as const) expect([w, sameDate(own(w), n), sameDate(w, n)]).toEqual([w, false, true]);
+    for (const w of ['Closing day walk-through', 'Closing costs: ask title']) expect([w, sameEvent(own(w), 'Closing'), sameDate(own(w), 'Closing')]).toEqual([w, false, false]);
+    for (const w of ['Registration with the Secretary of State', 'Registration for LLC', 'Registration: LLC annual list']) expect([w, registrationRow(own(w))]).toEqual([w, false]);
+    for (const [w, n] of [['Sale day', 'Sale day'], ['Sale day (moved)', 'Sale day'], ['Payment deadline Nov 21', 'Payment deadline'], ['Registration deadline', 'Registration'], ['Closing: Dec 3', 'Closing'], ['Close of escrow', 'Closing']] as const) expect([w, sameDate(own(w), n)]).toEqual([w, true]);
+    // (The site's own closing row, renamed, is still the closing in every check.)
+    expect(sameEvent('Closing scheduled with escrow', 'Closing')).toBe(true);
+    expect(sameEvent('Closing Disclosure received', 'Closing')).toBe(false);
+    // (The flag survives saving and loading.)
+    expect(cleanPacket({ dates: [{ when: '', what: 'x', who: '', own: true }] }).dates[0].own).toBe(true);
+    expect(cleanPacket({ dates: [{ when: '', what: 'x', who: '' }] }).dates[0].own).toBeUndefined();
+    const now = new Date('2026-11-20T20:00:00Z');
+    // (TOOLS-1) A passed "Sale day prep" doesn't end the sale.
+    const tr: Deal = { ...deal, id: 'v111a', name: '7 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'researching' };
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-18', what: 'Sale day prep: get a cashier’s check', who: 'Me', own: true }, { when: '2026-11-22', what: 'Registration deadline', who: 'Trustee' }, { when: '2026-11-24', what: 'Sale day', who: 'Trustee' }] };
+    expect(saleOverFor(tr, p, now)).toBe(false);
+    saveDeals([tr]);
+    savePacket(`analyzed:${tr.id}`, p);
+    expect(dealNextTask(tr, p, now, 'researching').label).not.toMatch(/did you win/i);
+    // (TOOLS-2) "Payment deadline for HOA dues" doesn't un-pay a paid win.
+    const tax: Deal = { ...deal, id: 'v111b', name: '8 Oak', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    const q = { ...EMPTY_PACKET, dates: [{ when: '2026-11-15', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-16', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-12-01', what: 'Payment deadline for HOA dues', who: 'Me', own: true }] };
+    expect(paidIn(q, tax)).toBe(true);
+    saveDeals([tax]);
+    savePacket(`analyzed:${tax.id}`, q);
+    expect(dealNextTask(tax, q, now, 'contract').label).toMatch(/SID/);
+    // (TOOLS-4) A ticked copy to the lender isn't the deed's recording; the reader's own reminder isn't the sale's.
+    expect(deedRecordedOn({ ...EMPTY_PACKET, dates: [{ when: '2026-11-19', what: 'Deed recorded copy to my lender', who: 'Me', resolved: true, own: true }] }, true, now)).toBeUndefined();
+    expect(officialRow(tr, own('Sale day prep: get a cashier’s check'))).toBe(false);
+  });
 });
