@@ -138,6 +138,14 @@ export const dateRowComplete = (d: { when: string; what: string; who: string; re
 const LATER = ['Redemption money collected', 'Challenge window ends', 'Recovery-suit window ends', 'Redemption period ends', 'Deed delivered (if no one redeemed)', 'Certificate expires', 'Earliest you may act (unpaid lien)', 'Rescission window ends', 'Intent-to-bid window ends', 'Eligible bid deadline (45 days)'];
 /** The rows this stage's calendar needs filled in: before the sale, only the dates before it; after, all but those
  *  counted from a later event (they can wait for it). */
+/** An open row that is a copy of a date already handled on the same day (the reader added it again): it's done too. */
+export const handledCopy = (p: PacketData, x: PacketDate): boolean => {
+  if (x.resolved || !x.when) return false;
+  const nb = (w: string) => curly(dateBase(w).trim().replace(/\s+/g, ' ').toLowerCase());
+  const key = (r: PacketDate) => (r.own ? r.as ?? r.what : r.what);
+  const loose = (r: PacketDate) => !(r.own && !r.as);
+  return p.dates.some((y) => y !== x && !!y.resolved && y.when === x.when && (nb(key(x)) === nb(key(y)) || (loose(x) && loose(y) && (sameDate(key(x), key(y)) || sameDate(key(y), key(x))))));
+};
 /** A blank, open row with a twin that counts as the same date and is dated: the twin stands for it. */
 const coveredBlank = (p: PacketData, x: PacketDate) => !x.when && !x.resolved && !x.own && p.dates.some((y) => y !== x && !!y.when && !!y.own && sameDate(y, x.what));
 export const calendarRows = (p0: PacketData, stage: string) => {

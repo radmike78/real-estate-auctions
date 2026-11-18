@@ -2121,7 +2121,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: y.toLocaleDateString('en-CA'), what: 'Sealed bid and full payment due', who: 'You' }, { when: t3.toLocaleDateString('en-CA'), what: 'Sale day', who: 'T' }] };
     const t = dealNextTask(d, p, now, 'researching');
     // (The usual deadline, the day before the sale, is still ahead: the reader is sent to the notice.)
-    expect(t.label).toMatch(/deadline you entered .* has passed, but Eureka’s usual deadline is/);
+    expect(t.label).toMatch(/deadline you entered .* has passed\. Eureka’s usual deadline is/);
     expect(t.label).not.toMatch(/Overdue/);
     expect(t.tick?.label).toMatch(/I sent my sealed bid and payment in time/);
     // (The usual deadline is still ahead: the pass answer is about the notice's deadline.)
@@ -2907,6 +2907,21 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-09-25', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-25', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-10-01', what: 'Deed recorded', who: 'C' }, { when: '', what: 'Challenge window ends', who: 'Me' }, { when: '2026-11-22', what: 'Call insurance agent', who: 'Me', own: true }] };
     savePacket(`analyzed:${tr.id}`, p);
     expect(dealNextTask(tr, p, now, 'owned').label).not.toMatch(/insurance agent/);
+  });
+  it('round 116 clarity: a date the reader adds again, on the same day as a handled one, is done too', async () => {
+    const { handledCopy } = await import('./dealPacket');
+    const { paidIn } = await import('./dealStage');
+    const now = new Date('2026-11-20T20:00:00Z');
+    const ho: Deal = { ...deal, id: 'v116a', name: '19 Oak', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'contract' };
+    saveDeals([ho]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-10', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-10', what: 'Payment deadline', who: 'Me', own: true, as: 'Payment deadline', asAuto: true }] };
+    expect(handledCopy(p, p.dates[2])).toBe(true);
+    expect(paidIn(p, ho)).toBe(true);
+    savePacket(`analyzed:${ho.id}`, p);
+    expect(dealNextTask(ho, p, now, 'contract').label).not.toMatch(/payment deadline/i);
+    // (A split payment on another day still needs its own tick.)
+    const q = { ...p, dates: [...p.dates.slice(0, 2), { when: '2026-11-25', what: 'Payment deadline (second half)', who: 'Me' }] };
+    expect(paidIn(q, ho)).toBe(false);
   });
   it('round 112 content: at Owned, a Nevada trustee buy’s passed worked-out challenge window leads a reader’s reminder', async () => {
     const now = new Date('2026-11-20T20:00:00Z');
