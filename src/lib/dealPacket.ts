@@ -36,6 +36,8 @@ export interface PacketDate {
   as?: string;
   /** as was set because the reader typed the date's exact name (not by pressing “Yes”): it lasts while the name still reads as that date. */
   asAuto?: boolean;
+  /** The reader said it's their own reminder (“It’s my own reminder instead”): its name isn't matched again. */
+  notAs?: boolean;
   /** The roadmap step that ticked this row ("~step": it was already handled when the step was marked). */
   step?: string;
 }
@@ -83,7 +85,7 @@ const curly = (s: string) => s.replace(/'/g, '’');
 //  task named after it: "Closing costs: ask title" or "Registration of my LLC" is the reader's date, not the sale's.)
 const OWN_TASK = /^(closing\s*:?\s*(costs?|statements?|disclosures?|documents?|docs|funds|fees?|package|binder|checklist|walk-?through)|(bidder )?registration\s*:?\s*(of|for (my|our))|bidder registration\s+of)\b/i;
 /** A date row, or just its name. */
-export type RowRef = string | { what: string; own?: boolean; as?: string };
+export type RowRef = string | { what: string; own?: boolean; as?: string; notAs?: boolean };
 /** The name a row is matched by: its own name, or for a row the reader added, the sale's date they said it is (none: it's their own reminder). */
 const matchText = (r: RowRef): string | null => (typeof r === 'string' ? r : r.own ? (r.as ?? null) : r.what);
 // (A row the reader added is the sale's own event only when named exactly as it: the name, optionally "deadline",
@@ -226,7 +228,7 @@ export function cleanPacket(v: unknown): PacketData {
     // (A void recorded before the row was renamed keeps counting.)
     const what0 = str(r.what, 200);
     const what = /^Treasurer: the sale is void/.test(what0) ? 'The sale is void (the Treasurer said so)' : what0;
-    return { when: DATE.test(when) ? when : '', what, who: str(r.who, 120), ...(r.resolved === true ? { resolved: true } : {}), ...(r.own === true ? { own: true, ...(typeof r.as === 'string' && r.as.trim() ? { as: str(r.as, 120), ...(r.asAuto === true ? { asAuto: true } : {}) } : {}) } : {}), ...(typeof r.step === 'string' && /^~?[a-z-]{1,24}$/.test(r.step) ? { step: r.step } : {}) };
+    return { when: DATE.test(when) ? when : '', what, who: str(r.who, 120), ...(r.resolved === true ? { resolved: true } : {}), ...(r.own === true ? { own: true, ...(r.notAs === true ? { notAs: true } : {}), ...(typeof r.as === 'string' && r.as.trim() ? { as: str(r.as, 120), ...(r.asAuto === true ? { asAuto: true } : {}) } : {}) } : {}), ...(typeof r.step === 'string' && /^~?[a-z-]{1,24}$/.test(r.step) ? { step: r.step } : {}) };
   });
   const qa = (Array.isArray(o.qa) ? o.qa : []).slice(0, 40).map((d) => {
     const r = obj(d);
