@@ -31,7 +31,8 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
             // (The site's own row first; a reader's own row of the same name only when there's no site row.)
             const named = (x: PacketData['dates'][number]) => x.what === tick.row && !x.resolved;
             const own = (x: PacketData['dates'][number]) => !!x.own && !x.as;
-            const exact = p.dates.findIndex((x) => named(x) && (tick.asIs || !own(x)));
+            // ("Done" on a reader's reminder ticks that reminder, not a site row of the same name.)
+            const exact = tick.asIs ? (p.dates.findIndex((x) => named(x) && !!x.own) >= 0 ? p.dates.findIndex((x) => named(x) && !!x.own) : p.dates.findIndex(named)) : p.dates.findIndex((x) => named(x) && !own(x));
             const kind = exact >= 0 ? -1 : p.dates.findIndex((x) => sameDate(x, tick.row) && !x.resolved);
             const i = exact >= 0 ? exact : kind >= 0 ? kind : p.dates.findIndex((x) => named(x));
             const adopt = !tick.asIs && adopts(dealId, tick.row);

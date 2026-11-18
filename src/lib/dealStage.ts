@@ -1531,7 +1531,9 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const workedPassed = !!nd && !officialRow(d, nd) && ((!!computedEnd && computedEnd < dayHere) || (!!winEnd && winEnd < dayHere) || (!!ownedWinEnd && ownedWinEnd < dayHere));
     // (A reader's own reminder due later — not today or overdue — doesn't push aside a win's or purchase's first safety step: insure it, the first week.)
     const safetyFirst = !!nd && nd.days >= 1 && !officialRow(d, nd) && ['contract', 'closed', 'owned'].includes(stage) && stageTasks(d, stage, p, now).some((t) => !t.done && (t.key === 'ev-insurance' || t.key === 'first-week'));
-    const payFirst = customLead || safetyFirst || workedPassed || (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly;
+    // (A deed date still to confirm comes before a reader's own reminder: the windows count from it.)
+    const deedFirst = !!nd && !officialRow(d, nd) && (stage === 'closed' || stage === 'owned') && !!deedDateMissing(d, p, stage);
+    const payFirst = customLead || safetyFirst || workedPassed || deedFirst || (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly;
     if (nd && !bidPrep && !payFirst && (nd.days <= 7 || (stage === 'contract' && sameDate(nd, 'SID certificate payoff')))) {
       const ended = nd.days < 0 ? windowEnded(nd, -nd.days, d.kind) : null;
       const late90Ahead = ended && d.state === 'NV' && d.kind === 'trustee' && sameDate(nd, 'Challenge window ends') ? challenge90Ahead(p, now) : '';

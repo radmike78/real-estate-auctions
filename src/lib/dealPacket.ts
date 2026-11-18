@@ -83,7 +83,19 @@ const OWN_TASK = /^(closing\s*:?\s*(costs?|statements?|disclosures?|documents?|d
 /** A date row, or just its name. */
 export type RowRef = string | { what: string; own?: boolean; as?: string };
 /** The name a row is matched by: its own name, or for a row the reader added, the sale's date they said it is (none: it's their own reminder). */
-const matchText = (r: RowRef): string | null => (typeof r === 'string' ? r : r.own ? (r.as ?? null) : r.what);
+// (A reader's row named exactly as one of the sale's usual dates — "Sale day", "Closing", "Redemption period ends",
+//  with or without the site's note — is that date: there's nothing else it could mean.)
+const norm = (w: string) => curly(w.trim().replace(/\s+/g, ' ').toLowerCase());
+let exactNames: Set<string> | null = null;
+export const exactName = (w: string) => {
+  if (!exactNames) {
+    const kinds = ['trustee', 'taxSale', 'hoa', 'court', 'irs', 'lien', 'reo', 'listing', 'short', 'commercial'] as Deal['kind'][];
+    const names = [...(['NV', 'CA', 'AZ', 'UT', 'TX'] as Deal['state'][]).flatMap((state) => kinds.flatMap((kind) => { try { return suggestedDates({ kind, state }); } catch { return []; } })), ...RECORDED_ROWS, 'Sale day', 'Payment deadline', 'Registration', 'Bidder registration', 'Closing', 'SID certificate payoff', 'Redemption period ends', 'Challenge window ends', 'Recovery-suit window ends'];
+    exactNames = new Set(names.flatMap((n) => [norm(n), norm(dateBase(n))]));
+  }
+  return exactNames.has(norm(w));
+};
+const matchText = (r: RowRef): string | null => (typeof r === 'string' ? r : r.own ? (r.as ?? (exactName(r.what) ? r.what : null)) : r.what);
 // (A row the reader added is the sale's own event only when named exactly as it: the name, optionally "deadline",
 //  "date", "day" or "due", then nothing, a date, or a dated note in parentheses. "Sale day prep", "Payment deadline for HOA dues" and
 //  "Closing day walk-through" are the reader's own reminders.)
