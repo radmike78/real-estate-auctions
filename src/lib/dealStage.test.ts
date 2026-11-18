@@ -2525,4 +2525,21 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(w.produces).toMatch(/no earlier than Nov 17, 2028, 2 years from its recording on Nov 17, 2026; the 2 years run from the deed’s delivery/);
     expect(w.produces).not.toMatch(/about/);
   });
+
+  it('round 105 verifier: with no deed date, an early window tick waits, and Key dates and the hint ask for the deed date', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const { windowTickWait, stageHint } = await import('./dealStage');
+    const now = new Date('2026-12-12T20:00:00Z');
+    const tr: Deal = { ...deal, id: 'n105', name: '3 Ash', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'closed' };
+    saveDeals([tr]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, { when: '', what: 'Deed recorded', who: 'County', resolved: true }, { when: '2026-12-10', what: 'Challenge window ends', who: 'Me' }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    expect(windowTickWait(tr, p, 'Challenge window ends', now)).toBe('no-deed');
+    const lines = packetSections(tr, p, now).find((x) => x.key === 'dates')!.lines;
+    expect(lines).toContain('Next: the date the deed was recorded (see Your next action): the window is counted from it.');
+    expect(lines.some((t) => /marked handled without one/.test(t))).toBe(true);
+    expect(stageHint('closed', tr)).toMatch(/^The deed is yours: enter the date it was recorded/);
+    const done = { ...p, dates: p.dates.map((x) => (x.what === 'Challenge window ends' ? { ...x, resolved: true } : x)) };
+    expect(windowTickWait(tr, done, 'Challenge window ends', now)).toBe('');
+  });
 });
