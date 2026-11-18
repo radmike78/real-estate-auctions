@@ -84,13 +84,15 @@ const rowText = (r: RowRef) => (typeof r === 'string' ? r : r.what);
 const isOwn = (r: RowRef) => typeof r !== 'string' && !!r.own;
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 // (A row the reader added is the sale's own event only when named exactly as it: the name, optionally "deadline",
-//  then nothing, a date, or a dated note in parentheses. "Sale day prep", "Payment deadline for HOA dues" and
+//  "date", "day" or "due", then nothing, a date, or a dated note in parentheses. "Sale day prep", "Payment deadline for HOA dues" and
 //  "Closing day walk-through" are the reader's own reminders.)
-const DATEISH = String.raw`(\d|(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d)`;
+// (A date: 11/21, 2026-11-21 or Nov 21. A bare number such as "2nd" isn't one.)
+const DATEISH = String.raw`(\d{1,2}[/.-]\d{1,2}|\d{4}-\d{1,2}|(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d)`;
 // (A note in parentheses keeps it the event only when it's a date, an "if …" or a change of date: "Sale day (moved)",
 //  not "Sale day (get cashier’s check)".)
 const OWN_NOTE = String.raw`\((if\b[^)]*|moved|postponed|rescheduled|new date|extended|tentative|estimated|expected|${DATEISH}[^)]*)\)`;
-const ownNamed = (what: string, name: string) => new RegExp(`^${esc(curly(dateBase(name)))}(\\s+deadline)?(\\s*$|\\s*${OWN_NOTE}\\s*$|\\s*[,:–—-]?\\s*((on|by)\\s+)?${DATEISH})`, 'i').test(curly(what.trim()));
+// ("Closing date", "Registration due" and, for a day, "Sale date" name the event too.)
+const ownNamed = (what: string, name: string) => new RegExp(`^(${esc(curly(dateBase(name)))}${/\sday$/i.test(dateBase(name)) ? `|${esc(curly(dateBase(name))).replace(/day$/i, 'date')}` : ''})(\\s+(deadline|date|day|due))?(\\s*$|\\s*${OWN_NOTE}\\s*$|\\s*[,:–—-]?\\s*((on|by)\\s+)?${DATEISH})`, 'i').test(curly(what.trim()));
 const ownClosing = (what: string) => ['Closing', 'Close of escrow', 'COE', 'Settlement'].some((n) => ownNamed(what, n));
 const eventWord = (rowWhat: string, word: RegExp) => { const t = curly(rowWhat.trim()); return word.test(t) && !OWN_TASK.test(t); };
 /** A row that is the sale's registration (renamed or not, "Registration deadline", "Bidder registration online"). */

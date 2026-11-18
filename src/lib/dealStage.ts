@@ -1504,7 +1504,9 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const winEarly = !!nd && (sameDate(nd, 'Challenge window ends') || sameDate(nd, 'Recovery-suit window ends')) && windowBeforeDeed(d, p, stage);
     // (A date the reader added doesn't lead an unpaid win, a paid Nevada tax sale's open SID question, or collecting a redemption.)
     const customLead = !!nd && !officialRow(d, nd) && ((certificateFirst(d) && redeemedIn(p)) || redeemingNow(d) || (stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || (d.state === 'NV' && d.kind === 'taxSale' && ['contract', 'closed', 'owned'].includes(stage) && paidIn(p, d) && sidState(d) !== 'void' && sidUnasked(d)));
-    const payFirst = customLead || (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly;
+    // (A reader's own reminder doesn't push aside a win's or purchase's first safety step: insure it, the first week.)
+    const safetyFirst = !!nd && !officialRow(d, nd) && ['contract', 'closed', 'owned'].includes(stage) && stageTasks(d, stage, p, now).some((t) => !t.done && (t.key === 'ev-insurance' || t.key === 'first-week'));
+    const payFirst = customLead || safetyFirst || (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly;
     if (nd && !bidPrep && !payFirst && (nd.days <= 7 || (stage === 'contract' && sameDate(nd, 'SID certificate payoff')))) {
       const ended = nd.days < 0 ? windowEnded(nd, -nd.days, d.kind) : null;
       const late90Ahead = ended && d.state === 'NV' && d.kind === 'trustee' && sameDate(nd, 'Challenge window ends') ? challenge90Ahead(p, now) : '';

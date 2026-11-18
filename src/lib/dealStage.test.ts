@@ -2805,4 +2805,17 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(deedRecordedOn({ ...EMPTY_PACKET, dates: [{ when: '2026-11-19', what: 'Deed recorded copy to my lender', who: 'Me', resolved: true, own: true }] }, true, now)).toBeUndefined();
     expect(officialRow(tr, own('Sale day prep: get a cashier’s check'))).toBe(false);
   });
+  it('round 111 clarity: “Closing date” or “Sale date” typed by hand is the event; a bare number isn’t a date; a reader reminder doesn’t push aside insuring a win', async () => {
+    const { sameDate, sameEvent, registrationRow } = await import('./dealPacket');
+    const own = (what: string) => ({ what, own: true });
+    for (const [w, n] of [['Closing date', 'Closing'], ['Closing day', 'Closing'], ['COE date', 'Closing'], ['Sale date', 'Sale day'], ['Payment deadline 11/21', 'Payment deadline']] as const) expect([w, sameEvent(own(w), n) || sameDate(own(w), n)]).toEqual([w, true]);
+    expect(registrationRow(own('Registration due'))).toBe(true);
+    for (const [w, n] of [['Payment deadline 2nd HOA installment', 'Payment deadline'], ['Closing 2nd walk-through', 'Closing'], ['Closing day walk-through', 'Closing']] as const) expect([w, sameDate(own(w), n), sameEvent(own(w), n)]).toEqual([w, false, false]);
+    const now = new Date('2026-11-20T20:00:00Z');
+    const tr: Deal = { ...deal, id: 'v111c', name: '10 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
+    saveDeals([tr]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-19', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-19', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-22', what: 'Pay HOA dues', who: 'Me', own: true }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    expect(dealNextTask(tr, p, now, 'contract').label).toMatch(/Insure/);
+  });
 });
