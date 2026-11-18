@@ -167,7 +167,7 @@ export const DEED_ROWS = { trustee: ['Deed recorded', 'Trustee’s deed recorded
 export function deedRecordedOn(p: PacketData, trustee: boolean, now: Date = new Date()): string | undefined {
   const rows = p.dates.filter((x) => x.when && DEED_ROWS[trustee ? 'trustee' : 'tax'].some((r) => sameDate(x.what, r)));
   // (An expected date still ahead isn't a recording yet: nothing counts from it.)
-  return (rows.find((x) => x.resolved) || rows.find((x) => x.when <= localDay(now)))?.when;
+  return (rows.find((x) => x.resolved) || rows.find((x) => x.when <= nvParts(now).day))?.when;
 }
 /** A Nevada trustee or tax deal at Deed recorded or later whose deed has no ticked, dated recording row, while its window
  *  isn't answered yet: the 30-day or 2-year window is counted from that date ('' when nothing is missing). */
