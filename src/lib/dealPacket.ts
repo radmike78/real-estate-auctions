@@ -73,7 +73,14 @@ const ifOnly = (what: string) => /\(if /.test(what);
 const CLOSING_ALIAS = /^(close of escrow|coe|settlement)(\s*($|[(:–—-]|\d)|\s+(on|at|date|day)\b)/i;
 const closingAlias = (rowWhat: string, name: string) => /^closing$/i.test(dateBase(name)) && CLOSING_ALIAS.test(rowWhat.trim());
 const curly = (s: string) => s.replace(/'/g, '’');
-export const sameDate = (rowWhat: string, name: string) => closingAlias(rowWhat, name) || curly(rowWhat.trim().toLowerCase()).startsWith(curly(dateBase(name).toLowerCase())) || (/^(bidder )?registration/i.test(name) && /^(bidder )?registration/i.test(rowWhat.trim()));
+// (A one-word event name, such as Closing or Registration, matches only as that event: "Closing costs: ask title" or
+//  "Registration of my LLC" is the reader's own date, not the sale's.)
+const REG_EVENT = /^(bidder )?registration(\s*($|[(:–—-]|\d)|\s+(on|at|date|day|deadline|closes|ends|due|by|opens|required)\b)/i;
+export const sameDate = (rowWhat: string, name: string) => {
+  if (/^(bidder )?registration$/i.test(dateBase(name))) return REG_EVENT.test(curly(rowWhat.trim()));
+  if (/^closing$/i.test(dateBase(name))) return sameEvent(rowWhat, name);
+  return closingAlias(rowWhat, name) || curly(rowWhat.trim().toLowerCase()).startsWith(curly(dateBase(name).toLowerCase()));
+};
 /** A date's name without its trailing note in parentheses ("Bidder registration (if required)" -> "Bidder registration"). */
 const dateBase = (name: string) => name.replace(/\s*\([^)]*\)$/, '');
 /** A row that is this event itself, not another date that starts with its words ("Closing Disclosure received" isn't

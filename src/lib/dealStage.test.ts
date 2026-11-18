@@ -2710,4 +2710,19 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(dealNextTask(ln, q, now, 'closed').label).not.toMatch(/accountant/);
     expect(packetSections(ln, q, now).find((x) => x.key === 'dates')!.lines.join(' ')).not.toMatch(/Next: Call my accountant/);
   });
+
+  it('round 110 clarity: a reader’s “Registration of my LLC” or “Closing costs: …” stays a reminder after the sale or closing', async () => {
+    const { sameDate } = await import('./dealPacket');
+    expect(sameDate('Registration of my LLC', 'Registration')).toBe(false);
+    expect(sameDate('Bidder registration (if required)', 'Registration')).toBe(true);
+    expect(sameDate('Registration deadline', 'Bidder registration')).toBe(true);
+    expect(sameDate('Closing costs: ask title', 'Closing')).toBe(false);
+    expect(sameDate('Closing (moved)', 'Closing')).toBe(true);
+    const now = new Date('2026-11-20T20:00:00Z');
+    const tr: Deal = { ...deal, id: 'y110', name: '3 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'owned' };
+    saveDeals([tr]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-06-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-06-01', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-06-10', what: 'Deed recorded', who: 'C', resolved: true }, { when: '2026-07-10', what: 'Challenge window ends', who: 'Me', resolved: true }, { when: '2026-11-22', what: 'Registration of my LLC', who: 'Me' }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    expect(dealNextTask(tr, p, now, 'owned').label).toMatch(/Registration of my LLC/);
+  });
 });
