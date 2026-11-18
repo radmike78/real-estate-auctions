@@ -1405,7 +1405,8 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     if ((stage === 'researching' || stage === 'offer') && sealedBid(d) && !ticked(p, SEALED_ROW)) {
       const nvD = (w: string) => Math.round((Date.parse(`${w}T12:00:00Z`) - Date.parse(`${nvParts(now).day}T12:00:00Z`)) / 86400000);
       const saleOn = p.dates.find((x) => sameDate(x, 'Sale day') && x.when)?.when ?? '';
-      const rowOn = p.dates.find((x) => sameDate(x, SEALED_ROW) && x.when)?.when ?? '';
+      // (the earliest typed deadline, as Key dates counts it)
+      const rowOn = p.dates.filter((x) => sameDate(x, SEALED_ROW) && x.when).map((x) => x.when).sort()[0] ?? '';
       const due = rowOn || (saleOn ? sealedDay(p) : '');
       if (due && saleOn && nvD(saleOn) >= 0 && nvD(due) <= 7 && !(rowOn && nvD(rowOn) < 0) && !(rowOn && rowOn >= saleOn)) {
         const n = d.name || 'this property';
