@@ -11,7 +11,7 @@ import { nvHoliday } from './time';
 import { CURRENT_KEY, DEAL_STAGES, isDealStage, loadDeals, saveDeals, type Deal, type DealStage } from './analyze';
 import { investorProfile } from './myPlan';
 import { cleanBuyBox, EMPTY_BUY_BOX } from './toolkit';
-import { bidTyped, CONTRACT_ROWS, calendarReady, calendarRows, dateRowComplete, sale90, capSid, challenge90Ahead, challengeEnded, sidDeadline, flipSaleLine, savePacket, irsWithoutRedemption, RECORDED_ROWS, sameEvent, windowEnded, sameDate, registrationRow, type RowRef, roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData, onPacketSaved } from './dealPacket';
+import { bidTyped, CONTRACT_ROWS, calendarReady, calendarRows, dateRowComplete, sale90, capSid, challenge90Ahead, challengeEnded, sidDeadline, flipSaleLine, savePacket, irsWithoutRedemption, RECORDED_ROWS, sameEvent, windowEnded, sameDate, registrationRow, ownNamed, type RowRef, roleTitleFor, loadPacket, calendarComplete, nextDate, savedNumbers, hasSavedNumbers, flipBudget, suggestedDates, type PacketData, onPacketSaved } from './dealPacket';
 import { areasFor, loadLog, type EvidenceLog } from './evidence';
 import { loadOwned, type Owned } from './owned';
 import { proGuideByKey } from './proGuide';
@@ -181,7 +181,11 @@ export function deedDateMissing(d: Deal, p: PacketData, stage: DealStage = stage
 /** No date to count a Nevada window from: the deed's recording date is missing while its window is unanswered. */
 export const noDeedDate = (d: Deal, p: PacketData, stage: DealStage = stageOf(d)): boolean => !!deedDateMissing(d, p, stage) && !deedRecordedOn(p, d.kind === 'trustee');
 /** One of this sale's own dates (its usual dates and the ones the site adds), not one the reader added. */
-export const officialRow = (d: Pick<Deal, 'kind' | 'state'>, what: RowRef): boolean => [...suggestedDates(d), ...(wayOf(d) === 'offer' ? CONTRACT_ROWS : []), 'Bidder registration', 'Registration', ...RECORDED_ROWS, 'Payment deadline', 'SID certificate payoff', 'Redemption period ends', 'Challenge window ends', 'Recovery-suit window ends', DEED_AFTER_WAIT, 'Sale day', SEALED_ROW].some((n) => sameDate(what, n));
+/** This sale's own date names: its usual dates and the ones the site adds. */
+export const officialNames = (d: Pick<Deal, 'kind' | 'state'>): string[] => [...suggestedDates(d), ...(wayOf(d) === 'offer' ? CONTRACT_ROWS : []), 'Bidder registration', 'Registration', ...RECORDED_ROWS, 'Payment deadline', 'SID certificate payoff', 'Redemption period ends', 'Challenge window ends', 'Recovery-suit window ends', DEED_AFTER_WAIT, 'Sale day', SEALED_ROW];
+/** The sale's own date a reader's row reads like ("Sale day 10am" → "Sale day"), to offer, never to apply on its own. */
+export const eventFor = (d: Pick<Deal, 'kind' | 'state'>, what: string): string => (['Close of escrow', 'COE', 'Settlement'].some((n) => ownNamed(what, n)) ? 'Closing' : officialNames(d).find((n) => ownNamed(what, n)) ?? '');
+export const officialRow = (d: Pick<Deal, 'kind' | 'state'>, what: RowRef): boolean => officialNames(d).some((n) => sameDate(what, n));
 /** The next date, with this sale's own dates first: one due within a week (or passed) leads any date the reader
  *  added; otherwise the nearest date of any kind. Your next action and Key dates both use it. */
 export const officialFirst = (rem: PacketData, d: Pick<Deal, 'kind' | 'state'>, now: Date) => {

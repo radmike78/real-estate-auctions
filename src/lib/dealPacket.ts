@@ -30,8 +30,10 @@ export interface PacketDate {
   who: string;
   /** Confirmed handled; older entries stay open until the user reviews them. */
   resolved?: boolean;
-  /** A row the reader added with “Add a date”: their own reminder, the sale's own event only when named exactly as it. */
+  /** A row the reader added with “Add a date”: their own reminder, whatever its name, unless they said which of the sale's own dates it is (as). */
   own?: boolean;
+  /** The sale's own date a reader's row stands for, chosen by the reader (“This is the sale's Sale day”). */
+  as?: string;
   /** The roadmap step that ticked this row ("~step": it was already handled when the step was marked). */
   step?: string;
 }
@@ -79,35 +81,35 @@ const curly = (s: string) => s.replace(/'/g, '’');
 //  task named after it: "Closing costs: ask title" or "Registration of my LLC" is the reader's date, not the sale's.)
 const OWN_TASK = /^(closing\s*:?\s*(costs?|statements?|disclosures?|documents?|docs|funds|fees?|package|binder|checklist|walk-?through)|(bidder )?registration\s*:?\s*(of|for (my|our))|bidder registration\s+of)\b/i;
 /** A date row, or just its name. */
-export type RowRef = string | { what: string; own?: boolean };
-const rowText = (r: RowRef) => (typeof r === 'string' ? r : r.what);
-const isOwn = (r: RowRef) => typeof r !== 'string' && !!r.own;
+export type RowRef = string | { what: string; own?: boolean; as?: string };
+/** The name a row is matched by: its own name, or for a row the reader added, the sale's date they said it is (none: it's their own reminder). */
+const matchText = (r: RowRef): string | null => (typeof r === 'string' ? r : r.own ? (r.as ?? null) : r.what);
 // (A row the reader added is the sale's own event only when named exactly as it: the name, optionally "deadline",
 //  "date", "day" or "due", then nothing, a date, or a dated note in parentheses. "Sale day prep", "Payment deadline for HOA dues" and
 //  "Closing day walk-through" are the reader's own reminders.)
-// (A row the reader added is the sale's event when its name starts with the event's name, or with the site's full
-//  name for it ("Registration (check the notice)"), and every word after that only says when: a date, a time, or
-//  words like deadline, due, moved, postponed, estimated, if required. "Sale day prep", "Payment deadline Nov 20
-//  for HOA dues", "Closing day walk-through" and "Deed recorded copy to my lender" are the reader's own reminders.)
-const WHEN_WORDS = new Set('deadline date day days due moved postponed rescheduled new changed extended to at by on from of est estimated expected tentative approx approximately about if required needed applicable business calendar am pm a m p noon st nd rd th the and or'.split(' '));
+// (A row the reader added stays their own reminder until they say which of the sale's dates it is. The page offers
+//  that choice when the name reads like one: it starts with the date's name, or the site's full name with its note,
+//  and every word after only says when ("Sale day Wednesday 10am", "Closing scheduled Dec 5"). "Sale day prep" or
+//  "Payment deadline for HOA dues" gets no offer.)
+const WHEN_WORDS = new Set('deadline date day days due moved postponed rescheduled new changed extended to at by on from of est estimated expected tentative approx approximately about if required needed applicable business calendar am pm a m p noon st nd rd th the and or scheduled set pt pst pdt hours hour week weeks after before sale deed monday tuesday wednesday thursday friday saturday sunday mon tue tues wed thu thur thurs fri sat sun'.split(' '));
 // (The notes the site's own date names carry, copied by a reader: "(dates count from here)", "(check the notice)".)
 const SITE_NOTE = /\((if|only|from the|check the|dates count|worked out|affidavit filed|unpaid lien|it can replace)\b[^)]*\)/g;
 const MONTH_WORD = /^(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*$/;
-const ownNamed = (what: string, name: string) => {
+/** A name that reads like the sale's own date (offered as “This is the sale's …”, never applied on its own). */
+export const ownNamed = (what: string, name: string) => {
   const t = curly(what.trim()).toLowerCase();
   const base = curly(dateBase(name)).toLowerCase();
   const heads = [curly(name).toLowerCase(), base, ...(/\sday$/.test(base) ? [base.replace(/day$/, 'date')] : [])];
   const head = heads.find((h) => t.startsWith(h) && !/[a-z]/.test(t.charAt(h.length)));
   return head !== undefined && (t.slice(head.length).replace(SITE_NOTE, ' ').match(/[a-z]+/g) ?? []).every((w) => WHEN_WORDS.has(w) || MONTH_WORD.test(w));
 };
-const ownClosing = (what: string) => ['Closing', 'Close of escrow', 'COE', 'Settlement'].some((n) => ownNamed(what, n));
 const eventWord = (rowWhat: string, word: RegExp) => { const t = curly(rowWhat.trim()); return word.test(t) && !OWN_TASK.test(t); };
 /** A row that is the sale's registration (renamed or not, "Registration deadline", "Bidder registration online"). */
-export const registrationRow = (row: RowRef) => (isOwn(row) ? ownNamed(rowText(row), 'Registration') || ownNamed(rowText(row), 'Bidder registration') : eventWord(rowText(row), /^(bidder )?registration\b/i));
+export const registrationRow = (row: RowRef) => { const w = matchText(row); return w !== null && eventWord(w, /^(bidder )?registration\b/i); };
 const closingRow = (rowWhat: string) => closingAlias(rowWhat, 'Closing') || eventWord(rowWhat, /^closing\b/i);
 export const sameDate = (row: RowRef, name: string) => {
-  const rowWhat = rowText(row);
-  if (isOwn(row)) return /^closing$/i.test(dateBase(name)) ? ownClosing(rowWhat) : ownNamed(rowWhat, name);
+  const rowWhat = matchText(row);
+  if (rowWhat === null) return false;
   if (/^(bidder )?registration$/i.test(dateBase(name))) return registrationRow(rowWhat);
   if (/^closing$/i.test(dateBase(name))) return closingRow(rowWhat);
   return closingAlias(rowWhat, name) || curly(rowWhat.trim().toLowerCase()).startsWith(curly(dateBase(name).toLowerCase()));
@@ -117,8 +119,8 @@ const dateBase = (name: string) => name.replace(/\s*\([^)]*\)$/, '');
 /** A row that is this event itself, not another date that starts with its words ("Closing Disclosure received" isn't
  *  "Closing"): after the name, only the end, a note in parentheses, a colon or dash, a date or "on"/"at". */
 export const sameEvent = (row: RowRef, name: string) => {
-  const rowWhat = rowText(row);
-  if (isOwn(row)) return /^closing$/i.test(dateBase(name)) ? ownClosing(rowWhat) : ownNamed(rowWhat, name);
+  const rowWhat = matchText(row);
+  if (rowWhat === null) return false;
   // (The site's closing row, renamed: any name that starts with Closing except a task named after it.)
   if (/^closing$/i.test(dateBase(name))) return closingRow(rowWhat);
   if (closingAlias(rowWhat, name)) return true;
@@ -222,7 +224,7 @@ export function cleanPacket(v: unknown): PacketData {
     // (A void recorded before the row was renamed keeps counting.)
     const what0 = str(r.what, 200);
     const what = /^Treasurer: the sale is void/.test(what0) ? 'The sale is void (the Treasurer said so)' : what0;
-    return { when: DATE.test(when) ? when : '', what, who: str(r.who, 120), ...(r.resolved === true ? { resolved: true } : {}), ...(r.own === true ? { own: true } : {}), ...(typeof r.step === 'string' && /^~?[a-z-]{1,24}$/.test(r.step) ? { step: r.step } : {}) };
+    return { when: DATE.test(when) ? when : '', what, who: str(r.who, 120), ...(r.resolved === true ? { resolved: true } : {}), ...(r.own === true ? { own: true, ...(typeof r.as === 'string' && r.as.trim() ? { as: str(r.as, 120) } : {}) } : {}), ...(typeof r.step === 'string' && /^~?[a-z-]{1,24}$/.test(r.step) ? { step: r.step } : {}) };
   });
   const qa = (Array.isArray(o.qa) ? o.qa : []).slice(0, 40).map((d) => {
     const r = obj(d);
