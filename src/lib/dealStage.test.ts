@@ -2777,6 +2777,8 @@ describe('round 39: Eureka sealed-bid sale', () => {
     for (const [w, n] of [['Sale day prep: get a cashier’s check', 'Sale day'], ['Payment deadline for HOA dues', 'Payment deadline'], ['Deed recorded copy to my lender', 'Deed recorded'], ['Earnest money: move cash', 'Earnest money'], ['Appraisal deadline for my refinance', 'Appraisal deadline']] as const) expect([w, sameDate(own(w), n), sameDate(w, n)]).toEqual([w, false, true]);
     for (const w of ['Closing day walk-through', 'Closing costs: ask title']) expect([w, sameEvent(own(w), 'Closing'), sameDate(own(w), 'Closing')]).toEqual([w, false, false]);
     for (const w of ['Registration with the Secretary of State', 'Registration for LLC', 'Registration: LLC annual list']) expect([w, registrationRow(own(w))]).toEqual([w, false]);
+    for (const [w, n] of [['Sale day (get cashier’s check)', 'Sale day'], ['Payment deadline (HOA dues)', 'Payment deadline'], ['Closing (walk-through)', 'Closing']] as const) expect([w, sameDate(own(w), n), sameEvent(own(w), n)]).toEqual([w, false, false]);
+    for (const [w, n] of [['Bidder registration (if required)', 'Bidder registration'], ['Sale day (Nov 24)', 'Sale day'], ['Sale day (postponed)', 'Sale day']] as const) expect([w, sameDate(own(w), n)]).toEqual([w, true]);
     for (const [w, n] of [['Sale day', 'Sale day'], ['Sale day (moved)', 'Sale day'], ['Payment deadline Nov 21', 'Payment deadline'], ['Registration deadline', 'Registration'], ['Closing: Dec 3', 'Closing'], ['Close of escrow', 'Closing']] as const) expect([w, sameDate(own(w), n)]).toEqual([w, true]);
     // (The site's own closing row, renamed, is still the closing in every check.)
     expect(sameEvent('Closing scheduled with escrow', 'Closing')).toBe(true);
