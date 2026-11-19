@@ -3092,4 +3092,28 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const pd = { ...pc, dates: pc.dates.map((x) => (x.who === 'City of Henderson' ? { ...x, when: '2026-11-24', resolved: true } : x)) };
     expect(handledCopy(pd, pd.dates[pd.dates.length - 1])).toBe(true);
   });
+  it('round 121 clarity: an unnamed payoff’s remove button names its date; a named reminder moves into the site’s “Me” payoff; Key dates asks for the Sale day before the redemption question', async () => {
+    const { suggestedDates, sidSiteFor, packetSections } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const cl: Deal = { ...deal, id: 'v121b', name: '6 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-10', resolved: true }), /^Payment deadline/, { when: '2026-11-10', resolved: true });
+    // CLARITY-1
+    const p1 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-30', who: 'Me' }), { when: '', what: 'SID certificate payoff', who: 'City of Henderson' }] };
+    savePacket(`analyzed:${cl.id}`, p1);
+    const t1 = dealNextTask(cl, p1, new Date('2026-11-25T20:00:00Z'), 'contract');
+    expect(t1.undo?.label).toBe('No SID affidavit for the Nov 30, 2026 payoff after all: remove that row');
+    expect(t1.undo?.removeWhen).toBe('2026-11-30');
+    // CLARITY-2
+    const p2 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-30', who: 'Me' }), { when: '2026-11-27', what: 'SID certificate payoff', who: 'City of Henderson', own: true }] };
+    expect(sidSiteFor(p2, p2.dates[p2.dates.length - 1])).toBe(p2.dates.findIndex((x) => !x.own && /^SID/.test(x.what)));
+    // CLARITY-3
+    const ho: Deal = { ...deal, id: 'v121c', name: '7 Oak', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'closed' };
+    saveDeals([ho]);
+    const p3 = { ...EMPTY_PACKET, dates: [...base(ho).filter((x) => !/^Deed delivered/.test(x.what)), { when: '2026-11-18', what: 'Deed delivered (if no one redeemed)', who: '' }] };
+    savePacket(`analyzed:${ho.id}`, p3);
+    const lines = packetSections(ho, p3, new Date('2026-11-25T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join(' | ');
+    expect(lines).not.toMatch(/the redemption period is over/);
+  });
 });
