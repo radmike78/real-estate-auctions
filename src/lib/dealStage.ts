@@ -997,6 +997,11 @@ function sidAffidavitTask(d: Deal, p: PacketData, now: Date, n: string): PlanTas
   // (Reopened: one payoff is dated or paid, and another SID row still has no date. Ask about that row, by its payee.)
   const begun = p.dates.some((x) => sameDate(x, 'SID certificate payoff') && (!!x.when || !!x.resolved));
   const blank = begun && !p.dates.some((x) => sameDate(x, NO_SID_ROW)) ? p.dates.find((x) => sameDate(x, 'SID certificate payoff') && !x.when && !x.resolved) : undefined;
+  if (blank && !sidAnswered(p) && sidDeadline(p) && sidDeadline(p) < nvParts(now).day) {
+    const who = (blank.who ?? '').trim();
+    const to = who && !/^(me|you)$/i.test(who) ? ` to ${who}` : '';
+    return task({ key: 'sid-affidavit', answer: true, days: -1, label: `Was another SID payoff owed${to} for ${n}, and paid by ${prettyDay(sidDeadline(p))}? Its row in Key dates has no date`, produces: `a written yes or no from the Treasurer${to ? ` or ${who}` : ''}. If one was owed and it wasn’t paid by ${prettyDay(sidDeadline(p))} (20 days after the sale), the sale is void and the Treasurer may keep up to 10% of what you paid (NRS 361.595(6)); if none was owed, remove the row`, href: packetHref(d, 'dates'), record: { label: `Yes, and I paid it${to} by ${prettyDay(sidDeadline(p))}: mark it`, row: { when: sidDeadline(p), what: 'SID certificate payoff', who: who || 'Me', resolved: true } }, undo: { label: `No payoff was owed${to}: remove that row`, removeRow: 'SID certificate payoff', removeWho: blank.who ?? '', undatedOnly: true }, tick: { label: `One was owed${to} and not paid by ${prettyDay(sidDeadline(p))}: the sale is void`, row: VOID_UNPAID, who: 'You' }, support: [L.guides], done: false });
+  }
   if (blank && !sidAnswered(p) && sidDeadline(p) && sidDeadline(p) >= nvParts(now).day) {
     const who = (blank.who ?? '').trim();
     const to = who && !/^(me|you)$/i.test(who) ? ` to ${who}` : '';
@@ -1214,9 +1219,9 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
 
   if (stage === 'closed') {
     // (A sale that may be void comes first, wherever the stage was moved.)
+    if (d.state === 'NV' && d.kind === 'taxSale') { const due = sidPayDue(p, now); if (due) out.push(task({ key: 'sid-pay', label: `Pay off what’s owed on the special improvement district (SID) certificate for ${n}${due.to} by ${prettyDay(due.dl)}, or the sale is void (NRS 361.595(6))`, produces: 'the payment to the city or county, with its receipt, and its affidavit sent to the Treasurer', href: packetHref(d, 'dates'), tick: { label: 'I paid it: mark it handled', row: due.row, setWhen: dayOf(d, now) }, support: [], done: false })); }
     if (d.state === 'NV' && d.kind === 'taxSale' && sidUnasked(d) && !sidAnswered(p)) out.push(sidAffidavitTask(d, p, now, n));
     if (d.state === 'NV' && d.kind === 'taxSale') { const t = sidPaidAffidavit(d, p, now, n); if (t && !t.done) out.push(t); }
-    if (d.state === 'NV' && d.kind === 'taxSale') { const due = sidPayDue(p, now); if (due) out.push(task({ key: 'sid-pay', label: `Pay off what’s owed on the special improvement district (SID) certificate for ${n}${due.to} by ${prettyDay(due.dl)}, or the sale is void (NRS 361.595(6))`, produces: 'the payment to the city or county, with its receipt, and its affidavit sent to the Treasurer', href: packetHref(d, 'dates'), tick: { label: 'I paid it: mark it handled', row: due.row, setWhen: dayOf(d, now) }, support: [], done: false })); }
     if (d.state === 'NV' && d.kind === 'taxSale') { const st = sidTasks(d, p, now, n).filter((t) => !t.done); if (st.length) { out.push(...st); return out; } }
     if (w === 'lien') {
       if (d.state === 'NV' && redeemedIn(p)) { out.push(lienPayoff(d, p)); return out; }
@@ -1298,9 +1303,9 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
   if (stage === 'owned') {
     // (A certificate-first deal moved here before the deed: the wait and the deed still come first.)
     if (wayOf(d) !== 'lien' && certificateFirst(d) && !deedInHand(d) && !redeemedIn(p) && !owned[d.id]?.sold) { const cl = stageTasks(d, 'closed', p, now).filter((t) => !t.done && (t.key === 'redemption-wait' || t.key === 'deed')); const cn = dealNextTask(d, p, now, 'closed'); const ask = cn.key === 'date' && /redeem|redemption/i.test(cn.label) && !cl.some((t) => t.key === cn.key) ? [cn] : []; if (cl.length || ask.length) { out.push(...ask, ...cl.filter((t) => !(ask.length && t.key === 'redemption-wait'))); return out; } }
+    if (d.state === 'NV' && d.kind === 'taxSale') { const due = sidPayDue(p, now); if (due) out.push(task({ key: 'sid-pay', label: `Pay off what’s owed on the special improvement district (SID) certificate for ${n}${due.to} by ${prettyDay(due.dl)}, or the sale is void (NRS 361.595(6))`, produces: 'the payment to the city or county, with its receipt, and its affidavit sent to the Treasurer', href: packetHref(d, 'dates'), tick: { label: 'I paid it: mark it handled', row: due.row, setWhen: dayOf(d, now) }, support: [], done: false })); }
     if (d.state === 'NV' && d.kind === 'taxSale' && sidUnasked(d) && !sidAnswered(p)) out.push(sidAffidavitTask(d, p, now, n));
     if (d.state === 'NV' && d.kind === 'taxSale') { const t = sidPaidAffidavit(d, p, now, n); if (t && !t.done) out.push(t); }
-    if (d.state === 'NV' && d.kind === 'taxSale') { const due = sidPayDue(p, now); if (due) out.push(task({ key: 'sid-pay', label: `Pay off what’s owed on the special improvement district (SID) certificate for ${n}${due.to} by ${prettyDay(due.dl)}, or the sale is void (NRS 361.595(6))`, produces: 'the payment to the city or county, with its receipt, and its affidavit sent to the Treasurer', href: packetHref(d, 'dates'), tick: { label: 'I paid it: mark it handled', row: due.row, setWhen: dayOf(d, now) }, support: [], done: false })); }
     if (d.state === 'NV' && d.kind === 'taxSale') { const st = sidTasks(d, p, now, n).filter((t) => !t.done); if (st.length) { out.push(...st); return out; } }
     // (A Nevada trustee or tax deed with no recorded date: that date still comes first.)
     if (!owned[d.id]?.sold) { const dd = stageTasks(d, 'closed', p, now).find((t) => t.key === 'deed-date'); if (dd) out.push(dd); }
@@ -1567,16 +1572,17 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     //  payoff within a week of the 20-day deadline.)
     const deedMissOwn = deedDateMissing(d as Deal, p, stage);
     // (A reader's SID reminder that repeats the sale's own payoff row, same payee and day: the sale's step covers it.)
-    const sidDup = (x: PacketData['dates'][number]) => handledCopy(p, x) || (() => { const k = sidSiteFor(p, x); return k >= 0 && sidSamePayee(x, p.dates[k]) && p.dates[k].when === x.when; })();
-    // (A win's dated payment due today or tomorrow, or overdue, and not paid: its step leads, not a hand-typed Sale day.)
-    const payDueSoon = stage === 'contract' && !paidIn(p, d) && p.dates.some((y) => !y.own && sameDate(y, 'Payment deadline') && !!y.when && !y.resolved && inWeek(y.when) && Math.round((Date.parse(`${y.when}T12:00:00Z`) - Date.parse(`${dayOf(d, now)}T12:00:00Z`)) / 864e5) <= 1);
+    const sidDup = (x: PacketData['dates'][number]) => handledCopy(p, x) || (() => { const k = sidSiteFor(p, x); return k >= 0 && (sidSamePayee(x, p.dates[k]) || !(x.who ?? '').trim()) && p.dates[k].when === x.when; })();
+    // (A win's dated payment due today or tomorrow, or overdue, and not paid: its step leads, not a hand-typed Sale day.
+    //  Not a Clark or Washoe tax sale: the county's payment hour counts from the Sale day, so moving it there comes first.)
+    const payDueSoon = stage === 'contract' && !paidIn(p, d) && !(d.state === 'NV' && d.kind === 'taxSale' && (d.county === 'Clark' || d.county === 'Washoe')) && p.dates.some((y) => !y.own && sameDate(y, 'Payment deadline') && !!y.when && !y.resolved && inWeek(y.when) && Math.round((Date.parse(`${y.when}T12:00:00Z`) - Date.parse(`${dayOf(d, now)}T12:00:00Z`)) / 864e5) <= 1);
     const ownLead = p.dates.find((x) => {
       if (!x.own || x.notAs) return false;
       const ev = eventFor(d, x.what);
       if (!ev) return false;
       if (sameDate(ev, 'Sale day')) return stage === 'contract' && wayOf(d) !== 'offer' && !datedSite('Sale day') && !!x.when && !payDueSoon;
       if (deedMissOwn && DEED_ROWS[deedMissOwn].some((r) => sameDate(ev, r))) return !!x.when && !datedSite(ev);
-      if (sameDate(ev, 'SID certificate payoff')) { const dl = sidDeadline(p); return d.state === 'NV' && d.kind === 'taxSale' && !x.resolved && !sidDup(x) && !(stage === 'contract' && !paidIn(p, d)) && !!dl && ((!!x.when && x.when > dl) || inWeek(dl)); }
+      if (sameDate(ev, 'SID certificate payoff')) { const dl = sidDeadline(p); return d.state === 'NV' && d.kind === 'taxSale' && !x.resolved && !sidDup(x) && !(stage === 'contract' && !paidIn(p, d)) && !!dl && ((!!x.when && x.when > dl) || (inWeek(dl) && !p.dates.some((y) => !y.own && !y.resolved && !!y.when && sameDate(y, 'SID certificate payoff')))); }
       return false;
     });
     const ownNd = ownLead ?? (nd && nd.own && !nd.resolved && !payFirst && !bidPrep && nd.days <= 7 ? nd : undefined);

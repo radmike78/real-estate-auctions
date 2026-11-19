@@ -2986,4 +2986,43 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${tr.id}`, pt);
     expect(dealNextTask(tr, pt, now, 'contract').label).not.toMatch(/your own reminder/);
   });
+  it('round 120 tools: county pay rules keep the Sale-day pointer; paid payees and open site SID rows keep their steps', async () => {
+    const { suggestedDates, handledCopy, sidSiteFor } = await import('./dealPacket');
+    const now = new Date('2026-11-18T20:00:00Z');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    // TOOLS-1: Washoe, sale date only on the reader's row, payment typed for tomorrow: move it first (the 5 p.m. rule needs it).
+    const wa: Deal = { ...deal, id: 'v120a', name: '1 Reno', state: 'NV', county: 'Washoe', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([wa]);
+    const pw = { ...EMPTY_PACKET, dates: [...set(base(wa), /^Payment deadline/, { when: '2026-11-19', who: 'Me' }), { when: '2026-11-17', what: 'Auction date', who: 'Me', own: true }] };
+    savePacket(`analyzed:${wa.id}`, pw);
+    expect(dealNextTask(wa, pw, now, 'contract').label).toMatch(/your own reminder/);
+    // TOOLS-2: the City's row marked paid today; the reader's reminder to the same payee for Nov 22 is a handled copy.
+    const cl: Deal = { ...deal, id: 'v120b', name: '2 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-10', resolved: true }), /^Payment deadline/, { when: '2026-11-10', resolved: true });
+    const p2 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-18', who: 'City of Las Vegas', resolved: true }), { when: '2026-11-22', what: 'SID certificate payoff', who: 'city of  las vegas', own: true }] };
+    expect(handledCopy(p2, p2.dates[p2.dates.length - 1])).toBe(true);
+    savePacket(`analyzed:${cl.id}`, p2);
+    expect(dealNextTask(cl, p2, new Date('2026-12-03T20:00:00Z'), 'contract').label).not.toMatch(/your own reminder/);
+    // TOOLS-3: the site's dated, open payoff leads in its last week over a reminder dated differently, or with no payee.
+    for (const who of ['City of Las Vegas', '']) {
+      const p3 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-22', who: 'City of Las Vegas' }), { when: '2026-11-26', what: 'SID certificate payoff', who, own: true }] };
+      savePacket(`analyzed:${cl.id}`, p3);
+      expect(dealNextTask(cl, p3, new Date('2026-11-24T20:00:00Z'), 'contract').label).not.toMatch(/your own reminder/);
+      expect(sidSiteFor(p3, p3.dates[p3.dates.length - 1])).toBe(p3.dates.findIndex((x) => !x.own && /^SID certificate payoff/.test(x.what)));
+    }
+    // TOOLS-4: after the deadline, the reopened question still names the payee whose row has no date.
+    const p4 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-22', who: 'City of Las Vegas', resolved: true }), { when: '', what: 'SID certificate payoff', who: 'City of Henderson' }] };
+    const ask = stageTasks(cl, 'contract', p4, new Date('2026-12-03T20:00:00Z')).find((x) => x.key === 'sid-affidavit')!;
+    expect(ask.label).toMatch(/Was another SID payoff owed to City of Henderson .* paid by Nov 30, 2026/);
+    expect(ask.record?.label).toMatch(/City of Henderson/);
+    expect(ask.tick?.label).toMatch(/sale is void/);
+    expect(ask.undo?.undatedOnly).toBe(true);
+    // TOOLS-5: at Deed recorded, a dated payoff still owed comes before the question about an undated one.
+    const p5 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-22', who: 'City of Las Vegas' }), { when: '', what: 'SID certificate payoff', who: 'City of Henderson' }] };
+    const keys = stageTasks({ ...cl, stage: 'closed' }, 'closed', p5, now).filter((x) => !x.done).map((x) => x.key);
+    expect(keys.indexOf('sid-pay')).toBeGreaterThanOrEqual(0);
+    expect(keys.indexOf('sid-pay')).toBeLessThan(keys.indexOf('sid-affidavit'));
+  });
 });
