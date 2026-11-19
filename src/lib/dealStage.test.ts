@@ -3485,6 +3485,22 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const lc: Deal = { ...li, id: 'v126d', county: 'Clark' };
     saveDeals([lc]);
     savePacket(`analyzed:${lc.id}`, pl);
-    expect(dealNextTask(lc, pl, new Date('2026-11-19T15:00:00Z'), 'contract').label).toMatch(/next day the Treasurer’s office is open/);
+    const plc = { ...pl, dates: pl.dates.map((x) => (x.own ? { ...x, when: '2026-11-19' } : x)) };
+    savePacket(`analyzed:${lc.id}`, plc);
+    const tc = dealNextTask(lc, plc, new Date('2026-11-21T20:00:00Z'), 'contract');
+    expect(tc.label).toMatch(/on Nov 23, 2026, the next day the Treasurer’s office is open/);
+    expect(tc.label).not.toMatch(/contact/);
+    expect(dealNextTask(lc, plc, new Date('2026-11-23T19:00:00Z'), 'contract').label).toMatch(/was due by 10:00 a\.m\. Nevada time today/);
+  });
+  it('round 126 verifier: a plan and its receipt to one payee are one payoff next to the paid “Me” row; two payees in one name are not', async () => {
+    const { suggestedDates, handledCopy } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const cl: Deal = { ...deal, id: 'v126e', name: '29 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    const me = set(set(set(base(cl), /^Sale day/, { when: '2026-11-12', resolved: true }), /^Payment deadline/, { when: '2026-11-12', resolved: true }), /^SID certificate payoff/, { when: '2026-11-19', who: 'Me', resolved: true });
+    const p = { ...EMPTY_PACKET, dates: [...me, { when: '2026-11-25', what: 'SID payoff to City of Henderson', who: '', own: true }, { when: '2026-11-19', what: 'SID payment to the city of henderson', who: '', own: true, resolved: true }] };
+    expect(handledCopy(p, p.dates[p.dates.length - 2])).toBe(true);
+    const two = { ...EMPTY_PACKET, dates: [...me, { when: '2026-11-25', what: 'SID payoff', who: 'City of Henderson and City of Las Vegas', own: true }] };
+    expect(handledCopy(two, two.dates[two.dates.length - 1])).toBe(false);
   });
 });
