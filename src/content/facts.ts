@@ -50,8 +50,8 @@ export const FACTS: Fact[] = [
     id: 'tax-payment-deadline',
     claim: 'Winning bids are paid in full the same day by 1:00 p.m.; parcels re-auctioned at 2:00 p.m. are paid by 4:30 p.m.',
     sources: ['treasurer-faq', 'treasurer-notice-2025-05'],
-    checked: '2026-09-27',
-    where: [{ file: PB, text: 'full price the same day by 1:00 p.m. (4:30 p.m. for parcels re-auctioned at 2:00 p.m.)' }],
+    checked: '2026-11-19',
+    where: [{ file: PB, text: '1:00 p.m. in the Treasurer\'s notices (4:30 p.m. for parcels re-auctioned at 2:00 p.m.)' }],
   },
   {
     id: 'tax-deed-name',
