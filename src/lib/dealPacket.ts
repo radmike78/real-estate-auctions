@@ -146,7 +146,7 @@ const LATER = ['Redemption money collected', 'Challenge window ends', 'Recovery-
 export const sidPayee = (r: PacketDate): string => { const w = (r.who ?? '').trim().replace(/\s+/g, ' '); return /^(me|you)\b/i.test(w) ? '' : w; };
 export const sidSamePayee = (a: PacketDate, b: PacketDate): boolean => { const w = (r: PacketDate) => sidPayee(r).toLowerCase(); return !!w(a) && w(a) === w(b); };
 /** A reader's row named as an SID payoff, by the site's name or its short form (“SID payoff …”). */
-export const sidNamed = (w: string): boolean => sameDate(w, 'SID certificate payoff') || /^\s*SID payoff\b/i.test(w);
+export const sidNamed = (w: string): boolean => sameDate(w, 'SID certificate payoff') || /^\s*SID (certificate )?pay(off|ment)\b/i.test(w);
 /** The sale's SID payoff row a reader's own SID reminder belongs to: an open one naming the same payee (or, for a
  *  reminder naming none, the only open one), else the blank placeholder that names no payee (-1: none; the reminder becomes a row of its own). */
 export const sidSiteFor = (p: PacketData, x: PacketDate): number => {

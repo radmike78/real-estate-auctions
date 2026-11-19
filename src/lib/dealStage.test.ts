@@ -3167,4 +3167,29 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const lines = packetSections(ho, p5, now).find((x) => x.key === 'dates')!.lines.join(' | ');
     expect(lines).not.toMatch(/mark it once you have it/);
   });
+  it('round 122 clarity: the SID payoff leads a later reminder at Won; a hand-typed Sale day after buying gets the pointer; deed and SID names in a reader’s words', async () => {
+    const { suggestedDates } = await import('./dealPacket');
+    const { eventFor } = await import('./dealStage');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const now = new Date('2026-11-19T20:00:00Z');
+    const cl: Deal = { ...deal, id: 'v122c', name: '11 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-10', resolved: true }), /^Payment deadline/, { when: '2026-11-10', resolved: true });
+    // CLARITY-1
+    const p1 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-28', who: 'City of Las Vegas' }), { when: '2026-11-22', what: 'Call the locksmith', who: 'Me', own: true }] };
+    savePacket(`analyzed:${cl.id}`, p1);
+    expect(dealNextTask(cl, p1, now, 'contract').label).toMatch(/SID certificate payoff/);
+    // CLARITY-2: HOA at Deed recorded, Sale day typed by hand.
+    const ho: Deal = { ...deal, id: 'v122d', name: '12 Oak', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'closed' };
+    saveDeals([ho]);
+    const p2 = { ...EMPTY_PACKET, dates: [...base(ho), { when: '2026-11-12', what: 'Sale day', who: 'Me', own: true }] };
+    savePacket(`analyzed:${ho.id}`, p2);
+    expect(dealNextTask(ho, p2, now, 'closed').label).toMatch(/your own reminder/);
+    // CLARITY-3 / CLARITY-4
+    expect(eventFor(ho, 'Deed received')).toMatch(/^Deed delivered/);
+    expect(eventFor(ho, 'Sheriff’s deed')).toMatch(/^Deed delivered/);
+    expect(eventFor(cl, 'Deed date')).toMatch(/deed recorded/i);
+    expect(eventFor(cl, 'SID payoff to City of Las Vegas')).toMatch(/^SID certificate payoff/);
+  });
 });

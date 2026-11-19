@@ -193,6 +193,11 @@ export const eventFor = (d: Pick<Deal, 'kind' | 'state'>, what: string): string 
   const usual = suggestedDates(d);
   const direct = usual.find((n) => ownNamed(what, n));
   if (direct) return direct;
+  const w = what.trim().replace(/['‘]/g, '’');
+  // (An SID payoff named with its payee or a note: “SID payoff to City of Las Vegas”.)
+  if (/^SID (certificate )?pay(off|ment)\b/i.test(w)) { const hit = usual.find((n) => sameDate(n, 'SID certificate payoff')); if (hit) return hit; }
+  // (The deed, in a reader's words: “Deed date”, “Deed received”, “Sheriff’s deed”, “Got the deed”.)
+  if (/^(got (the |my )?deed|deed (date|received|in hand|delivered)|(sheriff|trustee|treasurer|irs)’?s? deed)\b/i.test(w)) { const hit = usual.find((n) => sameDate(n, DEED_AFTER_WAIT)) ?? usual.find((n) => /deed recorded/i.test(n)); if (hit) return hit; }
   for (const [alias, canon] of EVENT_ALIASES) if (ownNamed(what, alias)) { const hit = usual.find((n) => sameDate(n, canon)); if (hit) return hit; }
   return '';
 };
@@ -208,6 +213,8 @@ export const officialRow = (d: Pick<Deal, 'kind' | 'state'>, what: RowRef): bool
 /** The next date, with this sale's own dates first: one due within a week (or passed) leads any date the reader
  *  added; otherwise the nearest date of any kind. Your next action and Key dates both use it. */
 /** A reader's own SID reminder never stands in for the sale's open, dated SID payoff row: that row's step leads (Your next action and Key dates alike). */
+/** Where to enter the Sale day: on the reader's own dated "Sale day" reminder (its Make or Move button) when there is one, else the usual row. */
+const saleDayWhere = (d: Pick<Deal, 'kind' | 'state'>, p: PacketData): string => { const mine = p.dates.find((x) => !!x.own && !!x.when && !x.notAs && sameDate(eventFor(d, x.what) || '-', 'Sale day')); return mine ? `(you typed it on your own reminder “${mine.what}”, ${prettyDay(mine.when)}: press “${p.dates.some((y) => !y.own && sameDate(y, 'Sale day')) ? 'Move this date to the sale’s Sale day row' : 'Make this the sale’s Sale day row'}” on it)` : '(if there’s no Sale day row, press “Add the usual dates that are missing” in Key dates)'; };
 export const siteSidFirst = (rem: PacketData, d: Pick<Deal, 'kind' | 'state'>): PacketData => d.state === 'NV' && d.kind === 'taxSale' && rem.dates.some((x) => !x.own && !x.resolved && !!x.when && sameDate(x, 'SID certificate payoff')) ? { ...rem, dates: rem.dates.filter((x) => !(x.own && sidNamed(x.what) && (!sidPayee(x) || rem.dates.some((y) => !y.own && sameDate(y, 'SID certificate payoff') && sidSamePayee(x, y))))) } : rem;
 export const officialFirst = (rem: PacketData, d: Pick<Deal, 'kind' | 'state'>, now: Date) => {
   const off = nextDate({ ...rem, dates: rem.dates.filter((x) => officialRow(d, x)) }, now, d);
@@ -1379,7 +1386,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     if (ticked(p, DEED_AFTER_WAIT)) { const next = stageLabel('closed', d); return task({ key: 'move-closed', label: `You have the deed for ${d.name || 'this property'}: move it to “${next}”`, produces: 'the owner tasks: securing and insuring it, then its costs', href: packetHref(d, 'dates'), advance: { stage: 'closed', label: `Move it to “${next}”` }, support: [], done: false }); }
     const e = redemptionEnd(d, p);
     // (No Sale day: the end can't be worked out, so the Sale day comes first.)
-    if (!e && redemptionMarkWait(d, p, now) === 'no-sale') { const n = d.name || 'this property'; const text = `Enter the Sale day for ${n} in Key dates (if there’s no Sale day row, press “Add the usual dates that are missing” in Key dates): the law counts the redemption period from it. Someone can redeem until it ends.`; return { key: 'date', days: 0, label: text, produces: 'the Sale day in Key dates, so the redemption period’s end can be worked out', href: packetHref(d, 'dates'), support: [], done: false, urgent: false, text }; }
+    if (!e && redemptionMarkWait(d, p, now) === 'no-sale') { const n = d.name || 'this property'; const text = `Enter the Sale day for ${n} in Key dates ${saleDayWhere(d, p)}: the law counts the redemption period from it. Someone can redeem until it ends.`; return { key: 'date', days: 0, label: text, produces: 'the Sale day in Key dates, so the redemption period’s end can be worked out', href: packetHref(d, 'dates'), support: [], done: false, urgent: false, text }; }
     // (Ended, or answered: the rest happens at the next stage, so the step is to move it there.)
     if (handled(p, 'Redemption period ends', now, d) || (e && e < dayOf(d, now))) { const n = d.name || 'this property'; const next = stageLabel('closed', d); const certRow = d.kind === 'irs' ? 'Certificate of sale received' : 'Certificate of sale recorded'; const hasCert = ticked(p, certRow); const once = hasCert ? '' : 'once you have the certificate of sale, '; return task({ key: 'move-closed', label: handled(p, 'Redemption period ends', now, d) ? `No one redeemed ${n}: ${once}move it to “${next}” for the deed` : `The redemption period for ${n} ended ${prettyDay(e)} (${e === lawRedemptionEnd(d, p) ? `counted from the Sale day you entered, ${prettyDay(p.dates.find((x) => sameEvent(x, 'Sale day') && x.when)?.when ?? '')}` : 'the end date you entered'}): ${once}move it to “${next}” to answer whether anyone redeemed`, produces: `the next steps there: ${handled(p, 'Redemption period ends', now, d) ? 'the deed' : 'whether anyone redeemed, then the deed'}${hasCert ? '' : ` (“${certRow}” is dated today: change it to the date on the certificate if different)`}`, href: packetHref(d, 'dates'), advance: { stage: 'closed', label: hasCert ? `Move it to “${next}”` : `I have the certificate: move it to “${next}”`, ticks: hasCert ? [] : [certRow] }, support: [], done: false }); }
   }
@@ -1411,6 +1418,8 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const saleNow = early && p.dates.some((x) => sameDate(x, 'Sale day') && x.when && x.when <= saleToday);
     const remP = remindable(capSid(withEffectiveEnd(d, p), d), now, early, [...(stage === 'contract' && taxPayState(d, p, now).state ? ['Payment deadline', 'SID certificate payoff'] : []), ...behindStage(d, stage), ...notYet(d, stage, p, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT, ...(saleNow ? ['Bidder registration', 'Registration', SEALED_ROW] : [])], saleToday);
     let nd = officialFirst(siteSidFirst(remP, d), d, now);
+    // (A paid Nevada tax win: the sale's open, dated SID payoff leads a reader's reminder due later; one due today or overdue still leads.)
+    if (nd && !officialRow(d, nd) && !(nd.own && sidNamed(nd.what)) && nd.days >= 1 && stage === 'contract' && d.state === 'NV' && d.kind === 'taxSale' && paidIn(p, d) && sidState(d) !== 'void') { const sidNd = nextDate({ ...remP, dates: remP.dates.filter((x) => !x.own && !x.resolved && !!x.when && sameDate(x, 'SID certificate payoff')) }, now, d); if (sidNd) nd = sidNd; }
     nd = contingencyFirst(nd, p, now, stage, d.kind, d.state);
     // A Nevada tax sale's open SID payoff comes before the deed's recording: the Treasurer can't issue the deed until it's
     // paid (NRS 361.595(6)), and missing it voids the sale.
@@ -1518,7 +1527,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     if ((stage === 'closed' || (stage === 'owned' && !!beforeDeed(d)) || (stage === 'contract' && paidIn(p, d))) && certificateFirst(d) && !redeemedIn(p) && redemptionMarkWait(d, p, now) === 'no-sale') {
       const n = d.name || 'this property';
       const typedEnd = p.dates.find((x) => sameDate(x, 'Redemption period ends') && x.when)?.when;
-      const text = `Enter the Sale day for ${n} in Key dates (if there’s no Sale day row, press “Add the usual dates that are missing” in Key dates): the law counts the redemption period from it${typedEnd ? `, so the end you entered (${prettyDay(typedEnd)}) can’t be checked without it` : ''}. Someone can redeem until it ends.`;
+      const text = `Enter the Sale day for ${n} in Key dates ${saleDayWhere(d, p)}: the law counts the redemption period from it${typedEnd ? `, so the end you entered (${prettyDay(typedEnd)}) can’t be checked without it` : ''}. Someone can redeem until it ends.`;
       return { key: 'date', days: 0, label: text, produces: 'the Sale day in Key dates, so the redemption period’s end can be worked out', href: packetHref(d, 'dates'), support: [], done: false, urgent: false, text };
     }
     // A challenge or recovery-suit window typed earlier than the law's end: no "ended" question until the law's end.
@@ -1538,7 +1547,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
       const w = redemptionMarkWait(d, p, now);
       if (w && (w === 'no-sale' || w !== nd.when)) {
         const n = d.name || 'this property';
-        const text = w === 'no-sale' ? `Enter the Sale day for ${n} in Key dates: the redemption period is worked out from it, and someone can redeem until it ends.` : `${n}’s redemption period runs until ${prettyDay(w)} under the law for this sale, later than the date in Key dates (${prettyDay(nd.when)}): someone can still redeem until then. Fix the date in Key dates.`;
+        const text = w === 'no-sale' ? `Enter the Sale day for ${n} in Key dates ${saleDayWhere(d, p)}: the redemption period is worked out from it, and someone can redeem until it ends.` : `${n}’s redemption period runs until ${prettyDay(w)} under the law for this sale, later than the date in Key dates (${prettyDay(nd.when)}): someone can still redeem until then. Fix the date in Key dates.`;
         const days = w === 'no-sale' ? 0 : Math.round((Date.parse(`${w}T12:00:00Z`) - Date.parse(`${dayOf(d, now)}T12:00:00Z`)) / 864e5);
         return { key: 'date', days, label: text, produces: 'the redemption period’s end in Key dates, as the law sets it', href: packetHref(d, 'dates'), support: [], done: false, urgent: false, text };
       }
@@ -1587,7 +1596,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
       if (!x.own || x.notAs) return false;
       const ev = eventFor(d, x.what);
       if (!ev) return false;
-      if (sameDate(ev, 'Sale day')) return stage === 'contract' && wayOf(d) !== 'offer' && !datedSite('Sale day') && !!x.when && !payDueSoon;
+      if (sameDate(ev, 'Sale day')) return wayOf(d) !== 'offer' && !datedSite('Sale day') && !!x.when && (stage === 'contract' ? !payDueSoon : ['closed', 'owned'].includes(stage) && !soldOf(d) && (certificateFirst(d) || (d.state === 'NV' && d.kind === 'taxSale')));
       if (deedMissOwn && DEED_ROWS[deedMissOwn].some((r) => sameDate(ev, r))) return !!x.when && !datedSite(ev);
       if (sameDate(ev, 'SID certificate payoff')) { const dl = sidDeadline(p); return d.state === 'NV' && d.kind === 'taxSale' && !x.resolved && !sidDup(x) && !(stage === 'contract' && !paidIn(p, d)) && !(sidUnasked(d) && !sidAnswered(p)) && !!dl && ((!!x.when && x.when > dl) || (inWeek(dl) && !p.dates.some((y) => !y.own && !y.resolved && !!y.when && sameDate(y, 'SID certificate payoff')))); }
       return false;
