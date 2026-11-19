@@ -3479,5 +3479,12 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${li.id}`, pl);
     const tli = dealNextTask(li, pl, new Date('2026-11-19T15:00:00Z'), 'contract');
     if (/your own reminder/.test(tli.label)) expect(tli.label).toMatch(/10:00 a\.m\. Nevada time/);
+    // (round 126 clarity: Washoe's payment day says today, and was due after 10 a.m.; Clark gets its own rule.)
+    expect(tli.label).toMatch(/Payment is due by 10:00 a\.m\. Nevada time today/);
+    expect(dealNextTask(li, pl, new Date('2026-11-19T20:00:00Z'), 'contract').label).toMatch(/Payment was due by 10:00 a\.m\. Nevada time today/);
+    const lc: Deal = { ...li, id: 'v126d', county: 'Clark' };
+    saveDeals([lc]);
+    savePacket(`analyzed:${lc.id}`, pl);
+    expect(dealNextTask(lc, pl, new Date('2026-11-19T15:00:00Z'), 'contract').label).toMatch(/next day the Treasurer’s office is open/);
   });
 });
