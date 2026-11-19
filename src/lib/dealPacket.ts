@@ -143,7 +143,7 @@ const LATER = ['Redemption money collected', 'Challenge window ends', 'Recovery-
 /** An open row that is a copy of a date already handled on the same day (the reader added it again): it's done too. */
 /** Two SID payoff rows that name the same payee (not blank), ignoring case and spacing. */
 /** An SID row's payee, as typed (blank when it names none: empty, or the reader themself, "Me", "You, with…"). */
-export const sidPayee = (r: PacketDate): string => { const w = (r.who ?? '').trim().replace(/\s+/g, ' '); const named = !w && r.own && sidNamed(r.what) ? (r.what.match(/\b(?:to|for)\s+(.+?)\s*$/i)?.[1] ?? '').trim() : ''; const p = w || named; return /^(me|you)\b/i.test(p) ? '' : p; };
+export const sidPayee = (r: PacketDate): string => { const w = (r.who ?? '').trim().replace(/\s+/g, ' '); if (w && !/^(me|you)\b/i.test(w)) return w; if (!r.own || !sidNamed(r.what)) return ''; /* (a payee in the reminder's name: “SID payoff to City of Las Vegas (moved)”, “… for parcel 12 to Clark County”) */ const base = r.what.replace(/\s*\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim(); const named = (base.match(/\bto\s+(.+?)\s*$/i)?.[1] ?? base.match(/\bfor\s+(?!(the )?parcel\b)(.+?)\s*$/i)?.[2] ?? '').trim(); return /^(me|you)\b/i.test(named) ? '' : named; };
 export const sidSamePayee = (a: PacketDate, b: PacketDate): boolean => { const w = (r: PacketDate) => sidPayee(r).toLowerCase(); return !!w(a) && w(a) === w(b); };
 /** A reader's row named as an SID payoff, by the site's name or its short form (“SID payoff …”). */
 export const sidNamed = (w: string): boolean => sameDate(w, 'SID certificate payoff') || /^\s*SID (certificate )?pay(off|ment)\b/i.test(w);
@@ -1251,7 +1251,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const closingDone = stageOf(d) === 'contract' && isOffer(d) && p.dates.some((x) => sameEvent(x, 'Closing') && !!x.resolved && (!x.when || x.when <= todayHere));
   // FLOW-4: before you win, a sale day that has passed asks "did you win?" (no countdown to the rows after the sale).
   const saleDone = early && !isOffer(d) && saleOverFor(d, p, now);
-  const nd0 = nvPayDays(d, stageOf(d) === 'passed' || finishedDeal(d) || closingDone || saleDone ? null : sidFirst(contingencyFirst(officialFirst(siteSidFirst(remindable(capSid(withEffectiveEnd(d, pk), d), now, early, [...behindStage(d, stageOf(d)), ...notYet(d, stageOf(d), pk, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT], dayOf(d, now)), d), d, now), pk, now, stageOf(d), d.kind, d.state), pk, d, now), now, pk);
+  const nd0 = nvPayDays(d, stageOf(d) === 'passed' || finishedDeal(d) || closingDone || saleDone ? null : sidFirst(contingencyFirst(officialFirst(siteSidFirst(remindable(capSid(withEffectiveEnd(d, pk), d), now, early, [...behindStage(d, stageOf(d)), ...notYet(d, stageOf(d), pk, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT], dayOf(d, now)), d, pk), d, now), pk, now, stageOf(d), d.kind, d.state), pk, d, now), now, pk);
   // (A redeemed deal: collecting the payoff comes before a date the reader added, as in Your next action.)
   const nd = nd0 && !officialRow(d, nd0) && ((certificateFirst(d) && redeemedIn(pk)) || redeemingNow(d)) ? null : nd0;
   // Rows the stage has put behind you read "passed", not "open" (the sale day once won; the offer once accepted).

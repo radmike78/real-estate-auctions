@@ -3048,7 +3048,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     // CLARITY-1: the first SID question's Yes uses the reader's own payoff row.
     const own = { ...EMPTY_PACKET, dates: [...paid, { when: '2026-11-25', what: 'SID certificate payoff', who: 'City of Las Vegas', own: true }] };
     const q = stageTasks(cl, 'contract', own, new Date('2026-11-19T20:00:00Z')).find((x) => x.key === 'sid-affidavit')!;
-    expect(q.redate?.moveOwn).toEqual({ what: 'SID certificate payoff', when: '2026-11-25', who: 'City of Las Vegas' });
+    expect(q.redate?.moveOwn).toEqual({ what: 'SID certificate payoff', when: '2026-11-25', who: 'City of Las Vegas', payee: 'City of Las Vegas' });
     expect(q.redate?.label).toMatch(/SID affidavit for the payoff to City of Las Vegas I added \(Nov 25, 2026\)\. Use that row/);
     // CLARITY-3: the reopened Yes dates only the payee it names.
     const two = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-15', who: 'City of Las Vegas', resolved: true }), { when: '', what: 'SID certificate payoff', who: 'City of Henderson' }, { when: '', what: 'SID certificate payoff', who: 'Clark County' }] };
@@ -3217,5 +3217,33 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(sidPayee(own)).toBe('City of Las Vegas');
     const p4 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-28', who: 'City of Henderson' }), own] };
     expect(sidSiteFor(p4, own)).toBe(-1);
+  });
+  it('round 123 tools: a payee in the reminder’s name survives Move, “Use that row” and a Who of “Me”; a third payee’s overdue payoff leads; Key dates keeps an unplaceable one', async () => {
+    const { suggestedDates, sidPayee, sidSiteFor, packetSections } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const now = new Date('2026-11-19T20:00:00Z');
+    const cl: Deal = { ...deal, id: 'v123a', name: '14 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-12', resolved: true }), /^Payment deadline/, { when: '2026-11-12', resolved: true });
+    // TOOLS-1
+    const mine = { when: '2026-11-25', what: 'SID payoff to City of Las Vegas', who: '', own: true };
+    const q = stageTasks(cl, 'contract', { ...EMPTY_PACKET, dates: [...paid, mine] }, now).find((x) => x.key === 'sid-affidavit')!;
+    expect(q.redate?.moveOwn?.payee).toBe('City of Las Vegas');
+    // TOOLS-2 / TOOLS-6
+    expect(sidPayee({ ...mine, who: 'Me' })).toBe('City of Las Vegas');
+    expect(sidPayee({ ...mine, what: 'SID payoff to City of Las Vegas (moved to Nov 25)' })).toBe('City of Las Vegas');
+    expect(sidPayee({ ...mine, what: 'SID payoff for parcel 12 to Clark County' })).toBe('Clark County');
+    const p2 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-28', who: 'City of Henderson' }), { ...mine, who: 'Me', when: '2026-11-21' }] };
+    expect(sidSiteFor(p2, p2.dates[p2.dates.length - 1])).toBe(-1);
+    savePacket(`analyzed:${cl.id}`, p2);
+    expect(dealNextTask(cl, p2, now, 'contract').label).toMatch(/SID payoff to City of Las Vegas/);
+    // TOOLS-3: Las Vegas paid, Henderson undated (reopened question), the reader's Clark County payoff 3 days overdue.
+    const p3 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-15', who: 'City of Las Vegas', resolved: true }), { when: '', what: 'SID certificate payoff', who: 'City of Henderson' }, { when: '2026-11-16', what: 'SID payoff', who: 'Clark County', own: true }] };
+    savePacket(`analyzed:${cl.id}`, p3);
+    expect(dealNextTask(cl, p3, now, 'contract').label).toMatch(/your own reminder/);
+    // TOOLS-4: Key dates names the same reminder.
+    const lines = packetSections(cl, p2, now).find((x) => x.key === 'dates')!.lines.join(' | ');
+    expect(lines).toMatch(/Next: SID payoff to City of Las Vegas/);
   });
 });
