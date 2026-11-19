@@ -143,7 +143,7 @@ const LATER = ['Redemption money collected', 'Challenge window ends', 'Recovery-
 /** An open row that is a copy of a date already handled on the same day (the reader added it again): it's done too. */
 /** Two SID payoff rows that name the same payee (not blank), ignoring case and spacing. */
 /** An SID row's payee, as typed (blank when it names none: empty, or the reader themself, "Me", "You, with…"). */
-export const sidPayee = (r: PacketDate): string => { const w = (r.who ?? '').trim().replace(/\s+/g, ' '); return /^(me|you)\b/i.test(w) ? '' : w; };
+export const sidPayee = (r: PacketDate): string => { const w = (r.who ?? '').trim().replace(/\s+/g, ' '); const named = !w && r.own && sidNamed(r.what) ? (r.what.match(/\b(?:to|for)\s+(.+?)\s*$/i)?.[1] ?? '').trim() : ''; const p = w || named; return /^(me|you)\b/i.test(p) ? '' : p; };
 export const sidSamePayee = (a: PacketDate, b: PacketDate): boolean => { const w = (r: PacketDate) => sidPayee(r).toLowerCase(); return !!w(a) && w(a) === w(b); };
 /** A reader's row named as an SID payoff, by the site's name or its short form (“SID payoff …”). */
 export const sidNamed = (w: string): boolean => sameDate(w, 'SID certificate payoff') || /^\s*SID (certificate )?pay(off|ment)\b/i.test(w);

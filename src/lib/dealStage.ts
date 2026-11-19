@@ -212,10 +212,10 @@ export const autoStillHolds = (what: string, as: string): boolean => ownNamed(wh
 export const officialRow = (d: Pick<Deal, 'kind' | 'state'>, what: RowRef): boolean => officialNames(d).some((n) => sameDate(what, n));
 /** The next date, with this sale's own dates first: one due within a week (or passed) leads any date the reader
  *  added; otherwise the nearest date of any kind. Your next action and Key dates both use it. */
-/** A reader's own SID reminder never stands in for the sale's open, dated SID payoff row: that row's step leads (Your next action and Key dates alike). */
+/** A Nevada tax sale's next date never comes from a reader's own SID payoff reminder: the sale's SID rows and steps track payoffs, and the reminder leads only through its own pointer (Your next action and Key dates alike). */
 /** Where to enter the Sale day: on the reader's own dated "Sale day" reminder (its Make or Move button) when there is one, else the usual row. */
 const saleDayWhere = (d: Pick<Deal, 'kind' | 'state'>, p: PacketData): string => { const mine = p.dates.find((x) => !!x.own && !!x.when && !x.notAs && sameDate(eventFor(d, x.what) || '-', 'Sale day')); return mine ? `(you typed it on your own reminder “${mine.what}”, ${prettyDay(mine.when)}: press “${p.dates.some((y) => !y.own && sameDate(y, 'Sale day')) ? 'Move this date to the sale’s Sale day row' : 'Make this the sale’s Sale day row'}” on it)` : '(if there’s no Sale day row, press “Add the usual dates that are missing” in Key dates)'; };
-export const siteSidFirst = (rem: PacketData, d: Pick<Deal, 'kind' | 'state'>): PacketData => d.state === 'NV' && d.kind === 'taxSale' && rem.dates.some((x) => !x.own && !x.resolved && !!x.when && sameDate(x, 'SID certificate payoff')) ? { ...rem, dates: rem.dates.filter((x) => !(x.own && sidNamed(x.what) && (!sidPayee(x) || rem.dates.some((y) => !y.own && sameDate(y, 'SID certificate payoff') && sidSamePayee(x, y))))) } : rem;
+export const siteSidFirst = (rem: PacketData, d: Pick<Deal, 'kind' | 'state'>): PacketData => d.state === 'NV' && d.kind === 'taxSale' ? { ...rem, dates: rem.dates.filter((x) => !(x.own && sidNamed(x.what))) } : rem;
 export const officialFirst = (rem: PacketData, d: Pick<Deal, 'kind' | 'state'>, now: Date) => {
   const off = nextDate({ ...rem, dates: rem.dates.filter((x) => officialRow(d, x)) }, now, d);
   return off && off.days <= 7 ? off : nextDate(rem, now, d);
@@ -1598,7 +1598,10 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
       if (!ev) return false;
       if (sameDate(ev, 'Sale day')) return wayOf(d) !== 'offer' && !datedSite('Sale day') && !!x.when && (stage === 'contract' ? !payDueSoon : ['closed', 'owned'].includes(stage) && !soldOf(d) && (certificateFirst(d) || (d.state === 'NV' && d.kind === 'taxSale')));
       if (deedMissOwn && DEED_ROWS[deedMissOwn].some((r) => sameDate(ev, r))) return !!x.when && !datedSite(ev);
-      if (sameDate(ev, 'SID certificate payoff')) { const dl = sidDeadline(p); return d.state === 'NV' && d.kind === 'taxSale' && !x.resolved && !sidDup(x) && !(stage === 'contract' && !paidIn(p, d)) && !(sidUnasked(d) && !sidAnswered(p)) && !!dl && ((!!x.when && x.when > dl) || (inWeek(dl) && !p.dates.some((y) => !y.own && !y.resolved && !!y.when && sameDate(y, 'SID certificate payoff')))); }
+      // (A reader's SID payoff reminder, never while the SID question is open or answered "none" or void: it leads when
+      //  its date is after the 20-day deadline; when no sale row can hold it (a payee no sale row names) and it's due
+      //  within a week or overdue; or when the deadline is within a week and no sale SID row is dated.)
+      if (sameDate(ev, 'SID certificate payoff')) { const dl = sidDeadline(p); if (!(d.state === 'NV' && d.kind === 'taxSale') || x.resolved || !x.when || !dl || sidDup(x) || (stage === 'contract' && !paidIn(p, d)) || (sidUnasked(d) && !sidAnswered(p)) || p.dates.some((y) => sameDate(y, NO_SID_ROW) || sameDate(y, SID_VOID_ROW))) return false; return x.when > dl || (sidSiteFor(p, x) < 0 && inWeek(x.when)) || (inWeek(dl) && !p.dates.some((y) => !y.own && !y.resolved && !!y.when && sameDate(y, 'SID certificate payoff'))); }
       return false;
     });
     const ownNd = ownLead ?? (nd && nd.own && !nd.resolved && !payFirst && !bidPrep && nd.days <= 7 ? nd : undefined);

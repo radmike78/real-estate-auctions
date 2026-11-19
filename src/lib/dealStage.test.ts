@@ -3152,7 +3152,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const t1 = dealNextTask(cl, p1, now, 'contract');
     if (t1.undo?.removeWhen) expect(t1.undo.removeWhen).toBe('2026-11-20');
     // TOOLS-3
-    const p3 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-30', who: 'Me' }), { when: '2026-11-22', what: 'SID payoff', who: 'City of Henderson', own: true }] };
+    const p3 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-30', who: 'City of Las Vegas' }), { when: '2026-11-22', what: 'SID payoff', who: 'City of Henderson', own: true }] };
     savePacket(`analyzed:${cl.id}`, p3);
     expect(dealNextTask(cl, p3, now, 'contract').label).toMatch(/SID payoff/);
     // TOOLS-4: HOA at Owned, the deed date typed before the redemption end.
@@ -3191,5 +3191,31 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(eventFor(ho, 'Sheriff’s deed')).toMatch(/^Deed delivered/);
     expect(eventFor(cl, 'Deed date')).toMatch(/deed recorded/i);
     expect(eventFor(cl, 'SID payoff to City of Las Vegas')).toMatch(/^SID certificate payoff/);
+  });
+  it('round 122 verifier: one rule for a reader’s SID reminders', async () => {
+    const { suggestedDates, sidPayee, sidSiteFor } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const now = new Date('2026-11-19T20:00:00Z');
+    const cl: Deal = { ...deal, id: 'v122e', name: '13 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-12', resolved: true }), /^Payment deadline/, { when: '2026-11-12', resolved: true });
+    // VER-1: a named reminder next to the site's "Me" row: the sale's payoff step leads, not Insure.
+    const p1 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-12-02', who: 'Me' }), { when: '2026-11-27', what: 'SID payment', who: 'City of Las Vegas', own: true }] };
+    savePacket(`analyzed:${cl.id}`, p1);
+    expect(dealNextTask(cl, p1, now, 'contract').label).toMatch(/SID certificate payoff/);
+    // VER-2: at Deed recorded, a payoff to a payee no sale row names, overdue: it leads with its pointer.
+    const p2 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-12-02', who: 'City of Henderson' }), { when: '2026-11-18', what: 'SID payoff', who: 'City of Las Vegas', own: true }] };
+    savePacket(`analyzed:${cl.id}`, p2);
+    expect(dealNextTask({ ...cl, stage: 'closed' }, p2, now, 'closed').label).toMatch(/your own reminder/);
+    // VER-3: after "no affidavit", a reader's SID reminder never leads.
+    const p3 = { ...EMPTY_PACKET, dates: [...paid.filter((x) => !/^SID/.test(x.what)), { when: '2026-11-19', what: 'Treasurer confirmed no SID affidavit', who: 'T', resolved: true }, { when: '2026-11-22', what: 'SID payoff', who: 'City of Las Vegas', own: true }] };
+    savePacket(`analyzed:${cl.id}`, p3);
+    expect(dealNextTask(cl, p3, now, 'contract').label).not.toMatch(/voids the sale/);
+    // VER-4: the payee can come from the name.
+    const own = { when: '2026-11-25', what: 'SID payoff to City of Las Vegas', who: '', own: true };
+    expect(sidPayee(own)).toBe('City of Las Vegas');
+    const p4 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-28', who: 'City of Henderson' }), own] };
+    expect(sidSiteFor(p4, own)).toBe(-1);
   });
 });
