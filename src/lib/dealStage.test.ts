@@ -3341,14 +3341,20 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(packetSections(cl, p2, now).find((x) => x.key === 'dates')!.lines.join(' | ')).not.toMatch(/Next: your own “SID payoff” reminder/);
     // CONTENT-3
     const p3 = { ...EMPTY_PACKET, dates: [...paid.filter((x) => !/^SID/.test(x.what)), { when: '2026-12-05', what: 'SID payoff', who: 'City of Henderson', own: true, resolved: true }] };
-    expect(stageTasks(cl, 'contract', p3, new Date('2026-12-06T20:00:00Z')).some((x) => x.key === 'sid-void')).toBe(true);
+    // (A reader's own row ticked late gets a caution on its row in Key dates, not the void-question step: it may be a receipt or a copy.)
+    expect(stageTasks(cl, 'contract', p3, new Date('2026-12-06T20:00:00Z')).some((x) => x.key === 'sid-void')).toBe(false);
+    // VER-3 (round 124 verifier): the sale's own row ticked with a future date after the deadline isn't asked about yet.
+    const p4 = { ...EMPTY_PACKET, dates: [...paid, { ...set(base(cl), /^SID certificate payoff/, {}).find((x) => /^SID/.test(x.what))!, when: '2026-12-05', who: 'City of Henderson', resolved: true }] };
+    expect(stageTasks(cl, 'contract', p4, new Date('2026-11-19T20:00:00Z')).some((x) => x.key === 'sid-void')).toBe(false);
+    expect(stageTasks(cl, 'contract', p4, new Date('2026-12-06T20:00:00Z')).some((x) => x.key === 'sid-void')).toBe(true);
   });
   it('round 124 clarity: payees in a reader’s own words; a future-dated ticked payoff isn’t asked about yet', async () => {
     const { sidPayee, sidNamed } = await import('./dealPacket');
     const r = (what: string, who = '') => sidPayee({ when: '', what, who, own: true });
-    for (const what of ['SID payoff to City of Las Vegas', 'SID payoff - City of Las Vegas', 'SID payoff City of Las Vegas', 'SID payment (City of Las Vegas)', 'SID payoff: City of Las Vegas', 'City of Las Vegas SID payoff']) expect(r(what)).toBe('City of Las Vegas');
-    expect(sidNamed('Las Vegas SID payoff')).toBe(true);
-    for (const what of ['SID payoff to the Treasurer', 'SID payoff to Clark County Treasurer', 'SID payoff Nov 25', 'SID payoff deadline', 'SID payment to be made', 'Pay SID payoff']) expect(r(what)).toBe('');
+    for (const what of ['SID payoff to City of Las Vegas', 'SID payoff - City of Las Vegas', 'SID payment (City of Las Vegas)', 'SID payoff: City of Las Vegas']) expect(r(what)).toBe('City of Las Vegas');
+    // (Only a plainly named payee counts; anything else names none, and the row's note asks for the payee.)
+    expect(sidNamed('Second SID payoff')).toBe(false);
+    for (const what of ['SID payoff to the Treasurer', 'SID payoff to Clark County Treasurer', 'SID payoff Nov 25', 'SID payoff deadline', 'SID payment to be made', 'SID payoff Final', 'SID payoff ASAP', 'SID payoff City of Las Vegas']) expect(r(what)).toBe('');
     const { suggestedDates } = await import('./dealPacket');
     const cl: Deal = { ...deal, id: 'v124c', name: '21 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
     saveDeals([cl]);
