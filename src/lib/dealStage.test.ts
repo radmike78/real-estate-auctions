@@ -3029,4 +3029,36 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(keys.indexOf('sid-pay')).toBeGreaterThanOrEqual(0);
     expect(keys.indexOf('sid-pay')).toBeLessThan(keys.indexOf('sid-affidavit'));
   });
+  it('round 120 clarity: SID reminders naming no payee or “Me”, the first SID Yes uses the reader’s row, the reopened Yes dates one payee, the county pay hour in the pointer', async () => {
+    const { suggestedDates, handledCopy, sidSiteFor } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const cl: Deal = { ...deal, id: 'v120c', name: '4 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-10', resolved: true }), /^Payment deadline/, { when: '2026-11-10', resolved: true });
+    // CLARITY-2: "Me" or blank, next to the sale's only SID row: the same payment, before and after it's paid.
+    for (const who of ['', 'Me']) {
+      const open = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-22', who: 'City of Las Vegas' }), { when: '2026-11-22', what: 'SID certificate payoff', who, own: true }] };
+      expect(sidSiteFor(open, open.dates[open.dates.length - 1])).toBe(open.dates.findIndex((x) => !x.own && /^SID/.test(x.what)));
+      const done = { ...open, dates: set(open.dates, /^SID certificate payoff/, { when: '2026-11-19', resolved: true }) };
+      expect(handledCopy(done, done.dates[done.dates.length - 1])).toBe(true);
+      savePacket(`analyzed:${cl.id}`, done);
+      expect(dealNextTask(cl, done, new Date('2026-11-25T20:00:00Z'), 'contract').label).not.toMatch(/your own reminder/);
+    }
+    // CLARITY-1: the first SID question's Yes uses the reader's own payoff row.
+    const own = { ...EMPTY_PACKET, dates: [...paid, { when: '2026-11-25', what: 'SID certificate payoff', who: 'City of Las Vegas', own: true }] };
+    const q = stageTasks(cl, 'contract', own, new Date('2026-11-19T20:00:00Z')).find((x) => x.key === 'sid-affidavit')!;
+    expect(q.redate?.moveOwn).toEqual({ what: 'SID certificate payoff', when: '2026-11-25', who: 'City of Las Vegas' });
+    expect(q.redate?.label).toMatch(/to City of Las Vegas I added \(Nov 25, 2026\)/);
+    // CLARITY-3: the reopened Yes dates only the payee it names.
+    const two = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-15', who: 'City of Las Vegas', resolved: true }), { when: '', what: 'SID certificate payoff', who: 'City of Henderson' }, { when: '', what: 'SID certificate payoff', who: 'Clark County' }] };
+    const r = stageTasks(cl, 'contract', two, new Date('2026-11-19T20:00:00Z')).find((x) => x.key === 'sid-affidavit')!;
+    expect(r.redate?.onlyWho).toBe('City of Henderson');
+    // CLARITY-4: Clark, sale date only on the reader's row, unpaid: the pointer says the county's pay hour.
+    const pc = { ...EMPTY_PACKET, dates: [...set(base(cl), /^Payment deadline/, { when: '2026-11-19', who: 'Me' }), { when: '2026-11-19', what: 'Auction date', who: 'Me', own: true }] };
+    savePacket(`analyzed:${cl.id}`, pc);
+    const t = dealNextTask(cl, pc, new Date('2026-11-19T19:00:00Z'), 'contract');
+    expect(t.label).toMatch(/your own reminder/);
+    expect(t.label).toMatch(/due by 1:00 p\.m\. Nevada time today, Nov 19, 2026, under Clark County’s terms/);
+  });
 });

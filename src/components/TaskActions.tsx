@@ -18,7 +18,14 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
   return (
     <>
       {task.redate && (
-        <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const r = task.redate!; edit((p) => { /* (re-date only open rows when there are any: a payoff already marked paid keeps its date) */ const open = p.dates.some((x) => sameDate(x, r.row) && !x.resolved && !x.when); return ({ ...p, dates: p.dates.some((x) => sameDate(x, r.row)) ? p.dates.map((x) => (sameDate(x, r.row) && (!open || (!x.resolved && !x.when)) ? { ...x, what: r.as ?? x.what, when: r.when, who: x.who || r.who || '', resolved: false } : x)) : [...p.dates, { what: r.as ?? r.row, when: r.when, who: r.who ?? '' }] }); }); after(el); }}>{task.redate.label}</button>
+        <button type="button" className="btn btn-secondary" onClick={(e) => { const el = e.currentTarget; const r = task.redate!; edit((p) => {
+          /* (the reader's own SID payoff row is this payment: it becomes the sale's row, in the placeholder if there is one, keeping its date, payee and tick) */
+          const k = r.moveOwn ? p.dates.findIndex((x) => !!x.own && x.what === r.moveOwn!.what && x.when === r.moveOwn!.when && (x.who ?? '') === r.moveOwn!.who) : -1;
+          if (k >= 0) { const mine = p.dates[k]; const { own: _o, as: _a, asAuto: _b, notAs: _c, ...rest } = mine; const tgt = p.dates.findIndex((x) => sameDate(x, r.row) && !x.resolved && !x.when); return tgt >= 0 ? { ...p, dates: p.dates.flatMap((x, j) => (j === k ? [] : j === tgt ? [{ ...x, what: r.as ?? x.what, when: mine.when || r.when, who: mine.who || x.who || r.who || '', resolved: !!mine.resolved }] : [x])) } : { ...p, dates: p.dates.map((x, j) => (j === k ? { ...rest, what: r.as ?? r.row, when: mine.when || r.when } : x)) }; }
+          /* (re-date only open rows when there are any, and only the payee the answer names: a payoff already marked paid keeps its date) */
+          const pick = (x: PacketData['dates'][number]) => sameDate(x, r.row) && !x.resolved && !x.when && (r.onlyWho === undefined || (x.who ?? '').trim() === r.onlyWho.trim());
+          const open = p.dates.some(pick);
+          return ({ ...p, dates: p.dates.some((x) => sameDate(x, r.row)) ? p.dates.map((x) => (sameDate(x, r.row) && (open ? pick(x) : r.onlyWho === undefined) ? { ...x, what: r.as ?? x.what, when: r.when, who: x.who || r.who || '', resolved: false } : x)) : [...p.dates, { what: r.as ?? r.row, when: r.when, who: r.who ?? '' }] }); }); after(el); }}>{task.redate.label}</button>
       )}
       {tick && (
         <button type="button" className={task.answer ? main : 'btn btn-secondary'} onClick={(e) => {
