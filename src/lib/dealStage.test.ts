@@ -3297,4 +3297,28 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${cl.id}`, p);
     expect(dealNextTask(cl, p, new Date('2026-12-04T20:00:00Z'), 'contract').label).not.toMatch(/your own reminder/);
   });
+  it('round 124 tools: the sale’s SID payoff due within a week leads another payee’s reminder and names it; payee notes are dropped; Key dates names the reopened question', async () => {
+    const { suggestedDates, sidPayee, packetSections } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const now = new Date('2026-11-19T20:00:00Z');
+    const cl: Deal = { ...deal, id: 'v124a', name: '19 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-12', resolved: true }), /^Payment deadline/, { when: '2026-11-12', resolved: true });
+    // TOOLS-1, at Won and Deed recorded
+    const p1 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-20', who: 'City of Henderson' }), { when: '2026-11-18', what: 'SID payoff to City of Las Vegas', who: '', own: true }] };
+    savePacket(`analyzed:${cl.id}`, p1);
+    for (const st of ['contract', 'closed'] as const) {
+      const t = dealNextTask({ ...cl, stage: st }, p1, now, st);
+      expect(t.label).not.toMatch(/is your own reminder/);
+      expect(t.label).toMatch(/Also: your own reminder “SID payoff to City of Las Vegas”/);
+    }
+    // TOOLS-2
+    for (const what of ['SID payoff to City of Henderson on 11/21', 'SID payoff to City of Henderson by check', 'SID payoff to City of Henderson, NV']) expect(sidPayee({ when: '', what, who: '', own: true })).toBe('City of Henderson');
+    // TOOLS-3
+    const p3 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-15', who: 'City of Las Vegas', resolved: true }), { when: '', what: 'SID certificate payoff', who: 'City of Henderson' }] };
+    savePacket(`analyzed:${cl.id}`, p3);
+    expect(dealNextTask(cl, p3, now, 'contract').key).toBe('sid-affidavit');
+    expect(packetSections(cl, p3, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Next: the special improvement district \(SID\) question/);
+  });
 });
