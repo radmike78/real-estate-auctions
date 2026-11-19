@@ -3542,4 +3542,23 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(tc).not.toMatch(/NRS 21\.150/);
     if (/your own reminder/.test(tc)) expect(tc).toMatch(/and an attorney today; a winner who doesn’t pay can be held liable for the loss \(NRS 21\.160\)/);
   });
+  it('round 127 clarity: a reader’s own payment row is named and used; everyday payment and SID names', async () => {
+    const { suggestedDates, sidPayee, sidNamed } = await import('./dealPacket');
+    const { eventFor } = await import('./dealStage');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const tr: Deal = { ...deal, id: 'v127e', name: '34 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
+    saveDeals([tr]);
+    for (const n of ['Pay balance', 'Balance due', 'Pay the trustee']) expect(eventFor(tr, n)).toMatch(/^Payment deadline/);
+    expect(sidNamed('Pay SID to City of Henderson')).toBe(true);
+    expect(sidPayee({ when: '', what: 'Pay SID to City of Henderson', who: '', own: true })).toBe('City of Henderson');
+    const p = { ...EMPTY_PACKET, dates: [...base(tr), { when: '2026-11-17', what: 'Sale', who: 'Me', own: true }, { when: '2026-11-24', what: 'Payment due', who: 'Me', own: true }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    const t = dealNextTask(tr, p, new Date('2026-11-19T20:00:00Z'), 'contract').label;
+    expect(t).not.toMatch(/held liable/);
+    // (After Make on the sale day, the payment step names the reader's own payment row and offers no one-click pass yet.)
+    const p2 = { ...p, dates: p.dates.map((x) => (x.what === 'Sale' ? { when: '2026-11-17', what: 'Sale day', who: 'Me' } : /^Sale day/.test(x.what) && !('own' in x) ? { ...x, when: '2026-11-17' } : x)).filter((x, i, a) => a.findIndex((y) => y.what === x.what && y.when === x.when) === i) };
+    savePacket(`analyzed:${tr.id}`, p2);
+    const t2 = dealNextTask(tr, p2, new Date('2026-11-19T20:00:00Z'), 'contract');
+    if (/Payment due/.test(t2.label)) expect(t2.advance2).toBeUndefined();
+  });
 });

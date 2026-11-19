@@ -150,7 +150,7 @@ export const sidPayee = (r: PacketDate): string => {
   // (A payee in the reminder's own words, only where it plainly names one: “SID payoff to City of Las Vegas”, “… for parcel
   //  12 to Clark County”, or a city, county, town or district after a dash, a colon or in parentheses. Anything else names
   //  none, and the row's note asks the reader to type the payee in “Who handles it”.)
-  const t = r.what.replace(/\s+/g, ' ').trim().replace(/^SID (?:certificate )?pay(?:off|ment)\b/i, '');
+  const t = r.what.replace(/\s+/g, ' ').trim().replace(/^(?:SID (?:certificate )?pay(?:off|ment)|(?:pay|paid)(?: the)? SID(?: (?:certificate )?pay(?:off|ment))?)\b/i, '');
   const local = /\b(city|county|town|district)\b/i;
   const inParens = (t.match(/\(([^)]*)\)/g) ?? []).map((x) => x.slice(1, -1).trim()).find((x) => local.test(x)) ?? '';
   const rest = t.replace(/\s*\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
@@ -163,7 +163,7 @@ export const sidPayee = (r: PacketDate): string => {
 /** Two SID rows name the same payee: compared without case, a leading “the”, “city of” / “town of”, or a trailing “county” (“the City of Henderson” = “Henderson”). */
 export const sidSamePayee = (a: PacketDate, b: PacketDate): boolean => { const w = (r: PacketDate) => sidPayee(r).toLowerCase().replace(/^the\s+/, '').replace(/^(city|town) of\s+/, '').replace(/,?\s+(nv|nevada)$/, '').replace(/\s+county$/, '').replace(/[.,]+$/, '').trim(); return !!w(a) && w(a) === w(b); };
 /** A reader's row named as an SID payoff, by the site's name or its short form (“SID payoff …”). */
-export const sidNamed = (w: string): boolean => sameDate(w, 'SID certificate payoff') || /^\s*SID (certificate )?pay(off|ment)\b/i.test(w);
+export const sidNamed = (w: string): boolean => sameDate(w, 'SID certificate payoff') || /^\s*(SID (certificate )?pay(off|ment)|(pay|paid)( the)? SID)\b/i.test(w);
 /** The sale's SID payoff row a reader's own SID reminder belongs to: an open one naming the same payee (or, for a
  *  reminder naming none, the only open one), else the blank placeholder that names no payee (-1: none; the reminder becomes a row of its own). */
 export const sidSiteFor = (p: PacketData, x: PacketDate): number => {
