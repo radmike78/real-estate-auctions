@@ -3049,7 +3049,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const own = { ...EMPTY_PACKET, dates: [...paid, { when: '2026-11-25', what: 'SID certificate payoff', who: 'City of Las Vegas', own: true }] };
     const q = stageTasks(cl, 'contract', own, new Date('2026-11-19T20:00:00Z')).find((x) => x.key === 'sid-affidavit')!;
     expect(q.redate?.moveOwn).toEqual({ what: 'SID certificate payoff', when: '2026-11-25', who: 'City of Las Vegas' });
-    expect(q.redate?.label).toMatch(/to City of Las Vegas I added \(Nov 25, 2026\)/);
+    expect(q.redate?.label).toMatch(/SID affidavit for the payoff to City of Las Vegas I added \(Nov 25, 2026\)\. Use that row/);
     // CLARITY-3: the reopened Yes dates only the payee it names.
     const two = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-15', who: 'City of Las Vegas', resolved: true }), { when: '', what: 'SID certificate payoff', who: 'City of Henderson' }, { when: '', what: 'SID certificate payoff', who: 'Clark County' }] };
     const r = stageTasks(cl, 'contract', two, new Date('2026-11-19T20:00:00Z')).find((x) => x.key === 'sid-affidavit')!;
@@ -3057,7 +3057,8 @@ describe('round 39: Eureka sealed-bid sale', () => {
     // VER-1 (round 120 verifier): once one payee is dated, the other's undated row is still asked about on that step.
     const one = { ...two, dates: two.dates.map((x) => (x.who === 'City of Henderson' ? { ...x, when: '2026-11-30' } : x)) };
     savePacket(`analyzed:${cl.id}`, one);
-    expect(dealNextTask(cl, one, new Date('2026-11-25T20:00:00Z'), 'contract').label).toMatch(/Also ask the Treasurer whether a city or county filed an SID affidavit for a payoff to Clark County/);
+    expect(dealNextTask(cl, one, new Date('2026-11-25T20:00:00Z'), 'contract').label).toMatch(/Also ask the Treasurer whether Clark County filed an SID affidavit: that payoff’s row in Key dates has no date/);
+    expect(dealNextTask(cl, one, new Date('2026-11-25T20:00:00Z'), 'contract').undo?.label).toBe('No SID affidavit for the payoff to City of Henderson after all: remove that row');
     const kc = stageTasks({ ...cl, stage: 'closed' }, 'closed', one, new Date('2026-11-25T20:00:00Z')).find((x) => x.key === 'sid-pay');
     expect(kc?.label).toMatch(/to City of Henderson by Nov 30, 2026.*Also ask .* Clark County/);
     // VER-3: a "Me" reminder isn't done while another SID row is still open.
