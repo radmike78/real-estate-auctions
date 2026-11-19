@@ -3311,7 +3311,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     for (const st of ['contract', 'closed'] as const) {
       const t = dealNextTask({ ...cl, stage: st }, p1, now, st);
       expect(t.label).not.toMatch(/is your own reminder/);
-      expect(t.label).toMatch(/Also: your own reminder “SID payoff to City of Las Vegas”/);
+      expect(t.label).toMatch(/Also: the reminder you added, “SID payoff to City of Las Vegas”/);
     }
     // TOOLS-2
     for (const what of ['SID payoff to City of Henderson on 11/21', 'SID payoff to City of Henderson by check', 'SID payoff to City of Henderson, NV']) expect(sidPayee({ when: '', what, who: '', own: true })).toBe('City of Henderson');
@@ -3320,5 +3320,27 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${cl.id}`, p3);
     expect(dealNextTask(cl, p3, now, 'contract').key).toBe('sid-affidavit');
     expect(packetSections(cl, p3, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Next: the special improvement district \(SID\) question/);
+  });
+  it('round 124 content: a reminder after the deadline is told to pay by it; Key dates follows the sale’s payoff; a reader’s payoff ticked late is asked about', async () => {
+    const { suggestedDates, packetSections } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const cl: Deal = { ...deal, id: 'v124b', name: '20 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-12', resolved: true }), /^Payment deadline/, { when: '2026-11-12', resolved: true });
+    // CONTENT-1: deadline Dec 2; the reader's date Dec 5 to the same payee, the sale's row Nov 20; clock Nov 28.
+    const p1 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-30', who: 'City of Henderson' }), { when: '2026-12-05', what: 'SID payoff', who: 'City of Henderson', own: true }] };
+    savePacket(`analyzed:${cl.id}`, p1);
+    const t1 = dealNextTask(cl, p1, new Date('2026-11-28T20:00:00Z'), 'contract');
+    expect(t1.label).not.toMatch(/whether the sale stands/);
+    // CONTENT-2: the sale's payoff due tomorrow, with the Also sentence: Key dates doesn't name the reminder.
+    const now = new Date('2026-11-19T20:00:00Z');
+    const p2 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-20', who: 'City of Henderson' }), { when: '2026-11-18', what: 'SID payoff', who: 'City of Las Vegas', own: true }] };
+    savePacket(`analyzed:${cl.id}`, p2);
+    expect(dealNextTask(cl, p2, now, 'contract').label).toMatch(/Also: the reminder you added/);
+    expect(packetSections(cl, p2, now).find((x) => x.key === 'dates')!.lines.join(' | ')).not.toMatch(/Next: your own “SID payoff” reminder/);
+    // CONTENT-3
+    const p3 = { ...EMPTY_PACKET, dates: [...paid.filter((x) => !/^SID/.test(x.what)), { when: '2026-12-05', what: 'SID payoff', who: 'City of Henderson', own: true, resolved: true }] };
+    expect(stageTasks(cl, 'contract', p3, new Date('2026-12-06T20:00:00Z')).some((x) => x.key === 'sid-void')).toBe(true);
   });
 });
