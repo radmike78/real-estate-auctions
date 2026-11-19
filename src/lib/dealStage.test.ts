@@ -3422,4 +3422,26 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${cl.id}`, p);
     expect(dealNextTask(cl, p, new Date('2026-11-24T20:00:00Z'), 'contract').label).not.toMatch(/voids the sale/);
   });
+  it('round 125 verifier: ordinary words aren’t payees; “the sale stands” settles Key dates; a copy of the paid “Me” payoff stays a copy when ticked', async () => {
+    const { suggestedDates, sidPayee, packetSections } = await import('./dealPacket');
+    const { eventFor } = await import('./dealStage');
+    const r = (what: string) => sidPayee({ when: '', what, who: '', own: true });
+    for (const what of ['SID payoff Confirmed with City of Henderson', 'SID payoff Quote from City of Henderson', 'SID payoff Paid, City of Henderson', 'SID payoff Receipt, City of Henderson']) expect(r(what)).toBe('');
+    expect(r('SID payoff City of Henderson')).toBe('City of Henderson');
+    expect(r('SID payoff Clark County')).toBe('Clark County');
+    expect(r('SID payoff to Town of Sunrise Manor')).toBe('Town of Sunrise Manor');
+    expect(eventFor({ state: 'NV', kind: 'taxSale' }, 'Sale deed')).not.toMatch(/^Sale day/);
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const cl: Deal = { ...deal, id: 'v125d', name: '25 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-12', resolved: true }), /^Payment deadline/, { when: '2026-11-12', resolved: true });
+    // VER-2
+    const p2 = { ...EMPTY_PACKET, dates: [...paid.filter((x) => !/^SID/.test(x.what)), { when: '2026-12-05', what: 'SID payoff', who: 'City of Henderson', own: true, resolved: true }, { when: '2026-12-06', what: 'Treasurer confirmed the sale stands', who: 'T', resolved: true }] };
+    savePacket(`analyzed:${cl.id}`, p2);
+    expect(packetSections(cl, p2, new Date('2026-12-07T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join(' | ')).not.toMatch(/ask the Treasurer whether an SID affidavit was filed/);
+    // VER-3
+    const p3 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-19', who: 'Me', resolved: true }), { when: '2026-12-05', what: 'SID payoff', who: 'City of Las Vegas', own: true, resolved: true }] };
+    expect(stageTasks(cl, 'contract', p3, new Date('2026-12-06T20:00:00Z')).some((x) => x.key === 'sid-void')).toBe(false);
+  });
 });
