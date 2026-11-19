@@ -3669,4 +3669,26 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(siteSidFirst(pp, tr, pp, '2026-11-19', 'contract').dates.map((x) => x.what)).toContain('Balance due');
     expect(siteSidFirst(pp, tr, pp, '2026-11-25', 'contract').dates.map((x) => x.what)).toContain('Balance due');
   });
+  it('round 129 clarity: “I paid” also ticks the reader’s own payment reminders; an IRS payment marked paid after the 1-month day is flagged; the own IRS reminder names the day', async () => {
+    const { suggestedDates, packetSections } = await import('./dealPacket');
+    const { ownPayRows, irsPaidLate } = await import('./dealStage');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const tr: Deal = { ...deal, id: 'v129a', name: '60 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
+    saveDeals([tr]);
+    const pt = { ...EMPTY_PACKET, dates: [...base(tr).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-17' } : x)), { when: '2026-11-24', what: 'Payment due', who: 'Me', own: true }] };
+    savePacket(`analyzed:${tr.id}`, pt);
+    expect(ownPayRows(tr, pt)).toEqual([{ what: 'Payment due', when: '2026-11-24' }]);
+    const t = dealNextTask(tr, pt, new Date('2026-11-19T20:00:00Z'), 'contract');
+    expect(t.tick?.alsoOwn).toEqual([{ what: 'Payment due', when: '2026-11-24' }]);
+    const ir: Deal = { ...deal, id: 'v129b', name: '61 Oak', state: 'NV', county: 'Clark', kind: 'irs', plan: 'flip', stage: 'contract' };
+    saveDeals([ir]);
+    const pi = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'IRS' }, { when: '2026-12-14', what: 'Payment deadline', who: 'Me', resolved: true }] };
+    savePacket(`analyzed:${ir.id}`, pi);
+    expect(irsPaidLate(ir, pi, pi.dates[1])).toBe(true);
+    expect(irsPaidLate(ir, pi, { ...pi.dates[1], when: '2026-12-12' })).toBe(false);
+    expect(packetSections(ir, pi, new Date('2026-12-15T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join('\n')).toMatch(/Dec 14, 2026: Payment deadline[^\n]* — marked paid after the 1-month limit \(Dec 12, 2026, 26 U\.S\.C\. 6335\(e\)\)/);
+    const po = { ...EMPTY_PACKET, dates: [...base(ir).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-12' } : x)), { when: '2027-01-05', what: 'Payment due', who: 'Me', own: true }] };
+    savePacket(`analyzed:${ir.id}`, po);
+    expect(dealNextTask(ir, po, new Date('2026-11-19T20:00:00Z'), 'contract').label).toMatch(/no more than 1 month after the sale \(26 U\.S\.C\. 6335\(e\)\), that’s Dec 12, 2026, so check/);
+  });
 });
