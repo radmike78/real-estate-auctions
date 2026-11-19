@@ -557,7 +557,7 @@ export const PROPERTY_WHY = {
       {
         who: "Buyers at government auctions",
         text: "Government agencies sometimes sell land at public auction, with clear rules and published terms. Clear rules don’t mean a good lot, so check access, water and zoning before you bid.",
-        example: "In January 2014, the BLM auctioned 440 acres in 28 parcels in Clark County, Nevada. Buyers paid 20% down on sale day and the rest within 180 days.",
+        example: "In January 2014, the BLM auctioned 440 acres in 28 parcels in Clark County, Nevada. Winning bidders were required to pay 20% by 3:30 p.m. on sale day and the rest within 180 days.",
         source: {
           label: "Bureau of Land Management press release (Jan. 2014)",
           url: "https://www.blm.gov/press-release/blm-sell-440-acres-auction"

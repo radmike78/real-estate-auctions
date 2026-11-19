@@ -2969,7 +2969,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     saveDeals([ph]);
     const pr = { ...EMPTY_PACKET, dates: [...rows, { when: '', what: 'SID certificate payoff', who: 'City of Henderson' }] };
     const ask = stageTasks(ph, 'contract', pr, now).find((x) => x.key === 'sid-affidavit')!;
-    expect(ask.label).toMatch(/Is another SID payoff owed to City of Henderson/);
+    expect(ask.label).toMatch(/Did a city or county file an SID affidavit for another payoff to City of Henderson/);
     expect(ask.label).not.toMatch(/^Asked/);
     expect(ask.undo?.undatedOnly).toBe(true);
     // (A reader's reminder to the same payee moves into that payee's blank row, case aside.)
@@ -3015,10 +3015,14 @@ describe('round 39: Eureka sealed-bid sale', () => {
     // TOOLS-4: after the deadline, the reopened question still names the payee whose row has no date.
     const p4 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-22', who: 'City of Las Vegas', resolved: true }), { when: '', what: 'SID certificate payoff', who: 'City of Henderson' }] };
     const ask = stageTasks(cl, 'contract', p4, new Date('2026-12-03T20:00:00Z')).find((x) => x.key === 'sid-affidavit')!;
-    expect(ask.label).toMatch(/Was another SID payoff owed to City of Henderson .* paid by Nov 30, 2026/);
+    expect(ask.label).toMatch(/Was an SID affidavit filed for another payoff to City of Henderson .* paid by Nov 30, 2026/);
     expect(ask.record?.label).toMatch(/City of Henderson/);
     expect(ask.tick?.label).toMatch(/sale is void/);
     expect(ask.undo?.undatedOnly).toBe(true);
+    // CONTENT-1: the site's default payee words are not a payee name.
+    const pdef = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-25', who: 'You, with that city or county' })] };
+    const due = stageTasks({ ...cl, stage: 'closed' }, 'closed', pdef, now).find((x) => x.key === 'sid-pay');
+    expect(due?.label).not.toMatch(/to You/);
     // TOOLS-5: at Deed recorded, a dated payoff still owed comes before the question about an undated one.
     const p5 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-22', who: 'City of Las Vegas' }), { when: '', what: 'SID certificate payoff', who: 'City of Henderson' }] };
     const keys = stageTasks({ ...cl, stage: 'closed' }, 'closed', p5, now).filter((x) => !x.done).map((x) => x.key);

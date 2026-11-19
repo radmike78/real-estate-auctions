@@ -158,8 +158,8 @@ export function purchaseSteps(p: Property): string[] {
     case 'LIEN_CERTIFICATE_ONLY':
       return [
         'Understand that you are buying a debt, not the property.',
-        'In Nevada, review the redemption period (2 years with a building, 120 days without) and interest of 1% a month on the price (NRS 271.610).',
-        'If the owner never redeems, plan for serving notice through your attorney or a process server (in person or by publication), paying the delinquent taxes and assessments, and asking for the deed before the certificate expires 3 years after redemption ends (NRS 271.595).',
+        'In Nevada, review the redemption period (2 years with a building, 120 days without) (NRS 271.595(1)) and interest of 1% a month on the price (NRS 271.610).',
+        'If the owner never redeems, plan for serving notice through your attorney or a process server (served in person and posted on the property, or published and mailed if the owner can’t be found), paying the delinquent taxes and assessments, and asking for the deed before the certificate expires 3 years after redemption ends (NRS 271.595).',
       ];
     default:
       return [
