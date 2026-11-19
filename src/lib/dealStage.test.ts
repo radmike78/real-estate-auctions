@@ -3480,8 +3480,8 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const tli = dealNextTask(li, pl, new Date('2026-11-19T15:00:00Z'), 'contract');
     if (/your own reminder/.test(tli.label)) expect(tli.label).toMatch(/10:00 a\.m\. Nevada time/);
     // (round 126 clarity: Washoe's payment day says today, and was due after 10 a.m.; Clark gets its own rule.)
-    expect(tli.label).toMatch(/Payment is due by 10:00 a\.m\. Nevada time today/);
-    expect(dealNextTask(li, pl, new Date('2026-11-19T20:00:00Z'), 'contract').label).toMatch(/Payment was due by 10:00 a\.m\. Nevada time today/);
+    expect(tli.label).toMatch(/Payment is due before 10:00 a\.m\. Nevada time today/);
+    expect(dealNextTask(li, pl, new Date('2026-11-19T20:00:00Z'), 'contract').label).toMatch(/Payment was due before 10:00 a\.m\. Nevada time today/);
     const lc: Deal = { ...li, id: 'v126d', county: 'Clark' };
     saveDeals([lc]);
     savePacket(`analyzed:${lc.id}`, pl);
@@ -3490,7 +3490,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const tc = dealNextTask(lc, plc, new Date('2026-11-21T20:00:00Z'), 'contract');
     expect(tc.label).toMatch(/on Nov 23, 2026, the next day the Treasurer’s office is open/);
     expect(tc.label).not.toMatch(/contact/);
-    expect(dealNextTask(lc, plc, new Date('2026-11-23T19:00:00Z'), 'contract').label).toMatch(/was due by 10:00 a\.m\. Nevada time today/);
+    expect(dealNextTask(lc, plc, new Date('2026-11-23T19:00:00Z'), 'contract').label).toMatch(/was due before 10:00 a\.m\. Nevada time today/);
   });
   it('round 126 verifier: a plan and its receipt to one payee are one payoff next to the paid “Me” row; two payees in one name are not', async () => {
     const { suggestedDates, handledCopy } = await import('./dealPacket');
@@ -3522,5 +3522,24 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const t = dealNextTask(tr, pt, new Date('2026-11-20T20:00:00Z'), 'contract');
     expect(t.label).not.toMatch(/held liable/);
     if (/your own reminder/.test(t.label)) expect(t.label).toMatch(/Payment deadline row in Key dates says Nov 24, 2026/);
+  });
+  it('round 127 content: a dated lien payment row keeps the 10 a.m. cutoff; sheriff and HOA late lines', async () => {
+    const { suggestedDates } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const li: Deal = { ...deal, id: 'v127c', name: '32 Oak', state: 'NV', county: 'Washoe', kind: 'lien', plan: 'flip', stage: 'contract' };
+    saveDeals([li]);
+    const p = { ...EMPTY_PACKET, dates: [...base(li).filter((x) => !/^Sale day/.test(x.what)).map((x) => (/^Payment deadline/.test(x.what) ? { ...x, when: '2026-11-23' } : x)), { when: '2026-11-22', what: 'Sale', who: 'Me', own: true }] };
+    savePacket(`analyzed:${li.id}`, p);
+    const am = dealNextTask(li, p, new Date('2026-11-23T16:00:00Z'), 'contract').label;
+    if (/your own reminder/.test(am)) { expect(am).toMatch(/before 10:00 a\.m\. Nevada time that day/); expect(am).toMatch(/certificate isn’t marked paid yet/); }
+    const pm = dealNextTask(li, p, new Date('2026-11-23T21:00:00Z'), 'contract').label;
+    if (/your own reminder/.test(pm)) expect(pm).toMatch(/That deadline passed/);
+    const co: Deal = { ...deal, id: 'v127d', name: '33 Oak', state: 'NV', county: 'Clark', kind: 'court', plan: 'flip', stage: 'contract' };
+    saveDeals([co]);
+    const pc = { ...EMPTY_PACKET, dates: [...base(co), { when: '2026-11-12', what: 'Sale', who: 'Me', own: true }] };
+    savePacket(`analyzed:${co.id}`, pc);
+    const tc = dealNextTask(co, pc, new Date('2026-11-19T20:00:00Z'), 'contract').label;
+    expect(tc).not.toMatch(/NRS 21\.150/);
+    if (/your own reminder/.test(tc)) expect(tc).toMatch(/and an attorney today; a winner who doesn’t pay can be held liable for the loss \(NRS 21\.160\)/);
   });
 });
