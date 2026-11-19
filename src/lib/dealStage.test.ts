@@ -3257,4 +3257,29 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(lines).not.toMatch(/Next: Sale day, overdue/);
     expect(lines).toMatch(/Next: your own “Sale day” reminder \(see Your next action\)/);
   });
+  it('round 123 clarity: a far-off reminder to a new SID payee doesn’t hide the sale’s payoff; Key dates names the reminder Your next action is about; a past Closing after buying isn’t overdue', async () => {
+    const { suggestedDates, packetSections } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const now = new Date('2026-11-19T20:00:00Z');
+    const cl: Deal = { ...deal, id: 'v123c', name: '16 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-12', resolved: true }), /^Payment deadline/, { when: '2026-11-12', resolved: true });
+    // CLARITY-1
+    const p1 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-30', who: 'City of Henderson' }), { when: '2026-11-29', what: 'SID payoff', who: 'City of Las Vegas', own: true }] };
+    savePacket(`analyzed:${cl.id}`, p1);
+    expect(dealNextTask(cl, p1, now, 'contract').label).toMatch(/SID certificate payoff/);
+    // CLARITY-2: the deadline 5 days away, the reader's payoff (to the sale's undated row) in 3: Key dates names it.
+    const now2 = new Date('2026-11-27T20:00:00Z');
+    const p2 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '', who: '' }), { when: '2026-11-30', what: 'SID payoff', who: 'City of Las Vegas', own: true }] };
+    savePacket(`analyzed:${cl.id}`, p2);
+    const t2 = dealNextTask(cl, p2, now2, 'contract');
+    if (/your own reminder/.test(t2.label)) expect(packetSections(cl, p2, now2).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/Next: your own “SID payoff” reminder/);
+    // CLARITY-3
+    const li: Deal = { ...deal, id: 'v123d', name: '17 Oak', state: 'NV', county: 'Clark', kind: 'listing', plan: 'rent', stage: 'closed' };
+    saveDeals([li]);
+    const p3 = { ...EMPTY_PACKET, dates: [{ when: '2026-11-14', what: 'Closing', who: 'Escrow', own: true }] };
+    savePacket(`analyzed:${li.id}`, p3);
+    expect(dealNextTask(li, p3, now, 'closed').label).not.toMatch(/Overdue by 5 days/);
+  });
 });
