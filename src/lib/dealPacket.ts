@@ -18,7 +18,7 @@ import { PLAYBOOKS } from './playbooks';
 import { proGuideByKey, type ProKey } from './proGuide';
 import { countyName } from './regions';
 import { dealProgress } from './roadmapState';
-import { withEffectiveWindows, lawWindowEnd, deedDateMissing, noDeedDate, windowBeforeDeed, deedRecordedOn, officialRow, officialFirst, siteSidFirst, sidUnasked, sidAnswered, DEED_ROWS, wayOf, NO_SID_ROW, soldOf, lawRedemptionEnd, withEffectiveEnd, redemptionEnd as redemptionEndFor, redeemedDeal, redemptionOver, dayOf, readerDay, SEALED_ROW, sidBeforePay, treasurerGave, taxPayState, sidFirst, saleOverFor, sealedDay, nvNow, dealNextTask, nvPayDays, paidAtWin, paymentPassed, sellerName, sellerShort, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
+import { withEffectiveWindows, lawWindowEnd, deedDateMissing, noDeedDate, windowBeforeDeed, deedRecordedOn, officialRow, officialFirst, siteSidFirst, sidFutureOpen, sidUnasked, sidAnswered, DEED_ROWS, wayOf, NO_SID_ROW, soldOf, lawRedemptionEnd, withEffectiveEnd, redemptionEnd as redemptionEndFor, redeemedDeal, redemptionOver, dayOf, readerDay, SEALED_ROW, sidBeforePay, treasurerGave, taxPayState, sidFirst, saleOverFor, sealedDay, nvNow, dealNextTask, nvPayDays, paidAtWin, paymentPassed, sellerName, sellerShort, sealedBid, stageLabel, stageOf, afterSale, remindable, behindStage, finishedDeal, prettyDay, redemptionEndFrom, DEED_AFTER_WAIT, redemptionPast, beforeDeed, paidIn, saleOver, liveIn, sidState, forCalendar, notYet, earlyDeedEnd, EARNEST_BACK, recordParts, certificateFirst, REDEEMED_ROW, redeemedIn, contingencyFirst, beforeWhat, firstFullMonth, redeemingNow, TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT } from './dealStage';
 
 export type Fit = '' | 'fits' | 'no' | 'more';
 export const FIT_LABEL: Record<Exclude<Fit, ''>, string> = { fits: 'Fits my buy box', no: 'Doesn’t fit', more: 'Need more evidence' };
@@ -155,8 +155,8 @@ export const sidPayee = (r: PacketDate): string => {
   const inParens = (t.match(/\(([^)]*)\)/g) ?? []).map((x) => x.slice(1, -1).trim()).find((x) => local.test(x)) ?? '';
   const rest = t.replace(/\s*\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
   const viaWord = rest.match(/\bto\s+(.+?)\s*$/i)?.[1] ?? rest.match(/\bfor\s+(?!(the )?parcel\b)(.+?)\s*$/i)?.[2] ?? '';
-  const viaSep = /^[-:–—]\s*/.test(rest) && local.test(rest) ? rest.replace(/^[-:–—]\s*/, '') : '';
-  const named = (viaWord || viaSep || inParens).replace(/\s+(on|by|due|before|after|via|with|per|at|in)\b.*$/i, '').replace(/\s*[,;–—-]\s.*$/, '').replace(/[.,:;]+$/, '').trim();
+  const viaSep = /^[-:–—]\s*/.test(rest) && local.test(rest) ? rest.replace(/^[-:–—]\s*/, '') : /^[A-Z]/.test(rest) && local.test(rest.split(/\s+/).slice(0, 4).join(' ')) ? rest : '';
+  const named = (viaWord || viaSep || inParens).replace(/\s+(\d{1,2}\/\d{1,2}(\/\d{2,4})?|\d{4}-\d{2}-\d{2}|(mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?|(jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec)[a-z]*\.?\s+\d{1,2})\b.*$/i, '').replace(/\s+(on|by|due|before|after|via|with|per|at|in)\b.*$/i, '').replace(/\s*[,;–—-]\s.*$/, '').replace(/[.,:;]+$/, '').trim();
   /* (a payee is a city, county or district: capitalized or named as one; never the Treasurer, a date or words like “to be made”) */
   return !named || /^(me|you)\b/i.test(named) || /\btreasurer\b/i.test(named) || /^((jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b|\d)/i.test(named) || !(local.test(named) || /^(the\s+)?[A-Z][a-z]/.test(named)) ? '' : named;
 };
@@ -1268,7 +1268,7 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
   const closingDone = stageOf(d) === 'contract' && isOffer(d) && p.dates.some((x) => sameEvent(x, 'Closing') && !!x.resolved && (!x.when || x.when <= todayHere));
   // FLOW-4: before you win, a sale day that has passed asks "did you win?" (no countdown to the rows after the sale).
   const saleDone = early && !isOffer(d) && saleOverFor(d, p, now);
-  const nd0 = nvPayDays(d, stageOf(d) === 'passed' || finishedDeal(d) || closingDone || saleDone ? null : sidFirst(contingencyFirst(officialFirst(siteSidFirst(remindable(capSid(withEffectiveEnd(d, pk), d), now, early, [...behindStage(d, stageOf(d)), ...notYet(d, stageOf(d), pk, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT], dayOf(d, now)), d, pk, dayOf(d, now)), d, now), pk, now, stageOf(d), d.kind, d.state), pk, d, now), now, pk);
+  const nd0 = nvPayDays(d, stageOf(d) === 'passed' || finishedDeal(d) || closingDone || saleDone ? null : sidFirst(contingencyFirst(officialFirst(siteSidFirst(remindable(capSid(sidFutureOpen(withEffectiveEnd(d, pk), dayOf(d, now)), d), now, early, [...behindStage(d, stageOf(d)), ...notYet(d, stageOf(d), pk, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT], dayOf(d, now)), d, pk, dayOf(d, now)), d, now), pk, now, stageOf(d), d.kind, d.state), pk, d, now), now, pk);
   // (A redeemed deal: collecting the payoff comes before a date the reader added, as in Your next action.)
   const nd = nd0 && !officialRow(d, nd0) && ((certificateFirst(d) && redeemedIn(pk)) || redeemingNow(d)) ? null : nd0;
   // Rows the stage has put behind you read "passed", not "open" (the sale day once won; the offer once accepted).
