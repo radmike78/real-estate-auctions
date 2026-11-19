@@ -1587,7 +1587,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
       if (!ev) return false;
       if (sameDate(ev, 'Sale day')) return stage === 'contract' && wayOf(d) !== 'offer' && !datedSite('Sale day') && !!x.when && !payDueSoon;
       if (deedMissOwn && DEED_ROWS[deedMissOwn].some((r) => sameDate(ev, r))) return !!x.when && !datedSite(ev);
-      if (sameDate(ev, 'SID certificate payoff')) { const dl = sidDeadline(p); return d.state === 'NV' && d.kind === 'taxSale' && !x.resolved && !sidDup(x) && !(stage === 'contract' && !paidIn(p, d)) && !!dl && ((!!x.when && x.when > dl) || (inWeek(dl) && !p.dates.some((y) => !y.own && !y.resolved && !!y.when && sameDate(y, 'SID certificate payoff')))); }
+      if (sameDate(ev, 'SID certificate payoff')) { const dl = sidDeadline(p); return d.state === 'NV' && d.kind === 'taxSale' && !x.resolved && !sidDup(x) && !(stage === 'contract' && !paidIn(p, d)) && !(sidUnasked(d) && !sidAnswered(p)) && !!dl && ((!!x.when && x.when > dl) || (inWeek(dl) && !p.dates.some((y) => !y.own && !y.resolved && !!y.when && sameDate(y, 'SID certificate payoff')))); }
       return false;
     });
     const ownNd = ownLead ?? (nd && nd.own && !nd.resolved && !payFirst && !bidPrep && nd.days <= 7 ? nd : undefined);

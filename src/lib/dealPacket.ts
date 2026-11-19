@@ -145,6 +145,8 @@ const LATER = ['Redemption money collected', 'Challenge window ends', 'Recovery-
 /** An SID row's payee, as typed (blank when it names none: empty, or the reader themself, "Me", "You, with…"). */
 export const sidPayee = (r: PacketDate): string => { const w = (r.who ?? '').trim().replace(/\s+/g, ' '); return /^(me|you)\b/i.test(w) ? '' : w; };
 export const sidSamePayee = (a: PacketDate, b: PacketDate): boolean => { const w = (r: PacketDate) => sidPayee(r).toLowerCase(); return !!w(a) && w(a) === w(b); };
+/** A reader's row named as an SID payoff, by the site's name or its short form (“SID payoff …”). */
+export const sidNamed = (w: string): boolean => sameDate(w, 'SID certificate payoff') || /^\s*SID payoff\b/i.test(w);
 /** The sale's SID payoff row a reader's own SID reminder belongs to: an open one naming the same payee (or, for a
  *  reminder naming none, the only open one), else the blank placeholder that names no payee (-1: none; the reminder becomes a row of its own). */
 export const sidSiteFor = (p: PacketData, x: PacketDate): number => {
@@ -153,7 +155,8 @@ export const sidSiteFor = (p: PacketData, x: PacketDate): number => {
   if (a >= 0) return a;
   // (A reminder that names no payee, next to the sale's only open SID row: that's the one it's about.)
   const open = p.dates.flatMap((y, k) => (sid(y) ? [k] : []));
-  if (!sidPayee(x) && open.length === 1) return open[0];
+  // (Only when the sale has just that one SID row: next to a paid one, a no-payee reminder may be about either.)
+  if (!sidPayee(x) && open.length === 1 && p.dates.filter((y) => y !== x && !y.own && sameDate(y.what, 'SID certificate payoff')).length === 1) return open[0];
   return p.dates.findIndex((y) => sid(y) && !y.when && !sidPayee(y));
 };
 export const handledCopy = (p: PacketData, x: PacketDate): boolean => {
@@ -166,7 +169,7 @@ export const handledCopy = (p: PacketData, x: PacketDate): boolean => {
   // (…or, for a recording, deed or window row, one that repeats a handled site row's name on any day: that's done.)
   // (…or an SID payoff to a payee the sale's row already marks paid, and no open row to that payee: "I paid" dates
   //  that row the day it's marked, so the reader's planned day may differ.)
-  if (x.own && sameDate(x.what, 'SID certificate payoff')) { const to = (y: PacketDate) => y !== x && !y.own && sameDate(y.what, 'SID certificate payoff') && sidSamePayee(x, y); if (p.dates.some((y) => to(y) && !!y.resolved) && !p.dates.some((y) => to(y) && !y.resolved)) return true; /* (a reminder naming no payee, next to the sale's only SID row, paid) */ const all = p.dates.filter((y) => y !== x && !y.own && sameDate(y.what, 'SID certificate payoff')); if (!sidPayee(x) && all.length === 1 && !!all[0].resolved) return true; }
+  if (x.own && sidNamed(x.what)) { const to = (y: PacketDate) => y !== x && !y.own && sameDate(y.what, 'SID certificate payoff') && sidSamePayee(x, y); if (p.dates.some((y) => to(y) && !!y.resolved) && !p.dates.some((y) => to(y) && !y.resolved)) return true; /* (a reminder naming no payee, once every one of the sale's SID rows is paid) */ const all = p.dates.filter((y) => y !== x && !y.own && sameDate(y.what, 'SID certificate payoff')); if (!sidPayee(x) && all.length >= 1 && all.every((y) => !!y.resolved)) return true; }
   if (x.own) return !!x.when && p.dates.some((y) => y !== x && !y.own && !!y.resolved && nb(y.what) === nb(x.what) && (y.when === x.when || [...RECORDED_ROWS, 'Deed delivered (if no one redeemed)', 'Challenge window ends', 'Recovery-suit window ends'].some((r) => sameDate(y.what, r))));
   if (!key(x) || sameDate(key(x), 'SID certificate payoff')) return false;
   return p.dates.some((y) => y !== x && !!y.resolved && y.when === x.when && !!key(y) && nb(key(x)) === nb(key(y)));
