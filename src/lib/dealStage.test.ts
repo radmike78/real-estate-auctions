@@ -3555,7 +3555,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${tr.id}`, p);
     const t = dealNextTask(tr, p, new Date('2026-11-19T20:00:00Z'), 'contract').label;
     // (Round 128: the reader's own date counts only if the trustee gave it in writing, so the late warning stays.)
-    expect(t).toMatch(/count on it only if the trustee gave you that date in writing\. If not: /);
+    expect(t).toMatch(/count on it only if the trustee gave you that date in writing\*\. If not: /);
     // (After Make on the sale day, the payment step names the reader's own payment row and offers no one-click pass yet.)
     const p2 = { ...p, dates: p.dates.map((x) => (x.what === 'Sale' ? { when: '2026-11-17', what: 'Sale day', who: 'Me' } : /^Sale day/.test(x.what) && !('own' in x) ? { ...x, when: '2026-11-17' } : x)).filter((x, i, a) => a.findIndex((y) => y.what === x.what && y.when === x.when) === i) };
     savePacket(`analyzed:${tr.id}`, p2);
@@ -3598,16 +3598,29 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(nvLienDueLikelyPassed(li, at)).toBe('2026-11-19');
     const tl = dealNextTask(li, pl, at, 'contract').label;
     expect(tl).toMatch(/^Did you pay for 50 Oak\?/);
-    expect(tl).toMatch(/Your Payment deadline row says Nov 25, 2026, later than that: count on it only if the treasurer that held the sale set that later time in writing\*/);
+    expect(tl).toMatch(/Your Payment deadline row says Nov 25, 2026: if the notice of sale, or the treasurer that held the sale in writing, set that later time\*, pay by then and mark it handled\. If you paid, mark it handled\. If you didn’t pay by your deadline, the certificate isn’t yours/);
     expect(tl).not.toMatch(/In 5 days/);
     const { packetSections } = await import('./dealPacket');
-    expect(packetSections(li, pl, at).find((x) => x.key === 'dates')!.lines).toContain('Next: the payment, until you mark it paid (see Your next action).');
+    const dl = packetSections(li, pl, at).find((x) => x.key === 'dates')!.lines;
+    expect(dl).toContain('Next: the payment, until you mark it paid (see Your next action).');
+    expect(dl.join('\n')).toMatch(/Nov 25, 2026: Payment deadline[^\n]* — after the law’s payment day \(before 10:00 a\.m\. Nevada time on Nov 19, 2026, NRS 271\.560\)/);
+    // (Round 128 content: an IRS payment date more than 1 month after the sale isn't called when it's due.)
+    const { irsPastMonth } = await import('./dealStage');
+    expect(irsPastMonth({ kind: 'irs' }, '2026-11-17', '2026-12-17')).toBe(false);
+    expect(irsPastMonth({ kind: 'irs' }, '2026-11-17', '2026-12-18')).toBe(true);
+    const ir: Deal = { ...deal, id: 'v128d', name: '53 Oak', state: 'NV', county: 'Clark', kind: 'irs', plan: 'flip', stage: 'contract' };
+    saveDeals([ir]);
+    const pi = { ...EMPTY_PACKET, dates: [...base(ir).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-17' } : x)), { when: '2027-01-05', what: 'Payment due', who: 'Me', own: true }] };
+    savePacket(`analyzed:${ir.id}`, pi);
+    const ti = dealNextTask(ir, pi, new Date('2026-11-19T20:00:00Z'), 'contract').label;
+    expect(ti).not.toMatch(/is when it’s due/);
+    expect(ti).toMatch(/more than 1 month after the sale\. An IRS sale can defer part of the price for no more than 1 month after the sale \(26 U\.S\.C\. 6335\(e\)\)/);
     const tr: Deal = { ...deal, id: 'v128b', name: '51 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
     saveDeals([tr]);
     const pt = { ...EMPTY_PACKET, dates: [...base(tr), { when: '2026-11-17', what: 'Sale', who: 'Me', own: true }, { when: '2026-11-24', what: 'Payment due', who: 'Me', own: true }] };
     savePacket(`analyzed:${tr.id}`, pt);
     const tt = dealNextTask(tr, pt, new Date('2026-11-19T20:00:00Z'), 'contract').label;
-    expect(tt).toMatch(/Your own reminder “Payment due” says Nov 24, 2026: count on it only if the trustee gave you that date in writing\. If not: Payment is usually due at the sale/);
+    expect(tt).toMatch(/Your own reminder “Payment due” says Nov 24, 2026: count on it only if the trustee gave you that date in writing\*\. If not: Payment is usually due at the sale/);
     expect(tt).toMatch(/The sale was on Nov 17, 2026: if you haven’t paid, contact the trustee and an attorney today/);
     const ow: Deal = { ...deal, id: 'v128c', name: '52 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'owned' };
     const po = { ...EMPTY_PACKET, dates: [{ when: '2026-11-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-01', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-22', what: 'Balance due', who: 'Contractor', own: true }, { when: '2026-10-30', what: 'Payment due', who: 'Me', own: true }] };
