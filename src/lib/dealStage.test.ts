@@ -3554,7 +3554,8 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const p = { ...EMPTY_PACKET, dates: [...base(tr), { when: '2026-11-17', what: 'Sale', who: 'Me', own: true }, { when: '2026-11-24', what: 'Payment due', who: 'Me', own: true }] };
     savePacket(`analyzed:${tr.id}`, p);
     const t = dealNextTask(tr, p, new Date('2026-11-19T20:00:00Z'), 'contract').label;
-    expect(t).not.toMatch(/held liable/);
+    // (Round 128: the reader's own date counts only if the trustee gave it in writing, so the late warning stays.)
+    expect(t).toMatch(/count on it only if the trustee gave you that date in writing\. If not: /);
     // (After Make on the sale day, the payment step names the reader's own payment row and offers no one-click pass yet.)
     const p2 = { ...p, dates: p.dates.map((x) => (x.what === 'Sale' ? { when: '2026-11-17', what: 'Sale day', who: 'Me' } : /^Sale day/.test(x.what) && !('own' in x) ? { ...x, when: '2026-11-17' } : x)).filter((x, i, a) => a.findIndex((y) => y.what === x.what && y.when === x.when) === i) };
     savePacket(`analyzed:${tr.id}`, p2);
@@ -3583,5 +3584,37 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const rc = { when: '2026-11-20', what: 'SID payoff to City of Henderson', who: 'City of Henderson', own: true, resolved: true };
     const pr = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, rc] };
     if (typeof handledCopy === 'function') expect(handledCopy(pr, rc)).toBe(false);
+  });
+  it('round 128 tools: an SID lien keeps the law’s payment day over a later typed one; a reader’s own payment date is conditional; later payment reminders stay after paying', async () => {
+    const { suggestedDates } = await import('./dealPacket');
+    const { nvLienDueLikelyPassed, lienPayLater, siteSidFirst } = await import('./dealStage');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const li: Deal = { ...deal, id: 'v128a', name: '50 Oak', state: 'NV', county: 'Clark', kind: 'lien', plan: 'flip', stage: 'contract' };
+    saveDeals([li]);
+    const pl = { ...EMPTY_PACKET, dates: base(li).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-18' } : /^Payment deadline/.test(x.what) ? { ...x, when: '2026-11-25' } : x)) };
+    savePacket(`analyzed:${li.id}`, pl);
+    const at = new Date('2026-11-20T19:00:00Z');
+    expect(lienPayLater(li, pl, pl.dates.find((x) => /^Payment deadline/.test(x.what))!)).toBe(true);
+    expect(nvLienDueLikelyPassed(li, at)).toBe('2026-11-19');
+    const tl = dealNextTask(li, pl, at, 'contract').label;
+    expect(tl).toMatch(/^Did you pay for 50 Oak\?/);
+    expect(tl).toMatch(/Your Payment deadline row says Nov 25, 2026, later than that: count on it only if the treasurer that held the sale set that later time in writing\*/);
+    expect(tl).not.toMatch(/In 5 days/);
+    const { packetSections } = await import('./dealPacket');
+    expect(packetSections(li, pl, at).find((x) => x.key === 'dates')!.lines).toContain('Next: the payment, until you mark it paid (see Your next action).');
+    const tr: Deal = { ...deal, id: 'v128b', name: '51 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
+    saveDeals([tr]);
+    const pt = { ...EMPTY_PACKET, dates: [...base(tr), { when: '2026-11-17', what: 'Sale', who: 'Me', own: true }, { when: '2026-11-24', what: 'Payment due', who: 'Me', own: true }] };
+    savePacket(`analyzed:${tr.id}`, pt);
+    const tt = dealNextTask(tr, pt, new Date('2026-11-19T20:00:00Z'), 'contract').label;
+    expect(tt).toMatch(/Your own reminder “Payment due” says Nov 24, 2026: count on it only if the trustee gave you that date in writing\. If not: Payment is usually due at the sale/);
+    expect(tt).toMatch(/The sale was on Nov 17, 2026: if you haven’t paid, contact the trustee and an attorney today/);
+    const ow: Deal = { ...deal, id: 'v128c', name: '52 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'owned' };
+    const po = { ...EMPTY_PACKET, dates: [{ when: '2026-11-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-01', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-22', what: 'Balance due', who: 'Contractor', own: true }, { when: '2026-10-30', what: 'Payment due', who: 'Me', own: true }] };
+    const kept = siteSidFirst(po, ow, po, '2026-11-26', 'owned').dates.map((x) => x.what);
+    expect(kept).toContain('Balance due');
+    expect(kept).not.toContain('Payment due');
+    const kc = siteSidFirst(po, ow, po, '2026-11-26', 'contract').dates.map((x) => x.what);
+    expect(kc).toContain('Balance due');
   });
 });
