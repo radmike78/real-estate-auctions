@@ -141,6 +141,15 @@ const LATER = ['Redemption money collected', 'Challenge window ends', 'Recovery-
 /** The rows this stage's calendar needs filled in: before the sale, only the dates before it; after, all but those
  *  counted from a later event (they can wait for it). */
 /** An open row that is a copy of a date already handled on the same day (the reader added it again): it's done too. */
+/** Two SID payoff rows that name the same payee (not blank), ignoring case and spacing. */
+export const sidSamePayee = (a: PacketDate, b: PacketDate): boolean => { const w = (r: PacketDate) => (r.who ?? '').trim().replace(/\s+/g, ' ').toLowerCase(); return !!w(a) && w(a) === w(b); };
+/** The sale's SID payoff row a reader's own SID reminder belongs to: an open one naming the same payee, else the
+ *  blank placeholder that names no payee (-1: none; the reminder becomes a row of its own). */
+export const sidSiteFor = (p: PacketData, x: PacketDate): number => {
+  const sid = (y: PacketDate) => y !== x && !y.own && !y.resolved && sameDate(y.what, 'SID certificate payoff');
+  const a = p.dates.findIndex((y) => sid(y) && sidSamePayee(x, y));
+  return a >= 0 ? a : p.dates.findIndex((y) => sid(y) && !y.when && !(y.who ?? '').trim());
+};
 export const handledCopy = (p: PacketData, x: PacketDate): boolean => {
   if (x.resolved || !x.when) return false;
   // (Only rows that count as one of the sale's dates, by their full name: a reader's own reminder is never a copy.)
@@ -149,6 +158,8 @@ export const handledCopy = (p: PacketData, x: PacketDate): boolean => {
   // (An SID payoff is never a copy: a parcel can owe two, to different districts, due the same day.)
   // (A reader's reminder that repeats a handled site row exactly, same name and day, is a duplicate reminder.)
   // (…or, for a recording, deed or window row, one that repeats a handled site row's name on any day: that's done.)
+  // (…or an SID payoff to the same payee, on the same day, that the sale's row already marks paid.)
+  if (x.own && sameDate(x.what, 'SID certificate payoff') && p.dates.some((y) => y !== x && !y.own && !!y.resolved && sameDate(y.what, 'SID certificate payoff') && y.when === x.when && sidSamePayee(x, y))) return true;
   if (x.own) return !!x.when && p.dates.some((y) => y !== x && !y.own && !!y.resolved && nb(y.what) === nb(x.what) && (y.when === x.when || [...RECORDED_ROWS, 'Deed delivered (if no one redeemed)', 'Challenge window ends', 'Recovery-suit window ends'].some((r) => sameDate(y.what, r))));
   if (!key(x) || sameDate(key(x), 'SID certificate payoff')) return false;
   return p.dates.some((y) => y !== x && !!y.resolved && y.when === x.when && !!key(y) && nb(key(x)) === nb(key(y)));

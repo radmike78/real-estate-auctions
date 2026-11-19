@@ -2939,4 +2939,51 @@ describe('round 39: Eureka sealed-bid sale', () => {
       expect(dealNextTask(tr, p, now, 'owned').label).toMatch(/challenge window/i);
     }
   });
+  it('round 119 verifier: a reader’s SID reminder never hides an unpaid win’s payment, and a second payee stays on a step', async () => {
+    const { suggestedDates, sidSiteFor } = await import('./dealPacket');
+    const now = new Date('2026-11-18T20:00:00Z');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    // VER-1: Washoe, won and not paid; the reader types the SID payee at the counter.
+    const wa: Deal = { ...deal, id: 'v119a', name: '1 Reno', state: 'NV', county: 'Washoe', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([wa]);
+    let rows = set(base(wa), /^Sale day/, { when: '2026-11-17', resolved: true });
+    const pw = { ...EMPTY_PACKET, dates: [...rows, { when: '2026-11-24', what: 'SID certificate payoff', who: 'City of Reno', own: true }] };
+    savePacket(`analyzed:${wa.id}`, pw);
+    const tw = dealNextTask(wa, pw, now, 'contract');
+    expect(tw.label).not.toMatch(/your own reminder/);
+    expect(tw.label).toMatch(/Pay|paid/);
+    // VER-2: at Deed recorded, one payee paid and another still open: the open one keeps its step, by name.
+    const cl: Deal = { ...deal, id: 'v119b', name: '2 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'closed' };
+    saveDeals([cl]);
+    rows = set(set(base(cl), /^Sale day/, { when: '2026-11-10', resolved: true }), /^Payment deadline/, { when: '2026-11-10', resolved: true });
+    rows = set(rows, /^SID certificate payoff/, { when: '2026-11-18', who: 'City of Las Vegas', resolved: true });
+    const pc = { ...EMPTY_PACKET, dates: [...rows, { when: '2026-11-27', what: 'SID certificate payoff', who: 'Clark County' }] };
+    savePacket(`analyzed:${cl.id}`, pc);
+    const tc = dealNextTask(cl, pc, now, 'closed');
+    expect(tc.label).not.toMatch(/affidavit that you paid/);
+    expect(tc.label).toMatch(/to Clark County by Nov 30/);
+    expect(stageTasks(cl, 'closed', pc, now).some((x) => x.key === 'sid-paid-affidavit')).toBe(false);
+    // VER-3: a reopened question names the payee whose row has no date, in the present tense.
+    const ph: Deal = { ...cl, id: 'v119c', stage: 'contract' };
+    saveDeals([ph]);
+    const pr = { ...EMPTY_PACKET, dates: [...rows, { when: '', what: 'SID certificate payoff', who: 'City of Henderson' }] };
+    const ask = stageTasks(ph, 'contract', pr, now).find((x) => x.key === 'sid-affidavit')!;
+    expect(ask.label).toMatch(/Is another SID payoff owed to City of Henderson/);
+    expect(ask.label).not.toMatch(/^Asked/);
+    expect(ask.undo?.undatedOnly).toBe(true);
+    // (A reader's reminder to the same payee moves into that payee's blank row, case aside.)
+    const ps = { ...EMPTY_PACKET, dates: [...set(rows, /^SID certificate payoff/, { when: '', who: 'City of Henderson', resolved: false }), { when: '2026-11-22', what: 'SID certificate payoff', who: 'city of henderson ', own: true }] };
+    expect(sidSiteFor(ps, ps.dates[ps.dates.length - 1])).toBe(ps.dates.findIndex((x) => !x.own && /^SID certificate payoff/.test(x.what)));
+    // VER-4: a reminder that repeats the site's dated payoff doesn't lead.
+    const pd = { ...EMPTY_PACKET, dates: [...set(rows, /^SID certificate payoff/, { when: '2026-11-20', who: 'City of Las Vegas', resolved: false }), { when: '2026-11-20', what: 'SID certificate payoff', who: 'City of Las Vegas', own: true }] };
+    savePacket(`analyzed:${ph.id}`, pd);
+    expect(dealNextTask(ph, pd, now, 'contract').label).not.toMatch(/your own reminder/);
+    // VER-5: a trustee win's payment due today leads a hand-typed, ticked Auction date.
+    const tr: Deal = { ...deal, id: 'v119d', name: '3 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
+    saveDeals([tr]);
+    const pt = { ...EMPTY_PACKET, dates: [...set(base(tr), /^Payment deadline/, { when: '2026-11-18' }), { when: '2026-11-18', what: 'Auction date', who: 'Me', own: true, resolved: true }] };
+    savePacket(`analyzed:${tr.id}`, pt);
+    expect(dealNextTask(tr, pt, now, 'contract').label).not.toMatch(/your own reminder/);
+  });
 });
