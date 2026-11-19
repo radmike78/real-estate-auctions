@@ -3282,4 +3282,19 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${li.id}`, p3);
     expect(dealNextTask(li, p3, now, 'closed').label).not.toMatch(/Overdue by 5 days/);
   });
+  it('round 123 verifier: payee names compared loosely; a missed sale payoff leads a reader’s overdue reminder', async () => {
+    const { suggestedDates, sidPayee, sidSamePayee } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const row = { when: '2026-11-28', what: 'SID certificate payoff', who: 'City of Henderson' };
+    for (const what of ['SID payoff to the City of Henderson', 'SID payoff to Henderson']) expect(sidSamePayee({ when: '2026-11-28', what, who: '', own: true }, row)).toBe(true);
+    expect(sidPayee({ when: '', what: 'SID payment to be made', who: '', own: true })).toBe('');
+    // VER-2
+    const cl: Deal = { ...deal, id: 'v123e', name: '18 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-12', resolved: true }), /^Payment deadline/, { when: '2026-11-12', resolved: true });
+    const p = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-30', who: 'City of Henderson' }), { when: '2026-12-01', what: 'SID payoff to City of Las Vegas', who: '', own: true }] };
+    savePacket(`analyzed:${cl.id}`, p);
+    expect(dealNextTask(cl, p, new Date('2026-12-04T20:00:00Z'), 'contract').label).not.toMatch(/your own reminder/);
+  });
 });
