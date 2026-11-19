@@ -3561,4 +3561,27 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const t2 = dealNextTask(tr, p2, new Date('2026-11-19T20:00:00Z'), 'contract');
     if (/Payment due/.test(t2.label)) expect(t2.advance2).toBeUndefined();
   });
+  it('round 127 verifier: a lien keeps the statutory payment day; the payment step leads with a later written date; no HOA/Treasurer payment aliases; a receipt isn’t its own copy', async () => {
+    const { suggestedDates, handledCopy } = await import('./dealPacket');
+    const { eventFor } = await import('./dealStage');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const li: Deal = { ...deal, id: 'v127v1', name: '40 Oak', state: 'NV', county: 'Washoe', kind: 'lien', plan: 'flip', stage: 'contract' };
+    saveDeals([li]);
+    expect(eventFor(li, 'Pay the Treasurer')).not.toMatch(/^Payment deadline/);
+    expect(eventFor(li, 'Pay the HOA')).not.toMatch(/^Payment deadline/);
+    const pl = { ...EMPTY_PACKET, dates: [...base(li).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-18' } : x)), { when: '2026-11-30', what: 'Payment due', who: 'Me', own: true }] };
+    savePacket(`analyzed:${li.id}`, pl);
+    const tl = dealNextTask(li, pl, new Date('2026-11-19T16:00:00Z'), 'contract').label;
+    expect(tl).not.toMatch(/your own reminder/);
+    const tr: Deal = { ...deal, id: 'v127v2', name: '41 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
+    saveDeals([tr]);
+    const pt = { ...EMPTY_PACKET, dates: [...base(tr).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-18' } : x)), { when: '2026-11-25', what: 'Payment due', who: 'Me', own: true }] };
+    savePacket(`analyzed:${tr.id}`, pt);
+    const tt = dealNextTask(tr, pt, new Date('2026-11-19T20:00:00Z'), 'contract').label;
+    expect(tt).toMatch(/^If the trustee gave you a later payment date in writing, your own reminder “Payment due” \(Nov 25, 2026\)/); expect(tt).not.toMatch(/You typed a payment date/);
+    expect(tl).toMatch(/before 10 a\.m\. Nevada time today/);
+    const rc = { when: '2026-11-20', what: 'SID payoff to City of Henderson', who: 'City of Henderson', own: true, resolved: true };
+    const pr = { ...EMPTY_PACKET, dates: [{ when: '2026-11-10', what: 'Sale day', who: 'T', resolved: true }, rc] };
+    if (typeof handledCopy === 'function') expect(handledCopy(pr, rc)).toBe(false);
+  });
 });
