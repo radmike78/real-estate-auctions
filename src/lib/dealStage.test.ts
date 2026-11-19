@@ -3485,7 +3485,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const lc: Deal = { ...li, id: 'v126d', county: 'Clark' };
     saveDeals([lc]);
     savePacket(`analyzed:${lc.id}`, pl);
-    const plc = { ...pl, dates: pl.dates.map((x) => (x.own ? { ...x, when: '2026-11-19' } : x)) };
+    const plc = { ...pl, dates: pl.dates.map((x) => ('own' in x && x.own ? { ...x, when: '2026-11-19' } : x)) };
     savePacket(`analyzed:${lc.id}`, plc);
     const tc = dealNextTask(lc, plc, new Date('2026-11-21T20:00:00Z'), 'contract');
     expect(tc.label).toMatch(/on Nov 23, 2026, the next day the Treasurer’s office is open/);
