@@ -143,11 +143,27 @@ const LATER = ['Redemption money collected', 'Challenge window ends', 'Recovery-
 /** An open row that is a copy of a date already handled on the same day (the reader added it again): it's done too. */
 /** Two SID payoff rows that name the same payee (not blank), ignoring case and spacing. */
 /** An SID row's payee, as typed (blank when it names none: empty, or the reader themself, "Me", "You, with…"). */
-export const sidPayee = (r: PacketDate): string => { const w = (r.who ?? '').trim().replace(/\s+/g, ' '); if (w && !/^(me|you)\b/i.test(w)) return w; if (!r.own || !sidNamed(r.what)) return ''; /* (a payee in the reminder's name: “SID payoff to City of Las Vegas (moved)”, “… for parcel 12 to Clark County”) */ const base = r.what.replace(/\s*\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim(); const named = (base.match(/\bto\s+(.+?)\s*$/i)?.[1] ?? base.match(/\bfor\s+(?!(the )?parcel\b)(.+?)\s*$/i)?.[2] ?? '').replace(/\s+(on|by|due|before|after|via|with|per|at|in)\b.*$/i, '').replace(/\s*[,;–—-].*$/, '').trim(); /* (a payee is a name, such as “City of Las Vegas” or “Clark County”, not words like “to be made”) */ return /^(me|you)\b/i.test(named) || !(/^(the\s+)?[A-Z]/.test(named) || /\b(city|county|town|district)\b/i.test(named)) ? '' : named; };
+export const sidPayee = (r: PacketDate): string => {
+  const w = (r.who ?? '').trim().replace(/\s+/g, ' ');
+  if (w && !/^(me|you)\b/i.test(w)) return w;
+  if (!r.own || !sidNamed(r.what) || ownNamed(r.what, 'SID payoff') || ownNamed(r.what, 'SID payment') || ownNamed(r.what, 'SID certificate payoff')) return '';
+  // (A payee in the reminder's own words: “SID payoff to City of Las Vegas (moved)”, “… for parcel 12 to Clark County”,
+  //  “SID payoff - City of Las Vegas”, “SID payment (City of Las Vegas)”, “Las Vegas SID payoff”.)
+  const t = r.what.replace(/\s+/g, ' ').trim();
+  const m = /^(.*?)\bSID (?:certificate )?pay(?:off|ment)\b(.*)$/i.exec(t);
+  const before = (m?.[1] ?? '').trim(); const after = (m?.[2] ?? '').trim();
+  const inParens = (after.match(/\(([^)]*\b(city|county|town|district)\b[^)]*)\)/i)?.[1] ?? '').trim();
+  const rest = after.replace(/\s*\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim();
+  const viaWord = rest.match(/\bto\s+(.+?)\s*$/i)?.[1] ?? rest.match(/\bfor\s+(?!(the )?parcel\b)(.+?)\s*$/i)?.[2] ?? '';
+  const viaSep = /^[-:–—,]/.test(rest) ? rest.replace(/^[-:–—,]\s*/, '') : /^[A-Z]/.test(rest) ? rest : '';
+  const named = (viaWord || viaSep || inParens || (/^[A-Z]/.test(before) && !/^(pay|call|check|send|mail|my|the|our)\b/i.test(before) ? before : '')).replace(/\s+(on|by|due|before|after|via|with|per|at|in)\b.*$/i, '').replace(/\s*[,;–—-]\s.*$/, '').replace(/[.,:;]+$/, '').trim();
+  /* (a payee is a city, county or district, such as “City of Las Vegas” or “Clark County”: not words like “to be made”, and not the Treasurer, who isn't the one paid) */
+  return !named || /^(me|you)\b/i.test(named) || /\btreasurer\b/i.test(named) || /^((jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b|\d)/i.test(named) || !(/^(the\s+)?[A-Z]/.test(named) || /\b(city|county|town|district)\b/i.test(named)) ? '' : named;
+};
 /** Two SID rows name the same payee: compared without case, a leading “the”, “city of” / “town of”, or a trailing “county” (“the City of Henderson” = “Henderson”). */
 export const sidSamePayee = (a: PacketDate, b: PacketDate): boolean => { const w = (r: PacketDate) => sidPayee(r).toLowerCase().replace(/^the\s+/, '').replace(/^(city|town) of\s+/, '').replace(/,?\s+(nv|nevada)$/, '').replace(/\s+county$/, '').replace(/[.,]+$/, '').trim(); return !!w(a) && w(a) === w(b); };
 /** A reader's row named as an SID payoff, by the site's name or its short form (“SID payoff …”). */
-export const sidNamed = (w: string): boolean => sameDate(w, 'SID certificate payoff') || /^\s*SID (certificate )?pay(off|ment)\b/i.test(w);
+export const sidNamed = (w: string): boolean => sameDate(w, 'SID certificate payoff') || /^\s*([A-Z][\w’'.]*\s+){0,4}SID (certificate )?pay(off|ment)\b/i.test(w);
 /** The sale's SID payoff row a reader's own SID reminder belongs to: an open one naming the same payee (or, for a
  *  reminder naming none, the only open one), else the blank placeholder that names no payee (-1: none; the reminder becomes a row of its own). */
 export const sidSiteFor = (p: PacketData, x: PacketDate): number => {

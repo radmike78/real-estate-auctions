@@ -3343,4 +3343,17 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const p3 = { ...EMPTY_PACKET, dates: [...paid.filter((x) => !/^SID/.test(x.what)), { when: '2026-12-05', what: 'SID payoff', who: 'City of Henderson', own: true, resolved: true }] };
     expect(stageTasks(cl, 'contract', p3, new Date('2026-12-06T20:00:00Z')).some((x) => x.key === 'sid-void')).toBe(true);
   });
+  it('round 124 clarity: payees in a reader’s own words; a future-dated ticked payoff isn’t asked about yet', async () => {
+    const { sidPayee, sidNamed } = await import('./dealPacket');
+    const r = (what: string, who = '') => sidPayee({ when: '', what, who, own: true });
+    for (const what of ['SID payoff to City of Las Vegas', 'SID payoff - City of Las Vegas', 'SID payoff City of Las Vegas', 'SID payment (City of Las Vegas)', 'SID payoff: City of Las Vegas', 'City of Las Vegas SID payoff']) expect(r(what)).toBe('City of Las Vegas');
+    expect(sidNamed('Las Vegas SID payoff')).toBe(true);
+    for (const what of ['SID payoff to the Treasurer', 'SID payoff to Clark County Treasurer', 'SID payoff Nov 25', 'SID payoff deadline', 'SID payment to be made', 'Pay SID payoff']) expect(r(what)).toBe('');
+    const { suggestedDates } = await import('./dealPacket');
+    const cl: Deal = { ...deal, id: 'v124c', name: '21 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = suggestedDates(cl).filter((w) => !/^SID/.test(w)).map((what) => ({ when: /^(Sale day|Payment deadline)/.test(what) ? '2026-11-12' : '', what, who: '', resolved: /^(Sale day|Payment deadline)/.test(what) }));
+    const p = { ...EMPTY_PACKET, dates: [...paid, { when: '2026-12-05', what: 'SID payoff', who: 'City of Henderson', own: true, resolved: true }] };
+    expect(stageTasks(cl, 'contract', p, new Date('2026-11-19T20:00:00Z')).some((x) => x.key === 'sid-void')).toBe(false);
+  });
 });

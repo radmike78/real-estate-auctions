@@ -195,7 +195,7 @@ export const eventFor = (d: Pick<Deal, 'kind' | 'state'>, what: string): string 
   if (direct) return direct;
   const w = what.trim().replace(/['‘]/g, '’');
   // (An SID payoff named with its payee or a note: “SID payoff to City of Las Vegas”.)
-  if (/^SID (certificate )?pay(off|ment)\b/i.test(w)) { const hit = usual.find((n) => sameDate(n, 'SID certificate payoff')); if (hit) return hit; }
+  if (/^([A-Z][\w’'.]*\s+){0,4}SID (certificate )?pay(off|ment)\b/i.test(w)) { const hit = usual.find((n) => sameDate(n, 'SID certificate payoff')); if (hit) return hit; }
   // (The deed, in a reader's words: “Deed date”, “Deed received”, “Sheriff’s deed”, “Got the deed”.)
   // (Receiving the deed is the deed-after-the-wait row only; a recording row's date is the recording, which comes first.)
   if (/^(got (the |my )?deed|deed (received|in hand|delivered))\b/i.test(w)) { const hit = usual.find((n) => sameDate(n, DEED_AFTER_WAIT)); if (hit) return hit; }
@@ -1033,7 +1033,7 @@ function sidPaidAffidavit(d: Deal, p: PacketData, now: Date, n: string): PlanTas
 }
 function sidTasks(d: Deal, p: PacketData, now: Date, n: string): PlanTask[] {
   const out: PlanTask[] = [];
-    const sidLateRow = d.state === 'NV' && d.kind === 'taxSale' && sidDeadline(p) ? p.dates.find((x) => (sameDate(x, 'SID certificate payoff') || (!!x.own && sidNamed(x.what))) && x.resolved && x.when > sidDeadline(p)) : undefined;
+    const sidLateRow = d.state === 'NV' && d.kind === 'taxSale' && sidDeadline(p) ? p.dates.find((x) => (sameDate(x, 'SID certificate payoff') || (!!x.own && sidNamed(x.what) && x.when <= dayOf(d, now))) && x.resolved && x.when > sidDeadline(p)) : undefined;
     if (sidLateRow) out.push(task({ key: 'sid-void', days: -1, label: `The SID payoff for ${n} is dated ${prettyDay(sidLateRow.when)}, after the 20-day deadline (${prettyDay(sidDeadline(p))}): ask the Treasurer in writing whether the sale stands*`, produces: 'a written answer from the Treasurer, in its evidence log. If the payoff wasn’t made within 20 days, the sale is void and the Treasurer may keep up to 10% of what you paid (NRS 361.595(6))', href: packetHref(d, 'dates'), tick: { label: 'The Treasurer confirmed in writing that the sale stands: mark it', row: SID_STANDS_ROW, who: 'The county treasurer' }, undo: { label: 'The Treasurer said the sale is void: mark it', removeRow: SID_VOID_ROW, addRow: { when: dayOf(d, now), what: VOID_SAID, who: 'The county treasurer', resolved: true } }, answer: true, urgent: true, support: [L.guides], done: p.dates.some((x) => sameDate(x, SID_STANDS_ROW) || sameDate(x, SID_VOID_ROW)) }));
     if (d.state === 'NV' && d.kind === 'taxSale' && p.dates.some((x) => sameDate(x, SID_VOID_ROW))) out.push(task({ key: 'sid-refund', days: -1, label: `The sale of ${n} is void: ask the Treasurer in writing for the rest of what you paid*`, produces: `the refund and a receipt, in its evidence log. The Treasurer may keep up to 10% of what you paid for administrative costs (NRS 361.595(6))${p.dates.some((x) => sameDate(x, 'SID certificate payoff') && x.resolved) ? '. Ask the city or county you paid for the SID certificate what happens to that payment*; your attorney can help' : ''}. Then mark it passed`, href: packetHref(d, 'dates'), tick: { label: 'I got the refund: mark it passed', row: 'Refund received from the Treasurer', who: 'The county treasurer', then: 'passed' }, undo: { label: 'Not void after all? Undo', removeRow: SID_VOID_ROW }, answer: true, urgent: true, support: [L.guides], done: false }));
   return out;
