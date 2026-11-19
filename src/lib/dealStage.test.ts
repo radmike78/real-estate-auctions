@@ -3405,4 +3405,21 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(dealNextTask(cl, p, now, 'contract').label).not.toMatch(/your own reminder/);
     expect(packetSections(cl, p, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/not paid yet: marked paid on a day still to come/);
   });
+  it('round 125 clarity: sale-date names; “the sale stands” answers the SID question; a named reminder next to the paid “Me” row is that payment', async () => {
+    const { suggestedDates, handledCopy } = await import('./dealPacket');
+    const { eventFor, sidAnswered } = await import('./dealStage');
+    const tx = { state: 'NV' as const, kind: 'taxSale' as const };
+    for (const n of ['Date of sale', 'Sale', 'Won auction', 'Sale date']) expect(eventFor(tx, n)).toMatch(/^Sale day/);
+    expect(eventFor(tx, 'Sale price')).toBe('');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const cl: Deal = { ...deal, id: 'v125c', name: '24 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-12', resolved: true }), /^Payment deadline/, { when: '2026-11-12', resolved: true });
+    expect(sidAnswered({ ...EMPTY_PACKET, dates: [...paid, { when: '2026-12-06', what: 'Treasurer confirmed the sale stands', who: 'T', resolved: true }] })).toBe(true);
+    const p = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-19', who: 'Me', resolved: true }), { when: '2026-11-25', what: 'SID payoff', who: 'City of Las Vegas', own: true }] };
+    expect(handledCopy(p, p.dates[p.dates.length - 1])).toBe(true);
+    savePacket(`analyzed:${cl.id}`, p);
+    expect(dealNextTask(cl, p, new Date('2026-11-24T20:00:00Z'), 'contract').label).not.toMatch(/voids the sale/);
+  });
 });
