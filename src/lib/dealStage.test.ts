@@ -3468,6 +3468,16 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const pt = { ...EMPTY_PACKET, dates: [...base(tr), { when: '2026-11-19', what: 'Sale', who: 'Me', own: true }] };
     savePacket(`analyzed:${tr.id}`, pt);
     const t = dealNextTask(tr, pt, new Date('2026-11-19T20:00:00Z'), 'contract');
-    if (/your own reminder/.test(t.label)) expect(t.label).toMatch(/winning bid isn’t marked paid yet/);
+    if (/your own reminder/.test(t.label)) expect(t.label).toMatch(/winning bid isn’t marked paid yet\. Payment is usually due at the sale, as the trustee’s notice says\*/);
+    // (A week later, unpaid: what the winner risks.)
+    const tl = dealNextTask(tr, pt, new Date('2026-11-26T20:00:00Z'), 'contract');
+    if (/your own reminder/.test(tl.label)) expect(tl.label).toMatch(/contact the trustee and an attorney today/);
+    // CONTENT-2: an SID lien win with a hand-typed sale day gets its payment sentence too.
+    const li: Deal = { ...deal, id: 'v126c', name: '28 Oak', state: 'NV', county: 'Washoe', kind: 'lien', plan: 'flip', stage: 'contract' };
+    saveDeals([li]);
+    const pl = { ...EMPTY_PACKET, dates: [...base(li).filter((x) => !/^Sale day/.test(x.what)), { when: '2026-11-18', what: 'Sale', who: 'Me', own: true }] };
+    savePacket(`analyzed:${li.id}`, pl);
+    const tli = dealNextTask(li, pl, new Date('2026-11-19T15:00:00Z'), 'contract');
+    if (/your own reminder/.test(tli.label)) expect(tli.label).toMatch(/10:00 a\.m\. Nevada time/);
   });
 });
