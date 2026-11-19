@@ -3244,6 +3244,17 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(dealNextTask(cl, p3, now, 'contract').label).toMatch(/your own reminder/);
     // TOOLS-4: Key dates names the same reminder.
     const lines = packetSections(cl, p2, now).find((x) => x.key === 'dates')!.lines.join(' | ');
-    expect(lines).toMatch(/Next: SID payoff to City of Las Vegas/);
+    expect(lines).toMatch(/Next: your own “SID payoff to City of Las Vegas” reminder/);
+  });
+  it('round 123 content: Key dates follows Your next action for a reader’s own Sale day after buying', async () => {
+    const { suggestedDates, packetSections } = await import('./dealPacket');
+    const now = new Date('2026-11-19T20:00:00Z');
+    const ho: Deal = { ...deal, id: 'v123b', name: '15 Oak', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'closed' };
+    saveDeals([ho]);
+    const p = { ...EMPTY_PACKET, dates: [...suggestedDates(ho).map((what) => ({ when: '', what, who: '' })), { when: '2026-10-01', what: 'Sale day', who: 'Me', own: true }] };
+    savePacket(`analyzed:${ho.id}`, p);
+    const lines = packetSections(ho, p, now).find((x) => x.key === 'dates')!.lines.join(' | ');
+    expect(lines).not.toMatch(/Next: Sale day, overdue/);
+    expect(lines).toMatch(/Next: your own “Sale day” reminder \(see Your next action\)/);
   });
 });
