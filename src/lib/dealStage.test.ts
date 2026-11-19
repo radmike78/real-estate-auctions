@@ -3390,4 +3390,19 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(sidPayee({ when: '', what: 'SID payoff to City of Henderson 11/25', who: '', own: true })).toBe('City of Henderson');
     expect(sidPayee({ when: '', what: 'SID payoff to City of Henderson Friday', who: '', own: true })).toBe('City of Henderson');
   });
+  it('round 125 content: a future-ticked sale SID row still leads a reader’s reminder and reads as not paid yet in Key dates', async () => {
+    const { suggestedDates, packetSections } = await import('./dealPacket');
+    const { siteSidSoon } = await import('./dealStage');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const cl: Deal = { ...deal, id: 'v125b', name: '23 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-12', resolved: true }), /^Payment deadline/, { when: '2026-11-12', resolved: true });
+    const p = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-30', who: 'City of Henderson', resolved: true }), { when: '2026-11-26', what: 'SID payoff', who: 'City of Las Vegas', own: true }] };
+    savePacket(`analyzed:${cl.id}`, p);
+    const now = new Date('2026-11-27T20:00:00Z');
+    expect(siteSidSoon(p, '2026-11-27')).toBe(true);
+    expect(dealNextTask(cl, p, now, 'contract').label).not.toMatch(/your own reminder/);
+    expect(packetSections(cl, p, now).find((x) => x.key === 'dates')!.lines.join(' | ')).toMatch(/not paid yet: marked paid on a day still to come/);
+  });
 });
