@@ -3054,11 +3054,20 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const two = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-15', who: 'City of Las Vegas', resolved: true }), { when: '', what: 'SID certificate payoff', who: 'City of Henderson' }, { when: '', what: 'SID certificate payoff', who: 'Clark County' }] };
     const r = stageTasks(cl, 'contract', two, new Date('2026-11-19T20:00:00Z')).find((x) => x.key === 'sid-affidavit')!;
     expect(r.redate?.onlyWho).toBe('City of Henderson');
+    // VER-1 (round 120 verifier): once one payee is dated, the other's undated row is still asked about on that step.
+    const one = { ...two, dates: two.dates.map((x) => (x.who === 'City of Henderson' ? { ...x, when: '2026-11-30' } : x)) };
+    savePacket(`analyzed:${cl.id}`, one);
+    expect(dealNextTask(cl, one, new Date('2026-11-25T20:00:00Z'), 'contract').label).toMatch(/Also ask the Treasurer whether a city or county filed an SID affidavit for a payoff to Clark County/);
+    const kc = stageTasks({ ...cl, stage: 'closed' }, 'closed', one, new Date('2026-11-25T20:00:00Z')).find((x) => x.key === 'sid-pay');
+    expect(kc?.label).toMatch(/to City of Henderson by Nov 30, 2026.*Also ask .* Clark County/);
+    // VER-3: a "Me" reminder isn't done while another SID row is still open.
+    const me = { ...one, dates: [...one.dates, { when: '2026-12-05', what: 'SID certificate payoff', who: 'Me', own: true }] };
+    expect(handledCopy(me, me.dates[me.dates.length - 1])).toBe(false);
     // CLARITY-4: Clark, sale date only on the reader's row, unpaid: the pointer says the county's pay hour.
     const pc = { ...EMPTY_PACKET, dates: [...set(base(cl), /^Payment deadline/, { when: '2026-11-19', who: 'Me' }), { when: '2026-11-19', what: 'Auction date', who: 'Me', own: true }] };
     savePacket(`analyzed:${cl.id}`, pc);
     const t = dealNextTask(cl, pc, new Date('2026-11-19T19:00:00Z'), 'contract');
     expect(t.label).toMatch(/your own reminder/);
-    expect(t.label).toMatch(/due by 1:00 p\.m\. Nevada time today, Nov 19, 2026, under Clark County’s terms/);
+    expect(t.label).toMatch(/reminder\. Your payment is due by 1:00 p\.m\. Nevada time today, Nov 19, 2026, under Clark County’s terms/);
   });
 });
