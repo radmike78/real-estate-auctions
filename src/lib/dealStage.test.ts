@@ -3656,4 +3656,15 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(lines.join('\n')).toMatch(/Dec 20, 2026: Payment deadline[^\n]* — more than 1 month after the sale/);
     expect(lines).toContain('Next: the payment, until you mark it paid (see Your next action).');
   });
+  it('round 128 verifier: the IRS 1-month day at month end; a paid win’s contractor reminder stays on its due day with no Sale day', async () => {
+    const { irsPastMonth, irsMonthEnd, siteSidFirst } = await import('./dealStage');
+    expect(irsMonthEnd({ ...EMPTY_PACKET, dates: [{ when: '2027-01-31', what: 'Sale day', who: '' }] })).toBe('2027-02-28');
+    expect(irsMonthEnd({ ...EMPTY_PACKET, dates: [{ when: '2026-12-15', what: 'Sale day', who: '' }] })).toBe('2027-01-15');
+    expect(irsPastMonth({ kind: 'irs' }, '2026-10-31', '2026-12-01')).toBe(true);
+    expect(irsPastMonth({ kind: 'irs' }, '2026-10-31', '2026-11-30')).toBe(false);
+    const tr: Deal = { ...deal, id: 'v128h', name: '57 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
+    const pp = { ...EMPTY_PACKET, dates: [{ when: '', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-19', what: 'Balance due', who: 'Contractor', own: true }] };
+    expect(siteSidFirst(pp, tr, pp, '2026-11-19', 'contract').dates.map((x) => x.what)).toContain('Balance due');
+    expect(siteSidFirst(pp, tr, pp, '2026-11-25', 'contract').dates.map((x) => x.what)).toContain('Balance due');
+  });
 });
