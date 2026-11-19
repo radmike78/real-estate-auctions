@@ -3138,4 +3138,33 @@ describe('round 39: Eureka sealed-bid sale', () => {
       expect(lines).not.toMatch(/Next: the special improvement district \(SID\) question/);
     }
   });
+  it('round 122 tools: the remove button removes its own row; a second payee’s reminder is on a step; certificate sales at Owned check the deed date', async () => {
+    const { suggestedDates, packetSections } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const now = new Date('2026-11-19T20:00:00Z');
+    const cl: Deal = { ...deal, id: 'v122a', name: '9 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-10', resolved: true }), /^Payment deadline/, { when: '2026-11-10', resolved: true });
+    // TOOLS-1
+    const p1 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-20', who: 'Me' }), { when: '', what: 'SID certificate payoff', who: 'City of Henderson' }] };
+    savePacket(`analyzed:${cl.id}`, p1);
+    const t1 = dealNextTask(cl, p1, now, 'contract');
+    if (t1.undo?.removeWhen) expect(t1.undo.removeWhen).toBe('2026-11-20');
+    // TOOLS-3
+    const p3 = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-30', who: 'Me' }), { when: '2026-11-22', what: 'SID payoff', who: 'City of Henderson', own: true }] };
+    savePacket(`analyzed:${cl.id}`, p3);
+    expect(dealNextTask(cl, p3, now, 'contract').label).toMatch(/SID payoff/);
+    // TOOLS-4: HOA at Owned, the deed date typed before the redemption end.
+    const ho: Deal = { ...deal, id: 'v122b', name: '10 Oak', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'owned' };
+    saveDeals([ho]);
+    const p4 = { ...EMPTY_PACKET, dates: [...set(set(base(ho), /^Sale day/, { when: '2026-11-01', resolved: true }), /^Deed delivered/, { when: '2026-11-10' })] };
+    savePacket(`analyzed:${ho.id}`, p4);
+    expect(dealNextTask(ho, p4, now, 'owned').label).toMatch(/before the redemption period ends/);
+    // TOOLS-5: no Sale day at Owned: Key dates asks for it.
+    const p5 = { ...EMPTY_PACKET, dates: [...set(base(ho).filter((x) => !/^Sale day/.test(x.what)), /^Deed delivered/, { when: '2026-11-10' })] };
+    savePacket(`analyzed:${ho.id}`, p5);
+    const lines = packetSections(ho, p5, now).find((x) => x.key === 'dates')!.lines.join(' | ');
+    expect(lines).not.toMatch(/mark it once you have it/);
+  });
 });
