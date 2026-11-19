@@ -3503,4 +3503,24 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const two = { ...EMPTY_PACKET, dates: [...me, { when: '2026-11-25', what: 'SID payoff', who: 'City of Henderson and City of Las Vegas', own: true }] };
     expect(handledCopy(two, two.dates[two.dates.length - 1])).toBe(false);
   });
+  it('round 127 tools: a plan and its ticked receipt are one payoff; a hand-typed sale day reads a dated payment deadline', async () => {
+    const { suggestedDates, handledCopy } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const cl: Deal = { ...deal, id: 'v127a', name: '30 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-12', resolved: true }), /^Payment deadline/, { when: '2026-11-12', resolved: true });
+    const p = { ...EMPTY_PACKET, dates: [...set(paid, /^SID certificate payoff/, { when: '2026-11-25', who: 'City of Las Vegas' }), { when: '2026-11-28', what: 'SID payoff', who: 'City of Henderson', own: true }, { when: '2026-11-20', what: 'SID payment', who: 'City of Henderson', own: true, resolved: true }] };
+    expect(handledCopy(p, p.dates[p.dates.length - 2])).toBe(true);
+    savePacket(`analyzed:${cl.id}`, p);
+    expect(dealNextTask(cl, p, new Date('2026-12-04T20:00:00Z'), 'contract').label).not.toMatch(/Henderson.*void|void.*Henderson/);
+    // TOOLS-2: trustee, hand-typed sale day Nov 19, the sale's payment row Nov 24.
+    const tr: Deal = { ...deal, id: 'v127b', name: '31 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
+    saveDeals([tr]);
+    const pt = { ...EMPTY_PACKET, dates: [...set(base(tr), /^Payment deadline/, { when: '2026-11-24' }), { when: '2026-11-19', what: 'Sale', who: 'Me', own: true }] };
+    savePacket(`analyzed:${tr.id}`, pt);
+    const t = dealNextTask(tr, pt, new Date('2026-11-20T20:00:00Z'), 'contract');
+    expect(t.label).not.toMatch(/held liable/);
+    if (/your own reminder/.test(t.label)) expect(t.label).toMatch(/Payment deadline row in Key dates says Nov 24, 2026/);
+  });
 });
