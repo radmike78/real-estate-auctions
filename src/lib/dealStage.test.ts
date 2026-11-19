@@ -3116,4 +3116,26 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const lines = packetSections(ho, p3, new Date('2026-11-25T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join(' | ');
     expect(lines).not.toMatch(/the redemption period is over/);
   });
+  it('round 121 verifier: an undated named reminder is never moved over a dated payoff; a reminder never stands in for the dated SID payoff step', async () => {
+    const { suggestedDates, sidSiteFor, packetSections } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const set = (rows: { when: string; what: string; who: string; resolved?: boolean; own?: boolean }[], name: RegExp, v: Partial<{ when: string; who: string; resolved: boolean }>) => rows.map((x) => (name.test(x.what) && !x.own ? { ...x, ...v } : x));
+    const cl: Deal = { ...deal, id: 'v121d', name: '8 Vegas', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([cl]);
+    const paid = set(set(base(cl), /^Sale day/, { when: '2026-11-10', resolved: true }), /^Payment deadline/, { when: '2026-11-10', resolved: true });
+    const yes = set(paid, /^SID certificate payoff/, { when: '2026-11-30', who: 'Me' });
+    // VER-1
+    const p1 = { ...EMPTY_PACKET, dates: [...yes, { when: '', what: 'SID certificate payoff', who: 'City of Henderson', own: true }] };
+    expect(sidSiteFor(p1, p1.dates[p1.dates.length - 1])).toBe(-1);
+    // VER-2: Nov 19, the payoff is 11 days out; a reminder for Nov 23 doesn't replace its step, and Key dates agrees.
+    const now = new Date('2026-11-19T20:00:00Z');
+    for (const who of ['', 'City of Henderson']) {
+      const p2 = { ...EMPTY_PACKET, dates: [...yes, { when: '2026-11-23', what: 'SID payoff', who, own: true }] };
+      savePacket(`analyzed:${cl.id}`, p2);
+      expect(dealNextTask(cl, p2, now, 'contract').label).toMatch(/SID certificate payoff/);
+      expect(dealNextTask(cl, p2, now, 'contract').label).not.toMatch(/^Insure/);
+      const lines = packetSections(cl, p2, now).find((x) => x.key === 'dates')!.lines.join(' | ');
+      expect(lines).not.toMatch(/Next: the special improvement district \(SID\) question/);
+    }
+  });
 });
