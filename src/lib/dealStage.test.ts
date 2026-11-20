@@ -3914,4 +3914,14 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${ir.id}`, q);
     expect(dealNextTask(ir, q, new Date('2026-11-20T20:00:00Z'), 'contract').label).toMatch(/Enter the Sale day in Key dates too/);
   });
+  it('round 134 clarity: a second-payee SID reminder dated after the 20 days is warned about', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const tx: Deal = { ...deal, id: 'v134b', name: '84 Oak', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([tx]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-15', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City of Las Vegas' }, { when: '2026-11-25', what: 'SID payoff - city of Henderson', who: 'City of Henderson', own: true }] };
+    savePacket(`analyzed:${tx.id}`, p);
+    const t = dealNextTask(tx, p, new Date('2026-11-10T20:00:00Z'), 'contract').label;
+    if (/city of Henderson/i.test(t)) expect(t).toMatch(/after the 20-day deadline \(Nov 22, 2026\)/);
+    expect(packetSections(tx, p, new Date('2026-11-10T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join('\n')).toMatch(/SID payoff - city of Henderson[^\n]* — open, after the 20-day deadline/);
+  });
 });
