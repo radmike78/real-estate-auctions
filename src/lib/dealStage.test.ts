@@ -3708,7 +3708,8 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(t.tick?.setWhen).toBe('2026-12-12');
     expect(t.label).toMatch(/if you paid later, mark it, then change the row’s date to the day you paid/);
     const t0 = dealNextTask(ir, pi, new Date('2026-11-19T20:00:00Z'), 'contract');
-    expect(t0.tick?.setWhen).toBeUndefined();
+    // (Round 130 content: before the 1-month day, the answer records the day paid.)
+    expect(t0.tick?.setWhen).toBe('2026-11-19');
   });
   it('round 130 tools: a paid win’s own payment reminder stays in Key dates but doesn’t lead; a paid deadline still ahead reads as met', async () => {
     const { packetSections } = await import('./dealPacket');
