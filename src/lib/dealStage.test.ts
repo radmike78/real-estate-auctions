@@ -3687,7 +3687,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${ir.id}`, pi);
     expect(irsPaidLate(ir, pi, pi.dates[1])).toBe(true);
     expect(irsPaidLate(ir, pi, { ...pi.dates[1], when: '2026-12-12' })).toBe(false);
-    expect(packetSections(ir, pi, new Date('2026-12-15T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join('\n')).toMatch(/Dec 14, 2026: Payment deadline[^\n]* — marked paid after the 1-month limit \(Dec 12, 2026, 26 U\.S\.C\. 6335\(e\)\)/);
+    expect(packetSections(ir, pi, new Date('2026-12-15T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join('\n')).toMatch(/Dec 14, 2026: Payment deadline[^\n]* — this date is after the 1-month limit \(Dec 12, 2026, 26 U\.S\.C\. 6335\(e\)\): if you paid after that day, ask the IRS sale officer in writing whether the sale stands\*/);
     const po = { ...EMPTY_PACKET, dates: [...base(ir).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-12' } : x)), { when: '2027-01-05', what: 'Payment due', who: 'Me', own: true }] };
     savePacket(`analyzed:${ir.id}`, po);
     expect(dealNextTask(ir, po, new Date('2026-11-19T20:00:00Z'), 'contract').label).toMatch(/no more than 1 month after the sale \(26 U\.S\.C\. 6335\(e\)\), that’s Dec 12, 2026, so check/);
@@ -3708,8 +3708,8 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(t.tick?.setWhen).toBe('2026-12-12');
     expect(t.label).toMatch(/if you paid later, mark it, then change the row’s date to the day you paid/);
     const t0 = dealNextTask(ir, pi, new Date('2026-11-19T20:00:00Z'), 'contract');
-    // (Round 130 content: before the 1-month day, the answer records the day paid.)
-    expect(t0.tick?.setWhen).toBe('2026-11-19');
+    // (Round 130 clarity: the payment row keeps its date; a tick means paid by that deadline.)
+    expect(t0.tick?.setWhen).toBeUndefined();
   });
   it('round 130 tools: a paid win’s own payment reminder stays in Key dates but doesn’t lead; a paid deadline still ahead reads as met', async () => {
     const { packetSections } = await import('./dealPacket');
@@ -3721,5 +3721,16 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const lines = packetSections(tr, p, new Date('2026-11-19T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join('\n');
     expect(lines).toMatch(/Nov 24, 2026: Payment deadline \(Me\) — marked paid \(before this deadline\)/);
     expect(lines).toMatch(/Nov 25, 2026: Payment due \(Roofer\)/);
+  });
+  it('round 130 clarity: a payment deadline keeps its tick and date; after buying, a payment-named contractor bill leads', async () => {
+    const ow: Deal = { ...deal, id: 'v130b', name: '65 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'owned' };
+    saveDeals([ow]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-01', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-01', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-05', what: 'Deed recorded', who: 'Recorder', resolved: true }, { when: '2026-12-05', what: 'Payment due', who: 'Roofer', own: true }] };
+    savePacket(`analyzed:${ow.id}`, p);
+    const { packetSections } = await import('./dealPacket');
+    const p2 = { ...p, dates: [...p.dates, { when: '2026-12-05', what: 'Challenge window ends', who: 'Me', resolved: true }] };
+    savePacket(`analyzed:${ow.id}`, p2);
+    expect(dealNextTask(ow, p2, new Date('2026-12-08T20:00:00Z'), 'owned').label).toMatch(/Payment due/);
+    expect(packetSections(ow, p2, new Date('2026-12-08T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join('\n')).toMatch(/Next: Payment due/);
   });
 });
