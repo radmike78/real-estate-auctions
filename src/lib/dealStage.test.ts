@@ -3861,4 +3861,15 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${li.id}`, pl);
     expect(packetSections(li, pl, new Date('2026-11-27T19:00:00Z')).find((x) => x.key === 'dates')!.lines.join('\n')).toMatch(/so the steps use Nov 30, 2026, the first day after it the Treasurer’s office is likely open\*/);
   });
+  it('round 133 tools: an IRS reminder past the 1-month limit reads in the past once it passed, and the pass button stays', async () => {
+    const { suggestedDates } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const ir: Deal = { ...deal, id: 'v133a', name: '79 Oak', state: 'NV', county: 'Clark', kind: 'irs', plan: 'flip', stage: 'contract' };
+    saveDeals([ir]);
+    const p = { ...EMPTY_PACKET, dates: [...base(ir).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2027-01-28' } : x)), { when: '2027-03-05', what: 'Balance due', who: 'Me', own: true }] };
+    savePacket(`analyzed:${ir.id}`, p);
+    const t = dealNextTask(ir, p, new Date('2027-03-15T20:00:00Z'), 'contract');
+    expect(t.label).not.toMatch(/so check that date/);
+    expect(JSON.stringify(t)).toMatch(/didn’t pay in time/);
+  });
 });
