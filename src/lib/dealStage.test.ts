@@ -3973,4 +3973,11 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const q = { ...EMPTY_PACKET, dates: [{ when: '2026-11-22', what: SID, who: 'City of Henderson', resolved: true }, { when: '', what: 'SID payoff to City of Henderson', who: 'City of Henderson', own: true }] };
     expect(handledCopy(q, q.dates[1])).toBe(true);
   });
+  it('round 136 content: a 20-day SID deadline on a weekend gets a caution', async () => {
+    const { sidClosedNote } = await import('./dealStage');
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }] };
+    expect(sidClosedNote({ county: 'Clark' }, p, new Date('2026-11-10T20:00:00Z'))).toMatch(/Nov 22, 2026 is a weekend day, when the Treasurer’s office is likely closed\*/);
+    const q = { ...EMPTY_PACKET, dates: [{ when: '2026-11-03', what: 'Sale day', who: 'T', resolved: true }] };
+    expect(sidClosedNote({ county: 'Clark' }, q, new Date('2026-11-10T20:00:00Z'))).toBe('');
+  });
 });
