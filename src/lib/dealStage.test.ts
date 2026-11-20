@@ -3872,4 +3872,15 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(t.label).not.toMatch(/so check that date/);
     expect(JSON.stringify(t)).toMatch(/didn’t pay in time/);
   });
+  it('round 133 content: a hand-typed Washoe lien sale day before a holiday says the open day is likely', async () => {
+    const { suggestedDates } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const li: Deal = { ...deal, id: 'v133b', name: '80 Oak', state: 'NV', county: 'Washoe', kind: 'lien', plan: 'flip', stage: 'contract' };
+    saveDeals([li]);
+    const p = { ...EMPTY_PACKET, dates: [...base(li).filter((x) => !/^Sale day/.test(x.what)), { when: '2026-11-25', what: 'Sale', who: 'Me', own: true }] };
+    savePacket(`analyzed:${li.id}`, p);
+    const t = dealNextTask(li, p, new Date('2026-11-30T16:00:00Z'), 'contract').label;
+    if (/today/.test(t)) expect(t).toMatch(/likely open\* \(NRS 271\.560 sets the day after the sale/);
+    expect(t).not.toMatch(/due before 10:00 a\.m\. Nevada time today \(NRS 271\.560\)/);
+  });
 });
