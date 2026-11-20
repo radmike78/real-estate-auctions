@@ -55,7 +55,7 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
             const rows = i < 0 ? (p.dates.some((x) => sameDate(x, tick.row)) ? p.dates : [...p.dates, { what: tick.row, when: tick.when ?? (tick.noDate ? '' : todayFor(dealId)), who: tick.who ?? '', resolved: true }]) : p.dates.map((x, j) => (j === i || (!tick.asIs && exact >= 0 && counts(x) && !otherPast(x) && !otherPayee(x)) || (adopt && j !== i && own(x) && !mine(x) && named(x) && !sameDate(tick.row, 'SID certificate payoff')) ? { ...x, ...(own(x) && !mine(x) && adopt ? { as: tick.row } : {}), resolved: true, when: (j !== i && (!x.when || x.when > todayFor(dealId)) ? whenOf(p.dates[i]) : whenOf(x)) || tick.when || (tick.noDate ? '' : todayFor(dealId)), who: x.who || tick.who || '' } : x));
             const kept = tick.drops ? rows.filter((x) => !(sameDate(x, tick.drops!) && !x.when)) : rows;
             // (The reader's own reminders for this same payment are ticked with it.)
-            const kept2 = tick.alsoOwn?.length ? kept.map((x) => (x.own && !x.resolved && tick.alsoOwn!.some((a) => a.what === x.what && a.when === x.when) ? { ...x, resolved: true } : x)) : kept;
+            const kept2 = tick.alsoOwn?.length ? kept.map((x) => (x.own && !x.resolved && tick.alsoOwn!.some((a) => a.what === x.what && a.when === x.when) ? { ...x, resolved: true, ...(x.when && x.when > todayFor(dealId) ? { when: todayFor(dealId) } : {}) } : x)) : kept;
             return { ...p, dates: tick.closes ? kept2.map((x) => (sameDate(x, tick.closes!) ? { ...x, resolved: true } : x)) : kept2 };
           });
           if (tick.step) markDealStepDone(`analyzed:${dealId}`, tick.step);

@@ -3691,4 +3691,22 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${ir.id}`, po);
     expect(dealNextTask(ir, po, new Date('2026-11-19T20:00:00Z'), 'contract').label).toMatch(/no more than 1 month after the sale \(26 U\.S\.C\. 6335\(e\)\), that’s Dec 12, 2026, so check/);
   });
+  it('round 129 verifier: split payment rows don’t tick the balance reminder; after the IRS 1-month day the answer records that day', async () => {
+    const { suggestedDates } = await import('./dealPacket');
+    const { ownPayRows } = await import('./dealStage');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const tr: Deal = { ...deal, id: 'v129c', name: '62 Oak', state: 'NV', county: 'Clark', kind: 'hoa', plan: 'flip', stage: 'contract' };
+    const ps = { ...EMPTY_PACKET, dates: [{ when: '2026-11-17', what: 'Sale day', who: 'T' }, { when: '2026-11-17', what: 'Payment deadline (deposit)', who: 'Me' }, { when: '2026-11-24', what: 'Payment deadline (balance)', who: 'Me' }, { when: '2026-11-24', what: 'Balance due', who: 'Me', own: true }] };
+    expect(ownPayRows(tr, ps)).toEqual([]);
+    const ir: Deal = { ...deal, id: 'v129d', name: '63 Oak', state: 'NV', county: 'Clark', kind: 'irs', plan: 'flip', stage: 'contract' };
+    saveDeals([ir]);
+    const pi = { ...EMPTY_PACKET, dates: base(ir).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-12' } : /^Payment deadline/.test(x.what) ? { ...x, when: '2026-12-20' } : x)) };
+    savePacket(`analyzed:${ir.id}`, pi);
+    const t = dealNextTask(ir, pi, new Date('2026-12-14T20:00:00Z'), 'contract');
+    expect(t.tick?.label).toBe('I paid by Dec 12, 2026: mark it handled');
+    expect(t.tick?.setWhen).toBe('2026-12-12');
+    expect(t.label).toMatch(/if you paid later, mark it, then change the row’s date to the day you paid/);
+    const t0 = dealNextTask(ir, pi, new Date('2026-11-19T20:00:00Z'), 'contract');
+    expect(t0.tick?.setWhen).toBeUndefined();
+  });
 });
