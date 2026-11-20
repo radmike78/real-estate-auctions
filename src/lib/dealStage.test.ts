@@ -3733,4 +3733,15 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(dealNextTask(ow, p2, new Date('2026-12-08T20:00:00Z'), 'owned').label).toMatch(/Payment due/);
     expect(packetSections(ow, p2, new Date('2026-12-08T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join('\n')).toMatch(/Next: Payment due/);
   });
+  it('round 131 tools: a payment deadline ticked before the win is cleared when the deal is won', async () => {
+    const { setDealStage, paidIn } = await import('./dealStage');
+    const { loadPacket } = await import('./dealPacket');
+    const tr: Deal = { ...deal, id: 'v131a', name: '66 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'researching' };
+    saveDeals([tr]);
+    savePacket(`analyzed:${tr.id}`, { ...EMPTY_PACKET, dates: [{ when: '2026-11-25', what: 'Sale day', who: 'T' }, { when: '', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-26', what: 'Payment due', who: 'Me', own: true, resolved: true }] });
+    setDealStage(tr.id, 'contract');
+    const pk = loadPacket(`analyzed:${tr.id}`);
+    expect(paidIn(pk, tr)).toBe(false);
+    expect(pk.dates.find((x) => x.what === 'Payment due')!.resolved).toBe(true);
+  });
 });

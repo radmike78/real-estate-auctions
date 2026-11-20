@@ -927,6 +927,12 @@ export function setDealStage(id: string, stage: DealStage) {
     const pk = loadPacket(k);
     if (pk.dates.some((x) => sameDate(x, REDEEMED_ROW) && x.resolved)) savePacket(k, { ...pk, dates: pk.dates.map((x) => (sameDate(x, REDEEMED_ROW) ? { ...x, resolved: false } : x)) });
   }
+  // A win (not sealed bid) from Researching or Offer: a tick on the sale's payment deadline made before the win isn't a payment yet.
+  if (!sealedBid(was) && wayOf(was) === 'auction' && (stageOf(was) === 'researching' || stageOf(was) === 'offer') && stage === 'contract') {
+    const k = `analyzed:${id}`;
+    const pk = loadPacket(k);
+    if (pk.dates.some((x) => !x.own && x.resolved && sameDate(x, 'Payment deadline'))) savePacket(k, { ...pk, dates: pk.dates.map((x) => (!x.own && x.resolved && sameDate(x, 'Payment deadline') ? { ...x, resolved: false } : x)) });
+  }
   // A sealed-bid sale won (by any button or the stage list): the full payment went in with the bid, so it's paid.
   if (sealedBid(was) && (stageOf(was) === 'researching' || stageOf(was) === 'offer') && (stage === 'contract' || stage === 'closed' || stage === 'owned')) {
     const k = `analyzed:${id}`;
