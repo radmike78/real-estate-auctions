@@ -3976,7 +3976,8 @@ describe('round 39: Eureka sealed-bid sale', () => {
   it('round 136 content: a 20-day SID deadline on a weekend gets a caution', async () => {
     const { sidClosedNote } = await import('./dealStage');
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }] };
-    expect(sidClosedNote({ county: 'Clark' }, p, new Date('2026-11-10T20:00:00Z'))).toMatch(/Nov 22, 2026 is a weekend day, when the Treasurer’s office is likely closed\*/);
+    expect(sidClosedNote({ county: 'Clark' }, p, new Date('2026-11-10T20:00:00Z'))).toMatch(/Nov 22, 2026 is a weekend day, when the offices are likely closed\*\. Pay by Nov 19, 2026, the last day the Treasurer’s office is likely open before it\*/);
+    expect(sidClosedNote({ county: 'Clark' }, p, new Date('2026-11-20T20:00:00Z'))).toMatch(/was Nov 19, 2026\*: if you haven’t paid, ask the Treasurer in writing today/);
     const q = { ...EMPTY_PACKET, dates: [{ when: '2026-11-03', what: 'Sale day', who: 'T', resolved: true }] };
     expect(sidClosedNote({ county: 'Clark' }, q, new Date('2026-11-10T20:00:00Z'))).toBe('');
   });
