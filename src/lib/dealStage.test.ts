@@ -3761,4 +3761,18 @@ describe('round 39: Eureka sealed-bid sale', () => {
       expect(dealNextTask(w, pw, new Date('2026-11-26T15:00:00Z'), 'contract').label).toMatch(/Nov 26, 2026 is a Nevada legal holiday \(NRS 236\.015\), when the Treasurer’s office is likely closed\*: ask the Washoe County Treasurer in writing when payment is due/);
     }
   });
+  it('round 131 clarity: a Washoe lien’s date from the Treasurer after a holiday counts; no tick carried onto the payment row', async () => {
+    const { lienPayLater } = await import('./dealStage');
+    const { suggestedDates } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const w: Deal = { ...deal, id: 'v131c', name: '69 Oak', state: 'NV', county: 'Washoe', kind: 'lien', plan: 'flip', stage: 'contract' };
+    saveDeals([w]);
+    const pw = { ...EMPTY_PACKET, dates: base(w).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-25' } : /^Payment deadline/.test(x.what) ? { ...x, when: '2026-11-30', who: 'Treasurer' } : x)) };
+    savePacket(`analyzed:${w.id}`, pw);
+    expect(lienPayLater(w, pw, pw.dates.find((x) => /^Payment deadline/.test(x.what))!)).toBe(false);
+    const t = dealNextTask(w, pw, new Date('2026-11-26T15:00:00Z'), 'contract').label;
+    expect(t).not.toMatch(/likely closed|before 10 a\.m\. Nevada time today/);
+    const late = { ...pw, dates: pw.dates.map((x) => (/^Payment deadline/.test(x.what) ? { ...x, when: '2026-12-01' } : x)) };
+    expect(lienPayLater(w, late, late.dates.find((x) => /^Payment deadline/.test(x.what))!)).toBe(true);
+  });
 });
