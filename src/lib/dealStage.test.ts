@@ -3649,7 +3649,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(irsMonthEnd(pi)).toBe('2026-12-12');
     expect(irsPayLater(ir, pi, pi.dates.find((x) => /^Payment deadline/.test(x.what))!)).toBe(true);
     const a = dealNextTask(ir, pi, new Date('2026-11-19T20:00:00Z'), 'contract').label;
-    expect(a).toMatch(/^Pay for 56 Oak by Dec 12, 2026, 1 month after the sale: an IRS sale can defer part of the price for no more than 1 month \(26 U\.S\.C\. 6335\(e\)\), and its Payment deadline row says Dec 20, 2026, later than that/);
+    expect(a).toMatch(/^Pay for 56 Oak by the date in the IRS notice of sale, and no later than Dec 12, 2026, 1 month after the sale: an IRS sale can defer part of the price for no more than 1 month \(26 U\.S\.C\. 6335\(e\)\), and its Payment deadline row says Dec 20, 2026, later than that/);
     expect(a).not.toMatch(/unless|in writing/);
     const b = dealNextTask(ir, pi, new Date('2026-12-14T20:00:00Z'), 'contract').label;
     expect(b).toMatch(/^Did you pay for 56 Oak\? An IRS sale can defer part of the price for no more than 1 month after the sale \(26 U\.S\.C\. 6335\(e\)\): that was Dec 12, 2026, before its Payment deadline row’s date \(Dec 20, 2026\)\. If you haven’t paid, contact the IRS sale officer named in the notice today/);
