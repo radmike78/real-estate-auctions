@@ -3744,4 +3744,21 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(paidIn(pk, tr)).toBe(false);
     expect(pk.dates.find((x) => x.what === 'Payment due')!.resolved).toBe(true);
   });
+  it('round 131 content: an SID lien pick clears a tick made before it; a Washoe payment day on a holiday gets a caution', async () => {
+    const { setDealStage, paidIn } = await import('./dealStage');
+    const { loadPacket, suggestedDates } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const li: Deal = { ...deal, id: 'v131b', name: '67 Oak', state: 'NV', county: 'Clark', kind: 'lien', plan: 'flip', stage: 'researching' };
+    saveDeals([li]);
+    savePacket(`analyzed:${li.id}`, { ...EMPTY_PACKET, dates: [{ when: '2026-11-25', what: 'Sale day', who: 'T' }, { when: '', what: 'Payment deadline', who: 'Me', resolved: true }] });
+    setDealStage(li.id, 'contract');
+    expect(paidIn(loadPacket(`analyzed:${li.id}`), li)).toBe(false);
+    for (const kind of ['taxSale', 'lien'] as const) {
+      const w: Deal = { ...deal, id: `v131${kind}`, name: '68 Oak', state: 'NV', county: 'Washoe', kind, plan: 'flip', stage: 'contract' };
+      saveDeals([w]);
+      const pw = { ...EMPTY_PACKET, dates: base(w).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-25' } : x)) };
+      savePacket(`analyzed:${w.id}`, pw);
+      expect(dealNextTask(w, pw, new Date('2026-11-26T15:00:00Z'), 'contract').label).toMatch(/Nov 26, 2026 is a Nevada legal holiday \(NRS 236\.015\), when the Treasurer’s office is likely closed\*: ask the Washoe County Treasurer in writing when payment is due/);
+    }
+  });
 });
