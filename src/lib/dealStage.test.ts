@@ -1475,7 +1475,7 @@ describe('Nevada round 4 flow', () => {
     const open = { ...EMPTY_PACKET, dates: [...base, { when: '2026-10-03', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City' }] };
     const t = dealNextTask(tax, open, now, 'contract');
     // After the 20 days the answer is 'paid by the deadline', and it dates the row no later than it.
-    expect(t.tick?.label).toBe('I paid the SID payoff by Sep 30, 2026: mark it handled');
+    expect(t.tick?.label).toBe('I paid the SID payoff to City by Sep 30, 2026: mark it handled');
     expect(t.tick?.setWhen).toBe('2026-09-30');
     // Handled with the late date kept: the warning stays, and the next step asks whether the sale stands.
     const late = { ...EMPTY_PACKET, dates: [...base, { when: '2026-10-03', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City', resolved: true }] };
@@ -3926,5 +3926,14 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${tx.id}`, p3);
     expect(dealNextTask(tx, p3, new Date('2026-11-10T20:00:00Z'), 'contract').label).toMatch(/These payoffs are dated after the 20-day deadline/);
     expect(packetSections(tx, p, new Date('2026-11-10T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join('\n')).toMatch(/SID payoff - city of Henderson[^\n]* — open, after the 20-day deadline/);
+  });
+  it('round 135 tools: the late SID answer names its payee and ticks only its own row', async () => {
+    const tx: Deal = { ...deal, id: 'v135a', name: '85 Oak', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([tx]);
+    const SID = 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)';
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-22', what: SID, who: 'Clark County' }, { when: '2026-11-25', what: SID, who: 'City of Henderson' }] };
+    savePacket(`analyzed:${tx.id}`, p);
+    const t = dealNextTask(tx, p, new Date('2026-11-23T20:00:00Z'), 'contract');
+    if (t.tick && /I paid the SID payoff/.test(t.tick.label)) { expect(t.tick.label).toMatch(/to (Clark County|City of Henderson) by Nov 22, 2026/); expect(t.tick.asIs).toBe(true); expect(t.tick.at).toBeTruthy(); }
   });
 });
