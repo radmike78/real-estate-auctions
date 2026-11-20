@@ -3883,4 +3883,11 @@ describe('round 39: Eureka sealed-bid sale', () => {
     if (/today/.test(t)) expect(t).toMatch(/likely open\* \(NRS 271\.560 sets the day after the sale/);
     expect(t).not.toMatch(/due before 10:00 a\.m\. Nevada time today \(NRS 271\.560\)/);
   });
+  it('round 133 clarity: an IRS row past the 1-month limit is flagged on Analyze (via irsPayLater) and in the step', async () => {
+    const { irsPayLater, irsMonthEnd } = await import('./dealStage');
+    const ir: Deal = { ...deal, id: 'v133c', name: '81 Oak', state: 'NV', county: 'Clark', kind: 'irs', plan: 'flip', stage: 'contract' };
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Sale day', who: 'IRS' }, { when: '2026-11-10', what: 'Payment deadline', who: 'Me' }] };
+    expect(irsMonthEnd(p)).toBe('2026-11-01');
+    expect(irsPayLater(ir, p, p.dates[1])).toBe(true);
+  });
 });
