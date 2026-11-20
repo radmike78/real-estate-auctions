@@ -3962,4 +3962,15 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${tx.id}`, q);
     expect(dealNextTask(tx, q, new Date('2026-11-25T20:00:00Z'), 'contract').label).not.toMatch(/another payoff to City of Las Vegas/);
   });
+  it('round 136 tools: the SID answer never names the reader’s payee over another payee’s sale row; an undated reminder to a paid payee is that payoff', async () => {
+    const { handledCopy } = await import('./dealPacket');
+    const tx: Deal = { ...deal, id: 'v136a', name: '88 Oak', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([tx]);
+    const SID = 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)';
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '', what: SID, who: 'Henderson' }, { when: '', what: 'SID payoff to Las Vegas', who: 'Las Vegas', own: true }] };
+    savePacket(`analyzed:${tx.id}`, p);
+    expect(JSON.stringify(dealNextTask(tx, p, new Date('2026-11-25T20:00:00Z'), 'contract'))).not.toMatch(/paid it to Las Vegas/);
+    const q = { ...EMPTY_PACKET, dates: [{ when: '2026-11-22', what: SID, who: 'City of Henderson', resolved: true }, { when: '', what: 'SID payoff to City of Henderson', who: 'City of Henderson', own: true }] };
+    expect(handledCopy(q, q.dates[1])).toBe(true);
+  });
 });

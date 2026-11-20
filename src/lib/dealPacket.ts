@@ -181,6 +181,8 @@ export const sidSiteFor = (p: PacketData, x: PacketDate): number => {
   return !!x.when && unnamed.length === 1 && open.length === 1 ? unnamed[0] : -1;
 };
 export const handledCopy = (p: PacketData, x: PacketDate): boolean => {
+  // (A reader's undated SID payoff reminder to a payee the sale's row marks paid, with no open row to that payee: that payoff, done.)
+  if (!x.resolved && !x.when && x.own && sidNamed(x.what) && !!sidPayee(x)) { const to = (y: PacketDate) => y !== x && !y.own && sameDate(y.what, 'SID certificate payoff') && sidSamePayee(x, y); if (p.dates.some((y) => to(y) && !!y.resolved) && !p.dates.some((y) => to(y) && !y.resolved)) return true; }
   if (x.resolved || !x.when) return false;
   // (Only rows that count as one of the sale's dates, by their full name: a reader's own reminder is never a copy.)
   const nb = (w: string) => curly(w.trim().replace(/\s+/g, ' ').toLowerCase());
