@@ -508,7 +508,7 @@ export const paidAtWin = (d: { id?: string; state?: Deal['state']; kind?: Deal['
 export const TREASURER_DATE_ROW = 'Treasurer confirmed the later payment date in writing';
 /** That answer, for the open typed Payment deadline it names ("Treasurer, for <date>"): changing or clearing the date ends it. */
 export const treasurerGave = (p: PacketData) => { const typed = p.dates.find((x) => sameDate(x, 'Payment deadline') && !!x.when && !x.resolved)?.when; return !!typed && p.dates.some((x) => sameDate(x, TREASURER_DATE_ROW) && !!x.resolved && x.who.includes(prettyDay(typed))); };
-export const taxPayState = (d: { id?: string; state?: Deal['state']; kind?: Deal['kind']; county?: string }, p: PacketData, now: Date): { state: '' | 'due' | 'late'; due: string; sale: string; afterOne?: boolean } => {
+export const taxPayState = (d: { id?: string; state?: Deal['state']; kind?: Deal['kind']; county?: string }, p: PacketData, now: Date): { state: '' | 'due' | 'late'; due: string; lawDue?: string; sale: string; afterOne?: boolean } => {
   const none = { state: '' as const, due: '', sale: '' };
   if (d.state !== 'NV' || d.kind !== 'taxSale' || (d.county !== 'Clark' && d.county !== 'Washoe') || stageOf(d as Deal) !== 'contract' || paidIn(p, d as Deal) || p.dates.some((x) => sameDate(x, SID_VOID_ROW))) return none;
   const sale = p.dates.find((x) => sameDate(x, 'Sale day') && !!x.when)?.when ?? '';
@@ -521,7 +521,7 @@ export const taxPayState = (d: { id?: string; state?: Deal['state']; kind?: Deal
   const cut = d.county === 'Clark' ? 16 * 60 + 30 : 17 * 60;
   const mins = (() => { const f = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(now); return Number(f.find((x) => x.type === 'hour')?.value ?? 0) * 60 + Number(f.find((x) => x.type === 'minute')?.value ?? 0); })();
   const lateFrom = washoeOpenDay(d, due);
-  return { state: nv.day < lateFrom || (nv.day === lateFrom && mins < cut) ? 'due' : 'late', due, sale, afterOne: d.county === 'Clark' && nv.day === due && mins >= 13 * 60 };
+  return { state: nv.day < lateFrom || (nv.day === lateFrom && mins < cut) ? 'due' : 'late', due: lateFrom, lawDue: due, sale, afterOne: d.county === 'Clark' && nv.day === due && mins >= 13 * 60 };
 };
 /** A Nevada win whose payment time has passed with nothing marked paid (no dated Payment deadline row): a trustee sale
  *  (paid at the sale), a Clark tax sale (1:00 p.m. on the sale day) or Washoe one (5:00 p.m. the next day), or an IRS sale. */
@@ -715,6 +715,8 @@ export const irsLateNote = (d: Pick<Deal, 'kind'>, p: PacketData, now: Date): st
 export const irsMonthStep = (d: Pick<Deal, 'kind'>, p: PacketData, now: Date, n: string): string => { const x = p.dates.find((y) => irsPayLater(d, p, y)); const end = irsMonthEnd(p); if (!x || !end) return ''; const today = nvParts(now).day; return end < today ? `Did you pay for ${n}? An IRS sale can defer part of the price for no more than 1 month after the sale (26 U.S.C. 6335(e)): that was ${prettyDay(end)}, before its Payment deadline row’s date (${prettyDay(x.when)}). If you haven’t paid, contact the IRS sale officer named in the notice today. If you paid by then, mark it handled; if you paid later, mark it, then change the row’s date to the day you paid.` : `Pay for ${n} by ${end === today ? `today, ${prettyDay(end)}` : prettyDay(end)}, 1 month after the sale: an IRS sale can defer part of the price for no more than 1 month (26 U.S.C. 6335(e)), and its Payment deadline row says ${prettyDay(x.when)}, later than that. Mark it paid once you have.`; };
 /** A weekend day or a Nevada legal holiday (NRS 236.015). */
 const closedDay = (day: string): boolean => { const t = new Date(`${day}T12:00:00`); return t.getDay() === 0 || t.getDay() === 6 || nvHoliday(t); };
+/** A lien's Payment deadline row the steps don't take as the deadline: later than the law's day, or (Washoe) a day the office is likely closed. */
+export const lienRowUnsure = (d: { kind?: Deal['kind']; state?: Deal['state']; county?: string }, p: PacketData, x: PacketData['dates'][number]): boolean => lienPayLater(d, p, x) || (d.kind === 'lien' && d.state === 'NV' && d.county === 'Washoe' && !x.resolved && !!x.when && sameDate(x, 'Payment deadline') && closedDay(x.when));
 /** Washoe's day-after payment day when the office is likely closed: the next open day, before anything is called late (else the day itself). */
 export const washoeOpenDay = (d: { county?: string }, day: string): string => { if (d.county !== 'Washoe' || !day || !closedDay(day)) return day; const t = new Date(`${day}T12:00:00`); do t.setDate(t.getDate() + 1); while (closedDay(localDay(t))); return localDay(t); };
 /** A Nevada SID lien's open Payment deadline row dated after the law's day (nvLienDue: before 10 a.m. the day after the sale,
@@ -731,7 +733,7 @@ export const lienPayLater = (d: { kind?: Deal['kind']; state?: Deal['state']; co
 export const nvLienDueLikelyPassed = (d: { id?: string; kind?: Deal['kind']; state?: Deal['state']; county?: string }, now = new Date(), anyStage = false): string => {
   if (!d.id || d.kind !== 'lien' || d.state !== 'NV' || (!anyStage && savedStageOf(d.id) !== 'contract') || paidAtWin(d)) return '';
   const pk = loadPacket(`analyzed:${d.id}`);
-  if (pk.dates.some((x) => sameDate(x, 'Payment deadline') && (x.when || x.resolved) && !lienPayLater(d, pk, x))) return '';
+  if (pk.dates.some((x) => sameDate(x, 'Payment deadline') && (x.when || x.resolved) && !lienRowUnsure(d, pk, x))) return '';
   const due0 = nvLienDue(d, pk); const due = washoeOpenDay(d, due0); const nv = nvParts(now);
   return due && (due < nv.day || (due === nv.day && nv.hour >= nvCutHour(d.county))) ? due : '';
 };
@@ -739,7 +741,7 @@ export const nvLienDueLikelyPassed = (d: { id?: string; kind?: Deal['kind']; sta
 export const nvLienDueToday = (d: { id?: string; kind?: Deal['kind']; state?: Deal['state']; county?: string }, now = new Date()): boolean => {
   if (!d.id || d.kind !== 'lien' || d.state !== 'NV' || savedStageOf(d.id) !== 'contract' || paidAtWin(d)) return false;
   const pk = loadPacket(`analyzed:${d.id}`);
-  if (pk.dates.some((x) => sameDate(x, 'Payment deadline') && (x.when || x.resolved) && !lienPayLater(d, pk, x))) return false;
+  if (pk.dates.some((x) => sameDate(x, 'Payment deadline') && (x.when || x.resolved) && !lienRowUnsure(d, pk, x))) return false;
   const nv = nvParts(now);
   return washoeOpenDay(d, nvLienDue(d, pk)) === nv.day && nv.hour < nvCutHour(d.county);
 };
@@ -749,7 +751,7 @@ export const clarkPayDay = (d: { id?: string; kind?: Deal['kind']; state?: Deal[
   if (!d.id || d.kind !== 'lien' || d.state !== 'NV' || d.county !== 'Clark' || savedStageOf(d.id) !== 'contract' || paidAtWin(d)) return '';
   const pk = loadPacket(`analyzed:${d.id}`); const nv = nvParts(now);
   if (nv.hour >= 17) return '';
-  const row = pk.dates.find((x) => sameDate(x, 'Payment deadline') && (x.when || x.resolved) && !lienPayLater(d, pk, x));
+  const row = pk.dates.find((x) => sameDate(x, 'Payment deadline') && (x.when || x.resolved) && !lienRowUnsure(d, pk, x));
   if (!(row ? !row.resolved && row.when === nv.day : nvLienDue(d, pk) === nv.day)) return '';
   return nv.hour < 10 ? 'morning' : 'afternoon';
 };
@@ -1137,7 +1139,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
   // (An IRS sale's Payment deadline row later than the 1-month day, once that day has passed: the answer records that day.)
   const irsEndPast = p.dates.some((y) => irsPayLater(d, p, y)) && !!irsMonthEnd(p) && irsMonthEnd(p) < nvParts(now).day ? irsMonthEnd(p) : '';
   // (Washoe's payment day is the day after the sale: on a weekend or a Nevada legal holiday the Treasurer's office is likely closed, so ask.)
-  const washoeClosed = (() => { if (d.state !== 'NV' || d.county !== 'Washoe' || (d.kind !== 'taxSale' && d.kind !== 'lien') || paidIn(p, d) || (d.kind === 'lien' && p.dates.some((x) => !x.own && !x.resolved && !!x.when && sameDate(x, 'Payment deadline') && x.when > nvLienDue(d, p) && !lienPayLater(d, p, x)))) return ''; const due = d.kind === 'taxSale' ? taxPayState(d, p, now).due : nvLienDue(d, p); if (!due) return ''; const t = new Date(`${due}T12:00:00`); const hol = nvHoliday(t); const wk = t.getDay() === 0 || t.getDay() === 6; return hol || wk ? ` ${prettyDay(due)} is ${hol ? 'a Nevada legal holiday (NRS 236.015)' : 'a weekend day'}, when the Treasurer’s office is likely closed*: ask the Washoe County Treasurer in writing when payment is due${d.kind === 'lien' ? ', and type that date on the sale’s Payment deadline row in Key dates' : ''}.` : ''; })();
+  const washoeClosed = (() => { if (d.state !== 'NV' || d.county !== 'Washoe' || (d.kind !== 'taxSale' && d.kind !== 'lien') || paidIn(p, d) || (d.kind === 'lien' && p.dates.some((x) => !x.own && !x.resolved && !!x.when && sameDate(x, 'Payment deadline') && x.when > nvLienDue(d, p) && !lienPayLater(d, p, x)))) return ''; const due = d.kind === 'taxSale' ? (taxPayState(d, p, now).lawDue || taxPayState(d, p, now).due) : nvLienDue(d, p); if (!due) return ''; const t = new Date(`${due}T12:00:00`); const hol = nvHoliday(t); const wk = t.getDay() === 0 || t.getDay() === 6; return hol || wk ? ` ${prettyDay(due)} is ${hol ? 'a Nevada legal holiday (NRS 236.015)' : 'a weekend day'}, when the Treasurer’s office is likely closed*: ask the Washoe County Treasurer in writing when payment is due${d.kind === 'lien' ? ', and type that date on the sale’s Payment deadline row in Key dates' : ''}.` : ''; })();
   const payTask = (label: string, produces: string, days?: number, passLabel = 'I didn’t pay in time: mark it passed', passRow?: { when: string; what: string; who: string }, passToday = false) => out.push(task({ key: 'ev-terms', label: `${ownPayLead}${label}${washoeClosed}${ownPayNote}${countyTermsNote(d, p)}${sidBeforePay(d, p, now) || sidRowNote(d, p, now)}`, ...(countyTermsNote(d, p) ? { undo: { label: 'The Treasurer gave me this date in writing', removeRow: TREASURER_DATE_ROW, addRow: { when: d.state === 'NV' ? nvParts(now).day : dayOf(d, now), what: TREASURER_DATE_ROW, who: `Treasurer, for ${prettyDay(p.dates.find((x) => sameDate(x, 'Payment deadline') && !!x.when && !x.resolved)?.when ?? '')}`, resolved: true } }, ...(noSidAnswer(d, p, now) ? { record: noSidAnswer(d, p, now)! } : {}), ...(sidYesAnswer(d, p, now) ? { redate: sidYesAnswer(d, p, now)! } : {}) } : { ...(d.state === 'NV' && d.kind === 'taxSale' && treasurerGave(p) ? { undo: { label: 'Undo: the Treasurer didn’t give me this date', removeRow: TREASURER_DATE_ROW } } : {}), ...(noSidAnswer(d, p, now) ? { record: noSidAnswer(d, p, now)! } : {}), ...(sidYesAnswer(d, p, now) ? { redate: sidYesAnswer(d, p, now)! } : {}) }), ...(sidRowAnswers(d, p, now) ? { record: sidRowAnswers(d, p, now)!.record, undo: sidRowAnswers(d, p, now)!.voidAnswer } : {}), produces, ...(days !== undefined ? { days, urgent: true, ...((days < 0 || passToday) && !(ownPay && ownPay.when >= dayOf(d, now)) ? { answer: true, advance2: { stage: 'passed' as DealStage, label: passLabel, ...(passRow ? { addRow: passRow } : {}) } } : {}) } : {}), href: packetHref(d, 'dates'), tick: { label: sidBeforePay(d, p, now) || sidRowNote(d, p, now) ? 'I paid the winning bid: mark it handled' : 'I paid: mark it handled', row: 'Payment deadline', who: 'Me', noDate: true, ...(irsEndPast ? { label: `I paid by ${prettyDay(irsEndPast)}: mark it handled`, setWhen: irsEndPast } : {}) }, support: [L.guides], done: paidIn(p, d) }));
   const area = (k: string, label: string, produces: string, support: Support[] = [], also = false) => { const t = areasFor(d.kind, liveIn(d)).find((x) => x.key === k)?.title; out.push(task({ key: `ev-${k}`, label, produces: t ? `${produces} (tick “${t}”)` : produces, href: packetHref(d, 'evidence'), support, done: ev(k) || also })); };
   const noBox = (() => { try { const b = cleanBuyBox(JSON.parse(localStorage.getItem('deedowl.buybox.v1') ?? 'null') ?? EMPTY_BUY_BOX); return !(b.area.trim() || b.types.length || b.strategy || b.priceMax || b.repairsMax || b.cashMax || b.minCashFlow || b.beds || b.dealBreakers.length || b.notes.trim()); } catch { return true; } })();
@@ -1242,8 +1244,8 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       // California homes of 1–4 units: a trustee-sale win isn't final until the eligible-bidder windows close (Civil Code 2924m).
       const ca2924m = d.kind === 'trustee' && d.state === 'CA';
       const likely = w === 'lien' && d.state === 'NV' ? nvLienDueLikelyPassed(d, now) : '';
-      const dueToday = w === 'lien' && d.state === 'NV' && !likely && washoeOpenDay(d, nvLienDue(d, p)) === nvParts(now).day && !p.dates.some((x) => sameDate(x, 'Payment deadline') && (x.when || x.resolved) && !lienPayLater(d, p, x));
-      const rule = d.county === 'Clark' ? 'the next business day the Clark Treasurer’s office is open after the sale' : 'the day after the sale';
+      const dueToday = w === 'lien' && d.state === 'NV' && !likely && washoeOpenDay(d, nvLienDue(d, p)) === nvParts(now).day && !p.dates.some((x) => sameDate(x, 'Payment deadline') && (x.when || x.resolved) && !lienRowUnsure(d, p, x));
+      const rule = d.county === 'Clark' ? 'the next business day the Clark Treasurer’s office is open after the sale' : w === 'lien' && washoeOpenDay(d, nvLienDue(d, p)) !== nvLienDue(d, p) ? 'the first day after the sale the Treasurer’s office is likely open*' : 'the day after the sale';
       // (A Payment deadline row typed later than the law's day: not counted unless the treasurer set it in writing.)
       const lienLaterRow = w === 'lien' ? p.dates.find((x) => lienPayLater(d, p, x)) : undefined;
       const lienLaterNote = lienLaterRow ? ` Your Payment deadline row says ${prettyDay(lienLaterRow.when)}: if the notice of sale, or the treasurer that held the sale in writing, set that later time*, pay by then and mark it handled.` : '';
@@ -1631,7 +1633,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     // (A deed date still to confirm comes before a reader's own reminder: the windows count from it.)
     const deedFirst = !!nd && !officialRow(d, nd) && (stage === 'closed' || stage === 'owned') && !!deedDateMissing(d, p, stage);
     // (A Nevada SID lien's Payment deadline row typed later than the law's day doesn't lead: the law's day's step does.)
-    const lienLater = stage === 'contract' && !paidIn(p, d) && !!nd && sameDate(nd, 'Payment deadline') && p.dates.some((x) => (lienPayLater(d, p, x) || irsPayLater(d, p, x)) && x.what === nd.what && x.when === nd.when);
+    const lienLater = stage === 'contract' && !paidIn(p, d) && !!nd && sameDate(nd, 'Payment deadline') && p.dates.some((x) => (lienRowUnsure(d, p, x) || irsPayLater(d, p, x)) && x.what === nd.what && x.when === nd.when);
     // (Once the win is paid, before buying, a reader's own payment reminder stays in Key dates (its note asks whether it was that payment) but doesn't lead over the stage's steps. After buying it's an ordinary reminder, such as a contractor's bill.)
     const paidOwnPay = !!nd && !!nd.own && stage === 'contract' && paidIn(p, d) && sameDate(eventFor(d, nd.what) || '-', 'Payment deadline');
     const payFirst = lienLater || paidOwnPay || customLead || safetyFirst || workedPassed || deedFirst || (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly;

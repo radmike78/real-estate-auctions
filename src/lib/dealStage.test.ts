@@ -3796,4 +3796,24 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(taxPayState(tx, pt, new Date('2026-11-27T19:00:00Z')).state).toBe('due');
     expect(taxPayState(tx, pt, new Date('2026-12-01T19:00:00Z')).state).toBe('late');
   });
+  it('round 132 tools: Washoe tax names the next open day; a Washoe lien row typed on the closed day isn’t overdue', async () => {
+    const { suggestedDates } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const tx: Deal = { ...deal, id: 'v132a', name: '72 Oak', state: 'NV', county: 'Washoe', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([tx]);
+    const pt = { ...EMPTY_PACKET, dates: base(tx).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-25' } : x)) };
+    savePacket(`analyzed:${tx.id}`, pt);
+    const a = dealNextTask(tx, pt, new Date('2026-11-27T19:00:00Z'), 'contract').label;
+    expect(a).not.toMatch(/today, Nov 26/);
+    expect(a).toMatch(/Nov 30, 2026/);
+    const li: Deal = { ...deal, id: 'v132b', name: '73 Oak', state: 'NV', county: 'Washoe', kind: 'lien', plan: 'flip', stage: 'contract' };
+    saveDeals([li]);
+    const pl = { ...EMPTY_PACKET, dates: base(li).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-25' } : /^Payment deadline/.test(x.what) ? { ...x, when: '2026-11-26' } : x)) };
+    savePacket(`analyzed:${li.id}`, pl);
+    for (const at of ['2026-11-27T19:00:00Z', '2026-11-30T16:00:00Z']) {
+      const t = dealNextTask(li, pl, new Date(at), 'contract');
+      expect(t.label).not.toMatch(/^Overdue/);
+      expect(JSON.stringify(t)).not.toMatch(/didn’t pay in time/);
+    }
+  });
 });
