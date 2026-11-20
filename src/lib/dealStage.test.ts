@@ -3949,4 +3949,17 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(m?.[1]).not.toMatch(/City of Las Vegas/);
     expect((t.match(/whether the sale stands/g) ?? []).length).toBeLessThanOrEqual(2);
   });
+  it('round 135 verifier: after the 20 days the SID answer records the payee of the reader’s own open reminder, not one already paid', async () => {
+    const tx: Deal = { ...deal, id: 'v135c', name: '87 Oak', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([tx]);
+    const SID = 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)';
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '', what: SID, who: '' }, { when: '', what: 'SID payoff - city of Henderson', who: 'City of Henderson', own: true }] };
+    savePacket(`analyzed:${tx.id}`, p);
+    const t = dealNextTask(tx, p, new Date('2026-11-25T20:00:00Z'), 'contract');
+    const rec = JSON.stringify(t);
+    if (/affidavit/i.test(t.label)) expect(rec).not.toMatch(/"who":"Me","resolved":true/);
+    const q = { ...p, dates: [...p.dates.slice(0, 2), { when: '2026-11-15', what: SID, who: 'City of Las Vegas', resolved: true }, { when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'SID payoff - Las Vegas', who: 'City of Las Vegas', own: true }] };
+    savePacket(`analyzed:${tx.id}`, q);
+    expect(dealNextTask(tx, q, new Date('2026-11-25T20:00:00Z'), 'contract').label).not.toMatch(/another payoff to City of Las Vegas/);
+  });
 });
