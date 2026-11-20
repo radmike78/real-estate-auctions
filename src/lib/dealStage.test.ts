@@ -3901,4 +3901,17 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const t = dealNextTask(ir, p, new Date('2026-11-03T20:00:00Z'), 'contract').label;
     expect(t).not.toMatch(/Its Payment deadline row in Key dates says Nov 10/);
   });
+  it('round 134 tools: a hand-built IRS pointer says the 1-month limit passed only after it; an IRS deadline with no Sale day asks for it', async () => {
+    const ir: Deal = { ...deal, id: 'v134a', name: '83 Oak', state: 'NV', county: 'Clark', kind: 'irs', plan: 'flip', stage: 'contract' };
+    saveDeals([ir]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Won the auction', who: 'Me', own: true }, { when: '2026-11-10', what: 'Payment deadline', who: 'Me' }] };
+    savePacket(`analyzed:${ir.id}`, p);
+    const a = dealNextTask(ir, p, new Date('2026-10-20T20:00:00Z'), 'contract').label;
+    expect(a).not.toMatch(/contact the IRS today/);
+    const b = dealNextTask(ir, p, new Date('2026-11-03T20:00:00Z'), 'contract').label;
+    if (/1-month/.test(b) && /own reminder|Won the auction/.test(b)) expect(b).toMatch(/The 1-month limit passed \(Nov 1, 2026\)/);
+    const q = { ...EMPTY_PACKET, dates: [{ when: '', what: 'Sale day', who: '' }, { when: '2026-11-25', what: 'Payment deadline', who: 'Me' }] };
+    savePacket(`analyzed:${ir.id}`, q);
+    expect(dealNextTask(ir, q, new Date('2026-11-20T20:00:00Z'), 'contract').label).toMatch(/Enter the Sale day in Key dates too/);
+  });
 });
