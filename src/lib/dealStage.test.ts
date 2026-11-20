@@ -3936,4 +3936,16 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const t = dealNextTask(tx, p, new Date('2026-11-23T20:00:00Z'), 'contract');
     if (t.tick && /I paid the SID payoff/.test(t.tick.label)) { expect(t.tick.label).toMatch(/to (Clark County|City of Henderson) by Nov 22, 2026/); expect(t.tick.asIs).toBe(true); expect(t.tick.at).toBeTruthy(); }
   });
+  it('round 135 content: after the 20 days the other-payoff list leaves out the step’s own payoff', async () => {
+    const tx: Deal = { ...deal, id: 'v135b', name: '86 Oak', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([tx]);
+    const SID = 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)';
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-15', what: SID, who: 'City of Las Vegas' }, { when: '2026-11-18', what: SID, who: 'City of Henderson' }] };
+    savePacket(`analyzed:${tx.id}`, p);
+    const t = dealNextTask(tx, p, new Date('2026-11-25T20:00:00Z'), 'contract').label;
+    // (This step is about the 20-day deadline itself, naming no payee: both open payoffs are listed, not as 'Other'.)
+    expect(t).toMatch(/ SID payoffs still open: .*City of Las Vegas.*City of Henderson/);
+    expect(t).not.toMatch(/Other SID payoffs/);
+    expect((t.match(/whether the sale stands/g) ?? []).length).toBeLessThanOrEqual(2);
+  });
 });
