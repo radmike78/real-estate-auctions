@@ -3890,4 +3890,15 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(irsMonthEnd(p)).toBe('2026-11-01');
     expect(irsPayLater(ir, p, p.dates[1])).toBe(true);
   });
+  it('round 133 verifier: a hand-built IRS packet’s payment row past the 1-month limit is caught from the reader’s own sale row', async () => {
+    const { irsMonthEnd, irsPayLater } = await import('./dealStage');
+    const ir: Deal = { ...deal, id: 'v133d', name: '82 Oak', state: 'NV', county: 'Clark', kind: 'irs', plan: 'flip', stage: 'contract' };
+    saveDeals([ir]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-10-01', what: 'Won the auction', who: 'Me', own: true }, { when: '2026-11-10', what: 'Payment deadline', who: 'Me' }] };
+    savePacket(`analyzed:${ir.id}`, p);
+    expect(irsMonthEnd(p)).toBe('2026-11-01');
+    expect(irsPayLater(ir, p, p.dates[1])).toBe(true);
+    const t = dealNextTask(ir, p, new Date('2026-11-03T20:00:00Z'), 'contract').label;
+    expect(t).not.toMatch(/Its Payment deadline row in Key dates says Nov 10/);
+  });
 });
