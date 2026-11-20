@@ -3679,7 +3679,8 @@ describe('round 39: Eureka sealed-bid sale', () => {
     savePacket(`analyzed:${tr.id}`, pt);
     expect(ownPayRows(tr, pt)).toEqual([{ what: 'Payment due', when: '2026-11-24' }]);
     const t = dealNextTask(tr, pt, new Date('2026-11-19T20:00:00Z'), 'contract');
-    expect(t.tick?.alsoOwn).toEqual([{ what: 'Payment due', when: '2026-11-24' }]);
+    // (Round 130: “I paid” leaves the reader’s own reminders alone; their row note asks.)
+    expect(t.tick?.alsoOwn).toBeUndefined();
     const ir: Deal = { ...deal, id: 'v129b', name: '61 Oak', state: 'NV', county: 'Clark', kind: 'irs', plan: 'flip', stage: 'contract' };
     saveDeals([ir]);
     const pi = { ...EMPTY_PACKET, dates: [{ when: '2026-11-12', what: 'Sale day', who: 'IRS' }, { when: '2026-12-14', what: 'Payment deadline', who: 'Me', resolved: true }] };
@@ -3708,5 +3709,16 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(t.label).toMatch(/if you paid later, mark it, then change the row’s date to the day you paid/);
     const t0 = dealNextTask(ir, pi, new Date('2026-11-19T20:00:00Z'), 'contract');
     expect(t0.tick?.setWhen).toBeUndefined();
+  });
+  it('round 130 tools: a paid win’s own payment reminder stays in Key dates but doesn’t lead; a paid deadline still ahead reads as met', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const tr: Deal = { ...deal, id: 'v130a', name: '64 Oak', state: 'NV', county: 'Clark', kind: 'trustee', plan: 'flip', stage: 'contract' };
+    saveDeals([tr]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-17', what: 'Sale day', who: 'T' }, { when: '2026-11-24', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-25', what: 'Payment due', who: 'Roofer', own: true }] };
+    savePacket(`analyzed:${tr.id}`, p);
+    for (const day of ['2026-11-19T20:00:00Z', '2026-11-27T20:00:00Z']) expect(dealNextTask(tr, p, new Date(day), 'contract').label).not.toMatch(/Payment due/);
+    const lines = packetSections(tr, p, new Date('2026-11-19T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join('\n');
+    expect(lines).toMatch(/Nov 24, 2026: Payment deadline \(Me\) — marked paid \(before this deadline\)/);
+    expect(lines).toMatch(/Nov 25, 2026: Payment due \(Roofer\)/);
   });
 });

@@ -49,13 +49,12 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
             //  payoff to a different payee is a different payment.)
             const otherPast = (x: PacketData['dates'][number]) => exact >= 0 && [...RECORDED_ROWS, DEED_AFTER_WAIT].some((r) => sameDate(tick.row, r)) && !!x.when && x.when <= todayFor(dealId) && !!p.dates[exact].when && x.when !== p.dates[exact].when;
             const otherPayee = (x: PacketData['dates'][number]) => exact >= 0 && sameDate(tick.row, 'SID certificate payoff') && p.dates.indexOf(x) !== exact; /* (each SID payoff is its own payment: only the one the step names is ticked) */
-            // (A recording or deed date after today becomes today: it's recorded now. A payment row dated after today becomes today too: it's paid now. Blank twins take the same day.)
-            const whenOf = (x: PacketData['dates'][number]) => tick.setWhen || (x.when && x.when > todayFor(dealId) && [...RECORDED_ROWS, DEED_AFTER_WAIT, 'Payment deadline'].some((r) => sameDate(x, r)) ? todayFor(dealId) : '') || x.when;
+            // (A recording or deed date after today becomes today: it's recorded now. A payment deadline keeps its date: it was met. Blank twins take the same day.)
+            const whenOf = (x: PacketData['dates'][number]) => tick.setWhen || (x.when && x.when > todayFor(dealId) && [...RECORDED_ROWS, DEED_AFTER_WAIT].some((r) => sameDate(x, r)) ? todayFor(dealId) : '') || x.when;
             // (An event with no date yet, such as the payoff, is dated today.)
             const rows = i < 0 ? (p.dates.some((x) => sameDate(x, tick.row)) ? p.dates : [...p.dates, { what: tick.row, when: tick.when ?? (tick.noDate ? '' : todayFor(dealId)), who: tick.who ?? '', resolved: true }]) : p.dates.map((x, j) => (j === i || (!tick.asIs && exact >= 0 && counts(x) && !otherPast(x) && !otherPayee(x)) || (adopt && j !== i && own(x) && !mine(x) && named(x) && !sameDate(tick.row, 'SID certificate payoff')) ? { ...x, ...(own(x) && !mine(x) && adopt ? { as: tick.row } : {}), resolved: true, when: (j !== i && (!x.when || x.when > todayFor(dealId)) ? whenOf(p.dates[i]) : whenOf(x)) || tick.when || (tick.noDate ? '' : todayFor(dealId)), who: x.who || tick.who || '' } : x));
             const kept = tick.drops ? rows.filter((x) => !(sameDate(x, tick.drops!) && !x.when)) : rows;
-            // (The reader's own reminders for this same payment are ticked with it.)
-            const kept2 = tick.alsoOwn?.length ? kept.map((x) => (x.own && !x.resolved && tick.alsoOwn!.some((a) => a.what === x.what && a.when === x.when) ? { ...x, resolved: true, ...(x.when && x.when > todayFor(dealId) ? { when: todayFor(dealId) } : {}) } : x)) : kept;
+            const kept2 = kept;
             return { ...p, dates: tick.closes ? kept2.map((x) => (sameDate(x, tick.closes!) ? { ...x, resolved: true } : x)) : kept2 };
           });
           if (tick.step) markDealStepDone(`analyzed:${dealId}`, tick.step);
