@@ -3833,4 +3833,17 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const lines = packetSections(li, pl, new Date('2026-11-30T16:00:00Z')).find((x) => x.key === 'dates')!.lines.join('\n');
     expect(lines).not.toMatch(/deadline has passed|overdue/);
   });
+  it('round 132 clarity: a Washoe tax date typed on the closed day or the next open day isn’t passed or “later”', async () => {
+    const { suggestedDates } = await import('./dealPacket');
+    const { paymentPassed, countyTermsNote } = await import('./dealStage');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const tx: Deal = { ...deal, id: 'v132e', name: '76 Oak', state: 'NV', county: 'Washoe', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([tx]);
+    for (const typed of ['2026-11-26', '2026-11-30']) {
+      const p = { ...EMPTY_PACKET, dates: base(tx).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-25' } : /^Payment deadline/.test(x.what) ? { ...x, when: typed } : x)) };
+      savePacket(`analyzed:${tx.id}`, p);
+      expect(paymentPassed(tx, new Date('2026-11-27T19:00:00Z'))).toBe('');
+      expect(countyTermsNote(tx, p)).toBe('');
+    }
+  });
 });
