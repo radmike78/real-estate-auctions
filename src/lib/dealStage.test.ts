@@ -3981,4 +3981,16 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const q = { ...EMPTY_PACKET, dates: [{ when: '2026-11-03', what: 'Sale day', who: 'T', resolved: true }] };
     expect(sidClosedNote({ county: 'Clark' }, q, new Date('2026-11-10T20:00:00Z'))).toBe('');
   });
+  it('round 136 verifier: a SID deadline on a closed day counts down to the last open day, and the Next line says so', async () => {
+    const { packetSections } = await import('./dealPacket');
+    const tx: Deal = { ...deal, id: 'v136v', name: '9 Elm', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([tx]);
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-22', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }] };
+    savePacket(`analyzed:${tx.id}`, p);
+    const now = new Date('2026-11-19T18:00:00Z');
+    const t = dealNextTask(tx, p, now, 'contract');
+    expect(t.days).toBe(0); expect(t.label).toMatch(/SID/);
+    const ln = packetSections(tx, p, now).find((x) => x.key === 'dates')!.lines.join(' ');
+    expect(ln).toMatch(/likely closed\*: pay by today/);
+  });
 });
