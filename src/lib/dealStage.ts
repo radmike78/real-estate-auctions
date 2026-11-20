@@ -520,7 +520,8 @@ export const taxPayState = (d: { id?: string; state?: Deal['state']; kind?: Deal
   // (Clark: most parcels by 1:00 p.m., a 2:00 p.m. re-auction by 4:30 p.m.; nothing is called late before 4:30.)
   const cut = d.county === 'Clark' ? 16 * 60 + 30 : 17 * 60;
   const mins = (() => { const f = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(now); return Number(f.find((x) => x.type === 'hour')?.value ?? 0) * 60 + Number(f.find((x) => x.type === 'minute')?.value ?? 0); })();
-  return { state: nv.day < due || (nv.day === due && mins < cut) ? 'due' : 'late', due, sale, afterOne: d.county === 'Clark' && nv.day === due && mins >= 13 * 60 };
+  const lateFrom = washoeOpenDay(d, due);
+  return { state: nv.day < lateFrom || (nv.day === lateFrom && mins < cut) ? 'due' : 'late', due, sale, afterOne: d.county === 'Clark' && nv.day === due && mins >= 13 * 60 };
 };
 /** A Nevada win whose payment time has passed with nothing marked paid (no dated Payment deadline row): a trustee sale
  *  (paid at the sale), a Clark tax sale (1:00 p.m. on the sale day) or Washoe one (5:00 p.m. the next day), or an IRS sale. */
@@ -714,6 +715,8 @@ export const irsLateNote = (d: Pick<Deal, 'kind'>, p: PacketData, now: Date): st
 export const irsMonthStep = (d: Pick<Deal, 'kind'>, p: PacketData, now: Date, n: string): string => { const x = p.dates.find((y) => irsPayLater(d, p, y)); const end = irsMonthEnd(p); if (!x || !end) return ''; const today = nvParts(now).day; return end < today ? `Did you pay for ${n}? An IRS sale can defer part of the price for no more than 1 month after the sale (26 U.S.C. 6335(e)): that was ${prettyDay(end)}, before its Payment deadline row’s date (${prettyDay(x.when)}). If you haven’t paid, contact the IRS sale officer named in the notice today. If you paid by then, mark it handled; if you paid later, mark it, then change the row’s date to the day you paid.` : `Pay for ${n} by ${end === today ? `today, ${prettyDay(end)}` : prettyDay(end)}, 1 month after the sale: an IRS sale can defer part of the price for no more than 1 month (26 U.S.C. 6335(e)), and its Payment deadline row says ${prettyDay(x.when)}, later than that. Mark it paid once you have.`; };
 /** A weekend day or a Nevada legal holiday (NRS 236.015). */
 const closedDay = (day: string): boolean => { const t = new Date(`${day}T12:00:00`); return t.getDay() === 0 || t.getDay() === 6 || nvHoliday(t); };
+/** Washoe's day-after payment day when the office is likely closed: the next open day, before anything is called late (else the day itself). */
+export const washoeOpenDay = (d: { county?: string }, day: string): string => { if (d.county !== 'Washoe' || !day || !closedDay(day)) return day; const t = new Date(`${day}T12:00:00`); do t.setDate(t.getDate() + 1); while (closedDay(localDay(t))); return localDay(t); };
 /** A Nevada SID lien's open Payment deadline row dated after the law's day (nvLienDue: before 10 a.m. the day after the sale,
  *  in Clark the next day the Treasurer is open; NRS 271.560): not counted, so the law's day and its late warning stay. */
 export const lienPayLater = (d: { kind?: Deal['kind']; state?: Deal['state']; county?: string }, p: PacketData, x: PacketData['dates'][number]): boolean => {
@@ -729,7 +732,7 @@ export const nvLienDueLikelyPassed = (d: { id?: string; kind?: Deal['kind']; sta
   if (!d.id || d.kind !== 'lien' || d.state !== 'NV' || (!anyStage && savedStageOf(d.id) !== 'contract') || paidAtWin(d)) return '';
   const pk = loadPacket(`analyzed:${d.id}`);
   if (pk.dates.some((x) => sameDate(x, 'Payment deadline') && (x.when || x.resolved) && !lienPayLater(d, pk, x))) return '';
-  const due = nvLienDue(d, pk); const nv = nvParts(now);
+  const due0 = nvLienDue(d, pk); const due = washoeOpenDay(d, due0); const nv = nvParts(now);
   return due && (due < nv.day || (due === nv.day && nv.hour >= nvCutHour(d.county))) ? due : '';
 };
 /** A picked, unpaid Nevada SID lien with no typed payment date whose worked-out date is today, before 10 a.m. Nevada time. */
@@ -738,7 +741,7 @@ export const nvLienDueToday = (d: { id?: string; kind?: Deal['kind']; state?: De
   const pk = loadPacket(`analyzed:${d.id}`);
   if (pk.dates.some((x) => sameDate(x, 'Payment deadline') && (x.when || x.resolved) && !lienPayLater(d, pk, x))) return false;
   const nv = nvParts(now);
-  return nvLienDue(d, pk) === nv.day && nv.hour < nvCutHour(d.county);
+  return washoeOpenDay(d, nvLienDue(d, pk)) === nv.day && nv.hour < nvCutHour(d.county);
 };
 /** A picked, unpaid Clark SID lien on its payment day (typed or worked out): 'morning' before 10 a.m. Nevada time (the
  * winner pays), 'afternoon' until 5 p.m. (the winner's time is over, the alternates' isn't; Clark County Treasurer FAQ). */
@@ -1239,7 +1242,7 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
       // California homes of 1–4 units: a trustee-sale win isn't final until the eligible-bidder windows close (Civil Code 2924m).
       const ca2924m = d.kind === 'trustee' && d.state === 'CA';
       const likely = w === 'lien' && d.state === 'NV' ? nvLienDueLikelyPassed(d, now) : '';
-      const dueToday = w === 'lien' && d.state === 'NV' && !likely && nvLienDue(d, p) === nvParts(now).day && !p.dates.some((x) => sameDate(x, 'Payment deadline') && (x.when || x.resolved) && !lienPayLater(d, p, x));
+      const dueToday = w === 'lien' && d.state === 'NV' && !likely && washoeOpenDay(d, nvLienDue(d, p)) === nvParts(now).day && !p.dates.some((x) => sameDate(x, 'Payment deadline') && (x.when || x.resolved) && !lienPayLater(d, p, x));
       const rule = d.county === 'Clark' ? 'the next business day the Clark Treasurer’s office is open after the sale' : 'the day after the sale';
       // (A Payment deadline row typed later than the law's day: not counted unless the treasurer set it in writing.)
       const lienLaterRow = w === 'lien' ? p.dates.find((x) => lienPayLater(d, p, x)) : undefined;

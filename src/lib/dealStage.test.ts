@@ -3775,4 +3775,25 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const late = { ...pw, dates: pw.dates.map((x) => (/^Payment deadline/.test(x.what) ? { ...x, when: '2026-12-01' } : x)) };
     expect(lienPayLater(w, late, late.dates.find((x) => /^Payment deadline/.test(x.what))!)).toBe(true);
   });
+  it('round 131 verifier: a Washoe holiday payment day isn’t called late until the next open day', async () => {
+    const { nvLienDueLikelyPassed, taxPayState, washoeOpenDay } = await import('./dealStage');
+    const { suggestedDates } = await import('./dealPacket');
+    expect(washoeOpenDay({ county: 'Washoe' }, '2026-11-26')).toBe('2026-11-30');
+    expect(washoeOpenDay({ county: 'Clark' }, '2026-11-26')).toBe('2026-11-26');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    const li: Deal = { ...deal, id: 'v131d', name: '70 Oak', state: 'NV', county: 'Washoe', kind: 'lien', plan: 'flip', stage: 'contract' };
+    saveDeals([li]);
+    const pl = { ...EMPTY_PACKET, dates: base(li).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-25' } : x)) };
+    savePacket(`analyzed:${li.id}`, pl);
+    expect(nvLienDueLikelyPassed(li, new Date('2026-11-26T19:00:00Z'))).toBe('');
+    expect(nvLienDueLikelyPassed(li, new Date('2026-11-27T19:00:00Z'))).toBe('');
+    expect(nvLienDueLikelyPassed(li, new Date('2026-11-30T19:00:00Z'))).toBe('2026-11-30');
+    expect(dealNextTask(li, pl, new Date('2026-11-27T19:00:00Z'), 'contract').label).not.toMatch(/mark the deal passed/);
+    const tx: Deal = { ...deal, id: 'v131e', name: '71 Oak', state: 'NV', county: 'Washoe', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([tx]);
+    const pt = { ...EMPTY_PACKET, dates: base(tx).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-25' } : x)) };
+    savePacket(`analyzed:${tx.id}`, pt);
+    expect(taxPayState(tx, pt, new Date('2026-11-27T19:00:00Z')).state).toBe('due');
+    expect(taxPayState(tx, pt, new Date('2026-12-01T19:00:00Z')).state).toBe('late');
+  });
 });
