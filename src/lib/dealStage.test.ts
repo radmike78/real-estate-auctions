@@ -3943,9 +3943,10 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-15', what: SID, who: 'City of Las Vegas' }, { when: '2026-11-18', what: SID, who: 'City of Henderson' }] };
     savePacket(`analyzed:${tx.id}`, p);
     const t = dealNextTask(tx, p, new Date('2026-11-25T20:00:00Z'), 'contract').label;
-    // (This step is about the 20-day deadline itself, naming no payee: both open payoffs are listed, not as 'Other'.)
-    expect(t).toMatch(/ SID payoffs still open: .*City of Las Vegas.*City of Henderson/);
-    expect(t).not.toMatch(/Other SID payoffs/);
+    // (The step's own row is Las Vegas, the one its buttons name: only Henderson is listed, as 'Other'.)
+    const m = t.match(/Other SID payoffs still open: ([^.]*)\./);
+    expect(m?.[1]).toMatch(/City of Henderson/);
+    expect(m?.[1]).not.toMatch(/City of Las Vegas/);
     expect((t.match(/whether the sale stands/g) ?? []).length).toBeLessThanOrEqual(2);
   });
 });
