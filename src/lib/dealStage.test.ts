@@ -4004,6 +4004,24 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(s).toMatch(/Henderson after all/);
     expect(s.match(/Henderson after all.{0,400}/)![0]).not.toMatch(/Treasurer confirmed no SID affidavit/);
   });
+  it('round 137 clarity: the caution names its own payee; no Today label before the deadline; the next-open-day help stays while that payee is open; a reader’s closed-day date is flagged', async () => {
+    const { sidClosedNote, sidRowClosedNote, sidBeforePay } = await import('./dealStage');
+    const SID = 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)';
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '', what: SID, who: 'City of Henderson' }, { when: '2026-11-22', what: SID, who: 'City of Las Vegas' }] };
+    expect(sidClosedNote({ county: 'Clark' }, p, new Date('2026-11-10T20:00:00Z'), 'City of Las Vegas')).toMatch(/ask City of Las Vegas in writing/);
+    const q = { ...p, dates: [...p.dates.slice(0, 1), { when: '2026-11-20', what: SID, who: 'City of Henderson', resolved: true }, { when: '2026-11-22', what: SID, who: 'City of Las Vegas' }] };
+    expect(sidClosedNote({ county: 'Clark' }, q, new Date('2026-11-25T20:00:00Z'), 'City of Las Vegas')).toMatch(/If you paid on the next day the office was open/);
+    expect(sidRowClosedNote({ county: 'Clark' }, p, { when: '2026-11-14' })).toMatch(/Nov 14, 2026 is a weekend day.*no later than/);
+    expect(sidRowClosedNote({ county: 'Clark' }, p, { when: '2026-11-17' })).toBe('');
+    const tx: Deal = { ...deal, id: 'v137c', name: '3 C', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([tx]);
+    const r = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-22', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }] };
+    savePacket(`analyzed:${tx.id}`, r);
+    const t = dealNextTask(tx, r, new Date('2026-11-20T18:00:00Z'), 'contract');
+    expect(JSON.stringify(t)).not.toMatch(/"Today: /);
+    const u = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-23', what: 'Payment deadline', who: 'Me' }, { when: '', what: SID, who: '' }] };
+    expect(sidBeforePay(tx, u, new Date('2026-11-16T18:00:00Z'))).toMatch(/Pay by Nov 19, 2026/);
+  });
   it('round 136 verifier: a SID deadline on a closed day counts down to the last open day, and the Next line says so', async () => {
     const { packetSections } = await import('./dealPacket');
     const tx: Deal = { ...deal, id: 'v136v', name: '9 Elm', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
