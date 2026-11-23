@@ -205,7 +205,7 @@ export const CATEGORIES: Record<Category, CategoryInfo> = {
     services: ['Quiet title', 'Title & lien review', 'Foreclosure sale disputes', 'HOA liens', 'Landlord & eviction', 'Contracts & closings', 'Probate & estate sales', 'Entity & LLC formation', '1031 exchange documents'],
     financing: false,
     individual: true,
-    advertisingNote: 'Nevada lawyers must file their advertisements with the State Bar under RPC 7.2A. Your DeedOwl profile is an advertisement, so file it before it goes live.',
+    advertisingNote: 'Nevada lawyers must file their advertisements with the State Bar within 15 days after they first run (RPC 7.2A). Whether your DeedOwl profile and ads count as an advertisement under that rule is a judgment for you, so check with the State Bar if you aren’t sure*.',
   },
   cpa: {
     label: 'CPA',
