@@ -4011,8 +4011,11 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(sidClosedNote({ county: 'Clark' }, p, new Date('2026-11-10T20:00:00Z'), 'City of Las Vegas')).toMatch(/ask City of Las Vegas in writing/);
     const q = { ...p, dates: [...p.dates.slice(0, 1), { when: '2026-11-20', what: SID, who: 'City of Henderson', resolved: true }, { when: '2026-11-22', what: SID, who: 'City of Las Vegas' }] };
     expect(sidClosedNote({ county: 'Clark' }, q, new Date('2026-11-25T20:00:00Z'), 'City of Las Vegas')).toMatch(/If you paid on the next day the office was open/);
-    expect(sidRowClosedNote({ county: 'Clark' }, p, { when: '2026-11-14' })).toMatch(/Nov 14, 2026 is a weekend day.*no later than/);
-    expect(sidRowClosedNote({ county: 'Clark' }, p, { when: '2026-11-17' })).toBe('');
+    expect(sidRowClosedNote({ county: 'Clark' }, p, { when: '2026-11-14' }, new Date('2026-11-10T20:00:00Z'))).toMatch(/Nov 14, 2026 is a weekend day.*pick a day the city or county you pay is open, no later than Nov 19, 2026\*/);
+    expect(sidRowClosedNote({ county: 'Clark' }, p, { when: '2026-11-17' }, new Date('2026-11-10T20:00:00Z'))).toBe('');
+    expect(sidRowClosedNote({ county: 'Clark' }, p, { when: '2026-11-14' }, new Date('2026-11-20T20:00:00Z'))).toMatch(/was Nov 19, 2026\*: if you haven’t paid/);
+    expect(sidRowClosedNote({ county: 'Clark' }, p, { when: '2026-11-14' }, new Date('2026-11-23T20:00:00Z'))).toBe('');
+    expect(sidClosedNote({ county: 'Clark' }, p, new Date('2026-11-10T20:00:00Z'))).toMatch(/ask the city or county you pay in writing/);
     const tx: Deal = { ...deal, id: 'v137c', name: '3 C', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
     saveDeals([tx]);
     const r = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-22', what: 'SID certificate payoff (affidavit filed)', who: 'Me' }] };
