@@ -1454,7 +1454,19 @@ export function stageTasks(d: Deal, stage: DealStage = stageOf(d), p: PacketData
  * The one thing to do next on a deal: a deadline within a week, an open question or a professional's answer you're
  * waiting for comes first; then the first unfinished task of its stage.
  */
-export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date(), stage: DealStage = stageOf(d)): PlanTask {
+/** An unpaid Nevada tax-sale win with no Sale day: whichever step leads also names the other payment (the winning bid, or a dated SID payoff) and asks for the Sale day, which both deadlines count from. */
+const noSaleDayBoth = (t: PlanTask, d: Deal, p: PacketData, stage: DealStage): PlanTask => {
+  if (!(d.state === 'NV' && d.kind === 'taxSale' && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void' && !sidDeadline(p)) || t.done) return t;
+  const sid = p.dates.find((x) => !x.own && !x.resolved && !!x.when && sameDate(x, 'SID certificate payoff'));
+  if (!sid) return t;
+  const body = t.text ?? t.label;
+  const add = /SID (certificate )?payoff/.test(body)
+    ? (/winning bid/.test(body) ? '' : ' Your winning bid isn’t marked paid yet: pay it as the Treasurer’s sale notice, or the online auction’s terms of sale, requires*, then mark the Payment deadline handled in Key dates.')
+    : ` Your SID certificate payoff row${sidPayee(sid) ? ` (${sidPayee(sid)})` : ''} is dated ${prettyDay(sid.when)}. The law’s deadline is 20 days after the sale, and if it isn’t paid by then, the sale is void (NRS 361.595(6)): enter the Sale day in Key dates to see that deadline.`;
+  return add ? { ...t, label: t.label + add, ...(t.text ? { text: t.text + add } : {}) } : t;
+};
+export function dealNextTask(d: Deal, p: PacketData = loadPacket(`analyzed:${d.id}`), now = new Date(), stage: DealStage = stageOf(d)): PlanTask { return noSaleDayBoth(dealNextTask0(d, p, now, stage), d, p, stage); }
+function dealNextTask0(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanTask {
   p = fillSealedDay(d, p);
   const t = nextTaskFor(d, p, now, stage);
   // A certificate-first win, paid: the redemption period is running, so someone can redeem any day.

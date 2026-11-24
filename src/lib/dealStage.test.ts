@@ -4196,4 +4196,25 @@ describe('round 39: Eureka sealed-bid sale', () => {
       if (stage === 'closed') expect(dealNextTask(tx, p, new Date('2026-11-23T19:00:00Z'), stage).label).toBe(dealNextTask(tx, { ...p, dates: p.dates.filter((x) => !x.own) }, new Date('2026-11-23T19:00:00Z'), stage).label);
     }
   });
+  it('round 141 clarity: an unpaid Nevada tax win with no Sale day names both payments on the step that leads', async () => {
+    const { suggestedDates, loadPacket } = await import('./dealPacket');
+    const tx: Deal = { ...deal, id: 'v141c', name: '3 Ash', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([tx]);
+    const at = new Date('2026-11-26T19:00:00Z');
+    const rows = (pay: string) => suggestedDates(tx).map((w) => (/^Payment deadline/.test(w) ? { when: pay, what: w, who: '' } : /^SID certificate payoff/.test(w) ? { when: '2026-11-27', what: w, who: 'City of Henderson' } : { when: '', what: w, who: '' }));
+    savePacket(`analyzed:${tx.id}`, { ...EMPTY_PACKET, dates: rows('2026-11-25') });
+    const a = dealNextTask(tx, loadPacket(`analyzed:${tx.id}`), at, 'contract');
+    expect(a.label).toMatch(/^The payment deadline for 3 Ash passed/);
+    expect(a.label).toMatch(/Your SID certificate payoff row \(City of Henderson\) is dated Nov 27, 2026\. The law’s deadline is 20 days after the sale, and if it isn’t paid by then, the sale is void \(NRS 361\.595\(6\)\): enter the Sale day in Key dates to see that deadline\./);
+    savePacket(`analyzed:${tx.id}`, { ...EMPTY_PACKET, dates: [...rows(''), { when: '2026-11-25', what: 'Pay the Treasurer', who: '', own: true }] } as never);
+    const b = dealNextTask(tx, loadPacket(`analyzed:${tx.id}`), at, 'contract');
+    expect(b.label).toMatch(/SID certificate payoff/);
+    expect(b.label).toMatch(/winning bid/);
+    expect(b.label).toMatch(/enter the Sale day in Key dates/);
+    // With a Sale day, nothing is added twice.
+    savePacket(`analyzed:${tx.id}`, { ...EMPTY_PACKET, dates: rows('').map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-17' } : x)) });
+    const c = dealNextTask(tx, loadPacket(`analyzed:${tx.id}`), at, 'contract').label;
+    expect(c).not.toMatch(/row \(City of Henderson\) is dated/);
+    expect(c.match(/NRS 361\.595\(6\)/g)!.length).toBe(1);
+  });
 });
