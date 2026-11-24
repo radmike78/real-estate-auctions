@@ -1661,7 +1661,9 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const lienLater = stage === 'contract' && !paidIn(p, d) && !!nd && sameDate(nd, 'Payment deadline') && p.dates.some((x) => (lienRowUnsure(d, p, x) || irsPayLater(d, p, x)) && x.what === nd.what && x.when === nd.when);
     // (Once the win is paid, before buying, a reader's own payment reminder stays in Key dates (its note asks whether it was that payment) but doesn't lead over the stage's steps. After buying it's an ordinary reminder, such as a contractor's bill.)
     const paidOwnPay = !!nd && !!nd.own && stage === 'contract' && paidIn(p, d) && sameDate(eventFor(d, nd.what) || '-', 'Payment deadline');
-    const payFirst = lienLater || paidOwnPay || customLead || safetyFirst || workedPassed || deedFirst || (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly;
+    const payFirst = lienLater || paidOwnPay || customLead || safetyFirst || workedPassed || deedFirst || (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly
+      // (An unpaid Nevada tax-sale win with no dated payment row: the payment step keeps leading over a dated SID payoff row.)
+      || (!!nd && stage === 'contract' && d.state === 'NV' && d.kind === 'taxSale' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void' && sameDate(nd, 'SID certificate payoff') && !p.dates.some((y) => !y.own && !y.resolved && !!y.when && sameDate(y, 'Payment deadline')));
     // (A reader's own row named like one of the sale's dates the packet lacks: point to making it the sale's row.)
     // (A reader's own row named like one of the sale's dates: point to the sale's row. Before it's bought only (after,
     //  a "Sale day" or "Closing" is the resale), except recording, deed and window rows. A hand-typed Sale day with no

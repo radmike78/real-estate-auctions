@@ -927,7 +927,9 @@ describe('Nevada round 4 flow', () => {
     expect(lines).toMatch(/Sep 30, 2026: Redemption period ends \(worked out from the sale day; confirm it\) — ended: ask whether anyone redeemed/);
     const tax = { ...nvFlip, kind: 'taxSale' as const };
     const sid = { ...EMPTY_PACKET, dates: [{ when: '2026-09-20', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-30', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
-    expect(dealNextTask(tax, sid, now, 'contract').label).toMatch(/The deadline is Oct 10, 2026, 20 days after the sale; your date, Nov 30, 2026, is later/);
+    // (Round 140: while the win is unpaid, the payment step leads and names the capped deadline, not the reader's later date.)
+    expect(dealNextTask(tax, sid, now, 'contract').label).toMatch(/Your SID payoff is due by Oct 10, 2026 too, or the sale is void \(NRS 361\.595\(6\)\)/);
+    expect(dealNextTask(tax, sid, now, 'contract').label).not.toMatch(/Nov 30, 2026/);
   });
 
   it('round 10: no worked-out redemption on an IRS no-redemption sale; the open SID payoff after the deed; Closing date counts', async () => {
@@ -4040,7 +4042,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const q = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-30', what: 'Payment deadline', who: 'Me' }, { when: '', what: SID, who: '' }] };
     savePacket(`analyzed:${tx.id}`, q);
     const ln = packetSections(tx, q, new Date('2026-11-24T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join(' ');
-    expect(ln).toMatch(/Next: the SID certificate payoff, past the 20-day deadline \(see Your next action\)\./);
+    expect(ln).toMatch(/Next: the SID payoff question, past the 20-day deadline, and the payment \(see Your next action\)\./);
   });
   it('round 139 tools: an unpaid win dated on the reader’s own payment reminder, or with no payment date, still gets the SID line; a dated SID row past the 20 days leads the Next line', async () => {
     const { sidBeforePay } = await import('./dealStage');
@@ -4146,5 +4148,29 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const ln = packetSections(tx, p, now).find((x) => x.key === 'dates')!.lines.join(' ');
     expect(ln).toMatch(/Next: the SID certificate payoff \(see Your next action\)\./);
     expect(ln).not.toMatch(/in 3 days/);
+  });
+  it('round 140: an unpaid Nevada tax win keeps the payment as its step and its Next line, with no "past the 20-day deadline" before that deadline', async () => {
+    const { packetSections, suggestedDates } = await import('./dealPacket');
+    const base = (k: Deal) => suggestedDates(k).map((what) => ({ when: '', what, who: '' }));
+    for (const county of ['Clark', 'Nye']) {
+      const tx: Deal = { ...deal, id: `v140${county}`, name: '7 Elm', state: 'NV', county, kind: 'taxSale', plan: 'flip', stage: 'contract' };
+      saveDeals([tx]);
+      const p = { ...EMPTY_PACKET, dates: base(tx).map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '2026-11-17' } : x)) };
+      savePacket(`analyzed:${tx.id}`, p);
+      const at = new Date('2026-11-24T19:00:00Z');
+      const ln = packetSections(tx, p, at).find((x) => x.key === 'dates')!.lines.join('\n');
+      expect(ln).not.toMatch(/past the 20-day deadline/);
+      expect(ln).not.toMatch(/Next: the SID certificate payoff/);
+      expect(ln).toMatch(/Next: the payment/);
+      // The reader answers "Yes, there's an SID affidavit": the SID row is dated; the payment still leads.
+      const q = { ...p, dates: p.dates.map((x) => (/^SID certificate payoff/.test(x.what) ? { ...x, when: '2026-12-07' } : x)) };
+      savePacket(`analyzed:${tx.id}`, q);
+      const t = dealNextTask(tx, q, at, 'contract');
+      expect(t.tick?.label ?? '').toMatch(/^I paid the winning bid/);
+      expect(t.label).not.toMatch(/^In 13 days/);
+      const l2 = packetSections(tx, q, at).find((x) => x.key === 'dates')!.lines.join('\n');
+      expect(l2).toMatch(/Next: the payment/);
+      expect(l2).not.toMatch(/past the 20-day deadline/);
+    }
   });
 });
