@@ -1501,7 +1501,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const remP = remindable(capSid(sidFutureOpen(withEffectiveEnd(d, p), dayOf(d, now)), d), now, early, [...(stage === 'contract' && taxPayState(d, p, now).state ? ['Payment deadline', 'SID certificate payoff'] : []), ...behindStage(d, stage), ...notYet(d, stage, p, now), TITLE_REVIEWED, INSURED_ROW, WALKTHROUGH_ROW, SID_AFFIDAVIT_SENT, ...(saleNow ? ['Bidder registration', 'Registration', SEALED_ROW] : [])], saleToday);
     let nd = officialFirst(siteSidFirst(remP, d, p, dayOf(d, now), stage), d, now);
     // (A paid Nevada tax win: the sale's open, dated SID payoff leads a reader's reminder due later; one due today or overdue still leads.)
-    if (nd && !officialRow(d, nd) && !(nd.own && sidNamed(nd.what)) && nd.days >= 1 && stage === 'contract' && d.state === 'NV' && d.kind === 'taxSale' && paidIn(p, d) && sidState(d) !== 'void') { const sidNd = nextDate({ ...remP, dates: remP.dates.filter((x) => !x.own && !x.resolved && !!x.when && sameDate(x, 'SID certificate payoff')) }, now, d); if (sidNd) nd = sidNd; }
+    if (nd && !officialRow(d, nd) && !(nd.own && !(nd as { notAs?: boolean }).notAs && sidNamed(nd.what)) && nd.days >= 1 && stage === 'contract' && d.state === 'NV' && d.kind === 'taxSale' && paidIn(p, d) && sidState(d) !== 'void') { const sidNd = nextDate({ ...remP, dates: remP.dates.filter((x) => !x.own && !x.resolved && !!x.when && sameDate(x, 'SID certificate payoff')) }, now, d); if (sidNd) nd = sidNd; }
     nd = contingencyFirst(nd, p, now, stage, d.kind, d.state);
     // A Nevada tax sale's open SID payoff comes before the deed's recording: the Treasurer can't issue the deed until it's
     // paid (NRS 361.595(6)), and missing it voids the sale.
@@ -1663,7 +1663,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const paidOwnPay = !!nd && !!nd.own && stage === 'contract' && paidIn(p, d) && sameDate(eventFor(d, nd.what) || '-', 'Payment deadline');
     const payFirst = lienLater || paidOwnPay || customLead || safetyFirst || workedPassed || deedFirst || (recRow && stage === 'contract' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void') || sidAhead || winEarly
       // (An unpaid Nevada tax-sale win with no dated payment row: the payment step keeps leading over a dated SID payoff row.)
-      || (!!nd && stage === 'contract' && d.state === 'NV' && d.kind === 'taxSale' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void' && sameDate(nd, 'SID certificate payoff') && !p.dates.some((y) => !y.own && !y.resolved && !!y.when && sameDate(y, 'Payment deadline')));
+      || (!!nd && stage === 'contract' && d.state === 'NV' && d.kind === 'taxSale' && wayOf(d) !== 'offer' && !paidIn(p, d) && sidState(d) !== 'void' && /* (with no Sale day there's no 20-day deadline for the payment step to name: the SID step leads and asks for it) */ !!sidDeadline(p) && sameDate(nd, 'SID certificate payoff') && !p.dates.some((y) => !y.own && !y.resolved && !!y.when && sameDate(y, 'Payment deadline')));
     // (A reader's own row named like one of the sale's dates the packet lacks: point to making it the sale's row.)
     // (A reader's own row named like one of the sale's dates: point to the sale's row. Before it's bought only (after,
     //  a "Sale day" or "Closing" is the resale), except recording, deed and window rows. A hand-typed Sale day with no

@@ -4171,6 +4171,10 @@ describe('round 39: Eureka sealed-bid sale', () => {
       const l2 = packetSections(tx, q, at).find((x) => x.key === 'dates')!.lines.join('\n');
       expect(l2).toMatch(/Next: the payment/);
       expect(l2).not.toMatch(/past the 20-day deadline/);
+      // (Round 141: with no Sale day there's no 20-day deadline to name, so the dated SID payoff keeps its own step.)
+      const r = { ...q, dates: q.dates.map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '' } : x)) };
+      savePacket(`analyzed:${tx.id}`, r);
+      expect(dealNextTask(tx, r, at, 'contract').label).toMatch(/SID certificate payoff/);
     }
   });
   it('round 140 clarity: after the deed, a reader’s own SID-named reminder leads like any other reminder', async () => {
