@@ -4042,6 +4042,24 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const ln = packetSections(tx, q, new Date('2026-11-24T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join(' ');
     expect(ln).toMatch(/Next: the 20 days for any SID payoff ended Nov 22, 2026: ask the Treasurer in writing/);
   });
+  it('round 139 tools: an unpaid win dated on the reader’s own payment reminder, or with no payment date, still gets the SID line; a dated SID row past the 20 days leads the Next line', async () => {
+    const { sidBeforePay } = await import('./dealStage');
+    const { packetSections } = await import('./dealPacket');
+    const SID = 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)';
+    const tx: Deal = { ...deal, id: 'v139a', name: '5 E', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([tx]);
+    const own = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '', what: 'Payment deadline', who: '' }, { when: '', what: SID, who: '' }, { when: '2026-11-25', what: 'Pay the Treasurer', who: 'Me', own: true }] };
+    savePacket(`analyzed:${tx.id}`, own);
+    expect(sidBeforePay(tx, own, new Date('2026-11-12T18:00:00Z'))).toMatch(/SID/);
+    const blank = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '', what: 'Payment deadline', who: '' }, { when: '', what: SID, who: '' }] };
+    savePacket(`analyzed:${tx.id}`, blank);
+    expect(sidBeforePay(tx, blank, new Date('2026-11-12T18:00:00Z'))).toMatch(/Any SID payoff is due Nov 22, 2026/);
+    const dated = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-30', what: 'Payment deadline', who: 'Me' }, { when: '2026-11-20', what: SID, who: 'City of Henderson' }] };
+    savePacket(`analyzed:${tx.id}`, dated);
+    const ln = packetSections(tx, dated, new Date('2026-11-24T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join(' ');
+    expect(ln).toMatch(/Next: the 20 days for any SID payoff ended Nov 22, 2026: if a payoff owed wasn’t paid by then, the sale is void/);
+    expect(ln).not.toMatch(/Next: the payment, until/);
+  });
   it('round 136 verifier: a SID deadline on a closed day counts down to the last open day, and the Next line says so', async () => {
     const { packetSections } = await import('./dealPacket');
     const tx: Deal = { ...deal, id: 'v136v', name: '9 Elm', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
