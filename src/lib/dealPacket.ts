@@ -339,9 +339,13 @@ export const sidTidy = (dates: PacketDate[], today: string = new Date().toLocale
     if (i < 0) break;
     const x = out[i].row;
     const bare = BARE.test(x.what) || sameDate(x.what, 'SID certificate payoff');
-    const payee = muni(x.who ?? '') || sidPayee({ ...x, who: '', own: true }) || sidTail(x.what);
+    /* (Who names the payee when it reads as a place: a city, county, town or district, a payee another SID row here already names, or a plain place name; a person or firm, like “My attorney”, is kept as a note) */
+    const w0 = (x.who ?? '').trim().replace(/\s+/g, ' ');
+    const known = !!w0 && !/^(me|you)\b/i.test(w0) && out.some((o, k) => k !== i && !o.row.own && sameDate(o.row.what, 'SID certificate payoff') && same(w0, o.row));
+    const place = /^[A-Z][a-z]+( [A-Z][a-z]+){0,3}$/.test(w0) && !/\b(my|attorney|lawyer|title|escrow|agent|broker|lender|bank|company|treasurer|assessor|recorder|contractor|partner|wife|husband)\b/i.test(w0) ? w0 : '';
+    const payee = muni(w0) || (known ? w0 : '') || sidPayee({ ...x, who: '', own: true }) || sidTail(x.what) || place;
     const who = payee;
-    const words = `${x.what.replace(/[()]/g, (c) => (c === '(' ? '[' : ']')).replace(/\s+/g, ' ').trim()}${(x.who ?? '').trim() && !payee && !/^(me|you)\b/i.test((x.who ?? '').trim()) ? `; handled by ${(x.who ?? '').trim().replace(/[()]/g, '')}` : ''}`.slice(0, 160);
+    const words = `${x.what.replace(/[()]/g, (c) => (c === '(' ? '[' : ']')).replace(/\s+/g, ' ').trim()}${(x.who ?? '').trim() && !payee && !/^(me|you)\b/i.test((x.who ?? '').trim()) ? `; handled by ${(x.who ?? '').trim().replace(/[()]/g, '')}` : ''}`.slice(0, 180);
     const name = `SID certificate payoff (your note: ${words})`;
     const paid = !!x.resolved && (!x.when || x.when <= today);
     const sale = out.flatMap((o, k) => (k !== i && !o.row.own && sameDate(o.row.what, 'SID certificate payoff') ? [k] : []));
@@ -349,22 +353,13 @@ export const sidTidy = (dates: PacketDate[], today: string = new Date().toLocale
     const blank = sale.find((k) => !out[k].row.resolved && !out[k].row.when && !sidPayee(out[k].row));
     const drop = () => { moved.push({ from: x.what, how: 'dropped' }); out.splice(i, 1); };
     const into = (k: number) => { moved.push({ from: x.what, how: 'filled' }); gone.set(out[i].id, out[k].id); out[k].row = { ...out[k].row, what: name, when: x.when || out[k].row.when, who: sidPayee(out[k].row) ? out[k].row.who : who || out[k].row.who, ...(paid ? { resolved: true } : {}) }; out.splice(i, 1); };
-    const own = () => { moved.push({ from: x.what, how: 'row' }); out[i].row = { when: x.when, what: name, who: who || (bare ? x.who ?? '' : ''), ...(paid ? { resolved: true } : {}), ...(x.step ? { step: x.step } : {}) }; };
-    if (payee) {
-      const open = mine.filter((k) => !out[k].row.resolved);
-      const undated = open.find((k) => !out[k].row.when);
-      if (undated !== undefined) into(undated);
-      else if (open.length && paid) into(open[0]);
-      else if (open.length && (!x.when || open.some((k) => out[k].row.when === x.when))) into(open.find((k) => out[k].row.when === x.when) ?? open[0]);
-      else if (open.length) own();
-      else if (mine.length && !x.when && !x.resolved) into(mine[0]);
-      else if (blank !== undefined) into(blank);
-      else own();
-      continue;
-    }
-    // (No payee the rules can read: only ever the blank row, or a row of its own.)
-    if (bare && !x.when && !x.resolved && sale.length) drop();
-    else if (blank !== undefined) into(blank);
+    const own = () => { moved.push({ from: x.what, how: 'row' }); out[i].row = { when: x.when, what: name, who, ...(paid ? { resolved: true } : {}), ...(x.step ? { step: x.step } : {}) }; };
+    // (Only ever onto a row with no day and no tick: the open row to its payee, or the blank one. A dated or paid row
+    //  is never changed: a second date to the same payee stays a row of its own, and a note on both says so.)
+    const empty = payee ? mine.find((k) => !out[k].row.resolved && !out[k].row.when && !SID_NOTE.test(out[k].row.what)) : undefined;
+    if (bare && !payee && !x.when && !x.resolved && sale.length) drop();
+    else if (empty !== undefined) into(empty);
+    else if (blank !== undefined && !SID_NOTE.test(out[blank].row.what)) into(blank);
     else own();
   }
   const at = new Map(out.map((o, k) => [o.id, k]));
@@ -376,7 +371,8 @@ export const sidUntidy = (x: PacketDate): PacketDate => { const m = x.what.match
 export const loadPacketRaw = (dealId: string): PacketData => cleanPacket(loadAll()[dealId]);
 /** Whether this packet belongs to a Nevada tax sale (the only sale with SID payoff rows). */
 export const sidTidyFor = (dealId: string): boolean => { const id = dealId.replace(/^analyzed:/, ''); const d = loadDeals().find((x) => x.id === id); /* (after the deed, an “SID …” reminder is more likely the yearly assessment than the sale's payoff: left as the reader's own) */ return !!d && d.state === 'NV' && d.kind === 'taxSale' && !['closed', 'owned', 'passed'].includes(d.stage ?? ''); };
-export const loadPacket = (dealId: string): PacketData => { const p = loadPacketRaw(dealId); if (!p.dates.some((x) => !!x.own && !x.notAs) || !sidTidyFor(dealId)) return p; const t = sidTidy(p.dates); return t.moved.length ? { ...p, dates: t.dates } : p; };
+export const sidAfterFor = (dealId: string): boolean => { const id = dealId.replace(/^analyzed:/, ''); const d = loadDeals().find((x) => x.id === id); return !!d && d.state === 'NV' && d.kind === 'taxSale' && ['closed', 'owned', 'passed'].includes(d.stage ?? ''); };
+export const loadPacket = (dealId: string): PacketData => { const p = loadPacketRaw(dealId); if (!p.dates.some((x) => !!x.own && !x.notAs)) return p; /* (a Nevada tax sale after the deed, or passed: an “SID …” reminder is the reader's own, and no step reads it as the sale's payoff) */ if (sidAfterFor(dealId)) return p.dates.some((x) => !!x.own && !x.notAs && !x.as && sidNamed(x.what)) ? { ...p, dates: p.dates.map((x) => (!!x.own && !x.notAs && !x.as && sidNamed(x.what) ? { ...x, notAs: true } : x)) } : p; if (!sidTidyFor(dealId)) return p; const t = sidTidy(p.dates); return t.moved.length ? { ...p, dates: t.dates } : p; };
 
 /** Runs after each save (dealStage settles roadmap steps' date rows there). A hoisted function holds the hook, so
  * registering works while the two modules are still loading each other. */
@@ -617,7 +613,7 @@ export function dateGuide(d: Pick<Deal, 'kind' | 'state'> & { plan?: Deal['plan'
   // (Eureka County: a sealed-bid sale; the bid and full payment are due the day before, Eureka County Treasurer.)
   const eurekaSealed: DateGuide[] = d.county === 'Eureka' ? [{ what: 'Sealed bid and full payment due', when: 'Delivered to the Treasurer’s office by the deadline in the notice, usually 4 p.m. the day before the sale date; the office is open Monday to Thursday except holidays, so if it’s closed that day the deadline may be earlier*: one bid per parcel on the county’s form, with full payment enclosed.', who: 'You', todo: 'Send it by USPS, FedEx or UPS early enough to arrive in time, or hand-deliver it, with a money order, a cashier’s check or a card (2.5% card fee); emails and faxes aren’t accepted. Put each bid in its own envelope, marked with the parcel number (APN): if one envelope holds more than one bid, the county rejects all of them. A card is charged when your bid wins; keep the full amount plus the fee available until then, because a declined card gives the parcel to the next-highest bidder.', missed: 'A late bid isn’t accepted.', why: 'Eureka County Treasurer sealed-bid sale terms' }] : [];
   if (d.kind === 'taxSale' && d.state === 'NV') return [...eurekaSealed, ...names(d.county === 'Eureka' ? ['Sale day'] : ['Bidder registration deadline', 'Sale day', 'Payment deadline']),
-    { what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', when: 'Within 20 days after the sale, if a city or county gave the Treasurer an affidavit, by 3 business days before the sale, that the parcel has an unpaid special improvement district (SID) certificate of sale. Before you bid, ask the Treasurer whether an SID affidavit is on file for the parcel; if you won, confirm it with the Treasurer after the sale.', who: 'You, with that city or county', todo: 'Pay what the certificate is owed, get a receipt, and ask the city or county to send the Treasurer its affidavit that you paid; the Treasurer can’t issue your deed until it has it.', missed: 'The tax sale is void, and the Treasurer may keep up to 10% of what you paid.', why: 'NRS 361.595(6)' },
+    { what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', when: 'Within 20 days after the sale, if a city or county gave the Treasurer an affidavit, by 3 business days before the sale, that the parcel has an unpaid special improvement district (SID) certificate of sale. Before you bid, ask the Treasurer whether an SID affidavit is on file for the parcel; if you won, confirm it with the Treasurer after the sale.', who: 'You, with that city or county', todo: 'Pay what’s owed on the certificate, get a receipt, and ask the city or county to send the Treasurer its affidavit that you paid; the Treasurer can’t issue your deed until it has it.', missed: 'The tax sale is void, and the Treasurer may keep up to 10% of what you paid.', why: 'NRS 361.595(6)' },
     { what: 'Treasurer’s deed recorded', when: `The county treasurer records the quitclaim deed at your expense after you pay and any SID payoff is settled (NRS 361.595(6), (7)).${d.county === 'Eureka' ? ' Eureka County says it records and mails the quitclaim deed within 30 days of the sale.' : ''}`, who: 'The county treasurer', todo: 'Get a recorded copy, and insure the property right away.', missed: 'Ask the Treasurer when it will be recorded.', why: 'NRS 361.595(5), (6) and (7)' },
     { what: 'Recovery-suit window ends', when: '2 years after the Treasurer’s deed is delivered to you.', who: 'The former owner, or anyone claiming the land', todo: 'Ask your title company when it will insure the title; a quiet title action may let you sell sooner.', missed: 'After it, no one can sue under that law to take the property back from you*.', why: 'NRS 361.600' }];
   // Nevada (NRS 271.595, leg.state.nv.us): redemption within 2 years with a home or other significant permanent
@@ -1407,6 +1403,12 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       // (A SID deadline on a closed day: the Next line counts down to the last open day before it, as the step does.)
       if (d.state === 'NV' && d.kind === 'taxSale' && !!sidDeadline(p) && !!sidClosedNote(d, p, now)) { const left = Math.round((new Date(`${sidLastOpen(d, sidDeadline(p))}T12:00:00`).getTime() - new Date(`${nvNow(now).day}T12:00:00`).getTime()) / 864e5); const k = left < 0 ? -1 : ln.findIndex((t) => /^Next: /.test(t) && t.includes('offices are likely closed*')); if (k >= 0) ln[k] = ln[k].replace(/, (in \d+ days|tomorrow in Nevada|tomorrow|today in Nevada|today)(?=[ ,(—])/, `, ${left === 0 ? 'today' : left === 1 ? 'tomorrow' : `in ${left} days`}`); }
       { const t = dealNextTask(d, p, now).label; const r = p.dates.find((x) => !!x.own && (t.startsWith(`“${x.what}” for `) || t.includes(`your own reminder “${x.what}”`))); if (r && !ln.some((x) => /^Next: the 20 days for any SID payoff ended/.test(x))) { const line = `Next: your own “${r.what}” reminder (see Your next action).`; const k = ln.findIndex((x) => /^Next:/.test(x) || x === 'Nothing else is due now.'); if (k >= 0) ln[k] = line; else ln.push(line); } else if (dealNextTask(d, p, now).key === 'sid-affidavit' && !ln.some((x) => /^Next:/.test(x))) { const line = 'Next: the special improvement district (SID) question (see Your next action).'; const k = ln.indexOf('Nothing else is due now.'); if (k >= 0) ln[k] = line; else ln.push(line); } }
+      // (An SID row that names a payee but has no day yet isn't in the dated list: say it here, so the list and the download show every payoff.)
+      if (d.state === 'NV' && d.kind === 'taxSale' && ['contract', 'closed', 'owned'].includes(stageOf(d)) && sidState(d) !== 'void') {
+        const open = p.dates.filter((x) => !x.own && !x.when && !x.resolved && sameDate(x, 'SID certificate payoff') && !!sidPayee(x));
+        const extra = open.map((x) => `No date yet: SID certificate payoff to ${sidPayee(x)}: ask the Treasurer whether an SID affidavit was filed for it${sidDeadline(p) ? `; if one was, it’s due by ${prettyDay(sidDeadline(p))} (20 days after the sale, NRS 361.595(6))` : ''}.`).filter((t) => !ln.includes(t));
+        if (extra.length) { const k = ln.findIndex((x) => /^Next:/.test(x) || x === 'Nothing else is due now.'); if (k >= 0) ln.splice(k, 0, ...extra); else ln.push(...extra); }
+      }
       // (A Nevada tax sale's SID step: the Next line is worked out from Your next action itself, as a pointer with no
       //  date or countdown of its own, so the two can never disagree. A void or late sale keeps its own line.)
       if (d.state === 'NV' && d.kind === 'taxSale' && ['contract', 'closed', 'owned'].includes(stageOf(d)) && sidState(d) !== 'void' && sidState(d) !== 'late') {

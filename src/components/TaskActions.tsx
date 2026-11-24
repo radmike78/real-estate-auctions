@@ -1,4 +1,4 @@
-import { clearsOnPostpone, loadPacket, RECORDED_ROWS, sameDate, sidPayee, sidSamePayee, sidTail, type PacketData } from '../lib/dealPacket';
+import { clearsOnPostpone, loadPacket, RECORDED_ROWS, sameDate, sidPayee, sidSamePayee, sidTail, SID_NOTE, sidUntidy, type PacketData } from '../lib/dealPacket';
 import { dayOf, DEED_AFTER_WAIT, DEED_ROWS, prettyDay, setDealStage, type PlanTask, withRow } from '../lib/dealStage';
 import { loadDeals } from '../lib/analyze';
 import { markDealStepDone } from '../lib/roadmapState';
@@ -26,7 +26,7 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
           const pick = (x: PacketData['dates'][number]) => sameDate(x, r.row) && !x.resolved && !x.when && (r.onlyWho === undefined || (x.who ?? '').trim() === r.onlyWho.trim());
           const open = p.dates.some(pick);
           /* (one “Yes” answers one SID payoff: the open undated row that names no payee, else the first; other payees' rows keep their own question) */ const one = sameDate(r.row, 'SID certificate payoff') ? ((k) => (k >= 0 ? k : p.dates.findIndex(pick)))(p.dates.findIndex((x) => pick(x) && !sidPayee(x))) : -1;
-          return ({ ...p, dates: p.dates.some((x) => sameDate(x, r.row)) ? p.dates.map((x, j) => (sameDate(x, r.row) && (open ? pick(x) && (one < 0 || j === one) : r.onlyWho === undefined) ? { ...x, what: r.as ?? x.what, when: r.when, who: x.who || r.who || '', resolved: false } : x)) : [...p.dates, { what: r.as ?? r.row, when: r.when, who: r.who ?? '' }] }); }); after(el); }}>{task.redate.label}</button>
+          return ({ ...p, dates: p.dates.some((x) => sameDate(x, r.row)) ? p.dates.map((x, j) => (sameDate(x, r.row) && (open ? pick(x) && (one < 0 || j === one) : r.onlyWho === undefined) ? { ...x, /* (a row the reader typed keeps their words) */ what: SID_NOTE.test(x.what) ? x.what : r.as ?? x.what, when: r.when, who: x.who || r.who || '', resolved: false } : x)) : [...p.dates, { what: r.as ?? r.row, when: r.when, who: r.who ?? '' }] }); }); after(el); }}>{task.redate.label}</button>
       )}
       {tick && (
         <button type="button" className={task.answer ? main : 'btn btn-secondary'} onClick={(e) => {
@@ -54,7 +54,7 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
             const whenOf = (x: PacketData['dates'][number]) => tick.setWhen || (x.when && x.when > todayFor(dealId) && [...RECORDED_ROWS, DEED_AFTER_WAIT].some((r) => sameDate(x, r)) ? todayFor(dealId) : '') || x.when;
             // (An event with no date yet, such as the payoff, is dated today.)
             const rows = i < 0 ? (p.dates.some((x) => sameDate(x, tick.row)) ? p.dates : [...p.dates, { what: tick.row, when: tick.when ?? (tick.noDate ? '' : todayFor(dealId)), who: tick.who ?? '', resolved: true }]) : p.dates.map((x, j) => (j === i || (!tick.asIs && exact >= 0 && counts(x) && !otherPast(x) && !otherPayee(x)) || (adopt && j !== i && own(x) && !mine(x) && named(x) && !sameDate(tick.row, 'SID certificate payoff')) ? { ...x, ...(own(x) && !mine(x) && adopt ? { as: tick.row } : {}), resolved: true, when: (j !== i && (!x.when || x.when > todayFor(dealId)) ? whenOf(p.dates[i]) : whenOf(x)) || tick.when || (tick.noDate ? '' : todayFor(dealId)), who: x.who || tick.who || '' } : x));
-            const kept = tick.drops ? rows.filter((x) => !(sameDate(x, tick.drops!) && !x.when)) : rows;
+            /* (an undated SID row the reader typed goes back to being their own reminder, words kept, instead of being removed) */ const kept = tick.drops ? rows.flatMap((x) => (sameDate(x, tick.drops!) && !x.when ? (SID_NOTE.test(x.what) ? [sidUntidy(x)] : []) : [x])) : rows;
             const kept2 = kept;
             return { ...p, dates: tick.closes ? kept2.map((x) => (sameDate(x, tick.closes!) ? { ...x, resolved: true } : x)) : kept2 };
           });
