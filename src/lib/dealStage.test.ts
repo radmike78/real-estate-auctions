@@ -4175,6 +4175,8 @@ describe('round 39: Eureka sealed-bid sale', () => {
       const r = { ...q, dates: q.dates.map((x) => (/^Sale day/.test(x.what) ? { ...x, when: '' } : x)) };
       savePacket(`analyzed:${tx.id}`, r);
       expect(dealNextTask(tx, r, at, 'contract').label).toMatch(/SID certificate payoff/);
+      expect(dealNextTask(tx, r, at, 'contract').label).toMatch(/Dec 7, 2026 is the date entered on its row\. The law’s deadline is 20 days after the sale, and if it isn’t paid by then, the sale is void \(NRS 361\.595\(6\)\): enter the Sale day in Key dates to see that deadline\./);
+      expect(dealNextTask(tx, r, at, 'contract').label).not.toMatch(/Pay it by Dec 7/);
     }
   });
   it('round 140 clarity: after the deed, a reader’s own SID-named reminder leads like any other reminder', async () => {
