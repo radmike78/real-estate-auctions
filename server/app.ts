@@ -225,6 +225,8 @@ export function createApp(config: AppConfig) {
   // Networks the admin has signed in from recently: the per-username lockout doesn't apply to them,
   // so an attacker can't lock the real admin out by failing logins on purpose.
   const trustedAdminIps = new Map<string, number>();
+  // (Kept in the settings table too, so a restart doesn't drop them and leave the admin open to a lockout.)
+  try { for (const [ip, until] of Object.entries((db.getSetting('trustedAdminIps') ?? {}) as Record<string, unknown>)) if (typeof until === 'number' && until > Date.now()) trustedAdminIps.set(ip, until); } catch { /* a settings read that fails starts with none */ }
   const TRUSTED_IP_MS = 30 * 86_400_000;
 
   // First path segments the app has pages for (src/App.tsx parseHash). Any other address is a 404.
@@ -1262,6 +1264,8 @@ export function createApp(config: AppConfig) {
       limiters.loginIp.reset(ip);
       limiters.loginUser.reset(username);
       trustedAdminIps.set(ip, now().getTime() + TRUSTED_IP_MS);
+      for (const [k, until] of trustedAdminIps) if (until <= now().getTime()) trustedAdminIps.delete(k);
+      try { db.setSetting('trustedAdminIps', Object.fromEntries(trustedAdminIps)); } catch { /* still trusted for this run */ }
       const token = newToken();
       db.sessions.purge(now().getTime() - SESSION_MAX_MS);
       db.sessions.create(sha256(token), 'admin', config.adminUsername, now().getTime());

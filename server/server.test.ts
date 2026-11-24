@@ -355,7 +355,10 @@ describe('advertiser flow (running server)', () => {
     expect(r.status).toBe(202);
     const [toPro, receipt] = mails.slice(-2);
     expect(toPro.to).toBe('taylor@example.com');
-    expect(toPro.text).toMatch(/Bea Buyer[\s\S]*bea@example.org[\s\S]*\+17025550123/);
+    // (a fixed notice: the visitor's own words are never relayed by email; the dashboard shows them)
+    expect(toPro.subject).toBe('New contact request on DeedOwl');
+    expect(toPro.text).toMatch(/Sign in to read their message and contact details/);
+    expect(toPro.text).not.toMatch(/Bea Buyer|bea@example\.org|\+17025550123/);
     expect(receipt.to).toBe('bea@example.org');
     expect(receipt.text).toMatch(/verify their license/);
     expect((await post(`/api/pros/${'a'.repeat(24)}/leads`, { name: 'x' })).status).toBe(404); // not listed

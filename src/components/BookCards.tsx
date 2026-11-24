@@ -20,7 +20,8 @@ export function BookCover({ b }: { b: Book }) {
           alt=""
           width={150}
           loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
+          /* (Amazon gets this site's address only, never the page or its query string) */
+          referrerPolicy="strict-origin-when-cross-origin"
           onLoad={(e) => {
             // Amazon's image link answers with a 1×1 pixel when it has no cover for the book.
             if (e.currentTarget.naturalWidth < 20) setSrc(src === coverFallback(b) ? null : coverFallback(b));

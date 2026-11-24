@@ -262,16 +262,18 @@ export function paymentFailedEmail(to: string, name: string, dashboardUrl: strin
   };
 }
 
-export function leadEmail(to: string, proName: string, lead: LeadRow, dashboardUrl: string): Mail {
+/** A new lead: a fixed notice only. The visitor's own words (name, message) are never put in an email sent from this
+ *  site's address, so the form can't be used to send someone else's text to an advertiser (SECURITY.md 5c). The
+ *  advertiser reads the request and contact details after signing in. */
+export function leadEmail(to: string, proName: string, _lead: LeadRow, dashboardUrl: string): Mail {
   return {
     to,
-    subject: `New contact request from ${lead.name} via DeedOwl`,
+    subject: 'New contact request on DeedOwl',
     text:
-      `Hi ${proName},\n\n${lead.name} asked to be contacted through your DeedOwl profile.\n\n` +
-      `  Name:    ${lead.name}\n  Email:   ${lead.email}\n  Phone:   ${lead.phone ?? '(not given)'}\n` +
-      `  About:   ${lead.interest ?? '(not specified)'}\n\n  Message:\n  ${lead.message}\n\n` +
+      `Hi ${proName},\n\nSomeone asked to be contacted through your DeedOwl profile. ` +
+      `Sign in to read their message and contact details:\n\n${dashboardUrl}\n\n` +
       `They agreed to share these details with you only. Please respond directly and follow all laws that apply to ` +
-      `contacting consumers. All your leads and results: ${dashboardUrl}\n` +
+      `contacting consumers. DeedOwl never asks for card details or passwords by email.\n` +
       FOOTER,
   };
 }
