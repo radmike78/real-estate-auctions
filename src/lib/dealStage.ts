@@ -1654,7 +1654,7 @@ function nextTaskFor(d: Deal, p: PacketData, now: Date, stage: DealStage): PlanT
     const ownedWinEnd = ownedWinDeed ? (() => { const t = new Date(`${ownedWinDeed}T12:00:00`); t.setDate(t.getDate() + 30); return localDay(t); })() : '';
     const workedPassed = !!nd && !officialRow(d, nd) && ((!!computedEnd && computedEnd < dayHere) || (!!winEnd && winEnd < dayHere) || (!!ownedWinEnd && ownedWinEnd < dayHere));
     // (A reader's own reminder due later — not today or overdue — doesn't push aside a win's or purchase's first safety step: insure it, the first week. A Nevada tax sale's SID payoff reminder isn't one of those: its 20-day deadline voids the sale.)
-    const safetyFirst = !!nd && nd.days >= 1 && !officialRow(d, nd) && !(nd.own && sidNamed(nd.what) && d.state === 'NV' && d.kind === 'taxSale') && ['contract', 'closed', 'owned'].includes(stage) && stageTasks(d, stage, p, now).some((t) => !t.done && (t.key === 'ev-insurance' || t.key === 'first-week'));
+    const safetyFirst = !!nd && nd.days >= 1 && !officialRow(d, nd) && !(nd.own && !(nd as { notAs?: boolean }).notAs && sidNamed(nd.what) && d.state === 'NV' && d.kind === 'taxSale') && ['contract', 'closed', 'owned'].includes(stage) && stageTasks(d, stage, p, now).some((t) => !t.done && (t.key === 'ev-insurance' || t.key === 'first-week'));
     // (A deed date still to confirm comes before a reader's own reminder: the windows count from it.)
     const deedFirst = !!nd && !officialRow(d, nd) && (stage === 'closed' || stage === 'owned') && !!deedDateMissing(d, p, stage);
     // (A Nevada SID lien's Payment deadline row typed later than the law's day doesn't lead: the law's day's step does.)

@@ -4186,6 +4186,8 @@ describe('round 39: Eureka sealed-bid sale', () => {
       const t = dealNextTask(tx, p, at, stage);
       expect(t.label).toBe(`Overdue by 6 days: ${what} for 9 Fir.`);
       expect(packetSections(tx, p, at).find((x) => x.key === 'dates')!.lines).toContain(`Next: ${what}, overdue by 6 days`);
+      // (Due later, it waits behind the stage's first safety step, as any reminder does.)
+      if (stage === 'closed') expect(dealNextTask(tx, p, new Date('2026-11-23T19:00:00Z'), stage).label).toBe(dealNextTask(tx, { ...p, dates: p.dates.filter((x) => !x.own) }, new Date('2026-11-23T19:00:00Z'), stage).label);
     }
   });
 });
