@@ -965,7 +965,7 @@ describe('Nevada round 4 flow', () => {
     saveDeals([{ ...tax, stage: 'contract' }]);
     const sl = packetSections({ ...tax, stage: 'contract' }, sid, now).find((x) => x.key === 'dates')!.lines.join(' | ');
     expect(sl).toMatch(/Nov 30, 2026: SID certificate payoff .* — open, after the 20-day deadline/);
-    expect(sl).toMatch(/the 20-day deadline, Oct 10, 2026; your date is later/);
+    expect(sl).toMatch(/Next: the SID certificate payoff \(see Your next action\)\./);
     const short = { ...nvFlip, kind: 'short' as const };
     const sp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-01', what: 'Contract signed', who: 'Me' }, { when: '2026-10-02', what: 'Approval notice received (dates count from here)', who: 'Lender' }, { when: '', what: 'Inspection period ends', who: '' }, { when: '', what: 'Closing', who: '' }] };
     saveDeals([{ ...short, stage: 'contract' }]);
@@ -1096,7 +1096,7 @@ describe('Nevada round 4 flow', () => {
     const sp = { ...EMPTY_PACKET, dates: [{ when: '2026-09-10', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-09-11', what: 'Payment deadline', who: 'Me', resolved: true }] };
     saveDeals([{ ...tax, stage: 'contract' }]);
     const lines = packetSections({ ...tax, stage: 'contract' }, sp, now).find((x) => x.key === 'dates')!.lines.join(' | ');
-    expect(lines).toMatch(/Next: the 20 days for any SID payoff ended Sep 30, 2026: ask the Treasurer whether an SID affidavit was filed/);
+    expect(lines).toMatch(/Next: the special improvement district \(SID\) question, past the 20-day deadline \(see Your next action\)\./);
     expect(lines).not.toMatch(/overdue/);
     // A date reminder carries its days (My plan's finish note reads them).
     const late = { ...sp, dates: [...sp.dates, { when: '2026-10-02', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'Me' }] };
@@ -4040,7 +4040,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const q = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-30', what: 'Payment deadline', who: 'Me' }, { when: '', what: SID, who: '' }] };
     savePacket(`analyzed:${tx.id}`, q);
     const ln = packetSections(tx, q, new Date('2026-11-24T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join(' ');
-    expect(ln).toMatch(/Next: the 20 days for any SID payoff ended Nov 22, 2026: ask the Treasurer in writing/);
+    expect(ln).toMatch(/Next: the SID certificate payoff, past the 20-day deadline \(see Your next action\)\./);
   });
   it('round 139 tools: an unpaid win dated on the reader’s own payment reminder, or with no payment date, still gets the SID line; a dated SID row past the 20 days leads the Next line', async () => {
     const { sidBeforePay } = await import('./dealStage');
@@ -4074,6 +4074,41 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(sidTail('SID payoff asap')).toBe('');
     expect(sidSamePayee({ when: '', what: '', who: 'City of Las Vegas' }, { when: '', what: '', who: sidTail('SID payoff North Las Vegas') })).toBe(false);
   });
+  it('SID tidy: a hand-typed SID payoff date becomes one of the sale’s own SID rows, by fixed rules', async () => {
+    const { sidTidy, loadPacket } = await import('./dealPacket');
+    const SID = 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)';
+    const FILED = 'SID certificate payoff (affidavit filed)';
+    const base = [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }];
+    const run = (rows: { when: string; what: string; who: string; own?: boolean; resolved?: boolean; notAs?: boolean }[]) => sidTidy([...base, ...rows], '2026-11-10').dates.slice(1).map((x) => `${x.what === FILED ? 'FILED' : x.what === SID ? 'BLANK' : x.what}|${x.when}|${x.who}|${x.resolved ? 'x' : ''}|${(x as { own?: boolean }).own ? 'own' : ''}`);
+    // a dated reminder with a payee fills the blank row
+    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'SID payoff to City of Henderson', who: '', own: true }])).toEqual(['FILED|2026-11-15|City of Henderson||']);
+    // “Who handles it” wins over the name; the payee in a bare name is kept
+    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'SID payoff Henderson', who: 'City of Las Vegas', own: true }])).toEqual(['FILED|2026-11-15|City of Las Vegas||']);
+    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'Pay SID Las Vegas', who: 'Me', own: true }])).toEqual(['FILED|2026-11-15|Las Vegas||']);
+    // never into another payee's row: North Las Vegas isn't Las Vegas
+    expect(run([{ when: '', what: SID, who: 'City of Las Vegas' }, { when: '2026-11-15', what: 'SID payoff North Las Vegas', who: '', own: true }])).toEqual(['BLANK||City of Las Vegas||', 'FILED|2026-11-15|North Las Vegas||']);
+    // the same payee's open undated row takes the date; two reminders are two rows
+    expect(run([{ when: '', what: SID, who: 'City of Henderson' }, { when: '2026-11-15', what: 'SID payoff to Henderson', who: '', own: true }, { when: '2026-11-16', what: 'SID payoff to City of Las Vegas', who: '', own: true }])).toEqual(['FILED|2026-11-15|Henderson||', 'FILED|2026-11-16|City of Las Vegas||']);
+    // an undated, unticked reminder: its payee goes on the blank row; with a row to that payee already, it adds nothing
+    expect(run([{ when: '', what: SID, who: '' }, { when: '', what: 'SID payoff to City of Henderson', who: '', own: true }])).toEqual(['BLANK||City of Henderson||']);
+    expect(run([{ when: '2026-11-12', what: FILED, who: 'City of Henderson', resolved: true }, { when: '', what: 'SID payoff to City of Henderson', who: '', own: true }])).toEqual(['FILED|2026-11-12|City of Henderson|x|']);
+    // a ticked reminder marks the open row to that payee paid, with the day it says
+    expect(run([{ when: '2026-11-20', what: FILED, who: 'City of Henderson' }, { when: '2026-11-09', what: 'Paid SID to City of Henderson', who: '', own: true, resolved: true }])).toEqual(['FILED|2026-11-09|City of Henderson|x|']);
+    // a different date to the same payee stays visible as its own row; no SID row at all: it becomes one
+    expect(run([{ when: '2026-11-20', what: FILED, who: 'City of Henderson' }, { when: '2026-11-18', what: 'SID payoff to City of Henderson', who: '', own: true }])).toEqual(['FILED|2026-11-20|City of Henderson||', 'FILED|2026-11-18|City of Henderson||']);
+    expect(run([{ when: '2026-11-18', what: 'SID certificate payoff', who: '', own: true }])).toEqual(['FILED|2026-11-18|||']);
+    // the reader's “my own reminder” choice and other reminders are left alone; a tick on a day still to come isn't kept
+    expect(run([{ when: '2026-11-18', what: 'SID payoff to City of Henderson', who: '', own: true, notAs: true }, { when: '2026-11-19', what: 'Ask the Treasurer about the SID affidavit', who: '', own: true }])).toEqual(['SID payoff to City of Henderson|2026-11-18|||own', 'Ask the Treasurer about the SID affidavit|2026-11-19|||own']);
+    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-18', what: 'SID payoff to City of Henderson', who: '', own: true, resolved: true }])).toEqual(['FILED|2026-11-18|City of Henderson||']);
+    // loading a Nevada tax sale's packet tidies it; another kind's packet is untouched
+    const tx: Deal = { ...deal, id: 'tidy1', name: '7 G', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    const tr: Deal = { ...tx, id: 'tidy2', kind: 'trustee' };
+    saveDeals([tx, tr]);
+    const rows = [...base, { when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'SID payoff to City of Henderson', who: '', own: true }];
+    savePacket(`analyzed:${tx.id}`, { ...EMPTY_PACKET, dates: rows }); savePacket(`analyzed:${tr.id}`, { ...EMPTY_PACKET, dates: rows });
+    expect(loadPacket(`analyzed:${tx.id}`).dates.some((x) => x.own)).toBe(false);
+    expect(loadPacket(`analyzed:${tr.id}`).dates.some((x) => x.own)).toBe(true);
+  });
   it('round 136 verifier: a SID deadline on a closed day counts down to the last open day, and the Next line says so', async () => {
     const { packetSections } = await import('./dealPacket');
     const tx: Deal = { ...deal, id: 'v136v', name: '9 Elm', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
@@ -4086,7 +4121,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(JSON.stringify(t)).not.toMatch(/In 3 days/);
     expect(JSON.stringify(t)).toMatch(/"Today: /);
     const ln = packetSections(tx, p, now).find((x) => x.key === 'dates')!.lines.join(' ');
-    expect(ln).toMatch(/likely closed\*: pay by today/);
+    expect(ln).toMatch(/Next: the SID certificate payoff \(see Your next action\)\./);
     expect(ln).not.toMatch(/in 3 days/);
   });
 });

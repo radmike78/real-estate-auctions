@@ -312,7 +312,68 @@ function loadAll(): Record<string, unknown> {
   }
 }
 
-export const loadPacket = (dealId: string): PacketData => cleanPacket(loadAll()[dealId]);
+/** A Nevada tax sale keeps every SID payoff on the sale's own rows. A reader's own date named as an SID payoff
+ *  (“SID payoff to City of Henderson”, “Pay SID Las Vegas”) is made one of those rows here, once, by fixed rules, so
+ *  no step has to guess what a hand-typed reminder means:
+ *   - its payee is what “Who handles it” says, else the payee its name gives;
+ *   - an undated, unticked reminder adds nothing a row to that payee (or the blank row) doesn't say: its payee goes on
+ *     the blank row, or it is dropped;
+ *   - a dated or ticked one fills the open undated row to that payee, else the blank row; a ticked one marks the open
+ *     row to that payee paid; otherwise it becomes a row of its own (never merged into another payee's row).
+ *  Rows the reader marked “my own reminder” (notAs) are left alone. `moved` lists the names it changed. */
+export const sidTidy = (dates: PacketDate[], today: string = new Date().toLocaleDateString('en-CA')): { dates: PacketDate[]; moved: string[] } => {
+  const isOwnSid = (x: PacketDate) => !!x.own && !x.notAs && (sidNamed(x.what) || (!!x.as && sameDate(x.as, 'SID certificate payoff')));
+  if (!dates.some(isOwnSid)) return { dates, moved: [] };
+  const FILED = 'SID certificate payoff (affidavit filed)';
+  const out = dates.map((x) => ({ ...x }));
+  const moved: string[] = [];
+  const named = (w: string) => { const t = w.trim().replace(/\s+/g, ' '); return t && !/^(me|you)\b/i.test(t) ? t : ''; };
+  const same = (payee: string, y: PacketDate) => sidSamePayee({ when: '', what: '', who: payee }, { when: '', what: '', who: y.who ?? '' });
+  for (let guard = 0; guard < 200; guard++) {
+    const i = out.findIndex(isOwnSid);
+    if (i < 0) break;
+    const x = out[i];
+    moved.push(x.what);
+    const payee = named(x.who ?? '') || sidPayee({ ...x, own: true }) || sidTail(x.what);
+    const paid = !!x.resolved && (!x.when || x.when <= today);
+    const sale = out.flatMap((y, k) => (k !== i && !y.own && sameDate(y.what, 'SID certificate payoff') ? [k] : []));
+    const mine = payee ? sale.filter((k) => same(payee, out[k])) : [];
+    const blank = sale.find((k) => !out[k].resolved && !out[k].when && !sidPayee(out[k]));
+    const drop = () => { out.splice(i, 1); };
+    const into = (k: number) => { out[k] = { ...out[k], when: x.when || out[k].when, who: payee || out[k].who, ...(paid ? { resolved: true } : {}), ...(x.when || paid ? { what: FILED } : {}) }; out.splice(i, 1); };
+    const own = () => { out[i] = { when: x.when, what: FILED, who: payee || x.who || '', ...(paid ? { resolved: true } : {}), ...(x.step ? { step: x.step } : {}) }; };
+    if (!x.when && !x.resolved) {
+      if (mine.length) drop();
+      else if (blank !== undefined) { if (payee) out[blank] = { ...out[blank], who: payee }; drop(); }
+      else if (!payee && sale.length) drop();
+      else own();
+      continue;
+    }
+    if (payee) {
+      const open = mine.filter((k) => !out[k].resolved);
+      const undated = open.find((k) => !out[k].when);
+      if (undated !== undefined) into(undated);
+      else if (open.length && paid) into(open[0]);
+      else if (open.some((k) => out[k].when === x.when)) drop();
+      else if (open.length) own();
+      else if (mine.some((k) => !!out[k].resolved && (paid ? out[k].when === x.when : !!out[k].when && x.when <= out[k].when))) drop();
+      else if (blank !== undefined) into(blank);
+      else own();
+      continue;
+    }
+    const only = sale.length === 1 && !out[sale[0]].resolved ? sale[0] : undefined;
+    if (only !== undefined && (!out[only].when || paid)) into(only);
+    else if (only !== undefined && out[only].when === x.when) drop();
+    else if (blank !== undefined) into(blank);
+    else own();
+  }
+  return { dates: out, moved };
+};
+/** The packet as stored, with no tidying (the Key dates editor, while a row is being typed). */
+export const loadPacketRaw = (dealId: string): PacketData => cleanPacket(loadAll()[dealId]);
+/** Whether this packet belongs to a Nevada tax sale (the only sale with SID payoff rows). */
+export const sidTidyFor = (dealId: string): boolean => { const id = dealId.replace(/^analyzed:/, ''); const d = loadDeals().find((x) => x.id === id); return !!d && d.state === 'NV' && d.kind === 'taxSale'; };
+export const loadPacket = (dealId: string): PacketData => { const p = loadPacketRaw(dealId); if (!p.dates.some((x) => !!x.own && !x.notAs) || !sidTidyFor(dealId)) return p; const t = sidTidy(p.dates); return t.moved.length ? { ...p, dates: t.dates } : p; };
 
 /** Runs after each save (dealStage settles roadmap steps' date rows there). A hoisted function holds the hook, so
  * registering works while the two modules are still loading each other. */
@@ -1343,6 +1404,14 @@ export function packetSections(d: Deal, p: PacketData = loadPacket(`analyzed:${d
       // (A SID deadline on a closed day: the Next line counts down to the last open day before it, as the step does.)
       if (d.state === 'NV' && d.kind === 'taxSale' && !!sidDeadline(p) && !!sidClosedNote(d, p, now)) { const left = Math.round((new Date(`${sidLastOpen(d, sidDeadline(p))}T12:00:00`).getTime() - new Date(`${nvNow(now).day}T12:00:00`).getTime()) / 864e5); const k = left < 0 ? -1 : ln.findIndex((t) => /^Next: /.test(t) && t.includes('offices are likely closed*')); if (k >= 0) ln[k] = ln[k].replace(/, (in \d+ days|tomorrow in Nevada|tomorrow|today in Nevada|today)(?=[ ,(—])/, `, ${left === 0 ? 'today' : left === 1 ? 'tomorrow' : `in ${left} days`}`); }
       { const t = dealNextTask(d, p, now).label; const r = p.dates.find((x) => !!x.own && (t.startsWith(`“${x.what}” for `) || t.includes(`your own reminder “${x.what}”`))); if (r && !ln.some((x) => /^Next: the 20 days for any SID payoff ended/.test(x))) { const line = `Next: your own “${r.what}” reminder (see Your next action).`; const k = ln.findIndex((x) => /^Next:/.test(x) || x === 'Nothing else is due now.'); if (k >= 0) ln[k] = line; else ln.push(line); } else if (dealNextTask(d, p, now).key === 'sid-affidavit' && !ln.some((x) => /^Next:/.test(x))) { const line = 'Next: the special improvement district (SID) question (see Your next action).'; const k = ln.indexOf('Nothing else is due now.'); if (k >= 0) ln[k] = line; else ln.push(line); } }
+      // (A Nevada tax sale's SID step: the Next line is worked out from Your next action itself, as a pointer with no
+      //  date or countdown of its own, so the two can never disagree. A void or late sale keeps its own line.)
+      if (d.state === 'NV' && d.kind === 'taxSale' && ['contract', 'closed', 'owned'].includes(stageOf(d)) && sidState(d) !== 'void' && sidState(d) !== 'late') {
+        const t = dealNextTask(d, p, now); const acts = JSON.stringify([t.tick, t.redate, t.record, t.undo, t.advance2]);
+        const sidStep = t.key === 'sid-affidavit' || /"(row|removeRow)":"SID certificate payoff/.test(acts) || (!t.label.startsWith('“') && /^[^.]{0,60}\bSID (certificate )?payoff\b/.test(t.label));
+        const withPay = !sidStep && !!sidBeforePay(d, p, now) && (t.text ?? t.label).includes(sidBeforePay(d, p, now).trim().slice(0, 40));
+        if (sidStep || withPay) { /* (the one fact it adds comes from the step itself: its own overdue count) */ const late = typeof t.days === 'number' && t.days < 0 ? ', past the 20-day deadline' : ''; const line = withPay ? 'Next: the payment, and the SID payoff question that comes with it (see Your next action).' : t.key === 'sid-affidavit' ? `Next: the special improvement district (SID) question${late} (see Your next action).` : `Next: the SID certificate payoff${late} (see Your next action).`; const k = ln.findIndex((x) => /^Next:/.test(x) || x === 'Nothing else is due now.'); if (k >= 0) ln[k] = line; else ln.push(line); }
+      }
       const waiting = !!recovery || keyDatesAsked(d) || ln.some((t) => /^Still to add/.test(t) || (/^Next:/.test(t) && /Your next action|until you mark|did anyone|ask the Treasurer|collect|enter the new/i.test(t)));
       datesWaiting = waiting;
       return tickShown && !waiting && p.calendarReviewedFor !== stageOf(d) && !keyDatesDone(p) && keyDatesDone({ ...p, calendarReviewedFor: stageOf(d) }) ? [...ln, `To finish this part, check the box “I checked every deadline for this stage” in Key dates once the dates match ${offer ? 'your signed contract' : 'the official notices'}.`] : ln; })();
