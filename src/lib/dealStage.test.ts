@@ -3993,7 +3993,7 @@ describe('round 39: Eureka sealed-bid sale', () => {
     const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }] };
     expect(sidPayBy({ county: 'Clark' }, p, new Date('2026-11-10T20:00:00Z'))).toBe('2026-11-19');
     expect(sidPayBy({ county: 'Clark' }, p, new Date('2026-11-21T20:00:00Z'))).toBe('2026-11-22');
-    expect(sidClosedNote({ county: 'Clark' }, p, new Date('2026-11-24T20:00:00Z'))).toMatch(/was a weekend day.*If you paid on the next day the office was open, add the payoff to Key dates \(“SID certificate payoff”\) with the day you paid/);
+    expect(sidClosedNote({ county: 'Clark' }, p, new Date('2026-11-24T20:00:00Z'))).toMatch(/was a weekend day.*If you paid on the next day the office was open, add your own date in Key dates named “SID payoff to <the city or county>” with the day you paid/);
     expect(sidClosedNote({ county: 'Clark' }, { ...EMPTY_PACKET, dates: [{ when: '2026-11-06', what: 'Sale day', who: 'T', resolved: true }, { when: '', what: 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)', who: 'City of Henderson' }] }, new Date('2026-11-20T20:00:00Z'))).toMatch(/Nov 26, 2026 is a Nevada legal holiday, when county and city offices are closed \(NRS 236\.015\)\. Pay by Nov 25, 2026.*ask City of Henderson in writing/);
     const tx: Deal = { ...deal, id: 'v137b', name: '2 B', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
     saveDeals([tx]);
@@ -4028,6 +4028,19 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(JSON.stringify(t)).not.toMatch(/"Today: /);
     const u = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-23', what: 'Payment deadline', who: 'Me' }, { when: '', what: SID, who: '' }] };
     expect(sidBeforePay(tx, u, new Date('2026-11-16T18:00:00Z'))).toMatch(/Pay by Nov 19, 2026/);
+  });
+  it('round 138 verifier: the next-open-day help stays for an own reminder beside an unticked placeholder; an unpaid win past the 20 days leads its Next line with the SID question', async () => {
+    const { sidClosedNote } = await import('./dealStage');
+    const { packetSections } = await import('./dealPacket');
+    const SID = 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)';
+    const p = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '', what: SID, who: '' }, { when: '', what: 'SID payoff to City of Las Vegas', who: '', own: true }] };
+    expect(sidClosedNote({ county: 'Clark' }, p, new Date('2026-11-24T20:00:00Z'), 'City of Las Vegas')).toMatch(/If you paid on the next day the office was open/);
+    const tx: Deal = { ...deal, id: 'v138v', name: '4 D', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    saveDeals([tx]);
+    const q = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-30', what: 'Payment deadline', who: 'Me' }, { when: '', what: SID, who: '' }] };
+    savePacket(`analyzed:${tx.id}`, q);
+    const ln = packetSections(tx, q, new Date('2026-11-24T20:00:00Z')).find((x) => x.key === 'dates')!.lines.join(' ');
+    expect(ln).toMatch(/Next: the 20 days for any SID payoff ended Nov 22, 2026: ask the Treasurer in writing/);
   });
   it('round 136 verifier: a SID deadline on a closed day counts down to the last open day, and the Next line says so', async () => {
     const { packetSections } = await import('./dealPacket');
