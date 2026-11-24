@@ -4103,7 +4103,12 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(run([{ when: '2026-11-20', what: FILED, who: 'City of Henderson' }, { when: '2026-11-20', what: 'SID payoff to City of Henderson', who: '', own: true }])).toEqual(['FILED|2026-11-20|City of Henderson||', 'NOTE[SID payoff to City of Henderson]|2026-11-20|City of Henderson||']);
     // a second reminder never replaces the first one's words; a plain place name in Who is the payee
     expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'SID payoff $4,200 to City of Henderson', who: '', own: true }, { when: '2026-11-16', what: 'SID payoff to City of Henderson', who: '', own: true }])).toEqual(['NOTE[SID payoff $4,200 to City of Henderson]|2026-11-15|City of Henderson||', 'NOTE[SID payoff to City of Henderson]|2026-11-16|City of Henderson||']);
-    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'SID payoff', who: 'Henderson', own: true }])).toEqual(['NOTE[SID payoff]|2026-11-15|Henderson||']);
+    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'SID payoff Henderson NV', who: 'Henderson', own: true }])).toEqual(['NOTE[SID payoff Henderson NV]|2026-11-15|Henderson||']);
+    // a person in Who is never the payee, and is kept in the note even when the name gives the payee
+    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'SID payoff', who: 'Maria Lopez', own: true }])).toEqual(['NOTE[SID payoff; handled by Maria Lopez]|2026-11-15|||']);
+    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'SID payoff to City of Henderson', who: 'My attorney', own: true }])).toEqual(['NOTE[SID payoff to City of Henderson; handled by My attorney]|2026-11-15|City of Henderson||']);
+    // a 200-character name is kept whole and can still be taken back
+    { const long = `SID payoff to City of Henderson, ${'bring the cashier check and parcel number '.repeat(4)}`.slice(0, 200).trim(); const t2 = sidTidy([...base, { when: '2026-11-15', what: long, who: '', own: true }], '2026-11-10'); expect(sidUntidy(t2.dates[1]).what).toBe(long); }
     // a different date to the same payee stays visible as its own row; no SID row at all: it becomes one
     expect(run([{ when: '2026-11-20', what: FILED, who: 'City of Henderson' }, { when: '2026-11-18', what: 'SID payoff to City of Henderson', who: '', own: true }])).toEqual(['FILED|2026-11-20|City of Henderson||', 'NOTE[SID payoff to City of Henderson]|2026-11-18|City of Henderson||']);
     expect(run([{ when: '2026-11-18', what: 'SID certificate payoff', who: '', own: true }])).toEqual(['NOTE[SID certificate payoff]|2026-11-18|||']);
