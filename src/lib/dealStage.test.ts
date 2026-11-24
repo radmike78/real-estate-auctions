@@ -4075,39 +4075,53 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(sidSamePayee({ when: '', what: '', who: 'City of Las Vegas' }, { when: '', what: '', who: sidTail('SID payoff North Las Vegas') })).toBe(false);
   });
   it('SID tidy: a hand-typed SID payoff date becomes one of the sale’s own SID rows, by fixed rules', async () => {
-    const { sidTidy, loadPacket } = await import('./dealPacket');
+    const { sidTidy, sidUntidy, loadPacket } = await import('./dealPacket');
     const SID = 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)';
     const FILED = 'SID certificate payoff (affidavit filed)';
     const base = [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }];
-    const run = (rows: { when: string; what: string; who: string; own?: boolean; resolved?: boolean; notAs?: boolean }[]) => sidTidy([...base, ...rows], '2026-11-10').dates.slice(1).map((x) => `${x.what === FILED ? 'FILED' : x.what === SID ? 'BLANK' : x.what}|${x.when}|${x.who}|${x.resolved ? 'x' : ''}|${(x as { own?: boolean }).own ? 'own' : ''}`);
-    // a dated reminder with a payee fills the blank row
-    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'SID payoff to City of Henderson', who: '', own: true }])).toEqual(['FILED|2026-11-15|City of Henderson||']);
-    // “Who handles it” wins over the name; the payee in a bare name is kept
-    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'SID payoff Henderson', who: 'City of Las Vegas', own: true }])).toEqual(['FILED|2026-11-15|City of Las Vegas||']);
-    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'Pay SID Las Vegas', who: 'Me', own: true }])).toEqual(['FILED|2026-11-15|Las Vegas||']);
-    // never into another payee's row: North Las Vegas isn't Las Vegas
-    expect(run([{ when: '', what: SID, who: 'City of Las Vegas' }, { when: '2026-11-15', what: 'SID payoff North Las Vegas', who: '', own: true }])).toEqual(['BLANK||City of Las Vegas||', 'FILED|2026-11-15|North Las Vegas||']);
+    type R = { when: string; what: string; who: string; own?: boolean; resolved?: boolean; notAs?: boolean };
+    const show = (x: R) => `${x.what === FILED ? 'FILED' : x.what === SID ? 'BLANK' : x.what.replace(/^SID certificate payoff \(your note: (.*)\)$/, 'NOTE[$1]')}|${x.when}|${x.who}|${x.resolved ? 'x' : ''}|${x.own ? 'own' : ''}`;
+    const run = (rows: R[]) => sidTidy([...base, ...rows], '2026-11-10').dates.slice(1).map(show);
+    // a dated reminder with a payee fills the blank row, and the reader's words stay in the row's name
+    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'SID payoff $4,200 to City of Henderson', who: '', own: true }])).toEqual(['NOTE[SID payoff $4,200 to City of Henderson]|2026-11-15|City of Henderson||']);
+    // “Who handles it” is the payee only when it names a city, county, town or district; “My attorney” is kept as a note
+    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'SID payoff Henderson', who: 'City of Las Vegas', own: true }])).toEqual(['NOTE[SID payoff Henderson]|2026-11-15|City of Las Vegas||']);
+    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'SID payoff', who: 'My attorney', own: true }])).toEqual(['NOTE[SID payoff; handled by My attorney]|2026-11-15|||']);
+    // never onto another payee's row: a longer name, or a name the rules can't read, becomes its own row
+    expect(run([{ when: '', what: SID, who: 'City of Las Vegas' }, { when: '2026-11-15', what: 'SID payoff North Las Vegas', who: '', own: true }])).toEqual(['BLANK||City of Las Vegas||', 'NOTE[SID payoff North Las Vegas]|2026-11-15|North Las Vegas||']);
+    for (const w of ['Pay SID Henderson NV', 'pay sid henderson', 'SID payoff NLV', 'SID payoff N. Las Vegas', 'SID payoff Henderson by wire']) {
+      expect(run([{ when: '2026-11-20', what: FILED, who: 'City of Las Vegas' }, { when: '2026-11-15', what: w, who: '', own: true }])[0]).toBe('FILED|2026-11-20|City of Las Vegas||');
+      expect(run([{ when: '2026-11-20', what: FILED, who: 'City of Las Vegas' }, { when: '2026-11-09', what: w.replace(/^pay/i, 'Paid'), who: '', own: true, resolved: true }])[0]).toBe('FILED|2026-11-20|City of Las Vegas||');
+    }
     // the same payee's open undated row takes the date; two reminders are two rows
-    expect(run([{ when: '', what: SID, who: 'City of Henderson' }, { when: '2026-11-15', what: 'SID payoff to Henderson', who: '', own: true }, { when: '2026-11-16', what: 'SID payoff to City of Las Vegas', who: '', own: true }])).toEqual(['FILED|2026-11-15|Henderson||', 'FILED|2026-11-16|City of Las Vegas||']);
-    // an undated, unticked reminder: its payee goes on the blank row; with a row to that payee already, it adds nothing
-    expect(run([{ when: '', what: SID, who: '' }, { when: '', what: 'SID payoff to City of Henderson', who: '', own: true }])).toEqual(['BLANK||City of Henderson||']);
-    expect(run([{ when: '2026-11-12', what: FILED, who: 'City of Henderson', resolved: true }, { when: '', what: 'SID payoff to City of Henderson', who: '', own: true }])).toEqual(['FILED|2026-11-12|City of Henderson|x|']);
+    expect(run([{ when: '', what: SID, who: 'City of Henderson' }, { when: '2026-11-15', what: 'SID payoff to Henderson', who: '', own: true }, { when: '2026-11-16', what: 'SID payoff to City of Las Vegas', who: '', own: true }])).toEqual(['NOTE[SID payoff to Henderson]|2026-11-15|City of Henderson||', 'NOTE[SID payoff to City of Las Vegas]|2026-11-16|City of Las Vegas||']);
+    // an undated reminder with a payee names the blank row; the bare name, undated, adds nothing
+    expect(run([{ when: '', what: SID, who: '' }, { when: '', what: 'SID payoff to City of Henderson', who: '', own: true }])).toEqual(['NOTE[SID payoff to City of Henderson]||City of Henderson||']);
+    expect(run([{ when: '', what: SID, who: '' }, { when: '', what: 'SID payoff', who: '', own: true }])).toEqual(['BLANK||||']);
     // a ticked reminder marks the open row to that payee paid, with the day it says
-    expect(run([{ when: '2026-11-20', what: FILED, who: 'City of Henderson' }, { when: '2026-11-09', what: 'Paid SID to City of Henderson', who: '', own: true, resolved: true }])).toEqual(['FILED|2026-11-09|City of Henderson|x|']);
+    expect(run([{ when: '2026-11-20', what: FILED, who: 'City of Henderson' }, { when: '2026-11-09', what: 'Paid SID to City of Henderson', who: '', own: true, resolved: true }])).toEqual(['NOTE[Paid SID to City of Henderson]|2026-11-09|City of Henderson|x|']);
     // a different date to the same payee stays visible as its own row; no SID row at all: it becomes one
-    expect(run([{ when: '2026-11-20', what: FILED, who: 'City of Henderson' }, { when: '2026-11-18', what: 'SID payoff to City of Henderson', who: '', own: true }])).toEqual(['FILED|2026-11-20|City of Henderson||', 'FILED|2026-11-18|City of Henderson||']);
-    expect(run([{ when: '2026-11-18', what: 'SID certificate payoff', who: '', own: true }])).toEqual(['FILED|2026-11-18|||']);
+    expect(run([{ when: '2026-11-20', what: FILED, who: 'City of Henderson' }, { when: '2026-11-18', what: 'SID payoff to City of Henderson', who: '', own: true }])).toEqual(['FILED|2026-11-20|City of Henderson||', 'NOTE[SID payoff to City of Henderson]|2026-11-18|City of Henderson||']);
+    expect(run([{ when: '2026-11-18', what: 'SID certificate payoff', who: '', own: true }])).toEqual(['NOTE[SID certificate payoff]|2026-11-18|||']);
     // the reader's “my own reminder” choice and other reminders are left alone; a tick on a day still to come isn't kept
     expect(run([{ when: '2026-11-18', what: 'SID payoff to City of Henderson', who: '', own: true, notAs: true }, { when: '2026-11-19', what: 'Ask the Treasurer about the SID affidavit', who: '', own: true }])).toEqual(['SID payoff to City of Henderson|2026-11-18|||own', 'Ask the Treasurer about the SID affidavit|2026-11-19|||own']);
-    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-18', what: 'SID payoff to City of Henderson', who: '', own: true, resolved: true }])).toEqual(['FILED|2026-11-18|City of Henderson||']);
-    // loading a Nevada tax sale's packet tidies it; another kind's packet is untouched
-    const tx: Deal = { ...deal, id: 'tidy1', name: '7 G', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
-    const tr: Deal = { ...tx, id: 'tidy2', kind: 'trustee' };
-    saveDeals([tx, tr]);
+    expect(run([{ when: '', what: SID, who: '' }, { when: '2026-11-18', what: 'SID payoff to City of Henderson', who: '', own: true, resolved: true }])).toEqual(['NOTE[SID payoff to City of Henderson]|2026-11-18|City of Henderson||']);
+    // the way back: the reader's own reminder again, with the words they typed, and it isn't tidied again
+    const t = sidTidy([...base, { when: '2026-11-15', what: 'SID payoff receipt (send to the Treasurer)', who: 'My attorney', own: true }], '2026-11-10');
+    const back = sidUntidy(t.dates[1]);
+    expect(show(back)).toBe('SID payoff receipt (send to the Treasurer)|2026-11-15|My attorney||own');
+    expect(sidTidy([...base, back], '2026-11-10').moved).toEqual([]);
+    expect(t.map).toEqual([0, 1]);
+    // loading a Nevada tax sale's packet tidies it before the deed; another kind's packet, or an owned one, is untouched
+    const tx: Deal = { ...deal, id: 'dtidy1', name: '7 G', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
+    const tr: Deal = { ...tx, id: 'dtidy2', kind: 'trustee' };
+    const ow: Deal = { ...tx, id: 'dtidy3', stage: 'owned' };
+    saveDeals([tx, tr, ow]);
     const rows = [...base, { when: '', what: SID, who: '' }, { when: '2026-11-15', what: 'SID payoff to City of Henderson', who: '', own: true }];
-    savePacket(`analyzed:${tx.id}`, { ...EMPTY_PACKET, dates: rows }); savePacket(`analyzed:${tr.id}`, { ...EMPTY_PACKET, dates: rows });
+    for (const k of [tx, tr, ow]) savePacket(`analyzed:${k.id}`, { ...EMPTY_PACKET, dates: rows });
     expect(loadPacket(`analyzed:${tx.id}`).dates.some((x) => x.own)).toBe(false);
     expect(loadPacket(`analyzed:${tr.id}`).dates.some((x) => x.own)).toBe(true);
+    expect(loadPacket(`analyzed:${ow.id}`).dates.some((x) => x.own)).toBe(true);
   });
   it('round 136 verifier: a SID deadline on a closed day counts down to the last open day, and the Next line says so', async () => {
     const { packetSections } = await import('./dealPacket');

@@ -25,7 +25,8 @@ export default function TaskActions({ task, dealId, edit, after, big = false }: 
           /* (re-date only open rows when there are any, and only the payee the answer names: a payoff already marked paid keeps its date) */
           const pick = (x: PacketData['dates'][number]) => sameDate(x, r.row) && !x.resolved && !x.when && (r.onlyWho === undefined || (x.who ?? '').trim() === r.onlyWho.trim());
           const open = p.dates.some(pick);
-          return ({ ...p, dates: p.dates.some((x) => sameDate(x, r.row)) ? p.dates.map((x) => (sameDate(x, r.row) && (open ? pick(x) : r.onlyWho === undefined) ? { ...x, what: r.as ?? x.what, when: r.when, who: x.who || r.who || '', resolved: false } : x)) : [...p.dates, { what: r.as ?? r.row, when: r.when, who: r.who ?? '' }] }); }); after(el); }}>{task.redate.label}</button>
+          /* (one “Yes” answers one SID payoff: the open undated row that names no payee, else the first; other payees' rows keep their own question) */ const one = sameDate(r.row, 'SID certificate payoff') ? ((k) => (k >= 0 ? k : p.dates.findIndex(pick)))(p.dates.findIndex((x) => pick(x) && !sidPayee(x))) : -1;
+          return ({ ...p, dates: p.dates.some((x) => sameDate(x, r.row)) ? p.dates.map((x, j) => (sameDate(x, r.row) && (open ? pick(x) && (one < 0 || j === one) : r.onlyWho === undefined) ? { ...x, what: r.as ?? x.what, when: r.when, who: x.who || r.who || '', resolved: false } : x)) : [...p.dates, { what: r.as ?? r.row, when: r.when, who: r.who ?? '' }] }); }); after(el); }}>{task.redate.label}</button>
       )}
       {tick && (
         <button type="button" className={task.answer ? main : 'btn btn-secondary'} onClick={(e) => {

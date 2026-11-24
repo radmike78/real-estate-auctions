@@ -313,66 +313,69 @@ function loadAll(): Record<string, unknown> {
 }
 
 /** A Nevada tax sale keeps every SID payoff on the sale's own rows. A reader's own date named as an SID payoff
- *  (“SID payoff to City of Henderson”, “Pay SID Las Vegas”) is made one of those rows here, once, by fixed rules, so
- *  no step has to guess what a hand-typed reminder means:
- *   - its payee is what “Who handles it” says, else the payee its name gives;
- *   - an undated, unticked reminder adds nothing a row to that payee (or the blank row) doesn't say: its payee goes on
- *     the blank row, or it is dropped;
- *   - a dated or ticked one fills the open undated row to that payee, else the blank row; a ticked one marks the open
- *     row to that payee paid; otherwise it becomes a row of its own (never merged into another payee's row).
- *  Rows the reader marked “my own reminder” (notAs) are left alone. `moved` lists the names it changed. */
-export const sidTidy = (dates: PacketDate[], today: string = new Date().toLocaleDateString('en-CA')): { dates: PacketDate[]; moved: string[] } => {
+ *  (“SID payoff to City of Henderson”, “Pay SID Las Vegas”) is made one of those rows here, by fixed rules, so no step
+ *  has to guess what a hand-typed reminder means:
+ *   - the reader's words are always kept, in the row's name: “SID certificate payoff (your note: …)”, and the row can
+ *     be turned back into their own reminder (sidUntidy);
+ *   - its payee is “Who handles it” when that names a city, county, town or district, else the payee its name plainly
+ *     gives; a name the rules can't read names none, and is never put on a row that names a payee;
+ *   - a reminder that is only the bare name (“SID payoff”), undated and unticked, adds nothing and is dropped when the
+ *     sale already has an SID row; otherwise a reminder fills the open undated row to its payee, else the blank row
+ *     that names none, else becomes a row of its own. Nothing is merged across payees.
+ *  Rows the reader marked “my own reminder” (notAs) are left alone. */
+export const SID_NOTE = /^SID certificate payoff \(your note: ([^)]*)\)$/;
+export type SidMove = { from: string; how: 'row' | 'filled' | 'dropped' };
+export const sidTidy = (dates: PacketDate[], today: string = new Date().toLocaleDateString('en-CA')): { dates: PacketDate[]; moved: SidMove[]; map: number[] } => {
   const isOwnSid = (x: PacketDate) => !!x.own && !x.notAs && (sidNamed(x.what) || (!!x.as && sameDate(x.as, 'SID certificate payoff')));
-  if (!dates.some(isOwnSid)) return { dates, moved: [] };
-  const FILED = 'SID certificate payoff (affidavit filed)';
-  const out = dates.map((x) => ({ ...x }));
-  const moved: string[] = [];
-  const named = (w: string) => { const t = w.trim().replace(/\s+/g, ' '); return t && !/^(me|you)\b/i.test(t) ? t : ''; };
+  if (!dates.some(isOwnSid)) return { dates, moved: [], map: dates.map((_, k) => k) };
+  const out = dates.map((x, k) => ({ row: { ...x }, id: k }));
+  const moved: SidMove[] = [];
+  const gone = new Map<number, number>(); // (a merged row's old index → the old index of the row it went to)
+  const muni = (w: string) => { const t = w.trim().replace(/\s+/g, ' '); return t && /\b(city|county|town|district)\b/i.test(t) && !/\btreasurer\b/i.test(t) ? t : ''; };
   const same = (payee: string, y: PacketDate) => sidSamePayee({ when: '', what: '', who: payee }, { when: '', what: '', who: y.who ?? '' });
+  const BARE = /^\s*(SID (certificate )?pay(off|ment)|(pay|paid)( the)? SID( (certificate )?pay(off|ment))?)\s*$/i;
   for (let guard = 0; guard < 200; guard++) {
-    const i = out.findIndex(isOwnSid);
+    const i = out.findIndex((o) => isOwnSid(o.row));
     if (i < 0) break;
-    const x = out[i];
-    moved.push(x.what);
-    const payee = named(x.who ?? '') || sidPayee({ ...x, own: true }) || sidTail(x.what);
+    const x = out[i].row;
+    const bare = BARE.test(x.what) || sameDate(x.what, 'SID certificate payoff');
+    const payee = muni(x.who ?? '') || sidPayee({ ...x, who: '', own: true }) || sidTail(x.what);
+    const who = payee;
+    const words = `${x.what.replace(/[()]/g, (c) => (c === '(' ? '[' : ']')).replace(/\s+/g, ' ').trim()}${(x.who ?? '').trim() && !payee && !/^(me|you)\b/i.test((x.who ?? '').trim()) ? `; handled by ${(x.who ?? '').trim().replace(/[()]/g, '')}` : ''}`.slice(0, 160);
+    const name = `SID certificate payoff (your note: ${words})`;
     const paid = !!x.resolved && (!x.when || x.when <= today);
-    const sale = out.flatMap((y, k) => (k !== i && !y.own && sameDate(y.what, 'SID certificate payoff') ? [k] : []));
-    const mine = payee ? sale.filter((k) => same(payee, out[k])) : [];
-    const blank = sale.find((k) => !out[k].resolved && !out[k].when && !sidPayee(out[k]));
-    const drop = () => { out.splice(i, 1); };
-    const into = (k: number) => { out[k] = { ...out[k], when: x.when || out[k].when, who: payee || out[k].who, ...(paid ? { resolved: true } : {}), ...(x.when || paid ? { what: FILED } : {}) }; out.splice(i, 1); };
-    const own = () => { out[i] = { when: x.when, what: FILED, who: payee || x.who || '', ...(paid ? { resolved: true } : {}), ...(x.step ? { step: x.step } : {}) }; };
-    if (!x.when && !x.resolved) {
-      if (mine.length) drop();
-      else if (blank !== undefined) { if (payee) out[blank] = { ...out[blank], who: payee }; drop(); }
-      else if (!payee && sale.length) drop();
-      else own();
-      continue;
-    }
+    const sale = out.flatMap((o, k) => (k !== i && !o.row.own && sameDate(o.row.what, 'SID certificate payoff') ? [k] : []));
+    const mine = payee ? sale.filter((k) => same(payee, out[k].row)) : [];
+    const blank = sale.find((k) => !out[k].row.resolved && !out[k].row.when && !sidPayee(out[k].row));
+    const drop = () => { moved.push({ from: x.what, how: 'dropped' }); out.splice(i, 1); };
+    const into = (k: number) => { moved.push({ from: x.what, how: 'filled' }); gone.set(out[i].id, out[k].id); out[k].row = { ...out[k].row, what: name, when: x.when || out[k].row.when, who: sidPayee(out[k].row) ? out[k].row.who : who || out[k].row.who, ...(paid ? { resolved: true } : {}) }; out.splice(i, 1); };
+    const own = () => { moved.push({ from: x.what, how: 'row' }); out[i].row = { when: x.when, what: name, who: who || (bare ? x.who ?? '' : ''), ...(paid ? { resolved: true } : {}), ...(x.step ? { step: x.step } : {}) }; };
     if (payee) {
-      const open = mine.filter((k) => !out[k].resolved);
-      const undated = open.find((k) => !out[k].when);
+      const open = mine.filter((k) => !out[k].row.resolved);
+      const undated = open.find((k) => !out[k].row.when);
       if (undated !== undefined) into(undated);
       else if (open.length && paid) into(open[0]);
-      else if (open.some((k) => out[k].when === x.when)) drop();
+      else if (open.length && (!x.when || open.some((k) => out[k].row.when === x.when))) into(open.find((k) => out[k].row.when === x.when) ?? open[0]);
       else if (open.length) own();
-      else if (mine.some((k) => !!out[k].resolved && (paid ? out[k].when === x.when : !!out[k].when && x.when <= out[k].when))) drop();
+      else if (mine.length && !x.when && !x.resolved) into(mine[0]);
       else if (blank !== undefined) into(blank);
       else own();
       continue;
     }
-    const only = sale.length === 1 && !out[sale[0]].resolved ? sale[0] : undefined;
-    if (only !== undefined && (!out[only].when || paid)) into(only);
-    else if (only !== undefined && out[only].when === x.when) drop();
+    // (No payee the rules can read: only ever the blank row, or a row of its own.)
+    if (bare && !x.when && !x.resolved && sale.length) drop();
     else if (blank !== undefined) into(blank);
     else own();
   }
-  return { dates: out, moved };
+  const at = new Map(out.map((o, k) => [o.id, k]));
+  return { dates: out.map((o) => o.row), moved, map: dates.map((_, k) => at.get(k) ?? at.get(gone.get(k) ?? -1) ?? -1) };
 };
+/** A tidied SID row, back to the reader's own reminder with the words they typed (their choice: it isn't matched again). */
+export const sidUntidy = (x: PacketDate): PacketDate => { const m = x.what.match(SID_NOTE); if (!m) return x; const [what, by] = m[1].split('; handled by '); return { when: x.when, what: what.replace(/\[/g, '(').replace(/\]/g, ')'), who: by ?? x.who ?? '', ...(x.resolved ? { resolved: true } : {}), own: true, notAs: true }; };
 /** The packet as stored, with no tidying (the Key dates editor, while a row is being typed). */
 export const loadPacketRaw = (dealId: string): PacketData => cleanPacket(loadAll()[dealId]);
 /** Whether this packet belongs to a Nevada tax sale (the only sale with SID payoff rows). */
-export const sidTidyFor = (dealId: string): boolean => { const id = dealId.replace(/^analyzed:/, ''); const d = loadDeals().find((x) => x.id === id); return !!d && d.state === 'NV' && d.kind === 'taxSale'; };
+export const sidTidyFor = (dealId: string): boolean => { const id = dealId.replace(/^analyzed:/, ''); const d = loadDeals().find((x) => x.id === id); /* (after the deed, an “SID …” reminder is more likely the yearly assessment than the sale's payoff: left as the reader's own) */ return !!d && d.state === 'NV' && d.kind === 'taxSale' && !['closed', 'owned', 'passed'].includes(d.stage ?? ''); };
 export const loadPacket = (dealId: string): PacketData => { const p = loadPacketRaw(dealId); if (!p.dates.some((x) => !!x.own && !x.notAs) || !sidTidyFor(dealId)) return p; const t = sidTidy(p.dates); return t.moved.length ? { ...p, dates: t.dates } : p; };
 
 /** Runs after each save (dealStage settles roadmap steps' date rows there). A hoisted function holds the hook, so
