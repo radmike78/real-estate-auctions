@@ -290,7 +290,7 @@ export function cleanPacket(v: unknown): PacketData {
     const r = obj(d);
     const when = str(r.when, 10);
     // (A void recorded before the row was renamed keeps counting.)
-    /* (a tidied SID row carries the reader's whole name inside its own: room for both) */ const what0 = str(r.what, typeof r.what === 'string' && r.what.startsWith('SID certificate payoff (your note: ') ? 300 : 200);
+    /* (a tidied SID row carries the reader's whole name inside its own: room for both) */ const what0 = str(r.what, typeof r.what === 'string' && r.what.startsWith('SID certificate payoff (your note: ') ? 380 : 200);
     const what = /^Treasurer: the sale is void/.test(what0) ? 'The sale is void (the Treasurer said so)' : what0;
     return { when: DATE.test(when) ? when : '', what, who: str(r.who, 120), ...(r.resolved === true ? { resolved: true } : {}), ...(r.own === true ? { own: true, ...(r.notAs === true ? { notAs: true } : {}), ...(typeof r.as === 'string' && r.as.trim() ? { as: str(r.as, 120), ...(r.asAuto === true ? { asAuto: true } : {}) } : {}) } : {}), ...(typeof r.step === 'string' && /^~?[a-z-]{1,24}$/.test(r.step) ? { step: r.step } : {}) };
   });
@@ -345,7 +345,7 @@ export const sidTidy = (dates: PacketDate[], today: string = new Date().toLocale
     /* (…a plain name only when the reminder's own name says it too) */ const place = /^[A-Z][a-z]+( [A-Z][a-z]+){0,3}$/.test(w0) && x.what.toLowerCase().includes(w0.toLowerCase()) ? w0 : '';
     const payee = muni(w0) || (known ? w0 : '') || sidPayee({ ...x, who: '', own: true }) || sidTail(x.what) || place;
     const who = payee;
-    const by = w0 && !/^(me|you)\b/i.test(w0) && !(payee && (payee === w0 || same(payee, { when: '', what: '', who: w0 }))) ? w0.replace(/[()]/g, '').slice(0, 40) : '';
+    const by = w0 && !/^(me|you)\b/i.test(w0) && !(payee && (payee === w0 || same(payee, { when: '', what: '', who: w0 }))) ? w0.replace(/[()]/g, '').slice(0, 120) : '';
     const words = `${x.what.replace(/[()]/g, (c) => (c === '(' ? '[' : ']')).replace(/\s+/g, ' ').trim().slice(0, 200)}${by ? `; handled by ${by}` : ''}`;
     const name = `SID certificate payoff (your note: ${words})`;
     const paid = !!x.resolved && (!x.when || x.when <= today);
@@ -358,7 +358,7 @@ export const sidTidy = (dates: PacketDate[], today: string = new Date().toLocale
     // (Only ever onto a row with no day and no tick: the open row to its payee, or the blank one. A dated or paid row
     //  is never changed: a second date to the same payee stays a row of its own, and a note on both says so.)
     const empty = payee ? mine.find((k) => !out[k].row.resolved && !out[k].row.when && !SID_NOTE.test(out[k].row.what)) : undefined;
-    if (bare && !payee && !x.when && !x.resolved && sale.length) drop();
+    if (bare && !payee && !by && !x.when && !x.resolved && sale.length) drop();
     else if (empty !== undefined) into(empty);
     else if (blank !== undefined && !SID_NOTE.test(out[blank].row.what)) into(blank);
     else own();
