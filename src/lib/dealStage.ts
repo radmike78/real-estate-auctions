@@ -618,13 +618,13 @@ export const sidUnasked = (d: { id?: string }) => { if (!d.id) return false; con
 /** A Nevada tax-sale win not yet paid whose open payment date falls on or after the 20-day SID deadline: the SID question
  * can't wait for the payment (NRS 361.595(6) counts from the sale). '' otherwise. */
 export const sidBeforePay = (d: { id?: string; state?: Deal['state']; kind: Deal['kind']; county?: string }, p: PacketData, now: Date = new Date()): string => {
-  if (d.state !== 'NV' || d.kind !== 'taxSale' || !sidUnasked(d) || paidIn(p, d as Deal)) return '';
+  if (d.state !== 'NV' || d.kind !== 'taxSale' || stageOf(d as Deal) !== 'contract' || !sidUnasked(d) || paidIn(p, d as Deal)) return '';
   const dl = sidDeadline(p);
   /* (the sale's payment row, else the reader's own dated payment reminder; with neither, the SID line still shows) */ const pay = p.dates.find((x) => sameDate(x, 'Payment deadline') && !!x.when && !x.resolved)?.when ?? ownPayRows(d as Deal, p).filter((x) => !!x.when).sort((a, b) => a.when.localeCompare(b.when))[0]?.when ?? '';
   if (!dl) return '';
   // (A payment date in the week before the SID deadline, or after it, leaves too little time to ask once paid.)
   const weekBefore = (() => { const t = new Date(`${dl}T12:00:00`); t.setDate(t.getDate() - 7); return t.toLocaleDateString('en-CA'); })();
-  if (pay && pay < weekBefore) return '';
+  if (pay && pay < weekBefore && dl >= nvParts(now).day) return '';
   // (The reader said yes and dated the SID payoff: the reminder stays, short, until it's paid.)
   if (p.dates.some((x) => sameDate(x, 'SID certificate payoff') && !!x.when && !x.resolved)) return dl < nvParts(now).day ? '' : ` Pay the special improvement district (SID) certificate by ${prettyDay(dl)} too, or the sale is void (NRS 361.595(6)).${sidClosedNote(d, p, now)}`;
   const tail = `ask the Treasurer whether a special improvement district (SID) affidavit was filed. If one was, enter the SID payoff in Key dates and pay it by ${prettyDay(dl)}, or the sale is void (NRS 361.595(6)).${sidClosedNote(d, p, now)}`;

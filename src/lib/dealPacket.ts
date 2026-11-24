@@ -160,6 +160,8 @@ export const sidPayee = (r: PacketDate): string => {
   /* (a payee is a city, county or district: capitalized or named as one; never the Treasurer, a date or words like “to be made”) */
   return !named || /^(me|you)\b/i.test(named) || /\btreasurer\b/i.test(named) || /^((jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\b|\d)/i.test(named) || !(local.test(named) || /^(the\s+)?[A-Z][a-z]/.test(named)) ? '' : named;
 };
+/** The words after an own SID reminder's “SID payoff” / “Pay SID” prefix, when they're a capitalized name (“SID payoff Henderson” → “Henderson”); '' otherwise. */
+export const sidTail = (what: string): string => { const t = what.replace(/\s+/g, ' ').trim().replace(/^(?:SID (?:certificate )?pay(?:off|ment)|(?:pay|paid)(?: the)? SID(?: (?:certificate )?pay(?:off|ment))?)\b\s*[-:–—]?\s*/i, '').replace(/^(to|for)\s+/i, '').trim(); return /^[A-Z][a-z]+(\s+[A-Z][a-z]+){0,3}$/.test(t) && !/treasurer/i.test(t) ? t : ''; };
 /** Two SID rows name the same payee: compared without case, a leading “the”, “city of” / “town of”, or a trailing “county” (“the City of Henderson” = “Henderson”). */
 export const sidSamePayee = (a: PacketDate, b: PacketDate): boolean => { const w = (r: PacketDate) => sidPayee(r).toLowerCase().replace(/^the\s+/, '').replace(/^(city|town) of\s+/, '').replace(/,?\s+(nv|nevada)$/, '').replace(/\s+county$/, '').replace(/[.,]+$/, '').trim(); return !!w(a) && w(a) === w(b); };
 /** A reader's row named as an SID payoff, by the site's name or its short form (“SID payoff …”). */

@@ -4060,6 +4060,20 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(ln).toMatch(/Next: the 20 days for any SID payoff ended Nov 22, 2026: if a payoff owed wasn’t paid by then, the sale is void/);
     expect(ln).not.toMatch(/Next: the payment, until/);
   });
+  it('round 139 clarity: the unpaid-win SID line only at Won; a reminder named for a payee keeps it; North Las Vegas isn’t Las Vegas', async () => {
+    const { sidBeforePay } = await import('./dealStage');
+    const { sidTail, sidSamePayee } = await import('./dealPacket');
+    const SID = 'SID certificate payoff (if the Treasurer has an SID affidavit for the parcel)';
+    const tx: Deal = { ...deal, id: 'v139c', name: '6 F', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'researching' };
+    saveDeals([tx]);
+    const blank = { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T' }, { when: '', what: 'Payment deadline', who: '' }, { when: '', what: SID, who: '' }] };
+    savePacket(`analyzed:${tx.id}`, blank);
+    expect(sidBeforePay(tx, blank, new Date('2026-10-12T18:00:00Z'))).toBe('');
+    expect(sidTail('SID payoff Henderson')).toBe('Henderson');
+    expect(sidTail('SID payoff North Las Vegas')).toBe('North Las Vegas');
+    expect(sidTail('SID payoff asap')).toBe('');
+    expect(sidSamePayee({ when: '', what: '', who: 'City of Las Vegas' }, { when: '', what: '', who: sidTail('SID payoff North Las Vegas') })).toBe(false);
+  });
   it('round 136 verifier: a SID deadline on a closed day counts down to the last open day, and the Next line says so', async () => {
     const { packetSections } = await import('./dealPacket');
     const tx: Deal = { ...deal, id: 'v136v', name: '9 Elm', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage: 'contract' };
