@@ -4173,4 +4173,19 @@ describe('round 39: Eureka sealed-bid sale', () => {
       expect(l2).not.toMatch(/past the 20-day deadline/);
     }
   });
+  it('round 140 clarity: after the deed, a reader’s own SID-named reminder leads like any other reminder', async () => {
+    const { packetSections, suggestedDates, loadPacket } = await import('./dealPacket');
+    for (const stage of ['closed', 'owned'] as const) for (const what of ['SID payoff to City of Henderson', 'Pay SID assessment installment', 'Call the roofer']) for (const noSid of [false, true]) {
+      const tx: Deal = { ...deal, id: `v140c${stage}`, name: '9 Fir', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage };
+      saveDeals([tx]);
+      const rows = suggestedDates(tx).map((w) => (/^Sale day/.test(w) ? { when: '2026-11-10', what: w, who: 'T', resolved: true } : /^Payment deadline/.test(w) ? { when: '2026-11-10', what: w, who: 'Me', resolved: true } : /^Treasurer’s deed recorded/.test(w) ? { when: '2026-11-20', what: w, who: 'T', resolved: true } : { when: '', what: w, who: '' })).filter((x) => !noSid || !/^SID/.test(x.what));
+      if (noSid) rows.push({ when: '2026-11-21', what: 'Treasurer confirmed no SID affidavit', who: 'The county treasurer', resolved: true });
+      savePacket(`analyzed:${tx.id}`, { ...EMPTY_PACKET, dates: [...rows, { when: '2026-11-25', what, who: '', own: true }] } as never);
+      const p = loadPacket(`analyzed:${tx.id}`);
+      const at = new Date('2026-12-01T19:00:00Z');
+      const t = dealNextTask(tx, p, at, stage);
+      expect(t.label).toBe(`Overdue by 6 days: ${what} for 9 Fir.`);
+      expect(packetSections(tx, p, at).find((x) => x.key === 'dates')!.lines).toContain(`Next: ${what}, overdue by 6 days`);
+    }
+  });
 });
