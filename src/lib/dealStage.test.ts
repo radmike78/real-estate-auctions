@@ -4217,4 +4217,15 @@ describe('round 39: Eureka sealed-bid sale', () => {
     expect(c).not.toMatch(/row \(City of Henderson\) is dated/);
     expect(c.match(/NRS 361\.595\(6\)/g)!.length).toBe(1);
   });
+  it('round 141 verifier: after the deed, an own SID reminder leads even when the sale’s SID row is paid to the same payee', async () => {
+    const { packetSections, loadPacket } = await import('./dealPacket');
+    for (const stage of ['closed', 'owned'] as const) for (const what of ['SID payoff to City of Henderson', 'Pay SID assessment installment']) {
+      const tx: Deal = { ...deal, id: `v141v${stage}`, name: '9 Fir', state: 'NV', county: 'Clark', kind: 'taxSale', plan: 'flip', stage };
+      saveDeals([tx]);
+      savePacket(`analyzed:${tx.id}`, { ...EMPTY_PACKET, dates: [{ when: '2026-11-02', what: 'Sale day', who: 'T', resolved: true }, { when: '2026-11-02', what: 'Payment deadline', who: 'Me', resolved: true }, { when: '2026-11-10', what: 'SID certificate payoff (affidavit filed)', who: 'City of Henderson', resolved: true }, { when: '2026-11-20', what: 'Treasurer’s deed recorded', who: 'T', resolved: true }, { when: '2026-11-25', what, who: '', own: true }] } as never);
+      const p = loadPacket(`analyzed:${tx.id}`); const at = new Date('2026-11-27T19:00:00Z');
+      expect(dealNextTask(tx, p, at, stage).label).toBe(`Overdue by 2 days: ${what} for 9 Fir.`);
+      expect(packetSections(tx, p, at).find((x) => x.key === 'dates')!.lines).toContain(`Next: ${what}, overdue by 2 days`);
+    }
+  });
 });
